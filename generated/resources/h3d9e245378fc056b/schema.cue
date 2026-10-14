@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -16,26 +16,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // a Well-Architected objective (a title, optional description, and the pillars
 // it targets) within an Agent Profile, used to focus Well-Architected Agent
 // recommendations.
-#Properties: close({
-	Description?: strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
-	Pillars!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Pillar"
-	] |
-		fn.#ListExpression
-	ProfileArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" |
-	fn.#StringExpression
-	Title!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WellArchitected::AgentGoal"
+	Properties!: close({
+		Description?: strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
+		Pillars!:     list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#Pillar] | fn.#ListExpression
+		ProfileArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" |
+		fn.#StringExpression
+		Title!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Pillar": "COST_OPTIMIZATION" |
+#Pillar: "COST_OPTIMIZATION" |
 	"SECURITY" |
 	"RESILIENCE" |
 	"PERFORMANCE" |
 	"OPERATIONAL_EXCELLENCE" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WellArchitected::AgentGoal"
-	Properties!: #Properties
-}

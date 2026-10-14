@@ -15,7 +15,7 @@ import (
 	// are associated with the DB cluster. IAM roles that are associated with a DB
 	// cluster grant permission for the DB cluster to access other AWS services on
 	// your behalf.
-	AssociatedRoles?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DBClusterRole"]
+	AssociatedRoles?: list.UniqueItems() & [...#DBClusterRole]
 
 	// Provides the list of EC2 Availability Zones that instances in the DB cluster can be created in.
 	AvailabilityZones?: list.UniqueItems() & [...string]
@@ -128,7 +128,7 @@ import (
 
 	// Contains the scaling configuration used by the Neptune Serverless Instances
 	// within this DB cluster.
-	ServerlessScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessScalingConfiguration"
+	ServerlessScalingConfiguration?: #ServerlessScalingConfiguration
 
 	// Specifies the identifier for a DB cluster snapshot. Must match the identifier
 	// of an existing snapshot.
@@ -177,7 +177,7 @@ import (
 	StorageEncrypted?: bool
 
 	// The tags assigned to this cluster.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Creates a new DB cluster from a DB snapshot or DB cluster snapshot.
 	//
@@ -195,7 +195,7 @@ import (
 })
 
 // Describes an AWS Identity and Access Management (IAM) role that is associated with a DB cluster.
-_#defs: "/$defs/Properties/definitions/DBClusterRole": close({
+#DBClusterRole: close({
 	// The name of the feature associated with the AWS Identity and Access
 	// Management (IAM) role. For the list of supported feature names, see
 	// DBEngineVersion in the Amazon Neptune API Reference.
@@ -206,7 +206,7 @@ _#defs: "/$defs/Properties/definitions/DBClusterRole": close({
 })
 
 // Contains the scaling configuration of an Neptune Serverless DB cluster.
-_#defs: "/$defs/Properties/definitions/ServerlessScalingConfiguration": close({
+#ServerlessScalingConfiguration: close({
 	// The maximum number of Neptune capacity units (NCUs) for a DB instance in an
 	// Neptune Serverless cluster. You can specify NCU values in half-step
 	// increments, such as 40, 40.5, 41, and so on. The smallest value you can use
@@ -221,7 +221,7 @@ _#defs: "/$defs/Properties/definitions/ServerlessScalingConfiguration": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

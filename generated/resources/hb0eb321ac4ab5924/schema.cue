@@ -12,13 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::PortfolioShare
-#Properties: close({
-	AcceptLanguage?:  strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	AccountId!:       =~"^[0-9]{12}$" | fn.#StringExpression
-	PortfolioId!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-	ShareTagOptions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::PortfolioShare"
-	Properties!: #Properties
+	Type!: "AWS::ServiceCatalog::PortfolioShare"
+	Properties!: close({
+		AcceptLanguage?:  strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		AccountId!:       =~"^[0-9]{12}$" | fn.#StringExpression
+		PortfolioId!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
+		ShareTagOptions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
 }

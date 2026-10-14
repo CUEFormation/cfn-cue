@@ -18,64 +18,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::ElastiCache::GlobalReplicationGroup resource creates an Amazon
 // ElastiCache Global Replication Group.
-#Properties: close({
-	AutomaticFailoverEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CacheNodeType?:            string | fn.#StringExpression
-	CacheParameterGroupName?:  string | fn.#StringExpression
-	Engine?:                   string | fn.#StringExpression
-	EngineVersion?:            string | fn.#StringExpression
-	GlobalNodeGroupCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	GlobalReplicationGroupDescription?: string | fn.#StringExpression
-	GlobalReplicationGroupIdSuffix?:    string | fn.#StringExpression
-	Members!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/GlobalReplicationGroupMember"
-	] |
-		fn.#ListExpression
-	RegionalConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RegionalConfiguration"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElastiCache::GlobalReplicationGroup"
+	Properties!: close({
+		AutomaticFailoverEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CacheNodeType?:            string | fn.#StringExpression
+		CacheParameterGroupName?:  string | fn.#StringExpression
+		Engine?:                   string | fn.#StringExpression
+		EngineVersion?:            string | fn.#StringExpression
+		GlobalNodeGroupCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		GlobalReplicationGroupDescription?: string | fn.#StringExpression
+		GlobalReplicationGroupIdSuffix?:    string | fn.#StringExpression
+		Members!: list.MinItems(1) & list.UniqueItems() & [...#GlobalReplicationGroupMember] | fn.#ListExpression
+		RegionalConfigurations?: list.UniqueItems() & [...#RegionalConfiguration] | fn.#ListExpression
+		Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/GlobalReplicationGroupMember": close({
+#GlobalReplicationGroupMember: close({
 	ReplicationGroupId?:     string | fn.#StringExpression
 	ReplicationGroupRegion?: string | fn.#StringExpression
 	Role?:                   "PRIMARY" | "SECONDARY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegionalConfiguration": close({
-	ReplicationGroupId?:     string | fn.#StringExpression
-	ReplicationGroupRegion?: string | fn.#StringExpression
-	ReshardingConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ReshardingConfiguration"] |
-		fn.#ListExpression
+#RegionalConfiguration: close({
+	ReplicationGroupId?:       string | fn.#StringExpression
+	ReplicationGroupRegion?:   string | fn.#StringExpression
+	ReshardingConfigurations?: list.UniqueItems() & [...#ReshardingConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReshardingConfiguration": close({
+#ReshardingConfiguration: close({
 	NodeGroupId?:                string | fn.#StringExpression
 	PreferredAvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::GlobalReplicationGroup"
-	Properties!: #Properties
-}

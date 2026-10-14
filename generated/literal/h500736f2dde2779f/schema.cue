@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// A complex type that contains information about the health check.
 	HealthCheckConfig!: close({
-		AlarmIdentifier?:          _#defs."/$defs/Properties/definitions/AlarmIdentifier"
+		AlarmIdentifier?:          #AlarmIdentifier
 		ChildHealthChecks?:        list.MaxItems(256) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(0)]
 		EnableSNI?:                bool
 		FailureThreshold?:         int & <=10 & >=1
@@ -52,13 +52,13 @@ import (
 	HealthCheckId?: string
 
 	// An array of key-value pairs to apply to this resource.
-	HealthCheckTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/HealthCheckTag"]
+	HealthCheckTags?: list.UniqueItems() & [...#HealthCheckTag]
 })
 
 // A complex type that identifies the CloudWatch alarm that you want Amazon
 // Route 53 health checkers to use to determine whether the specified health
 // check is healthy.
-_#defs: "/$defs/Properties/definitions/AlarmIdentifier": close({
+#AlarmIdentifier: close({
 	// The name of the CloudWatch alarm that you want Amazon Route 53 health
 	// checkers to use to determine whether this health check is healthy.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1)
@@ -115,7 +115,7 @@ _#defs: "/$defs/Properties/definitions/AlarmIdentifier": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/HealthCheckTag": close({
+#HealthCheckTag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128)
 

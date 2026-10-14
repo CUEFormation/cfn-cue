@@ -17,51 +17,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::KinesisVideo::Stream
-#Properties: close({
-	DataRetentionInHours?: int & <=87600 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=87600 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DeviceName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~".+" |
-	fn.#StringExpression
-	MediaType?: strings.MaxRunes(128) &
-	strings.MinRunes(1) &
-	=~"[\\w\\-\\.\\+]+/[\\w\\-\\.\\+]+(,[\\w\\-\\.\\+]+/[\\w\\-\\.\\+]+)*" |
-	fn.#StringExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" | fn.#StringExpression
-	StreamStorageConfiguration?: _#defs."/$defs/Properties/definitions/StreamStorageConfiguration" |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KinesisVideo::Stream"
+	Properties?: close({
+		DataRetentionInHours?: int & <=87600 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=87600 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DeviceName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" | fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~".+" |
+		fn.#StringExpression
+		MediaType?: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"[\\w\\-\\.\\+]+/[\\w\\-\\.\\+]+(,[\\w\\-\\.\\+]+/[\\w\\-\\.\\+]+)*" |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StreamStorageConfiguration": close(
-	{DefaultStorageTier?: "HOT" | "WARM" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+		// Configuration for the storage tier of the Kinesis Video Stream.
+		StreamStorageConfiguration?: #StreamStorageConfiguration
+		Tags?:                       list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#StreamStorageConfiguration: close({DefaultStorageTier?: "HOT" | "WARM" | fn.#StringExpression}) | fn.#ObjectExpression
+
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KinesisVideo::Stream"
-	Properties?: #Properties
-}

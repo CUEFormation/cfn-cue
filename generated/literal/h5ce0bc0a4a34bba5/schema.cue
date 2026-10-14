@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,28 +20,28 @@ import (
 	DestinationLocationArn!: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$"
-	DestinationNetworkInterfaceArns?: _#defs."/$defs/Properties/definitions/DestinationNetworkInterfaceArns"
-	Excludes?:                        list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/FilterRule"]
-	Includes?:                        list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/FilterRule"]
-	ManifestConfig?:                  _#defs."/$defs/Properties/definitions/ManifestConfig"
+	DestinationNetworkInterfaceArns?: #DestinationNetworkInterfaceArns
+	Excludes?:                        list.MaxItems(1) & [...] & [...#FilterRule]
+	Includes?:                        list.MaxItems(1) & [...] & [...#FilterRule]
+	ManifestConfig?:                  #ManifestConfig
 
 	// The name of a task. This value is a text reference that is used to identify
 	// the task in the console.
 	Name?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$"
-	Options?:  _#defs."/$defs/Properties/definitions/Options"
-	Schedule?: _#defs."/$defs/Properties/definitions/TaskSchedule"
+	Options?:  #Options
+	Schedule?: #TaskSchedule
 
 	// The ARN of the source location for the task.
 	SourceLocationArn!: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$"
-	SourceNetworkInterfaceArns?: _#defs."/$defs/Properties/definitions/SourceNetworkInterfaceArns"
+	SourceNetworkInterfaceArns?: #SourceNetworkInterfaceArns
 
 	// The status of the task that was described.
 	Status?: "AVAILABLE" | "CREATING" | "QUEUED" | "RUNNING" | "UNAVAILABLE"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The ARN of the task.
 	TaskArn?: strings.MaxRunes(128) &
@@ -49,18 +49,18 @@ import (
 
 	// Specifies the task mode for the task.
 	TaskMode?:         "BASIC" | "ENHANCED"
-	TaskReportConfig?: _#defs."/$defs/Properties/definitions/TaskReportConfig"
+	TaskReportConfig?: #TaskReportConfig
 })
 
 // The Amazon Resource Names (ARNs) of the destination ENIs (Elastic Network
 // Interfaces) that were created for your subnet.
-_#defs: "/$defs/Properties/definitions/DestinationNetworkInterfaceArns": list.MaxItems(128) & [
+#DestinationNetworkInterfaceArns: list.MaxItems(128) & [
 	...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$"
 ]
 
 // Specifies which files folders and objects to include or exclude when
 // transferring files from source to destination.
-_#defs: "/$defs/Properties/definitions/FilterRule": close({
+#FilterRule: close({
 	// The type of filter rule to apply. AWS DataSync only supports the SIMPLE_PATTERN rule type.
 	FilterType?: "SIMPLE_PATTERN" & strings.MaxRunes(128) & =~"^[A-Z0-9_]+$"
 
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/FilterRule": close({
 })
 
 // Configures a manifest, which is a list of files or objects that you want DataSync to transfer.
-_#defs: "/$defs/Properties/definitions/ManifestConfig": close({
+#ManifestConfig: close({
 	// Specifies what DataSync uses the manifest for.
 	Action?: "TRANSFER"
 
@@ -78,11 +78,11 @@ _#defs: "/$defs/Properties/definitions/ManifestConfig": close({
 	Format?: "CSV"
 
 	// Specifies the manifest that you want DataSync to use and where it's hosted.
-	Source!: close({S3?: _#defs."/$defs/Properties/definitions/ManifestConfigSourceS3"})
+	Source!: close({S3?: #ManifestConfigSourceS3})
 })
 
 // Specifies the S3 bucket where you're hosting the manifest that you want AWS DataSync to use.
-_#defs: "/$defs/Properties/definitions/ManifestConfigSourceS3": close({
+#ManifestConfigSourceS3: close({
 	// Specifies the AWS Identity and Access Management (IAM) role that allows
 	// DataSync to access your manifest.
 	BucketAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -106,7 +106,7 @@ _#defs: "/$defs/Properties/definitions/ManifestConfigSourceS3": close({
 
 // Represents the options that are available to control the behavior of a
 // StartTaskExecution operation.
-_#defs: "/$defs/Properties/definitions/Options": close({
+#Options: close({
 	// A file metadata value that shows the last time a file was accessed (that is,
 	// when the file was read or written to).
 	Atime?: "NONE" | "BEST_EFFORT"
@@ -174,12 +174,12 @@ _#defs: "/$defs/Properties/definitions/Options": close({
 
 // The Amazon Resource Names (ARNs) of the source ENIs (Elastic Network
 // Interfaces) that were created for your subnet.
-_#defs: "/$defs/Properties/definitions/SourceNetworkInterfaceArns": list.MaxItems(128) & [
+#SourceNetworkInterfaceArns: list.MaxItems(128) & [
 	...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$"
 ]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 
@@ -189,9 +189,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 // Specifies how you want to configure a task report, which provides detailed
 // information about for your Datasync transfer.
-_#defs: "/$defs/Properties/definitions/TaskReportConfig": close({
+#TaskReportConfig: close({
 	// Specifies where DataSync uploads your task report.
-	Destination!: close({S3?: _#defs."/$defs/Properties/definitions/TaskReportConfigDestinationS3"})
+	Destination!: close({S3?: #TaskReportConfigDestinationS3})
 
 	// Specifies whether your task report includes the new version of each object
 	// transferred into an S3 bucket, this only applies if you enable versioning on
@@ -249,7 +249,7 @@ _#defs: "/$defs/Properties/definitions/TaskReportConfig": close({
 })
 
 // Specifies the Amazon S3 bucket where DataSync uploads your task report.
-_#defs: "/$defs/Properties/definitions/TaskReportConfigDestinationS3": close({
+#TaskReportConfigDestinationS3: close({
 	// Specifies the Amazon Resource Name (ARN) of the IAM policy that allows
 	// Datasync to upload a task report to your S3 bucket.
 	BucketAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -267,7 +267,7 @@ _#defs: "/$defs/Properties/definitions/TaskReportConfigDestinationS3": close({
 })
 
 // Specifies the schedule you want your task to use for repeated executions.
-_#defs: "/$defs/Properties/definitions/TaskSchedule": close({
+#TaskSchedule: close({
 	// A cron expression that specifies when AWS DataSync initiates a scheduled
 	// transfer from a source to a destination location
 	ScheduleExpression?: strings.MaxRunes(256) &

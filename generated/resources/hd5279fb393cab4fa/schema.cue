@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,32 +17,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an application instance and deploys it to a device.
-#Properties: close({
-	ApplicationInstanceIdToReplace?: _#defs."/$defs/Properties/definitions/ApplicationInstanceId" | fn.#StringExpression
-	DefaultRuntimeContextDevice!: _#defs."/$defs/Properties/definitions/DefaultRuntimeContextDevice" |
-		fn.#StringExpression
-	Description?:              _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	ManifestOverridesPayload?: _#defs."/$defs/Properties/definitions/ManifestOverridesPayload" | fn.#ObjectExpression
-	ManifestPayload!:          _#defs."/$defs/Properties/definitions/ManifestPayload" | fn.#ObjectExpression
-	Name?:                     _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	RuntimeRoleArn?:           _#defs."/$defs/Properties/definitions/RuntimeRoleArn" | fn.#StringExpression
-	Tags?:                     _#defs."/$defs/Properties/definitions/TagList" | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Panorama::ApplicationInstance"
+	Properties!: close({
+		// The ID of an application instance to replace with the new instance.
+		ApplicationInstanceIdToReplace?: #ApplicationInstanceId
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceArn": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+		// The device's ID.
+		DefaultRuntimeContextDevice!: #DefaultRuntimeContextDevice
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceHealthStatus": "RUNNING" |
-	"ERROR" |
-	"NOT_AVAILABLE" |
-	fn.#StringExpression
+		// A description for the application instance.
+		Description?: #Description
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceId": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$" |
-fn.#StringExpression
+		// Setting overrides for the application manifest.
+		ManifestOverridesPayload?: #ManifestOverridesPayload
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceStatus": "DEPLOYMENT_PENDING" |
+		// The application's manifest document.
+		ManifestPayload!: #ManifestPayload
+
+		// A name for the application instance.
+		Name?: #Name
+
+		// The ARN of a runtime role for the application instance.
+		RuntimeRoleArn?: #RuntimeRoleArn
+
+		// Tags for the application instance.
+		Tags?: #TagList
+	})
+}
+
+#ApplicationInstanceArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+#ApplicationInstanceHealthStatus: "RUNNING" | "ERROR" | "NOT_AVAILABLE" | fn.#StringExpression
+
+#ApplicationInstanceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
+
+#ApplicationInstanceStatus: "DEPLOYMENT_PENDING" |
 	"DEPLOYMENT_REQUESTED" |
 	"DEPLOYMENT_IN_PROGRESS" |
 	"DEPLOYMENT_ERROR" |
@@ -54,53 +64,42 @@ _#defs: "/$defs/Properties/definitions/ApplicationInstanceStatus": "DEPLOYMENT_P
 	"REMOVAL_SUCCEEDED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceStatusDescription": strings.MaxRunes(255) & strings.MinRunes(1) |
+#ApplicationInstanceStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+#DefaultRuntimeContextDevice: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultRuntimeContextDevice": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$" |
-fn.#StringExpression
+#Description: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" |
-fn.#StringExpression
+#DeviceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeviceId": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
-fn.#StringExpression
+#DeviceName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeviceName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$" |
-fn.#StringExpression
+#ManifestOverridesPayload: close({
+	// The overrides document.
+	PayloadData?: #ManifestOverridesPayloadData
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestOverridesPayload": close(
-	{PayloadData?: _#defs."/$defs/Properties/definitions/ManifestOverridesPayloadData" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ManifestOverridesPayloadData: strings.MaxRunes(51200) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestOverridesPayloadData": strings.MaxRunes(51200) &
-strings.MinRunes(0) &
-=~"^.+$" |
-fn.#StringExpression
+#ManifestPayload: close({
+	// The application manifest.
+	PayloadData?: #ManifestPayloadData
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestPayload": close(
-	{PayloadData?: _#defs."/$defs/Properties/definitions/ManifestPayloadData" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ManifestPayloadData: strings.MaxRunes(51200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestPayloadData": strings.MaxRunes(51200) & strings.MinRunes(1) & =~"^.+$" |
-fn.#StringExpression
+#Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/RuntimeRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RuntimeRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(255) &
 strings.MinRunes(1) &
 =~"^arn:[a-z0-9][-.a-z0-9]{0,62}:iam::[0-9]{12}:role/.+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StatusFilter": "DEPLOYMENT_SUCCEEDED" |
+#StatusFilter: "DEPLOYMENT_SUCCEEDED" |
 	"DEPLOYMENT_ERROR" |
 	"REMOVAL_SUCCEEDED" |
 	"REMOVAL_FAILED" |
@@ -108,16 +107,15 @@ _#defs: "/$defs/Properties/definitions/StatusFilter": "DEPLOYMENT_SUCCEEDED" |
 	"PROCESSING_REMOVAL" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagList": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#TagList: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": int |
+#Timestamp: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -130,7 +128,3 @@ _#defs: "/$defs/Properties/definitions/Timestamp": int |
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Panorama::ApplicationInstance"
-	Properties!: #Properties
-}

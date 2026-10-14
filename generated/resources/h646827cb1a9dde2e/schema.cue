@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,14 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // AWS::RoboMaker::RobotApplicationVersion resource creates an AWS RoboMaker
 // RobotApplicationVersion. This helps you control which code your robot uses.
-#Properties: close({
-	Application!:       _#defs."/$defs/Properties/definitions/Arn"
-	CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" | fn.#StringExpression
-})
-
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
-	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RoboMaker::RobotApplicationVersion"
-	Properties!: #Properties
+	Type!: "AWS::RoboMaker::RobotApplicationVersion"
+	Properties!: close({
+		Application!:       #Arn
+		CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" | fn.#StringExpression
+	})
 }
+
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression

@@ -20,7 +20,7 @@ import "strings"
 
 	// The resource type this permission can be used with.
 	ResourceType!: string
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:         [...#Tag]
 
 	// Version of the permission.
 	Version?: string
@@ -29,7 +29,7 @@ import "strings"
 // A template parameter declared by a customer managed permission's policy
 // template. The name is used as the placeholder in the policy template using
 // the syntax @{parameterName}.
-_#defs: "/$defs/Properties/definitions/PermissionTemplateParameterDeclaration": close({
+#PermissionTemplateParameterDeclaration: close({
 	// A description of the template parameter that helps consumers understand what value to provide.
 	Description!: string
 
@@ -42,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/PermissionTemplateParameterDeclaration": 
 	Type!: "STRING" | "STRING_LIST"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

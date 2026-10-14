@@ -3,84 +3,78 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // IdMappingWorkflow defined in AWS Entity Resolution service
 #Properties: close({
-	CreatedAt?: _#defs."/$defs/Properties/definitions/CreatedAt"
+	CreatedAt?: #CreatedAt
 
 	// The description of the IdMappingWorkflow
-	Description?:                   _#defs."/$defs/Properties/definitions/Description"
-	IdMappingIncrementalRunConfig?: _#defs."/$defs/Properties/definitions/IdMappingIncrementalRunConfig"
-	IdMappingTechniques!:           _#defs."/$defs/Properties/definitions/IdMappingTechniques"
-	InputSourceConfig!: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IdMappingWorkflowInputSource"
-	]
-	OutputSourceConfig?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IdMappingWorkflowOutputSource"
-	]
+	Description?:                   #Description
+	IdMappingIncrementalRunConfig?: #IdMappingIncrementalRunConfig
+	IdMappingTechniques!:           #IdMappingTechniques
+	InputSourceConfig!:             list.MaxItems(20) & list.MinItems(1) & [...#IdMappingWorkflowInputSource]
+	OutputSourceConfig?:            list.MaxItems(1) & list.MinItems(1) & [...#IdMappingWorkflowOutputSource]
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
-	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	UpdatedAt?:   _#defs."/$defs/Properties/definitions/UpdatedAt"
-	WorkflowArn?: _#defs."/$defs/Properties/definitions/IdMappingWorkflowArn"
+	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
+	UpdatedAt?:   #UpdatedAt
+	WorkflowArn?: #IdMappingWorkflowArn
 
 	// The name of the IdMappingWorkflow
-	WorkflowName!: _#defs."/$defs/Properties/definitions/EntityName"
+	WorkflowName!: #EntityName
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(255) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z_0-9- \\t]*$"
+#AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$"
 
 // The time of this IdMappingWorkflow got created
-_#defs: "/$defs/Properties/definitions/CreatedAt": string
+#CreatedAt: string
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(255) & strings.MinRunes(0)
+#Description: strings.MaxRunes(255) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$"
+#EntityName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$"
 
-_#defs: "/$defs/Properties/definitions/IdMappingIncrementalRunConfig": close({IncrementalRunType!: "ON_DEMAND"})
+#IdMappingIncrementalRunConfig: close({IncrementalRunType!: "ON_DEMAND"})
 
-_#defs: "/$defs/Properties/definitions/IdMappingRuleBasedProperties": close({
+#IdMappingRuleBasedProperties: close({
 	AttributeMatchingModel!: "ONE_TO_ONE" | "MANY_TO_MANY"
 	RecordMatchingModel!:    "ONE_SOURCE_TO_ONE_TARGET" | "MANY_SOURCE_TO_ONE_TARGET"
 	RuleDefinitionType?:     "SOURCE" | "TARGET"
-	Rules?:                  list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"]
+	Rules?:                  list.MaxItems(25) & list.MinItems(1) & [...#Rule]
 })
 
-_#defs: "/$defs/Properties/definitions/IdMappingTechniques": close({
+#IdMappingTechniques: close({
 	IdMappingType?:        "PROVIDER" | "RULE_BASED"
 	NormalizationVersion?: string
-	ProviderProperties?:   _#defs."/$defs/Properties/definitions/ProviderProperties"
-	RuleBasedProperties?:  _#defs."/$defs/Properties/definitions/IdMappingRuleBasedProperties"
+	ProviderProperties?:   #ProviderProperties
+	RuleBasedProperties?:  #IdMappingRuleBasedProperties
 })
 
 // The default IdMappingWorkflow arn
-_#defs: "/$defs/Properties/definitions/IdMappingWorkflowArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(idmappingworkflow/.*)$"
+#IdMappingWorkflowArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(idmappingworkflow/.*)$"
 
-_#defs: "/$defs/Properties/definitions/IdMappingWorkflowInputSource": close({
+#IdMappingWorkflowInputSource: close({
 	// An Glue table ARN for the input source table, MatchingWorkflow arn or IdNamespace ARN
 	InputSourceARN!:
 		=~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$"
-	SchemaArn?: _#defs."/$defs/Properties/definitions/SchemaMappingArn"
+	SchemaArn?: #SchemaMappingArn
 	Type?:      "SOURCE" | "TARGET"
 })
 
-_#defs: "/$defs/Properties/definitions/IdMappingWorkflowOutputSource": close({
-	KMSArn?: _#defs."/$defs/Properties/definitions/KMSArn"
+#IdMappingWorkflowOutputSource: close({
+	KMSArn?: #KMSArn
 
 	// The S3 path to which Entity Resolution will write the output table
 	OutputS3Path!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^s3://([^/]+)/?(.*?([^/]+)/?)$"
 })
 
-_#defs: "/$defs/Properties/definitions/IntermediateSourceConfiguration": close({
+#IntermediateSourceConfiguration: close({
 	// The s3 path that would be used to stage the intermediate data being generated
 	// during workflow execution.
 	IntermediateS3Path!: strings.MaxRunes(1024) &
@@ -88,11 +82,11 @@ _#defs: "/$defs/Properties/definitions/IntermediateSourceConfiguration": close({
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$"
 })
 
-_#defs: "/$defs/Properties/definitions/KMSArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+#KMSArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	=~"^arn:(aws|aws-us-gov|aws-cn):kms:.*:[0-9]+:.*$"
 
-_#defs: "/$defs/Properties/definitions/ProviderProperties": close({
-	IntermediateSourceConfiguration?: _#defs."/$defs/Properties/definitions/IntermediateSourceConfiguration"
+#ProviderProperties: close({
+	IntermediateSourceConfiguration?: #IntermediateSourceConfiguration
 
 	// Additional Provider configuration that would be required for the provider
 	// service. The Configuration must be in JSON string format
@@ -106,16 +100,16 @@ _#defs: "/$defs/Properties/definitions/ProviderProperties": close({
 	=~"^arn:(aws|aws-us-gov|aws-cn):(entityresolution):([a-z]{2}-[a-z]{1,10}-[0-9])::providerservice/([a-zA-Z0-9_-]{1,255})/([a-zA-Z0-9_-]{1,255})$"
 })
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	MatchingKeys!: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AttributeName"]
+#Rule: close({
+	MatchingKeys!: list.MaxItems(15) & list.MinItems(1) & [...#AttributeName]
 	RuleName!:     strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$"
 })
 
 // The SchemaMapping arn associated with the Schema
-_#defs: "/$defs/Properties/definitions/SchemaMappingArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$"
+#SchemaMappingArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$"
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -130,4 +124,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The time of this IdMappingWorkflow got last updated at
-_#defs: "/$defs/Properties/definitions/UpdatedAt": string
+#UpdatedAt: string

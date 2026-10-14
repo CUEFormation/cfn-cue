@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,23 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::SignalCatalog Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	Name?:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	NodeCounts?: close({}) | fn.#ObjectExpression
-	Nodes?: list.MaxItems(5000) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Node"
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTFleetWise::SignalCatalog"
+	Properties?: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		Name?:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		NodeCounts?: close({}) | fn.#ObjectExpression
+		Nodes?:      list.MaxItems(5000) & list.MinItems(1) & list.UniqueItems() & [...#Node] | fn.#ListExpression
+		Tags?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Actuator": close({
-	AllowedValues?: _#defs."/$defs/Properties/definitions/AllowedValues"
+#Actuator: close({
+	AllowedValues?: #AllowedValues
 	AssignedValue?: string | fn.#StringExpression
-	DataType!:      _#defs."/$defs/Properties/definitions/NodeDataType"
+	DataType!:      #NodeDataType
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	FullyQualifiedName!: string | fn.#StringExpression
@@ -79,13 +78,12 @@ _#defs: "/$defs/Properties/definitions/Actuator": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedValues": list.MinItems(1) & [...string | fn.#StringExpression] |
-	fn.#ListExpression
+#AllowedValues: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Attribute": close({
-	AllowedValues?: _#defs."/$defs/Properties/definitions/AllowedValues"
+#Attribute: close({
+	AllowedValues?: #AllowedValues
 	AssignedValue?: string | fn.#StringExpression
-	DataType!:      _#defs."/$defs/Properties/definitions/NodeDataType"
+	DataType!:      #NodeDataType
 	DefaultValue?:  string | fn.#StringExpression
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
@@ -132,25 +130,19 @@ _#defs: "/$defs/Properties/definitions/Attribute": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Branch": close({
+#Branch: close({
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	FullyQualifiedName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Node": matchN(1, [close(
-	{Branch?: _#defs."/$defs/Properties/definitions/Branch"},
-), close(
-	{Sensor?: _#defs."/$defs/Properties/definitions/Sensor"},
-), close(
-	{Actuator?: _#defs."/$defs/Properties/definitions/Actuator"},
-), close(
-	{Attribute?: _#defs."/$defs/Properties/definitions/Attribute"},
-)]) |
+#Node: matchN(1, [
+	close({Branch?: #Branch}), close({Sensor?: #Sensor}), close({Actuator?: #Actuator}), close({Attribute?: #Attribute}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/NodeCounts": close({
+#NodeCounts: close({
 	TotalActuators?: number |
 		{
 			string &
@@ -249,7 +241,7 @@ _#defs: "/$defs/Properties/definitions/NodeCounts": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeDataType": "INT8" |
+#NodeDataType: "INT8" |
 	"UINT8" |
 	"INT16" |
 	"UINT16" |
@@ -278,9 +270,9 @@ _#defs: "/$defs/Properties/definitions/NodeDataType": "INT8" |
 	"UNKNOWN" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Sensor": close({
-	AllowedValues?: _#defs."/$defs/Properties/definitions/AllowedValues"
-	DataType!:      _#defs."/$defs/Properties/definitions/NodeDataType"
+#Sensor: close({
+	AllowedValues?: #AllowedValues
+	DataType!:      #NodeDataType
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	FullyQualifiedName!: string | fn.#StringExpression
@@ -326,12 +318,8 @@ _#defs: "/$defs/Properties/definitions/Sensor": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTFleetWise::SignalCatalog"
-	Properties?: #Properties
-}

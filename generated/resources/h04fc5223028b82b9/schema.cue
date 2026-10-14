@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
 )
 
@@ -14,57 +14,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A billing view is a container of cost & usage metadata.
-#Properties: close({
-	DataFilterExpression?: close({
-		Dimensions?: close({
-			Key?: _#defs."/$defs/Properties/definitions/DimensionKey"
-			Values?: list.MaxItems(200) & list.MinItems(1) & [
-				...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
-			] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Billing::BillingView"
+	Properties!: close({
+		DataFilterExpression?: close({
+			Dimensions?: close({
+				Key?: #DimensionKey
+				Values?: list.MaxItems(200) & list.MinItems(1) & [
+					...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
+				] |
+				fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+			Tags?: close({
+				Key?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
+				Values?: list.MaxItems(200) & list.MinItems(1) & [
+					...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
+				] |
+				fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+			TimeRange?: close({
+				BeginDateInclusive?: #Timestamp
+				EndDateInclusive?:   #Timestamp
+			}) |
+			fn.#ObjectExpression
+		}) |
+		fn.#ObjectExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^([ a-zA-Z0-9_\\+=\\.\\-@]+)?$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
+		SourceViews!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
+			...=~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9_+=.@-]{1,75}" | fn.#StringExpression
+		] |
 			fn.#ListExpression
-		}) |
-		fn.#ObjectExpression
-		Tags?: close({
-			Key?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
-			Values?: list.MaxItems(200) & list.MinItems(1) & [
-				...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
-			] |
-			fn.#ListExpression
-		}) |
-		fn.#ObjectExpression
-		TimeRange?: close({
-			BeginDateInclusive?: _#defs."/$defs/Properties/definitions/Timestamp"
-			EndDateInclusive?:   _#defs."/$defs/Properties/definitions/Timestamp"
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^([ a-zA-Z0-9_\\+=\\.\\-@]+)?$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-	SourceViews!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9_+=.@-]{1,75}" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9/:_\\+=\\.\\-@]{0,75}[a-zA-Z0-9]" |
+#Arn: =~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9/:_\\+=\\.\\-@]{0,75}[a-zA-Z0-9]" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BillingViewType": "PRIMARY" | "BILLING_GROUP" | "CUSTOM" | fn.#StringExpression
+#BillingViewType: "PRIMARY" | "BILLING_GROUP" | "CUSTOM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DimensionKey": "LINKED_ACCOUNT" | fn.#StringExpression
+#DimensionKey: "LINKED_ACCOUNT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": time.Time | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Billing::BillingView"
-	Properties!: #Properties
-}
+#Timestamp: time.Time | fn.#StringExpression

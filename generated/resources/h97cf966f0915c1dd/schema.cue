@@ -17,14 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Until that date the subscription remains active and billing continues.
 // Deleting a subscription that has not yet been activated (PENDING_APPROVAL
 // status) removes it immediately with no further charges.
-#Properties: close({
-	PlanFamily!:   "CloudFront" | fn.#StringExpression
-	PlanTier!:     string | fn.#StringExpression
-	ResourceArns!: list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	UsageLevel?:   _#defs."/$defs/Properties/definitions/UsageLevel"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PricingPlanManager::Subscription"
+	Properties!: close({
+		PlanFamily!:   "CloudFront" | fn.#StringExpression
+		PlanTier!:     string | fn.#StringExpression
+		ResourceArns!: list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		UsageLevel?:   #UsageLevel
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/UsageLevel": "DEFAULT" |
+#UsageLevel: "DEFAULT" |
 	"CF_PREMIUM_L2" |
 	"CF_PREMIUM_L3" |
 	"CF_PREMIUM_L4" |
@@ -32,7 +35,3 @@ _#defs: "/$defs/Properties/definitions/UsageLevel": "DEFAULT" |
 	"CF_PREMIUM_L6" |
 	"CF_PREMIUM_L7" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PricingPlanManager::Subscription"
-	Properties!: #Properties
-}

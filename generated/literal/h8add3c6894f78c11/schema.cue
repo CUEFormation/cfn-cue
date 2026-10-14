@@ -16,34 +16,32 @@ import "strings"
 	strings.MinRunes(5) &
 	=~"^arn:aws(-[a-z]+)*:pca-connector-scep:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
 	Endpoint?:               strings.MaxRunes(200) & strings.MinRunes(5)
-	MobileDeviceManagement?: _#defs."/$defs/Properties/definitions/MobileDeviceManagement"
-	OpenIdConfiguration?:    _#defs."/$defs/Properties/definitions/OpenIdConfiguration"
-	Tags?:                   _#defs."/$defs/Properties/definitions/Tags"
-	Type?:                   _#defs."/$defs/Properties/definitions/ConnectorType"
+	MobileDeviceManagement?: #MobileDeviceManagement
+	OpenIdConfiguration?:    #OpenIdConfiguration
+	Tags?:                   #Tags
+	Type?:                   #ConnectorType
 	VpcEndpointId?:          strings.MaxRunes(200) & strings.MinRunes(5) & =~"^vpce-[0-9a-f]{8}([0-9a-f]{9})?$"
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorType": "GENERAL_PURPOSE" | "INTUNE"
+#ConnectorType: "GENERAL_PURPOSE" | "INTUNE"
 
-_#defs: "/$defs/Properties/definitions/IntuneConfiguration": close({
+#IntuneConfiguration: close({
 	AzureApplicationId!: strings.MaxRunes(100) &
 	strings.MinRunes(15) &
 	=~"^[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}$"
 	Domain!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/MobileDeviceManagement": close(
-	{Intune!: _#defs."/$defs/Properties/definitions/IntuneConfiguration"},
-)
+#MobileDeviceManagement: close({Intune!: #IntuneConfiguration})
 
-_#defs: "/$defs/Properties/definitions/OpenIdConfiguration": close({
+#OpenIdConfiguration: close({
 	Audience?: string
 	Issuer?:   string
 	Subject?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

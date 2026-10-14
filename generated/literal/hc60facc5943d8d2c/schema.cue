@@ -48,26 +48,26 @@ import (
 	OwnerAccountId?: string
 
 	// Product information.
-	ProductInformationList?: [..._#defs."/$defs/Properties/definitions/ProductInformation"]
+	ProductInformationList?: [...#ProductInformation]
 
 	// License configuration status.
 	Status?: string
 
 	// Tags to add to the license configuration.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Describes product information for a license configuration.
-_#defs: "/$defs/Properties/definitions/ProductInformation": close({
+#ProductInformation: close({
 	// A product information filter list.
-	ProductInformationFilterList!: [..._#defs."/$defs/Properties/definitions/ProductInformationFilter"]
+	ProductInformationFilterList!: [...#ProductInformationFilter]
 
 	// Resource type. The possible values are SSM_MANAGED | RDS.
 	ResourceType!: string
 })
 
 // Describes a product information filter.
-_#defs: "/$defs/Properties/definitions/ProductInformationFilter": close({
+#ProductInformationFilter: close({
 	// Logical operator.
 	ProductInformationFilterComparator!: string
 
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/ProductInformationFilter": close({
 	ProductInformationFilterValue?: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

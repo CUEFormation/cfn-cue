@@ -19,7 +19,7 @@ import "strings"
 	=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
 	// An object containing the identifier of a group member.
-	MemberId!: _#defs."/$defs/Properties/definitions/MemberId"
+	MemberId!: #MemberId
 
 	// The identifier for a GroupMembership in the identity store.
 	MembershipId?: strings.MaxRunes(47) &
@@ -30,7 +30,7 @@ import "strings"
 // UserId
 //
 // An object containing the identifier of a group member.
-_#defs: "/$defs/Properties/definitions/MemberId": close({
+#MemberId: close({
 	// The identifier for a user in the identity store.
 	UserId!: strings.MaxRunes(47) &
 	strings.MinRunes(1) &

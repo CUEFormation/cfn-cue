@@ -19,43 +19,43 @@ import "strings"
 	// The minimum number of healthy instances that should be available at any time
 	// during the deployment. There are two parameters expected in the input: type
 	// and value.
-	MinimumHealthyHosts?: _#defs."/$defs/Properties/definitions/MinimumHealthyHosts"
+	MinimumHealthyHosts?: #MinimumHealthyHosts
 
 	// The configuration that specifies how the deployment traffic is routed.
-	TrafficRoutingConfig?: _#defs."/$defs/Properties/definitions/TrafficRoutingConfig"
+	TrafficRoutingConfig?: #TrafficRoutingConfig
 
 	// The zonal deployment config that specifies how the zonal deployment behaves
-	ZonalConfig?: _#defs."/$defs/Properties/definitions/ZonalConfig"
+	ZonalConfig?: #ZonalConfig
 })
 
-_#defs: "/$defs/Properties/definitions/MinimumHealthyHosts": close({
+#MinimumHealthyHosts: close({
 	Type!:  "FLEET_PERCENT" | "HOST_COUNT"
 	Value!: int
 })
 
-_#defs: "/$defs/Properties/definitions/MinimumHealthyHostsPerZone": close({
+#MinimumHealthyHostsPerZone: close({
 	Type!:  "FLEET_PERCENT" | "HOST_COUNT"
 	Value!: int
 })
 
-_#defs: "/$defs/Properties/definitions/TimeBasedCanary": close({
+#TimeBasedCanary: close({
 	CanaryInterval!:   int
 	CanaryPercentage!: int
 })
 
-_#defs: "/$defs/Properties/definitions/TimeBasedLinear": close({
+#TimeBasedLinear: close({
 	LinearInterval!:   int
 	LinearPercentage!: int
 })
 
-_#defs: "/$defs/Properties/definitions/TrafficRoutingConfig": close({
-	TimeBasedCanary?: _#defs."/$defs/Properties/definitions/TimeBasedCanary"
-	TimeBasedLinear?: _#defs."/$defs/Properties/definitions/TimeBasedLinear"
+#TrafficRoutingConfig: close({
+	TimeBasedCanary?: #TimeBasedCanary
+	TimeBasedLinear?: #TimeBasedLinear
 	Type!:            "AllAtOnce" | "TimeBasedCanary" | "TimeBasedLinear"
 })
 
-_#defs: "/$defs/Properties/definitions/ZonalConfig": close({
+#ZonalConfig: close({
 	FirstZoneMonitorDurationInSeconds?: int
-	MinimumHealthyHostsPerZone?:        _#defs."/$defs/Properties/definitions/MinimumHealthyHostsPerZone"
+	MinimumHealthyHostsPerZone?:        #MinimumHealthyHostsPerZone
 	MonitorDurationInSeconds?:          int
 })

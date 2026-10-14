@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::CertificateManager::Account.
-#Properties: close({ExpiryEventsConfiguration!: _#defs."/$defs/Properties/definitions/ExpiryEventsConfiguration"})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::CertificateManager::Account"
+	Properties!: close({ExpiryEventsConfiguration!: #ExpiryEventsConfiguration})
+}
 
-_#defs: "/$defs/Properties/definitions/AccountId": string | fn.#StringExpression
+#AccountId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExpiryEventsConfiguration": close({
+#ExpiryEventsConfiguration: close({
 	DaysBeforeExpiry?: int & <=45 & >=1 |
 		{
 			string &
@@ -36,7 +39,3 @@ _#defs: "/$defs/Properties/definitions/ExpiryEventsConfiguration": close({
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CertificateManager::Account"
-	Properties!: #Properties
-}

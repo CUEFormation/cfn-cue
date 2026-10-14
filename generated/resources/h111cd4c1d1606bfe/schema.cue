@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,33 +13,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LicenseManager::LicenseAssetGroup
-#Properties: close({
-	AssociatedLicenseAssetRulesetARNs!: [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
-	Description?:                       strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	LicenseAssetGroupConfigurations!: [..._#defs."/$defs/Properties/definitions/LicenseAssetGroupConfiguration"] |
-		fn.#ListExpression
-	Name!:       strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Properties?: [..._#defs."/$defs/Properties/definitions/LicenseAssetGroupProperty"] | fn.#ListExpression
-	Tags?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::LicenseAssetGroup"
+	Properties!: close({
+		AssociatedLicenseAssetRulesetARNs!: [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
+		Description?:                       strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		LicenseAssetGroupConfigurations!:   [...#LicenseAssetGroupConfiguration] | fn.#ListExpression
+		Name!:                              strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		Properties?:                        [...#LicenseAssetGroupProperty] | fn.#ListExpression
+		Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/LicenseAssetGroupConfiguration": close(
-	{UsageDimension?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#LicenseAssetGroupConfiguration: close({UsageDimension?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseAssetGroupProperty": close({
+#LicenseAssetGroupProperty: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::LicenseAssetGroup"
-	Properties!: #Properties
-}

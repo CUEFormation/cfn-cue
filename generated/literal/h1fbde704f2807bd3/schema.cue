@@ -28,10 +28,10 @@ import (
 
 	// <p>The date and time the channel group was modified.</p>
 	ModifiedAt?: time.Time
-	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:       [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string
 	Value?: string
 })

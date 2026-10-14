@@ -15,7 +15,7 @@ import "strings"
 
 	// A data structure that contains the specified rule's name, actions,
 	// recipients, domains, enabled status, scan status, and TLS policy.
-	Rule!: _#defs."/$defs/Properties/definitions/Rule"
+	Rule!: #Rule
 
 	// The name of the rule
 	RuleName?: string
@@ -27,19 +27,19 @@ import "strings"
 // An action that Amazon SES can take when it receives an email on behalf of one
 // or more email addresses or domains that you own. An instance of this data
 // type can represent only one action.
-_#defs: "/$defs/Properties/definitions/Action": close({
-	AddHeaderAction?: _#defs."/$defs/Properties/definitions/AddHeaderAction"
-	BounceAction?:    _#defs."/$defs/Properties/definitions/BounceAction"
-	ConnectAction?:   _#defs."/$defs/Properties/definitions/ConnectAction"
-	LambdaAction?:    _#defs."/$defs/Properties/definitions/LambdaAction"
-	S3Action?:        _#defs."/$defs/Properties/definitions/S3Action"
-	SNSAction?:       _#defs."/$defs/Properties/definitions/SNSAction"
-	StopAction?:      _#defs."/$defs/Properties/definitions/StopAction"
-	WorkmailAction?:  _#defs."/$defs/Properties/definitions/WorkmailAction"
+#Action: close({
+	AddHeaderAction?: #AddHeaderAction
+	BounceAction?:    #BounceAction
+	ConnectAction?:   #ConnectAction
+	LambdaAction?:    #LambdaAction
+	S3Action?:        #S3Action
+	SNSAction?:       #SNSAction
+	StopAction?:      #StopAction
+	WorkmailAction?:  #WorkmailAction
 })
 
 // When included in a receipt rule, this action adds a header to the received email.
-_#defs: "/$defs/Properties/definitions/AddHeaderAction": close({
+#AddHeaderAction: close({
 	// The name of the header to add to the incoming message. The name must contain
 	// at least one character, and can contain up to 50 characters. It consists of
 	// alphanumeric (a-z, A-Z, 0-9) characters and dashes.
@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/AddHeaderAction": close({
 // When included in a receipt rule, this action rejects the received email by
 // returning a bounce response to the sender and, optionally, publishes a
 // notification to Amazon Simple Notification Service (Amazon SNS).
-_#defs: "/$defs/Properties/definitions/BounceAction": close({
+#BounceAction: close({
 	// Human-readable text to include in the bounce message.
 	Message!: string
 
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/BounceAction": close({
 
 // When included in a receipt rule, this action parses the received message and
 // starts an email contact in Amazon Connect on your behalf.
-_#defs: "/$defs/Properties/definitions/ConnectAction": close({
+#ConnectAction: close({
 	// The Amazon Resource Name (ARN) of the IAM role to be used by Amazon Simple
 	// Email Service while starting email contacts to the Amazon Connect instance.
 	// This role should have permission to invoke connect:StartEmailContact for the
@@ -95,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/ConnectAction": close({
 // When included in a receipt rule, this action calls an AWS Lambda function
 // and, optionally, publishes a notification to Amazon Simple Notification
 // Service (Amazon SNS).
-_#defs: "/$defs/Properties/definitions/LambdaAction": close({
+#LambdaAction: close({
 	// The Amazon Resource Name (ARN) of the AWS Lambda function. An example of an
 	// AWS Lambda function ARN is
 	// arn:aws:lambda:us-west-2:account-id:function:MyFunction. For more
@@ -120,10 +120,10 @@ _#defs: "/$defs/Properties/definitions/LambdaAction": close({
 
 // A data structure that contains the specified rule's name, actions,
 // recipients, domains, enabled status, scan status, and TLS policy.
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	// An ordered list of actions to perform on messages that match at least one of
 	// the recipient email addresses or domains specified in the receipt rule.
-	Actions?: [..._#defs."/$defs/Properties/definitions/Action"]
+	Actions?: [...#Action]
 
 	// If true, the receipt rule is active. The default value is false.
 	Enabled?: bool
@@ -153,7 +153,7 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 // When included in a receipt rule, this action saves the received message to an
 // Amazon Simple Storage Service (Amazon S3) bucket and, optionally, publishes
 // a notification to Amazon Simple Notification Service (Amazon SNS).
-_#defs: "/$defs/Properties/definitions/S3Action": close({
+#S3Action: close({
 	// The name of the Amazon S3 bucket for incoming email.
 	BucketName!: string
 
@@ -203,7 +203,7 @@ _#defs: "/$defs/Properties/definitions/S3Action": close({
 // The action to publish the email content to an Amazon SNS topic. When
 // executed, this action will send the email as a notification to the specified
 // SNS topic.
-_#defs: "/$defs/Properties/definitions/SNSAction": close({
+#SNSAction: close({
 	// The encoding to use for the email within the Amazon SNS notification. The
 	// default value is UTF-8. Use BASE64 if you need to preserve all special
 	// characters, especially when the original message uses a different encoding
@@ -218,7 +218,7 @@ _#defs: "/$defs/Properties/definitions/SNSAction": close({
 // When included in a receipt rule, this action terminates the evaluation of the
 // receipt rule set and, optionally, publishes a notification to Amazon Simple
 // Notification Service (Amazon SNS).
-_#defs: "/$defs/Properties/definitions/StopAction": close({
+#StopAction: close({
 	// The scope of the StopAction. The only acceptable value is RuleSet.
 	Scope!: "RuleSet"
 
@@ -232,7 +232,7 @@ _#defs: "/$defs/Properties/definitions/StopAction": close({
 // optionally, publishes a notification to Amazon Simple Notification Service
 // (Amazon SNS). It usually isn't necessary to set this up manually, because
 // Amazon WorkMail adds the rule automatically during its setup procedure.
-_#defs: "/$defs/Properties/definitions/WorkmailAction": close({
+#WorkmailAction: close({
 	// The Amazon Resource Name (ARN) of the Amazon WorkMail organization. Amazon
 	// WorkMail ARNs use the following format:
 	// arn:aws:workmail:<region>:<awsAccountId>:organization/<workmailOrganizationId>.

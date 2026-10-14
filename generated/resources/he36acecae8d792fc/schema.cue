@@ -15,30 +15,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A grouping of protected resources so they can be handled as a collective.
 // This resource grouping improves the accuracy of detection and reduces false
 // positives.
-#Properties: close({
-	Aggregation!: "SUM" | "MEAN" | "MAX" | fn.#StringExpression
-	Members?: list.MaxItems(10000) & [...] & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Pattern!:           "ALL" | "ARBITRARY" | "BY_RESOURCE_TYPE" | fn.#StringExpression
-	ProtectionGroupId!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-]*" | fn.#StringExpression
-	ResourceType?: "CLOUDFRONT_DISTRIBUTION" |
-		"ROUTE_53_HOSTED_ZONE" |
-		"ELASTIC_IP_ALLOCATION" |
-		"CLASSIC_LOAD_BALANCER" |
-		"APPLICATION_LOAD_BALANCER" |
-		"GLOBAL_ACCELERATOR" |
-		fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Shield::ProtectionGroup"
+	Properties!: close({
+		Aggregation!: "SUM" | "MEAN" | "MAX" | fn.#StringExpression
+		Members?: list.MaxItems(10000) & [...] & [
+			...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Pattern!:           "ALL" | "ARBITRARY" | "BY_RESOURCE_TYPE" | fn.#StringExpression
+		ProtectionGroupId!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-]*" | fn.#StringExpression
+		ResourceType?: "CLOUDFRONT_DISTRIBUTION" |
+			"ROUTE_53_HOSTED_ZONE" |
+			"ELASTIC_IP_ALLOCATION" |
+			"CLASSIC_LOAD_BALANCER" |
+			"APPLICATION_LOAD_BALANCER" |
+			"GLOBAL_ACCELERATOR" |
+			fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Shield::ProtectionGroup"
-	Properties!: #Properties
-}

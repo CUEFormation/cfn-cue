@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -17,44 +17,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a table that can be associated with collaborations
-#Properties: close({
-	AllowedColumns!: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	AnalysisMethod!: _#defs."/$defs/Properties/definitions/AnalysisMethod"
-	AnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AnalysisRule"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::ConfiguredTable"
+	Properties!: close({
+		AllowedColumns!: list.MaxItems(100) & list.MinItems(1) & [
+			...strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	Name!:                    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	SelectedAnalysisMethods?: _#defs."/$defs/Properties/definitions/SelectedAnalysisMethods"
-	TableReference!:          _#defs."/$defs/Properties/definitions/TableReference"
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		AnalysisMethod!: #AnalysisMethod
+		AnalysisRules?:  list.MaxItems(1) & list.MinItems(1) & [...#AnalysisRule] | fn.#ListExpression
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		Name!:                    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		SelectedAnalysisMethods?: #SelectedAnalysisMethods
+		TableReference!:          #TableReference
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AdditionalAnalyses": "ALLOWED" |
-	"REQUIRED" |
-	"NOT_ALLOWED" |
-	fn.#StringExpression
+#AdditionalAnalyses: "ALLOWED" | "REQUIRED" | "NOT_ALLOWED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AggregateColumn": close({
-	ColumnNames!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] |
-		fn.#ListExpression
-	Function!: _#defs."/$defs/Properties/definitions/AggregateFunctionName"
+#AggregateColumn: close({
+	ColumnNames!: list.MinItems(1) & [...#AnalysisRuleColumnName] | fn.#ListExpression
+	Function!:    #AggregateFunctionName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AggregateFunctionName": "SUM" |
-	"SUM_DISTINCT" |
-	"COUNT" |
-	"COUNT_DISTINCT" |
-	"AVG" |
-	fn.#StringExpression
+#AggregateFunctionName: "SUM" | "SUM_DISTINCT" | "COUNT" | "COUNT_DISTINCT" | "AVG" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AggregationConstraint": close({
-	ColumnName!: _#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
+#AggregationConstraint: close({
+	ColumnName!: #AnalysisRuleColumnName
 	Minimum!: <=100000 & >=2 |
 		{
 			string &
@@ -75,16 +68,13 @@ _#defs: "/$defs/Properties/definitions/AggregationConstraint": close({
 				)
 		} |
 		fn.#NumberExpression
-	Type!: _#defs."/$defs/Properties/definitions/AggregationType"
+	Type!: #AggregationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AggregationThreshold": close({
-	AllowedAggregateExpressionType!: _#defs."/$defs/Properties/definitions/AllowedAggregateExpressionType"
-	IdentityColumns!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
-	] |
-		fn.#ListExpression
+#AggregationThreshold: close({
+	AllowedAggregateExpressionType!: #AllowedAggregateExpressionType
+	IdentityColumns!: list.MaxItems(1) & list.MinItems(1) & [...#AnalysisRuleColumnName] | fn.#ListExpression
 	MinimumIdentityCount!: int & <=100000 & >=2 |
 		{
 			string &
@@ -101,103 +91,81 @@ _#defs: "/$defs/Properties/definitions/AggregationThreshold": close({
 				)
 		} |
 		fn.#NumberExpression
-	OutputColumnThresholds?: [..._#defs."/$defs/Properties/definitions/OutputColumnThreshold"] | fn.#ListExpression
-	Type!:                   _#defs."/$defs/Properties/definitions/AggregationThresholdType"
+	OutputColumnThresholds?: [...#OutputColumnThreshold] | fn.#ListExpression
+	Type!:                   #AggregationThresholdType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AggregationThresholdType": "COUNT_DISTINCT" | fn.#StringExpression
+#AggregationThresholdType: "COUNT_DISTINCT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AggregationType": "COUNT_DISTINCT" | fn.#StringExpression
+#AggregationType: "COUNT_DISTINCT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedAggregateExpressionType": "COLUMNS_ONLY" |
-	"ANY_EXPRESSION" |
-	fn.#StringExpression
+#AllowedAggregateExpressionType: "COLUMNS_ONLY" | "ANY_EXPRESSION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalyses": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAnalysis"
-] |
-	fn.#ListExpression
+#AllowedAnalyses: [...] & [...#AllowedAnalysis] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalysis": strings.MaxRunes(200) &
+#AllowedAnalysis: strings.MaxRunes(200) &
 strings.MinRunes(0) &
 =~"(ANY_QUERY|ANY_JOB|arn:[\\w]{3}:cleanrooms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:membership/[\\d\\w-]+/analysistemplate/[\\d\\w-]+)" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalysisProvider": strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" |
+#AllowedAnalysisProvider: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" | fn.#StringExpression
+
+#AllowedAnalysisProviders: [...] & [...#AllowedAnalysisProvider] | fn.#ListExpression
+
+#AnalysisMethod: "DIRECT_QUERY" | "DIRECT_JOB" | "MULTIPLE" | fn.#StringExpression
+
+#AnalysisRule: close({
+	Policy!: #ConfiguredTableAnalysisRulePolicy
+	Type!:   #ConfiguredTableAnalysisRuleType
+}) |
+fn.#ObjectExpression
+
+#AnalysisRuleAggregation: close({
+	AdditionalAnalyses?:   #AdditionalAnalyses
+	AggregateColumns!:     list.MinItems(1) & [...#AggregateColumn] | fn.#ListExpression
+	AllowedJoinOperators?: list.MaxItems(2) & [...#JoinOperator] | fn.#ListExpression
+	DimensionColumns!:     [...#AnalysisRuleColumnName] | fn.#ListExpression
+	JoinColumns!:          [...#AnalysisRuleColumnName] | fn.#ListExpression
+	JoinRequired?:         #JoinRequiredOption
+	OutputConstraints!:    list.MinItems(1) & [...#AggregationConstraint] | fn.#ListExpression
+	ScalarFunctions!:      [...#ScalarFunctions] | fn.#ListExpression
+}) |
+fn.#ObjectExpression
+
+#AnalysisRuleColumnName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalysisProviders": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAnalysisProvider"
-] |
-	fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/AnalysisMethod": "DIRECT_QUERY" |
-	"DIRECT_JOB" |
-	"MULTIPLE" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/AnalysisRule": close({
-	Policy!: _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicy"
-	Type!:   _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRuleType"
+#AnalysisRuleCustom: close({
+	AdditionalAnalyses?:       #AdditionalAnalyses
+	AggregationThresholds?:    list.MaxItems(1) & list.MinItems(1) & [...#AggregationThreshold] | fn.#ListExpression
+	AllowedAnalyses!:          #AllowedAnalyses
+	AllowedAnalysisProviders?: #AllowedAnalysisProviders
+	ComparisonControls?:       #ComparisonControls
+	DifferentialPrivacy?:      #DifferentialPrivacy
+	DisallowedOutputColumns?:  #DisallowedOutputColumns
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisRuleAggregation": close({
-	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
-	AggregateColumns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AggregateColumn"] |
-		fn.#ListExpression
-	AllowedJoinOperators?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/JoinOperator"] |
-		fn.#ListExpression
-	DimensionColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] | fn.#ListExpression
-	JoinColumns!:      [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] | fn.#ListExpression
-	JoinRequired?:     _#defs."/$defs/Properties/definitions/JoinRequiredOption"
-	OutputConstraints!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AggregationConstraint"] |
-		fn.#ListExpression
-	ScalarFunctions!: [..._#defs."/$defs/Properties/definitions/ScalarFunctions"] | fn.#ListExpression
+#AnalysisRuleList: close({
+	AdditionalAnalyses?:   #AdditionalAnalyses
+	AllowedJoinOperators?: list.MaxItems(2) & [...#JoinOperator] | fn.#ListExpression
+	JoinColumns!:          list.MinItems(1) & [...#AnalysisRuleColumnName] | fn.#ListExpression
+	ListColumns!:          [...#AnalysisRuleColumnName] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisRuleColumnName": strings.MaxRunes(127) &
-strings.MinRunes(1) &
-=~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/AnalysisRuleCustom": close({
-	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
-	AggregationThresholds?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AggregationThreshold"
-	] |
-		fn.#ListExpression
-	AllowedAnalyses!:          _#defs."/$defs/Properties/definitions/AllowedAnalyses"
-	AllowedAnalysisProviders?: _#defs."/$defs/Properties/definitions/AllowedAnalysisProviders"
-	ComparisonControls?:       _#defs."/$defs/Properties/definitions/ComparisonControls"
-	DifferentialPrivacy?:      _#defs."/$defs/Properties/definitions/DifferentialPrivacy"
-	DisallowedOutputColumns?:  _#defs."/$defs/Properties/definitions/DisallowedOutputColumns"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/AnalysisRuleList": close({
-	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
-	AllowedJoinOperators?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/JoinOperator"] |
-		fn.#ListExpression
-	JoinColumns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] |
-		fn.#ListExpression
-	ListColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/AthenaTableReference": close({
+#AthenaTableReference: close({
 	CatalogName?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	DatabaseName!:   strings.MaxRunes(128) | fn.#StringExpression
 	OutputLocation?: strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
-	Region?:         _#defs."/$defs/Properties/definitions/CommercialRegion"
+	Region?:         #CommercialRegion
 	TableName!:      strings.MaxRunes(128) | fn.#StringExpression
 	WorkGroup!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommercialRegion": "us-west-1" |
+#CommercialRegion: "us-west-1" |
 	"us-west-2" |
 	"us-east-1" |
 	"us-east-2" |
@@ -231,60 +199,45 @@ _#defs: "/$defs/Properties/definitions/CommercialRegion": "us-west-1" |
 	"ap-east-2" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ComparisonControls": close({
-	AllowedColumnComparisonColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] |
-		fn.#ListExpression
-	AllowedLiteralComparisonColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"] |
-		fn.#ListExpression
+#ComparisonControls: close({
+	AllowedColumnComparisonColumns!:  [...#AnalysisRuleColumnName] | fn.#ListExpression
+	AllowedLiteralComparisonColumns!: [...#AnalysisRuleColumnName] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicy": close(
-	{V1!: _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicyV1"},
-) |
-	fn.#ObjectExpression
+#ConfiguredTableAnalysisRulePolicy: close({V1!: #ConfiguredTableAnalysisRulePolicyV1}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicyV1": matchN(1, [close(
-	{List!: _#defs."/$defs/Properties/definitions/AnalysisRuleList"},
+#ConfiguredTableAnalysisRulePolicyV1: matchN(1, [close(
+	{List!: #AnalysisRuleList},
 ), close(
-	{Aggregation!: _#defs."/$defs/Properties/definitions/AnalysisRuleAggregation"},
+	{Aggregation!: #AnalysisRuleAggregation},
 ), close(
-	{Custom!: _#defs."/$defs/Properties/definitions/AnalysisRuleCustom"},
+	{Custom!: #AnalysisRuleCustom},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAnalysisRuleType": "AGGREGATION" |
-	"LIST" |
-	"CUSTOM" |
-	fn.#StringExpression
+#ConfiguredTableAnalysisRuleType: "AGGREGATION" | "LIST" | "CUSTOM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DifferentialPrivacy": close({
-	Columns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DifferentialPrivacyColumn"] |
-		fn.#ListExpression
-}) |
+#DifferentialPrivacy: close({Columns!: list.MinItems(1) & [...#DifferentialPrivacyColumn] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DifferentialPrivacyColumn": close({Name!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#DifferentialPrivacyColumn: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DisallowedOutputColumns": [...] & [
-	..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
-] |
-	fn.#ListExpression
+#DisallowedOutputColumns: [...] & [...#AnalysisRuleColumnName] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/GlueTableReference": close({
+#GlueTableReference: close({
 	DatabaseName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
 	fn.#StringExpression
-	Region?:    _#defs."/$defs/Properties/definitions/CommercialRegion"
+	Region?:    #CommercialRegion
 	TableName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JoinOperator": "OR" | "AND" | fn.#StringExpression
+#JoinOperator: "OR" | "AND" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/JoinRequiredOption": "QUERY_RUNNER" | fn.#StringExpression
+#JoinRequiredOption: "QUERY_RUNNER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutputColumnThreshold": close({
+#OutputColumnThreshold: close({
 	MinimumIdentityCount!: int & <=100000 & >=0 |
 		{
 			string &
@@ -301,11 +254,11 @@ _#defs: "/$defs/Properties/definitions/OutputColumnThreshold": close({
 				)
 		} |
 		fn.#NumberExpression
-	OutputColumnName!: _#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
+	OutputColumnName!: #AnalysisRuleColumnName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalarFunctions": "TRUNC" |
+#ScalarFunctions: "TRUNC" |
 	"ABS" |
 	"CEILING" |
 	"FLOOR" |
@@ -331,50 +284,42 @@ _#defs: "/$defs/Properties/definitions/ScalarFunctions": "TRUNC" |
 	"TRIM" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SelectedAnalysisMethod": "DIRECT_QUERY" | "DIRECT_JOB" | fn.#StringExpression
+#SelectedAnalysisMethod: "DIRECT_QUERY" | "DIRECT_JOB" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SelectedAnalysisMethods": [
-	..._#defs."/$defs/Properties/definitions/SelectedAnalysisMethod"
-] |
-	fn.#ListExpression
+#SelectedAnalysisMethods: [...#SelectedAnalysisMethod] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeTableReference": close({
+#SnowflakeTableReference: close({
 	AccountIdentifier!: strings.MaxRunes(256) & strings.MinRunes(3) | fn.#StringExpression
 	DatabaseName!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	SchemaName!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	SecretArn!:         strings.MaxRunes(256) | fn.#StringExpression
 	TableName!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	TableSchema!:       _#defs."/$defs/Properties/definitions/SnowflakeTableSchema"
+	TableSchema!:       #SnowflakeTableSchema
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeTableSchema": close({
-	V1!: list.MaxItems(250) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SnowflakeTableSchemaV1"] |
-		fn.#ListExpression
-}) |
+#SnowflakeTableSchema: close(
+	{V1!: list.MaxItems(250) & list.MinItems(1) & [...#SnowflakeTableSchemaV1] | fn.#ListExpression},
+) |
 	fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeTableSchemaV1": close({
+#SnowflakeTableSchemaV1: close({
 	ColumnName!: strings.MaxRunes(128) | fn.#StringExpression
 	ColumnType!: strings.MaxRunes(255) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableReference": matchN(1, [close(
-	{Glue!: _#defs."/$defs/Properties/definitions/GlueTableReference"},
+#TableReference: matchN(1, [close(
+	{Glue!: #GlueTableReference},
 ), close(
-	{Snowflake!: _#defs."/$defs/Properties/definitions/SnowflakeTableReference"},
+	{Snowflake!: #SnowflakeTableReference},
 ), close(
-	{Athena!: _#defs."/$defs/Properties/definitions/AthenaTableReference"},
+	{Athena!: #AthenaTableReference},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::ConfiguredTable"
-	Properties!: #Properties
-}

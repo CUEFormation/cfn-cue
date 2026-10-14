@@ -14,26 +14,26 @@ import "list"
 	ConnectorArn?:
 		=~"^arn:aws\\S*:securityhub:[a-z0-9-]+:[0-9]{12}:connector/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 	ConnectorId?:     =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-	ConnectorStatus?: _#defs."/$defs/Properties/definitions/ConnectorStatus"
-	CreatedAt?:       _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	ConnectorStatus?: #ConnectorStatus
+	CreatedAt?:       #ISO8601DateString
 	CreatedBy?:       string
 
 	// The description of the connector.
 	Description?:      =~"\\S"
-	EnablementStatus?: _#defs."/$defs/Properties/definitions/EnablementStatus"
-	Issues?:           [..._#defs."/$defs/Properties/definitions/HealthIssue"]
-	LastCheckedAt?:    _#defs."/$defs/Properties/definitions/ISO8601DateString"
-	LastUpdatedAt?:    _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	EnablementStatus?: #EnablementStatus
+	Issues?:           [...#HealthIssue]
+	LastCheckedAt?:    #ISO8601DateString
+	LastUpdatedAt?:    #ISO8601DateString
 	Message?:          string
 
 	// The name of the connector.
 	Name!:     =~"\\S"
-	Provider!: _#defs."/$defs/Properties/definitions/Provider"
-	Tags?:     _#defs."/$defs/Properties/definitions/Tags"
+	Provider!: #Provider
+	Tags?:     #Tags
 })
 
 // The configuration for connecting to an Azure environment.
-_#defs: "/$defs/Properties/definitions/AzureProviderConfiguration": close({
+#AzureProviderConfiguration: close({
 	// The ARN of the multi-cloud configuration connector used to establish the connection to Azure.
 	AWSConfigConnectorArn!: string
 
@@ -41,11 +41,11 @@ _#defs: "/$defs/Properties/definitions/AzureProviderConfiguration": close({
 	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string]
 
 	// The scope configuration that defines which Azure resources are monitored.
-	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/AzureScopeConfiguration"
+	ScopeConfiguration!: #AzureScopeConfiguration
 })
 
 // The scope configuration for an Azure connector, defining the tenant or subscription scope.
-_#defs: "/$defs/Properties/definitions/AzureScopeConfiguration": close({
+#AzureScopeConfiguration: close({
 	// The type of scope. Valid values are ``tenant`` and ``subscription``.
 	ScopeType!: "TENANT" | "SUBSCRIPTION"
 
@@ -54,29 +54,27 @@ _#defs: "/$defs/Properties/definitions/AzureScopeConfiguration": close({
 })
 
 // The status of the connector
-_#defs: "/$defs/Properties/definitions/ConnectorStatus": string
+#ConnectorStatus: string
 
 // The enablement status of the connector
-_#defs: "/$defs/Properties/definitions/EnablementStatus": string
+#EnablementStatus: string
 
 // Represents a specific health issue detected for a connector.
-_#defs: "/$defs/Properties/definitions/HealthIssue": close({
+#HealthIssue: close({
 	// The error code that identifies the type of health issue.
-	Code!: _#defs."/$defs/Properties/definitions/HealthIssueCode"
+	Code!: #HealthIssueCode
 
 	// A human-readable message that describes the health issue.
 	Message!: string
 })
 
 // The code identifying the type of health issue
-_#defs: "/$defs/Properties/definitions/HealthIssueCode": string
+#HealthIssueCode: string
 
 // The timestamp formatted in ISO8601
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
+#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
 
-_#defs: "/$defs/Properties/definitions/Provider": close(
-	{Azure!: _#defs."/$defs/Properties/definitions/AzureProviderConfiguration"},
-)
+#Provider: close({Azure!: #AzureProviderConfiguration})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}

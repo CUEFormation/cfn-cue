@@ -53,29 +53,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resources with
 // Rules](https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config.html)
 // in the *Developer Guide*.
-#Properties: close({
-	Compliance?:     close({}) | fn.#ObjectExpression
-	ConfigRuleName?: string | fn.#StringExpression
-	Description?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EvaluationModes?: [..._#defs."/$defs/Properties/definitions/EvaluationModeConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	InputParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	MaximumExecutionFrequency?: string | fn.#StringExpression
-	Scope?:                     _#defs."/$defs/Properties/definitions/Scope" | fn.#ObjectExpression
-	Source!:                    _#defs."/$defs/Properties/definitions/Source" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::ConfigRule"
+	Properties!: close({
+		Compliance?:                close({}) | fn.#ObjectExpression
+		ConfigRuleName?:            string | fn.#StringExpression
+		Description?:               strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		EvaluationModes?:           [...#EvaluationModeConfiguration] | fn.#ListExpression
+		InputParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		MaximumExecutionFrequency?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPolicyDetails": close({
+		// Defines which resources can trigger an evaluation for the rule. The scope can
+		// include one or more resource types, a combination of one resource type and
+		// one resource ID, or a combination of a tag key and value. Specify a scope to
+		// constrain the resources that can trigger an evaluation for the rule. If you
+		// do not specify a scope, evaluations are triggered when any resource in the
+		// recording group changes.
+		Scope?: #Scope
+
+		// Provides the rule owner (```` for managed rules, ``CUSTOM_POLICY`` for Custom
+		// Policy rules, and ``CUSTOM_LAMBDA`` for Custom Lambda rules), the rule
+		// identifier, and the notifications that cause the function to evaluate your
+		// AWS resources.
+		Source!: #Source
+	})
+}
+
+#CustomPolicyDetails: close({
 	EnableDebugLogDelivery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PolicyRuntime?:          string | fn.#StringExpression
 	PolicyText?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationModeConfiguration": close({Mode?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#EvaluationModeConfiguration: close({Mode?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Scope": close({
+#Scope: close({
 	ComplianceResourceId?:    string | fn.#StringExpression
 	ComplianceResourceTypes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	TagKey?:                  string | fn.#StringExpression
@@ -83,22 +96,19 @@ _#defs: "/$defs/Properties/definitions/Scope": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
-	CustomPolicyDetails?: _#defs."/$defs/Properties/definitions/CustomPolicyDetails" | fn.#ObjectExpression
+#Source: close({
+	// Provides the runtime system, policy definition, and whether debug logging is
+	// enabled. Required when owner is set to ``CUSTOM_POLICY``.
+	CustomPolicyDetails?: #CustomPolicyDetails
 	Owner!:               string | fn.#StringExpression
-	SourceDetails?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SourceDetail" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SourceIdentifier?: string | fn.#StringExpression
+	SourceDetails?:       list.UniqueItems() & [...#SourceDetail] | fn.#ListExpression
+	SourceIdentifier?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceDetail": close({
+#SourceDetail: close({
 	EventSource!:               string | fn.#StringExpression
 	MaximumExecutionFrequency?: string | fn.#StringExpression
 	MessageType!:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::ConfigRule"
-	Properties!: #Properties
-}

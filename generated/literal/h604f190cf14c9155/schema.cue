@@ -11,66 +11,64 @@ import (
 
 // Resource Type definition for AWS::RTBFabric::ResponderGateway Resource Type
 #Properties: close({
-	AcmCertificateArn?:            _#defs."/$defs/Properties/definitions/AcmCertificateArn"
-	Arn?:                          _#defs."/$defs/Properties/definitions/Arn"
-	CertificateAssociationStatus?: _#defs."/$defs/Properties/definitions/CertificateAssociationStatus"
-	CreatedTimestamp?:             _#defs."/$defs/Properties/definitions/CreatedTimestamp"
-	Description?:                  _#defs."/$defs/Properties/definitions/Description"
-	DomainName?:                   _#defs."/$defs/Properties/definitions/DomainName"
-	ExternalInboundEndpoint?:      _#defs."/$defs/Properties/definitions/ExternalInboundEndpoint"
-	GatewayId?:                    _#defs."/$defs/Properties/definitions/GatewayId"
-	GatewayType?:                  _#defs."/$defs/Properties/definitions/GatewayType"
-	ListenerConfig?:               _#defs."/$defs/Properties/definitions/ListenerConfig"
-	ManagedEndpointConfiguration?: _#defs."/$defs/Properties/definitions/ManagedEndpointConfiguration"
-	Port!:                         _#defs."/$defs/Properties/definitions/Port"
-	Protocol!:                     _#defs."/$defs/Properties/definitions/Protocol"
-	ResponderGatewayStatus?:       _#defs."/$defs/Properties/definitions/ResponderGatewayStatus"
-	SecurityGroupIds!:             _#defs."/$defs/Properties/definitions/SecurityGroupIds"
-	SubnetIds!:                    _#defs."/$defs/Properties/definitions/SubnetIds"
-	Tags?:                         _#defs."/$defs/Properties/definitions/Tags"
-	TrustStoreConfiguration?:      _#defs."/$defs/Properties/definitions/TrustStoreConfiguration"
-	UpdatedTimestamp?:             _#defs."/$defs/Properties/definitions/UpdatedTimestamp"
-	VpcId!:                        _#defs."/$defs/Properties/definitions/VpcId"
+	AcmCertificateArn?:            #AcmCertificateArn
+	Arn?:                          #Arn
+	CertificateAssociationStatus?: #CertificateAssociationStatus
+	CreatedTimestamp?:             #CreatedTimestamp
+	Description?:                  #Description
+	DomainName?:                   #DomainName
+	ExternalInboundEndpoint?:      #ExternalInboundEndpoint
+	GatewayId?:                    #GatewayId
+	GatewayType?:                  #GatewayType
+	ListenerConfig?:               #ListenerConfig
+	ManagedEndpointConfiguration?: #ManagedEndpointConfiguration
+	Port!:                         #Port
+	Protocol!:                     #Protocol
+	ResponderGatewayStatus?:       #ResponderGatewayStatus
+	SecurityGroupIds!:             #SecurityGroupIds
+	SubnetIds!:                    #SubnetIds
+	Tags?:                         #Tags
+	TrustStoreConfiguration?:      #TrustStoreConfiguration
+	UpdatedTimestamp?:             #UpdatedTimestamp
+	VpcId!:                        #VpcId
 })
 
-_#defs: "/$defs/Properties/definitions/AcmCertificateArn": =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
+#AcmCertificateArn: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 
-_#defs: "/$defs/Properties/definitions/ActiveLinksCount": int
+#ActiveLinksCount: int
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+$"
 
-_#defs: "/$defs/Properties/definitions/AutoScalingGroupNameList": list.UniqueItems() & [...string]
+#AutoScalingGroupNameList: list.UniqueItems() & [...string]
 
-_#defs: "/$defs/Properties/definitions/AutoScalingGroupsConfiguration": close({
-	AutoScalingGroupNameList!: _#defs."/$defs/Properties/definitions/AutoScalingGroupNameList"
-	HealthCheckConfig?:        _#defs."/$defs/Properties/definitions/HealthCheckConfig"
+#AutoScalingGroupsConfiguration: close({
+	AutoScalingGroupNameList!: #AutoScalingGroupNameList
+	HealthCheckConfig?:        #HealthCheckConfig
 	RoleArn!:                  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Base64EncodedCertificateChain": strings.MaxRunes(2097152) & strings.MinRunes(1)
+#Base64EncodedCertificateChain: strings.MaxRunes(2097152) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/CertificateAssociationStatus": "PENDING_ASSOCIATION" |
+#CertificateAssociationStatus: "PENDING_ASSOCIATION" |
 	"ASSOCIATED" |
 	"PENDING_DISASSOCIATION" |
 	"DISASSOCIATED" |
 	"EXPIRED" |
 	"FAILED"
 
-_#defs: "/$defs/Properties/definitions/CertificateAuthorityCertificates": list.MaxItems(1) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Base64EncodedCertificateChain"
-]
+#CertificateAuthorityCertificates: list.MaxItems(1) & list.UniqueItems() & [...] & [...#Base64EncodedCertificateChain]
 
-_#defs: "/$defs/Properties/definitions/CreatedTimestamp": string
+#CreatedTimestamp: string
 
-_#defs: "/$defs/Properties/definitions/Description": =~"^[A-Za-z0-9 ]+$"
+#Description: =~"^[A-Za-z0-9 ]+$"
 
-_#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(255) &
+#DomainName: strings.MaxRunes(255) &
 strings.MinRunes(1) &
 =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$"
 
-_#defs: "/$defs/Properties/definitions/EksEndpointsConfiguration": close({
+#EksEndpointsConfiguration: close({
 	ClusterApiServerCaCertificateChain!: strings.MaxRunes(2097152) & strings.MinRunes(1)
 	ClusterApiServerEndpointUri!: strings.MaxRunes(255) &
 	strings.MinRunes(0) &
@@ -81,40 +79,38 @@ _#defs: "/$defs/Properties/definitions/EksEndpointsConfiguration": close({
 	RoleArn!:                    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/ExternalInboundEndpoint": _#defs."/$defs/Properties/definitions/DomainName"
+#ExternalInboundEndpoint: #DomainName
 
-_#defs: "/$defs/Properties/definitions/GatewayId": =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$"
+#GatewayId: =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$"
 
-_#defs: "/$defs/Properties/definitions/GatewayType": "EXTERNAL" | "INTERNAL"
+#GatewayType: "EXTERNAL" | "INTERNAL"
 
-_#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
+#HealthCheckConfig: close({
 	HealthyThresholdCount?:   int & <=10 & >=2
 	IntervalSeconds?:         int & <=60 & >=5
 	Path!:                    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/.*$"
 	Port!:                    int & <=65535 & >=80
-	Protocol?:                _#defs."/$defs/Properties/definitions/Protocol"
+	Protocol?:                #Protocol
 	StatusCodeMatcher?:       strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9,\\-]+$"
 	TimeoutMs?:               int & <=5000 & >=100
 	UnhealthyThresholdCount?: int & <=10 & >=2
 })
 
-_#defs: "/$defs/Properties/definitions/InboundLinksCount": int
+#InboundLinksCount: int
 
-_#defs: "/$defs/Properties/definitions/ListenerConfig": close(
-	{Protocols!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Protocol"]},
-)
+#ListenerConfig: close({Protocols!: list.MaxItems(2) & list.MinItems(1) & [...#Protocol]})
 
-_#defs: "/$defs/Properties/definitions/ManagedEndpointConfiguration": matchN(1, [close(
-	{AutoScalingGroupsConfiguration!: _#defs."/$defs/Properties/definitions/AutoScalingGroupsConfiguration"},
+#ManagedEndpointConfiguration: matchN(1, [close(
+	{AutoScalingGroupsConfiguration!: #AutoScalingGroupsConfiguration},
 ), close(
-	{EksEndpointsConfiguration!: _#defs."/$defs/Properties/definitions/EksEndpointsConfiguration"},
+	{EksEndpointsConfiguration!: #EksEndpointsConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=1
+#Port: int & <=65535 & >=1
 
-_#defs: "/$defs/Properties/definitions/Protocol": "HTTP" | "HTTPS"
+#Protocol: "HTTP" | "HTTPS"
 
-_#defs: "/$defs/Properties/definitions/ResponderGatewayStatus": "PENDING_CREATION" |
+#ResponderGatewayStatus: "PENDING_CREATION" |
 	"ACTIVE" |
 	"PENDING_DELETION" |
 	"DELETED" |
@@ -125,7 +121,7 @@ _#defs: "/$defs/Properties/definitions/ResponderGatewayStatus": "PENDING_CREATIO
 	"PENDING_RESTORATION"
 
 // The ID of one or more security groups in order to create a gateway.
-_#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & list.UniqueItems() & [
+#SecurityGroupIds: list.MinItems(1) & list.UniqueItems() & [
 	...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 	string &
 	strings.MaxRunes(43) &
@@ -134,12 +130,12 @@ _#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & lis
 ]
 
 // The ID of one or more subnets in order to create a gateway.
-_#defs: "/$defs/Properties/definitions/SubnetIds": list.MinItems(1) & list.UniqueItems() & [
+#SubnetIds: list.MinItems(1) & list.UniqueItems() & [
 	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8,17}$"
 ]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -154,19 +150,15 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Tags to assign to the Responder Gateway.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/TotalLinksCount": int
+#TotalLinksCount: int
 
-_#defs: "/$defs/Properties/definitions/TrustStoreConfiguration": close(
-	{CertificateAuthorityCertificates!: _#defs."/$defs/Properties/definitions/CertificateAuthorityCertificates"},
-)
+#TrustStoreConfiguration: close({CertificateAuthorityCertificates!: #CertificateAuthorityCertificates})
 
-_#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string
+#UpdatedTimestamp: string
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+#VpcId: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 strings.MaxRunes(50) &
 strings.MinRunes(5) &
 =~"^vpc-[a-f0-9]{8,17}$"

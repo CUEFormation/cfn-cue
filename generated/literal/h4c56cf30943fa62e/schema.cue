@@ -27,40 +27,40 @@ import (
 	DomainOwner?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12}"
 
 	// The package origin configuration of the package group.
-	OriginConfiguration?: _#defs."/$defs/Properties/definitions/OriginConfiguration"
+	OriginConfiguration?: #OriginConfiguration
 
 	// The package group pattern that is used to gather packages.
 	Pattern!: strings.MaxRunes(520) & strings.MinRunes(2)
 
 	// An array of key-value pairs to apply to the package group.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/OriginConfiguration": close({
+#OriginConfiguration: close({
 	// The origin configuration that is applied to the package group.
-	Restrictions!: _#defs."/$defs/Properties/definitions/Restrictions"
+	Restrictions!: #Restrictions
 })
 
-_#defs: "/$defs/Properties/definitions/RestrictionType": close({
+#RestrictionType: close({
 	Repositories?:    [...string]
 	RestrictionMode!: "ALLOW" | "BLOCK" | "ALLOW_SPECIFIC_REPOSITORIES" | "INHERIT"
 })
 
-_#defs: "/$defs/Properties/definitions/Restrictions": close({
+#Restrictions: close({
 	// The external upstream restriction determines if new package versions can be
 	// ingested or retained from external connections.
-	ExternalUpstream?: _#defs."/$defs/Properties/definitions/RestrictionType"
+	ExternalUpstream?: #RestrictionType
 
 	// The internal upstream restriction determines if new package versions can be
 	// ingested or retained from upstream repositories.
-	InternalUpstream?: _#defs."/$defs/Properties/definitions/RestrictionType"
+	InternalUpstream?: #RestrictionType
 
 	// The publish restriction determines if new package versions can be published.
-	Publish?: _#defs."/$defs/Properties/definitions/RestrictionType"
+	Publish?: #RestrictionType
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

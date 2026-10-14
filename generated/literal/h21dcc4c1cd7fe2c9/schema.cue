@@ -25,29 +25,27 @@ import "strings"
 	State?: "ENABLED" | "DISABLED"
 
 	// One or more tags, separated by commas, that you want to attach to the workgroup as you create it
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 
 	// The workgroup configuration
-	WorkGroupConfiguration?: _#defs."/$defs/Properties/definitions/WorkGroupConfiguration"
+	WorkGroupConfiguration?: #WorkGroupConfiguration
 
 	// The workgroup configuration update object
-	WorkGroupConfigurationUpdates?: _#defs."/$defs/Properties/definitions/WorkGroupConfigurationUpdates"
+	WorkGroupConfigurationUpdates?: #WorkGroupConfigurationUpdates
 })
 
 // Indicates that an Amazon S3 canned ACL should be set to control ownership of stored query results
-_#defs: "/$defs/Properties/definitions/AclConfiguration": close(
-	{S3AclOption!: _#defs."/$defs/Properties/definitions/S3AclOption"},
-)
+#AclConfiguration: close({S3AclOption!: #S3AclOption})
 
 // Additional Configuration that are passed to Athena Spark Calculations running in this workgroup
-_#defs: "/$defs/Properties/definitions/AdditionalConfiguration": string
+#AdditionalConfiguration: string
 
 // The upper data usage limit (cutoff) for the amount of bytes a single query in
 // a workgroup is allowed to scan.
-_#defs: "/$defs/Properties/definitions/BytesScannedCutoffPerQuery": int & >=10000000
+#BytesScannedCutoffPerQuery: int & >=10000000
 
 // A classification refers to a set of specific configurations.
-_#defs: "/$defs/Properties/definitions/Classification": close({
+#Classification: close({
 	// The name of the configuration classification.
 	Name?: string
 
@@ -58,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/Classification": close({
 })
 
 // Configuration settings for delivering logs to Amazon CloudWatch log groups.
-_#defs: "/$defs/Properties/definitions/CloudWatchLoggingConfiguration": close({
+#CloudWatchLoggingConfiguration: close({
 	// Enables CloudWatch logging.
 	Enabled?: bool
 
@@ -75,9 +73,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLoggingConfiguration": close({
 })
 
 // Indicates the KMS key for encrypting notebook content.
-_#defs: "/$defs/Properties/definitions/CustomerContentEncryptionConfiguration": close(
-	{KmsKey!: _#defs."/$defs/Properties/definitions/KmsKey"},
-)
+#CustomerContentEncryptionConfiguration: close({KmsKey!: #KmsKey})
 
 // Read only. The engine version on which the query runs. If the user requests a
 // valid engine version other than Auto, the effective engine version is the
@@ -85,26 +81,26 @@ _#defs: "/$defs/Properties/definitions/CustomerContentEncryptionConfiguration": 
 // Auto, the effective engine version is chosen by Athena. When a request to
 // update the engine version is made by a CreateWorkGroup or UpdateWorkGroup
 // operation, the EffectiveEngineVersion field is ignored.
-_#defs: "/$defs/Properties/definitions/EffectiveEngineVersion": string
+#EffectiveEngineVersion: string
 
 // If query results are encrypted in Amazon S3, indicates the encryption option
 // used (for example, SSE-KMS or CSE-KMS) and key information.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	EncryptionOption!: _#defs."/$defs/Properties/definitions/EncryptionOption"
-	KmsKey?:           _#defs."/$defs/Properties/definitions/KmsKey"
+#EncryptionConfiguration: close({
+	EncryptionOption!: #EncryptionOption
+	KmsKey?:           #KmsKey
 })
 
 // Indicates whether Amazon S3 server-side encryption with Amazon S3-managed
 // keys (SSE-S3), server-side encryption with KMS-managed keys (SSE-KMS), or
 // client-side encryption with KMS-managed keys (CSE-KMS) is used.
-_#defs: "/$defs/Properties/definitions/EncryptionOption": "SSE_S3" | "SSE_KMS" | "CSE_KMS"
+#EncryptionOption: "SSE_S3" | "SSE_KMS" | "CSE_KMS"
 
 // If set to "true", the settings for the workgroup override client-side
 // settings. If set to "false", client-side settings are used
-_#defs: "/$defs/Properties/definitions/EnforceWorkGroupConfiguration": bool
+#EnforceWorkGroupConfiguration: bool
 
 // The engine configuration for running queries.
-_#defs: "/$defs/Properties/definitions/EngineConfiguration": close({
+#EngineConfiguration: close({
 	// Contains additional notebook engine MAP<string, string> parameter mappings in
 	// the form of key-value pairs. To specify an Athena notebook that the Jupyter
 	// server will download and serve, specify a value for the
@@ -116,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/EngineConfiguration": close({
 		{[=~"^.+$"]: string}})
 
 	// The configuration classifications that can be specified for the engine.
-	Classifications?: [..._#defs."/$defs/Properties/definitions/Classification"]
+	Classifications?: [...#Classification]
 
 	// The number of DPUs to use for the coordinator. A coordinator is a special
 	// executor that orchestrates processing work and manages other executors in a
@@ -139,24 +135,24 @@ _#defs: "/$defs/Properties/definitions/EngineConfiguration": close({
 })
 
 // The Athena engine version for running queries.
-_#defs: "/$defs/Properties/definitions/EngineVersion": close({
-	EffectiveEngineVersion?: _#defs."/$defs/Properties/definitions/EffectiveEngineVersion"
-	SelectedEngineVersion?:  _#defs."/$defs/Properties/definitions/SelectedEngineVersion"
+#EngineVersion: close({
+	EffectiveEngineVersion?: #EffectiveEngineVersion
+	SelectedEngineVersion?:  #SelectedEngineVersion
 })
 
 // The ARN of the execution role used to access user resources for Spark
 // sessions and Identity Center enabled workgroups. This property applies only
 // to Spark enabled workgroups and Identity Center enabled workgroups.
-_#defs: "/$defs/Properties/definitions/ExecutionRole": string
+#ExecutionRole: string
 
 // The AWS account ID of the owner of S3 bucket where query results are stored
-_#defs: "/$defs/Properties/definitions/ExpectedBucketOwner": string
+#ExpectedBucketOwner: string
 
 // For SSE-KMS and CSE-KMS, this is the KMS key ARN or ID.
-_#defs: "/$defs/Properties/definitions/KmsKey": string
+#KmsKey: string
 
 // Configuration settings for managed log persistence.
-_#defs: "/$defs/Properties/definitions/ManagedLoggingConfiguration": close({
+#ManagedLoggingConfiguration: close({
 	// Enables managed log persistence.
 	Enabled?: bool
 
@@ -167,24 +163,22 @@ _#defs: "/$defs/Properties/definitions/ManagedLoggingConfiguration": close({
 // The configuration for the managed query results and encryption option.
 // ResultConfiguration and ManagedQueryResultsConfiguration cannot be set at
 // the same time
-_#defs: "/$defs/Properties/definitions/ManagedQueryResultsConfiguration": close({
+#ManagedQueryResultsConfiguration: close({
 	Enabled?:                 bool
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ManagedStorageEncryptionConfiguration"
+	EncryptionConfiguration?: #ManagedStorageEncryptionConfiguration
 })
 
 // Indicates the encryption configuration for Athena Managed Storage. If not
 // setting this field, Managed Storage will encrypt the query results with
 // Athena's encryption key
-_#defs: "/$defs/Properties/definitions/ManagedStorageEncryptionConfiguration": close(
-	{KmsKey?: _#defs."/$defs/Properties/definitions/KmsKey"},
-)
+#ManagedStorageEncryptionConfiguration: close({KmsKey?: #KmsKey})
 
 // Contains the configuration settings for managed log persistence, delivering
 // logs to Amazon S3 buckets, Amazon CloudWatch log groups etc.
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
-	CloudWatchLoggingConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingConfiguration"
-	ManagedLoggingConfiguration?:    _#defs."/$defs/Properties/definitions/ManagedLoggingConfiguration"
-	S3LoggingConfiguration?:         _#defs."/$defs/Properties/definitions/S3LoggingConfiguration"
+#MonitoringConfiguration: close({
+	CloudWatchLoggingConfiguration?: #CloudWatchLoggingConfiguration
+	ManagedLoggingConfiguration?:    #ManagedLoggingConfiguration
+	S3LoggingConfiguration?:         #S3LoggingConfiguration
 })
 
 // The location in Amazon S3 where your query results are stored, such as
@@ -192,62 +186,62 @@ _#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
 // results location using one of the ways: either for individual queries using
 // either this setting (client-side), or in the workgroup, using
 // WorkGroupConfiguration
-_#defs: "/$defs/Properties/definitions/OutputLocation": string
+#OutputLocation: string
 
 // Indicates that the Amazon CloudWatch metrics are enabled for the workgroup.
-_#defs: "/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled": bool
+#PublishCloudWatchMetricsEnabled: bool
 
-_#defs: "/$defs/Properties/definitions/RemoveAclConfiguration": bool
+#RemoveAclConfiguration: bool
 
 // Indicates that the data usage control limit per query is removed.
-_#defs: "/$defs/Properties/definitions/RemoveBytesScannedCutoffPerQuery": bool
+#RemoveBytesScannedCutoffPerQuery: bool
 
-_#defs: "/$defs/Properties/definitions/RemoveCustomerContentEncryptionConfiguration": bool
+#RemoveCustomerContentEncryptionConfiguration: bool
 
-_#defs: "/$defs/Properties/definitions/RemoveEncryptionConfiguration": bool
+#RemoveEncryptionConfiguration: bool
 
-_#defs: "/$defs/Properties/definitions/RemoveExpectedBucketOwner": bool
+#RemoveExpectedBucketOwner: bool
 
-_#defs: "/$defs/Properties/definitions/RemoveOutputLocation": bool
+#RemoveOutputLocation: bool
 
 // If set to true, allows members assigned to a workgroup to reference Amazon S3
 // Requester Pays buckets in queries. If set to false, workgroup members cannot
 // query data from Requester Pays buckets, and queries that retrieve data from
 // Requester Pays buckets cause an error.
-_#defs: "/$defs/Properties/definitions/RequesterPaysEnabled": bool
+#RequesterPaysEnabled: bool
 
 // The location in Amazon S3 where query results are stored and the encryption
 // option, if any, used for query results. These are known as "client-side
 // settings". If workgroup settings override client-side settings, then the
 // query uses the workgroup settings.
-_#defs: "/$defs/Properties/definitions/ResultConfiguration": close({
-	AclConfiguration?:        _#defs."/$defs/Properties/definitions/AclConfiguration"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	ExpectedBucketOwner?:     _#defs."/$defs/Properties/definitions/ExpectedBucketOwner"
-	OutputLocation?:          _#defs."/$defs/Properties/definitions/OutputLocation"
+#ResultConfiguration: close({
+	AclConfiguration?:        #AclConfiguration
+	EncryptionConfiguration?: #EncryptionConfiguration
+	ExpectedBucketOwner?:     #ExpectedBucketOwner
+	OutputLocation?:          #OutputLocation
 })
 
 // The result configuration information about the queries in this workgroup that
 // will be updated. Includes the updated results location and an updated option
 // for encrypting query results.
-_#defs: "/$defs/Properties/definitions/ResultConfigurationUpdates": close({
-	AclConfiguration?:              _#defs."/$defs/Properties/definitions/AclConfiguration"
-	EncryptionConfiguration?:       _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	ExpectedBucketOwner?:           _#defs."/$defs/Properties/definitions/ExpectedBucketOwner"
-	OutputLocation?:                _#defs."/$defs/Properties/definitions/OutputLocation"
-	RemoveAclConfiguration?:        _#defs."/$defs/Properties/definitions/RemoveAclConfiguration"
-	RemoveEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/RemoveEncryptionConfiguration"
-	RemoveExpectedBucketOwner?:     _#defs."/$defs/Properties/definitions/RemoveExpectedBucketOwner"
-	RemoveOutputLocation?:          _#defs."/$defs/Properties/definitions/RemoveOutputLocation"
+#ResultConfigurationUpdates: close({
+	AclConfiguration?:              #AclConfiguration
+	EncryptionConfiguration?:       #EncryptionConfiguration
+	ExpectedBucketOwner?:           #ExpectedBucketOwner
+	OutputLocation?:                #OutputLocation
+	RemoveAclConfiguration?:        #RemoveAclConfiguration
+	RemoveEncryptionConfiguration?: #RemoveEncryptionConfiguration
+	RemoveExpectedBucketOwner?:     #RemoveExpectedBucketOwner
+	RemoveOutputLocation?:          #RemoveOutputLocation
 })
 
 // The Amazon S3 canned ACL that Athena should specify when storing query
 // results. Currently the only supported canned ACL is
 // BUCKET_OWNER_FULL_CONTROL
-_#defs: "/$defs/Properties/definitions/S3AclOption": "BUCKET_OWNER_FULL_CONTROL"
+#S3AclOption: "BUCKET_OWNER_FULL_CONTROL"
 
 // Configuration settings for delivering logs to Amazon S3 buckets.
-_#defs: "/$defs/Properties/definitions/S3LoggingConfiguration": close({
+#S3LoggingConfiguration: close({
 	// Enables S3 log delivery.
 	Enabled?: bool
 
@@ -260,29 +254,28 @@ _#defs: "/$defs/Properties/definitions/S3LoggingConfiguration": close({
 
 // The engine version requested by the user. Possible values are determined by
 // the output of ListEngineVersions, including Auto. The default is Auto.
-_#defs: "/$defs/Properties/definitions/SelectedEngineVersion": string
+#SelectedEngineVersion: string
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/WorkGroupConfiguration": close({
-	AdditionalConfiguration?:    _#defs."/$defs/Properties/definitions/AdditionalConfiguration"
-	BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery"
-	CustomerContentEncryptionConfiguration?:
-		_#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration"
-	EnforceWorkGroupConfiguration?:    _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration"
-	EngineConfiguration?:              _#defs."/$defs/Properties/definitions/EngineConfiguration"
-	EngineVersion?:                    _#defs."/$defs/Properties/definitions/EngineVersion"
-	ExecutionRole?:                    _#defs."/$defs/Properties/definitions/ExecutionRole"
-	ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration"
-	MonitoringConfiguration?:          _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
-	PublishCloudWatchMetricsEnabled?:  _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled"
-	RequesterPaysEnabled?:             _#defs."/$defs/Properties/definitions/RequesterPaysEnabled"
-	ResultConfiguration?:              _#defs."/$defs/Properties/definitions/ResultConfiguration"
+#WorkGroupConfiguration: close({
+	AdditionalConfiguration?:                #AdditionalConfiguration
+	BytesScannedCutoffPerQuery?:             #BytesScannedCutoffPerQuery
+	CustomerContentEncryptionConfiguration?: #CustomerContentEncryptionConfiguration
+	EnforceWorkGroupConfiguration?:          #EnforceWorkGroupConfiguration
+	EngineConfiguration?:                    #EngineConfiguration
+	EngineVersion?:                          #EngineVersion
+	ExecutionRole?:                          #ExecutionRole
+	ManagedQueryResultsConfiguration?:       #ManagedQueryResultsConfiguration
+	MonitoringConfiguration?:                #MonitoringConfiguration
+	PublishCloudWatchMetricsEnabled?:        #PublishCloudWatchMetricsEnabled
+	RequesterPaysEnabled?:                   #RequesterPaysEnabled
+	ResultConfiguration?:                    #ResultConfiguration
 })
 
 // The configuration information that will be updated for this workgroup, which
@@ -291,21 +284,19 @@ _#defs: "/$defs/Properties/definitions/WorkGroupConfiguration": close({
 // CloudWatch Metrics are enabled for the workgroup, whether the workgroup
 // settings override the client-side settings, and the data usage limit for the
 // amount of bytes scanned per query, if it is specified.
-_#defs: "/$defs/Properties/definitions/WorkGroupConfigurationUpdates": close({
-	AdditionalConfiguration?:    _#defs."/$defs/Properties/definitions/AdditionalConfiguration"
-	BytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/BytesScannedCutoffPerQuery"
-	CustomerContentEncryptionConfiguration?:
-		_#defs."/$defs/Properties/definitions/CustomerContentEncryptionConfiguration"
-	EnforceWorkGroupConfiguration?:    _#defs."/$defs/Properties/definitions/EnforceWorkGroupConfiguration"
-	EngineConfiguration?:              _#defs."/$defs/Properties/definitions/EngineConfiguration"
-	EngineVersion?:                    _#defs."/$defs/Properties/definitions/EngineVersion"
-	ExecutionRole?:                    _#defs."/$defs/Properties/definitions/ExecutionRole"
-	ManagedQueryResultsConfiguration?: _#defs."/$defs/Properties/definitions/ManagedQueryResultsConfiguration"
-	MonitoringConfiguration?:          _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
-	PublishCloudWatchMetricsEnabled?:  _#defs."/$defs/Properties/definitions/PublishCloudWatchMetricsEnabled"
-	RemoveBytesScannedCutoffPerQuery?: _#defs."/$defs/Properties/definitions/RemoveBytesScannedCutoffPerQuery"
-	RemoveCustomerContentEncryptionConfiguration?:
-		_#defs."/$defs/Properties/definitions/RemoveCustomerContentEncryptionConfiguration"
-	RequesterPaysEnabled?:       _#defs."/$defs/Properties/definitions/RequesterPaysEnabled"
-	ResultConfigurationUpdates?: _#defs."/$defs/Properties/definitions/ResultConfigurationUpdates"
+#WorkGroupConfigurationUpdates: close({
+	AdditionalConfiguration?:                      #AdditionalConfiguration
+	BytesScannedCutoffPerQuery?:                   #BytesScannedCutoffPerQuery
+	CustomerContentEncryptionConfiguration?:       #CustomerContentEncryptionConfiguration
+	EnforceWorkGroupConfiguration?:                #EnforceWorkGroupConfiguration
+	EngineConfiguration?:                          #EngineConfiguration
+	EngineVersion?:                                #EngineVersion
+	ExecutionRole?:                                #ExecutionRole
+	ManagedQueryResultsConfiguration?:             #ManagedQueryResultsConfiguration
+	MonitoringConfiguration?:                      #MonitoringConfiguration
+	PublishCloudWatchMetricsEnabled?:              #PublishCloudWatchMetricsEnabled
+	RemoveBytesScannedCutoffPerQuery?:             #RemoveBytesScannedCutoffPerQuery
+	RemoveCustomerContentEncryptionConfiguration?: #RemoveCustomerContentEncryptionConfiguration
+	RequesterPaysEnabled?:                         #RequesterPaysEnabled
+	ResultConfigurationUpdates?:                   #ResultConfigurationUpdates
 })

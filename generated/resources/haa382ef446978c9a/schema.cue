@@ -19,24 +19,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS IoT Stream. A stream is a publicly
 // addressable resource that is an abstraction for a list of files that can be
 // transferred to an IoT device.
-#Properties: close({
-	Description?: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
-	Files!: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/StreamFile"] |
-		fn.#ListExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	StreamId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::Stream"
+	Properties!: close({
+		Description?: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
+		Files!:       list.MaxItems(50) & list.MinItems(1) & [...#StreamFile] | fn.#ListExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		StreamId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Tags?:     [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket?:  strings.MinRunes(1) | fn.#StringExpression
 	Key?:     strings.MinRunes(1) | fn.#StringExpression
 	Version?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamFile": close({
+#StreamFile: close({
 	FileId?: int & <=255 & >=0 |
 		{
 			string &
@@ -53,16 +55,12 @@ _#defs: "/$defs/Properties/definitions/StreamFile": close({
 				)
 		} |
 		fn.#NumberExpression
-	S3Location?: _#defs."/$defs/Properties/definitions/S3Location"
+	S3Location?: #S3Location
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::Stream"
-	Properties!: #Properties
-}

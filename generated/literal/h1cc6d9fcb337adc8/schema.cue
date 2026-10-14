@@ -13,45 +13,41 @@ import (
 #Properties: close({
 	Arn?:                     strings.MaxRunes(200)
 	CollaborationArn?:        strings.MaxRunes(100)
-	CollaborationIdentifier?: _#defs."/$defs/Properties/definitions/UUID"
+	CollaborationIdentifier?: #UUID
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$"
-	IdMappingTableIdentifier?: _#defs."/$defs/Properties/definitions/UUID"
-	InputReferenceConfig!:     _#defs."/$defs/Properties/definitions/IdMappingTableInputReferenceConfig"
-	InputReferenceProperties?: _#defs."/$defs/Properties/definitions/IdMappingTableInputReferenceProperties"
+	IdMappingTableIdentifier?: #UUID
+	InputReferenceConfig!:     #IdMappingTableInputReferenceConfig
+	InputReferenceProperties?: #IdMappingTableInputReferenceProperties
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(4) &
 	=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$"
 	MembershipArn?:        strings.MaxRunes(100)
-	MembershipIdentifier!: _#defs."/$defs/Properties/definitions/UUID"
+	MembershipIdentifier!: #UUID
 	Name!:                 strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
-	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                 list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/IdMappingTableInputReferenceConfig": close({
+#IdMappingTableInputReferenceConfig: close({
 	InputReferenceArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(idmappingworkflow/.*)$"
 	ManageResourcePolicies!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/IdMappingTableInputReferenceProperties": close({
-	IdMappingTableInputSource!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/IdMappingTableInputSource"
-	]
-})
+#IdMappingTableInputReferenceProperties: close(
+	{IdMappingTableInputSource!: list.MaxItems(2) & list.MinItems(2) & [...#IdMappingTableInputSource]},
+)
 
-_#defs: "/$defs/Properties/definitions/IdMappingTableInputSource": close({
+#IdMappingTableInputSource: close({
 	IdNamespaceAssociationId!: string
 	Type!:                     "SOURCE" | "TARGET"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/UUID": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"

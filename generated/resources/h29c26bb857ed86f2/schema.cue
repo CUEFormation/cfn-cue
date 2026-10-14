@@ -17,15 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::RequesterGateway Resource Type.
-#Properties: close({
-	Description?:      _#defs."/$defs/Properties/definitions/Description"
-	SecurityGroupIds!: _#defs."/$defs/Properties/definitions/SecurityGroupIds"
-	SubnetIds!:        _#defs."/$defs/Properties/definitions/SubnetIds"
-	Tags?:             _#defs."/$defs/Properties/definitions/Tags"
-	VpcId!:            _#defs."/$defs/Properties/definitions/VpcId"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RTBFabric::RequesterGateway"
+	Properties!: close({
+		Description?:      #Description
+		SecurityGroupIds!: #SecurityGroupIds
+		SubnetIds!:        #SubnetIds
+		Tags?:             #Tags
+		VpcId!:            #VpcId
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ActiveLinksCount": int |
+#ActiveLinksCount: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -39,22 +42,21 @@ _#defs: "/$defs/Properties/definitions/ActiveLinksCount": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedTimestamp": string | fn.#StringExpression
+#CreatedTimestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Description": =~"^[A-Za-z0-9 ]+$" | fn.#StringExpression
+#Description: =~"^[A-Za-z0-9 ]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DomainName": =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
+#DomainName: =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayId": =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$" |
-	fn.#StringExpression
+#GatewayId: =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RequesterGatewayStatus": "PENDING_CREATION" |
+#RequesterGatewayStatus: "PENDING_CREATION" |
 	"ACTIVE" |
 	"PENDING_DELETION" |
 	"DELETED" |
@@ -65,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/RequesterGatewayStatus": "PENDING_CREATIO
 	"PENDING_RESTORATION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & list.UniqueItems() & [
+#SecurityGroupIds: list.MinItems(1) & list.UniqueItems() & [
 	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	string &
 	strings.MaxRunes(43) &
@@ -75,24 +77,21 @@ _#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & lis
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetIds": list.MinItems(1) & list.UniqueItems() & [
+#SubnetIds: list.MinItems(1) & list.UniqueItems() & [
 	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8,17}$" | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
 	fn.#StringExpression
 	Value?: strings.MaxRunes(1600) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TotalLinksCount": int |
+#TotalLinksCount: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -106,14 +105,10 @@ _#defs: "/$defs/Properties/definitions/TotalLinksCount": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string | fn.#StringExpression
+#UpdatedTimestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#VpcId: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(50) &
 strings.MinRunes(5) &
 =~"^vpc-[a-f0-9]{8,17}$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RTBFabric::RequesterGateway"
-	Properties!: #Properties
-}

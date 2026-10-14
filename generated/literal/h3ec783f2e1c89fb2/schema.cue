@@ -9,7 +9,7 @@ import "strings"
 // Definition of AWS::RefactorSpaces::Application Resource Type
 #Properties: close({
 	ApiGatewayId?:          strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[a-z0-9]{10}$"
-	ApiGatewayProxy?:       _#defs."/$defs/Properties/definitions/ApiGatewayProxyInput"
+	ApiGatewayProxy?:       #ApiGatewayProxyInput
 	ApplicationIdentifier?: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)"
 	Arn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -20,7 +20,7 @@ import "strings"
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z-]*)?:elasticloadbalancing:[a-zA-Z0-9\\\\-]+:\\\\w{12}:[a-zA-Z_0-9+=,.@\\\\-_\\/]+$"
 	NlbName?:   strings.MaxRunes(32) & strings.MinRunes(1)
-	ProxyType!: _#defs."/$defs/Properties/definitions/ProxyType"
+	ProxyType!: #ProxyType
 	ProxyUrl?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^http://[-a-zA-Z0-9+\\x38@#/%?=~_|!:,.;]*[-a-zA-Z0-9+\\x38@#/%=~_|]$"
@@ -28,7 +28,7 @@ import "strings"
 
 	// Metadata that you can assign to help organize the frameworks that you create.
 	// Each tag is a key-value pair.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 	strings.MaxRunes(21) &
 	strings.MinRunes(12) &
@@ -36,17 +36,17 @@ import "strings"
 	VpcLinkId?: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[a-z0-9]{10}$"
 })
 
-_#defs: "/$defs/Properties/definitions/ApiGatewayEndpointType": "REGIONAL" | "PRIVATE"
+#ApiGatewayEndpointType: "REGIONAL" | "PRIVATE"
 
-_#defs: "/$defs/Properties/definitions/ApiGatewayProxyInput": close({
-	EndpointType?: _#defs."/$defs/Properties/definitions/ApiGatewayEndpointType"
+#ApiGatewayProxyInput: close({
+	EndpointType?: #ApiGatewayEndpointType
 	StageName?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/ProxyType": "API_GATEWAY"
+#ProxyType: "API_GATEWAY"
 
 // A label for tagging Environment resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

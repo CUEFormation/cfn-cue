@@ -50,8 +50,8 @@ import (
 	Status?: "CREATED" | "PENDING" | "TESTING" | "PARTIAL" | "ACTIVE" | "DELETED"
 
 	// An array of key-value pairs to apply to the RCS agent.
-	Tags?:         list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TestingAgent?: _#defs."/$defs/Properties/definitions/TestingAgentInformation"
+	Tags?:         list.MaxItems(200) & list.UniqueItems() & [...#Tag]
+	TestingAgent?: #TestingAgentInformation
 
 	// The Amazon Resource Name (ARN) of the two way channel where inbound messages are delivered.
 	TwoWayChannelArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^\\S+$"
@@ -83,7 +83,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$"
 
@@ -94,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // Information about the testing agent (RCS for Business ID) associated with the
 // RCS agent. A testing agent is created by submitting a testing registration,
 // and allows sending to registered test devices without carrier approval.
-_#defs: "/$defs/Properties/definitions/TestingAgentInformation": close({
+#TestingAgentInformation: close({
 	// The unique identifier of the testing registration that created the testing agent.
 	RegistrationId!: string
 

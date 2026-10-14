@@ -13,29 +13,29 @@ import (
 // on a link within RTB Fabric that controls request routing based on
 // conditions such as host headers, path matching, and query string parameters.
 #Properties: close({
-	Arn?:              _#defs."/$defs/Properties/definitions/Arn"
-	Conditions!:       _#defs."/$defs/Properties/definitions/RuleCondition"
-	CreatedTimestamp?: _#defs."/$defs/Properties/definitions/CreatedTimestamp"
-	GatewayId!:        _#defs."/$defs/Properties/definitions/GatewayId"
-	LinkId!:           _#defs."/$defs/Properties/definitions/LinkId"
-	Priority!:         _#defs."/$defs/Properties/definitions/RulePriority"
-	RuleId?:           _#defs."/$defs/Properties/definitions/RuleId"
-	Status?:           _#defs."/$defs/Properties/definitions/RuleStatus"
-	Tags?:             _#defs."/$defs/Properties/definitions/Tags"
-	UpdatedTimestamp?: _#defs."/$defs/Properties/definitions/UpdatedTimestamp"
+	Arn?:              #Arn
+	Conditions!:       #RuleCondition
+	CreatedTimestamp?: #CreatedTimestamp
+	GatewayId!:        #GatewayId
+	LinkId!:           #LinkId
+	Priority!:         #RulePriority
+	RuleId?:           #RuleId
+	Status?:           #RuleStatus
+	Tags?:             #Tags
+	UpdatedTimestamp?: #UpdatedTimestamp
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+/routing-rule/[a-zA-Z0-9-]+$"
 
-_#defs: "/$defs/Properties/definitions/CreatedTimestamp": string
+#CreatedTimestamp: string
 
-_#defs: "/$defs/Properties/definitions/GatewayId": =~"^rtb-gw-[a-z0-9-]{1,25}$"
+#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$"
 
-_#defs: "/$defs/Properties/definitions/LinkId": =~"^link-[a-z0-9-]{1,25}$"
+#LinkId: =~"^link-[a-z0-9-]{1,25}$"
 
-_#defs: "/$defs/Properties/definitions/QueryStringKeyValuePair": close({
+#QueryStringKeyValuePair: close({
 	// Query string key — RFC 3986 unreserved characters.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$"
 
@@ -46,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/QueryStringKeyValuePair": close({
 // Conditions for a routing rule. All non-null fields must match (AND logic). At
 // least one field must be set. HostHeader and HostHeaderWildcard are mutually
 // exclusive. PathPrefix and PathExact are mutually exclusive.
-_#defs: "/$defs/Properties/definitions/RuleCondition": close({
+#RuleCondition: close({
 	HostHeader?: _
 	if HostHeader != _|_ {
 		matchN(1, [
@@ -93,25 +93,20 @@ _#defs: "/$defs/Properties/definitions/RuleCondition": close({
 	"PathPrefix"?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$"
 
 	// Query string key=value pair match (single pair).
-	"QueryStringEquals"?: _#defs."/$defs/Properties/definitions/QueryStringKeyValuePair"
+	"QueryStringEquals"?: #QueryStringKeyValuePair
 
 	// Query string key presence check (any value accepted).
 	QueryStringExists?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/RuleId": =~"^rule-[a-z0-9-]{1,25}$"
+#RuleId: =~"^rule-[a-z0-9-]{1,25}$"
 
-_#defs: "/$defs/Properties/definitions/RulePriority": int & <=1000 & >=1
+#RulePriority: int & <=1000 & >=1
 
-_#defs: "/$defs/Properties/definitions/RuleStatus": "CREATION_IN_PROGRESS" |
-	"ACTIVE" |
-	"UPDATE_IN_PROGRESS" |
-	"DELETION_IN_PROGRESS" |
-	"DELETED" |
-	"FAILED"
+#RuleStatus: "CREATION_IN_PROGRESS" | "ACTIVE" | "UPDATE_IN_PROGRESS" | "DELETION_IN_PROGRESS" | "DELETED" | "FAILED"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -126,8 +121,6 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Tags to assign to the LinkRoutingRule.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string
+#UpdatedTimestamp: string

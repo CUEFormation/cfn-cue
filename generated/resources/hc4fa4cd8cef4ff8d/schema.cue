@@ -16,31 +16,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::QueueEnvironment
-#Properties: close({
-	FarmId!: =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	Priority!: int & <=10000 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10000 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	QueueId!:      =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression
-	Template!:     strings.MaxRunes(15000) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateType!: _#defs."/$defs/Properties/definitions/EnvironmentTemplateType"
-})
-
-_#defs: "/$defs/Properties/definitions/EnvironmentTemplateType": "JSON" | "YAML" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::QueueEnvironment"
-	Properties!: #Properties
+	Type!: "AWS::Deadline::QueueEnvironment"
+	Properties!: close({
+		FarmId!: =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		Priority!: int & <=10000 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10000 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		QueueId!:      =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression
+		Template!:     strings.MaxRunes(15000) & strings.MinRunes(1) | fn.#StringExpression
+		TemplateType!: #EnvironmentTemplateType
+	})
 }
+
+#EnvironmentTemplateType: "JSON" | "YAML" | fn.#StringExpression

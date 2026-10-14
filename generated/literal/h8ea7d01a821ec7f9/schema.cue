@@ -16,23 +16,23 @@ import (
 	Arn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}$"
-	Config?:        _#defs."/$defs/Properties/definitions/TargetGroupConfig"
+	Config?:        #TargetGroupConfig
 	CreatedAt?:     string
 	Id?:            strings.MaxRunes(20) & strings.MinRunes(20) & =~"^tg-[0-9a-z]{17}$"
 	LastUpdatedAt?: string
 	Name?:          strings.MaxRunes(128) & strings.MinRunes(3)
 	Status?:        "CREATE_IN_PROGRESS" | "ACTIVE" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Targets?:       list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Target"]
+	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
+	Targets?:       list.MaxItems(100) & [...] & [...#Target]
 	Type!:          "IP" | "LAMBDA" | "INSTANCE" | "ALB"
 })
 
-_#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
+#HealthCheckConfig: close({
 	Enabled?:                    bool
 	HealthCheckIntervalSeconds?: int & <=300 & >=5
 	HealthCheckTimeoutSeconds?:  int & <=120 & >=1
 	HealthyThresholdCount?:      int & <=10 & >=2
-	Matcher?:                    _#defs."/$defs/Properties/definitions/Matcher"
+	Matcher?:                    #Matcher
 	Path?:                       strings.MaxRunes(2048) & strings.MinRunes(0) & =~"(^/[a-zA-Z0-9@:%_+.~#?&/=-]*$|(^$))"
 	Port?:                       int & <=65535 & >=1
 	Protocol?:                   "HTTP" | "HTTPS"
@@ -40,22 +40,20 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
 	UnhealthyThresholdCount?:    int & <=10 & >=2
 })
 
-_#defs: "/$defs/Properties/definitions/Matcher": close(
-	{HttpCode!: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9-,]+$"},
-)
+#Matcher: close({HttpCode!: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9-,]+$"})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	Id!:   string
 	Port?: int & <=65535 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/TargetGroupConfig": close({
-	HealthCheck?:                 _#defs."/$defs/Properties/definitions/HealthCheckConfig"
+#TargetGroupConfig: close({
+	HealthCheck?:                 #HealthCheckConfig
 	IpAddressType?:               "IPV4" | "IPV6"
 	LambdaEventStructureVersion?: "V1" | "V2"
 	Port?:                        int & <=65535 & >=1

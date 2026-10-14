@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,39 +17,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Evidently::Feature.
-#Properties: close({
-	DefaultVariation?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Description?:      strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-	EntityOverrides?: list.MaxItems(2500) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/EntityOverride"
-	] |
-		fn.#ListExpression
-	EvaluationStrategy?: "ALL_RULES" | "DEFAULT_VARIATION" | fn.#StringExpression
-	Name!:               strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Project!: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Variations!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VariationObject"
-	] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Evidently::Feature"
+	Properties!: close({
+		DefaultVariation?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+		Description?:      strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
+		EntityOverrides?:  list.MaxItems(2500) & list.UniqueItems() & [...] & [...#EntityOverride] | fn.#ListExpression
+		EvaluationStrategy?: "ALL_RULES" | "DEFAULT_VARIATION" | fn.#StringExpression
+		Name!:               strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+		Project!: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Variations!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#VariationObject] |
+			fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EntityOverride": close({
+#EntityOverride: close({
 	EntityId?:  string | fn.#StringExpression
 	Variation?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VariationObject": matchN(1, [{
+#VariationObject: matchN(1, [{
 	VariationName!: _
 	StringValue!:   _
 	...
@@ -109,7 +107,3 @@ _#defs: "/$defs/Properties/definitions/VariationObject": matchN(1, [{
 	VariationName?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Evidently::Feature"
-	Properties!: #Properties
-}

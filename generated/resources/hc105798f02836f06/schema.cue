@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,21 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::Entitlement
-#Properties: close({
-	AppVisibility!: "ALL" | "ASSOCIATED" | fn.#StringExpression
-	Attributes!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Attribute"] |
-		fn.#ListExpression
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	StackName!:   =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::Entitlement"
+	Properties!: close({
+		AppVisibility!: "ALL" | "ASSOCIATED" | fn.#StringExpression
+		Attributes!:    list.MinItems(1) & list.UniqueItems() & [...#Attribute] | fn.#ListExpression
+		Description?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:          =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+		StackName!:     =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Attribute": close({
+#Attribute: close({
 	Name!:  strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::Entitlement"
-	Properties!: #Properties
-}

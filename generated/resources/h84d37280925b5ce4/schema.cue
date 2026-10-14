@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -13,28 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::Application
-#Properties: close({
-	AppBlockArn!: _#defs."/$defs/Properties/definitions/Arn"
-	AttributesToDelete?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ApplicationAttribute"] |
-		fn.#ListExpression
-	Description?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName?:      strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	IconS3Location!:   _#defs."/$defs/Properties/definitions/S3Location"
-	InstanceFamilies!: list.UniqueItems() & [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	LaunchParameters?: strings.MinRunes(1) | fn.#StringExpression
-	LaunchPath!:       strings.MinRunes(1) | fn.#StringExpression
-	Name!:             =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	Platforms!: list.MaxItems(4) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/PlatformType"] |
-		fn.#ListExpression
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WorkingDirectory?: strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::Application"
+	Properties!: close({
+		AppBlockArn!:        #Arn
+		AttributesToDelete?: list.UniqueItems() & [...#ApplicationAttribute] | fn.#ListExpression
+		Description?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName?:        strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		IconS3Location!:     #S3Location
+		InstanceFamilies!:   list.UniqueItems() & [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		LaunchParameters?:   strings.MinRunes(1) | fn.#StringExpression
+		LaunchPath!:         strings.MinRunes(1) | fn.#StringExpression
+		Name!:               =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+		Platforms!:          list.MaxItems(4) & list.UniqueItems() & [...] & [...#PlatformType] | fn.#ListExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		WorkingDirectory?:   strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ApplicationAttribute": string | fn.#StringExpression
+#ApplicationAttribute: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PlatformType": "AMAZON_LINUX2" |
+#PlatformType: "AMAZON_LINUX2" |
 	"RHEL8" |
 	"ROCKY_LINUX8" |
 	"UBUNTU_PRO_2404" |
@@ -45,13 +46,13 @@ _#defs: "/$defs/Properties/definitions/PlatformType": "AMAZON_LINUX2" |
 	"WINDOWS_SERVER_2025" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	S3Key!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": matchN(1, [close({
+#Tag: matchN(1, [close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }), close({
@@ -59,7 +60,3 @@ _#defs: "/$defs/Properties/definitions/Tag": matchN(1, [close({
 	TagValue!: string | fn.#StringExpression
 })]) |
 fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::Application"
-	Properties!: #Properties
-}

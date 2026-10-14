@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -17,82 +17,95 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Kinesis::Stream
-#Properties: close({
-	DesiredShardLevelMetrics?: list.MaxItems(7) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnhancedMetric"
-	] |
-		fn.#ListExpression
-	MaxRecordSizeInKiB?: int & <=10240 & >=1024 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10240 &
-							>=1024,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	RecordDistributionStrategy?: "AUTO" | "USER_PARTITION_KEY" | fn.#StringExpression
-	RetentionPeriodHours?: int & <=8760 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=8760 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ShardCount?: int & <=100000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=100000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StreamEncryption?:  _#defs."/$defs/Properties/definitions/StreamEncryption" | fn.#ObjectExpression
-	StreamModeDetails?: _#defs."/$defs/Properties/definitions/StreamModeDetails" | fn.#ObjectExpression
-	Tags?:              list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WarmThroughputMiBps?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Kinesis::Stream"
+	Properties?: close({
+		DesiredShardLevelMetrics?: list.MaxItems(7) & list.UniqueItems() & [...#EnhancedMetric] | fn.#ListExpression
+		MaxRecordSizeInKiB?: int & <=10240 & >=1024 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10240 &
+								>=1024,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+		RecordDistributionStrategy?: "AUTO" | "USER_PARTITION_KEY" | fn.#StringExpression
+		RetentionPeriodHours?: int & <=8760 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=8760 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ShardCount?: int & <=100000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=100000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/EnhancedMetric": "IncomingBytes" |
+		// When specified, enables or updates server-side encryption using an AWS KMS
+		// key for a specified stream.
+		StreamEncryption?: #StreamEncryption
+
+		// The mode in which the stream is running.
+		StreamModeDetails?: #StreamModeDetails
+		Tags?:              list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		WarmThroughputMiBps?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
+
+#EnhancedMetric: "IncomingBytes" |
 	"IncomingRecords" |
 	"OutgoingBytes" |
 	"OutgoingRecords" |
@@ -102,24 +115,21 @@ _#defs: "/$defs/Properties/definitions/EnhancedMetric": "IncomingBytes" |
 	"ALL" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StreamEncryption": close({
+#StreamEncryption: close({
 	EncryptionType!: "KMS" | fn.#StringExpression
 	KeyId!:          string & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamModeDetails": close(
-	{StreamMode!: "ON_DEMAND" | "PROVISIONED" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#StreamModeDetails: close({StreamMode!: "ON_DEMAND" | "PROVISIONED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmThroughputObject": close({
+#WarmThroughputObject: close({
 	CurrentMiBps?: int |
 		{
 			string &
@@ -150,7 +160,3 @@ _#defs: "/$defs/Properties/definitions/WarmThroughputObject": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Kinesis::Stream"
-	Properties?: #Properties
-}

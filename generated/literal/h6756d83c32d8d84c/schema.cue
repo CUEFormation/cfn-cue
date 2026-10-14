@@ -31,7 +31,7 @@ import (
 	LastModifiedTime?: time.Time
 
 	// Metadata properties of the tracking entity, trial, or trial component.
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties"
+	MetadataProperties?: #MetadataProperties
 
 	// A list of properties to add to the artifact.
 	Properties?: struct.MaxFields(30) & close({
@@ -39,21 +39,21 @@ import (
 		{[=~".+"]: strings.MaxRunes(4096)}})
 
 	// The source of the artifact.
-	Source!: _#defs."/$defs/Properties/definitions/ArtifactSource"
+	Source!: #ArtifactSource
 
 	// A list of tags to apply to the artifact.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ArtifactSource": close({
+#ArtifactSource: close({
 	// A list of source types.
-	SourceTypes?: [..._#defs."/$defs/Properties/definitions/ArtifactSourceType"]
+	SourceTypes?: [...#ArtifactSourceType]
 
 	// The URI of the source.
 	SourceUri!: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ArtifactSourceType": close({
+#ArtifactSourceType: close({
 	// The type of ID.
 	SourceIdType!: "MD5Hash" | "S3ETag" | "S3Version" | "Custom"
 
@@ -61,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/ArtifactSourceType": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	// The commit ID.
 	CommitId?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
@@ -75,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 	Repository?: strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

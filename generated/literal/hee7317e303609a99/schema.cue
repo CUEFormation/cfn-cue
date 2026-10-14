@@ -21,15 +21,15 @@ import "strings"
 	=~"^$|^arn:(aws|aws-cn|aws-us-gov):logs:([a-zA-Z0-9-]+):([0-9]+):log-group:[a-zA-Z0-9_\\-\\/\\.]+:\\*$"
 	Name?:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$"
 	Password?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -~]+$"
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:     [...#Tag]
 	Username?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/HypervisorState": "PENDING" | "ONLINE" | "OFFLINE" | "ERROR"
+#HypervisorState: "PENDING" | "ONLINE" | "OFFLINE" | "ERROR"
 
-_#defs: "/$defs/Properties/definitions/SyncMetadataStatus": "PENDING" | "IN_PROGRESS" | "FAILED" | "SUCCEEDED"
+#SyncMetadataStatus: "PENDING" | "IN_PROGRESS" | "FAILED" | "SUCCEEDED"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[^\\x00]*$"
 })

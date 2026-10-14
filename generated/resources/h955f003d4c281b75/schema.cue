@@ -16,34 +16,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // user-defined settings. You can use this resource to define settings like
 // time granularity (hourly, daily, monthly), file format (Parquet, CSV), and
 // S3 bucket for delivery of these reports.
-#Properties: close({
-	AdditionalArtifacts?: [..."REDSHIFT" | "QUICKSIGHT" | "ATHENA" | fn.#StringExpression] | fn.#ListExpression
-	AdditionalSchemaElements?: [
-		..."RESOURCES" | "SPLIT_COST_ALLOCATION_DATA" | "MANUAL_DISCOUNT_COMPATIBILITY" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	BillingViewArn?: strings.MaxRunes(128) &
-	strings.MinRunes(1) &
-	=~"(arn:aws(-cn)?:billing::[0-9]{12}:billingview/)?[a-zA-Z0-9_\\+=\\.\\-@].{1,30}" |
-	fn.#StringExpression
-	Compression!:          "ZIP" | "GZIP" | "Parquet" | fn.#StringExpression
-	Format!:               "textORcsv" | "Parquet" | fn.#StringExpression
-	RefreshClosedReports!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ReportName!:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()]+" | fn.#StringExpression
-	ReportVersioning!: "CREATE_NEW_REPORT" | "OVERWRITE_REPORT" | fn.#StringExpression
-	S3Bucket!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\.\\-]+" | fn.#StringExpression
-	S3Prefix!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()/]*" | fn.#StringExpression
-	S3Region!: string | fn.#StringExpression
-	Tags?:     list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeUnit!: "HOURLY" | "DAILY" | "MONTHLY" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CUR::ReportDefinition"
+	Properties!: close({
+		AdditionalArtifacts?: [..."REDSHIFT" | "QUICKSIGHT" | "ATHENA" | fn.#StringExpression] | fn.#ListExpression
+		AdditionalSchemaElements?: [
+			..."RESOURCES" | "SPLIT_COST_ALLOCATION_DATA" | "MANUAL_DISCOUNT_COMPATIBILITY" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		BillingViewArn?: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"(arn:aws(-cn)?:billing::[0-9]{12}:billingview/)?[a-zA-Z0-9_\\+=\\.\\-@].{1,30}" |
+		fn.#StringExpression
+		Compression!:          "ZIP" | "GZIP" | "Parquet" | fn.#StringExpression
+		Format!:               "textORcsv" | "Parquet" | fn.#StringExpression
+		RefreshClosedReports!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ReportName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()]+" | fn.#StringExpression
+		ReportVersioning!: "CREATE_NEW_REPORT" | "OVERWRITE_REPORT" | fn.#StringExpression
+		S3Bucket!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\.\\-]+" | fn.#StringExpression
+		S3Prefix!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()/]*" | fn.#StringExpression
+		S3Region!: string | fn.#StringExpression
+		Tags?:     list.MaxItems(100) & [...] & [...#Tag] | fn.#ListExpression
+		TimeUnit!: "HOURLY" | "DAILY" | "MONTHLY" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CUR::ReportDefinition"
-	Properties!: #Properties
-}

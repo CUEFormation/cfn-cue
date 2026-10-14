@@ -19,22 +19,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A report generator that creates periodic reports about your AWS License
 // Manager license configurations.
-#Properties: close({
-	Description?:         string | fn.#StringExpression
-	ReportContext!:       _#defs."/$defs/Properties/definitions/ReportContext"
-	ReportFrequency!:     _#defs."/$defs/Properties/definitions/ReportFrequency"
-	ReportGeneratorName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ReportType!: [
-		..."LicenseConfigurationSummaryReport" |
-			"LicenseConfigurationUsageReport" |
-			"LicenseAssetGroupUsageReport" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::ReportGenerator"
+	Properties!: close({
+		Description?:         string | fn.#StringExpression
+		ReportContext!:       #ReportContext
+		ReportFrequency!:     #ReportFrequency
+		ReportGeneratorName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ReportType!: [
+			..."LicenseConfigurationSummaryReport" |
+				"LicenseConfigurationUsageReport" |
+				"LicenseAssetGroupUsageReport" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ReportContext": close({
+#ReportContext: close({
 	LicenseAssetGroupArns?: [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
 	LicenseConfigurationArns?: [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
@@ -44,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/ReportContext": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReportFrequency": close({
+#ReportFrequency: close({
 	Period?: "DAY" | "WEEK" | "MONTH" | "ONE_TIME" | fn.#StringExpression
 	Value?: int |
 		{
@@ -63,18 +66,14 @@ _#defs: "/$defs/Properties/definitions/ReportFrequency": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket?:    string | fn.#StringExpression
 	KeyPrefix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::ReportGenerator"
-	Properties!: #Properties
-}

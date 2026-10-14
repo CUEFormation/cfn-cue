@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -28,26 +28,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to monitor costs and
 // [](https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html)
 // to manage API requests.
-#Properties: close({
-	ApiStages?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ApiStage"] | fn.#ListExpression
-	Description?:   string | fn.#StringExpression
-	Quota?:         _#defs."/$defs/Properties/definitions/QuotaSettings" | fn.#ObjectExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Throttle?:      _#defs."/$defs/Properties/definitions/ThrottleSettings" | fn.#ObjectExpression
-	UsagePlanName?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::UsagePlan"
+	Properties?: close({
+		ApiStages?:     list.UniqueItems() & [...#ApiStage] | fn.#ListExpression
+		Description?:   string | fn.#StringExpression
+		Quota?:         #QuotaSettings
+		Tags?:          [...#Tag] | fn.#ListExpression
+		Throttle?:      #ThrottleSettings
+		UsagePlanName?: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ApiStage": close({
+#ApiStage: close({
 	ApiId?: string | fn.#StringExpression
 	Stage?: string | fn.#StringExpression
 	Throttle?: close({
 
-		{[=~".*"]: _#defs."/$defs/Properties/definitions/ThrottleSettings"}}) |
+		{[=~".*"]: #ThrottleSettings}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuotaSettings": close({
+#QuotaSettings: close({
 	Limit?: int & >=0 |
 		{
 			string &
@@ -82,13 +85,13 @@ _#defs: "/$defs/Properties/definitions/QuotaSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThrottleSettings": close({
+#ThrottleSettings: close({
 	BurstLimit?: int & >=0 |
 		{
 			string &
@@ -125,7 +128,3 @@ _#defs: "/$defs/Properties/definitions/ThrottleSettings": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::UsagePlan"
-	Properties?: #Properties
-}

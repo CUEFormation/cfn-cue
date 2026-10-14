@@ -18,18 +18,18 @@ import "strings"
 	TableName!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Specifies configuration details of a table optimizer.
-	TableOptimizerConfiguration!: _#defs."/$defs/Properties/definitions/TableOptimizerConfiguration"
+	TableOptimizerConfiguration!: #TableOptimizerConfiguration
 
 	// The type of table optimizer.
 	Type!: "compaction" | "orphan_file_deletion" | "retention"
 })
 
-_#defs: "/$defs/Properties/definitions/CompactionConfiguration": close({
+#CompactionConfiguration: close({
 	// The configuration for an Iceberg compaction optimizer.
-	IcebergConfiguration?: _#defs."/$defs/Properties/definitions/IcebergCompactionConfiguration"
+	IcebergConfiguration?: #IcebergCompactionConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/IcebergCompactionConfiguration": close({
+#IcebergCompactionConfiguration: close({
 	// The minimum number of deletes in a data file to make it eligible for compaction.
 	DeleteFileThreshold?: int
 
@@ -40,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/IcebergCompactionConfiguration": close({
 	Strategy?: "binpack" | "sort" | "z-order"
 })
 
-_#defs: "/$defs/Properties/definitions/IcebergConfiguration": close({
+#IcebergConfiguration: close({
 	// Specifies a directory in which to look for orphan files (defaults to the
 	// table's location). You may choose a sub-directory rather than the top-level
 	// table location.
@@ -50,29 +50,29 @@ _#defs: "/$defs/Properties/definitions/IcebergConfiguration": close({
 	OrphanFileRetentionPeriodInDays?: int
 })
 
-_#defs: "/$defs/Properties/definitions/IcebergRetentionConfiguration": close({
+#IcebergRetentionConfiguration: close({
 	CleanExpiredFiles?:             bool
 	NumberOfSnapshotsToRetain?:     int
 	SnapshotRetentionPeriodInDays?: int
 })
 
-_#defs: "/$defs/Properties/definitions/OrphanFileDeletionConfiguration": close({
+#OrphanFileDeletionConfiguration: close({
 	// The IcebergConfiguration property helps optimize your Iceberg tables in AWS
 	// Glue by allowing you to specify format-specific settings that control how
 	// data is stored, compressed, and managed.
-	IcebergConfiguration?: _#defs."/$defs/Properties/definitions/IcebergConfiguration"
+	IcebergConfiguration?: #IcebergConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/RetentionConfiguration": close({
+#RetentionConfiguration: close({
 	// The configuration for an Iceberg snapshot retention optimizer.
-	IcebergConfiguration?: _#defs."/$defs/Properties/definitions/IcebergRetentionConfiguration"
+	IcebergConfiguration?: #IcebergRetentionConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/TableOptimizerConfiguration": close({
+#TableOptimizerConfiguration: close({
 	// The configuration for a compaction optimizer. This configuration defines how
 	// data files in your table will be compacted to improve query performance and
 	// reduce storage costs.
-	CompactionConfiguration?: _#defs."/$defs/Properties/definitions/CompactionConfiguration"
+	CompactionConfiguration?: #CompactionConfiguration
 
 	// Whether the table optimization is enabled.
 	Enabled!: bool
@@ -81,10 +81,10 @@ _#defs: "/$defs/Properties/definitions/TableOptimizerConfiguration": close({
 	// TableOptimizer resource. It controls the automatic deletion of orphaned
 	// files - files that are not tracked by the table metadata, and older than the
 	// configured age limit.
-	OrphanFileDeletionConfiguration?: _#defs."/$defs/Properties/definitions/OrphanFileDeletionConfiguration"
+	OrphanFileDeletionConfiguration?: #OrphanFileDeletionConfiguration
 
 	// The configuration for a snapshot retention optimizer for Apache Iceberg tables.
-	RetentionConfiguration?: _#defs."/$defs/Properties/definitions/RetentionConfiguration"
+	RetentionConfiguration?: #RetentionConfiguration
 
 	// A role passed by the caller which gives the service permission to update the
 	// resources associated with the optimizer on the caller's behalf.
@@ -93,10 +93,10 @@ _#defs: "/$defs/Properties/definitions/TableOptimizerConfiguration": close({
 	// An object that describes the VPC configuration for a table optimizer. This
 	// configuration is necessary to perform optimization on tables that are in a
 	// customer VPC.
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	VpcConfiguration?: #VpcConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	// The name of the AWS Glue connection used for the VPC for the table optimizer.
 	GlueConnectionName?: string
 })

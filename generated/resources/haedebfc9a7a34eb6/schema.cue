@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,24 +17,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::ConnectAttachment Resource Type Definition
-#Properties: close({
-	CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
-	fn.#StringExpression
-	EdgeLocation!:             strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	NetworkFunctionGroupName?: string | fn.#StringExpression
-	Options!:                  _#defs."/$defs/Properties/definitions/ConnectAttachmentOptions" | fn.#ObjectExpression
-	RoutingPolicyLabel?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TransportAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkManager::ConnectAttachment"
+	Properties!: close({
+		CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
+		fn.#StringExpression
+		EdgeLocation!:             strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		NetworkFunctionGroupName?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectAttachmentOptions": close(
-	{Protocol?: "GRE" | "NO_ENCAP" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+		// Protocol options for connect attachment
+		Options!:            #ConnectAttachmentOptions
+		RoutingPolicyLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TransportAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange": close({
+#ConnectAttachmentOptions: close({Protocol?: "GRE" | "NO_ENCAP" | fn.#StringExpression}) | fn.#ObjectExpression
+
+#ProposedNetworkFunctionGroupChange: close({
 	AttachmentPolicyRuleNumber?: int |
 		{
 			string &
@@ -50,11 +52,11 @@ _#defs: "/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange": clos
 		} |
 		fn.#NumberExpression
 	NetworkFunctionGroupName?: string | fn.#StringExpression
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProposedSegmentChange": close({
+#ProposedSegmentChange: close({
 	AttachmentPolicyRuleNumber?: int |
 		{
 			string &
@@ -70,16 +72,12 @@ _#defs: "/$defs/Properties/definitions/ProposedSegmentChange": close({
 		} |
 		fn.#NumberExpression
 	SegmentName?: string | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::ConnectAttachment"
-	Properties!: #Properties
-}

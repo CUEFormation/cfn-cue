@@ -75,83 +75,102 @@ import cfnScalarStrconv "strconv"
 #NumberBooleanListObjectExpression:   #Choice33
 #StringNumberBooleanListObjectExpression: #Choice34
 #ValueExpression:                         #Choice35
-#Function: {
-	"Fn::And"?:              [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])
-	"Fn::Base64"?:           #String
-	"Fn::Cidr"?:             [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
-	Condition?:              string
-	"Fn::Contains"?:         [#RuleList, #RuleValue]
-	"Fn::EachMemberEquals"?: [#RuleList, #RuleValue]
-	"Fn::EachMemberIn"?:     [#RuleList, #RuleList]
-	"Fn::Equals"?:           [#RuleValue, #RuleValue]
-	"Fn::FindInMap"?:        [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
-	"Fn::GetAZs"?:           string | #Ref
-	"Fn::GetAtt"?:           =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
-	"Fn::GetStackOutput"?: {
+#Function: close({
+	[=~"^Fn::And$"]:      [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])
+	[=~"^Fn::Base64$"]:   #String
+	[=~"^Fn::Cidr$"]:     [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Condition$"]:    string
+	[=~"^Fn::Contains$"]: [#RuleList, #RuleValue]
+	[=~"^Fn::EachMemberEquals$"]: [#RuleList, #RuleValue]
+	[=~"^Fn::EachMemberIn$"]:     [#RuleList, #RuleList]
+	[=~"^Fn::Equals$"]:           [#RuleValue, #RuleValue]
+	[=~"^Fn::FindInMap$"]:        [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::GetAZs$"]:           string | #Ref
+	[=~"^Fn::GetAtt$"]:           =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::GetStackOutput$"]: {
 		StackName!:  #String
 		OutputName!: #String
 		Region?:     #String
 		RoleArn?:    #String
 	}
-	"Fn::If"?:          _
-	"Fn::ImportValue"?: #String
-	"Fn::Join"?:        [string, [...#String] | #ListExpression]
-	"Fn::Not"?:         [bool | #Choice1]
-	"Fn::Or"?:          [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])
-	Ref?:               string
-	"Fn::RefAll"?:      string
-	"Fn::Select"?:      [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
-	"Fn::Split"?:       [string, #String]
-	"Fn::Sub"?:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
-	"Fn::Transform"?: {
+	[=~"^Fn::If$"]:          _
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Not$"]:         [bool | #Choice1]
+	[=~"^Fn::Or$"]:          [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])
+	[=~"^Ref$"]:             string
+	[=~"^Fn::RefAll$"]:      string
+	[=~"^Fn::Select$"]:      [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Split$"]:       [string, #String]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::Transform$"]: {
 		Name!:       string
 		Parameters?: #Object
 	}
-	"Fn::ValueOf"?:    [string, string]
-	"Fn::ValueOfAll"?: [string, string]
-} & structs.MinFields(1) & structs.MaxFields(1)
-#And:              #Function & close({"Fn::And"?: _})
-#Base64:           #Function & close({"Fn::Base64"?: _})
-#Cidr:             #Function & close({"Fn::Cidr"?: _})
-#Condition:        #Function & close({Condition?: _})
-#Contains:         #Function & close({"Fn::Contains"?: _})
-#EachMemberEquals: #Function & close({"Fn::EachMemberEquals"?: _})
-#EachMemberIn:     #Function & close({"Fn::EachMemberIn"?: _})
-#Equals:           #Function & close({"Fn::Equals"?: _})
-#FindInMap:        #Function & close({"Fn::FindInMap"?: _})
-#GetAZs:           #Function & close({"Fn::GetAZs"?: _})
-#GetAtt:           #Function & close({"Fn::GetAtt"?: _})
-#GetStackOutput:   #Function & close({"Fn::GetStackOutput"?: _})
-#If:               #Function & close({"Fn::If"?: [string, #Value, #Value]})
-#IfBoolean:        #Function & close({"Fn::If"?: [string, #BooleanValue, #BooleanValue]})
-#IfBooleanList: #Function & close({
-	"Fn::If"?: [
-		string,
-		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
-		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
-	]
-})
-#IfBooleanListObject: #Function & close({
-	"Fn::If"?: [
-		string,
-		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
-		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
-	]
-})
-#IfBooleanObject: #Function & close({
-	"Fn::If"?: [
-		string,
-		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
-		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
-	]
-})
-#IfList: #Function & close({"Fn::If"?: [string, #ListValue, #ListValue]})
-#IfListObject: #Function & close(
-	{"Fn::If"?: [string, #List | #Object | #ListObjectExpression, #List | #Object | #ListObjectExpression]},
+	[=~"^Fn::ValueOf$"]:    [string, string]
+	[=~"^Fn::ValueOfAll$"]: [string, string]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#And: close({[=~"^Fn::And$"]: [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])}) & structs.MinFields(
+	1,
+) & structs.MaxFields(1)
+#Base64: close({[=~"^Fn::Base64$"]: #String}) & structs.MinFields(1) & structs.MaxFields(1)
+#Cidr: close(
+	{[=~"^Fn::Cidr$"]: [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]},
+) & structs.MinFields(1) & structs.MaxFields(1)
+#Condition: close({[=~"^Condition$"]: string}) & structs.MinFields(1) & structs.MaxFields(1)
+#Contains:  close({[=~"^Fn::Contains$"]: [#RuleList, #RuleValue]}) & structs.MinFields(1) & structs.MaxFields(1)
+#EachMemberEquals: close({[=~"^Fn::EachMemberEquals$"]: [#RuleList, #RuleValue]}) & structs.MinFields(1) & structs.MaxFields(
+	1,
 )
-#IfNumber: #Function & close({"Fn::If"?: [string, #NumberValue, #NumberValue]})
-#IfNumberBoolean: #Function & close({
-	"Fn::If"?: [
+#EachMemberIn: close({[=~"^Fn::EachMemberIn$"]: [#RuleList, #RuleList]}) & structs.MinFields(1) & structs.MaxFields(1)
+#Equals:       close({[=~"^Fn::Equals$"]: [#RuleValue, #RuleValue]}) & structs.MinFields(1) & structs.MaxFields(1)
+#FindInMap: close(
+	{[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]},
+) & structs.MinFields(1) & structs.MaxFields(1)
+#GetAZs: close({[=~"^Fn::GetAZs$"]: string | #Ref}) & structs.MinFields(1) & structs.MaxFields(1)
+#GetAtt: close({[=~"^Fn::GetAtt$"]: =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]}) & structs.MinFields(1) & structs.MaxFields(
+	1,
+)
+#GetStackOutput: close({
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#If: close({[=~"^Fn::If$"]: [string, #Value, #Value]}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfBoolean: close({[=~"^Fn::If$"]: [string, #BooleanValue, #BooleanValue]}) & structs.MinFields(1) & structs.MaxFields(
+	1,
+)
+#IfBooleanList: close({
+	[=~"^Fn::If$"]: [
+		string,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
+	]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfBooleanListObject: close({
+	[=~"^Fn::If$"]: [
+		string,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
+	]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfBooleanObject: close({
+	[=~"^Fn::If$"]: [
+		string,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
+		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
+	]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfList: close({[=~"^Fn::If$"]: [string, #ListValue, #ListValue]}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfListObject: close(
+	{[=~"^Fn::If$"]: [string, #List | #Object | #ListObjectExpression, #List | #Object | #ListObjectExpression]},
+) & structs.MinFields(1) & structs.MaxFields(1)
+#IfNumber: close({[=~"^Fn::If$"]: [string, #NumberValue, #NumberValue]}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfNumberBoolean: close({
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -206,9 +225,9 @@ import cfnScalarStrconv "strconv"
 			"FALSE" |
 			#NumberBooleanExpression,
 	]
-})
-#IfNumberBooleanList: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfNumberBooleanList: close({
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -265,9 +284,9 @@ import cfnScalarStrconv "strconv"
 			#List |
 			#NumberBooleanListExpression,
 	]
-})
-#IfNumberBooleanListObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfNumberBooleanListObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -326,9 +345,9 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#NumberBooleanListObjectExpression,
 	]
-})
-#IfNumberBooleanObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfNumberBooleanObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -385,9 +404,9 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#NumberBooleanObjectExpression,
 	]
-})
-#IfNumberList: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfNumberList: close({
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -430,9 +449,9 @@ import cfnScalarStrconv "strconv"
 			#List |
 			#NumberListExpression,
 	]
-})
-#IfNumberListObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfNumberListObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -477,9 +496,9 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#NumberListObjectExpression,
 	]
-})
-#IfNumberObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfNumberObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -522,25 +541,25 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#NumberObjectExpression,
 	]
-})
-#IfObject: #Function & close({"Fn::If"?: [string, #ObjectValue, #ObjectValue]})
-#IfString: #Function & close({"Fn::If"?: [string, #StringValue, #StringValue]})
-#IfStringBoolean: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfObject: close({[=~"^Fn::If$"]: [string, #ObjectValue, #ObjectValue]}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfString: close({[=~"^Fn::If$"]: [string, #StringValue, #StringValue]}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringBoolean: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
 		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
 	]
-})
-#IfStringBooleanList: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringBooleanList: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
 		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
 	]
-})
-#IfStringBooleanListObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringBooleanListObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			bool |
@@ -565,9 +584,9 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringBooleanListObjectExpression,
 	]
-})
-#IfStringBooleanObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringBooleanObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			bool |
@@ -590,19 +609,19 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringBooleanObjectExpression,
 	]
-})
-#IfStringList: #Function & close(
-	{"Fn::If"?: [string, string | #List | #StringListExpression, string | #List | #StringListExpression]},
-)
-#IfStringListObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringList: close(
+	{[=~"^Fn::If$"]: [string, string | #List | #StringListExpression, string | #List | #StringListExpression]},
+) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringListObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string | #List | #Object | #StringListObjectExpression,
 		string | #List | #Object | #StringListObjectExpression,
 	]
-})
-#IfStringNumber: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringNumber: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -645,9 +664,9 @@ import cfnScalarStrconv "strconv"
 			} |
 			#StringNumberExpression,
 	]
-})
-#IfStringNumberBoolean: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringNumberBoolean: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -704,9 +723,9 @@ import cfnScalarStrconv "strconv"
 			"FALSE" |
 			#StringNumberBooleanExpression,
 	]
-})
-#IfStringNumberBooleanList: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringNumberBooleanList: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -765,9 +784,9 @@ import cfnScalarStrconv "strconv"
 			#List |
 			#StringNumberBooleanListExpression,
 	]
-})
-#IfStringNumberBooleanListObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringNumberBooleanListObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -828,9 +847,9 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringNumberBooleanListObjectExpression,
 	]
-})
-#IfStringNumberBooleanObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringNumberBooleanObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -889,9 +908,9 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringNumberBooleanObjectExpression,
 	]
-})
-#IfStringNumberList: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringNumberList: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -936,9 +955,9 @@ import cfnScalarStrconv "strconv"
 			#List |
 			#StringNumberListExpression,
 	]
-})
-#IfStringNumberListObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringNumberListObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -985,9 +1004,9 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringNumberListObjectExpression,
 	]
-})
-#IfStringNumberObject: #Function & close({
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringNumberObject: close({
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -1032,105 +1051,154 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringNumberObjectExpression,
 	]
-})
-#IfStringObject: #Function & close(
-	{"Fn::If"?: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]},
-)
-#ImportValue: #Function & close({"Fn::ImportValue"?: _})
-#Join:        #Function & close({"Fn::Join"?: _})
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringObject: close(
+	{[=~"^Fn::If$"]: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]},
+) & structs.MinFields(1) & structs.MaxFields(1)
+#ImportValue: close({[=~"^Fn::ImportValue$"]: #String}) & structs.MinFields(1) & structs.MaxFields(1)
+#Join: close({[=~"^Fn::Join$"]: [string, [...#String] | #ListExpression]}) & structs.MinFields(1) & structs.MaxFields(1)
 #NoValue: Ref!: "AWS::NoValue"
-#Not:        #Function & close({"Fn::Not"?: _})
-#Or:         #Function & close({"Fn::Or"?: _})
-#Ref:        #Function & close({Ref?: _})
-#RefAll:     #Function & close({"Fn::RefAll"?: _})
-#Select:     #Function & close({"Fn::Select"?: _})
-#Split:      #Function & close({"Fn::Split"?: _})
-#Sub:        #Function & close({"Fn::Sub"?: _})
-#Transform:  #Function & close({"Fn::Transform"?: _})
-#ValueOf:    #Function & close({"Fn::ValueOf"?: _})
-#ValueOfAll: #Function & close({"Fn::ValueOfAll"?: _})
-#Choice0:    #Function & close({Ref?: _})
-#Choice1: #Function & close({
-	Condition?:              _
-	"Fn::And"?:              _
-	"Fn::Or"?:               _
-	"Fn::Not"?:              _
-	"Fn::Equals"?:           _
-	"Fn::Contains"?:         _
-	"Fn::EachMemberEquals"?: _
-	"Fn::EachMemberIn"?:     _
-})
-#Choice2: #Function & close({
-	"Fn::RefAll"?:     _
-	"Fn::ValueOf"?:    _
-	"Fn::ValueOfAll"?: _
-})
-#Choice3: #Function & close({
-	"Fn::RefAll"?:     _
-	"Fn::ValueOfAll"?: _
-})
-#Choice4: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?:             [string, #StringValue, #StringValue]
-})
-#Choice5: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?:             [string, #NumberValue, #NumberValue]
-})
-#Choice6: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?:             [string, #BooleanValue, #BooleanValue]
-})
-#Choice7: #Function & close({
-	Ref?:             _
-	"Fn::GetAtt"?:    _
-	"Fn::FindInMap"?: _
-	"Fn::Select"?:    _
-	"Fn::Transform"?: _
-	"Fn::Cidr"?:      _
-	"Fn::GetAZs"?:    _
-	"Fn::Split"?:     _
-	"Fn::If"?:        [string, #ListValue, #ListValue]
-})
-#Choice8: #Function & close({
-	Ref?:             _
-	"Fn::GetAtt"?:    _
-	"Fn::FindInMap"?: _
-	"Fn::Select"?:    _
-	"Fn::Transform"?: _
-	"Fn::If"?:        [string, #ObjectValue, #ObjectValue]
-})
-#Choice9: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+#Not: close({[=~"^Fn::Not$"]: [bool | #Choice1]}) & structs.MinFields(1) & structs.MaxFields(1)
+#Or: close({[=~"^Fn::Or$"]: [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])}) & structs.MinFields(
+	1,
+) & structs.MaxFields(1)
+#Ref:    close({[=~"^Ref$"]: string}) & structs.MinFields(1) & structs.MaxFields(1)
+#RefAll: close({[=~"^Fn::RefAll$"]: string}) & structs.MinFields(1) & structs.MaxFields(1)
+#Select: close({[=~"^Fn::Select$"]: [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]}) & structs.MinFields(1) & structs.MaxFields(
+	1,
+)
+#Split: close({[=~"^Fn::Split$"]: [string, #String]}) & structs.MinFields(1) & structs.MaxFields(1)
+#Sub: close({[=~"^Fn::Sub$"]: string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]}) & structs.MinFields(1) & structs.MaxFields(
+	1,
+)
+#Transform: close({
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#ValueOf:    close({[=~"^Fn::ValueOf$"]: [string, string]}) & structs.MinFields(1) & structs.MaxFields(1)
+#ValueOfAll: close({[=~"^Fn::ValueOfAll$"]: [string, string]}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice0:    close({[=~"^Ref$"]: string}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice1: close({
+	[=~"^Condition$"]:            string
+	[=~"^Fn::And$"]:              [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])
+	[=~"^Fn::Or$"]:               [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])
+	[=~"^Fn::Not$"]:              [bool | #Choice1]
+	[=~"^Fn::Equals$"]:           [#RuleValue, #RuleValue]
+	[=~"^Fn::Contains$"]:         [#RuleList, #RuleValue]
+	[=~"^Fn::EachMemberEquals$"]: [#RuleList, #RuleValue]
+	[=~"^Fn::EachMemberIn$"]:     [#RuleList, #RuleList]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice2: close({
+	[=~"^Fn::RefAll$"]:     string
+	[=~"^Fn::ValueOf$"]:    [string, string]
+	[=~"^Fn::ValueOfAll$"]: [string, string]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice3: close({
+	[=~"^Fn::RefAll$"]:     string
+	[=~"^Fn::ValueOfAll$"]: [string, string]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice4: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [string, #StringValue, #StringValue]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice5: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [string, #NumberValue, #NumberValue]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice6: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [string, #BooleanValue, #BooleanValue]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice7: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]:     [string, #ListValue, #ListValue]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice8: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::If$"]: [string, #ObjectValue, #ObjectValue]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice9: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -1173,32 +1241,48 @@ import cfnScalarStrconv "strconv"
 			} |
 			#StringNumberExpression,
 	]
-})
-#Choice10: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice10: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
 		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
 	]
-})
-#Choice11: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice11: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -1253,19 +1337,27 @@ import cfnScalarStrconv "strconv"
 			"FALSE" |
 			#NumberBooleanExpression,
 	]
-})
-#Choice12: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice12: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -1322,34 +1414,50 @@ import cfnScalarStrconv "strconv"
 			"FALSE" |
 			#StringNumberBooleanExpression,
 	]
-})
-#Choice13: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?:             [string, string | #List | #StringListExpression, string | #List | #StringListExpression]
-})
-#Choice14: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice13: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]:     [string, string | #List | #StringListExpression, string | #List | #StringListExpression]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice14: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -1392,22 +1500,30 @@ import cfnScalarStrconv "strconv"
 			#List |
 			#NumberListExpression,
 	]
-})
-#Choice15: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice15: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -1452,54 +1568,78 @@ import cfnScalarStrconv "strconv"
 			#List |
 			#StringNumberListExpression,
 	]
-})
-#Choice16: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice16: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
 		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #BooleanListExpression,
 	]
-})
-#Choice17: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice17: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
 		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
 	]
-})
-#Choice18: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice18: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -1556,22 +1696,30 @@ import cfnScalarStrconv "strconv"
 			#List |
 			#NumberBooleanListExpression,
 	]
-})
-#Choice19: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice19: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -1630,28 +1778,44 @@ import cfnScalarStrconv "strconv"
 			#List |
 			#StringNumberBooleanListExpression,
 	]
-})
-#Choice20: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]
-})
-#Choice21: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice20: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice21: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -1694,19 +1858,27 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#NumberObjectExpression,
 	]
-})
-#Choice22: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice22: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -1751,32 +1923,48 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringNumberObjectExpression,
 	]
-})
-#Choice23: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice23: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
 		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #Object | #BooleanObjectExpression,
 	]
-})
-#Choice24: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice24: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			bool |
@@ -1799,15 +1987,23 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringBooleanObjectExpression,
 	]
-})
-#Choice25: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice25: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -1864,19 +2060,27 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#NumberBooleanObjectExpression,
 	]
-})
-#Choice26: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice26: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -1935,49 +2139,68 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringNumberBooleanObjectExpression,
 	]
-})
-#Choice27: #Function & close({
-	Ref?:             _
-	"Fn::GetAtt"?:    _
-	"Fn::FindInMap"?: _
-	"Fn::Select"?:    _
-	"Fn::Transform"?: _
-	"Fn::Cidr"?:      _
-	"Fn::GetAZs"?:    _
-	"Fn::Split"?:     _
-	"Fn::If"?:        [string, #List | #Object | #ListObjectExpression, #List | #Object | #ListObjectExpression]
-})
-#Choice28: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice27: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]:     [string, #List | #Object | #ListObjectExpression, #List | #Object | #ListObjectExpression]
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice28: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		string | #List | #Object | #StringListObjectExpression,
 		string | #List | #Object | #StringListObjectExpression,
 	]
-})
-#Choice29: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice29: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -2022,22 +2245,30 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#NumberListObjectExpression,
 	]
-})
-#Choice30: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice30: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -2084,38 +2315,54 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringNumberListObjectExpression,
 	]
-})
-#Choice31: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice31: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
 		bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #Object | #BooleanListObjectExpression,
 	]
-})
-#Choice32: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice32: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			bool |
@@ -2140,18 +2387,26 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringBooleanListObjectExpression,
 	]
-})
-#Choice33: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice33: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		number |
 			{
@@ -2210,22 +2465,30 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#NumberBooleanListObjectExpression,
 	]
-})
-#Choice34: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-	"Fn::If"?: [
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice34: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::If$"]: [
 		string,
 		string |
 			number |
@@ -2286,20 +2549,28 @@ import cfnScalarStrconv "strconv"
 			#Object |
 			#StringNumberBooleanListObjectExpression,
 	]
-})
-#Choice35: #Function & close({
-	Ref?:                  _
-	"Fn::GetAtt"?:         _
-	"Fn::FindInMap"?:      _
-	"Fn::Select"?:         _
-	"Fn::Transform"?:      _
-	"Fn::Base64"?:         _
-	"Fn::ImportValue"?:    _
-	"Fn::Join"?:           _
-	"Fn::Sub"?:            _
-	"Fn::GetStackOutput"?: _
-	"Fn::If"?:             [string, #Value, #Value]
-	"Fn::Cidr"?:           _
-	"Fn::GetAZs"?:         _
-	"Fn::Split"?:          _
-})
+}) & structs.MinFields(1) & structs.MaxFields(1)
+#Choice35: close({
+	[=~"^Ref$"]:           string
+	[=~"^Fn::GetAtt$"]:    =~"^[A-Za-z0-9]+\\..+$" | [string, string | #Choice0]
+	[=~"^Fn::FindInMap$"]: [#String, #String, #String] | [#String, #String, #String, {DefaultValue!: #Value}]
+	[=~"^Fn::Select$"]:    [int & >=0 | =~"^[0-9]+$" | #NumberExpression, #ListValue]
+	[=~"^Fn::Transform$"]: {
+		Name!:       string
+		Parameters?: #Object
+	}
+	[=~"^Fn::Base64$"]:      #String
+	[=~"^Fn::ImportValue$"]: #String
+	[=~"^Fn::Join$"]:        [string, [...#String] | #ListExpression]
+	[=~"^Fn::Sub$"]:         string | [string, {[=~"^[A-Za-z0-9_.:]+$"]: #String}]
+	[=~"^Fn::GetStackOutput$"]: {
+		StackName!:  #String
+		OutputName!: #String
+		Region?:     #String
+		RoleArn?:    #String
+	}
+	[=~"^Fn::If$"]:     [string, #Value, #Value]
+	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
+	[=~"^Fn::GetAZs$"]: string | #Ref
+	[=~"^Fn::Split$"]:  [string, #String]
+}) & structs.MinFields(1) & structs.MaxFields(1)

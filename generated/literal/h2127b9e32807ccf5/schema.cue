@@ -12,10 +12,10 @@ import (
 // AWS::NetworkManager::ConnectPeer Resource Type Definition.
 #Properties: close({
 	// Bgp options for connect peer.
-	BgpOptions?: _#defs."/$defs/Properties/definitions/BgpOptions"
+	BgpOptions?: #BgpOptions
 
 	// Configuration of the connect peer.
-	Configuration?: _#defs."/$defs/Properties/definitions/ConnectPeerConfiguration"
+	Configuration?: #ConnectPeerConfiguration
 
 	// The ID of the attachment to connect.
 	ConnectAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$"
@@ -53,14 +53,14 @@ import (
 	=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:subnet\\/subnet-[0-9a-f]{8,17}$|^$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Bgp options
-_#defs: "/$defs/Properties/definitions/BgpOptions": close({PeerAsn?: number})
+#BgpOptions: close({PeerAsn?: number})
 
 // Bgp configuration for connect peer
-_#defs: "/$defs/Properties/definitions/ConnectPeerBgpConfiguration": close({
+#ConnectPeerBgpConfiguration: close({
 	// The address of a core network.
 	CoreNetworkAddress?: string
 
@@ -74,8 +74,8 @@ _#defs: "/$defs/Properties/definitions/ConnectPeerBgpConfiguration": close({
 	PeerAsn?: number
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectPeerConfiguration": close({
-	BgpConfigurations?: [..._#defs."/$defs/Properties/definitions/ConnectPeerBgpConfiguration"]
+#ConnectPeerConfiguration: close({
+	BgpConfigurations?: [...#ConnectPeerBgpConfiguration]
 
 	// The IP address of a core network.
 	CoreNetworkAddress?: string
@@ -85,11 +85,11 @@ _#defs: "/$defs/Properties/definitions/ConnectPeerConfiguration": close({
 
 	// The IP address of the Connect peer.
 	PeerAddress?: string
-	Protocol?:    _#defs."/$defs/Properties/definitions/TunnelProtocol"
+	Protocol?:    #TunnelProtocol
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -104,4 +104,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The protocol used for a Connect peer configuration.
-_#defs: "/$defs/Properties/definitions/TunnelProtocol": string
+#TunnelProtocol: string

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,28 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::Alias
-#Properties: matchN(0, [null | bool | number | string | [...] | {
-	ProvisionedConcurrencyConfig!: _
-	RoutingConfig!:                _
-	...
-}]) & {...} & close({
-	Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FunctionName!: string | fn.#StringExpression
-	FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ProvisionedConcurrencyConfig?: _#defs."/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration" |
-		fn.#ObjectExpression
-	RoutingConfig?: _#defs."/$defs/Properties/definitions/AliasRoutingConfiguration" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::Alias"
+	Properties!: close({
+		Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		FunctionName!: string | fn.#StringExpression
+		FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AliasRoutingConfiguration": close({
-	AdditionalVersionWeights?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VersionWeight"] |
-		fn.#ListExpression
-}) |
+		// Specifies a provisioned concurrency configuration for a function's alias.
+		ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration
+
+		// The routing configuration of the alias.
+		RoutingConfig?: #AliasRoutingConfiguration
+		if ProvisionedConcurrencyConfig != _|_ if ProvisionedConcurrencyConfig."Fn::If" == _|_ {
+			RoutingConfig?: close({"Fn::If": _}) | error(
+				"RoutingConfig cannot be used with ProvisionedConcurrencyConfig",
+			)
+		}
+	})
+}
+
+#AliasRoutingConfiguration: close(
+	{AdditionalVersionWeights?: list.UniqueItems() & [...#VersionWeight] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": close({
+#ProvisionedConcurrencyConfiguration: close({
 	ProvisionedConcurrentExecutions!: int |
 		{
 			string &
@@ -56,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": clo
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VersionWeight": close({
+#VersionWeight: close({
 	FunctionVersion!: string | fn.#StringExpression
 	FunctionWeight!: number |
 		{
@@ -79,7 +85,3 @@ _#defs: "/$defs/Properties/definitions/VersionWeight": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::Alias"
-	Properties!: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,56 +17,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::MicrovmImage
-#Properties: close({
-	AdditionalOsCapabilities!: list.UniqueItems() & [..."ALL" | fn.#StringExpression] | fn.#ListExpression
-	BaseImageArn!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	BaseImageVersion!:         strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	BuildRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-		fn.#StringExpression
-	CodeArtifact!: _#defs."/$defs/Properties/definitions/CodeArtifact" | fn.#ObjectExpression
-	CpuConfigurations!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CpuConfiguration"] |
-		fn.#ListExpression
-	Description!: string | fn.#StringExpression
-	EgressNetworkConnectors!: list.MaxItems(10) & list.UniqueItems() & [...string | fn.#StringExpression] |
-		fn.#ListExpression
-	EnvironmentVariables!: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnvironmentVariable"
-	] |
-		fn.#ListExpression
-	Hooks!:   _#defs."/$defs/Properties/definitions/Hooks"
-	Logging!: _#defs."/$defs/Properties/definitions/Logging" | fn.#ObjectExpression
-	Name!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Resources!: list.MaxItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resources"] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::MicrovmImage"
+	Properties!: close({
+		AdditionalOsCapabilities!: list.UniqueItems() & [..."ALL" | fn.#StringExpression] | fn.#ListExpression
+		BaseImageArn!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		BaseImageVersion!:         strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		BuildRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+			fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogging": close({
+		// Code artifact for the active MicroVM image.
+		CodeArtifact!:      #CodeArtifact
+		CpuConfigurations!: list.UniqueItems() & [...#CpuConfiguration] | fn.#ListExpression
+		Description!:       string | fn.#StringExpression
+		EgressNetworkConnectors!: list.MaxItems(10) & list.UniqueItems() & [...string | fn.#StringExpression] |
+			fn.#ListExpression
+		EnvironmentVariables!: list.MaxItems(50) & list.UniqueItems() & [...#EnvironmentVariable] | fn.#ListExpression
+		Hooks!:                #Hooks
+
+		// Configuration for MicroVM image logging.
+		Logging!:   #Logging
+		Name!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		Resources!: list.MaxItems(1) & list.UniqueItems() & [...#Resources] | fn.#ListExpression
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#CloudWatchLogging: close({
 	LogGroup?:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" | fn.#StringExpression
 	LogStream?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeArtifact": close(
-	{Uri!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression},
-) |
+#CodeArtifact: close({Uri!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CpuConfiguration": close({Architecture!: "ARM_64" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CpuConfiguration: close({Architecture!: "ARM_64" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HookState": "DISABLED" | "ENABLED" | fn.#StringExpression
+#HookState: "DISABLED" | "ENABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Hooks": close({
-	MicrovmHooks?:      _#defs."/$defs/Properties/definitions/MicrovmHooks"
-	MicrovmImageHooks?: _#defs."/$defs/Properties/definitions/MicrovmImageHooks"
+#Hooks: close({
+	MicrovmHooks?:      #MicrovmHooks
+	MicrovmImageHooks?: #MicrovmImageHooks
 	Port?: int & <=65535 & >=1 |
 		{
 			string &
@@ -86,14 +85,14 @@ _#defs: "/$defs/Properties/definitions/Hooks": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Logging": close({
-	CloudWatch?: _#defs."/$defs/Properties/definitions/CloudWatchLogging"
+#Logging: close({
+	CloudWatch?: #CloudWatchLogging
 	Disabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MicrovmHooks": close({
-	Resume?: _#defs."/$defs/Properties/definitions/HookState"
+#MicrovmHooks: close({
+	Resume?: #HookState
 	ResumeTimeoutInSeconds?: int & <=60 & >=1 |
 		{
 			string &
@@ -110,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/MicrovmHooks": close({
 				)
 		} |
 		fn.#NumberExpression
-	Run?: _#defs."/$defs/Properties/definitions/HookState"
+	Run?: #HookState
 	RunTimeoutInSeconds?: int & <=60 & >=1 |
 		{
 			string &
@@ -127,7 +126,7 @@ _#defs: "/$defs/Properties/definitions/MicrovmHooks": close({
 				)
 		} |
 		fn.#NumberExpression
-	Suspend?: _#defs."/$defs/Properties/definitions/HookState"
+	Suspend?: #HookState
 	SuspendTimeoutInSeconds?: int & <=60 & >=1 |
 		{
 			string &
@@ -144,7 +143,7 @@ _#defs: "/$defs/Properties/definitions/MicrovmHooks": close({
 				)
 		} |
 		fn.#NumberExpression
-	Terminate?: _#defs."/$defs/Properties/definitions/HookState"
+	Terminate?: #HookState
 	TerminateTimeoutInSeconds?: int & <=60 & >=1 |
 		{
 			string &
@@ -164,8 +163,8 @@ _#defs: "/$defs/Properties/definitions/MicrovmHooks": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MicrovmImageHooks": close({
-	Ready?: _#defs."/$defs/Properties/definitions/HookState"
+#MicrovmImageHooks: close({
+	Ready?: #HookState
 	ReadyTimeoutInSeconds?: int & <=3600 & >=1 |
 		{
 			string &
@@ -182,7 +181,7 @@ _#defs: "/$defs/Properties/definitions/MicrovmImageHooks": close({
 				)
 		} |
 		fn.#NumberExpression
-	Validate?: _#defs."/$defs/Properties/definitions/HookState"
+	Validate?: #HookState
 	ValidateTimeoutInSeconds?: int & <=3600 & >=1 |
 		{
 			string &
@@ -202,7 +201,7 @@ _#defs: "/$defs/Properties/definitions/MicrovmImageHooks": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MicrovmImageState": "CREATING" |
+#MicrovmImageState: "CREATING" |
 	"CREATED" |
 	"CREATE_FAILED" |
 	"UPDATING" |
@@ -213,7 +212,7 @@ _#defs: "/$defs/Properties/definitions/MicrovmImageState": "CREATING" |
 	"DELETED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Resources": close({
+#Resources: close({
 	MinimumMemoryInMiB!: int |
 		{
 			string &
@@ -231,12 +230,8 @@ _#defs: "/$defs/Properties/definitions/Resources": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::MicrovmImage"
-	Properties!: #Properties
-}

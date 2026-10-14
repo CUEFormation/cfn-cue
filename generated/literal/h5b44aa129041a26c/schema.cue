@@ -12,119 +12,117 @@ import (
 // The AWS::S3::StorageLens resource is an Amazon S3 resource type that you can
 // use to create Storage Lens configurations.
 #Properties: close({
-	StorageLensConfiguration!: _#defs."/$defs/Properties/definitions/StorageLensConfiguration"
+	StorageLensConfiguration!: #StorageLensConfiguration
 
 	// A set of tags (key-value pairs) for this Amazon S3 Storage Lens configuration.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Account-level metrics configurations.
-_#defs: "/$defs/Properties/definitions/AccountLevel": close({
-	ActivityMetrics?:                 _#defs."/$defs/Properties/definitions/ActivityMetrics"
-	AdvancedCostOptimizationMetrics?: _#defs."/$defs/Properties/definitions/AdvancedCostOptimizationMetrics"
-	AdvancedDataProtectionMetrics?:   _#defs."/$defs/Properties/definitions/AdvancedDataProtectionMetrics"
-	AdvancedPerformanceMetrics?:      _#defs."/$defs/Properties/definitions/AdvancedPerformanceMetrics"
-	BucketLevel!:                     _#defs."/$defs/Properties/definitions/BucketLevel"
-	DetailedStatusCodesMetrics?:      _#defs."/$defs/Properties/definitions/DetailedStatusCodesMetrics"
-	StorageLensGroupLevel?:           _#defs."/$defs/Properties/definitions/StorageLensGroupLevel"
+#AccountLevel: close({
+	ActivityMetrics?:                 #ActivityMetrics
+	AdvancedCostOptimizationMetrics?: #AdvancedCostOptimizationMetrics
+	AdvancedDataProtectionMetrics?:   #AdvancedDataProtectionMetrics
+	AdvancedPerformanceMetrics?:      #AdvancedPerformanceMetrics
+	BucketLevel!:                     #BucketLevel
+	DetailedStatusCodesMetrics?:      #DetailedStatusCodesMetrics
+	StorageLensGroupLevel?:           #StorageLensGroupLevel
 })
 
 // Enables activity metrics.
-_#defs: "/$defs/Properties/definitions/ActivityMetrics": close({
+#ActivityMetrics: close({
 	// Specifies whether activity metrics are enabled or disabled.
 	IsEnabled?: bool
 })
 
 // Enables advanced cost optimization metrics.
-_#defs: "/$defs/Properties/definitions/AdvancedCostOptimizationMetrics": close({
+#AdvancedCostOptimizationMetrics: close({
 	// Specifies whether advanced cost optimization metrics are enabled or disabled.
 	IsEnabled?: bool
 })
 
 // Enables advanced data protection metrics.
-_#defs: "/$defs/Properties/definitions/AdvancedDataProtectionMetrics": close({
+#AdvancedDataProtectionMetrics: close({
 	// Specifies whether advanced data protection metrics are enabled or disabled.
 	IsEnabled?: bool
 })
 
 // Advanced Performance Metrics.
-_#defs: "/$defs/Properties/definitions/AdvancedPerformanceMetrics": close({
+#AdvancedPerformanceMetrics: close({
 	// Specifies whether the Advanced Performance Metrics is enabled or disabled.
 	IsEnabled?: bool
 })
 
 // The Amazon Resource Name (ARN) of the specified resource.
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
 // The AWS Organizations ARN to use in the Amazon S3 Storage Lens configuration.
-_#defs: "/$defs/Properties/definitions/AwsOrg": close({Arn!: _#defs."/$defs/Properties/definitions/Arn"})
+#AwsOrg: close({Arn!: #Arn})
 
 // Bucket-level metrics configurations.
-_#defs: "/$defs/Properties/definitions/BucketLevel": close({
-	ActivityMetrics?:                 _#defs."/$defs/Properties/definitions/ActivityMetrics"
-	AdvancedCostOptimizationMetrics?: _#defs."/$defs/Properties/definitions/AdvancedCostOptimizationMetrics"
-	AdvancedDataProtectionMetrics?:   _#defs."/$defs/Properties/definitions/AdvancedDataProtectionMetrics"
-	AdvancedPerformanceMetrics?:      _#defs."/$defs/Properties/definitions/AdvancedPerformanceMetrics"
-	DetailedStatusCodesMetrics?:      _#defs."/$defs/Properties/definitions/DetailedStatusCodesMetrics"
-	PrefixLevel?:                     _#defs."/$defs/Properties/definitions/PrefixLevel"
+#BucketLevel: close({
+	ActivityMetrics?:                 #ActivityMetrics
+	AdvancedCostOptimizationMetrics?: #AdvancedCostOptimizationMetrics
+	AdvancedDataProtectionMetrics?:   #AdvancedDataProtectionMetrics
+	AdvancedPerformanceMetrics?:      #AdvancedPerformanceMetrics
+	DetailedStatusCodesMetrics?:      #DetailedStatusCodesMetrics
+	PrefixLevel?:                     #PrefixLevel
 })
 
 // S3 buckets and Regions to include/exclude in the Amazon S3 Storage Lens configuration.
-_#defs: "/$defs/Properties/definitions/BucketsAndRegions": close({
-	Buckets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Arn"]
+#BucketsAndRegions: close({
+	Buckets?: list.UniqueItems() & [...#Arn]
 	Regions?: list.UniqueItems() & [...string]
 })
 
 // CloudWatch metrics settings for the Amazon S3 Storage Lens metrics export.
-_#defs: "/$defs/Properties/definitions/CloudWatchMetrics": close({
+#CloudWatchMetrics: close({
 	// Specifies whether CloudWatch metrics are enabled or disabled.
 	IsEnabled!: bool
 })
 
 // Specifies how Amazon S3 Storage Lens metrics should be exported.
-_#defs: "/$defs/Properties/definitions/DataExport": close({
-	CloudWatchMetrics?:           _#defs."/$defs/Properties/definitions/CloudWatchMetrics"
-	S3BucketDestination?:         _#defs."/$defs/Properties/definitions/S3BucketDestination"
-	StorageLensTableDestination?: _#defs."/$defs/Properties/definitions/StorageLensTableDestination"
+#DataExport: close({
+	CloudWatchMetrics?:           #CloudWatchMetrics
+	S3BucketDestination?:         #S3BucketDestination
+	StorageLensTableDestination?: #StorageLensTableDestination
 })
 
 // Enables detailed status codes metrics.
-_#defs: "/$defs/Properties/definitions/DetailedStatusCodesMetrics": close({
+#DetailedStatusCodesMetrics: close({
 	// Specifies whether detailed status codes metrics are enabled or disabled.
 	IsEnabled?: bool
 })
 
 // Configures the server-side encryption for Amazon S3 Storage Lens report files
 // with either S3-managed keys (SSE-S3) or KMS-managed keys (SSE-KMS).
-_#defs: "/$defs/Properties/definitions/Encryption": matchN(1, [close({
+#Encryption: matchN(1, [close({
 	// S3 default server-side encryption.
 	SSES3!: close({})
 }), close(
-	{SSEKMS!: _#defs."/$defs/Properties/definitions/SSEKMS"},
+	{SSEKMS!: #SSEKMS},
 )])
 
 // The ID that identifies the Amazon S3 Storage Lens configuration.
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_.]+$"
+#Id: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_.]+$"
 
 // Prefix-level metrics configurations.
-_#defs: "/$defs/Properties/definitions/PrefixLevel": close(
-	{StorageMetrics!: _#defs."/$defs/Properties/definitions/PrefixLevelStorageMetrics"},
-)
+#PrefixLevel: close({StorageMetrics!: #PrefixLevelStorageMetrics})
 
-_#defs: "/$defs/Properties/definitions/PrefixLevelStorageMetrics": close({
+#PrefixLevelStorageMetrics: close({
 	// Specifies whether prefix-level storage metrics are enabled or disabled.
 	IsEnabled?:         bool
-	SelectionCriteria?: _#defs."/$defs/Properties/definitions/SelectionCriteria"
+	SelectionCriteria?: #SelectionCriteria
 })
 
 // S3 bucket destination settings for the Amazon S3 Storage Lens metrics export.
-_#defs: "/$defs/Properties/definitions/S3BucketDestination": close({
+#S3BucketDestination: close({
 	// The AWS account ID that owns the destination S3 bucket.
 	AccountId!: string
 
 	// The ARN of the bucket to which Amazon S3 Storage Lens exports will be placed.
 	Arn!:        string
-	Encryption?: _#defs."/$defs/Properties/definitions/Encryption"
+	Encryption?: #Encryption
 
 	// Specifies the file format to use when exporting Amazon S3 Storage Lens metrics export.
 	Format!: "CSV" | "Parquet"
@@ -137,13 +135,13 @@ _#defs: "/$defs/Properties/definitions/S3BucketDestination": close({
 })
 
 // AWS KMS server-side encryption.
-_#defs: "/$defs/Properties/definitions/SSEKMS": close({
+#SSEKMS: close({
 	// The ARN of the KMS key to use for encryption.
 	KeyId!: string
 })
 
 // Selection criteria for prefix-level metrics.
-_#defs: "/$defs/Properties/definitions/SelectionCriteria": close({
+#SelectionCriteria: close({
 	// Delimiter to divide S3 key into hierarchy of prefixes.
 	Delimiter?: string
 
@@ -155,14 +153,14 @@ _#defs: "/$defs/Properties/definitions/SelectionCriteria": close({
 })
 
 // Specifies the details of Amazon S3 Storage Lens configuration.
-_#defs: "/$defs/Properties/definitions/StorageLensConfiguration": close({
-	AccountLevel!:               _#defs."/$defs/Properties/definitions/AccountLevel"
-	AwsOrg?:                     _#defs."/$defs/Properties/definitions/AwsOrg"
-	DataExport?:                 _#defs."/$defs/Properties/definitions/DataExport"
-	Exclude?:                    _#defs."/$defs/Properties/definitions/BucketsAndRegions"
-	ExpandedPrefixesDataExport?: _#defs."/$defs/Properties/definitions/StorageLensExpandedPrefixesDataExport"
-	Id!:                         _#defs."/$defs/Properties/definitions/Id"
-	Include?:                    _#defs."/$defs/Properties/definitions/BucketsAndRegions"
+#StorageLensConfiguration: close({
+	AccountLevel!:               #AccountLevel
+	AwsOrg?:                     #AwsOrg
+	DataExport?:                 #DataExport
+	Exclude?:                    #BucketsAndRegions
+	ExpandedPrefixesDataExport?: #StorageLensExpandedPrefixesDataExport
+	Id!:                         #Id
+	Include?:                    #BucketsAndRegions
 
 	// Specifies whether the Amazon S3 Storage Lens configuration is enabled or disabled.
 	IsEnabled!: bool
@@ -175,34 +173,32 @@ _#defs: "/$defs/Properties/definitions/StorageLensConfiguration": close({
 })
 
 // Expanded Prefixes Data Export.
-_#defs: "/$defs/Properties/definitions/StorageLensExpandedPrefixesDataExport": close({
-	S3BucketDestination?:         _#defs."/$defs/Properties/definitions/S3BucketDestination"
-	StorageLensTableDestination?: _#defs."/$defs/Properties/definitions/StorageLensTableDestination"
+#StorageLensExpandedPrefixesDataExport: close({
+	S3BucketDestination?:         #S3BucketDestination
+	StorageLensTableDestination?: #StorageLensTableDestination
 })
 
 // The ARN for the Amazon S3 Storage Lens Group configuration.
-_#defs: "/$defs/Properties/definitions/StorageLensGroupArn": string
+#StorageLensGroupArn: string
 
 // Specifies the details of Amazon S3 Storage Lens Group configuration.
-_#defs: "/$defs/Properties/definitions/StorageLensGroupLevel": close(
-	{StorageLensGroupSelectionCriteria?: _#defs."/$defs/Properties/definitions/StorageLensGroupSelectionCriteria"},
-)
+#StorageLensGroupLevel: close({StorageLensGroupSelectionCriteria?: #StorageLensGroupSelectionCriteria})
 
 // Selection criteria for Storage Lens Group level metrics
-_#defs: "/$defs/Properties/definitions/StorageLensGroupSelectionCriteria": close({
-	Exclude?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StorageLensGroupArn"]
-	Include?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StorageLensGroupArn"]
+#StorageLensGroupSelectionCriteria: close({
+	Exclude?: list.UniqueItems() & [...#StorageLensGroupArn]
+	Include?: list.UniqueItems() & [...#StorageLensGroupArn]
 })
 
 // S3 Tables destination settings for the Amazon S3 Storage Lens metrics export.
-_#defs: "/$defs/Properties/definitions/StorageLensTableDestination": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/Encryption"
+#StorageLensTableDestination: close({
+	Encryption?: #Encryption
 
 	// Specifies whether the export to S3 Tables is enabled or disabled.
 	IsEnabled!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1)
 })

@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"path/filepath"
 	"testing"
-
-	"cuelang.org/go/cue"
 )
 
 func TestReferencesToNormalizedPatternProperties(t *testing.T) {
@@ -25,12 +23,12 @@ func TestReferencesToNormalizedPatternProperties(t *testing.T) {
 			if _, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}}); err != nil {
 				t.Fatal(err)
 			}
-			schema := build(t, out, "./resources/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+			schema := propertiesSchema(t, out, "./resources/htest")
 			validate(t, schema, `{Value: "one"}`, true)
 			validate(t, schema, `{Value: {Ref: "Parameter"}}`, true)
 			validate(t, schema, `{Value: "bad"}`, false)
 			validate(t, schema, `{Value: {"Fn::Split": [",", "one,two"]}}`, false)
-			literal := build(t, out, "./literal/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+			literal := propertiesSchema(t, out, "./literal/htest")
 			validate(t, literal, `{Value: "one"}`, true)
 			validate(t, literal, `{Value: {Ref: "Parameter"}}`, false)
 		})

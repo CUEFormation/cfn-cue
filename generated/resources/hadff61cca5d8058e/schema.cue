@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,24 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SSMQuickSetup::LifecycleAutomation that
 // executes SSM Automation documents in response to CloudFormation lifecycle
 // events.
-#Properties: close({
-	AutomationDocument!:   strings.MaxRunes(500) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	AutomationParameters!: _#defs."/$defs/Properties/definitions/AutomationParameters"
-	ResourceKey!:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSMQuickSetup::LifecycleAutomation"
+	Properties!: close({
+		AutomationDocument!:   strings.MaxRunes(500) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+		AutomationParameters!: #AutomationParameters
+		ResourceKey!:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		Tags?:                 #TagsMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AutomationParameters": close({
+#AutomationParameters: close({
 
 	{[=~"^[a-zA-Z0-9_]+$"]: [...string | fn.#StringExpression] | fn.#ListExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMQuickSetup::LifecycleAutomation"
-	Properties!: #Properties
-}

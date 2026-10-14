@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::FSx::S3AccessPointAttachment
-#Properties: matchN(1, [{
-	OntapConfiguration!: _
-	...
-}, {
-	OpenZFSConfiguration!: _
-	...
-}]) & close({
+#Properties: close({
 	// The lifecycle status of the S3 access point attachment.
 	Lifecycle?: "AVAILABLE" | "CREATING" | "DELETING" | "FAILED" | "MISCONFIGURED" | "UPDATING"
 
@@ -24,70 +18,74 @@ import (
 	Name!: strings.MaxRunes(50) & strings.MinRunes(3)
 
 	// The OntapConfiguration of the S3 access point attachment.
-	OntapConfiguration?: _#defs."/$defs/Properties/definitions/S3AccessPointOntapConfiguration"
+	OntapConfiguration?: #S3AccessPointOntapConfiguration
 
 	// The OpenZFSConfiguration of the S3 access point attachment.
-	OpenZFSConfiguration?: _#defs."/$defs/Properties/definitions/S3AccessPointOpenZFSConfiguration"
+	OpenZFSConfiguration?: #S3AccessPointOpenZFSConfiguration
 
 	// The S3 access point configuration of the S3 access point attachment.
-	S3AccessPoint?: _#defs."/$defs/Properties/definitions/S3AccessPoint"
+	S3AccessPoint?: #S3AccessPoint
 
 	// The type of Amazon FSx volume that the S3 access point is attached to.
 	Type!: "OPENZFS" | "ONTAP"
-})
+	if OntapConfiguration != _|_ if OntapConfiguration."Fn::If" == _|_ {
+		OpenZFSConfiguration?: close({"Fn::If": _}) | error(
+			"OpenZFSConfiguration cannot be used with OntapConfiguration; set exactly one of OntapConfiguration, OpenZFSConfiguration",
+		)
+	}
+}) & matchN(>=1, [{OntapConfiguration!: _}, {OpenZFSConfiguration!: _}])
 
-_#defs: "/$defs/Properties/definitions/FileSystemGID": close({
+#FileSystemGID: close({
 	// The GID of the file system user.
 	Gid!: <=4294967295 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/OntapFileSystemIdentity": matchN(1, [{
-	UnixUser!: _
-	...
-}, {
-	WindowsUser!: _
-	...
-}]) & close({
+#OntapFileSystemIdentity: close({
 	// Specifies the FSx for ONTAP user identity type, accepts either UNIX or WINDOWS.
 	Type!: "UNIX" | "WINDOWS"
 
 	// Specifies the properties of the file system UNIX user.
-	UnixUser?: _#defs."/$defs/Properties/definitions/OntapUnixFileSystemUser"
+	UnixUser?: #OntapUnixFileSystemUser
 
 	// Specifies the properties of the file system Windows user.
-	WindowsUser?: _#defs."/$defs/Properties/definitions/OntapWindowsFileSystemUser"
-})
+	WindowsUser?: #OntapWindowsFileSystemUser
+	if UnixUser != _|_ if UnixUser."Fn::If" == _|_ {
+		WindowsUser?: close({"Fn::If": _}) | error(
+			"WindowsUser cannot be used with UnixUser; set exactly one of UnixUser, WindowsUser",
+		)
+	}
+}) & matchN(>=1, [{UnixUser!: _}, {WindowsUser!: _}])
 
-_#defs: "/$defs/Properties/definitions/OntapUnixFileSystemUser": close({
+#OntapUnixFileSystemUser: close({
 	// The name of the UNIX user.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}\\x{0085}\\x{2028}\\x{2029}\\r\\n]{1,256}$"
 })
 
-_#defs: "/$defs/Properties/definitions/OntapWindowsFileSystemUser": close({
+#OntapWindowsFileSystemUser: close({
 	// The name of the Windows user.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}\\x{0085}\\x{2028}\\x{2029}\\r\\n]{1,256}$"
 })
 
-_#defs: "/$defs/Properties/definitions/OpenZFSFileSystemIdentity": close({
+#OpenZFSFileSystemIdentity: close({
 	// Specifies the UID and GIDs of the file system POSIX user.
-	PosixUser!: _#defs."/$defs/Properties/definitions/OpenZFSPosixFileSystemUser"
+	PosixUser!: #OpenZFSPosixFileSystemUser
 
 	// Specifies the FSx for OpenZFS user identity type, accepts only POSIX.
 	Type!: "POSIX"
 })
 
-_#defs: "/$defs/Properties/definitions/OpenZFSPosixFileSystemUser": close({
+#OpenZFSPosixFileSystemUser: close({
 	// The GID of the file system user.
 	Gid!: <=4294967295 & >=0
 
 	// The list of secondary GIDs for the file system user.
-	SecondaryGids?: list.MaxItems(15) & [...] & [..._#defs."/$defs/Properties/definitions/FileSystemGID"]
+	SecondaryGids?: list.MaxItems(15) & [...] & [...#FileSystemGID]
 
 	// The UID of the file system user.
 	Uid!: <=4294967295 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/S3AccessPoint": close({
+#S3AccessPoint: close({
 	// The S3 access point's alias.
 	Alias?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z\\\\-]{1,63}"
 
@@ -98,26 +96,26 @@ _#defs: "/$defs/Properties/definitions/S3AccessPoint": close({
 	ResourceARN?: strings.MaxRunes(1024) & strings.MinRunes(8)
 
 	// The S3 access point's virtual private cloud (VPC) configuration.
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/S3AccessPointVpcConfiguration"
+	VpcConfiguration?: #S3AccessPointVpcConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/S3AccessPointOntapConfiguration": close({
+#S3AccessPointOntapConfiguration: close({
 	// The file system identity used to authorize file access requests made using the S3 access point.
-	FileSystemIdentity!: _#defs."/$defs/Properties/definitions/OntapFileSystemIdentity"
+	FileSystemIdentity!: #OntapFileSystemIdentity
 
 	// The ID of the FSx for ONTAP volume that the S3 access point is attached to.
 	VolumeId!: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$"
 })
 
-_#defs: "/$defs/Properties/definitions/S3AccessPointOpenZFSConfiguration": close({
+#S3AccessPointOpenZFSConfiguration: close({
 	// The file system identity used to authorize file access requests made using the S3 access point.
-	FileSystemIdentity!: _#defs."/$defs/Properties/definitions/OpenZFSFileSystemIdentity"
+	FileSystemIdentity!: #OpenZFSFileSystemIdentity
 
 	// The ID of the FSx for OpenZFS volume that the S3 access point is attached to.
 	VolumeId!: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$"
 })
 
-_#defs: "/$defs/Properties/definitions/S3AccessPointVpcConfiguration": close({
+#S3AccessPointVpcConfiguration: close({
 	// Specifies the virtual private cloud (VPC) for the S3 access point VPC
 	// configuration, if one exists.
 	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &

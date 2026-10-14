@@ -4,15 +4,15 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WorkSpacesWeb::SessionLogger Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
+	AdditionalEncryptionContext?: #EncryptionContextMap
 	AssociatedPortalArns?: [
 		...strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
@@ -23,19 +23,19 @@ import (
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$"
 	DisplayName?:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$"
-	EventFilter!:      _#defs."/$defs/Properties/definitions/EventFilter"
-	LogConfiguration!: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	EventFilter!:      #EventFilter
+	LogConfiguration!: #LogConfiguration
 	SessionLoggerArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$"}})
 
-_#defs: "/$defs/Properties/definitions/Event": "WebsiteInteract" |
+#Event: "WebsiteInteract" |
 	"FileDownloadFromSecureBrowserToRemoteDisk" |
 	"FileTransferFromRemoteToLocalDisk" |
 	"FileTransferFromLocalToRemoteDisk" |
@@ -53,33 +53,27 @@ _#defs: "/$defs/Properties/definitions/Event": "WebsiteInteract" |
 	"SessionEnd" |
 	"UrlBlockByContentFilter"
 
-_#defs: "/$defs/Properties/definitions/EventFilter": matchN(1, [close(
-	{All!: _#defs."/$defs/Properties/definitions/Unit"},
-), close({
-	Include!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Event"
-	]
-})])
+#EventFilter: matchN(1, [
+	close({All!: #Unit}), close({Include!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#Event]}),
+])
 
-_#defs: "/$defs/Properties/definitions/FolderStructure": "Flat" | "NestedByDate"
+#FolderStructure: "Flat" | "NestedByDate"
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/S3LogConfiguration"},
-)
+#LogConfiguration: close({S3?: #S3LogConfiguration})
 
-_#defs: "/$defs/Properties/definitions/LogFileFormat": "JSONLines" | "Json"
+#LogFileFormat: "JSONLines" | "Json"
 
-_#defs: "/$defs/Properties/definitions/S3LogConfiguration": close({
+#S3LogConfiguration: close({
 	Bucket!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 	BucketOwner?:     =~"^[0-9]{12}$"
-	FolderStructure!: _#defs."/$defs/Properties/definitions/FolderStructure"
+	FolderStructure!: #FolderStructure
 	KeyPrefix?:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\d\\w\\-_/!().*']+$"
-	LogFileFormat!:   _#defs."/$defs/Properties/definitions/LogFileFormat"
+	LogFileFormat!:   #LogFileFormat
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

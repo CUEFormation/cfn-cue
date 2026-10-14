@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -20,29 +20,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // template that describes the containers that form a daemon. Daemons deploy
 // cross-cutting software agents independently across your Amazon ECS
 // infrastructure.
-#Properties: close({
-	ContainerDefinitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DaemonContainerDefinition"] |
-		fn.#ListExpression
-	Cpu?: string | fn.#StringExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Family?:  string | fn.#StringExpression
-	IpcMode?: "none" | "shared" | fn.#StringExpression
-	Memory?:  string | fn.#StringExpression
-	PidMode?: "none" | "shared" | fn.#StringExpression
-	Tags?:    list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Volumes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Volume"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::DaemonTaskDefinition"
+	Properties?: close({
+		ContainerDefinitions?: list.UniqueItems() & [...#DaemonContainerDefinition] | fn.#ListExpression
+		Cpu?:                  string | fn.#StringExpression
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Family?:  string | fn.#StringExpression
+		IpcMode?: "none" | "shared" | fn.#StringExpression
+		Memory?:  string | fn.#StringExpression
+		PidMode?: "none" | "shared" | fn.#StringExpression
+		Tags?:    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Volumes?: list.UniqueItems() & [...#Volume] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ContainerDependency": close({
+#ContainerDependency: close({
 	Condition?:     "COMPLETE" | "HEALTHY" | "START" | "SUCCESS" | fn.#StringExpression
 	ContainerName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
+#DaemonContainerDefinition: close({
 	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Cpu?: int |
 		{
@@ -58,17 +60,27 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 				)
 		} |
 		fn.#NumberExpression
-	DependsOn?:             [..._#defs."/$defs/Properties/definitions/ContainerDependency"] | fn.#ListExpression
-	EntryPoint?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	Environment?:           [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
-	EnvironmentFiles?:      [..._#defs."/$defs/Properties/definitions/EnvironmentFile"] | fn.#ListExpression
-	Essential?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FirelensConfiguration?: _#defs."/$defs/Properties/definitions/FirelensConfiguration" | fn.#ObjectExpression
-	HealthCheck?:           _#defs."/$defs/Properties/definitions/HealthCheck" | fn.#ObjectExpression
-	Image!:                 string | fn.#StringExpression
-	Interactive?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LinuxParameters?:       _#defs."/$defs/Properties/definitions/LinuxParameters" | fn.#ObjectExpression
-	LogConfiguration?:      _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
+	DependsOn?:        [...#ContainerDependency] | fn.#ListExpression
+	EntryPoint?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Environment?:      [...#KeyValuePair] | fn.#ListExpression
+	EnvironmentFiles?: [...#EnvironmentFile] | fn.#ListExpression
+	Essential?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The FireLens configuration for the container. This is used to specify and
+	// configure a log router for container logs.
+	FirelensConfiguration?: #FirelensConfiguration
+
+	// The container health check command and associated configuration parameters for the container.
+	HealthCheck?: #HealthCheck
+	Image!:       string | fn.#StringExpression
+	Interactive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// Linux-specific modifications that are applied to the container configuration,
+	// such as Linux kernel capabilities.
+	LinuxParameters?: #LinuxParameters
+
+	// The log configuration specification for the container.
+	LogConfiguration?: #LogConfiguration
 	Memory?: int |
 		{
 			string &
@@ -97,14 +109,19 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 				)
 		} |
 		fn.#NumberExpression
-	MountPoints?:            [..._#defs."/$defs/Properties/definitions/MountPoint"] | fn.#ListExpression
+	MountPoints?:            [...#MountPoint] | fn.#ListExpression
 	Name!:                   string | fn.#StringExpression
 	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PseudoTerminal?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials" | fn.#ObjectExpression
-	RestartPolicy?:          _#defs."/$defs/Properties/definitions/RestartPolicy" | fn.#ObjectExpression
-	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+
+	// The private repository authentication credentials to use.
+	RepositoryCredentials?: #RepositoryCredentials
+
+	// The restart policy for the container. When you set up a restart policy,
+	// Amazon ECS can restart the container without needing to replace the task.
+	RestartPolicy?: #RestartPolicy
+	Secrets?:       [...#Secret] | fn.#ListExpression
 	StartTimeout?: int |
 		{
 			string &
@@ -133,27 +150,27 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 				)
 		} |
 		fn.#NumberExpression
-	SystemControls?:   [..._#defs."/$defs/Properties/definitions/SystemControl"] | fn.#ListExpression
-	Ulimits?:          [..._#defs."/$defs/Properties/definitions/Ulimit"] | fn.#ListExpression
+	SystemControls?:   [...#SystemControl] | fn.#ListExpression
+	Ulimits?:          [...#Ulimit] | fn.#ListExpression
 	User?:             string | fn.#StringExpression
 	WorkingDirectory?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	ContainerPath?: string | fn.#StringExpression
 	HostPath?:      string | fn.#StringExpression
 	Permissions?:   [..."mknod" | "read" | "write" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentFile": close({
+#EnvironmentFile: close({
 	Type?:  "s3" | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirelensConfiguration": close({
+#FirelensConfiguration: close({
 	Options?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -162,7 +179,7 @@ _#defs: "/$defs/Properties/definitions/FirelensConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheck": close({
+#HealthCheck: close({
 	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Interval?: int |
 		{
@@ -223,52 +240,53 @@ _#defs: "/$defs/Properties/definitions/HealthCheck": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HostVolumeProperties": close({SourcePath?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#HostVolumeProperties: close({SourcePath?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KernelCapabilities": close({
+#KernelCapabilities: close({
 	Add?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	Drop?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinuxParameters": close({
-	Capabilities?:       _#defs."/$defs/Properties/definitions/KernelCapabilities" | fn.#ObjectExpression
-	Devices?:            [..._#defs."/$defs/Properties/definitions/Device"] | fn.#ListExpression
+#LinuxParameters: close({
+	// The Linux capabilities for the container that are added to or dropped from
+	// the default configuration provided by Docker.
+	// For tasks that use the Fargate launch type, ``capabilities`` is supported for
+	// all platform versions but the ``add`` parameter is only supported if using
+	// platform version 1.4.0 or later.
+	Capabilities?:       #KernelCapabilities
+	Devices?:            [...#Device] | fn.#ListExpression
 	InitProcessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tmpfs?:              [..._#defs."/$defs/Properties/definitions/Tmpfs"] | fn.#ListExpression
+	Tmpfs?:              [...#Tmpfs] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	LogDriver!: string | fn.#StringExpression
 	Options?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	SecretOptions?: [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MountPoint": close({
+#MountPoint: close({
 	ContainerPath?: string | fn.#StringExpression
 	ReadOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceVolume?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RepositoryCredentials": close(
-	{CredentialsParameter?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#RepositoryCredentials: close({CredentialsParameter?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RestartPolicy": close({
+#RestartPolicy: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnoredExitCodes?: [
 		...int |
@@ -306,25 +324,25 @@ _#defs: "/$defs/Properties/definitions/RestartPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	Name!:      string | fn.#StringExpression
 	ValueFrom!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SystemControl": close({
+#SystemControl: close({
 	Namespace?: string | fn.#StringExpression
 	Value?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tmpfs": close({
+#Tmpfs: close({
 	ContainerPath?: string | fn.#StringExpression
 	MountOptions?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	Size!: int |
@@ -344,7 +362,7 @@ _#defs: "/$defs/Properties/definitions/Tmpfs": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ulimit": close({
+#Ulimit: close({
 	HardLimit!: int |
 		{
 			string &
@@ -392,12 +410,19 @@ _#defs: "/$defs/Properties/definitions/Ulimit": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Volume": close({
-	Host?: _#defs."/$defs/Properties/definitions/HostVolumeProperties" | fn.#ObjectExpression
+#Volume: close({
+	// This parameter is specified when you use bind mount host volumes. The
+	// contents of the ``host`` parameter determine whether your bind mount host
+	// volume persists on the host container instance and where it's stored. If the
+	// ``host`` parameter is empty, then the Docker daemon assigns a host path for
+	// your data volume. However, the data isn't guaranteed to persist after the
+	// containers that are associated with it stop running.
+	// Windows containers can mount whole directories on the same drive as
+	// ``$env:ProgramData``. Windows containers can't mount directories on a
+	// different drive, and mount point can't be across drives. For example, you
+	// can mount ``C:\my\path:C:\my\path`` and ``D:\:D:\``, but not
+	// ``D:\my\path:C:\my\path`` or ``D:\:C:\my\path``.
+	Host?: #HostVolumeProperties
 	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::DaemonTaskDefinition"
-	Properties?: #Properties
-}

@@ -35,12 +35,12 @@ package schema
 	// resources such as ``AWS::ApiGatewayV2::Authorizer`` or
 	// ``AWS::ApiGatewayV2::Route``. API Gateway doesn't support the combination of
 	// OpenAPI and CloudFormation resources.
-	BodyS3Location?: _#defs."/$defs/Properties/definitions/BodyS3Location"
+	BodyS3Location?: #BodyS3Location
 
 	// A CORS configuration. Supported only for HTTP APIs. See [Configuring
 	// CORS](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html)
 	// for more information.
-	CorsConfiguration?: _#defs."/$defs/Properties/definitions/Cors"
+	CorsConfiguration?: #Cors
 
 	// This property is part of quick create. It specifies the credentials required
 	// for the integration, if any. For a Lambda integration, three options are
@@ -116,7 +116,7 @@ package schema
 
 // The ``BodyS3Location`` property specifies an S3 location from which to import
 // an OpenAPI definition. Supported only for HTTP APIs.
-_#defs: "/$defs/Properties/definitions/BodyS3Location": close({
+#BodyS3Location: close({
 	// The S3 bucket that contains the OpenAPI definition to import. Required if you
 	// specify a ``BodyS3Location`` for an API.
 	Bucket?: string
@@ -135,7 +135,7 @@ _#defs: "/$defs/Properties/definitions/BodyS3Location": close({
 // only for HTTP APIs. See [Configuring
 // CORS](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html)
 // for more information.
-_#defs: "/$defs/Properties/definitions/Cors": close({
+#Cors: close({
 	// Specifies whether credentials are included in the CORS request. Supported only for HTTP APIs.
 	AllowCredentials?: bool
 

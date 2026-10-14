@@ -9,14 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaLive::InputSecurityGroup
-#Properties: close({
-	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	WhitelistRules?: [..._#defs."/$defs/Properties/definitions/InputWhitelistRuleCidr"] | fn.#ListExpression
-})
-
-_#defs: "/$defs/Properties/definitions/InputWhitelistRuleCidr": close({Cidr?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::InputSecurityGroup"
-	Properties?: #Properties
+	Type!: "AWS::MediaLive::InputSecurityGroup"
+	Properties?: close({
+		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		WhitelistRules?: [...#InputWhitelistRuleCidr] | fn.#ListExpression
+	})
 }
+
+#InputWhitelistRuleCidr: close({Cidr?: string | fn.#StringExpression}) | fn.#ObjectExpression

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 	"struct"
 )
 
@@ -14,22 +14,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // CIS Scan Configuration resource schema
-#Properties: close({
-	ScanName!:      strings.MinRunes(1) | fn.#StringExpression
-	Schedule!:      _#defs."/$defs/Properties/definitions/Schedule"
-	SecurityLevel!: _#defs."/$defs/Properties/definitions/CisSecurityLevel"
-	Tags?:          _#defs."/$defs/Properties/definitions/CisTagMap"
-	Targets!:       _#defs."/$defs/Properties/definitions/CisTargets"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InspectorV2::CisScanConfiguration"
+	Properties!: close({
+		ScanName!:      strings.MinRunes(1) | fn.#StringExpression
+		Schedule!:      #Schedule
+		SecurityLevel!: #CisSecurityLevel
+		Tags?:          #CisTagMap
+		Targets!:       #CisTargets
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CisSecurityLevel": "LEVEL_1" | "LEVEL_2" | fn.#StringExpression
+#CisSecurityLevel: "LEVEL_1" | "LEVEL_2" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CisTagMap": close({
+#CisTagMap: close({
 
 	{[=~"^.{2,127}$"]: =~"^.{1,255}$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CisTargets": null |
+#CisTargets: null |
 bool |
 number |
 string |
@@ -39,76 +42,59 @@ close({
 		...=~"^\\d{12}|ALL_ACCOUNTS|SELF$" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	TargetResourceTags!: _#defs."/$defs/Properties/definitions/TargetResourceTags"
+	TargetResourceTags!: #TargetResourceTags
 }) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/DailySchedule": close({StartTime!: _#defs."/$defs/Properties/definitions/Time"}) |
-	fn.#ObjectExpression
+#DailySchedule: close({StartTime!: #Time}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Day": "MON" |
-	"TUE" |
-	"WED" |
-	"THU" |
-	"FRI" |
-	"SAT" |
-	"SUN" |
-	fn.#StringExpression
+#Day: "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DaysList": list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Day"
-] |
-	fn.#ListExpression
+#DaysList: list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [...#Day] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MonthlySchedule": close({
-	Day!:       _#defs."/$defs/Properties/definitions/Day"
-	StartTime!: _#defs."/$defs/Properties/definitions/Time"
+#MonthlySchedule: close({
+	Day!:       #Day
+	StartTime!: #Time
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OneTimeSchedule": fn.#Object & {...} | string | fn.#StringObjectExpression
+#OneTimeSchedule: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": null |
+#Schedule: null |
 bool |
 number |
 string |
 [...] |
 {
-	Daily?:   _#defs."/$defs/Properties/definitions/DailySchedule"
-	Monthly?: _#defs."/$defs/Properties/definitions/MonthlySchedule"
-	OneTime?: _#defs."/$defs/Properties/definitions/OneTimeSchedule"
-	Weekly?:  _#defs."/$defs/Properties/definitions/WeeklySchedule"
+	Daily?:   #DailySchedule
+	Monthly?: #MonthlySchedule
+	OneTime?: #OneTimeSchedule
+	Weekly?:  #WeeklySchedule
 	...
 } |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-	...string | fn.#StringExpression
-] |
+#TagValueList: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TargetResourceTags": null |
+#TargetResourceTags: null |
 bool |
 number |
 string |
 [...] |
 struct.MaxFields(5) & close({
 
-	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/TagValueList"}}) |
+	{[=~"^.+$"]: #TagValueList}}) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Time": close({
+#Time: close({
 	TimeOfDay!: =~"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" | fn.#StringExpression
 	TimeZone!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WeeklySchedule": close({
-	Days!:      _#defs."/$defs/Properties/definitions/DaysList"
-	StartTime!: _#defs."/$defs/Properties/definitions/Time"
+#WeeklySchedule: close({
+	Days!:      #DaysList
+	StartTime!: #Time
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InspectorV2::CisScanConfiguration"
-	Properties!: #Properties
-}

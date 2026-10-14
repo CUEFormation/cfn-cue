@@ -12,7 +12,7 @@ import (
 // Definition of AWS::RolesAnywhere::Profile Resource Type
 #Properties: close({
 	AcceptRoleSessionName?: bool
-	AttributeMappings?:     [..._#defs."/$defs/Properties/definitions/AttributeMapping"]
+	AttributeMappings?:     [...#AttributeMapping]
 	DurationSeconds?:       <=43200 & >=900
 	Enabled?:               bool
 	ManagedPolicyArns?:     list.MaxItems(50) & [...] & [...string]
@@ -24,19 +24,19 @@ import (
 		...strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam(:.*){2}(:role.*)$"
 	]
 	SessionPolicy?: string
-	Tags?:          list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeMapping": close({
-	CertificateField!: _#defs."/$defs/Properties/definitions/CertificateField"
-	MappingRules!:     [..._#defs."/$defs/Properties/definitions/MappingRule"]
+#AttributeMapping: close({
+	CertificateField!: #CertificateField
+	MappingRules!:     [...#MappingRule]
 })
 
-_#defs: "/$defs/Properties/definitions/CertificateField": "x509Subject" | "x509Issuer" | "x509SAN"
+#CertificateField: "x509Subject" | "x509Issuer" | "x509SAN"
 
-_#defs: "/$defs/Properties/definitions/MappingRule": close({Specifier!: string})
+#MappingRule: close({Specifier!: string})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_.:/=+@-]*$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[ a-zA-Z0-9_.:/=+@-]*$"
 })

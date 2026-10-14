@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -18,28 +18,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 //
 // For more information, see
 // [CreateDelivery](https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_CreateDelivery.html).
-#Properties: close({
-	DeliveryDestinationArn!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	DeliverySourceName!:     strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-	FieldDelimiter?:         strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
-	RecordFields?: list.MaxItems(128) & [...] & [..._#defs."/$defs/Properties/definitions/FieldHeader"] |
-		fn.#ListExpression
-	S3EnableHiveCompatiblePath?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	S3SuffixPath?:               strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::Delivery"
+	Properties!: close({
+		// The ARN of the delivery destination that is associated with this delivery.
+		DeliveryDestinationArn!: #Arn
+		DeliverySourceName!:     strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+		FieldDelimiter?:         strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
+		RecordFields?:           list.MaxItems(128) & [...] & [...#FieldHeader] | fn.#ListExpression
+		S3EnableHiveCompatiblePath?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		S3SuffixPath?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" |
-fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FieldHeader": strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#FieldHeader: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::Delivery"
-	Properties!: #Properties
-}

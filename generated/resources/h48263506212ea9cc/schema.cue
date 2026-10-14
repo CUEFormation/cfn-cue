@@ -12,26 +12,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Classifier
-#Properties: matchN(>=1, [{
-	XMLClassifier!: _
-	...
-}, {
-	CsvClassifier!: _
-	...
-}, {
-	GrokClassifier!: _
-	...
-}, {
-	JsonClassifier!: _
-	...
-}]) & close({
-	CsvClassifier?:  _#defs."/$defs/Properties/definitions/CsvClassifier" | fn.#ObjectExpression
-	GrokClassifier?: _#defs."/$defs/Properties/definitions/GrokClassifier" | fn.#ObjectExpression
-	JsonClassifier?: _#defs."/$defs/Properties/definitions/JsonClassifier" | fn.#ObjectExpression
-	XMLClassifier?:  _#defs."/$defs/Properties/definitions/XMLClassifier" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Classifier"
+	Properties?: close({
+		// A classifier for comma-separated values (CSV).
+		CsvClassifier?: #CsvClassifier
 
-_#defs: "/$defs/Properties/definitions/CsvClassifier": close({
+		// A classifier that uses grok.
+		GrokClassifier?: #GrokClassifier
+
+		// A classifier for JSON content.
+		JsonClassifier?: #JsonClassifier
+
+		// A classifier for XML content.
+		XMLClassifier?: #XMLClassifier
+	}) & matchN(>=1, [{XMLClassifier!: _}, {CsvClassifier!: _}, {GrokClassifier!: _}, {JsonClassifier!: _}])
+}
+
+#CsvClassifier: close({
 	AllowSingleColumn?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ContainsCustomDatatype?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	ContainsHeader?:           "ABSENT" | "PRESENT" | "UNKNOWN" | fn.#StringExpression
@@ -44,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/CsvClassifier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrokClassifier": close({
+#GrokClassifier: close({
 	Classification!: string | fn.#StringExpression
 	CustomPatterns?: strings.MaxRunes(16000) & strings.MinRunes(0) | fn.#StringExpression
 	GrokPattern!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -52,19 +50,15 @@ _#defs: "/$defs/Properties/definitions/GrokClassifier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonClassifier": close({
+#JsonClassifier: close({
 	JsonPath!: string | fn.#StringExpression
 	Name?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/XMLClassifier": close({
+#XMLClassifier: close({
 	Classification!: string | fn.#StringExpression
 	Name?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	RowTag!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Classifier"
-	Properties?: #Properties
-}

@@ -14,32 +14,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a router network interface in AWS Elemental MediaConnect that is
 // used to define a network boundary for router resources
-#Properties: close({
-	Configuration!: _#defs."/$defs/Properties/definitions/RouterNetworkInterfaceConfiguration"
-	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RegionName?:    string | fn.#StringExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::RouterNetworkInterface"
+	Properties!: close({
+		Configuration!: #RouterNetworkInterfaceConfiguration
+		Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		RegionName?:    string | fn.#StringExpression
+		Tags?:          [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PublicRouterNetworkInterfaceConfiguration": close({
-	AllowRules!: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PublicRouterNetworkInterfaceRule"
-	] |
-		fn.#ListExpression
-}) |
+#PublicRouterNetworkInterfaceConfiguration: close(
+	{AllowRules!: list.MaxItems(10) & [...] & [...#PublicRouterNetworkInterfaceRule] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicRouterNetworkInterfaceRule": close({Cidr!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#PublicRouterNetworkInterfaceRule: close({Cidr!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouterNetworkInterfaceConfiguration": matchN(1, [close(
-	{Public!: _#defs."/$defs/Properties/definitions/PublicRouterNetworkInterfaceConfiguration"},
-), close(
-	{Vpc!: _#defs."/$defs/Properties/definitions/VpcRouterNetworkInterfaceConfiguration"},
-)]) |
+#RouterNetworkInterfaceConfiguration: matchN(1, [
+	close({Public!: #PublicRouterNetworkInterfaceConfiguration}), close({Vpc!: #VpcRouterNetworkInterfaceConfiguration}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RouterNetworkInterfaceState": "CREATING" |
+#RouterNetworkInterfaceState: "CREATING" |
 	"ACTIVE" |
 	"UPDATING" |
 	"DELETING" |
@@ -47,17 +44,17 @@ _#defs: "/$defs/Properties/definitions/RouterNetworkInterfaceState": "CREATING" 
 	"RECOVERING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterNetworkInterfaceType": "PUBLIC" | "VPC" | fn.#StringExpression
+#RouterNetworkInterfaceType: "PUBLIC" | "VPC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
+#Unit: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcRouterNetworkInterfaceConfiguration": close({
+#VpcRouterNetworkInterfaceConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -66,7 +63,3 @@ _#defs: "/$defs/Properties/definitions/VpcRouterNetworkInterfaceConfiguration": 
 	SubnetId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::RouterNetworkInterface"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"struct"
 	"list"
 )
@@ -14,17 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Omics::AnnotationStore Resource Type
-#Properties: close({
-	Description?:  strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:         =~"^([a-z]){1}([a-z0-9_]){2,254}" | fn.#StringExpression
-	Reference?:    _#defs."/$defs/Properties/definitions/ReferenceItem"
-	SseConfig?:    _#defs."/$defs/Properties/definitions/SseConfig"
-	StoreFormat!:  _#defs."/$defs/Properties/definitions/StoreFormat"
-	StoreOptions?: _#defs."/$defs/Properties/definitions/StoreOptions"
-	Tags?:         _#defs."/$defs/Properties/definitions/TagMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Omics::AnnotationStore"
+	Properties!: close({
+		Description?:  strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:         =~"^([a-z]){1}([a-z0-9_]){2,254}" | fn.#StringExpression
+		Reference?:    #ReferenceItem
+		SseConfig?:    #SseConfig
+		StoreFormat!:  #StoreFormat
+		StoreOptions?: #StoreOptions
+		Tags?:         #TagMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AnnotationType": "GENERIC" |
+#AnnotationType: "GENERIC" |
 	"CHR_POS" |
 	"CHR_POS_REF_ALT" |
 	"CHR_START_END_ONE_BASE" |
@@ -33,40 +36,28 @@ _#defs: "/$defs/Properties/definitions/AnnotationType": "GENERIC" |
 	"CHR_START_END_REF_ALT_ZERO_BASE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionType": "KMS" | fn.#StringExpression
+#EncryptionType: "KMS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FormatToHeader": close({
+#FormatToHeader: close({
 
 	{[=~".+"]: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormatToHeaderKey": "CHR" |
-	"START" |
-	"END" |
-	"REF" |
-	"ALT" |
-	"POS" |
-	fn.#StringExpression
+#FormatToHeaderKey: "CHR" | "START" | "END" | "REF" | "ALT" | "POS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReferenceItem": close(
+#ReferenceItem: close(
 	{ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaItem": struct.MaxFields(1) & struct.MinFields(1) & close({
+#SchemaItem: struct.MaxFields(1) & struct.MinFields(1) & close({
 
-	{[=~"^[a-z0-9_]{1,255}$"]: _#defs."/$defs/Properties/definitions/SchemaValueType"}}) |
+	{[=~"^[a-z0-9_]{1,255}$"]: #SchemaValueType}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaValueType": "LONG" |
-	"INT" |
-	"STRING" |
-	"FLOAT" |
-	"DOUBLE" |
-	"BOOLEAN" |
-	fn.#StringExpression
+#SchemaValueType: "LONG" | "INT" | "STRING" | "FLOAT" | "DOUBLE" | "BOOLEAN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SseConfig": close({
+#SseConfig: close({
 	KeyArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"""
@@ -77,37 +68,24 @@ _#defs: "/$defs/Properties/definitions/SseConfig": close({
 		]*)
 		""" |
 	fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/EncryptionType"
+	Type!: #EncryptionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StoreFormat": "GFF" | "TSV" | "VCF" | fn.#StringExpression
+#StoreFormat: "GFF" | "TSV" | "VCF" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StoreOptions": close(
-	{TsvStoreOptions!: _#defs."/$defs/Properties/definitions/TsvStoreOptions"},
-) |
-	fn.#ValueExpression
+#StoreOptions: close({TsvStoreOptions!: #TsvStoreOptions}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/StoreStatus": "CREATING" |
-	"UPDATING" |
-	"DELETING" |
-	"ACTIVE" |
-	"FAILED" |
-	fn.#StringExpression
+#StoreStatus: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TsvStoreOptions": close({
-	AnnotationType?: _#defs."/$defs/Properties/definitions/AnnotationType"
-	FormatToHeader?: _#defs."/$defs/Properties/definitions/FormatToHeader"
-	Schema?: list.MaxItems(5000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SchemaItem"] |
-		fn.#ListExpression
+#TsvStoreOptions: close({
+	AnnotationType?: #AnnotationType
+	FormatToHeader?: #FormatToHeader
+	Schema?:         list.MaxItems(5000) & list.MinItems(1) & [...#SchemaItem] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Omics::AnnotationStore"
-	Properties!: #Properties
-}

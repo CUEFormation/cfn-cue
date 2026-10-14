@@ -25,13 +25,13 @@ import (
 
 	// An array of key-value pairs that contain metadata to help you categorize and
 	// organize a human review workflow user interface.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The Liquid template for the worker user interface.
-	UiTemplate?: _#defs."/$defs/Properties/definitions/UiTemplate"
+	UiTemplate?: #UiTemplate
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -40,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The Liquid template for the worker user interface.
-_#defs: "/$defs/Properties/definitions/UiTemplate": close({
+#UiTemplate: close({
 	// The content of the Liquid template for the worker user interface.
 	Content!: strings.MaxRunes(128000) & strings.MinRunes(1) & =~"^[\\S\\s]+$"
 })

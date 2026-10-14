@@ -28,10 +28,10 @@ import "list"
 	SubnetId!: string
 
 	// Key-value pairs that can be used to tag and organize this VPC network interface.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

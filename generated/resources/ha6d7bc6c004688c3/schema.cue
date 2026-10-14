@@ -13,18 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a portal product in Amazon API Gateway V2, which is a logical
 // grouping of APIs that can be published in a developer portal.
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::PortalProduct"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::PortalProduct"
-	Properties!: #Properties
-}

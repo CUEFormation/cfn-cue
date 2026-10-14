@@ -46,14 +46,14 @@ import (
 
 	// The service which a pricing rule is applied on
 	Service?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\-]+"
-	Tags?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:    list.UniqueItems() & [...#Tag]
 
 	// The set of tiering configurations for the pricing rule.
 	Tiering?: close({
 		// The set of custom volume tiers for a SKU-scoped TIERING pricing rule. Tiers
 		// must start at 0, be contiguous, and the last tier must have no end range.
-		CustomTiers?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomTier"]
-		FreeTier?:    _#defs."/$defs/Properties/definitions/FreeTier"
+		CustomTiers?: list.MaxItems(10) & list.MinItems(1) & [...#CustomTier]
+		FreeTier?:    #FreeTier
 	})
 
 	// One of MARKUP, DISCOUNT or TIERING that describes the behaviour of the pricing rule.
@@ -64,7 +64,7 @@ import (
 })
 
 // A custom volume tier that defines the rate applied to usage within the given range.
-_#defs: "/$defs/Properties/definitions/CustomTier": close({
+#CustomTier: close({
 	// The inclusive beginning of the tier's usage range.
 	BeginRangeInclusive!: >=0
 
@@ -76,9 +76,9 @@ _#defs: "/$defs/Properties/definitions/CustomTier": close({
 })
 
 // The possible customizable free tier configurations.
-_#defs: "/$defs/Properties/definitions/FreeTier": close({Activated!: bool})
+#FreeTier: close({Activated!: bool})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

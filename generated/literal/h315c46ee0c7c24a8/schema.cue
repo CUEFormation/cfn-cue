@@ -12,17 +12,17 @@ import (
 // Resource schema for AWS::SageMaker::Device
 #Properties: close({
 	// The Edge Device you want to register against a device fleet
-	Device?: _#defs."/$defs/Properties/definitions/Device"
+	Device?: #Device
 
 	// The name of the edge device fleet
 	DeviceFleetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*_*[a-zA-Z0-9])*$"
 
 	// Associate tags with the resource
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // Edge device you want to create
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	// Description of the device
 	Description?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[\\S\\s]+"
 
@@ -33,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/Device": close({
 	IotThingName?: strings.MaxRunes(128) & =~"[a-zA-Z0-9:_-]+"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -18,14 +18,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to
 // Use](https://docs.aws.amazon.com/iotevents/latest/developerguide/how-to-use-iotevents.html)
 // in the *Developer Guide*.
-#Properties: close({
-	InputDefinition!:  _#defs."/$defs/Properties/definitions/InputDefinition" | fn.#ObjectExpression
-	InputDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	InputName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTEvents::Input"
+	Properties!: close({
+		// The definition of the input.
+		InputDefinition!:  #InputDefinition
+		InputDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		InputName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Attribute": close({
+#Attribute: close({
 	JsonPath!: strings.MaxRunes(128) &
 	strings.MinRunes(1) &
 	=~"^((`[a-zA-Z0-9_\\- ]+`)|([a-zA-Z0-9_\\-]+))(\\.((`[a-zA-Z0-9_\\- ]+`)|([a-zA-Z0-9_\\-]+)))*$" |
@@ -33,20 +37,13 @@ _#defs: "/$defs/Properties/definitions/Attribute": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputDefinition": close({
-	Attributes!: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Attribute"
-	] |
-		fn.#ListExpression
-}) |
+#InputDefinition: close(
+	{Attributes!: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Attribute] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTEvents::Input"
-	Properties!: #Properties
-}

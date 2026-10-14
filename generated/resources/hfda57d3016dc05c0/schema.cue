@@ -36,197 +36,255 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // source](https://docs.aws.amazon.com/lambda/latest/dg/kafka-smaa.html)
 // + [Configuring Amazon DocumentDB as an event
 // source](https://docs.aws.amazon.com/lambda/latest/dg/with-documentdb.html)
-#Properties: close({
-	AmazonManagedKafkaEventSourceConfig?: _#defs."/$defs/Properties/definitions/AmazonManagedKafkaEventSourceConfig" |
-		fn.#ObjectExpression
-	BatchSize?: int & <=10000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BisectBatchOnFunctionError?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DestinationConfig?:          _#defs."/$defs/Properties/definitions/DestinationConfig" | fn.#ObjectExpression
-	DocumentDBEventSourceConfig?: _#defs."/$defs/Properties/definitions/DocumentDBEventSourceConfig" |
-		fn.#ObjectExpression
-	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventSourceArn?: strings.MaxRunes(1024) &
-	strings.MinRunes(12) &
-	=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
-	fn.#StringExpression
-	FilterCriteria?: _#defs."/$defs/Properties/definitions/FilterCriteria" | fn.#ObjectExpression
-	FunctionName!: strings.MaxRunes(140) &
-	strings.MinRunes(1) &
-	=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?" |
-	fn.#StringExpression
-	FunctionResponseTypes?: list.MaxItems(1) & list.UniqueItems() & [...] & [
-		..."ReportBatchItemFailures" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(12) &
-	=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" |
-	fn.#StringExpression
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
-	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=300 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaximumRecordAgeInSeconds?: int & <=604800 & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=604800 &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaximumRetryAttempts?: int & <=10000 & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10000 &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MetricsConfig?: _#defs."/$defs/Properties/definitions/MetricsConfig" | fn.#ObjectExpression
-	ParallelizationFactor?: int & <=10 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ProvisionedPollerConfig?: _#defs."/$defs/Properties/definitions/ProvisionedPollerConfig" | fn.#ObjectExpression
-	Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	ScalingConfig?:          _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
-	SelfManagedEventSource?: _#defs."/$defs/Properties/definitions/SelfManagedEventSource" | fn.#ObjectExpression
-	SelfManagedKafkaEventSourceConfig?: _#defs."/$defs/Properties/definitions/SelfManagedKafkaEventSourceConfig" |
-		fn.#ObjectExpression
-	SourceAccessConfigurations?: list.MaxItems(29) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SourceAccessConfiguration"
-	] |
-		fn.#ListExpression
-	StartingPosition?: strings.MaxRunes(12) & strings.MinRunes(6) & =~"(LATEST|TRIM_HORIZON|AT_TIMESTAMP)+" |
-	fn.#StringExpression
-	StartingPositionTimestamp?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Topics?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	TumblingWindowInSeconds?: int & <=900 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=900 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::EventSourceMapping"
+	Properties!: close({
+		// Specific configuration settings for an Amazon Managed Streaming for Apache
+		// Kafka (Amazon MSK) event source.
+		AmazonManagedKafkaEventSourceConfig?: #AmazonManagedKafkaEventSourceConfig
+		BatchSize?: int & <=10000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		BisectBatchOnFunctionError?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/AmazonManagedKafkaEventSourceConfig": close({
-	ConsumerGroupId?:      _#defs."/$defs/Properties/definitions/ConsumerGroupId" | fn.#StringExpression
-	SchemaRegistryConfig?: _#defs."/$defs/Properties/definitions/SchemaRegistryConfig" | fn.#ObjectExpression
+		// (Kinesis, DynamoDB Streams, Amazon MSK, and self-managed Apache Kafka) A
+		// configuration object that specifies the destination of an event after Lambda
+		// processes it.
+		DestinationConfig?: #DestinationConfig
+
+		// Specific configuration settings for a DocumentDB event source.
+		DocumentDBEventSourceConfig?: #DocumentDBEventSourceConfig
+		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EventSourceArn?: strings.MaxRunes(1024) &
+		strings.MinRunes(12) &
+		=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
+		fn.#StringExpression
+
+		// An object that defines the filter criteria that determine whether Lambda
+		// should process an event. For more information, see [Lambda event
+		// filtering](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html).
+		FilterCriteria?: #FilterCriteria
+		FunctionName!: strings.MaxRunes(140) &
+		strings.MinRunes(1) &
+		=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?" |
+		fn.#StringExpression
+		FunctionResponseTypes?: list.MaxItems(1) & list.UniqueItems() & [...] & [
+			..."ReportBatchItemFailures" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(12) &
+		=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" |
+		fn.#StringExpression
+
+		// (Amazon MSK, and self-managed Apache Kafka only) The logging configuration
+		// for your event source. For more information, see [Event source mapping
+		// logging](https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html).
+		LoggingConfig?: #LoggingConfig
+		MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=300 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaximumRecordAgeInSeconds?: int & <=604800 & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=604800 &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaximumRetryAttempts?: int & <=10000 & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10000 &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+
+		// The metrics configuration for your event source. For more information, see
+		// [Event source mapping
+		// metrics](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics).
+		MetricsConfig?: #MetricsConfig
+		ParallelizationFactor?: int & <=10 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+
+		// (Amazon SQS, Amazon MSK, and self-managed Apache Kafka only) The provisioned
+		// mode configuration for the event source. For more information, see
+		// [provisioned
+		// mode](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#invocation-eventsourcemapping-provisioned-mode).
+		ProvisionedPollerConfig?: #ProvisionedPollerConfig
+		Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+			...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+
+		// This property is for Amazon SQS event sources only. You cannot use
+		// ``ProvisionedPollerConfig`` while using ``ScalingConfig``. These options are
+		// mutually exclusive. To remove the scaling configuration, pass an empty
+		// value.
+		ScalingConfig?: #ScalingConfig
+
+		// The self-managed Apache Kafka cluster for your event source.
+		SelfManagedEventSource?: #SelfManagedEventSource
+
+		// Specific configuration settings for a self-managed Apache Kafka event source.
+		SelfManagedKafkaEventSourceConfig?: #SelfManagedKafkaEventSourceConfig
+		SourceAccessConfigurations?: list.MaxItems(29) & list.MinItems(1) & list.UniqueItems() & [
+			...#SourceAccessConfiguration
+		] |
+			fn.#ListExpression
+		StartingPosition?: strings.MaxRunes(12) & strings.MinRunes(6) & =~"(LATEST|TRIM_HORIZON|AT_TIMESTAMP)+" |
+		fn.#StringExpression
+		StartingPositionTimestamp?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Topics?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+			...strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		TumblingWindowInSeconds?: int & <=900 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=900 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
+
+#AmazonManagedKafkaEventSourceConfig: close({
+	// The identifier for the Kafka consumer group to join. The consumer group ID
+	// must be unique among all your Kafka event sources. After creating a Kafka
+	// event source mapping with the consumer group ID specified, you cannot update
+	// this value. For more information, see [Customizable consumer group
+	// ID](https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html#services-msk-consumer-group-id).
+	ConsumerGroupId?: #ConsumerGroupId
+
+	// Specific configuration settings for a Kafka schema registry.
+	SchemaRegistryConfig?: #SchemaRegistryConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConsumerGroupId": strings.MaxRunes(200) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9-\\/*:_+=.@-]*" |
-fn.#StringExpression
+#ConsumerGroupId: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\/*:_+=.@-]*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConsumptionMode": "Stream" | "Queue" | fn.#StringExpression
+#ConsumptionMode: "Stream" | "Queue" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationConfig": close(
-	{OnFailure?: _#defs."/$defs/Properties/definitions/OnFailure" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#DestinationConfig: close({
+	// The destination configuration for failed invocations.
+	OnFailure?: #OnFailure
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentDBEventSourceConfig": close({
+#DocumentDBEventSourceConfig: close({
 	CollectionName?: strings.MaxRunes(57) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseName?:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[^ /\\.$\\x22]*$" | fn.#StringExpression
 	FullDocument?:   "UpdateLookup" | "Default" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoints": close({
+#Endpoints: close({
 	KafkaBootstrapServers?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(300) &
 		strings.MinRunes(1) &
@@ -237,25 +295,17 @@ _#defs: "/$defs/Properties/definitions/Endpoints": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close(
-	{Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" | fn.#StringExpression},
-) |
+#Filter: close({Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterCriteria": close({
-	Filters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Filter"
-	] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close(
-	{SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression},
+#FilterCriteria: close(
+	{Filters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#Filter] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaximumConcurrency": int & <=1000 & >=2 |
+#LoggingConfig: close({SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression}) | fn.#ObjectExpression
+
+#MaximumConcurrency: int & <=1000 & >=2 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -272,7 +322,7 @@ _#defs: "/$defs/Properties/definitions/MaximumConcurrency": int & <=1000 & >=2 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsConfig": close({
+#MetricsConfig: close({
 	Metrics?: list.MaxItems(3) & list.UniqueItems() & [...] & [
 		..."EventCount" | "ErrorCount" | "KafkaMetrics" | fn.#StringExpression
 	] |
@@ -280,7 +330,7 @@ _#defs: "/$defs/Properties/definitions/MetricsConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnFailure": close({
+#OnFailure: close({
 	Destination?: strings.MaxRunes(1024) &
 	strings.MinRunes(12) &
 	=~"^$|kafka://([^.]([a-zA-Z0-9\\-_.]{0,248}))|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
@@ -288,7 +338,7 @@ _#defs: "/$defs/Properties/definitions/OnFailure": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedPollerConfig": close({
+#ProvisionedPollerConfig: close({
 	MaximumPollers?: int & <=10000 & >=1 |
 		{
 			string &
@@ -325,12 +375,13 @@ _#defs: "/$defs/Properties/definitions/ProvisionedPollerConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close(
-	{MaximumConcurrency?: _#defs."/$defs/Properties/definitions/MaximumConcurrency" | fn.#NumberExpression},
-) |
-	fn.#ObjectExpression
+#ScalingConfig: close({
+	// Limits the number of concurrent instances that the SQS event source can invoke.
+	MaximumConcurrency?: #MaximumConcurrency
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaRegistryAccessConfig": close({
+#SchemaRegistryAccessConfig: close({
 	Type?: "BASIC_AUTH" |
 		"CLIENT_CERTIFICATE_TLS_AUTH" |
 		"SERVER_ROOT_CA_CERTIFICATE" |
@@ -343,39 +394,40 @@ _#defs: "/$defs/Properties/definitions/SchemaRegistryAccessConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaRegistryConfig": close({
-	AccessConfigs?: list.MaxItems(2) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SchemaRegistryAccessConfig"
-	] |
-		fn.#ListExpression
+#SchemaRegistryConfig: close({
+	AccessConfigs?:     list.MaxItems(2) & list.UniqueItems() & [...#SchemaRegistryAccessConfig] | fn.#ListExpression
 	EventRecordFormat?: "JSON" | "SOURCE" | fn.#StringExpression
 	SchemaRegistryURI?: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"[a-zA-Z0-9-/*:_+=.@-]*" |
 	fn.#StringExpression
-	SchemaValidationConfigs?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SchemaValidationConfig"
-	] |
+	SchemaValidationConfigs?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#SchemaValidationConfig] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaValidationConfig": close(
-	{Attribute?: "KEY" | "VALUE" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#SchemaValidationConfig: close({Attribute?: "KEY" | "VALUE" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedEventSource": close(
-	{Endpoints?: _#defs."/$defs/Properties/definitions/Endpoints" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/SelfManagedKafkaEventSourceConfig": close({
-	ConsumerGroupId?:      _#defs."/$defs/Properties/definitions/ConsumerGroupId" | fn.#StringExpression
-	ConsumptionMode?:      _#defs."/$defs/Properties/definitions/ConsumptionMode" | fn.#StringExpression
-	SchemaRegistryConfig?: _#defs."/$defs/Properties/definitions/SchemaRegistryConfig" | fn.#ObjectExpression
+#SelfManagedEventSource: close({
+	// The list of bootstrap servers for your Kafka brokers in the following format:
+	// ``"KafkaBootstrapServers": ["abc.xyz.com:xxxx","abc2.xyz.com:xxxx"]``.
+	Endpoints?: #Endpoints
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceAccessConfiguration": close({
+#SelfManagedKafkaEventSourceConfig: close({
+	// The identifier for the Kafka consumer group to join. The consumer group ID
+	// must be unique among all your Kafka event sources. After creating a Kafka
+	// event source mapping with the consumer group ID specified, you cannot update
+	// this value. For more information, see [Customizable consumer group
+	// ID](https://docs.aws.amazon.com/lambda/latest/dg/with-kafka-process.html#services-smaa-topic-add).
+	ConsumerGroupId?: #ConsumerGroupId
+	ConsumptionMode?: #ConsumptionMode
+
+	// Specific configuration settings for a Kafka schema registry.
+	SchemaRegistryConfig?: #SchemaRegistryConfig
+}) |
+fn.#ObjectExpression
+
+#SourceAccessConfiguration: close({
 	Type?: "BASIC_AUTH" |
 		"VPC_SUBNET" |
 		"VPC_SECURITY_GROUP" |
@@ -396,12 +448,8 @@ _#defs: "/$defs/Properties/definitions/SourceAccessConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::EventSourceMapping"
-	Properties!: #Properties
-}

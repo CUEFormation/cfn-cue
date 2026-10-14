@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,36 +17,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IVS::RecordingConfiguration
-#Properties: close({
-	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
-	Name?:                     strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	RecordingReconnectWindowSeconds?: int & <=300 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=300 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RenditionConfiguration?: _#defs."/$defs/Properties/definitions/RenditionConfiguration"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	ThumbnailConfiguration?: _#defs."/$defs/Properties/definitions/ThumbnailConfiguration"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IVS::RecordingConfiguration"
+	Properties!: close({
+		DestinationConfiguration!: #DestinationConfiguration
+		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+		RecordingReconnectWindowSeconds?: int & <=300 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=300 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RenditionConfiguration?: #RenditionConfiguration
+		Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		ThumbnailConfiguration?: #ThumbnailConfiguration
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"},
-) |
-	fn.#ObjectExpression
+#DestinationConfiguration: close({S3?: #S3DestinationConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RenditionConfiguration": close({
+#RenditionConfiguration: close({
 	RenditionSelection?: "ALL" | "NONE" | "CUSTOM" | fn.#StringExpression
 	Renditions?: list.MaxItems(4) & list.UniqueItems() & [...] & [
 		..."FULL_HD" | "HD" | "SD" | "LOWEST_RESOLUTION" | fn.#StringExpression
@@ -55,18 +57,18 @@ _#defs: "/$defs/Properties/definitions/RenditionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close(
+#S3DestinationConfiguration: close(
 	{BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThumbnailConfiguration": close({
+#ThumbnailConfiguration: close({
 	RecordingMode?: "INTERVAL" | "DISABLED" | fn.#StringExpression
 	Resolution?:    "FULL_HD" | "HD" | "SD" | "LOWEST_RESOLUTION" | fn.#StringExpression
 	Storage?: list.MaxItems(2) & list.UniqueItems() & [...] & [..."SEQUENTIAL" | "LATEST" | fn.#StringExpression] |
@@ -89,7 +91,3 @@ _#defs: "/$defs/Properties/definitions/ThumbnailConfiguration": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IVS::RecordingConfiguration"
-	Properties!: #Properties
-}

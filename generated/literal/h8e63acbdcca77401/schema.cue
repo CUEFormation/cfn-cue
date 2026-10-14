@@ -14,20 +14,20 @@ import "strings"
 	// Identifier of a KMS key. Can be a key ID, key ARN, alias name, or alias ARN.
 	DefaultKmsKeyId?:  strings.MaxRunes(2048) & strings.MinRunes(0)
 	Domain?:           string
-	IdCConfiguration?: _#defs."/$defs/Properties/definitions/IdCConfiguration"
+	IdCConfiguration?: #IdCConfiguration
 	RoleArn?:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Tags for the application
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/IdCConfiguration": close({
+#IdCConfiguration: close({
 	IdCApplicationArn?: string
 	IdCInstanceArn?:    string
 })
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

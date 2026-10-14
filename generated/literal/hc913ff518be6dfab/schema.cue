@@ -20,7 +20,7 @@ import (
 	DefaultSenderId?: =~"^[A-Za-z0-9_-]+$"
 
 	// An event destination is a location where you send message events.
-	EventDestinations?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/EventDestination"]
+	EventDestinations?: list.MaxItems(5) & [...#EventDestination]
 
 	// Set to true to enable message feedback.
 	MessageFeedbackEnabled?: bool
@@ -29,10 +29,10 @@ import (
 	ProtectConfigurationId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsDestination": close({
+#CloudWatchLogsDestination: close({
 	// The Amazon Resource Name (ARN) of an AWS Identity and Access Management role
 	// that is able to write event data to an Amazon CloudWatch destination.
 	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:\\S+$"
@@ -46,19 +46,10 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestination": close({
 // example, when a message is delivered successfully, you can send information
 // about that event to an event destination, or send notifications to endpoints
 // that are subscribed to an Amazon SNS topic.
-_#defs: "/$defs/Properties/definitions/EventDestination": matchN(1, [{
-	CloudWatchLogsDestination!: _
-	...
-}, {
-	KinesisFirehoseDestination!: _
-	...
-}, {
-	SnsDestination!: _
-	...
-}]) & close({
+#EventDestination: close({
 	// An object that contains IamRoleArn and LogGroupArn associated with an Amazon
 	// CloudWatch event destination.
-	CloudWatchLogsDestination?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestination"
+	CloudWatchLogsDestination?: #CloudWatchLogsDestination
 
 	// When set to true events will be logged. By default this is set to true
 	Enabled!: bool
@@ -68,17 +59,30 @@ _#defs: "/$defs/Properties/definitions/EventDestination": matchN(1, [{
 
 	// An object that contains IamRoleArn and DeliveryStreamArn associated with an
 	// Amazon Kinesis Firehose event destination.
-	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination"
+	KinesisFirehoseDestination?: #KinesisFirehoseDestination
 
 	// An array of event types that determine which events to log. If 'ALL' is used,
 	// then AWS End User Messaging SMS and Voice logs every event type.
 	MatchingEventTypes!: list.UniqueItems() & [...string]
 
 	// An object that contains SNS TopicArn event destination.
-	SnsDestination?: _#defs."/$defs/Properties/definitions/SnsDestination"
-})
+	SnsDestination?: #SnsDestination
+	if CloudWatchLogsDestination != _|_ if CloudWatchLogsDestination."Fn::If" == _|_ {
+		KinesisFirehoseDestination?: close({"Fn::If": _}) | error(
+			"KinesisFirehoseDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+		SnsDestination?: close({"Fn::If": _}) | error(
+			"SnsDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+	}
+	if KinesisFirehoseDestination != _|_ if KinesisFirehoseDestination."Fn::If" == _|_ {
+		SnsDestination?: close({"Fn::If": _}) | error(
+			"SnsDestination cannot be used with KinesisFirehoseDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+	}
+}) & matchN(>=1, [{CloudWatchLogsDestination!: _}, {KinesisFirehoseDestination!: _}, {SnsDestination!: _}])
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
+#KinesisFirehoseDestination: close({
 	// The Amazon Resource Name (ARN) of the delivery stream.
 	DeliveryStreamArn!: =~"^arn:\\S+$"
 
@@ -87,13 +91,13 @@ _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:\\S+$"
 })
 
-_#defs: "/$defs/Properties/definitions/SnsDestination": close({
+#SnsDestination: close({
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic that you want to publish events to.
 	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & =~"^arn:\\S+$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

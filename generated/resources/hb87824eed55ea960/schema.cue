@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
-	"struct"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"struct"
 )
 
 import cfnScalarStrings "strings"
@@ -18,43 +18,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource for Greengrass V2 deployment.
-#Properties: close({
-	Components?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GreengrassV2::Deployment"
+	Properties!: close({
+		Components?: close({
 
-		{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentDeploymentSpecification"}}) |
-	fn.#ObjectExpression
-	DeploymentName?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	DeploymentPolicies?:  _#defs."/$defs/Properties/definitions/DeploymentPolicies"
-	IotJobConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentIoTJobConfiguration"
-	ParentTargetArn?:     =~"arn:[^:]*:iot:[^:]*:[0-9]+:thinggroup/.+" | fn.#StringExpression
-	Tags?: struct.MaxFields(200) & close({
+			{[=~".+"]: #ComponentDeploymentSpecification}}) |
+		fn.#ObjectExpression
+		DeploymentName?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		DeploymentPolicies?:  #DeploymentPolicies
+		IotJobConfiguration?: #DeploymentIoTJobConfiguration
+		ParentTargetArn?:     =~"arn:[^:]*:iot:[^:]*:[0-9]+:thinggroup/.+" | fn.#StringExpression
+		Tags?: struct.MaxFields(200) & close({
 
-		{[=~".*"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	TargetArn!: =~"arn:[^:]*:iot:[^:]*:[0-9]+:(thing|thinggroup)/.+" | fn.#StringExpression
-})
+			{[=~".*"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		TargetArn!: =~"arn:[^:]*:iot:[^:]*:[0-9]+:(thing|thinggroup)/.+" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ComponentConfigurationUpdate": close({
+#ComponentConfigurationUpdate: close({
 	Merge?: strings.MaxRunes(10485760) & strings.MinRunes(1) | fn.#StringExpression
 	Reset?: [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentDeploymentSpecification": close({
+#ComponentDeploymentSpecification: close({
 	ComponentVersion?:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ConfigurationUpdate?: _#defs."/$defs/Properties/definitions/ComponentConfigurationUpdate"
-	RunWith?:             _#defs."/$defs/Properties/definitions/ComponentRunWith"
+	ConfigurationUpdate?: #ComponentConfigurationUpdate
+	RunWith?:             #ComponentRunWith
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentRunWith": close({
+#ComponentRunWith: close({
 	PosixUser?:            strings.MinRunes(1) | fn.#StringExpression
-	SystemResourceLimits?: _#defs."/$defs/Properties/definitions/SystemResourceLimits"
+	SystemResourceLimits?: #SystemResourceLimits
 	WindowsUser?:          strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentComponentUpdatePolicy": close({
+#DeploymentComponentUpdatePolicy: close({
 	Action?: "NOTIFY_COMPONENTS" | "SKIP_NOTIFY_COMPONENTS" | fn.#StringExpression
 	TimeoutInSeconds?: int & <=2147483647 & >=1 |
 		{
@@ -75,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentComponentUpdatePolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfigurationValidationPolicy": close({
+#DeploymentConfigurationValidationPolicy: close({
 	TimeoutInSeconds?: int & <=2147483647 & >=1 |
 		{
 			string &
@@ -95,27 +98,24 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfigurationValidationPolicy":
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentIoTJobConfiguration": close({
-	AbortConfig?:                _#defs."/$defs/Properties/definitions/IoTJobAbortConfig"
-	JobExecutionsRolloutConfig?: _#defs."/$defs/Properties/definitions/IoTJobExecutionsRolloutConfig"
-	TimeoutConfig?:              _#defs."/$defs/Properties/definitions/IoTJobTimeoutConfig"
+#DeploymentIoTJobConfiguration: close({
+	AbortConfig?:                #IoTJobAbortConfig
+	JobExecutionsRolloutConfig?: #IoTJobExecutionsRolloutConfig
+	TimeoutConfig?:              #IoTJobTimeoutConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentPolicies": close({
-	ComponentUpdatePolicy?:         _#defs."/$defs/Properties/definitions/DeploymentComponentUpdatePolicy"
-	ConfigurationValidationPolicy?: _#defs."/$defs/Properties/definitions/DeploymentConfigurationValidationPolicy"
+#DeploymentPolicies: close({
+	ComponentUpdatePolicy?:         #DeploymentComponentUpdatePolicy
+	ConfigurationValidationPolicy?: #DeploymentConfigurationValidationPolicy
 	FailureHandlingPolicy?:         "ROLLBACK" | "DO_NOTHING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IoTJobAbortConfig": close({
-	CriteriaList!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/IoTJobAbortCriteria"] |
-		fn.#ListExpression
-}) |
+#IoTJobAbortConfig: close({CriteriaList!: list.MinItems(1) & [...#IoTJobAbortCriteria] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IoTJobAbortCriteria": close({
+#IoTJobAbortCriteria: close({
 	Action!:      "CANCEL" | fn.#StringExpression
 	FailureType!: "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
 	MinNumberOfExecutedThings!: int & <=2147483647 & >=1 |
@@ -157,8 +157,8 @@ _#defs: "/$defs/Properties/definitions/IoTJobAbortCriteria": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IoTJobExecutionsRolloutConfig": close({
-	ExponentialRate?: _#defs."/$defs/Properties/definitions/IoTJobExponentialRolloutRate"
+#IoTJobExecutionsRolloutConfig: close({
+	ExponentialRate?: #IoTJobExponentialRolloutRate
 	MaximumPerMinute?: int & <=1000 & >=1 |
 		{
 			string &
@@ -178,7 +178,7 @@ _#defs: "/$defs/Properties/definitions/IoTJobExecutionsRolloutConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IoTJobExponentialRolloutRate": close({
+#IoTJobExponentialRolloutRate: close({
 	BaseRatePerMinute!: int & <=1000 & >=1 |
 		{
 			string &
@@ -215,18 +215,16 @@ _#defs: "/$defs/Properties/definitions/IoTJobExponentialRolloutRate": close({
 				)
 		} |
 		fn.#NumberExpression
-	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/IoTJobRateIncreaseCriteria"
+	RateIncreaseCriteria!: #IoTJobRateIncreaseCriteria
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IoTJobRateIncreaseCriteria": fn.#Object & {...} & matchN(1, [close(
-	{NumberOfNotifiedThings?: _#defs."/$defs/Properties/definitions/NumberOfThings"},
-), close(
-	{NumberOfSucceededThings?: _#defs."/$defs/Properties/definitions/NumberOfThings"},
-)]) |
+#IoTJobRateIncreaseCriteria: fn.#Object & {...} & matchN(1, [
+	close({NumberOfNotifiedThings?: #NumberOfThings}), close({NumberOfSucceededThings?: #NumberOfThings}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IoTJobTimeoutConfig": close({
+#IoTJobTimeoutConfig: close({
 	InProgressTimeoutInMinutes?: int & <=2147483647 & >=0 |
 		{
 			string &
@@ -246,7 +244,7 @@ _#defs: "/$defs/Properties/definitions/IoTJobTimeoutConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfThings": int & <=2147483647 & >=1 |
+#NumberOfThings: int & <=2147483647 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -263,7 +261,7 @@ _#defs: "/$defs/Properties/definitions/NumberOfThings": int & <=2147483647 & >=1
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/SystemResourceLimits": close({
+#SystemResourceLimits: close({
 	Cpus?: >=0 |
 		{
 			string &
@@ -301,7 +299,3 @@ _#defs: "/$defs/Properties/definitions/SystemResourceLimits": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GreengrassV2::Deployment"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -17,28 +17,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Information about a daemon resource.
-#Properties: close({
-	CapacityProviderArns?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	ClusterArn?:              string | fn.#StringExpression
-	Critical?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DaemonName?:              string | fn.#StringExpression
-	DaemonTaskDefinitionArn?: string | fn.#StringExpression
-	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DaemonDeploymentConfiguration" |
-		fn.#ObjectExpression
-	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PropagateTags?:        "DAEMON" | "NONE" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::Daemon"
+	Properties?: close({
+		CapacityProviderArns?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		ClusterArn?:              string | fn.#StringExpression
+		Critical?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DaemonName?:              string | fn.#StringExpression
+		DaemonTaskDefinitionArn?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DaemonAlarmConfiguration": close({
+		// The deployment configuration used for this daemon deployment.
+		DeploymentConfiguration?: #DaemonDeploymentConfiguration
+		EnableECSManagedTags?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableExecuteCommand?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PropagateTags?:           "DAEMON" | "NONE" | fn.#StringExpression
+		Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#DaemonAlarmConfiguration: close({
 	AlarmNames?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Enable?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DaemonDeploymentConfiguration": close({
-	Alarms?: _#defs."/$defs/Properties/definitions/DaemonAlarmConfiguration" | fn.#ObjectExpression
+#DaemonDeploymentConfiguration: close({
+	// The CloudWatch alarm configuration for the daemon deployment. When alarms are
+	// triggered during a deployment, the deployment can be automatically rolled
+	// back.
+	Alarms?: #DaemonAlarmConfiguration
 	BakeTimeInMinutes?: int & <=1440 & >=0 |
 		{
 			string &
@@ -78,14 +85,10 @@ _#defs: "/$defs/Properties/definitions/DaemonDeploymentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DaemonStatus": "ACTIVE" | "DELETE_IN_PROGRESS" | fn.#StringExpression
+#DaemonStatus: "ACTIVE" | "DELETE_IN_PROGRESS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::Daemon"
-	Properties?: #Properties
-}

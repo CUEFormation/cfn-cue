@@ -32,7 +32,7 @@ import "time"
 	State?: string
 
 	// The tags for the transit gateway multicast domain.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the transit gateway.
 	TransitGatewayId!: string
@@ -44,7 +44,7 @@ import "time"
 	TransitGatewayMulticastDomainId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag. Constraints: Tag keys are case-sensitive and accept a
 	// maximum of 127 Unicode characters. May not begin with aws:.
 	Key?: string

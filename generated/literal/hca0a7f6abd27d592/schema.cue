@@ -16,7 +16,7 @@ import (
 // Data Firehose delivery destinations.
 #Properties: close({
 	// The Amazon Resource Name (ARN) that uniquely identifies this delivery destination.
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// IAM policy that grants permissions to CloudWatch Logs to deliver logs
 	// cross-account to a specified destination in this account.
@@ -24,7 +24,7 @@ import (
 	// The policy must be in JSON string format.
 	//
 	// Length Constraints: Maximum length of 51200
-	DeliveryDestinationPolicy?: _#defs."/$defs/Properties/definitions/DestinationPolicy"
+	DeliveryDestinationPolicy?: #DestinationPolicy
 
 	// Displays whether this delivery destination is CloudWatch Logs, Amazon S3,
 	// Kinesis Data Firehose, or XRay.
@@ -33,7 +33,7 @@ import (
 	// The ARN of the Amazon Web Services destination that this delivery destination
 	// represents. That Amazon Web Services destination can be a log group in
 	// CloudWatch Logs, an Amazon S3 bucket, or a delivery stream in Firehose.
-	DestinationResourceArn?: _#defs."/$defs/Properties/definitions/Arn"
+	DestinationResourceArn?: #Arn
 
 	// The name of this delivery destination.
 	Name!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$"
@@ -42,13 +42,13 @@ import (
 	OutputFormat?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$"
 
 	// The tags that have been assigned to this delivery destination.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The Amazon Resource Name (ARN) that uniquely identifies a resource.
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?"
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?"
 
-_#defs: "/$defs/Properties/definitions/DestinationPolicy": close({
+#DestinationPolicy: close({
 	// The name of the delivery destination to assign this policy to
 	DeliveryDestinationName?: strings.MaxRunes(60) & strings.MinRunes(1)
 
@@ -57,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/DestinationPolicy": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

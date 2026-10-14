@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,9 +12,7 @@ import (
 // Resource Type definition for AWS::GlobalAccelerator::EndpointGroup
 #Properties: close({
 	// The list of endpoint objects.
-	EndpointConfigurations?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EndpointConfiguration"
-	]
+	EndpointConfigurations?: list.MaxItems(10) & [...] & [...#EndpointConfiguration]
 
 	// The Amazon Resource Name (ARN) of the endpoint group
 	EndpointGroupArn?: string
@@ -36,7 +34,7 @@ import (
 
 	// The Amazon Resource Name (ARN) of the listener
 	ListenerArn!:   strings.MaxRunes(255) & strings.MinRunes(0)
-	PortOverrides?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/PortOverride"]
+	PortOverrides?: list.MaxItems(10) & [...] & [...#PortOverride]
 
 	// The number of consecutive health checks required to set the state of the endpoint to unhealthy.
 	ThresholdCount?: int & <=10 & >=1
@@ -46,7 +44,7 @@ import (
 })
 
 // The configuration for a given endpoint
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+#EndpointConfiguration: close({
 	// Attachment ARN that provides access control to the cross account endpoint.
 	// Not required for resources hosted in the same account as the endpoint group.
 	AttachmentArn?: strings.MaxRunes(255) & strings.MinRunes(0)
@@ -64,10 +62,10 @@ _#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
 })
 
 // A network port number
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0
+#Port: int & <=65535 & >=0
 
 // listener to endpoint port mapping.
-_#defs: "/$defs/Properties/definitions/PortOverride": close({
-	EndpointPort!: _#defs."/$defs/Properties/definitions/Port"
-	ListenerPort!: _#defs."/$defs/Properties/definitions/Port"
+#PortOverride: close({
+	EndpointPort!: #Port
+	ListenerPort!: #Port
 })

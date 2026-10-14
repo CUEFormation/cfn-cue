@@ -9,18 +9,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Config::DeliveryChannel
-#Properties: close({
-	ConfigSnapshotDeliveryProperties?: _#defs."/$defs/Properties/definitions/ConfigSnapshotDeliveryProperties" |
-		fn.#ObjectExpression
-	Name?:         string | fn.#StringExpression
-	S3BucketName!: string | fn.#StringExpression
-	S3KeyPrefix?:  string | fn.#StringExpression
-	S3KmsKeyArn?:  string | fn.#StringExpression
-	SnsTopicARN?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::DeliveryChannel"
+	Properties!: close({
+		// The options for how often AWS Config delivers configuration snapshots to the Amazon S3 bucket.
+		ConfigSnapshotDeliveryProperties?: #ConfigSnapshotDeliveryProperties
+		Name?:                             string | fn.#StringExpression
+		S3BucketName!:                     string | fn.#StringExpression
+		S3KeyPrefix?:                      string | fn.#StringExpression
+		S3KmsKeyArn?:                      string | fn.#StringExpression
+		SnsTopicARN?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ConfigSnapshotDeliveryProperties": close({
+#ConfigSnapshotDeliveryProperties: close({
 	DeliveryFrequency?: "One_Hour" |
 		"Three_Hours" |
 		"Six_Hours" |
@@ -29,7 +32,3 @@ _#defs: "/$defs/Properties/definitions/ConfigSnapshotDeliveryProperties": close(
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::DeliveryChannel"
-	Properties!: #Properties
-}

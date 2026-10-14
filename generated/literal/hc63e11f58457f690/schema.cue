@@ -58,7 +58,7 @@ import (
 		"sv-SE"
 
 	// Tags associated with the medical vocabulary.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 
 	// The Amazon S3 location of the text file that contains the medical vocabulary.
 	VocabularyFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"(s3://|http(s*)://).+"
@@ -67,7 +67,7 @@ import (
 	VocabularyName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

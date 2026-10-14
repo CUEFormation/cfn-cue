@@ -17,7 +17,7 @@ import (
 
 	// The execution role ARN assumed by hooks to read Guard rules from S3 and write
 	// Guard outputs to S3.
-	ExecutionRole!: _#defs."/$defs/Properties/definitions/Role"
+	ExecutionRole!: #Role
 
 	// Attribute to specify CloudFormation behavior on hook failure.
 	FailureMode!: "FAIL" | "WARN"
@@ -39,12 +39,9 @@ import (
 		// Specifies the S3 location of input parameter files for your Guard rules. You
 		// can specify either a single S3 location or an array of up to 10 S3
 		// locations.
-		InputParams?: matchN(1, [
-			_#defs."/$defs/Properties/definitions/S3Location",
-			list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/S3Location"],
-		])
+		InputParams?: matchN(1, [#S3Location, list.MaxItems(10) & list.MinItems(1) & [...#S3Location]])
 	})
-	RuleLocation!: _#defs."/$defs/Properties/definitions/S3Location"
+	RuleLocation!: #S3Location
 
 	// Filters to allow hooks to target specific stack attributes
 	StackFilters?: close({
@@ -55,27 +52,19 @@ import (
 		// List of stack names as filters
 		StackNames?: struct.MinFields(1) & close({
 			// List of stack names that the hook is going to be excluded from
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackName"
-			]
+			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName]
 
 			// List of stack names that the hook is going to target
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackName"
-			]
+			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName]
 		})
 
 		// List of stack roles that are performing the stack operations.
 		StackRoles?: struct.MinFields(1) & close({
 			// List of stack roles that the hook is going to be excluded from
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackRole"
-			]
+			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole]
 
 			// List of stack roles that the hook is going to target
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackRole"
-			]
+			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole]
 		})
 	})
 
@@ -83,50 +72,42 @@ import (
 	TargetFilters?: matchN(1, [
 		struct.MinFields(1) & close({
 			// List of actions that the hook is going to target
-			Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/Action"
-			]
+			Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Action]
 
 			// List of invocation points that the hook is going to target
-			InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/InvocationPoint"
-			]
+			InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#InvocationPoint]
 
 			// List of type names that the hook is going to target
-			TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/TargetName"
-			]
+			TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#TargetName]
 		}),
 		close({
 			// List of hook targets
-			Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/HookTarget"
-			]
+			Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#HookTarget]
 		})
 	])
 
 	// Which operations should this Hook run against? Resource changes, stacks or change sets.
-	TargetOperations!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetOperation"]
+	TargetOperations!: list.UniqueItems() & [...#TargetOperation]
 })
 
 // Target actions are the type of operation hooks will be executed at.
-_#defs: "/$defs/Properties/definitions/Action": "CREATE" | "UPDATE" | "DELETE"
+#Action: "CREATE" | "UPDATE" | "DELETE"
 
 // Hook targets are the destination where hooks will be invoked against.
-_#defs: "/$defs/Properties/definitions/HookTarget": close({
-	Action!:          _#defs."/$defs/Properties/definitions/Action"
-	InvocationPoint!: _#defs."/$defs/Properties/definitions/InvocationPoint"
-	TargetName!:      _#defs."/$defs/Properties/definitions/TargetName"
+#HookTarget: close({
+	Action!:          #Action
+	InvocationPoint!: #InvocationPoint
+	TargetName!:      #TargetName
 })
 
 // Invocation points are the point in provisioning workflow where hooks will be executed.
-_#defs: "/$defs/Properties/definitions/InvocationPoint": "PRE_PROVISION"
+#InvocationPoint: "PRE_PROVISION"
 
 // IAM Role ARN
-_#defs: "/$defs/Properties/definitions/Role": strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+"
+#Role: strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+"
 
 // S3 Source Location for the Guard files.
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// S3 uri of Guard files.
 	Uri!: string
 
@@ -135,13 +116,13 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // CloudFormation Stack name
-_#defs: "/$defs/Properties/definitions/StackName": strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$"
+#StackName: strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$"
 
 // IAM Stack Role ARN filter
-_#defs: "/$defs/Properties/definitions/StackRole": (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256)
+#StackRole: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256)
 
 // Type name of hook target. Hook targets are the destination where hooks will be invoked against.
-_#defs: "/$defs/Properties/definitions/TargetName": strings.MaxRunes(256) & strings.MinRunes(1)
+#TargetName: strings.MaxRunes(256) & strings.MinRunes(1)
 
 // Which operations should this Hook run against? Resource changes, stacks or change sets.
-_#defs: "/$defs/Properties/definitions/TargetOperation": "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL"
+#TargetOperation: "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL"

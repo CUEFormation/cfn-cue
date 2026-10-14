@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -16,15 +16,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Multiplex
-#Properties: close({
-	AvailabilityZones!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Destinations?:      [..._#defs."/$defs/Properties/definitions/MultiplexOutputDestination"] | fn.#ListExpression
-	MultiplexSettings!: _#defs."/$defs/Properties/definitions/MultiplexSettings" | fn.#ObjectExpression
-	Name!:              string | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Multiplex"
+	Properties!: close({
+		AvailabilityZones!: [...string | fn.#StringExpression] | fn.#ListExpression
+		Destinations?:      [...#MultiplexOutputDestination] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexOutputDestination": close({
+		// Configuration for a multiplex event.
+		MultiplexSettings!: #MultiplexSettings
+		Name!:              string | fn.#StringExpression
+		Tags?:              [...#Tags] | fn.#ListExpression
+	})
+}
+
+#MultiplexOutputDestination: close({
 	MultiplexMediaConnectOutputDestinationSettings?: null |
 	bool |
 	number |
@@ -35,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/MultiplexOutputDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexSettings": close({
+#MultiplexSettings: close({
 	MaximumVideoBufferDelayMilliseconds?: int & <=3000 & >=800 |
 		{
 			string &
@@ -103,12 +108,8 @@ _#defs: "/$defs/Properties/definitions/MultiplexSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Multiplex"
-	Properties!: #Properties
-}

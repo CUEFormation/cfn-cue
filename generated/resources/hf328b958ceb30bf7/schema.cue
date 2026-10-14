@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,66 +13,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SecurityHub::ConnectorV2
-#Properties: close({
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~".*\\S.*" |
-	fn.#StringExpression
-	Name!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Provider!: _#defs."/$defs/Properties/definitions/Provider"
-	Tags?:     _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::ConnectorV2"
+	Properties!: close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~".*\\S.*" |
+		fn.#StringExpression
+		Name!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Provider!: #Provider
+		Tags?:     #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuthStatus": "ACTIVE" | "FAILED" | fn.#StringExpression
+#AuthStatus: "ACTIVE" | "FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AzureProviderConfiguration": close({
+#AzureProviderConfiguration: close({
 	AWSConfigConnectorArn!: string | fn.#StringExpression
 	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/AzureScopeConfiguration"
+	ScopeConfiguration!: #AzureScopeConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AzureScopeConfiguration": close({
+#AzureScopeConfiguration: close({
 	ScopeType!: "TENANT" | "SUBSCRIPTION" | fn.#StringExpression
 	ScopeValues?: list.MaxItems(100) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthIssue": close({
+#HealthIssue: close({
 	Code!:    string | fn.#StringExpression
 	Message!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
+#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/JiraCloudProviderConfiguration": close(
-	{ProjectKey!: strings.MaxRunes(10) & strings.MinRunes(2) | fn.#StringExpression},
-) |
+#JiraCloudProviderConfiguration: close({ProjectKey!: strings.MaxRunes(10) & strings.MinRunes(2) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Provider": fn.#Object & {...} & matchN(1, [close(
-	{JiraCloud!: _#defs."/$defs/Properties/definitions/JiraCloudProviderConfiguration"},
+#Provider: fn.#Object & {...} & matchN(1, [close(
+	{JiraCloud!: #JiraCloudProviderConfiguration},
 ), close(
-	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowProviderConfiguration"},
+	{ServiceNow!: #ServiceNowProviderConfiguration},
 ), close(
-	{Azure!: _#defs."/$defs/Properties/definitions/AzureProviderConfiguration"},
+	{Azure!: #AzureProviderConfiguration},
 )]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowProviderConfiguration": close({
+#ServiceNowProviderConfiguration: close({
 	InstanceName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	SecretArn!:    strings.MaxRunes(2048) & strings.MinRunes(20) & =~".*\\S.*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::ConnectorV2"
-	Properties!: #Properties
-}
+#Tags: {...} | fn.#ObjectExpression

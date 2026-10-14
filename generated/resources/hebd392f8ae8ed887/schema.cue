@@ -13,19 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Personalize::Dataset.
-#Properties: close({
-	DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
-	fn.#StringExpression
-	DatasetImportJob?: _#defs."/$defs/Properties/definitions/DatasetImportJob"
-	DatasetType!: ("Interactions" | "Items" | "Users") & (strings.MaxRunes(256) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
-	SchemaArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Personalize::Dataset"
+	Properties!: close({
+		DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		fn.#StringExpression
+		DatasetImportJob?: #DatasetImportJob
+		DatasetType!: ("Interactions" | "Items" | "Users") & (strings.MaxRunes(256) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
+		SchemaArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DatasetImportJob": close({
+#DatasetImportJob: close({
 	DataSource?: close({DataLocation?: strings.MaxRunes(256) & =~"(s3|http|https)://.+" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 	DatasetArn?:          strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" | fn.#StringExpression
@@ -38,12 +41,8 @@ _#defs: "/$defs/Properties/definitions/DatasetImportJob": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Personalize::Dataset"
-	Properties!: #Properties
-}

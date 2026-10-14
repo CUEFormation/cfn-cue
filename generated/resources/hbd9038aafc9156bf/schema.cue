@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,100 +14,84 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for a Bot Alias, which enables you to change the
 // version of a bot without updating applications that use the bot
-#Properties: close({
-	BotAliasLocaleSettings?: _#defs."/$defs/Properties/definitions/BotAliasLocaleSettingsList"
-	BotAliasName!:           _#defs."/$defs/Properties/definitions/Name"
-	BotAliasTags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	BotId!:                   _#defs."/$defs/Properties/definitions/Id"
-	BotVersion?:              _#defs."/$defs/Properties/definitions/BotVersion"
-	ConversationLogSettings?: _#defs."/$defs/Properties/definitions/ConversationLogSettings"
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
-	SentimentAnalysisSettings?: close(
-		{DetectSentiment!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-	) |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lex::BotAlias"
+	Properties!: close({
+		BotAliasLocaleSettings?:  #BotAliasLocaleSettingsList
+		BotAliasName!:            #Name
+		BotAliasTags?:            list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		BotId!:                   #Id
+		BotVersion?:              #BotVersion
+		ConversationLogSettings?: #ConversationLogSettings
+		Description?:             #Description
+		SentimentAnalysisSettings?: close(
+			{DetectSentiment!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+		) |
+			fn.#ObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) | fn.#StringExpression
+#Arn: strings.MaxRunes(1000) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AudioLogDestination": close(
-	{S3Bucket!: _#defs."/$defs/Properties/definitions/S3BucketLogDestination"},
-) |
-	fn.#ObjectExpression
+#AudioLogDestination: close({S3Bucket!: #S3BucketLogDestination}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioLogSetting": close({
-	Destination!: _#defs."/$defs/Properties/definitions/AudioLogDestination"
+#AudioLogSetting: close({
+	Destination!: #AudioLogDestination
 	Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioLogSettings": list.MaxItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AudioLogSetting"
-] |
-	fn.#ListExpression
+#AudioLogSettings: list.MaxItems(1) & list.UniqueItems() & [...#AudioLogSetting] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettings": close({
-	CodeHookSpecification?: _#defs."/$defs/Properties/definitions/CodeHookSpecification"
+#BotAliasLocaleSettings: close({
+	CodeHookSpecification?: #CodeHookSpecification
 	Enabled!:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettingsItem": close({
-	BotAliasLocaleSetting!: _#defs."/$defs/Properties/definitions/BotAliasLocaleSettings"
+#BotAliasLocaleSettingsItem: close({
+	BotAliasLocaleSetting!: #BotAliasLocaleSettings
 	LocaleId!:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettingsList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/BotAliasLocaleSettingsItem"
-] |
+#BotAliasLocaleSettingsList: list.MaxItems(50) & list.UniqueItems() & [...#BotAliasLocaleSettingsItem] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BotAliasStatus": "Creating" |
-	"Available" |
-	"Deleting" |
-	"Failed" |
-	fn.#StringExpression
+#BotAliasStatus: "Creating" | "Available" | "Deleting" | "Failed" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BotVersion": strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" |
-fn.#StringExpression
+#BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogGroupLogDestination": close({
+#CloudWatchLogGroupLogDestination: close({
 	CloudWatchLogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	LogPrefix!:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeHookSpecification": close(
-	{LambdaCodeHook!: _#defs."/$defs/Properties/definitions/LambdaCodeHook"},
-) |
-	fn.#ObjectExpression
+#CodeHookSpecification: close({LambdaCodeHook!: #LambdaCodeHook}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConversationLogSettings": close({
-	AudioLogSettings?: _#defs."/$defs/Properties/definitions/AudioLogSettings"
-	TextLogSettings?:  _#defs."/$defs/Properties/definitions/TextLogSettings"
+#ConversationLogSettings: close({
+	AudioLogSettings?: #AudioLogSettings
+	TextLogSettings?:  #TextLogSettings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(200) | fn.#StringExpression
+#Description: strings.MaxRunes(200) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" |
-fn.#StringExpression
+#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaCodeHook": close({
+#LambdaCodeHook: close({
 	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
 	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocaleId": string | fn.#StringExpression
+#LocaleId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" |
-fn.#StringExpression
+#Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
+#S3BucketLogDestination: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -121,28 +105,18 @@ _#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextLogDestination": close(
-	{CloudWatch!: _#defs."/$defs/Properties/definitions/CloudWatchLogGroupLogDestination"},
-) |
-	fn.#ObjectExpression
+#TextLogDestination: close({CloudWatch!: #CloudWatchLogGroupLogDestination}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextLogSetting": close({
-	Destination!: _#defs."/$defs/Properties/definitions/TextLogDestination"
+#TextLogSetting: close({
+	Destination!: #TextLogDestination
 	Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextLogSettings": list.MaxItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/TextLogSetting"
-] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lex::BotAlias"
-	Properties!: #Properties
-}
+#TextLogSettings: list.MaxItems(1) & list.UniqueItems() & [...#TextLogSetting] | fn.#ListExpression

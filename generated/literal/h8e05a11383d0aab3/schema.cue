@@ -8,37 +8,37 @@ package schema
 #Properties: close({
 	DomainName?:                  string
 	Id?:                          string
-	StreamingDistributionConfig!: _#defs."/$defs/Properties/definitions/StreamingDistributionConfig"
-	Tags!:                        [..._#defs."/$defs/Properties/definitions/Tag"]
+	StreamingDistributionConfig!: #StreamingDistributionConfig
+	Tags!:                        [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Logging": close({
+#Logging: close({
 	Bucket!:  string
 	Enabled!: bool
 	Prefix!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/S3Origin": close({
+#S3Origin: close({
 	DomainName!:           string
 	OriginAccessIdentity!: string
 })
 
-_#defs: "/$defs/Properties/definitions/StreamingDistributionConfig": close({
+#StreamingDistributionConfig: close({
 	Aliases?:        [...string]
 	Comment!:        string
 	Enabled!:        bool
-	Logging?:        _#defs."/$defs/Properties/definitions/Logging"
+	Logging?:        #Logging
 	PriceClass?:     string
-	S3Origin!:       _#defs."/$defs/Properties/definitions/S3Origin"
-	TrustedSigners!: _#defs."/$defs/Properties/definitions/TrustedSigners"
+	S3Origin!:       #S3Origin
+	TrustedSigners!: #TrustedSigners
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TrustedSigners": close({
+#TrustedSigners: close({
 	AwsAccountNumbers?: [...string]
 	Enabled!:           bool
 })

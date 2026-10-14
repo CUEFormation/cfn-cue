@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,49 +23,47 @@ import (
 	strings.MinRunes(20) &
 	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+"
 	DataLakeS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?"
-	DataSecurityConfig?: _#defs."/$defs/Properties/definitions/DataSecurityConfig"
+	DataSecurityConfig?: #DataSecurityConfig
 	FlywheelName!:       strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 	ModelType?:          "DOCUMENT_CLASSIFIER" | "ENTITY_RECOGNIZER"
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TaskConfig?:         _#defs."/$defs/Properties/definitions/TaskConfig"
+	Tags?:               list.UniqueItems() & [...#Tag]
+	TaskConfig?:         #TaskConfig
 })
 
-_#defs: "/$defs/Properties/definitions/DataSecurityConfig": close({
-	DataLakeKmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
-	ModelKmsKeyId?:    _#defs."/$defs/Properties/definitions/KmsKeyId"
-	VolumeKmsKeyId?:   _#defs."/$defs/Properties/definitions/KmsKeyId"
-	VpcConfig?:        _#defs."/$defs/Properties/definitions/VpcConfig"
+#DataSecurityConfig: close({
+	DataLakeKmsKeyId?: #KmsKeyId
+	ModelKmsKeyId?:    #KmsKeyId
+	VolumeKmsKeyId?:   #KmsKeyId
+	VpcConfig?:        #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentClassificationConfig": close({
+#DocumentClassificationConfig: close({
 	Labels?: list.MaxItems(1000) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(5000) & strings.MinRunes(0) & =~"^\\P{C}*$"
 	]
 	Mode!: "MULTI_CLASS" | "MULTI_LABEL"
 })
 
-_#defs: "/$defs/Properties/definitions/EntityRecognitionConfig": close({
-	EntityTypes?: list.MaxItems(25) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EntityTypesListItem"
-	]
-})
+#EntityRecognitionConfig: close(
+	{EntityTypes?: list.MaxItems(25) & list.MinItems(1) & list.UniqueItems() & [...#EntityTypesListItem]},
+)
 
-_#defs: "/$defs/Properties/definitions/EntityTypesListItem": close({Type!: strings.MaxRunes(64) & strings.MinRunes(1)})
+#EntityTypesListItem: close({Type!: strings.MaxRunes(64) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\p{ASCII}+$"
+#KmsKeyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\p{ASCII}+$"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TaskConfig": close({
-	DocumentClassificationConfig?: _#defs."/$defs/Properties/definitions/DocumentClassificationConfig"
-	EntityRecognitionConfig?:      _#defs."/$defs/Properties/definitions/EntityRecognitionConfig"
+#TaskConfig: close({
+	DocumentClassificationConfig?: #DocumentClassificationConfig
+	EntityRecognitionConfig?:      #EntityRecognitionConfig
 	LanguageCode!:                 "en" | "es" | "fr" | "it" | "de" | "pt"
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,9 +19,7 @@ import (
 	// (SRT) can use to contact you for escalations to the SRT and to initiate
 	// proactive customer support.
 	// To enable proactive engagement, the contact list must include at least one phone number.
-	EmergencyContactList!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EmergencyContact"
-	]
+	EmergencyContactList!: list.MaxItems(10) & list.MinItems(1) & [...#EmergencyContact]
 
 	// If `ENABLED`, the Shield Response Team (SRT) will use email and phone to
 	// notify contacts about escalations to the SRT and to initiate proactive
@@ -34,7 +32,7 @@ import (
 // An emergency contact is used by Shield Response Team (SRT) to contact you for
 // escalations to the SRT and to initiate proactive customer support. An
 // emergency contact requires an email address.
-_#defs: "/$defs/Properties/definitions/EmergencyContact": close({
+#EmergencyContact: close({
 	// Additional notes regarding the contact.
 	ContactNotes?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-,:/()+@]*$"
 

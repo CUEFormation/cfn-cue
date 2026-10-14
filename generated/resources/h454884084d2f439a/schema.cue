@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -13,28 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Use the AWS::IoT::CertificateProvider resource to declare an AWS IoT Certificate Provider.
-#Properties: close({
-	AccountDefaultForOperations!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CertificateProviderOperation"
-	] |
-		fn.#ListExpression
-	CertificateProviderName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" | fn.#StringExpression
-	LambdaFunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(170) &
-	strings.MinRunes(1) &
-	=~"^[\\s\\S]*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::CertificateProvider"
+	Properties!: close({
+		AccountDefaultForOperations!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+			...#CertificateProviderOperation
+		] |
+			fn.#ListExpression
+		CertificateProviderName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" | fn.#StringExpression
+		LambdaFunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(170) &
+		strings.MinRunes(1) &
+		=~"^[\\s\\S]*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CertificateProviderOperation": "CreateCertificateFromCsr" | fn.#StringExpression
+#CertificateProviderOperation: "CreateCertificateFromCsr" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::CertificateProvider"
-	Properties!: #Properties
-}

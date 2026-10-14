@@ -16,11 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Region, but it must be owned by the same AWS account that owns the global
 // network. You cannot register a transit gateway in more than one global
 // network.
-#Properties: close({
-	GlobalNetworkId!:   strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	TransitGatewayArn!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::TransitGatewayRegistration"
-	Properties!: #Properties
+	Type!: "AWS::NetworkManager::TransitGatewayRegistration"
+	Properties!: close({
+		GlobalNetworkId!:   strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		TransitGatewayArn!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	})
 }

@@ -28,79 +28,75 @@ import (
 
 	// The manual assignment queues to associate with this routing profile.
 	ManualAssignmentQueueConfigs?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RoutingProfileManualAssignmentQueueConfig"
+		...#RoutingProfileManualAssignmentQueueConfig
 	]
 
 	// The channels agents can handle in the Contact Control Panel (CCP) for this routing profile.
-	MediaConcurrencies!: [..._#defs."/$defs/Properties/definitions/MediaConcurrency"]
+	MediaConcurrencies!: [...#MediaConcurrency]
 
 	// The name of the routing profile.
 	Name!: strings.MaxRunes(127) & strings.MinRunes(1)
 
 	// The queues to associate with this routing profile.
-	QueueConfigs?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RoutingProfileQueueConfig"]
+	QueueConfigs?: list.MinItems(1) & [...#RoutingProfileQueueConfig]
 
 	// The Amazon Resource Name (ARN) of the routing profile.
 	RoutingProfileArn?:
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/routing-profile/[-a-zA-Z0-9]*$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Specifies the other channels that can be routed to an agent handling their current channel.
-_#defs: "/$defs/Properties/definitions/BehaviorType": "ROUTE_CURRENT_CHANNEL_ONLY" | "ROUTE_ANY_CHANNEL"
+#BehaviorType: "ROUTE_CURRENT_CHANNEL_ONLY" | "ROUTE_ANY_CHANNEL"
 
 // The channels that agents can handle in the Contact Control Panel (CCP).
-_#defs: "/$defs/Properties/definitions/Channel": "VOICE" | "CHAT" | "TASK" | "EMAIL"
+#Channel: "VOICE" | "CHAT" | "TASK" | "EMAIL"
 
 // The number of contacts an agent can have on a channel simultaneously.
-_#defs: "/$defs/Properties/definitions/Concurrency": int & <=10 & >=1
+#Concurrency: int & <=10 & >=1
 
 // Defines the cross-channel routing behavior that allows an agent working on a
 // contact in one channel to be offered a contact from a different channel.
-_#defs: "/$defs/Properties/definitions/CrossChannelBehavior": close(
-	{BehaviorType!: _#defs."/$defs/Properties/definitions/BehaviorType"},
-)
+#CrossChannelBehavior: close({BehaviorType!: #BehaviorType})
 
 // The delay, in seconds, a contact should wait in the queue before they are
 // routed to an available agent.
-_#defs: "/$defs/Properties/definitions/Delay": int & <=9999 & >=0
+#Delay: int & <=9999 & >=0
 
 // Contains information about which channels are supported, and how many
 // contacts an agent can have on a channel simultaneously.
-_#defs: "/$defs/Properties/definitions/MediaConcurrency": close({
-	Channel!:              _#defs."/$defs/Properties/definitions/Channel"
-	Concurrency!:          _#defs."/$defs/Properties/definitions/Concurrency"
-	CrossChannelBehavior?: _#defs."/$defs/Properties/definitions/CrossChannelBehavior"
+#MediaConcurrency: close({
+	Channel!:              #Channel
+	Concurrency!:          #Concurrency
+	CrossChannelBehavior?: #CrossChannelBehavior
 })
 
 // The order in which contacts are to be handled for the queue.
-_#defs: "/$defs/Properties/definitions/Priority": int & <=99 & >=1
+#Priority: int & <=99 & >=1
 
 // The Amazon Resource Name (ARN) for the queue.
-_#defs: "/$defs/Properties/definitions/QueueArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$"
+#QueueArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$"
 
 // Contains information about the manual assignment queue and channel
-_#defs: "/$defs/Properties/definitions/RoutingProfileManualAssignmentQueueConfig": close(
-	{QueueReference!: _#defs."/$defs/Properties/definitions/RoutingProfileQueueReference"},
-)
+#RoutingProfileManualAssignmentQueueConfig: close({QueueReference!: #RoutingProfileQueueReference})
 
 // Contains information about the queue and channel for which priority and delay can be set.
-_#defs: "/$defs/Properties/definitions/RoutingProfileQueueConfig": close({
-	Delay!:          _#defs."/$defs/Properties/definitions/Delay"
-	Priority!:       _#defs."/$defs/Properties/definitions/Priority"
-	QueueReference!: _#defs."/$defs/Properties/definitions/RoutingProfileQueueReference"
+#RoutingProfileQueueConfig: close({
+	Delay!:          #Delay
+	Priority!:       #Priority
+	QueueReference!: #RoutingProfileQueueReference
 })
 
 // Contains the channel and queue identifier for a routing profile.
-_#defs: "/$defs/Properties/definitions/RoutingProfileQueueReference": close({
-	Channel!:  _#defs."/$defs/Properties/definitions/Channel"
-	QueueArn!: _#defs."/$defs/Properties/definitions/QueueArn"
+#RoutingProfileQueueReference: close({
+	Channel!:  #Channel
+	QueueArn!: #QueueArn
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

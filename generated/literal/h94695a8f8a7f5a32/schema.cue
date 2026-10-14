@@ -10,20 +10,20 @@ import "strings"
 #Properties: close({
 	// Security config description
 	Description?:              strings.MaxRunes(1000) & strings.MinRunes(1)
-	IamFederationOptions?:     _#defs."/$defs/Properties/definitions/IamFederationConfigOptions"
-	IamIdentityCenterOptions?: _#defs."/$defs/Properties/definitions/IamIdentityCenterConfigOptions"
+	IamFederationOptions?:     #IamFederationConfigOptions
+	IamIdentityCenterOptions?: #IamIdentityCenterConfigOptions
 
 	// The identifier of the security config
 	Id?: strings.MaxRunes(100) & strings.MinRunes(1)
 
 	// The friendly name of the security config
 	Name?:        strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$"
-	SamlOptions?: _#defs."/$defs/Properties/definitions/SamlConfigOptions"
-	Type?:        _#defs."/$defs/Properties/definitions/SecurityConfigType"
+	SamlOptions?: #SamlConfigOptions
+	Type?:        #SecurityConfigType
 })
 
 // Describe IAM federation options in form of key value map
-_#defs: "/$defs/Properties/definitions/IamFederationConfigOptions": close({
+#IamFederationConfigOptions: close({
 	// Group attribute for this IAM federation integration
 	GroupAttribute?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.:/=+\\-@]*$"
 
@@ -32,12 +32,12 @@ _#defs: "/$defs/Properties/definitions/IamFederationConfigOptions": close({
 })
 
 // The ARN of the IAM Identity Center application used to integrate with OpenSearch Serverless
-_#defs: "/$defs/Properties/definitions/IamIdentityCenterApplicationArn": string
+#IamIdentityCenterApplicationArn: string
 
 // Describes IAM Identity Center options for an OpenSearch Serverless security
 // configuration in the form of a key-value map
-_#defs: "/$defs/Properties/definitions/IamIdentityCenterConfigOptions": close({
-	ApplicationArn?: _#defs."/$defs/Properties/definitions/IamIdentityCenterApplicationArn"
+#IamIdentityCenterConfigOptions: close({
+	ApplicationArn?: #IamIdentityCenterApplicationArn
 
 	// The description of the IAM Identity Center application used to integrate with
 	// OpenSearch Serverless
@@ -45,24 +45,24 @@ _#defs: "/$defs/Properties/definitions/IamIdentityCenterConfigOptions": close({
 
 	// The name of the IAM Identity Center application used to integrate with OpenSearch Serverless
 	ApplicationName?: string
-	GroupAttribute?:  _#defs."/$defs/Properties/definitions/IamIdentityCenterGroupAttribute"
-	InstanceArn!:     _#defs."/$defs/Properties/definitions/IamIdentityCenterInstanceArn"
-	UserAttribute?:   _#defs."/$defs/Properties/definitions/IamIdentityCenterUserAttribute"
+	GroupAttribute?:  #IamIdentityCenterGroupAttribute
+	InstanceArn!:     #IamIdentityCenterInstanceArn
+	UserAttribute?:   #IamIdentityCenterUserAttribute
 })
 
 // Group attribute for this IAM Identity Center integration
-_#defs: "/$defs/Properties/definitions/IamIdentityCenterGroupAttribute": string
+#IamIdentityCenterGroupAttribute: string
 
 // The ARN of the IAM Identity Center instance used to integrate with OpenSearch Serverless
-_#defs: "/$defs/Properties/definitions/IamIdentityCenterInstanceArn": strings.MaxRunes(1224) &
+#IamIdentityCenterInstanceArn: strings.MaxRunes(1224) &
 strings.MinRunes(10) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$"
 
 // User attribute for this IAM Identity Center integration
-_#defs: "/$defs/Properties/definitions/IamIdentityCenterUserAttribute": string
+#IamIdentityCenterUserAttribute: string
 
 // Describes saml options in form of key value map
-_#defs: "/$defs/Properties/definitions/SamlConfigOptions": close({
+#SamlConfigOptions: close({
 	// Group attribute for this saml integration
 	GroupAttribute?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w+=,.@-]+"
 
@@ -82,4 +82,4 @@ _#defs: "/$defs/Properties/definitions/SamlConfigOptions": close({
 })
 
 // Config type for security config
-_#defs: "/$defs/Properties/definitions/SecurityConfigType": "saml" | "iamidentitycenter" | "iamfederation"
+#SecurityConfigType: "saml" | "iamidentitycenter" | "iamfederation"

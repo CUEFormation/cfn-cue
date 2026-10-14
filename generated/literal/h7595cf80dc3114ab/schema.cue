@@ -43,7 +43,7 @@ import (
 
 	// Metadata that you can assign to help organize the report plans that you
 	// create. Each tag is a key-value pair.
-	ReportPlanTags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	ReportPlanTags?: [...#Tag]
 
 	// Identifies the report template for the report. Reports are built using a report template.
 	ReportSetting!: close({
@@ -67,7 +67,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

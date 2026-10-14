@@ -16,29 +16,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::SageMaker::Action. An action is a lineage
 // tracking entity that represents an action or activity, such as a model
 // deployment or an HPO job.
-#Properties: close({
-	ActionName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
-	fn.#StringExpression
-	ActionType!:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:        strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties" | fn.#ObjectExpression
-	Properties?: struct.MaxFields(30) & close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Action"
+	Properties!: close({
+		ActionName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		fn.#StringExpression
+		ActionType!:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
 
-		{[=~".+"]: strings.MaxRunes(2500) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Source!: _#defs."/$defs/Properties/definitions/ActionSource" | fn.#ObjectExpression
-	Status?: "Unknown" | "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
-	Tags?:   list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		// Metadata properties of the tracking entity, trial, or trial component.
+		MetadataProperties?: #MetadataProperties
+		Properties?: struct.MaxFields(30) & close({
 
-_#defs: "/$defs/Properties/definitions/ActionSource": close({
+			{[=~".+"]: strings.MaxRunes(2500) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+
+		// The source type, ID, and URI.
+		Source!: #ActionSource
+		Status?: "Unknown" | "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
+		Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#ActionSource: close({
 	SourceId?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	SourceType?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	SourceUri!:  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	ProjectId?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
@@ -46,12 +53,8 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Action"
-	Properties!: #Properties
-}

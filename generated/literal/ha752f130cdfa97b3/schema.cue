@@ -12,7 +12,7 @@ package schema
 	Id?: string
 
 	// The key group configuration.
-	KeyGroupConfig!:   _#defs."/$defs/Properties/definitions/KeyGroupConfig"
+	KeyGroupConfig!:   #KeyGroupConfig
 	LastModifiedTime?: string
 })
 
@@ -20,7 +20,7 @@ package schema
 // A key group contains a list of public keys that you can use with [CloudFront
 // signed URLs and signed
 // cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html).
-_#defs: "/$defs/Properties/definitions/KeyGroupConfig": close({
+#KeyGroupConfig: close({
 	// A comment to describe the key group. The comment cannot be longer than 128 characters.
 	Comment?: string
 

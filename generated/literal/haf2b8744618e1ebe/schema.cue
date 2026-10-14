@@ -21,8 +21,8 @@ import "list"
 	AuthorizationType?: string
 	AuthorizerId?:      string
 	HttpMethod!:        string
-	Integration?:       _#defs."/$defs/Properties/definitions/Integration"
-	MethodResponses?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MethodResponse"]
+	Integration?:       #Integration
+	MethodResponses?:   list.UniqueItems() & [...#MethodResponse]
 	OperationName?:     string
 	RequestModels?: close({
 
@@ -39,7 +39,7 @@ import "list"
 // [AWS::ApiGateway::Method](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html)
 // resource that specifies information about the target backend that a method
 // calls.
-_#defs: "/$defs/Properties/definitions/Integration": close({
+#Integration: close({
 	CacheKeyParameters?:    list.UniqueItems() & [...string]
 	CacheNamespace?:        string
 	ConnectionId?:          string
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/Integration": close({
 	ContentHandling?:       "CONVERT_TO_BINARY" | "CONVERT_TO_TEXT"
 	Credentials?:           string
 	IntegrationHttpMethod?: string
-	IntegrationResponses?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IntegrationResponse"]
+	IntegrationResponses?:  list.UniqueItems() & [...#IntegrationResponse]
 	IntegrationTarget?:     string
 	PassthroughBehavior?:   "WHEN_NO_MATCH" | "WHEN_NO_TEMPLATES" | "NEVER"
 	RequestParameters?: close({
@@ -66,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/Integration": close({
 // Integration](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apitgateway-method-integration.html)
 // property type that specifies the response that API Gateway sends after a
 // method's backend finishes processing a request.
-_#defs: "/$defs/Properties/definitions/IntegrationResponse": close({
+#IntegrationResponse: close({
 	ContentHandling?: "CONVERT_TO_BINARY" | "CONVERT_TO_TEXT"
 	ResponseParameters?: close({
 
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/IntegrationResponse": close({
 	StatusCode!:       string
 })
 
-_#defs: "/$defs/Properties/definitions/MethodResponse": close({
+#MethodResponse: close({
 	ResponseModels?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string}})

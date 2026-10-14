@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,9 +17,7 @@ import (
 	// A list of parameters to set for finer control over a database. Available
 	// options are datestyle, enable_user_activity_logging, query_group,
 	// search_path, max_query_execution_time, and require_ssl.
-	ConfigParameters?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ConfigParameter"
-	]
+	ConfigParameters?: list.MinItems(1) & list.UniqueItems() & [...#ConfigParameter]
 
 	// The value that specifies whether to enable enhanced virtual private cloud
 	// (VPC) routing, which forces Amazon Redshift Serverless to route traffic
@@ -37,7 +35,7 @@ import (
 	Port?: int
 
 	// A property that represents the price performance target settings for the workgroup.
-	PricePerformanceTarget?: _#defs."/$defs/Properties/definitions/PerformanceTarget"
+	PricePerformanceTarget?: #PerformanceTarget
 
 	// A value that specifies whether the workgroup can be accessible from a public network.
 	PubliclyAccessible?: bool
@@ -89,61 +87,61 @@ import (
 	]
 
 	// The map of the key-value pairs used to tag the workgroup.
-	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:      list.MaxItems(200) & [...] & [...#Tag]
 	TrackName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$"
 
 	// Definition for workgroup resource
-	Workgroup?: _#defs."/$defs/Properties/definitions/Workgroup"
+	Workgroup?: #Workgroup
 
 	// The name of the workgroup.
 	WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3)
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigParameter": close({
+#ConfigParameter: close({
 	ParameterKey?:   strings.MaxRunes(255) & strings.MinRunes(0)
 	ParameterValue?: strings.MaxRunes(15000) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?:      string
 	Port?:         int
-	VpcEndpoints?: [..._#defs."/$defs/Properties/definitions/VpcEndpoint"]
+	VpcEndpoints?: [...#VpcEndpoint]
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
+#NetworkInterface: close({
 	AvailabilityZone?:   string
 	NetworkInterfaceId?: string
 	PrivateIpAddress?:   string
 	SubnetId?:           string
 })
 
-_#defs: "/$defs/Properties/definitions/PerformanceTarget": close({
+#PerformanceTarget: close({
 	Level?:  int & <=100 & >=1
-	Status?: _#defs."/$defs/Properties/definitions/PerformanceTargetStatus"
+	Status?: #PerformanceTargetStatus
 })
 
-_#defs: "/$defs/Properties/definitions/PerformanceTargetStatus": "ENABLED" | "DISABLED"
+#PerformanceTargetStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/VpcEndpoint": close({
-	NetworkInterfaces?: [..._#defs."/$defs/Properties/definitions/NetworkInterface"]
+#VpcEndpoint: close({
+	NetworkInterfaces?: [...#NetworkInterface]
 	VpcEndpointId?:     string
 	VpcId?:             =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Workgroup": close({
+#Workgroup: close({
 	BaseCapacity?:           int
-	ConfigParameters?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ConfigParameter"]
+	ConfigParameters?:       list.UniqueItems() & [...#ConfigParameter]
 	CreationDate?:           string
-	Endpoint?:               _#defs."/$defs/Properties/definitions/Endpoint"
+	Endpoint?:               #Endpoint
 	EnhancedVpcRouting?:     bool
 	MaxCapacity?:            int
 	NamespaceName?:          strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"
-	PricePerformanceTarget?: _#defs."/$defs/Properties/definitions/PerformanceTarget"
+	PricePerformanceTarget?: #PerformanceTarget
 	PubliclyAccessible?:     bool
 	SecurityGroupIds?: [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
@@ -151,7 +149,7 @@ _#defs: "/$defs/Properties/definitions/Workgroup": close({
 		strings.MinRunes(0) &
 		=~"^sg-[0-9a-fA-F]{8,}$"
 	]
-	Status?:        _#defs."/$defs/Properties/definitions/WorkgroupStatus"
+	Status?:        #WorkgroupStatus
 	SubnetIds?:     [...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$"]
 	TrackName?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$"
 	WorkgroupArn?:  string
@@ -159,4 +157,4 @@ _#defs: "/$defs/Properties/definitions/Workgroup": close({
 	WorkgroupName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/WorkgroupStatus": "CREATING" | "AVAILABLE" | "MODIFYING" | "DELETING"
+#WorkgroupStatus: "CREATING" | "AVAILABLE" | "MODIFYING" | "DELETING"

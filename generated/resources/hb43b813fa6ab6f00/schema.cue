@@ -20,72 +20,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Virtual private clouds
 // (VPC)](https://docs.aws.amazon.com/vpc/latest/userguide/configure-your-vpc.html)
 // in the *Amazon VPC User Guide*.
-#Properties: matchN(1, [{
-	CidrBlock!: _
-	...
-}, {
-	Ipv4IpamPoolId!: _
-	...
-}]) & close({
-	Ipv4IpamPoolId?: _
-	if Ipv4IpamPoolId != _|_ {
-		Ipv4NetmaskLength!: _
-	}
-	Ipv4NetmaskLength?: _
-	if Ipv4NetmaskLength != _|_ {
-		Ipv4IpamPoolId!: _
-	}
-	{}
-	CidrBlock?:          string | fn.#StringExpression
-	EnableDnsHostnames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableDnsSupport?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceTenancy?:    "dedicated" | "default" | "host" | fn.#StringExpression
-	"Ipv4IpamPoolId"?:   string | fn.#StringExpression
-	"Ipv4NetmaskLength"?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcEncryptionControl?: close({
-		EgressOnlyInternetGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
-		ElasticFileSystemExclusion?:         "enable" | "disable" | fn.#StringExpression
-		InternetGatewayExclusion?:           "enable" | "disable" | fn.#StringExpression
-		LambdaExclusion?:                    "enable" | "disable" | fn.#StringExpression
-		Mode?:                               "monitor" | "enforce" | fn.#StringExpression
-		NatGatewayExclusion?:                "enable" | "disable" | fn.#StringExpression
-		VirtualPrivateGatewayExclusion?:     "enable" | "disable" | fn.#StringExpression
-		VpcLatticeExclusion?:                "enable" | "disable" | fn.#StringExpression
-		VpcPeeringExclusion?:                "enable" | "disable" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VPC"
+	Properties?: close({
+		Ipv4IpamPoolId?: _
+		if Ipv4IpamPoolId != _|_ {
+			Ipv4NetmaskLength!: _
+		}
+		Ipv4NetmaskLength?: _
+		if Ipv4NetmaskLength != _|_ {
+			Ipv4IpamPoolId!: _
+		}
+		{}
+		CidrBlock?:          string | fn.#StringExpression
+		EnableDnsHostnames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableDnsSupport?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstanceTenancy?:    "dedicated" | "default" | "host" | fn.#StringExpression
+		Ipv4IpamPoolId?:     string | fn.#StringExpression
+		"Ipv4NetmaskLength"?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		VpcEncryptionControl?: close({
+			EgressOnlyInternetGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
+			ElasticFileSystemExclusion?:         "enable" | "disable" | fn.#StringExpression
+			InternetGatewayExclusion?:           "enable" | "disable" | fn.#StringExpression
+			LambdaExclusion?:                    "enable" | "disable" | fn.#StringExpression
+			Mode?:                               "monitor" | "enforce" | fn.#StringExpression
+			NatGatewayExclusion?:                "enable" | "disable" | fn.#StringExpression
+			VirtualPrivateGatewayExclusion?:     "enable" | "disable" | fn.#StringExpression
+			VpcLatticeExclusion?:                "enable" | "disable" | fn.#StringExpression
+			VpcPeeringExclusion?:                "enable" | "disable" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		if CidrBlock != _|_ if CidrBlock."Fn::If" == _|_ {
+			Ipv4IpamPoolId?: close({"Fn::If": _}) | error(
+				"Ipv4IpamPoolId cannot be used with CidrBlock; set exactly one of CidrBlock, Ipv4IpamPoolId",
+			)
+		}
+	}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}])
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControl": close({
+#VpcEncryptionControl: close({
 	EgressOnlyInternetGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
 	ElasticFileSystemExclusion?:         "enable" | "disable" | fn.#StringExpression
 	InternetGatewayExclusion?:           "enable" | "disable" | fn.#StringExpression
 	LambdaExclusion?:                    "enable" | "disable" | fn.#StringExpression
 	Mode?:                               "monitor" | "enforce" | fn.#StringExpression
 	NatGatewayExclusion?:                "enable" | "disable" | fn.#StringExpression
-	ResourceExclusions?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusions" | fn.#ObjectExpression
-	State?:              string | fn.#StringExpression
-	StateMessage?:       string | fn.#StringExpression
+
+	// Information about resource exclusions for the VPC Encryption Control configuration.
+	ResourceExclusions?:             #VpcEncryptionControlExclusions
+	State?:                          string | fn.#StringExpression
+	StateMessage?:                   string | fn.#StringExpression
 	VirtualPrivateGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
 	VpcEncryptionControlId?:         string | fn.#StringExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -95,25 +101,35 @@ _#defs: "/$defs/Properties/definitions/VpcEncryptionControl": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControlExclusion": close({
+#VpcEncryptionControlExclusion: close({
 	State?:        string | fn.#StringExpression
 	StateMessage?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControlExclusions": close({
-	EgressOnlyInternetGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" |
-		fn.#ObjectExpression
-	ElasticFileSystem?:     _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	InternetGateway?:       _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	Lambda?:                _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	NatGateway?:            _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	VirtualPrivateGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	VpcLattice?:            _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	VpcPeering?:            _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
+#VpcEncryptionControlExclusions: close({
+	// The exclusion configuration for egress-only internet gateway traffic.
+	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for Elastic File System traffic.
+	ElasticFileSystem?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for internet gateway traffic.
+	InternetGateway?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for Lambda function traffic.
+	Lambda?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for NAT gateway traffic.
+	NatGateway?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for virtual private gateway traffic.
+	VirtualPrivateGateway?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for VPC Lattice traffic.
+	VpcLattice?: #VpcEncryptionControlExclusion
+
+	// The exclusion configuration for VPC peering connection traffic.
+	VpcPeering?: #VpcEncryptionControlExclusion
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPC"
-	Properties?: #Properties
-}

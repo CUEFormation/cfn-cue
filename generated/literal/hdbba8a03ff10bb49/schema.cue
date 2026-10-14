@@ -7,44 +7,43 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::JobQueue
-#Properties: matchN(1, [{
-	ComputeEnvironmentOrder!: _
-	...
-}, {
-	ServiceEnvironmentOrder!: _
-	...
-}]) & close({
-	ComputeEnvironmentOrder?:  [..._#defs."/$defs/Properties/definitions/ComputeEnvironmentOrder"]
-	JobQueueArn?:              _#defs."/$defs/Properties/definitions/ResourceArn"
+#Properties: close({
+	ComputeEnvironmentOrder?:  [...#ComputeEnvironmentOrder]
+	JobQueueArn?:              #ResourceArn
 	JobQueueName?:             strings.MaxRunes(128) & strings.MinRunes(1)
 	JobQueueType?:             =~"(?i)^(?:ecs|ecs_fargate|ecs_managed_instances|eks|sagemaker_training)$"
-	JobStateTimeLimitActions?: [..._#defs."/$defs/Properties/definitions/JobStateTimeLimitAction"]
+	JobStateTimeLimitActions?: [...#JobStateTimeLimitAction]
 	Priority!:                 int & <=1000 & >=0
-	SchedulingPolicyArn?:      _#defs."/$defs/Properties/definitions/ResourceArn"
-	ServiceEnvironmentOrder?:  [..._#defs."/$defs/Properties/definitions/ServiceEnvironmentOrder"]
+	SchedulingPolicyArn?:      #ResourceArn
+	ServiceEnvironmentOrder?:  [...#ServiceEnvironmentOrder]
 	State?:                    "DISABLED" | "ENABLED"
 
 	// A key-value pair to associate with a resource.
 	Tags?: close({
 
 		{[=~".*"]: string}})
-})
+	if ComputeEnvironmentOrder != _|_ if ComputeEnvironmentOrder."Fn::If" == _|_ {
+		ServiceEnvironmentOrder?: close({"Fn::If": _}) | error(
+			"ServiceEnvironmentOrder cannot be used with ComputeEnvironmentOrder; set exactly one of ComputeEnvironmentOrder, ServiceEnvironmentOrder",
+		)
+	}
+}) & matchN(>=1, [{ComputeEnvironmentOrder!: _}, {ServiceEnvironmentOrder!: _}])
 
-_#defs: "/$defs/Properties/definitions/ComputeEnvironmentOrder": close({
+#ComputeEnvironmentOrder: close({
 	ComputeEnvironment!: string
 	Order!:              int
 })
 
-_#defs: "/$defs/Properties/definitions/JobStateTimeLimitAction": close({
+#JobStateTimeLimitAction: close({
 	Action!:         =~"(?i)^(?:cancel|terminate)$"
 	MaxTimeSeconds!: int & <=86400 & >=600
 	Reason!:         string
 	State!:          "RUNNABLE"
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": string
+#ResourceArn: string
 
-_#defs: "/$defs/Properties/definitions/ServiceEnvironmentOrder": close({
+#ServiceEnvironmentOrder: close({
 	Order!:              int
 	ServiceEnvironment!: string
 })

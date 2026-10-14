@@ -9,11 +9,11 @@ package schema
 	Id?:          string
 	Name!:        string
 	ResourceARN?: string
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:        [...#Tag]
 	VolumeId!:    string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

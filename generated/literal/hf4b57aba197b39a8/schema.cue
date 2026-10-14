@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"list"
+	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +16,7 @@ import (
 	CreatedTimestamp?: time.Time
 
 	// The elements in the configuration.
-	Elements!: [..._#defs."/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement"]
+	Elements!: [...#MediaInsightsPipelineConfigurationElement]
 
 	// The ARN of the configuration.
 	MediaInsightsPipelineConfigurationArn?: strings.MaxRunes(1024) &
@@ -30,7 +30,7 @@ import (
 
 	// The name of the media insights pipeline configuration.
 	MediaInsightsPipelineConfigurationName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$"
-	RealTimeAlertConfiguration?:             _#defs."/$defs/Properties/definitions/RealTimeAlertConfiguration"
+	RealTimeAlertConfiguration?:             #RealTimeAlertConfiguration
 
 	// The ARN of the role used by the service to access Amazon Web Services resources.
 	ResourceAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -39,13 +39,13 @@ import (
 	=~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$"
 
 	// The tags associated with the configuration.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 
 	// The time at which the configuration was last updated.
 	UpdatedTimestamp?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorConfiguration": close({
+#AmazonTranscribeCallAnalyticsProcessorConfiguration: close({
 	// The categories to send to the insights target.
 	CallAnalyticsStreamCategories?: list.MaxItems(20) & list.MinItems(1) & [
 		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$"
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorCon
 
 	// The types of PII to redact.
 	PiiEntityTypes?:            strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[A-Z_, ]+$"
-	PostCallAnalyticsSettings?: _#defs."/$defs/Properties/definitions/PostCallAnalyticsSettings"
+	PostCallAnalyticsSettings?: #PostCallAnalyticsSettings
 
 	// The vocabulary filtering method.
 	VocabularyFilterMethod?: "remove" | "mask" | "tag"
@@ -86,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorCon
 	VocabularyName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration": close({
+#AmazonTranscribeProcessorConfiguration: close({
 	// Labels all PII identified in the transcript.
 	ContentIdentificationType?: "PII"
 
@@ -142,12 +142,12 @@ _#defs: "/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration": 
 	VocabularyNames?: strings.MaxRunes(3000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9,-._]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/IssueDetectionConfiguration": close({
+#IssueDetectionConfiguration: close({
 	// The name of the issue detection rule.
 	RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/KeywordMatchConfiguration": close({
+#KeywordMatchConfiguration: close({
 	// The keywords or phrases to match.
 	Keywords!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[\\s0-9a-zA-Z'-]+$"
@@ -160,18 +160,16 @@ _#defs: "/$defs/Properties/definitions/KeywordMatchConfiguration": close({
 	RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/KinesisDataStreamSinkConfiguration": close({
+#KinesisDataStreamSinkConfiguration: close({
 	// The ARN of the Kinesis Data Stream sink.
 	InsightsTarget?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement": close({
-	AmazonTranscribeCallAnalyticsProcessorConfiguration?:
-		_#defs."/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorConfiguration"
-	AmazonTranscribeProcessorConfiguration?:
-		_#defs."/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration"
-	KinesisDataStreamSinkConfiguration?: _#defs."/$defs/Properties/definitions/KinesisDataStreamSinkConfiguration"
-	S3RecordingSinkConfiguration?:       _#defs."/$defs/Properties/definitions/S3RecordingSinkConfiguration"
+#MediaInsightsPipelineConfigurationElement: close({
+	AmazonTranscribeCallAnalyticsProcessorConfiguration?: #AmazonTranscribeCallAnalyticsProcessorConfiguration
+	AmazonTranscribeProcessorConfiguration?:              #AmazonTranscribeProcessorConfiguration
+	KinesisDataStreamSinkConfiguration?:                  #KinesisDataStreamSinkConfiguration
+	S3RecordingSinkConfiguration?:                        #S3RecordingSinkConfiguration
 
 	// The element type.
 	Type!: "AmazonTranscribeCallAnalyticsProcessor" |
@@ -180,7 +178,7 @@ _#defs: "/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement
 		"S3RecordingSink"
 })
 
-_#defs: "/$defs/Properties/definitions/PostCallAnalyticsSettings": close({
+#PostCallAnalyticsSettings: close({
 	// The content redaction output settings.
 	ContentRedactionOutput?: "redacted" | "redacted_and_unredacted"
 
@@ -194,24 +192,24 @@ _#defs: "/$defs/Properties/definitions/PostCallAnalyticsSettings": close({
 	OutputLocation!: strings.MaxRunes(4096)
 })
 
-_#defs: "/$defs/Properties/definitions/RealTimeAlertConfiguration": close({
+#RealTimeAlertConfiguration: close({
 	// Turns off real-time alerts.
 	Disabled?: bool
 
 	// The rules in the alert.
-	Rules?: list.MaxItems(3) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RealTimeAlertRule"]
+	Rules?: list.MaxItems(3) & list.MinItems(1) & [...#RealTimeAlertRule]
 })
 
-_#defs: "/$defs/Properties/definitions/RealTimeAlertRule": close({
-	IssueDetectionConfiguration?: _#defs."/$defs/Properties/definitions/IssueDetectionConfiguration"
-	KeywordMatchConfiguration?:   _#defs."/$defs/Properties/definitions/KeywordMatchConfiguration"
-	SentimentConfiguration?:      _#defs."/$defs/Properties/definitions/SentimentConfiguration"
+#RealTimeAlertRule: close({
+	IssueDetectionConfiguration?: #IssueDetectionConfiguration
+	KeywordMatchConfiguration?:   #KeywordMatchConfiguration
+	SentimentConfiguration?:      #SentimentConfiguration
 
 	// The type of alert rule.
 	Type!: "KeywordMatch" | "Sentiment" | "IssueDetection"
 })
 
-_#defs: "/$defs/Properties/definitions/S3RecordingSinkConfiguration": close({
+#S3RecordingSinkConfiguration: close({
 	// The default URI of the Amazon S3 bucket.
 	Destination?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$"
 
@@ -219,7 +217,7 @@ _#defs: "/$defs/Properties/definitions/S3RecordingSinkConfiguration": close({
 	RecordingFileFormat?: "Wav" | "Opus"
 })
 
-_#defs: "/$defs/Properties/definitions/SentimentConfiguration": close({
+#SentimentConfiguration: close({
 	// The name of the sentiment rule.
 	RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$"
 
@@ -230,7 +228,7 @@ _#defs: "/$defs/Properties/definitions/SentimentConfiguration": close({
 	TimePeriod!: int & <=1800 & >=60
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

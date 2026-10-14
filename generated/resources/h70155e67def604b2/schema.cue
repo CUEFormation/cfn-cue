@@ -13,24 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::InstanceSnapshot
-#Properties: close({
-	InstanceName!:         =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	InstanceSnapshotName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::InstanceSnapshot"
+	Properties!: close({
+		InstanceName!:         =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+		InstanceSnapshotName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	AvailabilityZone?: string | fn.#StringExpression
 	RegionName?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::InstanceSnapshot"
-	Properties!: #Properties
-}

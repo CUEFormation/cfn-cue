@@ -16,20 +16,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::Version
-#Properties: close({
-	CodeSha256?:  string | fn.#StringExpression
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FunctionName!: strings.MaxRunes(140) &
-	strings.MinRunes(1) &
-	=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
-	fn.#StringExpression
-	FunctionScalingConfig?: _#defs."/$defs/Properties/definitions/FunctionScalingConfig" | fn.#ObjectExpression
-	ProvisionedConcurrencyConfig?: _#defs."/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration" |
-		fn.#ObjectExpression
-	RuntimePolicy?: _#defs."/$defs/Properties/definitions/RuntimePolicy" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::Version"
+	Properties!: close({
+		CodeSha256?:  string | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		FunctionName!: strings.MaxRunes(140) &
+		strings.MinRunes(1) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
+		// The scaling configuration to apply to the function, including minimum and
+		// maximum execution environment limits.
+		FunctionScalingConfig?: #FunctionScalingConfig
+
+		// Specifies a provisioned concurrency configuration for a function's version.
+		// Updates are not supported for this property.
+		ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration
+
+		// Specifies the runtime management configuration of a function. Displays
+		// runtimeVersionArn only for Manual.
+		RuntimePolicy?: #RuntimePolicy
+	})
+}
+
+#FunctionScalingConfig: close({
 	MaxExecutionEnvironments?: int & <=15000 & >=0 |
 		{
 			string &
@@ -65,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": close({
+#ProvisionedConcurrencyConfiguration: close({
 	ProvisionedConcurrentExecutions!: int |
 		{
 			string &
@@ -83,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": clo
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuntimePolicy": close({
+#RuntimePolicy: close({
 	RuntimeVersionArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(26) &
 	=~"^arn:(aws[a-zA-Z-]*):lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}::runtime:.+$" |
@@ -91,7 +102,3 @@ _#defs: "/$defs/Properties/definitions/RuntimePolicy": close({
 	UpdateRuntimeOn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::Version"
-	Properties!: #Properties
-}

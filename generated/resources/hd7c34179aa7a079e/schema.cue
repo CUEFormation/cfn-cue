@@ -13,8 +13,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Intelligent-Tiering which automatically moves infrequently accessed log data
 // to lower-cost storage tiers. Deleting this resource reverts the account to
 // standard (single-tier) storage.
-#Properties: close({StorageTier!: "INTELLIGENT_TIERING" | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Logs::StorageTierPolicy"
-	Properties!: #Properties
+	Properties!: close({StorageTier!: "INTELLIGENT_TIERING" | fn.#StringExpression})
 }

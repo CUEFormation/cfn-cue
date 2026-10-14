@@ -26,11 +26,11 @@ import (
 	ShardCount!:                 int
 	ShardInstanceCount?:         int
 	SubnetIds?:                  [...string]
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
+	Tags?:                       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
+	VpcSecurityGroupIds?:        [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

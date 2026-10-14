@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -15,78 +15,81 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Registers a custom connection type in Glue based on the configuration
 // provided. This enables customers to configure custom connectors for any data
 // source with REST-based APIs.
-#Properties: close({
-	ConnectionProperties?:                 _#defs."/$defs/Properties/definitions/ConnectionPropertiesConfiguration"
-	ConnectionType!:                       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ConnectorAuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/ConnectorAuthenticationConfiguration"
-	Description?:                          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	IntegrationType?:                      "REST" | fn.#StringExpression
-	RestConfiguration!:                    _#defs."/$defs/Properties/definitions/RestConfiguration"
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::ConnectionType"
+	Properties!: close({
+		ConnectionProperties?:                 #ConnectionPropertiesConfiguration
+		ConnectionType!:                       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ConnectorAuthenticationConfiguration?: #ConnectorAuthenticationConfiguration
+		Description?:                          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		IntegrationType?:                      "REST" | fn.#StringExpression
+		RestConfiguration!:                    #RestConfiguration
+		Tags?:                                 list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BasicAuthenticationProperties": close({
-	Password?: _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
-	Username?: _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
+#BasicAuthenticationProperties: close({
+	Password?: #SecretConnectorProperty
+	Username?: #SecretConnectorProperty
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BetweenConfiguration": close({
+#BetweenConfiguration: close({
 	HighBoundKey?: string | fn.#StringExpression
 	LowBoundKey?:  string | fn.#StringExpression
 	Template?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientCredentialsProperties": close({
-	ClientId?:           _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
-	ClientSecret?:       _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
+#ClientCredentialsProperties: close({
+	ClientId?:           #SecretConnectorProperty
+	ClientSecret?:       #SecretConnectorProperty
 	ContentType?:        "APPLICATION_JSON" | "URL_ENCODED" | fn.#StringExpression
 	RequestMethod?:      "GET" | "POST" | fn.#StringExpression
-	Scope?:              _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrl?:           _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrlParameters?: [..._#defs."/$defs/Properties/definitions/ConnectorProperty"] | fn.#ListExpression
+	Scope?:              #ConnectorProperty
+	TokenUrl?:           #ConnectorProperty
+	TokenUrlParameters?: [...#ConnectorProperty] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionPropertiesConfiguration": close({
-	AdditionalRequestParameters?: [..._#defs."/$defs/Properties/definitions/ConnectorProperty"] | fn.#ListExpression
-	Url?:                         _#defs."/$defs/Properties/definitions/ConnectorProperty"
+#ConnectionPropertiesConfiguration: close({
+	AdditionalRequestParameters?: [...#ConnectorProperty] | fn.#ListExpression
+	Url?:                         #ConnectorProperty
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorAuthenticationConfiguration": close({
+#ConnectorAuthenticationConfiguration: close({
 	AuthenticationTypes!: [..."BASIC" | "OAUTH2" | "CUSTOM" | "IAM" | fn.#StringExpression] | fn.#ListExpression
-	BasicAuthenticationProperties?:  _#defs."/$defs/Properties/definitions/BasicAuthenticationProperties"
-	CustomAuthenticationProperties?: _#defs."/$defs/Properties/definitions/CustomAuthenticationProperties"
-	OAuth2Properties?:               _#defs."/$defs/Properties/definitions/ConnectorOAuth2Properties"
+	BasicAuthenticationProperties?:  #BasicAuthenticationProperties
+	CustomAuthenticationProperties?: #CustomAuthenticationProperties
+	OAuth2Properties?:               #ConnectorOAuth2Properties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorAuthorizationCodeProperties": close({
-	AuthorizationCode?:    _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	AuthorizationCodeUrl?: _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	ClientId?:             _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
-	ClientSecret?:         _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
+#ConnectorAuthorizationCodeProperties: close({
+	AuthorizationCode?:    #ConnectorProperty
+	AuthorizationCodeUrl?: #ConnectorProperty
+	ClientId?:             #SecretConnectorProperty
+	ClientSecret?:         #SecretConnectorProperty
 	ContentType?:          "APPLICATION_JSON" | "URL_ENCODED" | fn.#StringExpression
-	Prompt?:               _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	RedirectUri?:          _#defs."/$defs/Properties/definitions/ConnectorProperty"
+	Prompt?:               #ConnectorProperty
+	RedirectUri?:          #ConnectorProperty
 	RequestMethod?:        "GET" | "POST" | fn.#StringExpression
-	Scope?:                _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrl?:             _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrlParameters?:   [..._#defs."/$defs/Properties/definitions/ConnectorProperty"] | fn.#ListExpression
+	Scope?:                #ConnectorProperty
+	TokenUrl?:             #ConnectorProperty
+	TokenUrlParameters?:   [...#ConnectorProperty] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorOAuth2Properties": close({
-	AuthorizationCodeProperties?: _#defs."/$defs/Properties/definitions/ConnectorAuthorizationCodeProperties"
-	ClientCredentialsProperties?: _#defs."/$defs/Properties/definitions/ClientCredentialsProperties"
-	JWTBearerProperties?:         _#defs."/$defs/Properties/definitions/JWTBearerProperties"
+#ConnectorOAuth2Properties: close({
+	AuthorizationCodeProperties?: #ConnectorAuthorizationCodeProperties
+	ClientCredentialsProperties?: #ClientCredentialsProperties
+	JWTBearerProperties?:         #JWTBearerProperties
 	OAuth2GrantType!:             "CLIENT_CREDENTIALS" | "JWT_BEARER" | "AUTHORIZATION_CODE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorProperty": close({
+#ConnectorProperty: close({
 	AllowedValues?:    [...string | fn.#StringExpression] | fn.#ListExpression
 	DefaultValue?:     string | fn.#StringExpression
 	KeyOverride?:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
@@ -97,35 +100,33 @@ _#defs: "/$defs/Properties/definitions/ConnectorProperty": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CursorConfiguration": close({
-	LimitParameter?: _#defs."/$defs/Properties/definitions/ExtractedParameter"
-	NextPage!:       _#defs."/$defs/Properties/definitions/ExtractedParameter"
+#CursorConfiguration: close({
+	LimitParameter?: #ExtractedParameter
+	NextPage!:       #ExtractedParameter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAuthenticationProperties": close({
-	AuthenticationParameters!: [..._#defs."/$defs/Properties/definitions/SecretConnectorProperty"] | fn.#ListExpression
-}) |
+#CustomAuthenticationProperties: close({AuthenticationParameters!: [...#SecretConnectorProperty] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityConfiguration": close({
+#EntityConfiguration: close({
 	Schema?: close({
 
-		{[=~"^[a-zA-Z0-9_ -]+$"]: _#defs."/$defs/Properties/definitions/FieldDefinition"}}) |
+		{[=~"^[a-zA-Z0-9_ -]+$"]: #FieldDefinition}}) |
 	fn.#ObjectExpression
-	SourceConfiguration?: _#defs."/$defs/Properties/definitions/SourceConfiguration"
+	SourceConfiguration?: #SourceConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExtractedParameter": close({
+#ExtractedParameter: close({
 	DefaultValue?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"[^<>&'\"]" | fn.#StringExpression
 	Key?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	PropertyLocation?: "HEADER" | "BODY" | "QUERY_PARAM" | "PATH" | fn.#StringExpression
-	Value?:            _#defs."/$defs/Properties/definitions/ResponseExtractionMapping"
+	Value?:            #ResponseExtractionMapping
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldDefinition": close({
+#FieldDefinition: close({
 	FieldDataType!: "INT" |
 		"SMALLINT" |
 		"BIGINT" |
@@ -145,7 +146,7 @@ _#defs: "/$defs/Properties/definitions/FieldDefinition": close({
 		"BINARY" |
 		"UNION" |
 		fn.#StringExpression
-	FilterOverrides?:    _#defs."/$defs/Properties/definitions/FilterOverrides"
+	FilterOverrides?:    #FilterOverrides
 	IsNullable?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsOrderable?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsPartitionable?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -155,11 +156,11 @@ _#defs: "/$defs/Properties/definitions/FieldDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
-	BetweenConfiguration?:      _#defs."/$defs/Properties/definitions/BetweenConfiguration"
+#FilterConfiguration: close({
+	BetweenConfiguration?:      #BetweenConfiguration
 	DateTimeFormat?:            string | fn.#StringExpression
 	FilterMode!:                "QUERY_PARAMS" | "FILTER_STRING" | fn.#StringExpression
-	FilterStringConfiguration?: _#defs."/$defs/Properties/definitions/FilterStringConfiguration"
+	FilterStringConfiguration?: #FilterStringConfiguration
 	OperatorMappings?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
@@ -168,8 +169,8 @@ _#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterOverrides": close({
-	BetweenConfiguration?: _#defs."/$defs/Properties/definitions/BetweenConfiguration"
+#FilterOverrides: close({
+	BetweenConfiguration?: #BetweenConfiguration
 	DateTimeFormat?:       string | fn.#StringExpression
 	FieldName?:            string | fn.#StringExpression
 	OperatorMappings?: close({
@@ -179,35 +180,35 @@ _#defs: "/$defs/Properties/definitions/FilterOverrides": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterStringConfiguration": close({
+#FilterStringConfiguration: close({
 	QueryParameterName!: string | fn.#StringExpression
 	QuoteCharacter?:     string | fn.#StringExpression
 	QuoteStringValues?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JWTBearerProperties": close({
+#JWTBearerProperties: close({
 	ContentType?:        "APPLICATION_JSON" | "URL_ENCODED" | fn.#StringExpression
-	JwtToken?:           _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
+	JwtToken?:           #SecretConnectorProperty
 	RequestMethod?:      "GET" | "POST" | fn.#StringExpression
-	TokenUrl?:           _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrlParameters?: [..._#defs."/$defs/Properties/definitions/ConnectorProperty"] | fn.#ListExpression
+	TokenUrl?:           #ConnectorProperty
+	TokenUrlParameters?: [...#ConnectorProperty] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OffsetConfiguration": close({
-	LimitParameter!:  _#defs."/$defs/Properties/definitions/ExtractedParameter"
-	OffsetParameter!: _#defs."/$defs/Properties/definitions/ExtractedParameter"
+#OffsetConfiguration: close({
+	LimitParameter!:  #ExtractedParameter
+	OffsetParameter!: #ExtractedParameter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PaginationConfiguration": close({
-	CursorConfiguration?: _#defs."/$defs/Properties/definitions/CursorConfiguration"
-	OffsetConfiguration?: _#defs."/$defs/Properties/definitions/OffsetConfiguration"
+#PaginationConfiguration: close({
+	CursorConfiguration?: #CursorConfiguration
+	OffsetConfiguration?: #OffsetConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseConfiguration": close({
+#ResponseConfiguration: close({
 	ErrorPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$" |
 	fn.#StringExpression
 	ResultPath!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$" |
@@ -215,19 +216,19 @@ _#defs: "/$defs/Properties/definitions/ResponseConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseExtractionMapping": close({
+#ResponseExtractionMapping: close({
 	ContentPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$" |
 	fn.#StringExpression
 	HeaderKey?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RestConfiguration": close({
+#RestConfiguration: close({
 	EntityConfigurations?: close({
 
-		{[=~"^[a-zA-Z0-9_ -]+$"]: _#defs."/$defs/Properties/definitions/EntityConfiguration"}}) |
+		{[=~"^[a-zA-Z0-9_ -]+$"]: #EntityConfiguration}}) |
 	fn.#ObjectExpression
-	GlobalSourceConfiguration?: _#defs."/$defs/Properties/definitions/SourceConfiguration"
+	GlobalSourceConfiguration?: #SourceConfiguration
 	ValidationEndpointConfiguration?: close({
 		RequestMethod?: "GET" | "POST" | fn.#StringExpression
 		RequestPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;={}-]*$" |
@@ -237,7 +238,7 @@ _#defs: "/$defs/Properties/definitions/RestConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretConnectorProperty": close({
+#SecretConnectorProperty: close({
 	KeyOverride?:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	PropertyLocation?: "HEADER" | "BODY" | "QUERY_PARAM" | "PATH" | fn.#StringExpression
@@ -246,23 +247,19 @@ _#defs: "/$defs/Properties/definitions/SecretConnectorProperty": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
-	FilterConfiguration?:     _#defs."/$defs/Properties/definitions/FilterConfiguration"
-	PaginationConfiguration?: _#defs."/$defs/Properties/definitions/PaginationConfiguration"
+#SourceConfiguration: close({
+	FilterConfiguration?:     #FilterConfiguration
+	PaginationConfiguration?: #PaginationConfiguration
 	RequestMethod?:           "GET" | "POST" | fn.#StringExpression
-	RequestParameters?:       [..._#defs."/$defs/Properties/definitions/ConnectorProperty"] | fn.#ListExpression
+	RequestParameters?:       [...#ConnectorProperty] | fn.#ListExpression
 	RequestPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;={}-]*$" |
 	fn.#StringExpression
-	ResponseConfiguration?: _#defs."/$defs/Properties/definitions/ResponseConfiguration"
+	ResponseConfiguration?: #ResponseConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::ConnectionType"
-	Properties!: #Properties
-}

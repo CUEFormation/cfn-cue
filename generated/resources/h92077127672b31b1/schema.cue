@@ -13,22 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::ApprovalPolicy Resource Type.
-#Properties: close({
-	Actions!:        list.MaxItems(10) & list.MinItems(1) & [..."SHARE" | fn.#ValueExpression] | fn.#ListExpression
-	ApplicableTo!:   _#defs."/$defs/Properties/definitions/ApplicableTo"
-	ApprovalGroups!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	AssetTypes!: list.MinItems(1) & [..."AGENT" | "KNOWLEDGE_BASE" | "SPACE" | fn.#ValueExpression] | fn.#ListExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	PolicyId!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::ApprovalPolicy"
+	Properties!: close({
+		Actions!:        list.MaxItems(10) & list.MinItems(1) & [..."SHARE" | fn.#ValueExpression] | fn.#ListExpression
+		ApplicableTo!:   #ApplicableTo
+		ApprovalGroups!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		AssetTypes!: list.MinItems(1) & [..."AGENT" | "KNOWLEDGE_BASE" | "SPACE" | fn.#ValueExpression] |
+			fn.#ListExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		PolicyId!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ApplicableTo": close({
+#ApplicableTo: close({
 	GroupArns?: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Type!:      "GROUP" | fn.#ValueExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::ApprovalPolicy"
-	Properties!: #Properties
-}

@@ -20,18 +20,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // dashboards and create custom dashboards. You can manually refresh custom and
 // managed dashboards. For custom dashboards, you can also set up an automatic
 // refresh schedule and modify dashboard widgets.
-#Properties: close({
-	Name?:            strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
-	RefreshSchedule?: _#defs."/$defs/Properties/definitions/RefreshSchedule" | fn.#ObjectExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TerminationProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Widgets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Widget"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudTrail::Dashboard"
+	Properties?: close({
+		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/QueryParameter": strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" |
-fn.#StringExpression
+		// Configures the automatic refresh schedule for the dashboard. Includes the
+		// frequency unit (DAYS or HOURS) and value, as well as the status (ENABLED or
+		// DISABLED) of the refresh schedule.
+		RefreshSchedule?: #RefreshSchedule
+		Tags?:            [...#Tag] | fn.#ListExpression
+		TerminationProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Widgets?: list.UniqueItems() & [...#Widget] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/RefreshSchedule": close({
+#QueryParameter: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+
+#RefreshSchedule: close({
 	Frequency?: close({
 		Unit!: "HOURS" | "DAYS" | fn.#StringExpression
 		Value!: int |
@@ -57,18 +70,17 @@ _#defs: "/$defs/Properties/definitions/RefreshSchedule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string | fn.#StringExpression
+#Timestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Widget": close({
-	QueryParameters?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/QueryParameter"] |
-		fn.#ListExpression
-	QueryStatement!: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"(?s).*" | fn.#StringExpression
+#Widget: close({
+	QueryParameters?: list.MaxItems(10) & list.MinItems(1) & [...#QueryParameter] | fn.#ListExpression
+	QueryStatement!:  strings.MaxRunes(10000) & strings.MinRunes(1) & =~"(?s).*" | fn.#StringExpression
 	ViewProperties?: close({
 
 		{[=~"^[a-zA-Z0-9._-]{3,128}$"]: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\- ]+$" |
@@ -76,7 +88,3 @@ _#defs: "/$defs/Properties/definitions/Widget": close({
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudTrail::Dashboard"
-	Properties?: #Properties
-}

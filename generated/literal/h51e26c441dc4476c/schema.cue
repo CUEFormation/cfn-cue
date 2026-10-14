@@ -27,7 +27,7 @@ import (
 	Status?: "PENDING" | "VERIFIED" | "UNSUPPORTED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The Amazon Resource Name (ARN) for the verified destination phone number.
 	VerifiedDestinationNumberArn?: string
@@ -37,7 +37,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$"
 

@@ -19,39 +19,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and [Controlling and managing access to an HTTP API in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-access-control.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	ApiId!:                          string | fn.#StringExpression
-	AuthorizerCredentialsArn?:       string | fn.#StringExpression
-	AuthorizerPayloadFormatVersion?: string | fn.#StringExpression
-	AuthorizerResultTtlInSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AuthorizerType!:               string | fn.#StringExpression
-	AuthorizerUri?:                string | fn.#StringExpression
-	EnableSimpleResponses?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IdentitySource?:               [...string | fn.#StringExpression] | fn.#ListExpression
-	IdentityValidationExpression?: string | fn.#StringExpression
-	JwtConfiguration?:             _#defs."/$defs/Properties/definitions/JWTConfiguration" | fn.#ObjectExpression
-	Name!:                         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::Authorizer"
+	Properties!: close({
+		ApiId!:                          string | fn.#StringExpression
+		AuthorizerCredentialsArn?:       string | fn.#StringExpression
+		AuthorizerPayloadFormatVersion?: string | fn.#StringExpression
+		AuthorizerResultTtlInSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AuthorizerType!:        string | fn.#StringExpression
+		AuthorizerUri?:         string | fn.#StringExpression
+		EnableSimpleResponses?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IdentitySource?:        [...string | fn.#StringExpression] | fn.#ListExpression
+		IdentityValidationExpression?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/JWTConfiguration": close({
+		// The ``JWTConfiguration`` property specifies the configuration of a JWT
+		// authorizer. Required for the ``JWT`` authorizer type. Supported only for
+		// HTTP APIs.
+		JwtConfiguration?: #JWTConfiguration
+		Name!:             string | fn.#StringExpression
+	})
+}
+
+#JWTConfiguration: close({
 	Audience?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Issuer?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Authorizer"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,54 +12,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	Activate?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ParameterObjects?: [..._#defs."/$defs/Properties/definitions/ParameterObject"] | fn.#ListExpression
-	ParameterValues?:  [..._#defs."/$defs/Properties/definitions/ParameterValue"] | fn.#ListExpression
-	PipelineObjects?:  [..._#defs."/$defs/Properties/definitions/PipelineObject"] | fn.#ListExpression
-	PipelineTags?:     [..._#defs."/$defs/Properties/definitions/PipelineTag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataPipeline::Pipeline"
+	Properties!: close({
+		Activate?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		ParameterObjects?: [...#ParameterObject] | fn.#ListExpression
+		ParameterValues?:  [...#ParameterValue] | fn.#ListExpression
+		PipelineObjects?:  [...#PipelineObject] | fn.#ListExpression
+		PipelineTags?:     [...#PipelineTag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Field": close({
+#Field: close({
 	Key!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	RefValue?:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	StringValue?: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterAttribute": close({
+#ParameterAttribute: close({
 	Key!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	StringValue!: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterObject": close({
-	Attributes!: [..._#defs."/$defs/Properties/definitions/ParameterAttribute"] | fn.#ListExpression
+#ParameterObject: close({
+	Attributes!: [...#ParameterAttribute] | fn.#ListExpression
 	Id!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": close({
+#ParameterValue: close({
 	Id!:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	StringValue!: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipelineObject": close({
-	Fields!: [..._#defs."/$defs/Properties/definitions/Field"] | fn.#ListExpression
+#PipelineObject: close({
+	Fields!: [...#Field] | fn.#ListExpression
 	Id!:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipelineTag": close({
+#PipelineTag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataPipeline::Pipeline"
-	Properties!: #Properties
-}

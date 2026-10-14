@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,39 +14,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::EventsV2::EventSource. A managed event source that
 // forwards AWS service events or partner events onto a custom event bus.
-#Properties: close({
-	Configuration!: _#defs."/$defs/Properties/definitions/EventSourceConfiguration" | fn.#ObjectExpression
-	Description?:   strings.MaxRunes(512) | fn.#StringExpression
-	EventBusArn!: strings.MaxRunes(1011) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EventsV2::EventSource"
+	Properties!: close({
+		// The event source configuration. Specify exactly one of
+		// AwsServiceEventsConfiguration or PartnerEventsConfiguration.
+		Configuration!: #EventSourceConfiguration
+		Description?:   strings.MaxRunes(512) | fn.#StringExpression
+		EventBusArn!: strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AwsServiceEventsConfiguration": close({
+#AwsServiceEventsConfiguration: close({
 	AwsService!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.[a-z0-9\\-]+$" | fn.#StringExpression
-	OnFailureConfiguration?: _#defs."/$defs/Properties/definitions/OnFailureConfiguration" | fn.#ObjectExpression
+
+	// The destination for events that could not be forwarded.
+	OnFailureConfiguration?: #OnFailureConfiguration
 	Pattern?:                strings.MaxRunes(3753) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventSourceConfiguration": matchN(1, [{
-	AwsServiceEventsConfiguration!: _
-	...
-}, {
-	PartnerEventsConfiguration!: _
-	...
-}]) & close({
-	AwsServiceEventsConfiguration?: _#defs."/$defs/Properties/definitions/AwsServiceEventsConfiguration" |
-		fn.#ObjectExpression
-	PartnerEventsConfiguration?: _#defs."/$defs/Properties/definitions/PartnerEventsConfiguration" |
-		fn.#ObjectExpression
-}) |
+#EventSourceConfiguration: close({
+	// Configuration for forwarding a single AWS service's events.
+	AwsServiceEventsConfiguration?: #AwsServiceEventsConfiguration
+
+	// Configuration for forwarding a partner event source's events.
+	PartnerEventsConfiguration?: #PartnerEventsConfiguration
+	if AwsServiceEventsConfiguration != _|_ if AwsServiceEventsConfiguration."Fn::If" == _|_ {
+		PartnerEventsConfiguration?: close({"Fn::If": _}) | error(
+			"PartnerEventsConfiguration cannot be used with AwsServiceEventsConfiguration; set exactly one of AwsServiceEventsConfiguration, PartnerEventsConfiguration",
+		)
+	}
+}) & matchN(>=1, [{AwsServiceEventsConfiguration!: _}, {PartnerEventsConfiguration!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnFailureConfiguration": close({
+#OnFailureConfiguration: close({
 	Arn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[a-z0-9]+)*:sqs:[a-z][a-z0-9]*(-[a-z0-9]+)*:[0-9]{12}:[A-Za-z0-9_-]{1,80}$" |
@@ -54,8 +61,10 @@ _#defs: "/$defs/Properties/definitions/OnFailureConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartnerEventsConfiguration": close({
-	OnFailureConfiguration?:     _#defs."/$defs/Properties/definitions/OnFailureConfiguration" | fn.#ObjectExpression
+#PartnerEventsConfiguration: close({
+	// The destination for events that could not be forwarded, covering both the
+	// forwarding target and the managed partner event bus.
+	OnFailureConfiguration?:     #OnFailureConfiguration
 	PartnerBusKmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression
 	PartnerEventSourceArn!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
@@ -65,12 +74,8 @@ _#defs: "/$defs/Properties/definitions/PartnerEventsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventsV2::EventSource"
-	Properties!: #Properties
-}

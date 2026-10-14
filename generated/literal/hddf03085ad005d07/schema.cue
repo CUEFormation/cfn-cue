@@ -16,7 +16,7 @@ import (
 #Properties: close({
 	// A list of container definitions in JSON format that describe the containers
 	// that make up the daemon task.
-	ContainerDefinitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DaemonContainerDefinition"]
+	ContainerDefinitions?: list.UniqueItems() & [...#DaemonContainerDefinition]
 
 	// The number of CPU units used by the daemon task.
 	Cpu?:                     string
@@ -50,7 +50,7 @@ import (
 	// tasks that use ``pidMode: "host"`` or other daemons that use ``pidMode:
 	// "shared"``.
 	PidMode?: "none" | "shared"
-	Tags?:    list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:    list.MaxItems(50) & [...] & [...#Tag]
 
 	// The short name or full Amazon Resource Name (ARN) of the IAM role that grants
 	// containers in the daemon task permission to call Amazon Web Services APIs on
@@ -58,7 +58,7 @@ import (
 	TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The list of data volume definitions for the daemon task.
-	Volumes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Volume"]
+	Volumes?: list.UniqueItems() & [...#Volume]
 })
 
 // The dependencies defined for container startup and shutdown. A container can
@@ -86,7 +86,7 @@ import (
 // [Container
 // dependency](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example_task_definitions.html#example_task_definition-containerdependency)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/ContainerDependency": close({
+#ContainerDependency: close({
 	// The dependency condition of the container. The following are the available
 	// conditions and their behavior:
 	// + ``START`` - This condition emulates the behavior of links and volumes
@@ -112,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDependency": close({
 // A container definition for a daemon task. Daemon container definitions
 // describe the containers that run as part of a daemon task on container
 // instances managed by capacity providers.
-_#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
+#DaemonContainerDefinition: close({
 	// The command that's passed to the container.
 	Command?: [...string]
 
@@ -121,16 +121,16 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 
 	// The dependencies defined for container startup and shutdown. A container can
 	// contain multiple dependencies on other containers in a task definition.
-	DependsOn?: [..._#defs."/$defs/Properties/definitions/ContainerDependency"]
+	DependsOn?: [...#ContainerDependency]
 
 	// The entry point that's passed to the container.
 	EntryPoint?: [...string]
 
 	// The environment variables to pass to a container.
-	Environment?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
+	Environment?: [...#KeyValuePair]
 
 	// A list of files containing the environment variables to pass to a container.
-	EnvironmentFiles?: [..._#defs."/$defs/Properties/definitions/EnvironmentFile"]
+	EnvironmentFiles?: [...#EnvironmentFile]
 
 	// If the ``essential`` parameter of a container is marked as ``true``, and that
 	// container fails or stops for any reason, all other containers that are part
@@ -139,10 +139,10 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 
 	// The FireLens configuration for the container. This is used to specify and
 	// configure a log router for container logs.
-	FirelensConfiguration?: _#defs."/$defs/Properties/definitions/FirelensConfiguration"
+	FirelensConfiguration?: #FirelensConfiguration
 
 	// The container health check command and associated configuration parameters for the container.
-	HealthCheck?: _#defs."/$defs/Properties/definitions/HealthCheck"
+	HealthCheck?: #HealthCheck
 
 	// The image used to start the container. This string is passed directly to the
 	// Docker daemon. Images in the Docker Hub registry are available by default.
@@ -156,10 +156,10 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 
 	// Linux-specific modifications that are applied to the container configuration,
 	// such as Linux kernel capabilities.
-	LinuxParameters?: _#defs."/$defs/Properties/definitions/LinuxParameters"
+	LinuxParameters?: #LinuxParameters
 
 	// The log configuration specification for the container.
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	LogConfiguration?: #LogConfiguration
 
 	// The amount (in MiB) of memory to present to the container. If the container
 	// attempts to exceed the memory specified here, the container is killed.
@@ -169,7 +169,7 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 	MemoryReservation?: int
 
 	// The mount points for data volumes in your container.
-	MountPoints?: [..._#defs."/$defs/Properties/definitions/MountPoint"]
+	MountPoints?: [...#MountPoint]
 
 	// The name of the container. Up to 255 letters (uppercase and lowercase),
 	// numbers, underscores, and hyphens are allowed.
@@ -186,14 +186,14 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 	ReadonlyRootFilesystem?: bool
 
 	// The private repository authentication credentials to use.
-	RepositoryCredentials?: _#defs."/$defs/Properties/definitions/RepositoryCredentials"
+	RepositoryCredentials?: #RepositoryCredentials
 
 	// The restart policy for the container. When you set up a restart policy,
 	// Amazon ECS can restart the container without needing to replace the task.
-	RestartPolicy?: _#defs."/$defs/Properties/definitions/RestartPolicy"
+	RestartPolicy?: #RestartPolicy
 
 	// The secrets to pass to the container.
-	Secrets?: [..._#defs."/$defs/Properties/definitions/Secret"]
+	Secrets?: [...#Secret]
 
 	// Time duration (in seconds) to wait before giving up on resolving dependencies for a container.
 	StartTimeout?: int
@@ -203,10 +203,10 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 	StopTimeout?: int
 
 	// A list of namespaced kernel parameters to set in the container.
-	SystemControls?: [..._#defs."/$defs/Properties/definitions/SystemControl"]
+	SystemControls?: [...#SystemControl]
 
 	// A list of ``ulimits`` to set in the container.
-	Ulimits?: [..._#defs."/$defs/Properties/definitions/Ulimit"]
+	Ulimits?: [...#Ulimit]
 
 	// The user to use inside the container.
 	User?: string
@@ -216,7 +216,7 @@ _#defs: "/$defs/Properties/definitions/DaemonContainerDefinition": close({
 })
 
 // An object representing a container instance host device.
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	// The path inside the container at which to expose the host device.
 	ContainerPath?: string
 
@@ -252,7 +252,7 @@ _#defs: "/$defs/Properties/definitions/Device": close({
 // + The file is handled like a native Docker env-file.
 // + There is no support for shell escape handling.
 // + The container entry point interperts the ``VARIABLE`` values.
-_#defs: "/$defs/Properties/definitions/EnvironmentFile": close({
+#EnvironmentFile: close({
 	// The file type to use. Environment files are objects in Amazon S3. The only
 	// supported value is ``s3``.
 	Type?: "s3"
@@ -266,7 +266,7 @@ _#defs: "/$defs/Properties/definitions/EnvironmentFile": close({
 // log
 // routing](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/FirelensConfiguration": close({
+#FirelensConfiguration: close({
 	// The options to use when configuring the log router. This field is optional
 	// and can be used to specify a custom configuration file or to add additional
 	// metadata, such as the task, task definition, cluster, and container instance
@@ -391,7 +391,7 @@ _#defs: "/$defs/Properties/definitions/FirelensConfiguration": close({
 // where container dependency is specified, see [Container
 // dependency](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example_task_definitions.html#example_task_definition-containerdependency)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/HealthCheck": close({
+#HealthCheck: close({
 	// A string array representing the command that the container runs to determine
 	// if it is healthy. The string array must start with ``CMD`` to run the
 	// command arguments directly, or ``CMD-SHELL`` to run the command with the
@@ -432,7 +432,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheck": close({
 })
 
 // Details on a container instance bind mount host volume.
-_#defs: "/$defs/Properties/definitions/HostVolumeProperties": close({
+#HostVolumeProperties: close({
 	// When the ``host`` parameter is used, specify a ``sourcePath`` to declare the
 	// path on the host container instance that's presented to the container. If
 	// this parameter is empty, then the Docker daemon has assigned a host path for
@@ -470,7 +470,7 @@ _#defs: "/$defs/Properties/definitions/HostVolumeProperties": close({
 // + The default is to first drop the capabilities specified in the ``drop``
 // request parameter, and then add the capabilities specified in the ``add``
 // request parameter.
-_#defs: "/$defs/Properties/definitions/KernelCapabilities": close({
+#KernelCapabilities: close({
 	// The Linux capabilities for the container that have been added to the default
 	// configuration provided by Docker. This parameter maps to ``CapAdd`` in the
 	// docker container create command and the ``--cap-add`` option to docker run.
@@ -501,7 +501,7 @@ _#defs: "/$defs/Properties/definitions/KernelCapabilities": close({
 })
 
 // A key-value pair object.
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	// The name of the key-value pair. For environment variables, this is the name
 	// of the environment variable.
 	Name?: string
@@ -513,20 +513,20 @@ _#defs: "/$defs/Properties/definitions/KeyValuePair": close({
 
 // The Linux-specific options that are applied to the container, such as Linux
 // [KernelCapabilities](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html).
-_#defs: "/$defs/Properties/definitions/LinuxParameters": close({
+#LinuxParameters: close({
 	// The Linux capabilities for the container that are added to or dropped from
 	// the default configuration provided by Docker.
 	// For tasks that use the Fargate launch type, ``capabilities`` is supported for
 	// all platform versions but the ``add`` parameter is only supported if using
 	// platform version 1.4.0 or later.
-	Capabilities?: _#defs."/$defs/Properties/definitions/KernelCapabilities"
+	Capabilities?: #KernelCapabilities
 
 	// Any host devices to expose to the container. This parameter maps to
 	// ``Devices`` in the docker container create command and the ``--device``
 	// option to docker run.
 	// If you're using tasks that use the Fargate launch type, the ``devices``
 	// parameter isn't supported.
-	Devices?: [..._#defs."/$defs/Properties/definitions/Device"]
+	Devices?: [...#Device]
 
 	// Run an ``init`` process inside the container that forwards signals and reaps
 	// processes. This parameter maps to the ``--init`` option to docker run. This
@@ -538,7 +538,7 @@ _#defs: "/$defs/Properties/definitions/LinuxParameters": close({
 
 	// The container path, mount options, and size (in MiB) of the tmpfs mount. This
 	// parameter maps to the ``--tmpfs`` option to docker run.
-	Tmpfs?: [..._#defs."/$defs/Properties/definitions/Tmpfs"]
+	Tmpfs?: [...#Tmpfs]
 })
 
 // The log configuration for the container. This parameter maps to ``LogConfig``
@@ -570,7 +570,7 @@ _#defs: "/$defs/Properties/definitions/LinuxParameters": close({
 // underlying infrastructure your tasks are hosted on, any additional software
 // needed must be installed outside of the task. For example, the Fluentd
 // output aggregators or a remote host running Logstash to send Gelf logs to.
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	// The log driver to use for the container.
 	// For tasks on FARGATElong, the supported log drivers are ``awslogs``,
 	// ``splunk``, and ``awsfirelens``.
@@ -709,11 +709,11 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 	// [Specifying sensitive
 	// data](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"]
+	SecretOptions?: [...#Secret]
 })
 
 // The details for a volume mount point that's used in a container definition.
-_#defs: "/$defs/Properties/definitions/MountPoint": close({
+#MountPoint: close({
 	// The path on the container to mount the host volume at.
 	ContainerPath?: string
 
@@ -728,7 +728,7 @@ _#defs: "/$defs/Properties/definitions/MountPoint": close({
 })
 
 // The repository credentials for private registry authentication.
-_#defs: "/$defs/Properties/definitions/RepositoryCredentials": close({
+#RepositoryCredentials: close({
 	// The Amazon Resource Name (ARN) of the secret containing the private repository credentials.
 	// When you use the Amazon ECS API, CLI, or AWS SDK, if the secret exists in the
 	// same Region as the task that you're launching then you can use either the
@@ -737,7 +737,7 @@ _#defs: "/$defs/Properties/definitions/RepositoryCredentials": close({
 	CredentialsParameter?: string
 })
 
-_#defs: "/$defs/Properties/definitions/RestartPolicy": close({
+#RestartPolicy: close({
 	Enabled?:              bool
 	IgnoredExitCodes?:     [...int]
 	RestartAttemptPeriod?: int
@@ -753,7 +753,7 @@ _#defs: "/$defs/Properties/definitions/RestartPolicy": close({
 // For more information, see [Specifying sensitive
 // data](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	// The name of the secret.
 	Name!: string
 
@@ -803,7 +803,7 @@ _#defs: "/$defs/Properties/definitions/Secret": close({
 // This parameter is only supported for tasks that are hosted on FARGATElong if
 // the tasks are using platform version ``1.4.0`` or later (Linux). This isn't
 // supported for Windows containers on Fargate.
-_#defs: "/$defs/Properties/definitions/SystemControl": close({
+#SystemControl: close({
 	// The namespaced kernel parameter to set a ``value`` for.
 	Namespace?: string
 
@@ -835,7 +835,7 @@ _#defs: "/$defs/Properties/definitions/SystemControl": close({
 // such as a prefix for either keys or values as it is reserved for AWS use.
 // You cannot edit or delete tag keys or values with this prefix. Tags with
 // this prefix do not count against your tags per resource limit.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// One part of a key-value pair that make up a tag. A ``key`` is a general label
 	// that acts like a category for more specific tag values.
 	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
@@ -846,7 +846,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The container path, mount options, and size of the tmpfs mount.
-_#defs: "/$defs/Properties/definitions/Tmpfs": close({
+#Tmpfs: close({
 	// The absolute file path where the tmpfs volume is to be mounted.
 	ContainerPath?: string
 
@@ -872,7 +872,7 @@ _#defs: "/$defs/Properties/definitions/Tmpfs": close({
 // default ``nofile`` soft limit is ``65535`` and the default hard limit is
 // ``65535``.
 // You can specify the ``ulimit`` settings for a container in a task definition.
-_#defs: "/$defs/Properties/definitions/Ulimit": close({
+#Ulimit: close({
 	// The hard limit for the ``ulimit`` type. The value can be specified in bytes,
 	// seconds, or as a count, depending on the ``type`` of the ``ulimit``.
 	HardLimit!: int
@@ -910,7 +910,7 @@ _#defs: "/$defs/Properties/definitions/Ulimit": close({
 // configuration is specified, by default Amazon ECS uses a host volume. For
 // more information, see [Using data volumes in
 // tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_data_volumes.html).
-_#defs: "/$defs/Properties/definitions/Volume": close({
+#Volume: close({
 	// This parameter is specified when you use bind mount host volumes. The
 	// contents of the ``host`` parameter determine whether your bind mount host
 	// volume persists on the host container instance and where it's stored. If the
@@ -922,7 +922,7 @@ _#defs: "/$defs/Properties/definitions/Volume": close({
 	// different drive, and mount point can't be across drives. For example, you
 	// can mount ``C:\my\path:C:\my\path`` and ``D:\:D:\``, but not
 	// ``D:\my\path:C:\my\path`` or ``D:\:C:\my\path``.
-	Host?: _#defs."/$defs/Properties/definitions/HostVolumeProperties"
+	Host?: #HostVolumeProperties
 
 	// The name of the volume. Up to 255 letters (uppercase and lowercase), numbers,
 	// underscores, and hyphens are allowed.

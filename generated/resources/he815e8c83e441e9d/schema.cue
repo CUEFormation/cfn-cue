@@ -14,34 +14,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SSM::CloudConnector. Enables AWS Systems
 // Manager to manage resources in external cloud providers.
-#Properties: close({
-	ConfigConnectorArn!: strings.MaxRunes(512) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-cn|-us-gov)?:config:[a-z0-9-]+:\\d{12}:connector/.+$" |
-	fn.#StringExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/CloudConnectorConfiguration" | fn.#ObjectExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" |
-	fn.#StringExpression
-	DisplayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" |
-	fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSM::CloudConnector"
+	Properties!: close({
+		ConfigConnectorArn!: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov)?:config:[a-z0-9-]+:\\d{12}:connector/.+$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AzureConfiguration": close({
+		// The configuration for the cloud connector.
+		Configuration!: #CloudConnectorConfiguration
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" |
+		fn.#StringExpression
+		DisplayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" |
+		fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AzureConfiguration: close({
 	ApplicationDisplayName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" |
 	fn.#StringExpression
 	ApplicationId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
 		fn.#StringExpression
-	Targets?: _#defs."/$defs/Properties/definitions/ConfigurationTargets"
+	Targets?: #ConfigurationTargets
 	TenantDisplayName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" |
 	fn.#StringExpression
 	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AzureSubscription": close({
+#AzureSubscription: close({
 	DisplayName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" |
 	fn.#StringExpression
 	Id!: strings.MaxRunes(256) &
@@ -51,23 +56,15 @@ _#defs: "/$defs/Properties/definitions/AzureSubscription": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudConnectorConfiguration": close(
-	{AzureConfiguration!: _#defs."/$defs/Properties/definitions/AzureConfiguration"},
+#CloudConnectorConfiguration: close({AzureConfiguration!: #AzureConfiguration}) | fn.#ObjectExpression
+
+#ConfigurationTargets: close(
+	{Subscriptions!: list.MaxItems(75) & list.MinItems(1) & [...#AzureSubscription] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationTargets": close({
-	Subscriptions!: list.MaxItems(75) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AzureSubscription"] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::CloudConnector"
-	Properties!: #Properties
-}

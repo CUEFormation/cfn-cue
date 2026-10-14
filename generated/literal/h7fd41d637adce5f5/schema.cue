@@ -25,7 +25,7 @@ import "strings"
 	// Elastic Beanstalk configuration options, see [Option
 	// Values](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options.html)
 	// in the AWS Elastic Beanstalk Developer Guide.
-	OptionSettings?: [..._#defs."/$defs/Properties/definitions/ConfigurationOptionSetting"]
+	OptionSettings?: [...#ConfigurationOptionSetting]
 
 	// The Amazon Resource Name (ARN) of the custom platform. For more information,
 	// see [Custom
@@ -60,13 +60,13 @@ import "strings"
 	// Constraint: If both solution stack name and source configuration are
 	// specified, the solution stack of the source configuration template must
 	// match the specified solution stack name.
-	SourceConfiguration?: _#defs."/$defs/Properties/definitions/SourceConfiguration"
+	SourceConfiguration?: #SourceConfiguration
 
 	// The name of the configuration template
 	TemplateName?: strings.MaxRunes(100) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationOptionSetting": close({
+#ConfigurationOptionSetting: close({
 	// A unique namespace that identifies the option's associated AWS resource.
 	Namespace!: string
 
@@ -81,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/ConfigurationOptionSetting": close({
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
+#SourceConfiguration: close({
 	// The name of the application associated with the configuration.
 	ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1)
 

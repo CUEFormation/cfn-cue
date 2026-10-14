@@ -24,78 +24,150 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [DeletionPolicy
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
 // You can only delete empty buckets. Deletion fails for buckets that have contents.
-#Properties: close({
-	AbacStatus?:              "Enabled" | "Disabled" | fn.#StringExpression
-	AccelerateConfiguration?: _#defs."/$defs/Properties/definitions/AccelerateConfiguration" | fn.#ObjectExpression
-	AccessControl?: "AuthenticatedRead" |
-		"AwsExecRead" |
-		"BucketOwnerFullControl" |
-		"BucketOwnerRead" |
-		"LogDeliveryWrite" |
-		"Private" |
-		"PublicRead" |
-		"PublicReadWrite" |
-		fn.#StringExpression
-	AnalyticsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AnalyticsConfiguration"] |
-		fn.#ListExpression
-	BucketEncryption?:  _#defs."/$defs/Properties/definitions/BucketEncryption" | fn.#ObjectExpression
-	BucketName?:        strings.MaxRunes(63) & =~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" | fn.#StringExpression
-	BucketNamePrefix?:  string | fn.#StringExpression
-	BucketNamespace?:   "global" | "account-regional" | fn.#StringExpression
-	CorsConfiguration?: _#defs."/$defs/Properties/definitions/CorsConfiguration" | fn.#ObjectExpression
-	IntelligentTieringConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IntelligentTieringConfiguration"
-	] |
-		fn.#ListExpression
-	InventoryConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InventoryConfiguration"] |
-		fn.#ListExpression
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
-	LoggingConfiguration?:   _#defs."/$defs/Properties/definitions/LoggingConfiguration" | fn.#ObjectExpression
-	MetadataConfiguration?: close({
-		AnnotationTableConfiguration?: close({
-			ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-			EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-				fn.#ObjectExpression
-			Role?: string | fn.#StringExpression
-		}) |
-		fn.#ObjectExpression
-		InventoryTableConfiguration?: close({
-			ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-			EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-				fn.#ObjectExpression
-		}) |
-		fn.#ObjectExpression
-		JournalTableConfiguration!: close({
-			EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-				fn.#ObjectExpression
-			RecordExpiration!: _#defs."/$defs/Properties/definitions/RecordExpiration" | fn.#ObjectExpression
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	MetadataTableConfiguration?: close({
-		S3TablesDestination!: close({
-			TableBucketArn!: string | fn.#StringExpression
-			TableName!:      string | fn.#StringExpression
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	MetricsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricsConfiguration"] |
-		fn.#ListExpression
-	NotificationConfiguration?: _#defs."/$defs/Properties/definitions/NotificationConfiguration" | fn.#ObjectExpression
-	ObjectLockConfiguration?:   _#defs."/$defs/Properties/definitions/ObjectLockConfiguration" | fn.#ObjectExpression
-	ObjectLockEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OwnershipControls?:         _#defs."/$defs/Properties/definitions/OwnershipControls" | fn.#ObjectExpression
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
-		fn.#ObjectExpression
-	ReplicationConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationConfiguration" | fn.#ObjectExpression
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VersioningConfiguration?:  _#defs."/$defs/Properties/definitions/VersioningConfiguration" | fn.#ObjectExpression
-	WebsiteConfiguration?:     _#defs."/$defs/Properties/definitions/WebsiteConfiguration" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::Bucket"
+	Properties?: close({
+		AbacStatus?: "Enabled" | "Disabled" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+		// Configures the transfer acceleration state for an Amazon S3 bucket. For more
+		// information, see [Amazon S3 Transfer
+		// Acceleration](https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
+		// in the *Amazon S3 User Guide*.
+		AccelerateConfiguration?: #AccelerateConfiguration
+		AccessControl?: "AuthenticatedRead" |
+			"AwsExecRead" |
+			"BucketOwnerFullControl" |
+			"BucketOwnerRead" |
+			"LogDeliveryWrite" |
+			"Private" |
+			"PublicRead" |
+			"PublicReadWrite" |
+			fn.#StringExpression
+		AnalyticsConfigurations?: list.UniqueItems() & [...#AnalyticsConfiguration] | fn.#ListExpression
+
+		// Specifies default encryption for a bucket using server-side encryption with
+		// Amazon S3-managed keys (SSE-S3), AWS KMS-managed keys (SSE-KMS), or
+		// dual-layer server-side encryption with KMS-managed keys (DSSE-KMS). For
+		// information about the Amazon S3 default encryption feature, see [Amazon S3
+		// Default Encryption for S3
+		// Buckets](https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html)
+		// in the *Amazon S3 User Guide*.
+		BucketEncryption?: #BucketEncryption
+		BucketName?:       strings.MaxRunes(63) & =~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" | fn.#StringExpression
+		BucketNamePrefix?: string | fn.#StringExpression
+		BucketNamespace?:  "global" | "account-regional" | fn.#StringExpression
+
+		// Describes the cross-origin access configuration for objects in an Amazon S3
+		// bucket. For more information, see [Enabling Cross-Origin Resource
+		// Sharing](https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html) in the
+		// *Amazon S3 User Guide*.
+		CorsConfiguration?: #CorsConfiguration
+		IntelligentTieringConfigurations?: list.UniqueItems() & [...#IntelligentTieringConfiguration] |
+			fn.#ListExpression
+		InventoryConfigurations?: list.UniqueItems() & [...#InventoryConfiguration] | fn.#ListExpression
+
+		// Specifies the lifecycle configuration for objects in an Amazon S3 bucket. For
+		// more information, see [Object Lifecycle
+		// Management](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html)
+		// in the *Amazon S3 User Guide*.
+		LifecycleConfiguration?: #LifecycleConfiguration
+
+		// Settings that define where logs are stored.
+		LoggingConfiguration?: #LoggingConfiguration
+		MetadataConfiguration?: close({
+			AnnotationTableConfiguration?: close({
+				ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
+
+				// The encryption configuration for the annotation table. To encrypt your
+				// annotation table with server-side encryption using AWS Key Management
+				// Service (AWS KMS) keys (SSE-KMS), set ``SseAlgorithm`` to ``aws:kms``. You
+				// must also set ``KmsKeyArn`` to the ARN of a customer managed KMS key in the
+				// same Region where your general purpose bucket is located.
+				EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
+				Role?:                    string | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
+			InventoryTableConfiguration?: close({
+				ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
+
+				// The encryption configuration for the inventory table.
+				EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
+			}) |
+			fn.#ObjectExpression
+			JournalTableConfiguration!: close({
+				// The encryption configuration for the journal table.
+				EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
+
+				// The journal table record expiration settings for the journal table.
+				RecordExpiration!: #RecordExpiration
+			}) |
+			fn.#ObjectExpression
+		}) |
+		fn.#ObjectExpression
+		MetadataTableConfiguration?: close({
+			S3TablesDestination!: close({
+				TableBucketArn!: string | fn.#StringExpression
+				TableName!:      string | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
+		}) |
+		fn.#ObjectExpression
+		MetricsConfigurations?: list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
+
+		// Configuration that defines how Amazon S3 handles bucket notifications.
+		NotificationConfiguration?: #NotificationConfiguration
+
+		// This operation is not supported for directory buckets.
+		// Places an Object Lock configuration on the specified bucket. The rule
+		// specified in the Object Lock configuration will be applied by default to
+		// every new object placed in the specified bucket. For more information, see
+		// [Locking
+		// Objects](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html).
+		// + The ``DefaultRetention`` settings require both a mode and a period.
+		// + The ``DefaultRetention`` period can be either ``Days`` or ``Years`` but you
+		// must select one. You cannot specify ``Days`` and ``Years`` at the same time.
+		// + You can enable Object Lock for new or existing buckets. For more
+		// information, see [Configuring Object
+		// Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock-configure.html).
+		//
+		// You must URL encode any signed header values that contain spaces. For
+		// example, if your header value is ``my file.txt``, containing two spaces
+		// after ``my``, you must URL encode this value to ``my%20%20file.txt``.
+		ObjectLockConfiguration?: #ObjectLockConfiguration
+		ObjectLockEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// Configuration that defines how Amazon S3 handles Object Ownership rules.
+		OwnershipControls?: #OwnershipControls
+
+		// Configuration that defines how Amazon S3 handles public access.
+		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
+
+		// Configuration for replicating objects in an S3 bucket. To enable replication,
+		// you must also enable versioning by using the ``VersioningConfiguration``
+		// property.
+		// Amazon S3 can store replicated objects in a single destination bucket or
+		// multiple destination buckets. The destination bucket or buckets must already
+		// exist.
+		ReplicationConfiguration?: #ReplicationConfiguration
+		Tags?:                     [...#Tag] | fn.#ListExpression
+
+		// Enables multiple versions of all objects in this bucket. You might enable
+		// versioning to prevent objects from being deleted or overwritten by mistake
+		// or to archive objects so that you can retrieve previous versions of them.
+		// When you enable versioning on a bucket for the first time, it might take a
+		// short amount of time for the change to be fully propagated. We recommend
+		// that you wait for 15 minutes after enabling versioning before issuing write
+		// operations (``PUT`` or ``DELETE``) on objects in the bucket.
+		VersioningConfiguration?: #VersioningConfiguration
+
+		// Information used to configure the bucket as a static website. For more
+		// information, see [Hosting Websites on Amazon
+		// S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html).
+		WebsiteConfiguration?: #WebsiteConfiguration
+	})
+}
+
+#AbortIncompleteMultipartUpload: close({
 	DaysAfterInitiation!: int & >=0 |
 		{
 			string &
@@ -114,65 +186,66 @@ _#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccelerateConfiguration": close(
-	{AccelerationStatus!: "Enabled" | "Suspended" | fn.#StringExpression},
-) |
+#AccelerateConfiguration: close({AccelerationStatus!: "Enabled" | "Suspended" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlTranslation": close(
-	{Owner!: "Destination" & "Destination" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#AccessControlTranslation: close({Owner!: "Destination" & "Destination" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
-	Id!:                   string | fn.#StringExpression
-	Prefix?:               string | fn.#StringExpression
-	StorageClassAnalysis!: _#defs."/$defs/Properties/definitions/StorageClassAnalysis" | fn.#ObjectExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+#AnalyticsConfiguration: close({
+	Id!:     string | fn.#StringExpression
+	Prefix?: string | fn.#StringExpression
+
+	// Contains data related to access patterns to be collected and made available
+	// to analyze the tradeoffs between different storage classes.
+	StorageClassAnalysis!: #StorageClassAnalysis
+	TagFilters?:           list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnnotationTableConfiguration": close({
+#AnnotationTableConfiguration: close({
 	ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-		fn.#ObjectExpression
-	Role?:      string | fn.#StringExpression
-	TableArn?:  string | fn.#StringExpression
-	TableName?: string | fn.#StringExpression
+
+	// The encryption configuration for the annotation table. To encrypt your
+	// annotation table with server-side encryption using AWS Key Management
+	// Service (AWS KMS) keys (SSE-KMS), set ``SseAlgorithm`` to ``aws:kms``. You
+	// must also set ``KmsKeyArn`` to the ARN of a customer managed KMS key in the
+	// same Region where your general purpose bucket is located.
+	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
+	Role?:                    string | fn.#StringExpression
+	TableArn?:                string | fn.#StringExpression
+	TableName?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BlockedEncryptionTypeList": list.UniqueItems() & [
-	..."NONE" | "SSE-C" | fn.#StringExpression
-] |
-	fn.#ListExpression
+#BlockedEncryptionTypeList: list.UniqueItems() & [..."NONE" | "SSE-C" | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BlockedEncryptionTypes": close(
-	{EncryptionType?: _#defs."/$defs/Properties/definitions/BlockedEncryptionTypeList" | fn.#ListExpression},
+#BlockedEncryptionTypes: close({
+	// The object encryption type that you want to block or unblock for an Amazon S3
+	// general purpose bucket.
+	// Currently, this parameter only supports blocking or unblocking server side
+	// encryption with customer-provided keys (SSE-C). For more information about
+	// SSE-C, see [Using server-side encryption with customer-provided keys
+	// (SSE-C)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerSideEncryptionCustomerKeys.html).
+	EncryptionType?: #BlockedEncryptionTypeList
+}) |
+fn.#ObjectExpression
+
+#BucketEncryption: close(
+	{ServerSideEncryptionConfiguration!: list.UniqueItems() & [...#ServerSideEncryptionRule] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BucketEncryption": close({
-	ServerSideEncryptionConfiguration!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerSideEncryptionRule"
-	] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/CorsConfiguration": close({
+#CorsConfiguration: close({
 	CorsRules!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CorsRule" &
-		(null | bool | number | strings.MaxRunes(100) | [...] | {...}) |
-		fn.#ObjectExpression
+		...#CorsRule & (null | bool | number | strings.MaxRunes(100) | [...] | {...}) | fn.#ObjectExpression
 	] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CorsRule": close({
+#CorsRule: close({
 	AllowedHeaders?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedMethods!: list.UniqueItems() & [..."GET" | "PUT" | "HEAD" | "POST" | "DELETE" | fn.#StringExpression] |
 		fn.#ListExpression
@@ -197,13 +270,14 @@ _#defs: "/$defs/Properties/definitions/CorsRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataExport": close({
-	Destination!:         _#defs."/$defs/Properties/definitions/Destination" | fn.#ObjectExpression
+#DataExport: close({
+	// The place to store the data for an analysis.
+	Destination!:         #Destination
 	OutputSchemaVersion!: "V_1" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultEventHold": close({
+#DefaultEventHold: close({
 	Days?: int |
 		{
 			string &
@@ -235,7 +309,7 @@ _#defs: "/$defs/Properties/definitions/DefaultEventHold": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultRetention": close({
+#DefaultRetention: close({
 	Days?: int |
 		{
 			string &
@@ -250,7 +324,14 @@ _#defs: "/$defs/Properties/definitions/DefaultRetention": close({
 				)
 		} |
 		fn.#NumberExpression
-	DefaultEventHold?: _#defs."/$defs/Properties/definitions/DefaultEventHold" | fn.#ObjectExpression
+
+	// The default Object Lock event hold duration that you want to apply to new
+	// objects placed in the specified bucket. When the event hold is released,
+	// Amazon S3 retains the object version for this duration.
+	// If you specify both a default retention period (``Days`` or ``Years``) and a
+	// ``DefaultEventHold``, the event hold duration can't exceed the default
+	// retention period.
+	DefaultEventHold?: #DefaultEventHold
 	Mode?:             "COMPLIANCE" | "GOVERNANCE" | fn.#StringExpression
 	Years?: int |
 		{
@@ -269,12 +350,9 @@ _#defs: "/$defs/Properties/definitions/DefaultRetention": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeleteMarkerReplication": close(
-	{Status?: "Disabled" | "Enabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DeleteMarkerReplication: close({Status?: "Disabled" | "Enabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Destination": close({
+#Destination: close({
 	BucketAccountId?: string | fn.#StringExpression
 	BucketArn!:       string | fn.#StringExpression
 	Format!:          "CSV" | "ORC" | "Parquet" | fn.#StringExpression
@@ -282,33 +360,31 @@ _#defs: "/$defs/Properties/definitions/Destination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close(
-	{ReplicaKmsKeyID!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#EncryptionConfiguration: close({ReplicaKmsKeyID!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeConfiguration": close(
+#EventBridgeConfiguration: close(
 	{EventBridgeEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterRule": close({
+#FilterRule: close({
 	Name!:  strings.MaxRunes(1024) | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntelligentTieringConfiguration": close({
+#IntelligentTieringConfiguration: close({
 	Id!:         string | fn.#StringExpression
 	Prefix?:     string | fn.#StringExpression
 	Status!:     "Disabled" | "Enabled" | fn.#StringExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
-	Tierings!:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tiering"] | fn.#ListExpression
+	TagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
+	Tierings!:   list.UniqueItems() & [...#Tiering] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
-	Destination!:            _#defs."/$defs/Properties/definitions/Destination" | fn.#ObjectExpression
+#InventoryConfiguration: close({
+	// Contains information about where to publish the inventory results.
+	Destination!:            #Destination
 	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Id!:                     string | fn.#StringExpression
 	IncludedObjectVersions!: "All" | "Current" | fn.#StringExpression
@@ -340,88 +416,110 @@ _#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InventoryTableConfiguration": close({
+#InventoryTableConfiguration: close({
 	ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-		fn.#ObjectExpression
-	TableArn?:  string | fn.#StringExpression
-	TableName?: string | fn.#StringExpression
+
+	// The encryption configuration for the inventory table.
+	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
+	TableArn?:                string | fn.#StringExpression
+	TableName?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JournalTableConfiguration": close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-		fn.#ObjectExpression
-	RecordExpiration!: _#defs."/$defs/Properties/definitions/RecordExpiration" | fn.#ObjectExpression
+#JournalTableConfiguration: close({
+	// The encryption configuration for the journal table.
+	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
+
+	// The journal table record expiration settings for the journal table.
+	RecordExpiration!: #RecordExpiration
 	TableArn?:         string | fn.#StringExpression
 	TableName?:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
-	Event!:    string | fn.#StringExpression
-	Filter?:   _#defs."/$defs/Properties/definitions/NotificationFilter" | fn.#ObjectExpression
+#LambdaConfiguration: close({
+	Event!: string | fn.#StringExpression
+
+	// The filtering rules that determine which objects invoke the AWS Lambda
+	// function. For example, you can create a filter so that only image files with
+	// a ``.jpg`` extension invoke the function when they are added to the Amazon
+	// S3 bucket.
+	Filter?:   #NotificationFilter
 	Function!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+#LifecycleConfiguration: close({
+	Rules!:                              list.UniqueItems() & [...#Rule] | fn.#ListExpression
 	TransitionDefaultMinimumObjectSize?: "varies_by_storage_class" | "all_storage_classes_128K" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
+#LoggingConfiguration: close({
 	DestinationBucketName?: string | fn.#StringExpression
 	LogFilePrefix?:         string | fn.#StringExpression
-	TargetObjectKeyFormat?: _#defs."/$defs/Properties/definitions/TargetObjectKeyFormat" | fn.#ObjectExpression
+
+	// Amazon S3 key format for log objects. Only one format, either
+	// PartitionedPrefix or SimplePrefix, is allowed.
+	TargetObjectKeyFormat?: #TargetObjectKeyFormat
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
-	AnnotationTableConfiguration?: _#defs."/$defs/Properties/definitions/AnnotationTableConfiguration" |
-		fn.#ObjectExpression
-	Destination?: _#defs."/$defs/Properties/definitions/MetadataDestination" | fn.#ObjectExpression
-	InventoryTableConfiguration?: _#defs."/$defs/Properties/definitions/InventoryTableConfiguration" |
-		fn.#ObjectExpression
-	JournalTableConfiguration!: _#defs."/$defs/Properties/definitions/JournalTableConfiguration" | fn.#ObjectExpression
+#MetadataConfiguration: close({
+	// The annotation table configuration for a metadata configuration.
+	AnnotationTableConfiguration?: #AnnotationTableConfiguration
+
+	// The destination information for the S3 Metadata configuration.
+	Destination?: #MetadataDestination
+
+	// The inventory table configuration for a metadata configuration.
+	InventoryTableConfiguration?: #InventoryTableConfiguration
+
+	// The journal table configuration for a metadata configuration.
+	JournalTableConfiguration!: #JournalTableConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataDestination": close({
+#MetadataDestination: close({
 	TableBucketArn?:  string | fn.#StringExpression
 	TableBucketType!: "aws" | "customer" | fn.#StringExpression
 	TableNamespace?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataTableConfiguration": close(
-	{S3TablesDestination!: _#defs."/$defs/Properties/definitions/S3TablesDestination" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#MetadataTableConfiguration: close({
+	// The destination information for the metadata table configuration. The
+	// destination table bucket must be in the same Region and AWS-account as the
+	// general purpose bucket. The specified metadata table name must be unique
+	// within the ``aws_s3_metadata`` namespace in the destination table bucket.
+	S3TablesDestination!: #S3TablesDestination
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataTableEncryptionConfiguration": close({
+#MetadataTableEncryptionConfiguration: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	SseAlgorithm!: "aws:kms" | "AES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Metrics": close({
-	EventThreshold?: _#defs."/$defs/Properties/definitions/ReplicationTimeValue" | fn.#ObjectExpression
+#Metrics: close({
+	// A container specifying the time threshold for emitting the
+	// ``s3:Replication:OperationMissedThreshold`` event.
+	EventThreshold?: #ReplicationTimeValue
 	Status!:         "Disabled" | "Enabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
+#MetricsConfiguration: close({
 	AccessPointArn?: string | fn.#StringExpression
 	Id!:             string | fn.#StringExpression
 	Prefix?:         string | fn.#StringExpression
-	TagFilters?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+	TagFilters?:     list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NoncurrentVersionExpiration": close({
+#NoncurrentVersionExpiration: close({
 	NewerNoncurrentVersions?: int |
 		{
 			string &
@@ -453,7 +551,7 @@ _#defs: "/$defs/Properties/definitions/NoncurrentVersionExpiration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NoncurrentVersionTransition": close({
+#NoncurrentVersionTransition: close({
 	NewerNoncurrentVersions?: int |
 		{
 			string &
@@ -493,49 +591,59 @@ _#defs: "/$defs/Properties/definitions/NoncurrentVersionTransition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
-	EventBridgeConfiguration?: _#defs."/$defs/Properties/definitions/EventBridgeConfiguration" | fn.#ObjectExpression
-	LambdaConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LambdaConfiguration"] |
-		fn.#ListExpression
-	QueueConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/QueueConfiguration"] |
-		fn.#ListExpression
-	TopicConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TopicConfiguration"] |
-		fn.#ListExpression
+#NotificationConfiguration: close({
+	// Enables delivery of events to Amazon EventBridge.
+	EventBridgeConfiguration?: #EventBridgeConfiguration
+	LambdaConfigurations?:     list.UniqueItems() & [...#LambdaConfiguration] | fn.#ListExpression
+	QueueConfigurations?:      list.UniqueItems() & [...#QueueConfiguration] | fn.#ListExpression
+	TopicConfigurations?:      list.UniqueItems() & [...#TopicConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationFilter": close(
-	{S3Key!: _#defs."/$defs/Properties/definitions/S3KeyFilter" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#NotificationFilter: close({
+	// A container for object key name prefix and suffix filtering rules.
+	S3Key!: #S3KeyFilter
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectLockConfiguration": close({
+#ObjectLockConfiguration: close({
 	ObjectLockEnabled?: "Enabled" & "Enabled" | fn.#StringExpression
-	Rule?:              _#defs."/$defs/Properties/definitions/ObjectLockRule" | fn.#ObjectExpression
+
+	// Specifies the Object Lock rule for the specified object. Enable this rule
+	// when you apply ``ObjectLockConfiguration`` to a bucket. If Object Lock is
+	// turned on, bucket settings require both ``Mode`` and a period of either
+	// ``Days`` or ``Years``. You cannot specify ``Days`` and ``Years`` at the same
+	// time. For more information, see
+	// [ObjectLockRule](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket-objectlockrule.html)
+	// and
+	// [DefaultRetention](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket-defaultretention.html).
+	Rule?: #ObjectLockRule
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectLockRule": close(
-	{DefaultRetention?: _#defs."/$defs/Properties/definitions/DefaultRetention" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/OwnershipControls": close({
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OwnershipControlsRule"] | fn.#ListExpression
+#ObjectLockRule: close({
+	// The default Object Lock retention mode and period that you want to apply to
+	// new objects placed in the specified bucket. If Object Lock is turned on,
+	// bucket settings require both ``Mode`` and a period of either ``Days`` or
+	// ``Years``. You cannot specify ``Days`` and ``Years`` at the same time. For
+	// more information about allowable values for mode and period, see
+	// [DefaultRetention](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket-defaultretention.html).
+	DefaultRetention?: #DefaultRetention
 }) |
+fn.#ObjectExpression
+
+#OwnershipControls: close({Rules!: list.UniqueItems() & [...#OwnershipControlsRule] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnershipControlsRule": close(
+#OwnershipControlsRule: close(
 	{ObjectOwnership?: "ObjectWriter" | "BucketOwnerPreferred" | "BucketOwnerEnforced" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionedPrefix": close(
-	{PartitionDateSource?: "EventTime" | "DeliveryTime" | fn.#StringExpression},
-) |
+#PartitionedPrefix: close({PartitionDateSource?: "EventTime" | "DeliveryTime" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
+#PublicAccessBlockConfiguration: close({
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -543,14 +651,21 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueueConfiguration": close({
-	Event!:  string | fn.#StringExpression
-	Filter?: _#defs."/$defs/Properties/definitions/NotificationFilter" | fn.#ObjectExpression
+#QueueConfiguration: close({
+	Event!: string | fn.#StringExpression
+
+	// The filtering rules that determine which objects trigger notifications. For
+	// example, you can create a filter so that Amazon S3 sends notifications only
+	// when image files with a ``.jpg`` extension are added to the bucket. For more
+	// information, see [Configuring event notifications using object key name
+	// filtering](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/notification-how-to-filtering.html)
+	// in the *Amazon S3 User Guide*.
+	Filter?: #NotificationFilter
 	Queue!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordExpiration": close({
+#RecordExpiration: close({
 	Days?: int |
 		{
 			string &
@@ -569,7 +684,7 @@ _#defs: "/$defs/Properties/definitions/RecordExpiration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedirectAllRequestsTo": matchN(3, [
+#RedirectAllRequestsTo: matchN(3, [
 	matchN(0, [null | bool | number | string | [...] | {
 		RedirectAllRequestsTo!: _
 		ErrorDocument!:         _
@@ -591,7 +706,7 @@ _#defs: "/$defs/Properties/definitions/RedirectAllRequestsTo": matchN(3, [
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedirectRule": close({
+#RedirectRule: close({
 	HostName?:             string | fn.#StringExpression
 	HttpRedirectCode?:     string | fn.#StringExpression
 	Protocol?:             "http" | "https" | fn.#StringExpression
@@ -600,29 +715,40 @@ _#defs: "/$defs/Properties/definitions/RedirectRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicaModifications": close(
-	{Status!: "Enabled" | "Disabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ReplicaModifications: close({Status!: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
+#ReplicationConfiguration: close({
 	Role!: string | fn.#StringExpression
 	Rules!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicationRule" &
-		(null | bool | number | strings.MaxRunes(1000) & strings.MinRunes(1) | [...] | {...}) |
+		...#ReplicationRule & (null | bool | number | strings.MaxRunes(1000) & strings.MinRunes(1) | [...] | {...}) |
 		fn.#ObjectExpression
 	] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
-	AccessControlTranslation?: _#defs."/$defs/Properties/definitions/AccessControlTranslation" | fn.#ObjectExpression
+#ReplicationDestination: close({
+	// Specify this only in a cross-account scenario (where source and destination
+	// bucket owners are not the same), and you want to change replica ownership to
+	// the AWS-account that owns the destination bucket. If this is not specified
+	// in the replication configuration, the replicas are owned by same AWS-account
+	// that owns the source object.
+	AccessControlTranslation?: #AccessControlTranslation
 	Account?:                  string | fn.#StringExpression
 	Bucket!:                   string | fn.#StringExpression
-	EncryptionConfiguration?:  _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	Metrics?:                  _#defs."/$defs/Properties/definitions/Metrics" | fn.#ObjectExpression
-	ReplicationTime?:          _#defs."/$defs/Properties/definitions/ReplicationTime" | fn.#ObjectExpression
+
+	// Specifies encryption-related information.
+	EncryptionConfiguration?: #EncryptionConfiguration
+
+	// A container specifying replication metrics-related settings enabling
+	// replication metrics and events.
+	Metrics?: #Metrics
+
+	// A container specifying S3 Replication Time Control (S3 RTC), including
+	// whether S3 RTC is enabled and the time when all objects and operations on
+	// objects must be replicated. Must be specified together with a ``Metrics``
+	// block.
+	ReplicationTime?: #ReplicationTime
 	StorageClass?: "DEEP_ARCHIVE" |
 		"GLACIER" |
 		"GLACIER_IR" |
@@ -635,12 +761,37 @@ _#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationRule": close({
-	DeleteMarkerReplication?: _#defs."/$defs/Properties/definitions/DeleteMarkerReplication" | fn.#ObjectExpression
-	Destination!:             _#defs."/$defs/Properties/definitions/ReplicationDestination" | fn.#ObjectExpression
-	Filter?:                  _#defs."/$defs/Properties/definitions/ReplicationRuleFilter" | fn.#ObjectExpression
-	Id?:                      strings.MaxRunes(255) | fn.#StringExpression
-	Prefix?:                  strings.MaxRunes(1024) | fn.#StringExpression
+#ReplicationRule: close({
+	// Specifies whether Amazon S3 replicates delete markers. If you specify a
+	// ``Filter`` in your replication configuration, you must also include a
+	// ``DeleteMarkerReplication`` element. If your ``Filter`` includes a ``Tag``
+	// element, the ``DeleteMarkerReplication````Status`` must be set to Disabled,
+	// because Amazon S3 does not support replicating delete markers for tag-based
+	// rules. For an example configuration, see [Basic Rule
+	// Configuration](https://docs.aws.amazon.com/AmazonS3/latest/dev/replication-add-config.html#replication-config-min-rule-config).
+	// For more information about delete marker replication, see [Basic Rule
+	// Configuration](https://docs.aws.amazon.com/AmazonS3/latest/dev/delete-marker-replication.html).
+	// If you are using an earlier version of the replication configuration, Amazon
+	// S3 handles replication of delete markers differently. For more information,
+	// see [Backward
+	// Compatibility](https://docs.aws.amazon.com/AmazonS3/latest/dev/replication-add-config.html#replication-backward-compat-considerations).
+	DeleteMarkerReplication?: #DeleteMarkerReplication
+
+	// A container for information about the replication destination and its
+	// configurations including enabling the S3 Replication Time Control (S3 RTC).
+	Destination!: #ReplicationDestination
+
+	// A filter that identifies the subset of objects to which the replication rule
+	// applies. A ``Filter`` must specify exactly one ``Prefix``, ``TagFilter``, or
+	// an ``And`` child element. The use of the filter field indicates that this is
+	// a V2 replication configuration. This field isn't supported in a V1
+	// replication configuration.
+	// V1 replication configuration only supports filtering by key prefix. To filter
+	// using a V1 replication configuration, add the ``Prefix`` directly as a child
+	// element of the ``Rule`` element.
+	Filter?: #ReplicationRuleFilter
+	Id?:     strings.MaxRunes(255) | fn.#StringExpression
+	Prefix?: strings.MaxRunes(1024) | fn.#StringExpression
 	Priority?: int |
 		{
 			string &
@@ -655,31 +806,47 @@ _#defs: "/$defs/Properties/definitions/ReplicationRule": close({
 				)
 		} |
 		fn.#NumberExpression
-	SourceSelectionCriteria?: _#defs."/$defs/Properties/definitions/SourceSelectionCriteria" | fn.#ObjectExpression
+
+	// A container that describes additional filters for identifying the source
+	// objects that you want to replicate. You can choose to enable or disable the
+	// replication of these objects.
+	SourceSelectionCriteria?: #SourceSelectionCriteria
 	Status!:                  "Disabled" | "Enabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationRuleAndOperator": close({
+#ReplicationRuleAndOperator: close({
 	Prefix?:     string | fn.#StringExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+	TagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationRuleFilter": close({
-	And?:       _#defs."/$defs/Properties/definitions/ReplicationRuleAndOperator" | fn.#ObjectExpression
-	Prefix?:    string | fn.#StringExpression
-	TagFilter?: _#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression
+#ReplicationRuleFilter: close({
+	// A container for specifying rule filters. The filters determine the subset of
+	// objects to which the rule applies. This element is required only if you
+	// specify more than one filter. For example:
+	// + If you specify both a ``Prefix`` and a ``TagFilter``, wrap these filters in an ``And`` tag.
+	// + If you specify a filter based on multiple tags, wrap the ``TagFilter``
+	// elements in an ``And`` tag.
+	And?:    #ReplicationRuleAndOperator
+	Prefix?: string | fn.#StringExpression
+
+	// A container for specifying a tag key and value.
+	// The rule applies only to objects that have the tag in their tag set.
+	TagFilter?: #TagFilter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationTime": close({
+#ReplicationTime: close({
 	Status!: "Disabled" | "Enabled" | fn.#StringExpression
-	Time!:   _#defs."/$defs/Properties/definitions/ReplicationTimeValue" | fn.#ObjectExpression
+
+	// A container specifying the time by which replication should be complete for
+	// all objects and operations on objects.
+	Time!: #ReplicationTimeValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationTimeValue": close({
+#ReplicationTimeValue: close({
 	Minutes!: int |
 		{
 			string &
@@ -697,39 +864,37 @@ _#defs: "/$defs/Properties/definitions/ReplicationTimeValue": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingRule": close({
-	RedirectRule!:         _#defs."/$defs/Properties/definitions/RedirectRule" | fn.#ObjectExpression
-	RoutingRuleCondition?: _#defs."/$defs/Properties/definitions/RoutingRuleCondition" | fn.#ObjectExpression
+#RoutingRule: close({
+	// Container for redirect information. You can redirect requests to another
+	// host, to another page, or with another protocol. In the event of an error,
+	// you can specify a different error code to return.
+	RedirectRule!: #RedirectRule
+
+	// A container for describing a condition that must be met for the specified
+	// redirect to apply. For example, 1. If request is for pages in the ``/docs``
+	// folder, redirect to the ``/documents`` folder. 2. If request results in HTTP
+	// error 4xx, redirect request to another host where you might process the
+	// error.
+	RoutingRuleCondition?: #RoutingRuleCondition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": matchN(>=1, [{
-	HttpErrorCodeReturnedEquals!: _
-	...
-}, {
-	KeyPrefixEquals!: _
-	...
-}]) & close({
+#RoutingRuleCondition: close({
 	HttpErrorCodeReturnedEquals?: string | fn.#StringExpression
 	KeyPrefixEquals?:             string | fn.#StringExpression
-}) |
+}) & matchN(>=1, [{HttpErrorCodeReturnedEquals!: _}, {KeyPrefixEquals!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		ObjectSizeGreaterThan!:          _
-		AbortIncompleteMultipartUpload!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		ObjectSizeLessThan!:             _
-		AbortIncompleteMultipartUpload!: _
-		...
-	}]) & {...}
-]) & close({
-	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload" |
-		fn.#ObjectExpression
-	ExpirationDate?: _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
+#Rule: close({
+	// Specifies a lifecycle rule that stops incomplete multipart uploads to an Amazon S3 bucket.
+	AbortIncompleteMultipartUpload?: #AbortIncompleteMultipartUpload
+
+	// Indicates when objects are deleted from Amazon S3 and Amazon S3 Glacier. The
+	// date value must be in ISO 8601 format. The time is always midnight UTC. If
+	// you specify an expiration and transition time, you must use the same time
+	// unit for both properties (either in days or by date). The expiration time
+	// must also be later than the transition time.
+	ExpirationDate?: #iso8601UTC
 	ExpirationInDays?: int |
 		{
 			string &
@@ -746,8 +911,13 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(2, [
 		fn.#NumberExpression
 	ExpiredObjectDeleteMarker?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Id?:                        strings.MaxRunes(255) | fn.#StringExpression
-	NoncurrentVersionExpiration?: _#defs."/$defs/Properties/definitions/NoncurrentVersionExpiration" |
-		fn.#ObjectExpression
+
+	// Specifies when noncurrent object versions expire. Upon expiration, S3
+	// permanently deletes the noncurrent object versions. You set this lifecycle
+	// configuration action on a bucket that has versioning enabled (or suspended)
+	// to request that S3 delete noncurrent object versions at a specific period in
+	// the object's lifetime.
+	NoncurrentVersionExpiration?: #NoncurrentVersionExpiration
 	NoncurrentVersionExpirationInDays?: int |
 		{
 			string &
@@ -762,28 +932,43 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(2, [
 				)
 		} |
 		fn.#NumberExpression
-	NoncurrentVersionTransition?: _#defs."/$defs/Properties/definitions/NoncurrentVersionTransition" |
-		fn.#ObjectExpression
-	NoncurrentVersionTransitions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NoncurrentVersionTransition"
-	] |
-		fn.#ListExpression
-	ObjectSizeGreaterThan?: strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
-	ObjectSizeLessThan?:    strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
-	Prefix?:                string | fn.#StringExpression
-	Status!:                "Enabled" | "Disabled" | fn.#StringExpression
-	TagFilters?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
-	Transition?:  _#defs."/$defs/Properties/definitions/Transition" | fn.#ObjectExpression
-	Transitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transition"] | fn.#ListExpression
+
+	// (Deprecated.) For buckets with versioning enabled (or suspended), specifies
+	// when non-current objects transition to a specified storage class. If you
+	// specify a transition and expiration time, the expiration time must be later
+	// than the transition time. If you specify this property, don't specify the
+	// ``NoncurrentVersionTransitions`` property.
+	NoncurrentVersionTransition?:  #NoncurrentVersionTransition
+	NoncurrentVersionTransitions?: list.UniqueItems() & [...#NoncurrentVersionTransition] | fn.#ListExpression
+	ObjectSizeGreaterThan?:        strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
+	ObjectSizeLessThan?:           strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
+	Prefix?:                       string | fn.#StringExpression
+	Status!:                       "Enabled" | "Disabled" | fn.#StringExpression
+	TagFilters?:                   list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
+
+	// (Deprecated.) Specifies when an object transitions to a specified storage
+	// class. If you specify an expiration and transition time, you must use the
+	// same time unit for both properties (either in days or by date). The
+	// expiration time must also be later than the transition time. If you specify
+	// this property, don't specify the ``Transitions`` property.
+	Transition?:  #Transition
+	Transitions?: list.UniqueItems() & [...#Transition] | fn.#ListExpression
+	if ObjectSizeGreaterThan != _|_ if ObjectSizeGreaterThan."Fn::If" == _|_ {
+		AbortIncompleteMultipartUpload?: close({"Fn::If": _}) | error(
+			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeGreaterThan",
+		)
+	}
+	if ObjectSizeLessThan != _|_ if ObjectSizeLessThan."Fn::If" == _|_ {
+		AbortIncompleteMultipartUpload?: close({"Fn::If": _}) | error(
+			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeLessThan",
+		)
+	}
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3KeyFilter": close(
-	{Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FilterRule"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#S3KeyFilter: close({Rules!: list.UniqueItems() & [...#FilterRule] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3TablesDestination": close({
+#S3TablesDestination: close({
 	TableArn?:       string | fn.#StringExpression
 	TableBucketArn!: string | fn.#StringExpression
 	TableName!:      string | fn.#StringExpression
@@ -791,7 +976,7 @@ _#defs: "/$defs/Properties/definitions/S3TablesDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
+#ServerSideEncryptionByDefault: close({
 	KMSMasterKeyID?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -799,50 +984,66 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionRule": close({
-	BlockedEncryptionTypes?: _#defs."/$defs/Properties/definitions/BlockedEncryptionTypes" | fn.#ObjectExpression
+#ServerSideEncryptionRule: close({
+	// A bucket-level setting for Amazon S3 general purpose buckets used to prevent
+	// the upload of new objects encrypted with the specified server-side
+	// encryption type. For example, blocking an encryption type will block
+	// ``PutObject``, ``CopyObject``, ``PostObject``, multipart upload, and
+	// replication requests to the bucket for objects with the specified encryption
+	// type. However, you can continue to read and list any pre-existing objects
+	// already encrypted with the specified encryption type. For more information,
+	// see [Blocking or unblocking SSE-C for a general purpose
+	// bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/blocking-unblocking-s3-c-encryption-gpb.html).
+	// Currently, this parameter only supports blocking or unblocking server-side
+	// encryption with customer-provided keys (SSE-C). For more information about
+	// SSE-C, see [Using server-side encryption with customer-provided keys
+	// (SSE-C)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerSideEncryptionCustomerKeys.html).
+	BlockedEncryptionTypes?: #BlockedEncryptionTypes
 	BucketKeyEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ServerSideEncryptionByDefault?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionByDefault" |
-		fn.#ObjectExpression
+
+	// Specifies the default server-side encryption to apply to new objects in the
+	// bucket. If a PUT Object request doesn't specify any server-side encryption,
+	// this default encryption will be applied.
+	ServerSideEncryptionByDefault?: #ServerSideEncryptionByDefault
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceSelectionCriteria": close({
-	ReplicaModifications?:   _#defs."/$defs/Properties/definitions/ReplicaModifications" | fn.#ObjectExpression
-	SseKmsEncryptedObjects?: _#defs."/$defs/Properties/definitions/SseKmsEncryptedObjects" | fn.#ObjectExpression
+#SourceSelectionCriteria: close({
+	// A filter that you can specify for selection for modifications on replicas.
+	ReplicaModifications?: #ReplicaModifications
+
+	// A container for filter information for the selection of Amazon S3 objects encrypted with AWS KMS.
+	SseKmsEncryptedObjects?: #SseKmsEncryptedObjects
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SseKmsEncryptedObjects": close(
-	{Status!: "Disabled" | "Enabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#SseKmsEncryptedObjects: close({Status!: "Disabled" | "Enabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageClassAnalysis": close(
-	{DataExport?: _#defs."/$defs/Properties/definitions/DataExport" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#StorageClassAnalysis: close({
+	// Specifies how data related to the storage class analysis for an Amazon S3
+	// bucket should be exported.
+	DataExport?: #DataExport
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagFilter": close({
+#TagFilter: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetObjectKeyFormat": fn.#Object & {...} & matchN(1, [close(
-	{SimplePrefix!: close({}) | fn.#ObjectExpression},
-), close(
-	{PartitionedPrefix!: _#defs."/$defs/Properties/definitions/PartitionedPrefix"},
-)]) |
+#TargetObjectKeyFormat: fn.#Object & {...} & matchN(1, [
+	close({SimplePrefix!: close({}) | fn.#ObjectExpression}), close({PartitionedPrefix!: #PartitionedPrefix}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tiering": close({
+#Tiering: close({
 	AccessTier!: "ARCHIVE_ACCESS" | "DEEP_ARCHIVE_ACCESS" | fn.#StringExpression
 	Days!: int |
 		{
@@ -861,14 +1062,18 @@ _#defs: "/$defs/Properties/definitions/Tiering": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TopicConfiguration": close({
-	Event!:  string | fn.#StringExpression
-	Filter?: _#defs."/$defs/Properties/definitions/NotificationFilter" | fn.#ObjectExpression
+#TopicConfiguration: close({
+	Event!: string | fn.#StringExpression
+
+	// The filtering rules that determine for which objects to send notifications.
+	// For example, you can create a filter so that Amazon S3 sends notifications
+	// only when image files with a ``.jpg`` extension are added to the bucket.
+	Filter?: #NotificationFilter
 	Topic!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Transition": close({
+#Transition: close({
 	StorageClass!: "DEEP_ARCHIVE" |
 		"GLACIER" |
 		"Glacier" |
@@ -877,7 +1082,10 @@ _#defs: "/$defs/Properties/definitions/Transition": close({
 		"ONEZONE_IA" |
 		"STANDARD_IA" |
 		fn.#StringExpression
-	TransitionDate?: _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
+
+	// Indicates when objects are transitioned to the specified storage class. The
+	// date value must be in ISO 8601 format. The time is always midnight UTC.
+	TransitionDate?: #iso8601UTC
 	TransitionInDays?: int |
 		{
 			string &
@@ -895,22 +1103,18 @@ _#defs: "/$defs/Properties/definitions/Transition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VersioningConfiguration": close(
-	{Status!: "Enabled" | "Suspended" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#VersioningConfiguration: close({Status!: "Enabled" | "Suspended" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebsiteConfiguration": close({
-	ErrorDocument?:         string | fn.#StringExpression
-	IndexDocument?:         string | fn.#StringExpression
-	RedirectAllRequestsTo?: _#defs."/$defs/Properties/definitions/RedirectAllRequestsTo" | fn.#ObjectExpression
-	RoutingRules?:          [..._#defs."/$defs/Properties/definitions/RoutingRule"] | fn.#ListExpression
+#WebsiteConfiguration: close({
+	ErrorDocument?: string | fn.#StringExpression
+	IndexDocument?: string | fn.#StringExpression
+
+	// The redirect behavior for every request to this bucket's website endpoint.
+	// If you specify this property, you can't specify any other property.
+	RedirectAllRequestsTo?: #RedirectAllRequestsTo
+	RoutingRules?:          [...#RoutingRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^(\\d{4})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
+#iso8601UTC: =~"^(\\d{4})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::Bucket"
-	Properties?: #Properties
-}

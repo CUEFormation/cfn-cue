@@ -12,24 +12,24 @@ import "list"
 	Arn?: string
 
 	// HTTP URL destination properties.
-	HttpUrlProperties?: _#defs."/$defs/Properties/definitions/HttpUrlDestinationSummary"
+	HttpUrlProperties?: #HttpUrlDestinationSummary
 
 	// InfluxDB destination properties.
-	InfluxDBProperties?: _#defs."/$defs/Properties/definitions/InfluxDBDestinationProperties"
+	InfluxDBProperties?: #InfluxDBDestinationProperties
 
 	// The status of the TopicRuleDestination.
-	Status?: _#defs."/$defs/Properties/definitions/TopicRuleDestinationStatus"
+	Status?: #TopicRuleDestinationStatus
 
 	// The reasoning for the current status of the TopicRuleDestination.
 	StatusReason?: string
 
 	// VPC destination properties.
-	VpcProperties?: _#defs."/$defs/Properties/definitions/VpcDestinationProperties"
+	VpcProperties?: #VpcDestinationProperties
 })
 
-_#defs: "/$defs/Properties/definitions/HttpUrlDestinationSummary": close({ConfirmationUrl?: string})
+#HttpUrlDestinationSummary: close({ConfirmationUrl?: string})
 
-_#defs: "/$defs/Properties/definitions/InfluxDBDestinationProperties": close({
+#InfluxDBDestinationProperties: close({
 	// The endpoint URL of the InfluxDB database.
 	Endpoint!: string
 
@@ -46,9 +46,9 @@ _#defs: "/$defs/Properties/definitions/InfluxDBDestinationProperties": close({
 	SecretType?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TopicRuleDestinationStatus": "ENABLED" | "IN_PROGRESS" | "DISABLED"
+#TopicRuleDestinationStatus: "ENABLED" | "IN_PROGRESS" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/VpcDestinationProperties": close({
+#VpcDestinationProperties: close({
 	RoleArn?:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:      list.UniqueItems() & [...string]

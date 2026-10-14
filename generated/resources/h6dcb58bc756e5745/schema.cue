@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,32 +13,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppConfig::Deployment
-#Properties: close({
-	ApplicationId!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ConfigurationProfileId!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ConfigurationVersion!:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	DeploymentStrategyId!:   =~"^(^[a-z0-9]{4,7}$|^AppConfig\\.[A-Za-z0-9]{9,40}$)$" | fn.#StringExpression
-	Description?:            strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	DynamicExtensionParameters?: [..._#defs."/$defs/Properties/definitions/DynamicExtensionParameters"] |
-		fn.#ListExpression
-	EnvironmentId!:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppConfig::Deployment"
+	Properties!: close({
+		ApplicationId!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		ConfigurationProfileId!:     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		ConfigurationVersion!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		DeploymentStrategyId!:       =~"^(^[a-z0-9]{4,7}$|^AppConfig\\.[A-Za-z0-9]{9,40}$)$" | fn.#StringExpression
+		Description?:                strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		DynamicExtensionParameters?: [...#DynamicExtensionParameters] | fn.#ListExpression
+		EnvironmentId!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		KmsKeyIdentifier?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DynamicExtensionParameters": close({
+#DynamicExtensionParameters: close({
 	ExtensionReference?: string | fn.#StringExpression
 	ParameterName?:      string | fn.#StringExpression
 	ParameterValue?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppConfig::Deployment"
-	Properties!: #Properties
-}

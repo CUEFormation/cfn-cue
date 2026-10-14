@@ -12,14 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PaymentCryptography::Alias Resource Type
-#Properties: close({
-	AliasName!: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^alias/[a-zA-Z0-9/_-]+$" | fn.#StringExpression
-	KeyArn?: strings.MaxRunes(150) &
-	strings.MinRunes(70) &
-	=~"^arn:aws:payment-cryptography:[a-z]{2}-[a-z]{1,16}-[0-9]+:[0-9]{12}:key/[0-9a-zA-Z]{16,64}$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PaymentCryptography::Alias"
-	Properties!: #Properties
+	Type!: "AWS::PaymentCryptography::Alias"
+	Properties!: close({
+		AliasName!: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^alias/[a-zA-Z0-9/_-]+$" | fn.#StringExpression
+		KeyArn?: strings.MaxRunes(150) &
+		strings.MinRunes(70) &
+		=~"^arn:aws:payment-cryptography:[a-z]{2}-[a-z]{1,16}-[0-9]+:[0-9]{12}:key/[0-9a-zA-Z]{16,64}$" |
+		fn.#StringExpression
+	})
 }

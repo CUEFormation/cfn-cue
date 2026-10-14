@@ -26,9 +26,9 @@ import (
 
 	// The name of the bucket on the self-managed object storage server.
 	BucketName?:         strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
-	CmkSecretConfig?:    _#defs."/$defs/Properties/definitions/CmkSecretConfig"
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
-	FederatedIdentity?:  _#defs."/$defs/Properties/definitions/ObjectStorageFederatedIdentityConfig"
+	CmkSecretConfig?:    #CmkSecretConfig
+	CustomSecretConfig?: #CustomSecretConfig
+	FederatedIdentity?:  #ObjectStorageFederatedIdentityConfig
 
 	// The Amazon Resource Name (ARN) of the location that is created.
 	LocationArn?: strings.MaxRunes(128) &
@@ -36,7 +36,7 @@ import (
 
 	// The URL of the object storage location that was described.
 	LocationUri?:         strings.MaxRunes(4356) & =~"^(efs|nfs|s3|smb|fsxw|object-storage)://[a-zA-Z0-9./\\-]+$"
-	ManagedSecretConfig?: _#defs."/$defs/Properties/definitions/ManagedSecretConfig"
+	ManagedSecretConfig?: #ManagedSecretConfig
 
 	// Optional. The secret key is used if credentials are required to access the
 	// self-managed object storage server.
@@ -61,13 +61,13 @@ import (
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\p{Zs}]*$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Specifies configuration information for a DataSync-managed secret, such as an
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and a customer-managed AWS KMS key.
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	// Specifies the ARN for the customer-managed AWS KMS key used to encrypt the
 	// secret specified for SecretArn. DataSync provides this key to AWS Secrets
 	// Manager.
@@ -86,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and an IAM role that DataSync can assume and
 // access the customer-managed secret.
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	// Specifies the ARN for the AWS Identity and Access Management role that
 	// DataSync uses to access the secret specified for SecretArn.
 	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -103,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 // Specifies the Google Cloud workload identity federation configuration that
 // DataSync uses to obtain an access token for your Google Cloud Storage
 // bucket.
-_#defs: "/$defs/Properties/definitions/GoogleOidcConfig": close({
+#GoogleOidcConfig: close({
 	// The name of the Google Cloud workload identity pool that DataSync federates with.
 	IdentityPoolName!: strings.MaxRunes(32) & strings.MinRunes(4)
 
@@ -121,7 +121,7 @@ _#defs: "/$defs/Properties/definitions/GoogleOidcConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location. DataSync uses the default AWS-managed KMS key to
 // encrypt this secret in AWS Secrets Manager.
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	// Specifies the ARN for an AWS Secrets Manager secret.
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$"
@@ -129,23 +129,21 @@ _#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
 
 // Specifies the external (non-AWS) identity provider that DataSync federates
 // with to access your object storage location.
-_#defs: "/$defs/Properties/definitions/ObjectStorageExternalIdentityConfig": close(
-	{GoogleOidc?: _#defs."/$defs/Properties/definitions/GoogleOidcConfig"},
-)
+#ObjectStorageExternalIdentityConfig: close({GoogleOidc?: #GoogleOidcConfig})
 
 // Specifies the identity federation configuration that DataSync uses to access
 // your object storage location using an OpenID Connect (OIDC) token.
-_#defs: "/$defs/Properties/definitions/ObjectStorageFederatedIdentityConfig": close({
+#ObjectStorageFederatedIdentityConfig: close({
 	// Specifies the ARN of the AWS Identity and Access Management (IAM) role that
 	// DataSync assumes to mint the OIDC token used to authenticate with the
 	// identity provider.
 	AwsIamRole?: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$"
-	ExternalIdentity?: _#defs."/$defs/Properties/definitions/ObjectStorageExternalIdentityConfig"
+	ExternalIdentity?: #ObjectStorageExternalIdentityConfig
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 

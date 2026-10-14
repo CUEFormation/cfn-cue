@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// The time of this integration got created
 	CreatedAt?: string
-	DataStore?: _#defs."/$defs/Properties/definitions/DataStore"
+	DataStore?: #DataStore
 
 	// The URL of the SQS dead letter queue
 	DeadLetterQueueUrl?: strings.MaxRunes(255) & strings.MinRunes(0)
@@ -29,17 +29,17 @@ import (
 
 	// The time of this integration got last updated at
 	LastUpdatedAt?:     string
-	Matching?:          _#defs."/$defs/Properties/definitions/Matching"
-	RuleBasedMatching?: _#defs."/$defs/Properties/definitions/RuleBasedMatching"
-	Stats?:             _#defs."/$defs/Properties/definitions/DomainStats"
+	Matching?:          #Matching
+	RuleBasedMatching?: #RuleBasedMatching
+	Stats?:             #DomainStats
 
 	// The tags (keys and values) associated with the domain
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // Configures information about the AttributeTypesSelector where the rule-based
 // identity resolution uses to match profiles.
-_#defs: "/$defs/Properties/definitions/AttributeTypesSelector": close({
+#AttributeTypesSelector: close({
 	// The Address type. You can choose from Address, BusinessAddress,
 	// MaillingAddress, and ShippingAddress. You only can use the Address type in
 	// the MatchingRule. For example, if you want to match profile based on
@@ -68,9 +68,9 @@ _#defs: "/$defs/Properties/definitions/AttributeTypesSelector": close({
 })
 
 // Configuration information about the auto-merging process.
-_#defs: "/$defs/Properties/definitions/AutoMerging": close({
-	ConflictResolution?: _#defs."/$defs/Properties/definitions/ConflictResolution"
-	Consolidation?:      _#defs."/$defs/Properties/definitions/Consolidation"
+#AutoMerging: close({
+	ConflictResolution?: #ConflictResolution
+	Consolidation?:      #Consolidation
 
 	// The flag that enables the auto-merging of duplicate profiles.
 	Enabled!: bool
@@ -86,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/AutoMerging": close({
 // profiles. For example, if Profile A and Profile B have the same FirstName
 // and LastName (and that is the matching criteria), which EmailAddress should
 // be used?
-_#defs: "/$defs/Properties/definitions/ConflictResolution": close({
+#ConflictResolution: close({
 	// How the auto-merging process should resolve conflicts between different profiles.
 	ConflictResolvingModel!: "RECENCY" | "SOURCE"
 
@@ -98,22 +98,20 @@ _#defs: "/$defs/Properties/definitions/ConflictResolution": close({
 // A list of matching attributes that represent matching criteria. If two
 // profiles meet at least one of the requirements in the matching attributes
 // list, they will be merged.
-_#defs: "/$defs/Properties/definitions/Consolidation": close({
+#Consolidation: close({
 	// A list of matching criteria.
-	MatchingAttributesList!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MatchingAttributes"
-	]
+	MatchingAttributesList!: list.MaxItems(10) & list.MinItems(1) & [...#MatchingAttributes]
 })
 
 // Configuration and status of the data store for the domain.
-_#defs: "/$defs/Properties/definitions/DataStore": close({
+#DataStore: close({
 	// Whether the data store is enabled.
 	Enabled?:   bool
-	Readiness?: _#defs."/$defs/Properties/definitions/Readiness"
+	Readiness?: #Readiness
 })
 
 // Usage-specific statistics about the domain.
-_#defs: "/$defs/Properties/definitions/DomainStats": close({
+#DomainStats: close({
 	// The number of profiles that you are currently paying for in the domain. If
 	// you have more than 100 objects associated with a single profile, that
 	// profile counts as two profiles. If you have more than 200 objects, that
@@ -132,12 +130,10 @@ _#defs: "/$defs/Properties/definitions/DomainStats": close({
 
 // Configuration information for exporting Identity Resolution results, for
 // example, to an S3 bucket.
-_#defs: "/$defs/Properties/definitions/ExportingConfig": close(
-	{S3Exporting?: _#defs."/$defs/Properties/definitions/S3ExportingConfig"},
-)
+#ExportingConfig: close({S3Exporting?: #S3ExportingConfig})
 
 // The day and time when do you want to start the Identity Resolution Job every week.
-_#defs: "/$defs/Properties/definitions/JobSchedule": close({
+#JobSchedule: close({
 	// The day when the Identity Resolution Job should run every week.
 	DayOfTheWeek!: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY"
 
@@ -153,32 +149,26 @@ _#defs: "/$defs/Properties/definitions/JobSchedule": close({
 // completes, use the GetMatches API to return and review the results. Or, if
 // you have configured ExportingConfig in the MatchingRequest, you can download
 // the results from S3.
-_#defs: "/$defs/Properties/definitions/Matching": close({
-	AutoMerging?: _#defs."/$defs/Properties/definitions/AutoMerging"
+#Matching: close({
+	AutoMerging?: #AutoMerging
 
 	// The flag that enables the matching process of duplicate profiles.
 	Enabled!:         bool
-	ExportingConfig?: _#defs."/$defs/Properties/definitions/ExportingConfig"
-	JobSchedule?:     _#defs."/$defs/Properties/definitions/JobSchedule"
+	ExportingConfig?: #ExportingConfig
+	JobSchedule?:     #JobSchedule
 })
 
-_#defs: "/$defs/Properties/definitions/MatchingAttributes": list.MaxItems(20) & list.MinItems(1) & [
-	...strings.MaxRunes(255) & strings.MinRunes(1)
-]
+#MatchingAttributes: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 
 // Specifies how does the rule-based matching process should match profiles.
-_#defs: "/$defs/Properties/definitions/MatchingRule": close(
-	{Rule!: _#defs."/$defs/Properties/definitions/MatchingRuleAttributeList"},
-)
+#MatchingRule: close({Rule!: #MatchingRuleAttributeList})
 
 // A single rule level of the MatchRules. Configures how the rule-based matching
 // process should match profiles.
-_#defs: "/$defs/Properties/definitions/MatchingRuleAttributeList": list.MaxItems(15) & list.MinItems(1) & [
-	...strings.MaxRunes(255) & strings.MinRunes(1)
-]
+#MatchingRuleAttributeList: list.MaxItems(15) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 
 // Progress information for data store setup.
-_#defs: "/$defs/Properties/definitions/Readiness": close({
+#Readiness: close({
 	// A message describing the current progress.
 	Message?: string
 
@@ -193,17 +183,17 @@ _#defs: "/$defs/Properties/definitions/Readiness": close({
 // GetSimilarProfiles API to return and review the results. Also, if you have
 // configured ExportingConfig in the RuleBasedMatchingRequest, you can download
 // the results from S3.
-_#defs: "/$defs/Properties/definitions/RuleBasedMatching": close({
-	AttributeTypesSelector?: _#defs."/$defs/Properties/definitions/AttributeTypesSelector"
-	ConflictResolution?:     _#defs."/$defs/Properties/definitions/ConflictResolution"
+#RuleBasedMatching: close({
+	AttributeTypesSelector?: #AttributeTypesSelector
+	ConflictResolution?:     #ConflictResolution
 
 	// The flag that enables the rule-based matching process of duplicate profiles.
 	Enabled!:         bool
-	ExportingConfig?: _#defs."/$defs/Properties/definitions/ExportingConfig"
+	ExportingConfig?: #ExportingConfig
 
 	// Configures how the rule-based matching process should match profiles. You can
 	// have up to 15 MatchingRule in the MatchingRules.
-	MatchingRules?: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MatchingRule"]
+	MatchingRules?: list.MaxItems(15) & list.MinItems(1) & [...#MatchingRule]
 
 	// Indicates the maximum allowed rule level for matching.
 	MaxAllowedRuleLevelForMatching?: int & <=15 & >=1
@@ -214,7 +204,7 @@ _#defs: "/$defs/Properties/definitions/RuleBasedMatching": close({
 })
 
 // The S3 location where Identity Resolution Jobs write result files.
-_#defs: "/$defs/Properties/definitions/S3ExportingConfig": close({
+#S3ExportingConfig: close({
 	// The name of the S3 bucket where Identity Resolution Jobs write result files.
 	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9.-]+$"
 
@@ -222,7 +212,7 @@ _#defs: "/$defs/Properties/definitions/S3ExportingConfig": close({
 	S3KeyName?: strings.MaxRunes(800) & strings.MinRunes(1) & =~".*"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

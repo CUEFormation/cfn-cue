@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,49 +13,47 @@ import (
 #Properties: close({
 	// The Resource Group ARN.
 	Arn?:           string
-	Configuration?: _#defs."/$defs/Properties/definitions/Configuration"
+	Configuration?: #Configuration
 
 	// The description of the resource group
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\sa-zA-Z0-9_\\.-]*$"
 
 	// The name of the resource group
 	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\.-]+$"
-	ResourceQuery?: _#defs."/$defs/Properties/definitions/ResourceQuery"
+	ResourceQuery?: #ResourceQuery
 	Resources?:     [...string]
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Configuration": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ConfigurationItem"
-]
+#Configuration: list.MaxItems(2) & [...] & [...#ConfigurationItem]
 
-_#defs: "/$defs/Properties/definitions/ConfigurationItem": close({
-	Parameters?: [..._#defs."/$defs/Properties/definitions/ConfigurationParameter"]
+#ConfigurationItem: close({
+	Parameters?: [...#ConfigurationParameter]
 	Type?:       strings.MaxRunes(40) & strings.MinRunes(0) & =~"^AWS::[a-zA-Z0-9]+::[a-zA-Z0-9]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationParameter": close({
+#ConfigurationParameter: close({
 	Name?:   strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-z-]+$"
 	Values?: [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:\\/\\._-]+$"]
 })
 
-_#defs: "/$defs/Properties/definitions/Query": close({
+#Query: close({
 	ResourceTypeFilters?: [...string]
 	StackIdentifier?:     string
-	TagFilters?:          [..._#defs."/$defs/Properties/definitions/TagFilter"]
+	TagFilters?:          [...#TagFilter]
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceQuery": close({
-	Query?: _#defs."/$defs/Properties/definitions/Query"
+#ResourceQuery: close({
+	Query?: #Query
 	Type?:  "TAG_FILTERS_1_0" | "CLOUDFORMATION_STACK_1_0"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagFilter": close({
+#TagFilter: close({
 	Key?:    string
 	Values?: [...string]
 })

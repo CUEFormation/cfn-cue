@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,13 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for Activity
-#Properties: close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	Name!:                    strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::StepFunctions::Activity"
+	Properties!: close({
+		EncryptionConfiguration?: #EncryptionConfiguration
+		Name!:                    strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                    [...#TagsEntry] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60 |
 		{
 			string &
@@ -46,12 +49,8 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::StepFunctions::Activity"
-	Properties!: #Properties
-}

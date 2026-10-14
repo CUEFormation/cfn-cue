@@ -12,31 +12,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::ReceiptRule
-#Properties: close({
-	After?:       string | fn.#StringExpression
-	Rule!:        _#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression
-	RuleSetName!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::ReceiptRule"
+	Properties!: close({
+		After?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	AddHeaderAction?: _#defs."/$defs/Properties/definitions/AddHeaderAction"
-	BounceAction?:    _#defs."/$defs/Properties/definitions/BounceAction"
-	ConnectAction?:   _#defs."/$defs/Properties/definitions/ConnectAction"
-	LambdaAction?:    _#defs."/$defs/Properties/definitions/LambdaAction"
-	S3Action?:        _#defs."/$defs/Properties/definitions/S3Action"
-	SNSAction?:       _#defs."/$defs/Properties/definitions/SNSAction"
-	StopAction?:      _#defs."/$defs/Properties/definitions/StopAction"
-	WorkmailAction?:  _#defs."/$defs/Properties/definitions/WorkmailAction"
+		// A data structure that contains the specified rule's name, actions,
+		// recipients, domains, enabled status, scan status, and TLS policy.
+		Rule!:        #Rule
+		RuleSetName!: string | fn.#StringExpression
+	})
+}
+
+#Action: close({
+	AddHeaderAction?: #AddHeaderAction
+	BounceAction?:    #BounceAction
+	ConnectAction?:   #ConnectAction
+	LambdaAction?:    #LambdaAction
+	S3Action?:        #S3Action
+	SNSAction?:       #SNSAction
+	StopAction?:      #StopAction
+	WorkmailAction?:  #WorkmailAction
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AddHeaderAction": close({
+#AddHeaderAction: close({
 	HeaderName!:  string | fn.#StringExpression
 	HeaderValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BounceAction": close({
+#BounceAction: close({
 	Message!:       string | fn.#StringExpression
 	Sender!:        string | fn.#StringExpression
 	SmtpReplyCode!: string | fn.#StringExpression
@@ -46,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/BounceAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectAction": close({
+#ConnectAction: close({
 	IAMRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -57,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/ConnectAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaAction": close({
+#LambdaAction: close({
 	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	InvocationType?: "Event" | "RequestResponse" | fn.#StringExpression
@@ -66,8 +72,8 @@ _#defs: "/$defs/Properties/definitions/LambdaAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	Actions?:     [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
+#Rule: close({
+	Actions?:     [...#Action] | fn.#ListExpression
 	Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name?:        string | fn.#StringExpression
 	Recipients?:  [...string | fn.#StringExpression] | fn.#ListExpression
@@ -76,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Action": close({
+#S3Action: close({
 	BucketName!: string | fn.#StringExpression
 	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
@@ -91,27 +97,23 @@ _#defs: "/$defs/Properties/definitions/S3Action": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SNSAction": close({
+#SNSAction: close({
 	Encoding?: "Base64" | "UTF-8" | fn.#StringExpression
 	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StopAction": close({
+#StopAction: close({
 	Scope!: "RuleSet" | fn.#StringExpression
 	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkmailAction": close({
+#WorkmailAction: close({
 	OrganizationArn!: string | fn.#StringExpression
 	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::ReceiptRule"
-	Properties!: #Properties
-}

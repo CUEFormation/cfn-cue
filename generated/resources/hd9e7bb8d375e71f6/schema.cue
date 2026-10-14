@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,95 +13,77 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::KnowledgeBase Resource Type
-#Properties: close({
-	AccessControlConfiguration?: _#defs."/$defs/Properties/definitions/AccessControlConfiguration"
-	AwsAccountId!:               strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$" | fn.#StringExpression
-	DataSourceArn!:              strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:                strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	IsEmailNotificationOptedForIngestionFailures?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	KnowledgeBaseConfiguration!: _#defs."/$defs/Properties/definitions/KnowledgeBaseConfiguration"
-	KnowledgeBaseId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" | fn.#StringExpression
-	MediaExtractionConfiguration?: _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration"
-	Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\p{L}\\p{N}][\\p{L}\\p{N} _\\-\\.]*$" |
-	fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
-		fn.#ListExpression
-	PrimaryOwnerArn?: string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::KnowledgeBase"
+	Properties!: close({
+		AccessControlConfiguration?: #AccessControlConfiguration
+		AwsAccountId!:               strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$" | fn.#StringExpression
+		DataSourceArn!:              strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
+		Description?:                strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+		IsEmailNotificationOptedForIngestionFailures?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		KnowledgeBaseConfiguration!: #KnowledgeBaseConfiguration
+		KnowledgeBaseId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" | fn.#StringExpression
+		MediaExtractionConfiguration?: #MediaExtractionConfiguration
+		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\p{L}\\p{N}][\\p{L}\\p{N} _\\-\\.]*$" |
+		fn.#StringExpression
+		Permissions?:     list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		PrimaryOwnerArn?: string | fn.#StringExpression
+		Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccessControlConfiguration": close(
+#AccessControlConfiguration: close(
 	{IsACLEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionConfiguration": close(
-	{AudioExtractionStatus!: _#defs."/$defs/Properties/definitions/AudioExtractionStatus"},
-) |
-	fn.#ObjectExpression
+#AudioExtractionConfiguration: close({AudioExtractionStatus!: #AudioExtractionStatus}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#AudioExtractionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSetStatus": "CREATING" |
-	"UPDATING" |
-	"ACTIVE" |
-	"FAILED" |
-	"DELETING" |
-	fn.#StringExpression
+#DataSetStatus: "CREATING" | "UPDATING" | "ACTIVE" | "FAILED" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionConfiguration": close(
-	{ImageExtractionStatus!: _#defs."/$defs/Properties/definitions/ImageExtractionStatus"},
-) |
-	fn.#ObjectExpression
+#ImageExtractionConfiguration: close({ImageExtractionStatus!: #ImageExtractionStatus}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#ImageExtractionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KbTemplateConfiguration": close({Template?: fn.#Value}) | fn.#ObjectExpression
+#KbTemplateConfiguration: close({Template?: fn.#Value}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseConfiguration": close(
-	{TemplateConfiguration?: _#defs."/$defs/Properties/definitions/KbTemplateConfiguration"},
-) |
-	fn.#ObjectExpression
+#KnowledgeBaseConfiguration: close({TemplateConfiguration?: #KbTemplateConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaExtractionConfiguration": close({
-	AudioExtractionConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionConfiguration"
-	ImageExtractionConfiguration?: _#defs."/$defs/Properties/definitions/ImageExtractionConfiguration"
-	VideoExtractionConfiguration?: _#defs."/$defs/Properties/definitions/VideoExtractionConfiguration"
+#MediaExtractionConfiguration: close({
+	AudioExtractionConfiguration?: #AudioExtractionConfiguration
+	ImageExtractionConfiguration?: #ImageExtractionConfiguration
+	VideoExtractionConfiguration?: #VideoExtractionConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	Actions!:   list.MaxItems(30) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Resource?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionConfiguration": close({
-	VideoExtractionStatus!: _#defs."/$defs/Properties/definitions/VideoExtractionStatus"
-	VideoExtractionType?:   _#defs."/$defs/Properties/definitions/VideoExtractionType"
+#VideoExtractionConfiguration: close({
+	VideoExtractionStatus!: #VideoExtractionStatus
+	VideoExtractionType?:   #VideoExtractionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#VideoExtractionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionType": "AUDIO_TRANSCRIPTION_ONLY" |
-	"VISUAL_CONTENT_AND_AUDIO_TRANSCRIPTION" |
-	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::KnowledgeBase"
-	Properties!: #Properties
-}
+#VideoExtractionType: "AUDIO_TRANSCRIPTION_ONLY" | "VISUAL_CONTENT_AND_AUDIO_TRANSCRIPTION" | fn.#StringExpression

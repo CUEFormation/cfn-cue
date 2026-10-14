@@ -28,7 +28,7 @@ import "list"
 
 	// The ID of the elastic network interface that Amazon EC2 automatically created
 	// when creating the EC2 Instance Connect Endpoint
-	NetworkInterfaceIds?: [..._#defs."/$defs/Properties/definitions/NetworkInterfaceId"]
+	NetworkInterfaceIds?: [...#NetworkInterfaceId]
 
 	// The ID of the AWS account that created the EC2 Instance Connect Endpoint
 	OwnerId?: string
@@ -38,12 +38,10 @@ import "list"
 	PreserveClientIp?: bool
 
 	// The public DNS names of the endpoint
-	PublicDnsNames?: _#defs."/$defs/Properties/definitions/InstanceConnectEndpointPublicDnsNames"
+	PublicDnsNames?: #InstanceConnectEndpointPublicDnsNames
 
 	// The security groups associated with the endpoint.
-	SecurityGroupIds?: list.MaxItems(16) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/SecurityGroupId"
-	]
+	SecurityGroupIds?: list.MaxItems(16) & list.UniqueItems() & [...] & [...#SecurityGroupId]
 
 	// The current state of the EC2 Instance Connect Endpoint
 	State?: "create-in-progress" |
@@ -64,14 +62,14 @@ import "list"
 	SubnetId!: string
 
 	// The tags assigned to the EC2 Instance Connect Endpoint.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the VPC in which the EC2 Instance Connect Endpoint was created
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // The DNS names of the endpoint.
-_#defs: "/$defs/Properties/definitions/InstanceConnectEndpointDnsNames": close({
+#InstanceConnectEndpointDnsNames: close({
 	// The DNS name of the EC2 Instance Connect Endpoint.
 	DnsName?: string
 
@@ -81,23 +79,23 @@ _#defs: "/$defs/Properties/definitions/InstanceConnectEndpointDnsNames": close({
 })
 
 // The public DNS names of the endpoint, including IPv4-only and dualstack DNS names.
-_#defs: "/$defs/Properties/definitions/InstanceConnectEndpointPublicDnsNames": close({
+#InstanceConnectEndpointPublicDnsNames: close({
 	// The dualstack DNS name of the EC2 Instance Connect Endpoint. A dualstack DNS
 	// name supports connections from both IPv4 and IPv6 clients.
-	Dualstack?: _#defs."/$defs/Properties/definitions/InstanceConnectEndpointDnsNames"
+	Dualstack?: #InstanceConnectEndpointDnsNames
 
 	// The IPv4-only DNS name of the EC2 Instance Connect Endpoint.
-	Ipv4?: _#defs."/$defs/Properties/definitions/InstanceConnectEndpointDnsNames"
+	Ipv4?: #InstanceConnectEndpointDnsNames
 })
 
 // The ID of the network interface.
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceId": string
+#NetworkInterfaceId: string
 
 // The ID of the security group.
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

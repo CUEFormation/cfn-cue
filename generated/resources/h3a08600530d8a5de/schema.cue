@@ -15,18 +15,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Set up Custom Domain Name for an API in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	DomainName!:               string | fn.#StringExpression
-	DomainNameConfigurations?: [..._#defs."/$defs/Properties/definitions/DomainNameConfiguration"] | fn.#ListExpression
-	MutualTlsAuthentication?:  _#defs."/$defs/Properties/definitions/MutualTlsAuthentication" | fn.#ObjectExpression
-	RoutingMode?: "API_MAPPING_ONLY" | "ROUTING_RULE_THEN_API_MAPPING" | "ROUTING_RULE_ONLY" | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::DomainName"
+	Properties!: close({
+		DomainName!:               string | fn.#StringExpression
+		DomainNameConfigurations?: [...#DomainNameConfiguration] | fn.#ListExpression
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+		// The mutual TLS authentication configuration for a custom domain name.
+		MutualTlsAuthentication?: #MutualTlsAuthentication
+		RoutingMode?: "API_MAPPING_ONLY" | "ROUTING_RULE_THEN_API_MAPPING" | "ROUTING_RULE_ONLY" | fn.#StringExpression
+		Tags?: close({
 
-_#defs: "/$defs/Properties/definitions/DomainNameConfiguration": close({
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
+
+#DomainNameConfiguration: close({
 	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	CertificateName?:                     string | fn.#StringExpression
@@ -37,12 +42,8 @@ _#defs: "/$defs/Properties/definitions/DomainNameConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MutualTlsAuthentication": close({
+#MutualTlsAuthentication: close({
 	TruststoreUri?:     string | fn.#StringExpression
 	TruststoreVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::DomainName"
-	Properties!: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,34 +14,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::ECR::SigningConfiguration resource creates or updates the signing
 // configuration for an Amazon ECR registry.
-#Properties: close(
-	{Rules!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression},
-)
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::ECR::SigningConfiguration"
+	Properties!: close({Rules!: list.MaxItems(50) & [...] & [...#Rule] | fn.#ListExpression})
+}
 
-_#defs: "/$defs/Properties/definitions/Filter": strings.MaxRunes(256) &
+#Filter: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^(?:[a-z0-9*]+(?:[._-][a-z0-9*]+)*/)*[a-z0-9*]+(?:[._-][a-z0-9*]+)*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FilterType": "WILDCARD_MATCH" | fn.#StringExpression
+#FilterType: "WILDCARD_MATCH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RepositoryFilter": close({
-	Filter!:     _#defs."/$defs/Properties/definitions/Filter"
-	FilterType!: _#defs."/$defs/Properties/definitions/FilterType"
+#RepositoryFilter: close({
+	Filter!:     #Filter
+	FilterType!: #FilterType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	RepositoryFilters?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RepositoryFilter"
-	] |
-		fn.#ListExpression
+#Rule: close({
+	RepositoryFilters?: list.MaxItems(100) & list.MinItems(1) & [...#RepositoryFilter] | fn.#ListExpression
 	SigningProfileArn!: strings.MaxRunes(200) &
 	=~"^arn:aws(-[a-z]+)*:signer:[a-z0-9-]+:[0-9]{12}:\\/signing-profiles\\/[a-zA-Z0-9_]{2,}$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::SigningConfiguration"
-	Properties!: #Properties
-}

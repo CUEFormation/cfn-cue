@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,23 +18,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::Index
-#Properties: close({
-	DataType!:                _#defs."/$defs/Properties/definitions/DataType"
-	Dimension!:               _#defs."/$defs/Properties/definitions/Dimension"
-	DistanceMetric!:          _#defs."/$defs/Properties/definitions/DistanceMetric"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	IndexName?:               _#defs."/$defs/Properties/definitions/IndexName"
-	MetadataConfiguration?:   _#defs."/$defs/Properties/definitions/MetadataConfiguration"
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VectorBucketArn?:         _#defs."/$defs/Properties/definitions/VectorBucketArn"
-	VectorBucketName?:        _#defs."/$defs/Properties/definitions/VectorBucketName"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Vectors::Index"
+	Properties!: close({
+		DataType!:                #DataType
+		Dimension!:               #Dimension
+		DistanceMetric!:          #DistanceMetric
+		EncryptionConfiguration?: #EncryptionConfiguration
+		IndexName?:               #IndexName
+		MetadataConfiguration?:   #MetadataConfiguration
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VectorBucketArn?:         #VectorBucketArn
+		VectorBucketName?:        #VectorBucketName
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CreationTime": time.Time | fn.#StringExpression
+#CreationTime: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataType": "float32" | fn.#StringExpression
+#DataType: "float32" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Dimension": int & <=4096 & >=1 |
+#Dimension: int & <=4096 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -51,9 +54,9 @@ _#defs: "/$defs/Properties/definitions/Dimension": int & <=4096 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/DistanceMetric": "cosine" | "euclidean" | fn.#StringExpression
+#DistanceMetric: "cosine" | "euclidean" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -63,11 +66,11 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IndexArn": string | fn.#StringExpression
+#IndexArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IndexName": strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+#IndexName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
+#MetadataConfiguration: close({
 	NonFilterableMetadataKeys?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -75,18 +78,13 @@ _#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorBucketArn": =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$" |
+#VectorBucketArn: =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VectorBucketName": strings.MaxRunes(63) & strings.MinRunes(3) |
-fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Vectors::Index"
-	Properties!: #Properties
-}
+#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression

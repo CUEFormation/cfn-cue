@@ -13,12 +13,12 @@ import (
 #Properties: close({
 	Actions!:       list.MaxItems(10) & list.MinItems(1) & [...=~"^qbusiness:[a-zA-Z]+$"]
 	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	Conditions?:    list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Condition"]
+	Conditions?:    list.MaxItems(10) & list.MinItems(1) & [...#Condition]
 	Principal!:   strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^arn:aws:iam::[0-9]{12}:role/[a-zA-Z0-9_/+=,.@-]+$"
 	StatementId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	ConditionKey!:      =~"^aws:PrincipalTag/qbusiness-dataaccessor:[a-zA-Z]+"
 	ConditionOperator!: "StringEquals"
 	ConditionValues!:   list.MaxItems(1) & list.MinItems(1) & [...string]

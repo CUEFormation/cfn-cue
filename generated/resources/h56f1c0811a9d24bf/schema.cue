@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -16,50 +16,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // workload configuration that defines datasets, data sources and benchmark
 // tool settings for consistent performance testing of generative AI inference
 // deployments on Amazon SageMaker AI.
-#Properties: close({
-	AIWorkloadConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9]){0,62}$" |
-	fn.#StringExpression
-	AIWorkloadConfigs?: _#defs."/$defs/Properties/definitions/AIWorkloadConfigs" | fn.#ObjectExpression
-	DatasetConfig?:     _#defs."/$defs/Properties/definitions/AIDatasetConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::AIWorkloadConfig"
+	Properties!: close({
+		AIWorkloadConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9]){0,62}$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AIDatasetConfig": close(
-	{InputDataConfig!: [..._#defs."/$defs/Properties/definitions/AIWorkloadInputDataConfig"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+		// The benchmark tool configuration and workload specification.
+		AIWorkloadConfigs?: #AIWorkloadConfigs
 
-_#defs: "/$defs/Properties/definitions/AIWorkloadConfigs": close(
-	{WorkloadSpec!: _#defs."/$defs/Properties/definitions/WorkloadSpec" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+		// The dataset configuration for the workload. Specify input data channels with
+		// their data sources for benchmark workloads.
+		DatasetConfig?: #AIDatasetConfig
+		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AIWorkloadDataSource": close(
-	{S3DataSource?: _#defs."/$defs/Properties/definitions/AIWorkloadS3DataSource" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#AIDatasetConfig: close({InputDataConfig!: [...#AIWorkloadInputDataConfig] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIWorkloadInputDataConfig": close({
-	ChannelName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" | fn.#StringExpression
-	DataSource!:  _#defs."/$defs/Properties/definitions/AIWorkloadDataSource" | fn.#ObjectExpression
+#AIWorkloadConfigs: close({
+	// The workload specification that defines benchmark parameters.
+	WorkloadSpec!: #WorkloadSpec
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIWorkloadS3DataSource": close(
+#AIWorkloadDataSource: close({
+	// The Amazon S3 data source configuration.
+	S3DataSource?: #AIWorkloadS3DataSource
+}) |
+fn.#ObjectExpression
+
+#AIWorkloadInputDataConfig: close({
+	ChannelName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" | fn.#StringExpression
+
+	// The data source for this channel.
+	DataSource!: #AIWorkloadDataSource
+}) |
+fn.#ObjectExpression
+
+#AIWorkloadS3DataSource: close(
 	{S3Uri!: strings.MaxRunes(1024) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadSpec": close({Inline!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::AIWorkloadConfig"
-	Properties!: #Properties
-}
+#WorkloadSpec: close({Inline!: string | fn.#StringExpression}) | fn.#ObjectExpression

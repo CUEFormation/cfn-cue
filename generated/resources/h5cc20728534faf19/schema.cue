@@ -13,22 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::AppRunner::ObservabilityConfiguration resource is an AWS App Runner
 // resource type that specifies an App Runner observability configuration
-#Properties: close({
-	ObservabilityConfigurationName?: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" |
-	fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TraceConfiguration?: _#defs."/$defs/Properties/definitions/TraceConfiguration" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppRunner::ObservabilityConfiguration"
+	Properties?: close({
+		ObservabilityConfigurationName?: strings.MaxRunes(32) &
+		strings.MinRunes(4) &
+		=~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+		// The configuration of the tracing feature within this observability
+		// configuration. If you don't specify it, App Runner doesn't enable tracing.
+		TraceConfiguration?: #TraceConfiguration
+	})
+}
+
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TraceConfiguration": close({Vendor!: "AWSXRAY" | fn.#StringExpression}) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppRunner::ObservabilityConfiguration"
-	Properties?: #Properties
-}
+#TraceConfiguration: close({Vendor!: "AWSXRAY" | fn.#StringExpression}) | fn.#ObjectExpression

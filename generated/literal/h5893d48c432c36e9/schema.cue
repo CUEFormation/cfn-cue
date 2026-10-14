@@ -14,7 +14,7 @@ import (
 // domain.
 #Properties: close({
 	// Field-type specific attributes that control rendering and validation behavior
-	Attributes?: _#defs."/$defs/Properties/definitions/FieldAttributes"
+	Attributes?: #FieldAttributes
 
 	// The time at which the field was created.
 	CreatedTime?: time.Time
@@ -45,29 +45,21 @@ import (
 	// field (created by your organization). System fields cannot be modified or
 	// deleted.
 	Namespace?: "System" | "Custom"
-	Tags?:      _#defs."/$defs/Properties/definitions/Tags"
-	Type!:      _#defs."/$defs/Properties/definitions/FieldType"
+	Tags?:      #Tags
+	Type!:      #FieldType
 })
 
 // Union of field attributes
-_#defs: "/$defs/Properties/definitions/FieldAttributes": close(
-	{Text?: _#defs."/$defs/Properties/definitions/TextAttributes"},
-)
+#FieldAttributes: close({Text?: #TextAttributes})
 
 // The data type of the field, which determines validation rules, input
 // constraints, and display format. Each type has specific constraints: Text
 // (string input), Number (numeric values), Boolean (true/false), DateTime
 // (date/time picker), SingleSelect (dropdown options), Url (URL validation),
 // User (Amazon Connect user selection).
-_#defs: "/$defs/Properties/definitions/FieldType": "Text" |
-	"Number" |
-	"Boolean" |
-	"DateTime" |
-	"SingleSelect" |
-	"Url" |
-	"User"
+#FieldType: "Text" | "Number" | "Boolean" | "DateTime" | "SingleSelect" | "Url" | "User"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -82,10 +74,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The tags that you attach to this field.
-_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: [...#Tag]
 
 // Field attributes for Text field type
-_#defs: "/$defs/Properties/definitions/TextAttributes": close({
+#TextAttributes: close({
 	// Attribute that defines rendering component and validation
 	IsMultiline!: bool
 })

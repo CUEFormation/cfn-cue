@@ -29,32 +29,32 @@ import (
 	NetworkMigrationDefinitionID?: strings.MaxRunes(21) & strings.MinRunes(21) & =~"^nmd-[0-9a-zA-Z]{17}$"
 
 	// Scope tags for the network migration definition.
-	ScopeTags?: _#defs."/$defs/Properties/definitions/ScopeTagsMap"
+	ScopeTags?: #ScopeTagsMap
 
 	// A list of source configurations for the network migration.
-	SourceConfigurations!: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/SourceConfiguration"]
+	SourceConfigurations!: list.MaxItems(2) & [...] & [...#SourceConfiguration]
 
 	// Tags to assign to the network migration definition.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The target deployment configuration for the migrated network.
 	TargetDeployment?: "SINGLE_ACCOUNT" | "MULTI_ACCOUNT"
 
 	// The target network configuration including topology and CIDR ranges.
-	TargetNetwork!: _#defs."/$defs/Properties/definitions/TargetNetwork"
+	TargetNetwork!: #TargetNetwork
 
 	// The S3 configuration for storing the target network artifacts.
-	TargetS3Configuration!: _#defs."/$defs/Properties/definitions/TargetS3Configuration"
+	TargetS3Configuration!: #TargetS3Configuration
 
 	// The timestamp when the network migration definition was last updated.
 	UpdatedAt?: time.Time
 })
 
 // Scope tags map for the network migration definition.
-_#defs: "/$defs/Properties/definitions/ScopeTagsMap": struct.MaxFields(40) & {...}
+#ScopeTagsMap: struct.MaxFields(40) & {...}
 
 // Configuration for a migration source environment.
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
+#SourceConfiguration: close({
 	// The source environment type.
 	SourceEnvironment!: "NSX" |
 		"VSPHERE" |
@@ -63,11 +63,11 @@ _#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
 		"CISCO_ACI" |
 		"LOGICAL_MODEL" |
 		"MODELIZE_IT"
-	SourceS3Configuration!: _#defs."/$defs/Properties/definitions/SourceS3Configuration"
+	SourceS3Configuration!: #SourceS3Configuration
 })
 
 // S3 configuration for source network data.
-_#defs: "/$defs/Properties/definitions/SourceS3Configuration": close({
+#SourceS3Configuration: close({
 	// The name of the S3 bucket containing source data.
 	S3Bucket!: =~"^[a-zA-Z0-9.\\-_]{1,255}$"
 
@@ -79,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/SourceS3Configuration": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(0)
 
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Configuration for the target network topology and addressing.
-_#defs: "/$defs/Properties/definitions/TargetNetwork": close({
+#TargetNetwork: close({
 	// The CIDR block for inbound traffic in the target network.
 	InboundCidr?: strings.MaxRunes(18) &
 	strings.MinRunes(9) &
@@ -109,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/TargetNetwork": close({
 })
 
 // S3 configuration for storing target network artifacts.
-_#defs: "/$defs/Properties/definitions/TargetS3Configuration": close({
+#TargetS3Configuration: close({
 	// The name of the S3 bucket for target artifacts.
 	S3Bucket!: =~"^[a-zA-Z0-9.\\-_]{1,255}$"
 

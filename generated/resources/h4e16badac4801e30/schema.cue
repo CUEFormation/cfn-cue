@@ -14,27 +14,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Subscription targets enables one to access the data to which you have
 // subscribed in your projects.
-#Properties: close({
-	ApplicableAssetTypes!: [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\.]*" | fn.#StringExpression] |
-	fn.#ListExpression
-	AuthorizedPrincipals!: list.MaxItems(10) & list.MinItems(1) & [...=~"^[a-zA-Z0-9:/_-]*$" | fn.#StringExpression] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::SubscriptionTarget"
+	Properties!: close({
+		ApplicableAssetTypes!: [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\.]*" | fn.#StringExpression] |
 		fn.#ListExpression
-	DomainIdentifier!:      =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnvironmentIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	ManageAccessRole?: =~"^arn:aws(|-cn|-us-gov):iam::\\d{12}:(role|role/service-role)/[\\w+=,.@-]*$" |
-		fn.#StringExpression
-	Name!:                     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Provider?:                 string | fn.#StringExpression
-	SubscriptionTargetConfig!: [..._#defs."/$defs/Properties/definitions/SubscriptionTargetForm"] | fn.#ListExpression
-	Type!:                     string | fn.#StringExpression
-})
+		AuthorizedPrincipals!: list.MaxItems(10) & list.MinItems(1) & [...=~"^[a-zA-Z0-9:/_-]*$" | fn.#StringExpression] |
+			fn.#ListExpression
+		DomainIdentifier!:      =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		EnvironmentIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		ManageAccessRole?: =~"^arn:aws(|-cn|-us-gov):iam::\\d{12}:(role|role/service-role)/[\\w+=,.@-]*$" |
+			fn.#StringExpression
+		Name!:                     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Provider?:                 string | fn.#StringExpression
+		SubscriptionTargetConfig!: [...#SubscriptionTargetForm] | fn.#ListExpression
+		Type!:                     string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/SubscriptionTargetForm": close({
+#SubscriptionTargetForm: close({
 	Content!:  string | fn.#StringExpression
 	FormName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::SubscriptionTarget"
-	Properties!: #Properties
-}

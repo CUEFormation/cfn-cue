@@ -16,31 +16,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::AppRunner::Service resource specifies an AppRunner Service.
-#Properties: close({
-	AutoScalingConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-	EncryptionConfiguration?:     _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	HealthCheckConfiguration?:    _#defs."/$defs/Properties/definitions/HealthCheckConfiguration"
-	InstanceConfiguration?:       _#defs."/$defs/Properties/definitions/InstanceConfiguration"
-	NetworkConfiguration?:        _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	ObservabilityConfiguration?:  _#defs."/$defs/Properties/definitions/ServiceObservabilityConfiguration"
-	ServiceName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9-_]{3,39}" | fn.#StringExpression
-	SourceConfiguration!: _#defs."/$defs/Properties/definitions/SourceConfiguration"
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppRunner::Service"
+	Properties!: close({
+		AutoScalingConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
+		EncryptionConfiguration?:     #EncryptionConfiguration
+		HealthCheckConfiguration?:    #HealthCheckConfiguration
+		InstanceConfiguration?:       #InstanceConfiguration
+		NetworkConfiguration?:        #NetworkConfiguration
+		ObservabilityConfiguration?:  #ServiceObservabilityConfiguration
+		ServiceName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9-_]{3,39}" |
+		fn.#StringExpression
+		SourceConfiguration!: #SourceConfiguration
+		Tags?:                [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
-	AccessRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
+#AuthenticationConfiguration: close({
+	// Access Role Arn
+	AccessRoleArn?: #RoleArn
 	ConnectionArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeConfiguration": close({
-	CodeConfigurationValues?: _#defs."/$defs/Properties/definitions/CodeConfigurationValues"
+#CodeConfiguration: close({
+	CodeConfigurationValues?: #CodeConfigurationValues
 	ConfigurationSource!:     "REPOSITORY" | "API" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeConfigurationValues": close({
+#CodeConfigurationValues: close({
 	BuildCommand?: =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
 	Port?:         strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
 	Runtime!: "PYTHON_3" |
@@ -57,27 +62,27 @@ _#defs: "/$defs/Properties/definitions/CodeConfigurationValues": close({
 		"NODEJS_18" |
 		"NODEJS_22" |
 		fn.#StringExpression
-	RuntimeEnvironmentSecrets?:   [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
-	RuntimeEnvironmentVariables?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	RuntimeEnvironmentSecrets?:   [...#KeyValuePair] | fn.#ListExpression
+	RuntimeEnvironmentVariables?: [...#KeyValuePair] | fn.#ListExpression
 	StartCommand?:                =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeRepository": close({
-	CodeConfiguration?: _#defs."/$defs/Properties/definitions/CodeConfiguration"
+#CodeRepository: close({
+	CodeConfiguration?: #CodeConfiguration
 	RepositoryUrl!:     strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
-	SourceCodeVersion!: _#defs."/$defs/Properties/definitions/SourceCodeVersion"
+	SourceCodeVersion!: #SourceCodeVersion
 	SourceDirectory?:   strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[^\\x00]+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EgressConfiguration": close({
+#EgressConfiguration: close({
 	EgressType!:      "DEFAULT" | "VPC" | fn.#StringExpression
 	VpcConnectorArn?: strings.MaxRunes(1011) & strings.MinRunes(44) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsKey!: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"arn:aws(-[\\w]+)*:kms:[a-z\\-]+-[0-9]{1}:[0-9]{12}:key\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
@@ -85,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckConfiguration": close({
+#HealthCheckConfiguration: close({
 	HealthyThreshold?: int & <=20 & >=1 |
 		{
 			string &
@@ -155,16 +160,16 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageConfiguration": close({
+#ImageConfiguration: close({
 	Port?:                        strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
-	RuntimeEnvironmentSecrets?:   [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
-	RuntimeEnvironmentVariables?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	RuntimeEnvironmentSecrets?:   [...#KeyValuePair] | fn.#ListExpression
+	RuntimeEnvironmentVariables?: [...#KeyValuePair] | fn.#ListExpression
 	StartCommand?:                =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageRepository": close({
-	ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfiguration"
+#ImageRepository: close({
+	ImageConfiguration?: #ImageConfiguration
 	ImageIdentifier!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"([0-9]{12}.dkr.ecr.[a-z\\-]+-[0-9]{1}.amazonaws.com\\/.*)|(^public\\.ecr\\.aws\\/.+\\/.+)" |
@@ -173,15 +178,17 @@ _#defs: "/$defs/Properties/definitions/ImageRepository": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngressConfiguration": close(
+#IngressConfiguration: close(
 	{IsPubliclyAccessible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceConfiguration": close({
+#InstanceConfiguration: close({
 	Cpu?: strings.MaxRunes(9) & strings.MinRunes(3) & =~"256|512|1024|2048|4096|(0.25|0.5|1|2|4) vCPU" |
 	fn.#StringExpression
-	InstanceRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
+
+	// Instance Role Arn
+	InstanceRoleArn?: #RoleArn
 	Memory?: strings.MaxRunes(6) &
 	strings.MinRunes(3) &
 	=~"512|1024|2048|3072|4096|6144|8192|10240|12288|(0.5|1|2|3|4|6|8|10|12) GB" |
@@ -189,51 +196,47 @@ _#defs: "/$defs/Properties/definitions/InstanceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	EgressConfiguration?:  _#defs."/$defs/Properties/definitions/EgressConfiguration"
-	IngressConfiguration?: _#defs."/$defs/Properties/definitions/IngressConfiguration"
+#NetworkConfiguration: close({
+	EgressConfiguration?:  #EgressConfiguration
+	IngressConfiguration?: #IngressConfiguration
 	IpAddressType?:        "IPV4" | "DUAL_STACK" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(1024) &
 strings.MinRunes(29) &
 =~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceObservabilityConfiguration": close({
+#ServiceObservabilityConfiguration: close({
 	ObservabilityConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
 	ObservabilityEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceCodeVersion": close({
+#SourceCodeVersion: close({
 	Type!:  "BRANCH" | fn.#StringExpression
 	Value!: strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration"
+#SourceConfiguration: close({
+	AuthenticationConfiguration?: #AuthenticationConfiguration
 	AutoDeploymentsEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CodeRepository?:              _#defs."/$defs/Properties/definitions/CodeRepository"
-	ImageRepository?:             _#defs."/$defs/Properties/definitions/ImageRepository"
+	CodeRepository?:              #CodeRepository
+	ImageRepository?:             #ImageRepository
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppRunner::Service"
-	Properties!: #Properties
-}

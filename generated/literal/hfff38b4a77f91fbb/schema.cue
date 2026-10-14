@@ -35,13 +35,13 @@ import (
 
 	// The integration provider.
 	Provider!:      "GITHUB" | "GITLAB" | "BITBUCKET" | "CONFLUENCE"
-	ProviderInput?: _#defs."/$defs/Properties/definitions/ProviderInput"
+	ProviderInput?: #ProviderInput
 
 	// The type of the integration provider.
 	ProviderType?: "SOURCE_CODE" | "DOCUMENTATION"
 
 	// The tags to associate with the integration.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The HTTPS URL of the customer self-hosted instance, such as a GitHub
 	// Enterprise Server or self-managed GitLab instance. This value is absent for
@@ -50,7 +50,7 @@ import (
 })
 
 // The input required to create a Bitbucket integration.
-_#defs: "/$defs/Properties/definitions/BitbucketInput": close({
+#BitbucketInput: close({
 	// The OAuth 2.0 authorization code returned from the consent redirect.
 	Code!: string
 
@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/BitbucketInput": close({
 })
 
 // The input required to create a Confluence integration.
-_#defs: "/$defs/Properties/definitions/ConfluenceInput": close({
+#ConfluenceInput: close({
 	// The OAuth 2.0 authorization code returned from the consent redirect.
 	Code!: string
 
@@ -80,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/ConfluenceInput": close({
 })
 
 // The input required to create a GitHub integration.
-_#defs: "/$defs/Properties/definitions/GitHubInput": close({
+#GitHubInput: close({
 	// The OAuth authorization code received from GitHub.
 	Code!: string
 
@@ -100,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/GitHubInput": close({
 })
 
 // The input required to create a GitLab integration.
-_#defs: "/$defs/Properties/definitions/GitLabInput": close({
+#GitLabInput: close({
 	// The GitLab access token used to authenticate. This can be a personal access
 	// token or a group access token.
 	AccessToken!: string
@@ -118,15 +118,15 @@ _#defs: "/$defs/Properties/definitions/GitLabInput": close({
 
 // The provider-specific input required to create the integration. Exactly one
 // of the provider input objects must be specified.
-_#defs: "/$defs/Properties/definitions/ProviderInput": close({
-	Bitbucket?:  _#defs."/$defs/Properties/definitions/BitbucketInput"
-	Confluence?: _#defs."/$defs/Properties/definitions/ConfluenceInput"
-	Github?:     _#defs."/$defs/Properties/definitions/GitHubInput"
-	Gitlab?:     _#defs."/$defs/Properties/definitions/GitLabInput"
+#ProviderInput: close({
+	Bitbucket?:  #BitbucketInput
+	Confluence?: #ConfluenceInput
+	Github?:     #GitHubInput
+	Gitlab?:     #GitLabInput
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

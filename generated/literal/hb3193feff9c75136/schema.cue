@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,12 +21,12 @@ import (
 			"SESSION_SCRIPT_S3_LOCATION" |
 			"MAX_SESSIONS_PER_INSTANCE"
 	]
-	ComputeCapacity?:             _#defs."/$defs/Properties/definitions/ComputeCapacity"
+	ComputeCapacity?:             #ComputeCapacity
 	Description?:                 strings.MaxRunes(256) & strings.MinRunes(1)
 	DisableIMDSV1?:               bool
 	DisconnectTimeoutInSeconds?:  int & <=360000 & >=60
 	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(1)
-	DomainJoinInfo?:              _#defs."/$defs/Properties/definitions/DomainJoinInfo"
+	DomainJoinInfo?:              #DomainJoinInfo
 	EnableDefaultInternetAccess?: bool
 	FleetType?:                   =~"^ALWAYS_ON$|^ON_DEMAND$|^ELASTIC$"
 	IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -48,41 +48,41 @@ import (
 		"WINDOWS_SERVER_2019" |
 		"WINDOWS_SERVER_2022" |
 		"WINDOWS_SERVER_2025"
-	RootVolumeConfig?:        _#defs."/$defs/Properties/definitions/VolumeConfig"
-	SessionScriptS3Location?: _#defs."/$defs/Properties/definitions/S3Location"
+	RootVolumeConfig?:        #VolumeConfig
+	SessionScriptS3Location?: #S3Location
 	StreamView?:              "APP" | "DESKTOP"
-	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 	UsbDeviceFilterStrings?: [
 		...strings.MaxRunes(100) &
 		strings.MinRunes(0) &
 		=~"^((\\w*)\\s*(\\w*)\\s*\\,\\s*(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*[0-1]\\s*\\,\\s*[0-1]\\s*)$"
 	]
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?: #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/ComputeCapacity": close({
+#ComputeCapacity: close({
 	DesiredInstances?: int
 	DesiredSessions?:  int
 })
 
-_#defs: "/$defs/Properties/definitions/DomainJoinInfo": close({
+#DomainJoinInfo: close({
 	DirectoryName?:                       string
 	OrganizationalUnitDistinguishedName?: strings.MaxRunes(2000) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3)
 	S3Key!:    strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & =~"^[\\S\\s]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/VolumeConfig": close({VolumeSizeInGb?: int})
+#VolumeConfig: close({VolumeSizeInGb?: int})
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1)
 	]

@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPNGatewayRoutePropagation
-#Properties: close({
-	RouteTableIds!: [...string | fn.#StringExpression] | fn.#ListExpression
-	VpnGatewayId!:  string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPNGatewayRoutePropagation"
-	Properties!: #Properties
+	Type!: "AWS::EC2::VPNGatewayRoutePropagation"
+	Properties!: close({
+		RouteTableIds!: [...string | fn.#StringExpression] | fn.#ListExpression
+		VpnGatewayId!:  string | fn.#StringExpression
+	})
 }

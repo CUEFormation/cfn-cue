@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ConnectCampaigns::Campaign Resource Type
-#Properties: close({
-	ConnectInstanceArn!: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
-	DialerConfig!:       _#defs."/$defs/Properties/definitions/DialerConfig"
-	Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	OutboundCallConfig!: _#defs."/$defs/Properties/definitions/OutboundCallConfig"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ConnectCampaigns::Campaign"
+	Properties!: close({
+		ConnectInstanceArn!: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		fn.#StringExpression
+		DialerConfig!:       #DialerConfig
+		Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+		OutboundCallConfig!: #OutboundCallConfig
+		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AgentlessDialerConfig": close({
+#AgentlessDialerConfig: close({
 	DialingCapacity?: <=1 & >=0.01 |
 		{
 			string &
@@ -52,30 +55,34 @@ _#defs: "/$defs/Properties/definitions/AgentlessDialerConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnswerMachineDetectionConfig": close({
+#AnswerMachineDetectionConfig: close({
 	AwaitAnswerMachinePrompt?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableAnswerMachineDetection!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DialerConfig": matchN(1, [{
-	ProgressiveDialerConfig!: _
-	...
-}, {
-	PredictiveDialerConfig!: _
-	...
-}, {
-	AgentlessDialerConfig!: _
-	...
-}]) & close({
-	AgentlessDialerConfig?:   _#defs."/$defs/Properties/definitions/AgentlessDialerConfig"
-	PredictiveDialerConfig?:  _#defs."/$defs/Properties/definitions/PredictiveDialerConfig"
-	ProgressiveDialerConfig?: _#defs."/$defs/Properties/definitions/ProgressiveDialerConfig"
-}) |
+#DialerConfig: close({
+	AgentlessDialerConfig?:   #AgentlessDialerConfig
+	PredictiveDialerConfig?:  #PredictiveDialerConfig
+	ProgressiveDialerConfig?: #ProgressiveDialerConfig
+	if ProgressiveDialerConfig != _|_ if ProgressiveDialerConfig."Fn::If" == _|_ {
+		PredictiveDialerConfig?: close({"Fn::If": _}) | error(
+			"PredictiveDialerConfig cannot be used with ProgressiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
+		)
+		AgentlessDialerConfig?: close({"Fn::If": _}) | error(
+			"AgentlessDialerConfig cannot be used with ProgressiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
+		)
+	}
+	if PredictiveDialerConfig != _|_ if PredictiveDialerConfig."Fn::If" == _|_ {
+		AgentlessDialerConfig?: close({"Fn::If": _}) | error(
+			"AgentlessDialerConfig cannot be used with PredictiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
+		)
+	}
+}) & matchN(>=1, [{ProgressiveDialerConfig!: _}, {PredictiveDialerConfig!: _}, {AgentlessDialerConfig!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutboundCallConfig": close({
-	AnswerMachineDetectionConfig?: _#defs."/$defs/Properties/definitions/AnswerMachineDetectionConfig"
+#OutboundCallConfig: close({
+	AnswerMachineDetectionConfig?: #AnswerMachineDetectionConfig
 	ConnectContactFlowArn!: strings.MaxRunes(500) &
 	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
@@ -86,7 +93,7 @@ _#defs: "/$defs/Properties/definitions/OutboundCallConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveDialerConfig": close({
+#PredictiveDialerConfig: close({
 	BandwidthAllocation!: <=1 & >=0 |
 		{
 			string &
@@ -130,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveDialerConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProgressiveDialerConfig": close({
+#ProgressiveDialerConfig: close({
 	BandwidthAllocation!: <=1 & >=0 |
 		{
 			string &
@@ -174,12 +181,8 @@ _#defs: "/$defs/Properties/definitions/ProgressiveDialerConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ConnectCampaigns::Campaign"
-	Properties!: #Properties
-}

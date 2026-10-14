@@ -12,27 +12,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::PublishingDestination.
-#Properties: close({
-	DestinationProperties!: _#defs."/$defs/Properties/definitions/CFNDestinationProperties" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	DestinationType!: "S3" | fn.#StringExpression
-	DetectorId!:      strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GuardDuty::PublishingDestination"
+	Properties!: close({
+		DestinationProperties!: #CFNDestinationProperties & fn.#Object & {...} | fn.#ObjectExpression
+		DestinationType!:       "S3" | fn.#StringExpression
+		DetectorId!:            strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                  [...#TagItem] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CFNDestinationProperties": close({
+#CFNDestinationProperties: close({
 	DestinationArn?: string | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::PublishingDestination"
-	Properties!: #Properties
-}

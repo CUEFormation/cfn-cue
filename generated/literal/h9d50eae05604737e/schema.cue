@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,7 +12,7 @@ import (
 // Resource Type definition for AWS::Connect::Queue
 #Properties: close({
 	// The email addresses that agents can use when replying to or initiating email contacts
-	AdditionalEmailAddresses?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/EmailAddress"]
+	AdditionalEmailAddresses?: list.MaxItems(50) & [...] & [...#EmailAddress]
 
 	// The description of the queue.
 	Description?: strings.MaxRunes(250) & strings.MinRunes(1)
@@ -37,29 +37,29 @@ import (
 	Name!: strings.MaxRunes(127) & strings.MinRunes(1)
 
 	// The outbound caller ID name, number, and outbound whisper flow.
-	OutboundCallerConfig?: _#defs."/$defs/Properties/definitions/OutboundCallerConfig"
+	OutboundCallerConfig?: #OutboundCallerConfig
 
 	// The outbound email configuration for a specified queue.
-	OutboundEmailConfig?: _#defs."/$defs/Properties/definitions/OutboundEmailConfig"
+	OutboundEmailConfig?: #OutboundEmailConfig
 
 	// The Amazon Resource Name (ARN) for the queue.
 	QueueArn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$"
 
 	// The quick connects available to agents who are working the queue.
-	QuickConnectArns?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/QuickConnectArn"]
+	QuickConnectArns?: list.MinItems(1) & [...#QuickConnectArn]
 
 	// The status of the queue.
 	Status?: "ENABLED" | "DISABLED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The type of queue.
 	Type?: "STANDARD" | "AGENT"
 })
 
 // An email address configuration for the queue
-_#defs: "/$defs/Properties/definitions/EmailAddress": close({
+#EmailAddress: close({
 	// The Amazon Resource Name (ARN) of the email address
 	EmailAddressArn!:
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-f0-9]{8}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{12}/email-address/[-a-f0-9]{8}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{12}$"
@@ -69,47 +69,45 @@ _#defs: "/$defs/Properties/definitions/EmailAddress": close({
 // characters in length and cannot be prefixed with aws:. You can use any of
 // the following characters: the set of Unicode letters, digits, whitespace, _,
 // ., /, =, +, and -.
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(128) & strings.MinRunes(1)
+#Key: strings.MaxRunes(128) & strings.MinRunes(1)
 
 // The outbound caller ID name, number, and outbound whisper flow.
-_#defs: "/$defs/Properties/definitions/OutboundCallerConfig": close({
-	OutboundCallerIdName?:      _#defs."/$defs/Properties/definitions/OutboundCallerIdName"
-	OutboundCallerIdNumberArn?: _#defs."/$defs/Properties/definitions/OutboundCallerIdNumberArn"
-	OutboundFlowArn?:           _#defs."/$defs/Properties/definitions/OutboundFlowArn"
+#OutboundCallerConfig: close({
+	OutboundCallerIdName?:      #OutboundCallerIdName
+	OutboundCallerIdNumberArn?: #OutboundCallerIdNumberArn
+	OutboundFlowArn?:           #OutboundFlowArn
 })
 
 // The caller ID name.
-_#defs: "/$defs/Properties/definitions/OutboundCallerIdName": strings.MaxRunes(255) & strings.MinRunes(1)
+#OutboundCallerIdName: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // The caller ID number.
-_#defs: "/$defs/Properties/definitions/OutboundCallerIdNumberArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:phone-number/[-a-zA-Z0-9]*$"
+#OutboundCallerIdNumberArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:phone-number/[-a-zA-Z0-9]*$"
 
 // The email address connect resource ID.
-_#defs: "/$defs/Properties/definitions/OutboundEmailAddressId": strings.MaxRunes(500) &
+#OutboundEmailAddressId: strings.MaxRunes(500) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/email-address/[-a-zA-Z0-9]*$"
 
 // The outbound email configuration for a specified queue.
-_#defs: "/$defs/Properties/definitions/OutboundEmailConfig": close(
-	{OutboundEmailAddressId?: _#defs."/$defs/Properties/definitions/OutboundEmailAddressId"},
-)
+#OutboundEmailConfig: close({OutboundEmailAddressId?: #OutboundEmailAddressId})
 
 // The outbound whisper flow to be used during an outbound call.
-_#defs: "/$defs/Properties/definitions/OutboundFlowArn": strings.MaxRunes(500) &
+#OutboundFlowArn: strings.MaxRunes(500) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$"
 
 // The Amazon Resource Name (ARN) for the quick connect.
-_#defs: "/$defs/Properties/definitions/QuickConnectArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/transfer-destination/[-a-zA-Z0-9]*$"
+#QuickConnectArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/transfer-destination/[-a-zA-Z0-9]*$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
-	Key!:   _#defs."/$defs/Properties/definitions/Key"
-	Value!: _#defs."/$defs/Properties/definitions/Value"
+#Tag: close({
+	Key!:   #Key
+	Value!: #Value
 })
 
 // The value for the tag. You can specify a value that is 0 to 256 Unicode
 // characters in length and cannot be prefixed with aws:. You can use any of
 // the following characters: the set of Unicode letters, digits, whitespace, _,
 // ., /, =, +, and -.
-_#defs: "/$defs/Properties/definitions/Value": strings.MaxRunes(256) & strings.MinRunes(0)
+#Value: strings.MaxRunes(256) & strings.MinRunes(0)

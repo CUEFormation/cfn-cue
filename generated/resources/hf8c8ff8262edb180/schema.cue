@@ -17,48 +17,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Kendra DataSource
-#Properties: close({
-	CustomDocumentEnrichmentConfiguration?: _#defs."/$defs/Properties/definitions/CustomDocumentEnrichmentConfiguration"
-	DataSourceConfiguration?:               _#defs."/$defs/Properties/definitions/DataSourceConfiguration"
-	Description?:                           _#defs."/$defs/Properties/definitions/Description"
-	IndexId!:                               _#defs."/$defs/Properties/definitions/IndexId"
-	LanguageCode?:                          _#defs."/$defs/Properties/definitions/LanguageCode"
-	Name!:                                  _#defs."/$defs/Properties/definitions/Name"
-	RoleArn?:                               _#defs."/$defs/Properties/definitions/RoleArn"
-	Schedule?:                              _#defs."/$defs/Properties/definitions/Schedule"
-	Tags?:                                  _#defs."/$defs/Properties/definitions/TagList" | fn.#ListExpression
-	Type!:                                  _#defs."/$defs/Properties/definitions/Type"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Kendra::DataSource"
+	Properties!: close({
+		CustomDocumentEnrichmentConfiguration?: #CustomDocumentEnrichmentConfiguration
+		DataSourceConfiguration?:               #DataSourceConfiguration
+		Description?:                           #Description
+		IndexId!:                               #IndexId
+		LanguageCode?:                          #LanguageCode
+		Name!:                                  #Name
+		RoleArn?:                               #RoleArn
+		Schedule?:                              #Schedule
 
-_#defs: "/$defs/Properties/definitions/AccessControlListConfiguration": close(
-	{KeyPath?: _#defs."/$defs/Properties/definitions/S3ObjectKey"},
-) |
-	fn.#ObjectExpression
+		// Tags for labeling the data source
+		Tags?: #TagList
+		Type!: #Type
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AclConfiguration": close(
-	{AllowedGroupsColumnName!: _#defs."/$defs/Properties/definitions/ColumnName"},
-) |
-	fn.#ObjectExpression
+#AccessControlListConfiguration: close({KeyPath?: #S3ObjectKey}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) | fn.#StringExpression
+#AclConfiguration: close({AllowedGroupsColumnName!: #ColumnName}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChangeDetectingColumns": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ColumnName"
-] |
-	fn.#ListExpression
+#Arn: strings.MaxRunes(1000) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnConfiguration": close({
-	ChangeDetectingColumns!:  _#defs."/$defs/Properties/definitions/ChangeDetectingColumns"
-	DocumentDataColumnName!:  _#defs."/$defs/Properties/definitions/ColumnName"
-	DocumentIdColumnName!:    _#defs."/$defs/Properties/definitions/ColumnName"
-	DocumentTitleColumnName?: _#defs."/$defs/Properties/definitions/ColumnName"
-	FieldMappings?:           _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+#ChangeDetectingColumns: list.MaxItems(5) & list.MinItems(1) & [...#ColumnName] | fn.#ListExpression
+
+#ColumnConfiguration: close({
+	ChangeDetectingColumns!:  #ChangeDetectingColumns
+	DocumentDataColumnName!:  #ColumnName
+	DocumentIdColumnName!:    #ColumnName
+	DocumentTitleColumnName?: #ColumnName
+	FieldMappings?:           #DataSourceToIndexFieldMappingList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnName": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#ColumnName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionOperator": "GreaterThan" |
+#ConditionOperator: "GreaterThan" |
 	"GreaterThanOrEquals" |
 	"LessThan" |
 	"LessThanOrEquals" |
@@ -71,18 +67,18 @@ _#defs: "/$defs/Properties/definitions/ConditionOperator": "GreaterThan" |
 	"BeginsWith" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceAttachmentConfiguration": close({
-	AttachmentFieldMappings?: _#defs."/$defs/Properties/definitions/ConfluenceAttachmentFieldMappingsList"
+#ConfluenceAttachmentConfiguration: close({
+	AttachmentFieldMappings?: #ConfluenceAttachmentFieldMappingsList
 	CrawlAttachments?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceAttachmentFieldMappingsList": list.MaxItems(11) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluenceAttachmentToIndexFieldMapping"
+#ConfluenceAttachmentFieldMappingsList: list.MaxItems(11) & list.MinItems(1) & [
+	...#ConfluenceAttachmentToIndexFieldMapping
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceAttachmentFieldName": "AUTHOR" |
+#ConfluenceAttachmentFieldName: "AUTHOR" |
 	"CONTENT_TYPE" |
 	"CREATED_DATE" |
 	"DISPLAY_URL" |
@@ -95,24 +91,19 @@ _#defs: "/$defs/Properties/definitions/ConfluenceAttachmentFieldName": "AUTHOR" 
 	"VERSION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceAttachmentToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluenceAttachmentFieldName"
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
+#ConfluenceAttachmentToIndexFieldMapping: close({
+	DataSourceFieldName!: #ConfluenceAttachmentFieldName
+	DateFieldFormat?:     #DateFieldFormat
+	IndexFieldName!:      #IndexFieldName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceBlogConfiguration": close(
-	{BlogFieldMappings?: _#defs."/$defs/Properties/definitions/ConfluenceBlogFieldMappingsList"},
-) |
-	fn.#ObjectExpression
+#ConfluenceBlogConfiguration: close({BlogFieldMappings?: #ConfluenceBlogFieldMappingsList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceBlogFieldMappingsList": list.MaxItems(9) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluenceBlogToIndexFieldMapping"
-] |
+#ConfluenceBlogFieldMappingsList: list.MaxItems(9) & list.MinItems(1) & [...#ConfluenceBlogToIndexFieldMapping] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceBlogFieldName": "AUTHOR" |
+#ConfluenceBlogFieldName: "AUTHOR" |
 	"DISPLAY_URL" |
 	"ITEM_TYPE" |
 	"LABELS" |
@@ -123,38 +114,33 @@ _#defs: "/$defs/Properties/definitions/ConfluenceBlogFieldName": "AUTHOR" |
 	"VERSION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceBlogToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluenceBlogFieldName"
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
+#ConfluenceBlogToIndexFieldMapping: close({
+	DataSourceFieldName!: #ConfluenceBlogFieldName
+	DateFieldFormat?:     #DateFieldFormat
+	IndexFieldName!:      #IndexFieldName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceConfiguration": close({
-	AttachmentConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceAttachmentConfiguration"
-	BlogConfiguration?:       _#defs."/$defs/Properties/definitions/ConfluenceBlogConfiguration"
-	ExclusionPatterns?:       _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	InclusionPatterns?:       _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	PageConfiguration?:       _#defs."/$defs/Properties/definitions/ConfluencePageConfiguration"
-	SecretArn!:               _#defs."/$defs/Properties/definitions/SecretArn"
-	ServerUrl!:               _#defs."/$defs/Properties/definitions/Url"
-	SpaceConfiguration?:      _#defs."/$defs/Properties/definitions/ConfluenceSpaceConfiguration"
-	Version!:                 _#defs."/$defs/Properties/definitions/ConfluenceVersion"
-	VpcConfiguration?:        _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration"
+#ConfluenceConfiguration: close({
+	AttachmentConfiguration?: #ConfluenceAttachmentConfiguration
+	BlogConfiguration?:       #ConfluenceBlogConfiguration
+	ExclusionPatterns?:       #DataSourceInclusionsExclusionsStrings
+	InclusionPatterns?:       #DataSourceInclusionsExclusionsStrings
+	PageConfiguration?:       #ConfluencePageConfiguration
+	SecretArn!:               #SecretArn
+	ServerUrl!:               #Url
+	SpaceConfiguration?:      #ConfluenceSpaceConfiguration
+	Version!:                 #ConfluenceVersion
+	VpcConfiguration?:        #DataSourceVpcConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluencePageConfiguration": close(
-	{PageFieldMappings?: _#defs."/$defs/Properties/definitions/ConfluencePageFieldMappingsList"},
-) |
-	fn.#ObjectExpression
+#ConfluencePageConfiguration: close({PageFieldMappings?: #ConfluencePageFieldMappingsList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluencePageFieldMappingsList": list.MaxItems(12) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluencePageToIndexFieldMapping"
-] |
+#ConfluencePageFieldMappingsList: list.MaxItems(12) & list.MinItems(1) & [...#ConfluencePageToIndexFieldMapping] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluencePageFieldName": "AUTHOR" |
+#ConfluencePageFieldName: "AUTHOR" |
 	"CONTENT_STATUS" |
 	"CREATED_DATE" |
 	"DISPLAY_URL" |
@@ -168,136 +154,299 @@ _#defs: "/$defs/Properties/definitions/ConfluencePageFieldName": "AUTHOR" |
 	"VERSION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluencePageToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluencePageFieldName"
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
+#ConfluencePageToIndexFieldMapping: close({
+	DataSourceFieldName!: #ConfluencePageFieldName
+	DateFieldFormat?:     #DateFieldFormat
+	IndexFieldName!:      #IndexFieldName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceSpaceConfiguration": close({
+#ConfluenceSpaceConfiguration: close({
 	CrawlArchivedSpaces?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CrawlPersonalSpaces?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExcludeSpaces?:       _#defs."/$defs/Properties/definitions/ConfluenceSpaceList"
-	IncludeSpaces?:       _#defs."/$defs/Properties/definitions/ConfluenceSpaceList"
-	SpaceFieldMappings?:  _#defs."/$defs/Properties/definitions/ConfluenceSpaceFieldMappingsList"
+	ExcludeSpaces?:       #ConfluenceSpaceList
+	IncludeSpaces?:       #ConfluenceSpaceList
+	SpaceFieldMappings?:  #ConfluenceSpaceFieldMappingsList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceSpaceFieldMappingsList": list.MaxItems(4) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluenceSpaceToIndexFieldMapping"
-] |
+#ConfluenceSpaceFieldMappingsList: list.MaxItems(4) & list.MinItems(1) & [...#ConfluenceSpaceToIndexFieldMapping] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceSpaceFieldName": "DISPLAY_URL" |
-	"ITEM_TYPE" |
-	"SPACE_KEY" |
-	"URL" |
-	fn.#StringExpression
+#ConfluenceSpaceFieldName: "DISPLAY_URL" | "ITEM_TYPE" | "SPACE_KEY" | "URL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceSpaceIdentifier": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#ConfluenceSpaceIdentifier: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceSpaceList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConfluenceSpaceIdentifier"
-] |
-	fn.#ListExpression
+#ConfluenceSpaceList: list.MinItems(1) & [...#ConfluenceSpaceIdentifier] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceSpaceToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/ConfluenceSpaceFieldName"
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
+#ConfluenceSpaceToIndexFieldMapping: close({
+	DataSourceFieldName!: #ConfluenceSpaceFieldName
+	DateFieldFormat?:     #DateFieldFormat
+	IndexFieldName!:      #IndexFieldName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceVersion": "CLOUD" | "SERVER" | fn.#StringExpression
+#ConfluenceVersion: "CLOUD" | "SERVER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionConfiguration": close({
-	DatabaseHost!: _#defs."/$defs/Properties/definitions/DatabaseHost"
-	DatabaseName!: _#defs."/$defs/Properties/definitions/DatabaseName"
-	DatabasePort!: _#defs."/$defs/Properties/definitions/DatabasePort"
-	SecretArn!:    _#defs."/$defs/Properties/definitions/SecretArn"
-	TableName!:    _#defs."/$defs/Properties/definitions/TableName"
+#ConnectionConfiguration: close({
+	DatabaseHost!: #DatabaseHost
+	DatabaseName!: #DatabaseName
+	DatabasePort!: #DatabasePort
+	SecretArn!:    #SecretArn
+	TableName!:    #TableName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomDocumentEnrichmentConfiguration": close({
-	InlineConfigurations?:            _#defs."/$defs/Properties/definitions/InlineConfigurations"
-	PostExtractionHookConfiguration?: _#defs."/$defs/Properties/definitions/HookConfiguration"
-	PreExtractionHookConfiguration?:  _#defs."/$defs/Properties/definitions/HookConfiguration"
-	RoleArn?:                         _#defs."/$defs/Properties/definitions/RoleArn"
+#CustomDocumentEnrichmentConfiguration: close({
+	InlineConfigurations?:            #InlineConfigurations
+	PostExtractionHookConfiguration?: #HookConfiguration
+	PreExtractionHookConfiguration?:  #HookConfiguration
+	RoleArn?:                         #RoleArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceConfiguration": matchN(1, [{
-	S3Configuration!: _
-	...
-}, {
-	SharePointConfiguration!: _
-	...
-}, {
-	SalesforceConfiguration!: _
-	...
-}, {
-	OneDriveConfiguration!: _
-	...
-}, {
-	ServiceNowConfiguration!: _
-	...
-}, {
-	DatabaseConfiguration!: _
-	...
-}, {
-	ConfluenceConfiguration!: _
-	...
-}, {
-	GoogleDriveConfiguration!: _
-	...
-}, {
-	WebCrawlerConfiguration!: _
-	...
-}, {
-	WorkDocsConfiguration!: _
-	...
-}, {
-	TemplateConfiguration!: _
-	...
-}]) & close({
-	ConfluenceConfiguration?:  _#defs."/$defs/Properties/definitions/ConfluenceConfiguration"
-	DatabaseConfiguration?:    _#defs."/$defs/Properties/definitions/DatabaseConfiguration"
-	GoogleDriveConfiguration?: _#defs."/$defs/Properties/definitions/GoogleDriveConfiguration"
-	OneDriveConfiguration?:    _#defs."/$defs/Properties/definitions/OneDriveConfiguration"
-	S3Configuration?:          _#defs."/$defs/Properties/definitions/S3DataSourceConfiguration"
-	SalesforceConfiguration?:  _#defs."/$defs/Properties/definitions/SalesforceConfiguration"
-	ServiceNowConfiguration?:  _#defs."/$defs/Properties/definitions/ServiceNowConfiguration"
-	SharePointConfiguration?:  _#defs."/$defs/Properties/definitions/SharePointConfiguration"
-	TemplateConfiguration?:    _#defs."/$defs/Properties/definitions/TemplateConfiguration"
-	WebCrawlerConfiguration?:  _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration"
-	WorkDocsConfiguration?:    _#defs."/$defs/Properties/definitions/WorkDocsConfiguration"
-}) |
+#DataSourceConfiguration: close({
+	ConfluenceConfiguration?:  #ConfluenceConfiguration
+	DatabaseConfiguration?:    #DatabaseConfiguration
+	GoogleDriveConfiguration?: #GoogleDriveConfiguration
+	OneDriveConfiguration?:    #OneDriveConfiguration
+	S3Configuration?:          #S3DataSourceConfiguration
+	SalesforceConfiguration?:  #SalesforceConfiguration
+	ServiceNowConfiguration?:  #ServiceNowConfiguration
+	SharePointConfiguration?:  #SharePointConfiguration
+	TemplateConfiguration?:    #TemplateConfiguration
+	WebCrawlerConfiguration?:  #WebCrawlerConfiguration
+	WorkDocsConfiguration?:    #WorkDocsConfiguration
+	if S3Configuration != _|_ if S3Configuration."Fn::If" == _|_ {
+		SharePointConfiguration?: close({"Fn::If": _}) | error(
+			"SharePointConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		SalesforceConfiguration?: close({"Fn::If": _}) | error(
+			"SalesforceConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		OneDriveConfiguration?: close({"Fn::If": _}) | error(
+			"OneDriveConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ServiceNowConfiguration?: close({"Fn::If": _}) | error(
+			"ServiceNowConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
+			"DatabaseConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
+			"ConfluenceConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
+			"GoogleDriveConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
+			"WebCrawlerConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
+			"WorkDocsConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with S3Configuration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if SharePointConfiguration != _|_ if SharePointConfiguration."Fn::If" == _|_ {
+		SalesforceConfiguration?: close({"Fn::If": _}) | error(
+			"SalesforceConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		OneDriveConfiguration?: close({"Fn::If": _}) | error(
+			"OneDriveConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ServiceNowConfiguration?: close({"Fn::If": _}) | error(
+			"ServiceNowConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
+			"DatabaseConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
+			"ConfluenceConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
+			"GoogleDriveConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
+			"WebCrawlerConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
+			"WorkDocsConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with SharePointConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if SalesforceConfiguration != _|_ if SalesforceConfiguration."Fn::If" == _|_ {
+		OneDriveConfiguration?: close({"Fn::If": _}) | error(
+			"OneDriveConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ServiceNowConfiguration?: close({"Fn::If": _}) | error(
+			"ServiceNowConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
+			"DatabaseConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
+			"ConfluenceConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
+			"GoogleDriveConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
+			"WebCrawlerConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
+			"WorkDocsConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with SalesforceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if OneDriveConfiguration != _|_ if OneDriveConfiguration."Fn::If" == _|_ {
+		ServiceNowConfiguration?: close({"Fn::If": _}) | error(
+			"ServiceNowConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
+			"DatabaseConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
+			"ConfluenceConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
+			"GoogleDriveConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
+			"WebCrawlerConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
+			"WorkDocsConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with OneDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if ServiceNowConfiguration != _|_ if ServiceNowConfiguration."Fn::If" == _|_ {
+		DatabaseConfiguration?: close({"Fn::If": _}) | error(
+			"DatabaseConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
+			"ConfluenceConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
+			"GoogleDriveConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
+			"WebCrawlerConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
+			"WorkDocsConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with ServiceNowConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if DatabaseConfiguration != _|_ if DatabaseConfiguration."Fn::If" == _|_ {
+		ConfluenceConfiguration?: close({"Fn::If": _}) | error(
+			"ConfluenceConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
+			"GoogleDriveConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
+			"WebCrawlerConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
+			"WorkDocsConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with DatabaseConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if ConfluenceConfiguration != _|_ if ConfluenceConfiguration."Fn::If" == _|_ {
+		GoogleDriveConfiguration?: close({"Fn::If": _}) | error(
+			"GoogleDriveConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
+			"WebCrawlerConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
+			"WorkDocsConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with ConfluenceConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if GoogleDriveConfiguration != _|_ if GoogleDriveConfiguration."Fn::If" == _|_ {
+		WebCrawlerConfiguration?: close({"Fn::If": _}) | error(
+			"WebCrawlerConfiguration cannot be used with GoogleDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
+			"WorkDocsConfiguration cannot be used with GoogleDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with GoogleDriveConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if WebCrawlerConfiguration != _|_ if WebCrawlerConfiguration."Fn::If" == _|_ {
+		WorkDocsConfiguration?: close({"Fn::If": _}) | error(
+			"WorkDocsConfiguration cannot be used with WebCrawlerConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with WebCrawlerConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+	if WorkDocsConfiguration != _|_ if WorkDocsConfiguration."Fn::If" == _|_ {
+		TemplateConfiguration?: close({"Fn::If": _}) | error(
+			"TemplateConfiguration cannot be used with WorkDocsConfiguration; set exactly one of S3Configuration, SharePointConfiguration, SalesforceConfiguration, OneDriveConfiguration, ServiceNowConfiguration, DatabaseConfiguration, ConfluenceConfiguration, GoogleDriveConfiguration, WebCrawlerConfiguration, WorkDocsConfiguration, TemplateConfiguration",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{
+		S3Configuration!: _
+	}, {
+		SharePointConfiguration!: _
+	}, {
+		SalesforceConfiguration!: _
+	}, {
+		OneDriveConfiguration!: _
+	}, {
+		ServiceNowConfiguration!: _
+	}, {
+		DatabaseConfiguration!: _
+	}, {
+		ConfluenceConfiguration!: _
+	}, {
+		GoogleDriveConfiguration!: _
+	}, {
+		WebCrawlerConfiguration!: _
+	}, {
+		WorkDocsConfiguration!: _
+	}, {
+		TemplateConfiguration!: _
+	}],
+) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceFieldName": strings.MaxRunes(100) & strings.MinRunes(1) |
-fn.#StringExpression
+#DataSourceFieldName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings": list.MaxItems(100) & [
+#DataSourceInclusionsExclusionsStrings: list.MaxItems(100) & [
 	...strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceToIndexFieldMapping": close({
-	DataSourceFieldName!: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	DateFieldFormat?:     _#defs."/$defs/Properties/definitions/DateFieldFormat"
-	IndexFieldName!:      _#defs."/$defs/Properties/definitions/IndexFieldName"
+#DataSourceToIndexFieldMapping: close({
+	DataSourceFieldName!: #DataSourceFieldName
+	DateFieldFormat?:     #DateFieldFormat
+	IndexFieldName!:      #IndexFieldName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceToIndexFieldMappingList": list.MaxItems(100) & [
-	..._#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMapping"
-] |
-	fn.#ListExpression
+#DataSourceToIndexFieldMappingList: list.MaxItems(100) & [...#DataSourceToIndexFieldMapping] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceVpcConfiguration": close({
+#DataSourceVpcConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(10) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(200) &
@@ -313,27 +462,27 @@ _#defs: "/$defs/Properties/definitions/DataSourceVpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseConfiguration": close({
-	AclConfiguration?:        _#defs."/$defs/Properties/definitions/AclConfiguration"
-	ColumnConfiguration!:     _#defs."/$defs/Properties/definitions/ColumnConfiguration"
-	ConnectionConfiguration!: _#defs."/$defs/Properties/definitions/ConnectionConfiguration"
-	DatabaseEngineType!:      _#defs."/$defs/Properties/definitions/DatabaseEngineType"
-	SqlConfiguration?:        _#defs."/$defs/Properties/definitions/SqlConfiguration"
-	VpcConfiguration?:        _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration"
+#DatabaseConfiguration: close({
+	AclConfiguration?:        #AclConfiguration
+	ColumnConfiguration!:     #ColumnConfiguration
+	ConnectionConfiguration!: #ConnectionConfiguration
+	DatabaseEngineType!:      #DatabaseEngineType
+	SqlConfiguration?:        #SqlConfiguration
+	VpcConfiguration?:        #DataSourceVpcConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseEngineType": "RDS_AURORA_MYSQL" |
+#DatabaseEngineType: "RDS_AURORA_MYSQL" |
 	"RDS_AURORA_POSTGRESQL" |
 	"RDS_MYSQL" |
 	"RDS_POSTGRESQL" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseHost": strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+#DatabaseHost: strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseName": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#DatabaseName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabasePort": int & <=65535 & >=1 |
+#DatabasePort: int & <=65535 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -350,36 +499,25 @@ _#defs: "/$defs/Properties/definitions/DatabasePort": int & <=65535 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/DateFieldFormat": strings.MaxRunes(40) & strings.MinRunes(4) |
-fn.#StringExpression
+#DateFieldFormat: strings.MaxRunes(40) & strings.MinRunes(4) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$" |
-fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DisableLocalGroups": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#DisableLocalGroups: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeCondition": close({
-	ConditionDocumentAttributeKey!: _#defs."/$defs/Properties/definitions/DocumentAttributeKey"
-	ConditionOnValue?:              _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
-	Operator!:                      _#defs."/$defs/Properties/definitions/ConditionOperator"
+#DocumentAttributeCondition: close({
+	ConditionDocumentAttributeKey!: #DocumentAttributeKey
+	ConditionOnValue?:              #DocumentAttributeValue
+	Operator!:                      #ConditionOperator
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeKey": strings.MaxRunes(200) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9_][a-zA-Z0-9_-]*" |
+#DocumentAttributeKey: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9_][a-zA-Z0-9_-]*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeTarget": close({
-	TargetDocumentAttributeKey!:   _#defs."/$defs/Properties/definitions/DocumentAttributeKey"
-	TargetDocumentAttributeValue?: _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
+#DocumentAttributeTarget: close({
+	TargetDocumentAttributeKey!:   #DocumentAttributeKey
+	TargetDocumentAttributeValue?: #DocumentAttributeValue
 	TargetDocumentAttributeValueDeletion?: bool |
 		"true" |
 		"True" |
@@ -391,84 +529,65 @@ _#defs: "/$defs/Properties/definitions/DocumentAttributeTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeValue": close({
-	DateValue?:       _#defs."/$defs/Properties/definitions/Timestamp"
-	LongValue?:       _#defs."/$defs/Properties/definitions/Long"
+#DocumentAttributeValue: close({
+	DateValue?:       #Timestamp
+	LongValue?:       #Long
 	StringListValue?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	StringValue?:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentsMetadataConfiguration": close(
-	{S3Prefix?: _#defs."/$defs/Properties/definitions/S3ObjectKey"},
-) |
-	fn.#ObjectExpression
+#DocumentsMetadataConfiguration: close({S3Prefix?: #S3ObjectKey}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExcludeMimeTypesList": list.MaxItems(30) & [...] & [
-	..._#defs."/$defs/Properties/definitions/MimeType"
-] |
-	fn.#ListExpression
+#ExcludeMimeTypesList: list.MaxItems(30) & [...] & [...#MimeType] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ExcludeSharedDrivesList": list.MaxItems(100) & [...] & [
-	..._#defs."/$defs/Properties/definitions/SharedDriveId"
-] |
-	fn.#ListExpression
+#ExcludeSharedDrivesList: list.MaxItems(100) & [...] & [...#SharedDriveId] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ExcludeUserAccountsList": list.MaxItems(100) & [...] & [
-	..._#defs."/$defs/Properties/definitions/UserAccount"
-] |
-	fn.#ListExpression
+#ExcludeUserAccountsList: list.MaxItems(100) & [...] & [...#UserAccount] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/GoogleDriveConfiguration": close({
-	ExcludeMimeTypes?:    _#defs."/$defs/Properties/definitions/ExcludeMimeTypesList"
-	ExcludeSharedDrives?: _#defs."/$defs/Properties/definitions/ExcludeSharedDrivesList"
-	ExcludeUserAccounts?: _#defs."/$defs/Properties/definitions/ExcludeUserAccountsList"
-	ExclusionPatterns?:   _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	FieldMappings?:       _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
-	InclusionPatterns?:   _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	SecretArn!:           _#defs."/$defs/Properties/definitions/SecretArn"
+#GoogleDriveConfiguration: close({
+	ExcludeMimeTypes?:    #ExcludeMimeTypesList
+	ExcludeSharedDrives?: #ExcludeSharedDrivesList
+	ExcludeUserAccounts?: #ExcludeUserAccountsList
+	ExclusionPatterns?:   #DataSourceInclusionsExclusionsStrings
+	FieldMappings?:       #DataSourceToIndexFieldMappingList
+	InclusionPatterns?:   #DataSourceInclusionsExclusionsStrings
+	SecretArn!:           #SecretArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HookConfiguration": close({
-	InvocationCondition?: _#defs."/$defs/Properties/definitions/DocumentAttributeCondition"
-	LambdaArn!:           _#defs."/$defs/Properties/definitions/LambdaArn"
-	S3Bucket!:            _#defs."/$defs/Properties/definitions/S3BucketName"
+#HookConfiguration: close({
+	InvocationCondition?: #DocumentAttributeCondition
+	LambdaArn!:           #LambdaArn
+	S3Bucket!:            #S3BucketName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#Id: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IndexFieldName": strings.MaxRunes(30) & strings.MinRunes(1) |
-fn.#StringExpression
+#IndexFieldName: strings.MaxRunes(30) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IndexId": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" |
-fn.#StringExpression
+#IndexId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InlineConfigurations": list.MaxItems(100) & [...] & [
-	..._#defs."/$defs/Properties/definitions/InlineCustomDocumentEnrichmentConfiguration"
-] |
+#InlineConfigurations: list.MaxItems(100) & [...] & [...#InlineCustomDocumentEnrichmentConfiguration] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/InlineCustomDocumentEnrichmentConfiguration": close({
-	Condition?:               _#defs."/$defs/Properties/definitions/DocumentAttributeCondition"
+#InlineCustomDocumentEnrichmentConfiguration: close({
+	Condition?:               #DocumentAttributeCondition
 	DocumentContentDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Target?:                  _#defs."/$defs/Properties/definitions/DocumentAttributeTarget"
+	Target?:                  #DocumentAttributeTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaArn": =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#LambdaArn: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^/arn:aws[a-zA-Z-]*:lambda:[a-z]+-[a-z]+-[0-9]:[0-9]{12}:function:[a-zA-Z0-9-_]+(\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?(:[a-zA-Z0-9-_]+)?/$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LanguageCode": strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" |
-fn.#StringExpression
+#LanguageCode: strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Long": int |
+#Long: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -482,45 +601,38 @@ _#defs: "/$defs/Properties/definitions/Long": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MimeType": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#MimeType: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1000) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
-fn.#StringExpression
+#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OneDriveConfiguration": close({
-	DisableLocalGroups?: _#defs."/$defs/Properties/definitions/DisableLocalGroups"
-	ExclusionPatterns?:  _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	FieldMappings?:      _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
-	InclusionPatterns?:  _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	OneDriveUsers!:      _#defs."/$defs/Properties/definitions/OneDriveUsers"
-	SecretArn!:          _#defs."/$defs/Properties/definitions/SecretArn"
-	TenantDomain!:       _#defs."/$defs/Properties/definitions/TenantDomain"
+#OneDriveConfiguration: close({
+	DisableLocalGroups?: #DisableLocalGroups
+	ExclusionPatterns?:  #DataSourceInclusionsExclusionsStrings
+	FieldMappings?:      #DataSourceToIndexFieldMappingList
+	InclusionPatterns?:  #DataSourceInclusionsExclusionsStrings
+	OneDriveUsers!:      #OneDriveUsers
+	SecretArn!:          #SecretArn
+	TenantDomain!:       #TenantDomain
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OneDriveUser": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#OneDriveUser: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OneDriveUserList": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/OneDriveUser"
-] |
-	fn.#ListExpression
+#OneDriveUserList: list.MaxItems(100) & list.MinItems(1) & [...#OneDriveUser] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/OneDriveUsers": matchN(1, [{
-	OneDriveUserList!: _
-	...
-}, {
-	OneDriveUserS3Path!: _
-	...
-}]) & close({
-	OneDriveUserList?:   _#defs."/$defs/Properties/definitions/OneDriveUserList"
-	OneDriveUserS3Path?: _#defs."/$defs/Properties/definitions/S3Path"
-}) |
+#OneDriveUsers: close({
+	OneDriveUserList?:   #OneDriveUserList
+	OneDriveUserS3Path?: #S3Path
+	if OneDriveUserList != _|_ if OneDriveUserList."Fn::If" == _|_ {
+		OneDriveUserS3Path?: close({"Fn::If": _}) | error(
+			"OneDriveUserS3Path cannot be used with OneDriveUserList; set exactly one of OneDriveUserList, OneDriveUserS3Path",
+		)
+	}
+}) & matchN(>=1, [{OneDriveUserList!: _}, {OneDriveUserS3Path!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
-	Credentials?: _#defs."/$defs/Properties/definitions/SecretArn"
+#ProxyConfiguration: close({
+	Credentials?: #SecretArn
 	Host!:        strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" | fn.#StringExpression
 	Port!: int & <=65535 & >=1 |
 		{
@@ -541,127 +653,114 @@ _#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryIdentifiersEnclosingOption": "DOUBLE_QUOTES" | "NONE" | fn.#StringExpression
+#QueryIdentifiersEnclosingOption: "DOUBLE_QUOTES" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(1)) |
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(1)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) &
-strings.MinRunes(3) &
-=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
+#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3DataSourceConfiguration": close({
-	AccessControlListConfiguration?: _#defs."/$defs/Properties/definitions/AccessControlListConfiguration"
-	BucketName!:                     _#defs."/$defs/Properties/definitions/S3BucketName"
-	DocumentsMetadataConfiguration?: _#defs."/$defs/Properties/definitions/DocumentsMetadataConfiguration"
-	ExclusionPatterns?:              _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	InclusionPatterns?:              _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	InclusionPrefixes?:              _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+#S3DataSourceConfiguration: close({
+	AccessControlListConfiguration?: #AccessControlListConfiguration
+	BucketName!:                     #S3BucketName
+	DocumentsMetadataConfiguration?: #DocumentsMetadataConfiguration
+	ExclusionPatterns?:              #DataSourceInclusionsExclusionsStrings
+	InclusionPatterns?:              #DataSourceInclusionsExclusionsStrings
+	InclusionPrefixes?:              #DataSourceInclusionsExclusionsStrings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3ObjectKey": strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+#S3ObjectKey: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Path": close({
-	Bucket!: _#defs."/$defs/Properties/definitions/S3BucketName"
-	Key!:    _#defs."/$defs/Properties/definitions/S3ObjectKey"
+#S3Path: close({
+	Bucket!: #S3BucketName
+	Key!:    #S3ObjectKey
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceChatterFeedConfiguration": close({
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
-	IncludeFilterTypes?:     _#defs."/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterTypes"
+#SalesforceChatterFeedConfiguration: close({
+	DocumentDataFieldName!:  #DataSourceFieldName
+	DocumentTitleFieldName?: #DataSourceFieldName
+	FieldMappings?:          #DataSourceToIndexFieldMappingList
+	IncludeFilterTypes?:     #SalesforceChatterFeedIncludeFilterTypes
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterType": "ACTIVE_USER" |
-	"STANDARD_USER" |
-	fn.#StringExpression
+#SalesforceChatterFeedIncludeFilterType: "ACTIVE_USER" | "STANDARD_USER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterTypes": list.MaxItems(2) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SalesforceChatterFeedIncludeFilterType"
+#SalesforceChatterFeedIncludeFilterTypes: list.MaxItems(2) & list.MinItems(1) & [
+	...#SalesforceChatterFeedIncludeFilterType
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceConfiguration": close({
-	ChatterFeedConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceChatterFeedConfiguration"
+#SalesforceConfiguration: close({
+	ChatterFeedConfiguration?: #SalesforceChatterFeedConfiguration
 	CrawlAttachments?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExcludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	IncludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	KnowledgeArticleConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceKnowledgeArticleConfiguration"
-	SecretArn!:                     _#defs."/$defs/Properties/definitions/SecretArn"
-	ServerUrl!:                     _#defs."/$defs/Properties/definitions/Url"
-	StandardObjectAttachmentConfiguration?:
-		_#defs."/$defs/Properties/definitions/SalesforceStandardObjectAttachmentConfiguration"
-	StandardObjectConfigurations?: _#defs."/$defs/Properties/definitions/SalesforceStandardObjectConfigurationList"
+	ExcludeAttachmentFilePatterns?:         #DataSourceInclusionsExclusionsStrings
+	IncludeAttachmentFilePatterns?:         #DataSourceInclusionsExclusionsStrings
+	KnowledgeArticleConfiguration?:         #SalesforceKnowledgeArticleConfiguration
+	SecretArn!:                             #SecretArn
+	ServerUrl!:                             #Url
+	StandardObjectAttachmentConfiguration?: #SalesforceStandardObjectAttachmentConfiguration
+	StandardObjectConfigurations?:          #SalesforceStandardObjectConfigurationList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfiguration": close({
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
-	Name!:                   _#defs."/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeName"
+#SalesforceCustomKnowledgeArticleTypeConfiguration: close({
+	DocumentDataFieldName!:  #DataSourceFieldName
+	DocumentTitleFieldName?: #DataSourceFieldName
+	FieldMappings?:          #DataSourceToIndexFieldMappingList
+	Name!:                   #SalesforceCustomKnowledgeArticleTypeName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfigurationList": list.MaxItems(10) & list.MinItems(
-	1,
-) & [..._#defs."/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfiguration"] |
-	fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeName": strings.MaxRunes(100) & strings.MinRunes(1) |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/SalesforceKnowledgeArticleConfiguration": close({
-	CustomKnowledgeArticleTypeConfigurations?:
-		_#defs."/$defs/Properties/definitions/SalesforceCustomKnowledgeArticleTypeConfigurationList"
-	IncludedStates!: _#defs."/$defs/Properties/definitions/SalesforceKnowledgeArticleStateList"
-	StandardKnowledgeArticleTypeConfiguration?:
-		_#defs."/$defs/Properties/definitions/SalesforceStandardKnowledgeArticleTypeConfiguration"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/SalesforceKnowledgeArticleState": "DRAFT" |
-	"PUBLISHED" |
-	"ARCHIVED" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/SalesforceKnowledgeArticleStateList": list.MaxItems(3) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SalesforceKnowledgeArticleState"
+#SalesforceCustomKnowledgeArticleTypeConfigurationList: list.MaxItems(10) & list.MinItems(1) & [
+	...#SalesforceCustomKnowledgeArticleTypeConfiguration
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceStandardKnowledgeArticleTypeConfiguration": close({
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+#SalesforceCustomKnowledgeArticleTypeName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+
+#SalesforceKnowledgeArticleConfiguration: close({
+	CustomKnowledgeArticleTypeConfigurations?:  #SalesforceCustomKnowledgeArticleTypeConfigurationList
+	IncludedStates!:                            #SalesforceKnowledgeArticleStateList
+	StandardKnowledgeArticleTypeConfiguration?: #SalesforceStandardKnowledgeArticleTypeConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceStandardObjectAttachmentConfiguration": close({
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
+#SalesforceKnowledgeArticleState: "DRAFT" | "PUBLISHED" | "ARCHIVED" | fn.#StringExpression
+
+#SalesforceKnowledgeArticleStateList: list.MaxItems(3) & list.MinItems(1) & [...#SalesforceKnowledgeArticleState] |
+	fn.#ListExpression
+
+#SalesforceStandardKnowledgeArticleTypeConfiguration: close({
+	DocumentDataFieldName!:  #DataSourceFieldName
+	DocumentTitleFieldName?: #DataSourceFieldName
+	FieldMappings?:          #DataSourceToIndexFieldMappingList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceStandardObjectConfiguration": close({
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
-	Name!:                   _#defs."/$defs/Properties/definitions/SalesforceStandardObjectName"
+#SalesforceStandardObjectAttachmentConfiguration: close({
+	DocumentTitleFieldName?: #DataSourceFieldName
+	FieldMappings?:          #DataSourceToIndexFieldMappingList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceStandardObjectConfigurationList": list.MaxItems(17) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SalesforceStandardObjectConfiguration"
+#SalesforceStandardObjectConfiguration: close({
+	DocumentDataFieldName!:  #DataSourceFieldName
+	DocumentTitleFieldName?: #DataSourceFieldName
+	FieldMappings?:          #DataSourceToIndexFieldMappingList
+	Name!:                   #SalesforceStandardObjectName
+}) |
+fn.#ObjectExpression
+
+#SalesforceStandardObjectConfigurationList: list.MaxItems(17) & list.MinItems(1) & [
+	...#SalesforceStandardObjectConfiguration
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceStandardObjectName": "ACCOUNT" |
+#SalesforceStandardObjectName: "ACCOUNT" |
 	"CAMPAIGN" |
 	"CASE" |
 	"CONTACT" |
@@ -680,101 +779,87 @@ _#defs: "/$defs/Properties/definitions/SalesforceStandardObjectName": "ACCOUNT" 
 	"USER" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": strings.MaxRunes(1000) | fn.#StringExpression
+#Schedule: strings.MaxRunes(1000) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecretArn": strings.MaxRunes(1284) & strings.MinRunes(1) | fn.#StringExpression
+#SecretArn: strings.MaxRunes(1284) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowAuthenticationType": "HTTP_BASIC" | "OAUTH2" | fn.#StringExpression
+#ServiceNowAuthenticationType: "HTTP_BASIC" | "OAUTH2" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowBuildVersionType": "LONDON" | "OTHERS" | fn.#StringExpression
+#ServiceNowBuildVersionType: "LONDON" | "OTHERS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConfiguration": close({
-	AuthenticationType?:            _#defs."/$defs/Properties/definitions/ServiceNowAuthenticationType"
-	HostUrl!:                       _#defs."/$defs/Properties/definitions/ServiceNowHostUrl"
-	KnowledgeArticleConfiguration?: _#defs."/$defs/Properties/definitions/ServiceNowKnowledgeArticleConfiguration"
-	SecretArn!:                     _#defs."/$defs/Properties/definitions/SecretArn"
-	ServiceCatalogConfiguration?:   _#defs."/$defs/Properties/definitions/ServiceNowServiceCatalogConfiguration"
-	ServiceNowBuildVersion!:        _#defs."/$defs/Properties/definitions/ServiceNowBuildVersionType"
+#ServiceNowConfiguration: close({
+	AuthenticationType?:            #ServiceNowAuthenticationType
+	HostUrl!:                       #ServiceNowHostUrl
+	KnowledgeArticleConfiguration?: #ServiceNowKnowledgeArticleConfiguration
+	SecretArn!:                     #SecretArn
+	ServiceCatalogConfiguration?:   #ServiceNowServiceCatalogConfiguration
+	ServiceNowBuildVersion!:        #ServiceNowBuildVersionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowHostUrl": strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
+#ServiceNowHostUrl: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowKnowledgeArticleConfiguration": close({
+#ServiceNowKnowledgeArticleConfiguration: close({
 	CrawlAttachments?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	ExcludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	FieldMappings?:                 _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
-	FilterQuery?:                   _#defs."/$defs/Properties/definitions/ServiceNowKnowledgeArticleFilterQuery"
-	IncludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	DocumentDataFieldName!:  #DataSourceFieldName
+	DocumentTitleFieldName?: #DataSourceFieldName
+	ExcludeAttachmentFilePatterns?: #DataSourceInclusionsExclusionsStrings
+	FieldMappings?:                 #DataSourceToIndexFieldMappingList
+	FilterQuery?:                   #ServiceNowKnowledgeArticleFilterQuery
+	IncludeAttachmentFilePatterns?: #DataSourceInclusionsExclusionsStrings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowKnowledgeArticleFilterQuery": strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
+#ServiceNowKnowledgeArticleFilterQuery: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowServiceCatalogConfiguration": close({
+#ServiceNowServiceCatalogConfiguration: close({
 	CrawlAttachments?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DocumentDataFieldName!:  _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	ExcludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	FieldMappings?:                 _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
-	IncludeAttachmentFilePatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	DocumentDataFieldName!:  #DataSourceFieldName
+	DocumentTitleFieldName?: #DataSourceFieldName
+	ExcludeAttachmentFilePatterns?: #DataSourceInclusionsExclusionsStrings
+	FieldMappings?:                 #DataSourceToIndexFieldMappingList
+	IncludeAttachmentFilePatterns?: #DataSourceInclusionsExclusionsStrings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SharePointConfiguration": close({
+#SharePointConfiguration: close({
 	CrawlAttachments?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisableLocalGroups?:     _#defs."/$defs/Properties/definitions/DisableLocalGroups"
-	DocumentTitleFieldName?: _#defs."/$defs/Properties/definitions/DataSourceFieldName"
-	ExclusionPatterns?:      _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	FieldMappings?:          _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
-	InclusionPatterns?:      _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	SecretArn!:              _#defs."/$defs/Properties/definitions/SecretArn"
+	DisableLocalGroups?:     #DisableLocalGroups
+	DocumentTitleFieldName?: #DataSourceFieldName
+	ExclusionPatterns?:      #DataSourceInclusionsExclusionsStrings
+	FieldMappings?:          #DataSourceToIndexFieldMappingList
+	InclusionPatterns?:      #DataSourceInclusionsExclusionsStrings
+	SecretArn!:              #SecretArn
 	SharePointVersion!:      "SHAREPOINT_ONLINE" | "SHAREPOINT_2013" | "SHAREPOINT_2016" | fn.#StringExpression
-	SslCertificateS3Path?:   _#defs."/$defs/Properties/definitions/S3Path"
-	Urls!:                   list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/Url"] | fn.#ListExpression
+	SslCertificateS3Path?:   #S3Path
+	Urls!:                   list.MaxItems(100) & [...#Url] | fn.#ListExpression
 	UseChangeLog?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VpcConfiguration?:       _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration"
+	VpcConfiguration?:       #DataSourceVpcConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SharedDriveId": strings.MaxRunes(256) & strings.MinRunes(1) |
-fn.#StringExpression
+#SharedDriveId: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SqlConfiguration": close(
-	{QueryIdentifiersEnclosingOption?: _#defs."/$defs/Properties/definitions/QueryIdentifiersEnclosingOption"},
-) |
-	fn.#ObjectExpression
+#SqlConfiguration: close({QueryIdentifiersEnclosingOption?: #QueryIdentifiersEnclosingOption}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableName": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#TableName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#TagList: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TemplateConfiguration": close(
-	{Template!: fn.#Object & {...} | fn.#ObjectExpression},
-) |
-fn.#ObjectExpression
+#TemplateConfiguration: close({Template!: fn.#Object & {...} | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TenantDomain": strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,}$" |
+#TenantDomain: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string | fn.#StringExpression
+#Timestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Type": "S3" |
+#Type: "S3" |
 	"SHAREPOINT" |
 	"SALESFORCE" |
 	"ONEDRIVE" |
@@ -788,20 +873,15 @@ _#defs: "/$defs/Properties/definitions/Type": "S3" |
 	"TEMPLATE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Url": strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^(https?|ftp|file)://([^\\s]*)" |
-fn.#StringExpression
+#Url: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UserAccount": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#UserAccount: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerAuthenticationConfiguration": close(
-	{BasicAuthentication?: _#defs."/$defs/Properties/definitions/WebCrawlerBasicAuthenticationList"},
-) |
+#WebCrawlerAuthenticationConfiguration: close({BasicAuthentication?: #WebCrawlerBasicAuthenticationList}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerBasicAuthentication": close({
-	Credentials!: _#defs."/$defs/Properties/definitions/SecretArn"
+#WebCrawlerBasicAuthentication: close({
+	Credentials!: #SecretArn
 	Host!:        strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" | fn.#StringExpression
 	Port!: int & <=65535 & >=1 |
 		{
@@ -822,13 +902,10 @@ _#defs: "/$defs/Properties/definitions/WebCrawlerBasicAuthentication": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerBasicAuthenticationList": list.MaxItems(10) & [
-	..._#defs."/$defs/Properties/definitions/WebCrawlerBasicAuthentication"
-] |
-	fn.#ListExpression
+#WebCrawlerBasicAuthenticationList: list.MaxItems(10) & [...#WebCrawlerBasicAuthentication] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/WebCrawlerAuthenticationConfiguration"
+#WebCrawlerConfiguration: close({
+	AuthenticationConfiguration?: #WebCrawlerAuthenticationConfiguration
 	CrawlDepth?: int & <=10 & >=1 |
 		{
 			string &
@@ -897,60 +974,41 @@ _#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	ProxyConfiguration?:   _#defs."/$defs/Properties/definitions/ProxyConfiguration"
-	UrlExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	UrlInclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	Urls!:                 _#defs."/$defs/Properties/definitions/WebCrawlerUrls"
+	ProxyConfiguration?:   #ProxyConfiguration
+	UrlExclusionPatterns?: #DataSourceInclusionsExclusionsStrings
+	UrlInclusionPatterns?: #DataSourceInclusionsExclusionsStrings
+	Urls!:                 #WebCrawlerUrls
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerSeedUrl": strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^(https?)://([^\\s]*)" |
-fn.#StringExpression
+#WebCrawlerSeedUrl: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?)://([^\\s]*)" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerSeedUrlConfiguration": close({
-	SeedUrls!:       _#defs."/$defs/Properties/definitions/WebCrawlerSeedUrlList"
+#WebCrawlerSeedUrlConfiguration: close({
+	SeedUrls!:       #WebCrawlerSeedUrlList
 	WebCrawlerMode?: "HOST_ONLY" | "SUBDOMAINS" | "EVERYTHING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerSeedUrlList": list.MaxItems(100) & [...] & [
-	..._#defs."/$defs/Properties/definitions/WebCrawlerSeedUrl"
-] |
-	fn.#ListExpression
+#WebCrawlerSeedUrlList: list.MaxItems(100) & [...] & [...#WebCrawlerSeedUrl] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerSiteMap": strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^(https?):\\/\\/([^\\s]*)" |
-fn.#StringExpression
+#WebCrawlerSiteMap: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?):\\/\\/([^\\s]*)" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerSiteMaps": list.MaxItems(3) & [...] & [
-	..._#defs."/$defs/Properties/definitions/WebCrawlerSiteMap"
-] |
-	fn.#ListExpression
+#WebCrawlerSiteMaps: list.MaxItems(3) & [...] & [...#WebCrawlerSiteMap] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerSiteMapsConfiguration": close(
-	{SiteMaps!: _#defs."/$defs/Properties/definitions/WebCrawlerSiteMaps"},
-) |
-	fn.#ObjectExpression
+#WebCrawlerSiteMapsConfiguration: close({SiteMaps!: #WebCrawlerSiteMaps}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerUrls": close({
-	SeedUrlConfiguration?:  _#defs."/$defs/Properties/definitions/WebCrawlerSeedUrlConfiguration"
-	SiteMapsConfiguration?: _#defs."/$defs/Properties/definitions/WebCrawlerSiteMapsConfiguration"
+#WebCrawlerUrls: close({
+	SeedUrlConfiguration?:  #WebCrawlerSeedUrlConfiguration
+	SiteMapsConfiguration?: #WebCrawlerSiteMapsConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkDocsConfiguration": close({
+#WorkDocsConfiguration: close({
 	CrawlComments?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
-	FieldMappings?:     _#defs."/$defs/Properties/definitions/DataSourceToIndexFieldMappingList"
-	InclusionPatterns?: _#defs."/$defs/Properties/definitions/DataSourceInclusionsExclusionsStrings"
+	ExclusionPatterns?: #DataSourceInclusionsExclusionsStrings
+	FieldMappings?:     #DataSourceToIndexFieldMappingList
+	InclusionPatterns?: #DataSourceInclusionsExclusionsStrings
 	OrganizationId!:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"d-[0-9a-fA-F]{10}" | fn.#StringExpression
 	UseChangeLog?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Kendra::DataSource"
-	Properties!: #Properties
-}

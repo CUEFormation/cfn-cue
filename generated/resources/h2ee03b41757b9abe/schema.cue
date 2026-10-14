@@ -13,40 +13,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::ProtectConfiguration
-#Properties: close({
-	CountryRuleSet?:            _#defs."/$defs/Properties/definitions/CountryRuleSet" | fn.#ObjectExpression
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::ProtectConfiguration"
+	Properties?: close({
+		// An array of CountryRule containing the rules for the NumberCapability.
+		CountryRuleSet?: #CountryRuleSet
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CountryRule": close({
+#CountryRule: close({
 	CountryCode!:   =~"^[A-Z]{2}$" | fn.#StringExpression
 	ProtectStatus!: "ALLOW" | "BLOCK" | "MONITOR" | "FILTER" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CountryRuleSet": matchN(>=1, [{
-	SMS!: _
-	...
-}, {
-	VOICE!: _
-	...
-}, {
-	MMS!: _
-	...
-}]) & close({
-	MMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"] | fn.#ListExpression
-	SMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"] | fn.#ListExpression
-	VOICE?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"] | fn.#ListExpression
-}) |
+#CountryRuleSet: close({
+	MMS?:   list.UniqueItems() & [...#CountryRule] | fn.#ListExpression
+	SMS?:   list.UniqueItems() & [...#CountryRule] | fn.#ListExpression
+	VOICE?: list.UniqueItems() & [...#CountryRule] | fn.#ListExpression
+}) & matchN(>=1, [{SMS!: _}, {VOICE!: _}, {MMS!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::ProtectConfiguration"
-	Properties?: #Properties
-}

@@ -3,112 +3,99 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a collaboration between AWS accounts that allows for secure data collaboration
 #Properties: close({
-	AllowedResultRegions?:    _#defs."/$defs/Properties/definitions/AllowedResultRegions"
-	AnalyticsEngine?:         _#defs."/$defs/Properties/definitions/AnalyticsEngine"
+	AllowedResultRegions?:    #AllowedResultRegions
+	AnalyticsEngine?:         #AnalyticsEngine
 	Arn?:                     strings.MaxRunes(100)
-	AutoApprovedChangeTypes?: _#defs."/$defs/Properties/definitions/AutoApprovedChangeTypeList"
+	AutoApprovedChangeTypes?: #AutoApprovedChangeTypeList
 	CollaborationIdentifier?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-	CreatorDisplayName!:          _#defs."/$defs/Properties/definitions/Name"
-	CreatorMLMemberAbilities?:    _#defs."/$defs/Properties/definitions/MLMemberAbilities"
-	CreatorMemberAbilities?:      _#defs."/$defs/Properties/definitions/MemberAbilities"
-	CreatorPaymentConfiguration?: _#defs."/$defs/Properties/definitions/PaymentConfiguration"
-	DataEncryptionMetadata?:      _#defs."/$defs/Properties/definitions/DataEncryptionMetadata"
+	CreatorDisplayName!:          #Name
+	CreatorMLMemberAbilities?:    #MLMemberAbilities
+	CreatorMemberAbilities?:      #MemberAbilities
+	CreatorPaymentConfiguration?: #PaymentConfiguration
+	DataEncryptionMetadata?:      #DataEncryptionMetadata
 	Description!:                 strings.MaxRunes(255) & strings.MinRunes(1)
 	IsMetricsEnabled?:            bool
-	JobLogStatus?:                _#defs."/$defs/Properties/definitions/CollaborationJobLogStatus"
-	Members?:        list.MaxItems(9) & [...] & [..._#defs."/$defs/Properties/definitions/MemberSpecification"]
-	Name!:           strings.MaxRunes(100) & strings.MinRunes(1)
-	QueryLogStatus!: _#defs."/$defs/Properties/definitions/CollaborationQueryLogStatus"
+	JobLogStatus?:                #CollaborationJobLogStatus
+	Members?:                     list.MaxItems(9) & [...] & [...#MemberSpecification]
+	Name!:                        strings.MaxRunes(100) & strings.MinRunes(1)
+	QueryLogStatus!:              #CollaborationQueryLogStatus
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms collaboration.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AllowedResultRegions": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SupportedS3Region"
-]
+#AllowedResultRegions: list.UniqueItems() & [...#SupportedS3Region]
 
-_#defs: "/$defs/Properties/definitions/AnalyticsEngine": "CLEAN_ROOMS_SQL" | "SPARK"
+#AnalyticsEngine: "CLEAN_ROOMS_SQL" | "SPARK"
 
-_#defs: "/$defs/Properties/definitions/AutoApprovedChangeType": "ADD_MEMBER" |
-	"GRANT_RECEIVE_RESULTS_ABILITY" |
-	"REVOKE_RECEIVE_RESULTS_ABILITY"
+#AutoApprovedChangeType: "ADD_MEMBER" | "GRANT_RECEIVE_RESULTS_ABILITY" | "REVOKE_RECEIVE_RESULTS_ABILITY"
 
-_#defs: "/$defs/Properties/definitions/AutoApprovedChangeTypeList": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AutoApprovedChangeType"
-]
+#AutoApprovedChangeTypeList: list.UniqueItems() & [...#AutoApprovedChangeType]
 
-_#defs: "/$defs/Properties/definitions/CollaborationJobLogStatus": "ENABLED" | "DISABLED"
+#CollaborationJobLogStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/CollaborationQueryLogStatus": "ENABLED" | "DISABLED"
+#CollaborationQueryLogStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/CustomMLMemberAbilities": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CustomMLMemberAbility"
-]
+#CustomMLMemberAbilities: list.UniqueItems() & [...#CustomMLMemberAbility]
 
-_#defs: "/$defs/Properties/definitions/CustomMLMemberAbility": "CAN_RECEIVE_MODEL_OUTPUT" |
-	"CAN_RECEIVE_INFERENCE_OUTPUT"
+#CustomMLMemberAbility: "CAN_RECEIVE_MODEL_OUTPUT" | "CAN_RECEIVE_INFERENCE_OUTPUT"
 
-_#defs: "/$defs/Properties/definitions/DataEncryptionMetadata": close({
+#DataEncryptionMetadata: close({
 	AllowCleartext!:                        bool
 	AllowDuplicates!:                       bool
 	AllowJoinsOnColumnsWithDifferentNames!: bool
 	PreserveNulls!:                         bool
 })
 
-_#defs: "/$defs/Properties/definitions/JobComputePaymentConfig": close({IsResponsible!: bool})
+#JobComputePaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/MLMemberAbilities": close(
-	{CustomMLMemberAbilities!: _#defs."/$defs/Properties/definitions/CustomMLMemberAbilities"},
-)
+#MLMemberAbilities: close({CustomMLMemberAbilities!: #CustomMLMemberAbilities})
 
-_#defs: "/$defs/Properties/definitions/MLPaymentConfig": close({
-	ModelInference?:          _#defs."/$defs/Properties/definitions/ModelInferencePaymentConfig"
-	ModelTraining?:           _#defs."/$defs/Properties/definitions/ModelTrainingPaymentConfig"
-	SyntheticDataGeneration?: _#defs."/$defs/Properties/definitions/SyntheticDataGenerationPaymentConfig"
+#MLPaymentConfig: close({
+	ModelInference?:          #ModelInferencePaymentConfig
+	ModelTraining?:           #ModelTrainingPaymentConfig
+	SyntheticDataGeneration?: #SyntheticDataGenerationPaymentConfig
 })
 
-_#defs: "/$defs/Properties/definitions/MemberAbilities": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/MemberAbility"
-]
+#MemberAbilities: list.UniqueItems() & [...#MemberAbility]
 
-_#defs: "/$defs/Properties/definitions/MemberAbility": "CAN_QUERY" | "CAN_RUN_JOB" | "CAN_RECEIVE_RESULTS"
+#MemberAbility: "CAN_QUERY" | "CAN_RUN_JOB" | "CAN_RECEIVE_RESULTS"
 
-_#defs: "/$defs/Properties/definitions/MemberSpecification": close({
+#MemberSpecification: close({
 	AccountId!:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$"
-	DisplayName!:          _#defs."/$defs/Properties/definitions/Name"
-	MLMemberAbilities?:    _#defs."/$defs/Properties/definitions/MLMemberAbilities"
-	MemberAbilities?:      _#defs."/$defs/Properties/definitions/MemberAbilities"
-	PaymentConfiguration?: _#defs."/$defs/Properties/definitions/PaymentConfiguration"
+	DisplayName!:          #Name
+	MLMemberAbilities?:    #MLMemberAbilities
+	MemberAbilities?:      #MemberAbilities
+	PaymentConfiguration?: #PaymentConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/MemberStatus": "INVITED" | "ACTIVE" | "LEFT" | "REMOVED"
+#MemberStatus: "INVITED" | "ACTIVE" | "LEFT" | "REMOVED"
 
-_#defs: "/$defs/Properties/definitions/ModelInferencePaymentConfig": close({IsResponsible!: bool})
+#ModelInferencePaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/ModelTrainingPaymentConfig": close({IsResponsible!: bool})
+#ModelTrainingPaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(100) & strings.MinRunes(1)
+#Name: strings.MaxRunes(100) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/PaymentConfiguration": close({
-	JobCompute?:      _#defs."/$defs/Properties/definitions/JobComputePaymentConfig"
-	MachineLearning?: _#defs."/$defs/Properties/definitions/MLPaymentConfig"
-	QueryCompute!:    _#defs."/$defs/Properties/definitions/QueryComputePaymentConfig"
+#PaymentConfiguration: close({
+	JobCompute?:      #JobComputePaymentConfig
+	MachineLearning?: #MLPaymentConfig
+	QueryCompute!:    #QueryComputePaymentConfig
 })
 
-_#defs: "/$defs/Properties/definitions/QueryComputePaymentConfig": close({IsResponsible!: bool})
+#QueryComputePaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/SupportedS3Region": "us-west-1" |
+#SupportedS3Region: "us-west-1" |
 	"us-west-2" |
 	"us-east-1" |
 	"us-east-2" |
@@ -142,9 +129,9 @@ _#defs: "/$defs/Properties/definitions/SupportedS3Region": "us-west-1" |
 	"sa-east-1" |
 	"mx-central-1"
 
-_#defs: "/$defs/Properties/definitions/SyntheticDataGenerationPaymentConfig": close({IsResponsible!: bool})
+#SyntheticDataGenerationPaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

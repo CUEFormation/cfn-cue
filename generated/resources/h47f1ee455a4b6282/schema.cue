@@ -26,20 +26,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon Aurora User Guide*.
 // Applying a parameter group to a DB instance may require the DB instance to
 // reboot, resulting in a database outage for the duration of the reboot.
-#Properties: close({
-	DBParameterGroupName?: =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9])*$" | fn.#StringExpression
-	Description!:          string | fn.#StringExpression
-	Family!:               string | fn.#StringExpression
-	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?:                 list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::DBParameterGroup"
+	Properties!: close({
+		DBParameterGroupName?: =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9])*$" | fn.#StringExpression
+		Description!:          string | fn.#StringExpression
+		Family!:               string | fn.#StringExpression
+		Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:                 list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::DBParameterGroup"
-	Properties!: #Properties
-}

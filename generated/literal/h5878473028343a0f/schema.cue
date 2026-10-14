@@ -21,45 +21,41 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(0)
 
 	// License asset rules.
-	Rules!: [..._#defs."/$defs/Properties/definitions/LicenseAssetRule"]
+	Rules!: [...#LicenseAssetRule]
 
 	// Tags to add to the license asset ruleset.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // AND rule statement.
-_#defs: "/$defs/Properties/definitions/AndRuleStatement": close(
-	{MatchingRuleStatements?: [..._#defs."/$defs/Properties/definitions/MatchingRuleStatement"]},
-)
+#AndRuleStatement: close({MatchingRuleStatements?: [...#MatchingRuleStatement]})
 
 // Instance rule statement.
-_#defs: "/$defs/Properties/definitions/InstanceRuleStatement": close({
-	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement"
-	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement"
-	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement"
+#InstanceRuleStatement: close({
+	AndRuleStatement?:      #AndRuleStatement
+	MatchingRuleStatement?: #MatchingRuleStatement
+	OrRuleStatement?:       #OrRuleStatement
 })
 
 // License asset rule.
-_#defs: "/$defs/Properties/definitions/LicenseAssetRule": close(
-	{RuleStatement!: _#defs."/$defs/Properties/definitions/RuleStatement"},
-)
+#LicenseAssetRule: close({RuleStatement!: #RuleStatement})
 
 // License configuration rule statement.
-_#defs: "/$defs/Properties/definitions/LicenseConfigurationRuleStatement": close({
-	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement"
-	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement"
-	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement"
+#LicenseConfigurationRuleStatement: close({
+	AndRuleStatement?:      #AndRuleStatement
+	MatchingRuleStatement?: #MatchingRuleStatement
+	OrRuleStatement?:       #OrRuleStatement
 })
 
 // License rule statement.
-_#defs: "/$defs/Properties/definitions/LicenseRuleStatement": close({
-	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement"
-	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement"
-	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement"
+#LicenseRuleStatement: close({
+	AndRuleStatement?:      #AndRuleStatement
+	MatchingRuleStatement?: #MatchingRuleStatement
+	OrRuleStatement?:       #OrRuleStatement
 })
 
 // Matching rule statement.
-_#defs: "/$defs/Properties/definitions/MatchingRuleStatement": close({
+#MatchingRuleStatement: close({
 	// Constraint (e.g. Equals, Not_Equals).
 	Constraint!: string
 
@@ -71,19 +67,17 @@ _#defs: "/$defs/Properties/definitions/MatchingRuleStatement": close({
 })
 
 // OR rule statement.
-_#defs: "/$defs/Properties/definitions/OrRuleStatement": close(
-	{MatchingRuleStatements?: [..._#defs."/$defs/Properties/definitions/MatchingRuleStatement"]},
-)
+#OrRuleStatement: close({MatchingRuleStatements?: [...#MatchingRuleStatement]})
 
 // Rule statement. Specify exactly one of InstanceRuleStatement,
 // LicenseRuleStatement, or LicenseConfigurationRuleStatement.
-_#defs: "/$defs/Properties/definitions/RuleStatement": close({
-	InstanceRuleStatement?:             _#defs."/$defs/Properties/definitions/InstanceRuleStatement"
-	LicenseConfigurationRuleStatement?: _#defs."/$defs/Properties/definitions/LicenseConfigurationRuleStatement"
-	LicenseRuleStatement?:              _#defs."/$defs/Properties/definitions/LicenseRuleStatement"
+#RuleStatement: close({
+	InstanceRuleStatement?:             #InstanceRuleStatement
+	LicenseConfigurationRuleStatement?: #LicenseConfigurationRuleStatement
+	LicenseRuleStatement?:              #LicenseRuleStatement
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

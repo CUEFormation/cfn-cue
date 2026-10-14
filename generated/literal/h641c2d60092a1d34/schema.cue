@@ -13,8 +13,8 @@ import (
 #Properties: close({
 	// The ARN of the Serverless Cache.
 	ARN?:              string
-	CacheUsageLimits?: _#defs."/$defs/Properties/definitions/CacheUsageLimits"
-	ConnectionType?:   _#defs."/$defs/Properties/definitions/ConnectionType"
+	CacheUsageLimits?: #CacheUsageLimits
+	ConnectionType?:   #ConnectionType
 
 	// The creation time of the Serverless Cache.
 	CreateTime?: string
@@ -25,7 +25,7 @@ import (
 
 	// The description of the Serverless Cache.
 	Description?: string
-	Endpoint?:    _#defs."/$defs/Properties/definitions/Endpoint"
+	Endpoint?:    #Endpoint
 
 	// The engine name of the Serverless Cache.
 	Engine!: string
@@ -41,8 +41,8 @@ import (
 
 	// The major engine version of the Serverless Cache.
 	MajorEngineVersion?: string
-	NetworkType?:        _#defs."/$defs/Properties/definitions/NetworkType"
-	ReaderEndpoint?:     _#defs."/$defs/Properties/definitions/Endpoint"
+	NetworkType?:        #NetworkType
+	ReaderEndpoint?:     #Endpoint
 
 	// One or more Amazon VPC security groups associated with this Serverless Cache.
 	SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
@@ -63,23 +63,23 @@ import (
 	SubnetIds?: list.UniqueItems() & [...string]
 
 	// An array of key-value pairs to apply to this Serverless Cache.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The ID of the user group.
 	UserGroupId?: string
 })
 
 // The cache capacity limit of the Serverless Cache.
-_#defs: "/$defs/Properties/definitions/CacheUsageLimits": close({
-	DataStorage?:   _#defs."/$defs/Properties/definitions/DataStorage"
-	ECPUPerSecond?: _#defs."/$defs/Properties/definitions/ECPUPerSecond"
+#CacheUsageLimits: close({
+	DataStorage?:   #DataStorage
+	ECPUPerSecond?: #ECPUPerSecond
 })
 
 // The connection type for the serverless cache. Valid values are vpc or public.
-_#defs: "/$defs/Properties/definitions/ConnectionType": =~"(?i)^(?:public|vpc)$"
+#ConnectionType: =~"(?i)^(?:public|vpc)$"
 
 // The cached data capacity of the Serverless Cache.
-_#defs: "/$defs/Properties/definitions/DataStorage": close({
+#DataStorage: close({
 	// The maximum cached data capacity of the Serverless Cache.
 	Maximum?: int
 
@@ -91,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/DataStorage": close({
 })
 
 // The ECPU per second of the Serverless Cache.
-_#defs: "/$defs/Properties/definitions/ECPUPerSecond": close({
+#ECPUPerSecond: close({
 	// The maximum ECPU per second of the Serverless Cache.
 	Maximum?: int
 
@@ -100,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/ECPUPerSecond": close({
 })
 
 // The address and the port.
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	// Endpoint address.
 	Address?: string
 
@@ -109,10 +109,10 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 })
 
 // The network type for the serverless cache. Valid values are ipv4, ipv6, or dual_stack.
-_#defs: "/$defs/Properties/definitions/NetworkType": =~"(?i)^(?:dual_stack|ipv4|ipv6)$"
+#NetworkType: =~"(?i)^(?:dual_stack|ipv4|ipv6)$"
 
 // A key-value pair to associate with Serverless Cache.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with 'aws:'. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

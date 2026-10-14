@@ -5,8 +5,8 @@ package schema
 import (
 	"strings"
 	"list"
-	"struct"
 	"time"
+	"struct"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,23 +25,21 @@ import (
 	// component type's key must be unique to this map.
 	CompositeComponentTypes?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/CompositeComponentType"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #CompositeComponentType}})
 
 	// The date and time when the component type was created.
-	CreationDateTime?: _#defs."/$defs/Properties/definitions/DateTimeFormat"
+	CreationDateTime?: #DateTimeFormat
 
 	// The description of the component type.
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0)
 
 	// Specifies the parent component type to extend.
-	ExtendsFrom?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ParentComponentType"
-	]
+	ExtendsFrom?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#ParentComponentType]
 
 	// a Map of functions in the component type. Each function's key must be unique to this map.
 	Functions?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Function"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #Function}})
 
 	// A Boolean value that specifies whether the component type is abstract.
 	IsAbstract?: bool
@@ -57,16 +55,16 @@ import (
 	// definition's key must be unique to this map.
 	PropertyDefinitions?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyDefinition"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyDefinition}})
 
 	// An map of the property groups in the component type. Each property group's
 	// key must be unique to this map.
 	PropertyGroups?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyGroup"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}})
 
 	// The current status of the component type.
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+	Status?: #Status
 
 	// A map of key-value pairs to associate with a resource.
 	Tags?: struct.MaxFields(50) & close({
@@ -74,37 +72,37 @@ import (
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1)}})
 
 	// The last date and time when the component type was updated.
-	UpdateDateTime?: _#defs."/$defs/Properties/definitions/DateTimeFormat"
+	UpdateDateTime?: #DateTimeFormat
 
 	// The ID of the workspace that contains the component type.
 	WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+"
 })
 
 // An object that sets information about a composite component type.
-_#defs: "/$defs/Properties/definitions/CompositeComponentType": close({
+#CompositeComponentType: close({
 	// The id of the composite component type.
 	ComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+"
 })
 
 // The data connector.
-_#defs: "/$defs/Properties/definitions/DataConnector": close({
+#DataConnector: close({
 	// A Boolean value that specifies whether the data connector is native to IoT TwinMaker.
 	IsNative?: bool
 
 	// The Lambda function associated with this data connector.
-	Lambda?: _#defs."/$defs/Properties/definitions/LambdaFunction"
+	Lambda?: #LambdaFunction
 })
 
 // An object that specifies the data type of a property.
-_#defs: "/$defs/Properties/definitions/DataType": close({
+#DataType: close({
 	// The allowed values for this data type.
-	AllowedValues?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DataValue"]
+	AllowedValues?: list.MaxItems(50) & [...] & [...#DataValue]
 
 	// The nested type in the data type.
-	NestedType?: _#defs."/$defs/Properties/definitions/DataType"
+	NestedType?: #DataType
 
 	// A relationship that associates a component with another component.
-	Relationship?: _#defs."/$defs/Properties/definitions/Relationship"
+	Relationship?: #Relationship
 
 	// The underlying type of the data type.
 	Type!: "RELATIONSHIP" | "STRING" | "LONG" | "BOOLEAN" | "INTEGER" | "DOUBLE" | "LIST" | "MAP"
@@ -114,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/DataType": close({
 })
 
 // An object that specifies a value for a property.
-_#defs: "/$defs/Properties/definitions/DataValue": close({
+#DataValue: close({
 	// A Boolean value.
 	BooleanValue?: bool
 
@@ -128,7 +126,7 @@ _#defs: "/$defs/Properties/definitions/DataValue": close({
 	IntegerValue?: int
 
 	// A list of multiple values.
-	ListValue?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DataValue"]
+	ListValue?: list.MaxItems(50) & [...] & [...#DataValue]
 
 	// A long value.
 	LongValue?: number
@@ -136,7 +134,7 @@ _#defs: "/$defs/Properties/definitions/DataValue": close({
 	// An object that maps strings to multiple DataValue objects.
 	MapValue?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/DataValue"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #DataValue}})
 
 	// A value that relates a component to another component.
 	RelationshipValue?: close({
@@ -150,44 +148,40 @@ _#defs: "/$defs/Properties/definitions/DataValue": close({
 	StringValue?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*"
 })
 
-_#defs: "/$defs/Properties/definitions/DateTimeFormat": time.Time
+#DateTimeFormat: time.Time
 
 // The function of component type.
-_#defs: "/$defs/Properties/definitions/Function": close({
+#Function: close({
 	// The data connector.
-	ImplementedBy?: _#defs."/$defs/Properties/definitions/DataConnector"
+	ImplementedBy?: #DataConnector
 
 	// The required properties of the function.
-	RequiredProperties?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/RequiredProperty"
-	]
+	RequiredProperties?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#RequiredProperty]
 
 	// The scope of the function.
 	Scope?: "ENTITY" | "WORKSPACE"
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaFunction": close({
+#LambdaFunction: close({
 	Arn!: strings.MaxRunes(128) &
 	strings.MinRunes(1) &
 	=~"arn:((aws)|(aws-cn)|(aws-us-gov)):lambda:[a-z0-9-]+:[0-9]{12}:function:[\\/a-zA-Z0-9_-]+"
 })
 
-_#defs: "/$defs/Properties/definitions/ParentComponentType": strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"[a-zA-Z_\\.\\-0-9:]+"
+#ParentComponentType: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+"
 
 // An object that sets information about a property.
-_#defs: "/$defs/Properties/definitions/PropertyDefinition": close({
+#PropertyDefinition: close({
 	// An object that specifies information about a property.
 	Configurations?: close({
 
 		{[=~"[a-zA-Z_\\-0-9]+"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+"}})
 
 	// An object that contains information about the data type.
-	DataType?: _#defs."/$defs/Properties/definitions/DataType"
+	DataType?: #DataType
 
 	// An object that contains the default value.
-	DefaultValue?: _#defs."/$defs/Properties/definitions/DataValue"
+	DefaultValue?: #DataValue
 
 	// A Boolean value that specifies whether the property ID comes from an external data store.
 	IsExternalId?: bool
@@ -203,20 +197,18 @@ _#defs: "/$defs/Properties/definitions/PropertyDefinition": close({
 })
 
 // An object that sets information about a property group.
-_#defs: "/$defs/Properties/definitions/PropertyGroup": close({
+#PropertyGroup: close({
 	// The type of property group.
 	GroupType?: "TABULAR"
 
 	// The list of property names in the property group.
-	PropertyNames?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PropertyName"
-	]
+	PropertyNames?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#PropertyName]
 })
 
-_#defs: "/$defs/Properties/definitions/PropertyName": =~"[a-zA-Z_\\-0-9]+"
+#PropertyName: =~"[a-zA-Z_\\-0-9]+"
 
 // The type of the relationship.
-_#defs: "/$defs/Properties/definitions/Relationship": close({
+#Relationship: close({
 	// The type of the relationship.
 	RelationshipType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*"
 
@@ -224,9 +216,9 @@ _#defs: "/$defs/Properties/definitions/Relationship": close({
 	TargetComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+"
 })
 
-_#defs: "/$defs/Properties/definitions/RequiredProperty": =~"[a-zA-Z_\\-0-9]+"
+#RequiredProperty: =~"[a-zA-Z_\\-0-9]+"
 
-_#defs: "/$defs/Properties/definitions/Status": close({
+#Status: close({
 	Error?: close({}) | close({
 		Code?:    "VALIDATION_ERROR" | "INTERNAL_FAILURE"
 		Message?: strings.MaxRunes(2048) & strings.MinRunes(0)

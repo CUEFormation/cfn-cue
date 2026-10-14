@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,20 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Space
-#Properties: close({
-	DomainId!:          strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
-	OwnershipSettings?: _#defs."/$defs/Properties/definitions/OwnershipSettings"
-	SpaceDisplayName?:  strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	SpaceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	SpaceSettings?: _#defs."/$defs/Properties/definitions/SpaceSettings" &
-	(null | bool | number | string | list.MaxItems(50) & [...] | {...}) |
-	fn.#ObjectExpression
-	SpaceSharingSettings?: _#defs."/$defs/Properties/definitions/SpaceSharingSettings"
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Space"
+	Properties!: close({
+		DomainId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
+		OwnershipSettings?: #OwnershipSettings
+		SpaceDisplayName?:  strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		SpaceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		SpaceSettings?: #SpaceSettings & (null | bool | number | string | list.MaxItems(50) & [...] | {...}) |
+		fn.#ObjectExpression
+		SpaceSharingSettings?: #SpaceSharingSettings
+		Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AppType": "JupyterServer" |
+#AppType: "JupyterServer" |
 	"KernelGateway" |
 	"TensorBoard" |
 	"RStudioServerPro" |
@@ -39,24 +41,18 @@ _#defs: "/$defs/Properties/definitions/AppType": "JupyterServer" |
 	"CodeEditor" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CodeRepository": close(
-	{RepositoryUrl!: strings.MaxRunes(256) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#CodeRepository: close({RepositoryUrl!: strings.MaxRunes(256) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomFileSystem": close({
-	EFSFileSystem?:       _#defs."/$defs/Properties/definitions/EFSFileSystem"
-	FSxLustreFileSystem?: _#defs."/$defs/Properties/definitions/FSxLustreFileSystem"
-	S3FileSystem?:        _#defs."/$defs/Properties/definitions/S3FileSystem"
+#CustomFileSystem: close({
+	EFSFileSystem?:       #EFSFileSystem
+	FSxLustreFileSystem?: #FSxLustreFileSystem
+	S3FileSystem?:        #S3FileSystem
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomFileSystems": list.MaxItems(1) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/CustomFileSystem"
-] |
-	fn.#ListExpression
+#CustomFileSystems: list.MaxItems(1) & list.UniqueItems() & [...] & [...#CustomFileSystem] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CustomImage": close({
+#CustomImage: close({
 	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
 	ImageName!:          strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
 	ImageVersionNumber?: int & >=0 |
@@ -77,49 +73,46 @@ _#defs: "/$defs/Properties/definitions/CustomImage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EFSFileSystem": close(
+#EFSFileSystem: close(
 	{FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsStorageSettings": close(
-	{EbsVolumeSizeInGb!: _#defs."/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb" | fn.#NumberExpression},
-) |
-	fn.#ObjectExpression
+#EbsStorageSettings: close({
+	// Size of the Amazon EBS volume in Gb
+	EbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FSxLustreFileSystem": close(
+#FSxLustreFileSystem: close(
 	{FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JupyterServerAppSettings": close({
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	] |
-		fn.#ListExpression
+#JupyterServerAppSettings: close({
+	DefaultResourceSpec?: #ResourceSpec
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KernelGatewayAppSettings": close({
-	CustomImages?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"] |
-		fn.#ListExpression
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	] |
-		fn.#ListExpression
+#KernelGatewayAppSettings: close({
+	CustomImages?: list.MaxItems(30) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the KernelGateway app.
+	DefaultResourceSpec?: #ResourceSpec
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnershipSettings": close(
+#OwnershipSettings: close(
 	{OwnerUserProfileName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoteAccess": "ENABLED" | "DISABLED" | fn.#StringExpression
+#RemoteAccess: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceSpec": close({
+#ResourceSpec: close({
 	InstanceType?: "system" |
 		"ml.t3.micro" |
 		"ml.t3.small" |
@@ -199,22 +192,16 @@ _#defs: "/$defs/Properties/definitions/ResourceSpec": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3FileSystem": close(
+#S3FileSystem: close(
 	{S3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceAppLifecycleManagement": close(
-	{IdleSettings?: _#defs."/$defs/Properties/definitions/SpaceIdleSettings"},
-) |
-	fn.#ObjectExpression
+#SpaceAppLifecycleManagement: close({IdleSettings?: #SpaceIdleSettings}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceCodeEditorAppSettings": close(
-	{DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"},
-) |
-	fn.#ObjectExpression
+#SpaceCodeEditorAppSettings: close({DefaultResourceSpec?: #ResourceSpec}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & >=5 |
+#SpaceEbsVolumeSizeInGb: int & <=16384 & >=5 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -231,7 +218,7 @@ _#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & 
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceIdleSettings": close({
+#SpaceIdleSettings: close({
 	IdleTimeoutInMinutes?: int & <=525600 & >=60 |
 		{
 			string &
@@ -251,49 +238,52 @@ _#defs: "/$defs/Properties/definitions/SpaceIdleSettings": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceJupyterLabAppSettings": close({
-	CodeRepositories?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CodeRepository"] |
-		fn.#ListExpression
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+#SpaceJupyterLabAppSettings: close({
+	CodeRepositories?:    list.MaxItems(30) & [...] & [...#CodeRepository] | fn.#ListExpression
+	DefaultResourceSpec?: #ResourceSpec
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceManagedResources": "ENABLED" | "DISABLED" | fn.#StringExpression
+#SpaceManagedResources: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceSettings": close({
-	AppType?:                  _#defs."/$defs/Properties/definitions/AppType"
-	CodeEditorAppSettings?:    _#defs."/$defs/Properties/definitions/SpaceCodeEditorAppSettings" | fn.#ObjectExpression
-	CustomFileSystems?:        _#defs."/$defs/Properties/definitions/CustomFileSystems"
-	JupyterLabAppSettings?:    _#defs."/$defs/Properties/definitions/SpaceJupyterLabAppSettings" | fn.#ObjectExpression
-	JupyterServerAppSettings?: _#defs."/$defs/Properties/definitions/JupyterServerAppSettings" | fn.#ObjectExpression
-	KernelGatewayAppSettings?: _#defs."/$defs/Properties/definitions/KernelGatewayAppSettings" | fn.#ObjectExpression
-	RemoteAccess?:             _#defs."/$defs/Properties/definitions/RemoteAccess" | fn.#StringExpression
-	SpaceManagedResources?:    _#defs."/$defs/Properties/definitions/SpaceManagedResources" | fn.#StringExpression
-	SpaceStorageSettings?:     _#defs."/$defs/Properties/definitions/SpaceStorageSettings" | fn.#ObjectExpression
+#SpaceSettings: close({
+	AppType?: #AppType
+
+	// The CodeEditor app settings.
+	CodeEditorAppSettings?: #SpaceCodeEditorAppSettings
+	CustomFileSystems?:     #CustomFileSystems
+
+	// The JupyterLab app settings.
+	JupyterLabAppSettings?: #SpaceJupyterLabAppSettings
+
+	// The Jupyter server's app settings.
+	JupyterServerAppSettings?: #JupyterServerAppSettings
+
+	// The kernel gateway app settings.
+	KernelGatewayAppSettings?: #KernelGatewayAppSettings
+
+	// This is a flag used to indicate if remote access is enabled.
+	RemoteAccess?: #RemoteAccess
+
+	// This is a flag used to indicate if space managed resources needs to be created.
+	SpaceManagedResources?: #SpaceManagedResources
+
+	// Default storage settings for a space.
+	SpaceStorageSettings?: #SpaceStorageSettings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceSharingSettings": close(
-	{SharingType!: "Private" | "Shared" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#SpaceSharingSettings: close({SharingType!: "Private" | "Shared" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceStorageSettings": close(
-	{EbsStorageSettings?: _#defs."/$defs/Properties/definitions/EbsStorageSettings"},
-) |
-	fn.#ObjectExpression
+#SpaceStorageSettings: close({EbsStorageSettings?: #EbsStorageSettings}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StudioLifecycleConfigArn": strings.MaxRunes(256) &
+#StudioLifecycleConfigArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Space"
-	Properties!: #Properties
-}

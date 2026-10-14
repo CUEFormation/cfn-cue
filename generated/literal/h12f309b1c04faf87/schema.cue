@@ -11,70 +11,70 @@ import (
 
 // Definition of AWS::VerifiedPermissions::IdentitySource Resource Type
 #Properties: close({
-	Configuration!:       _#defs."/$defs/Properties/definitions/IdentitySourceConfiguration"
-	Details?:             _#defs."/$defs/Properties/definitions/IdentitySourceDetails"
+	Configuration!:       #IdentitySourceConfiguration
+	Details?:             #IdentitySourceDetails
 	IdentitySourceId?:    strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$"
 	PolicyStoreId!:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$"
 	PrincipalEntityType?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/CognitoGroupConfiguration": close({
+#CognitoGroupConfiguration: close({
 	GroupEntityType!: strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^([_a-zA-Z][_a-zA-Z0-9]*::)*[_a-zA-Z][_a-zA-Z0-9]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/CognitoUserPoolConfiguration": close({
+#CognitoUserPoolConfiguration: close({
 	ClientIds?:          list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$"]
-	GroupConfiguration?: _#defs."/$defs/Properties/definitions/CognitoGroupConfiguration"
+	GroupConfiguration?: #CognitoGroupConfiguration
 	UserPoolArn!: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$"
 })
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceConfiguration": matchN(1, [close(
-	{CognitoUserPoolConfiguration!: _#defs."/$defs/Properties/definitions/CognitoUserPoolConfiguration"},
+#IdentitySourceConfiguration: matchN(1, [close(
+	{CognitoUserPoolConfiguration!: #CognitoUserPoolConfiguration},
 ), close(
-	{OpenIdConnectConfiguration!: _#defs."/$defs/Properties/definitions/OpenIdConnectConfiguration"},
+	{OpenIdConnectConfiguration!: #OpenIdConnectConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceDetails": close({
+#IdentitySourceDetails: close({
 	ClientIds?:    list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$"]
 	DiscoveryUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$"
-	OpenIdIssuer?: _#defs."/$defs/Properties/definitions/OpenIdIssuer"
+	OpenIdIssuer?: #OpenIdIssuer
 	UserPoolArn?: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$"
 })
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectAccessTokenConfiguration": close({
+#OpenIdConnectAccessTokenConfiguration: close({
 	Audiences?:        list.MaxItems(255) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 	PrincipalIdClaim?: strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectConfiguration": close({
+#OpenIdConnectConfiguration: close({
 	EntityIdPrefix?:     strings.MaxRunes(100) & strings.MinRunes(1)
-	GroupConfiguration?: _#defs."/$defs/Properties/definitions/OpenIdConnectGroupConfiguration"
+	GroupConfiguration?: #OpenIdConnectGroupConfiguration
 	Issuer!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$"
-	TokenSelection!:     _#defs."/$defs/Properties/definitions/OpenIdConnectTokenSelection"
+	TokenSelection!:     #OpenIdConnectTokenSelection
 })
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectGroupConfiguration": close({
+#OpenIdConnectGroupConfiguration: close({
 	GroupClaim!: strings.MinRunes(1)
 	GroupEntityType!: strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^([_a-zA-Z][_a-zA-Z0-9]*::)*[_a-zA-Z][_a-zA-Z0-9]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectIdentityTokenConfiguration": close({
+#OpenIdConnectIdentityTokenConfiguration: close({
 	ClientIds?:        list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$"]
 	PrincipalIdClaim?: strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectTokenSelection": matchN(1, [close(
-	{AccessTokenOnly!: _#defs."/$defs/Properties/definitions/OpenIdConnectAccessTokenConfiguration"},
+#OpenIdConnectTokenSelection: matchN(1, [close(
+	{AccessTokenOnly!: #OpenIdConnectAccessTokenConfiguration},
 ), close(
-	{IdentityTokenOnly!: _#defs."/$defs/Properties/definitions/OpenIdConnectIdentityTokenConfiguration"},
+	{IdentityTokenOnly!: #OpenIdConnectIdentityTokenConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/OpenIdIssuer": "COGNITO"
+#OpenIdIssuer: "COGNITO"

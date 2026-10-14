@@ -13,16 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // WebSocket API Integration Responses in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-integration-responses.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	ApiId!:                       string | fn.#StringExpression
-	ContentHandlingStrategy?:     string | fn.#StringExpression
-	IntegrationId!:               string | fn.#StringExpression
-	IntegrationResponseKey!:      string | fn.#StringExpression
-	ResponseParameters?:          fn.#Object & {...} | string | fn.#StringObjectExpression
-	ResponseTemplates?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	TemplateSelectionExpression?: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::IntegrationResponse"
-	Properties!: #Properties
+	Type!: "AWS::ApiGatewayV2::IntegrationResponse"
+	Properties!: close({
+		ApiId!:                       string | fn.#StringExpression
+		ContentHandlingStrategy?:     string | fn.#StringExpression
+		IntegrationId!:               string | fn.#StringExpression
+		IntegrationResponseKey!:      string | fn.#StringExpression
+		ResponseParameters?:          fn.#Object & {...} | string | fn.#StringObjectExpression
+		ResponseTemplates?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		TemplateSelectionExpression?: string | fn.#StringExpression
+	})
 }

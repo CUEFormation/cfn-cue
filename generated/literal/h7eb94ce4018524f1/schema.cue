@@ -152,7 +152,7 @@ import (
 	Phrases?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$"]
 
 	// Adds one or more custom tags, each in the form of a key:value pair, to the custom vocabulary.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 
 	// The Amazon S3 location of the text file that contains your custom vocabulary.
 	// You cannot use this parameter together with Phrases.
@@ -167,7 +167,7 @@ import (
 	VocabularyState?: "PENDING" | "READY" | "FAILED"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

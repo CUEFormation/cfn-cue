@@ -20,21 +20,19 @@ import (
 	PracticeRunConfiguration!: _
 	...
 }]) & close({
-	PracticeRunConfiguration?: _#defs."/$defs/Properties/definitions/PracticeRunConfiguration"
+	PracticeRunConfiguration?: #PracticeRunConfiguration
 	ResourceIdentifier?:       strings.MaxRunes(1024) & strings.MinRunes(8)
-	ZonalAutoshiftStatus?:     _#defs."/$defs/Properties/definitions/ZonalAutoshiftStatus"
+	ZonalAutoshiftStatus?:     #ZonalAutoshiftStatus
 })
 
-_#defs: "/$defs/Properties/definitions/ControlCondition": close({
+#ControlCondition: close({
 	AlarmIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(8) & =~"^.*$"
-	Type!:            _#defs."/$defs/Properties/definitions/ControlConditionType"
+	Type!:            #ControlConditionType
 })
 
-_#defs: "/$defs/Properties/definitions/ControlConditionType": strings.MaxRunes(10) &
-strings.MinRunes(8) &
-=~"^[a-zA-Z]*$"
+#ControlConditionType: strings.MaxRunes(10) & strings.MinRunes(8) & =~"^[a-zA-Z]*$"
 
-_#defs: "/$defs/Properties/definitions/PracticeRunConfiguration": close({
+#PracticeRunConfiguration: close({
 	BlockedDates?: list.MaxItems(15) & [...] & [
 		...strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
 	]
@@ -43,8 +41,8 @@ _#defs: "/$defs/Properties/definitions/PracticeRunConfiguration": close({
 		strings.MinRunes(19) &
 		=~"^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):[0-9]{2}:[0-9]{2}-(Mon|Tue|Wed|Thu|Fri|Sat|Sun):[0-9]{2}:[0-9]{2}$"
 	]
-	BlockingAlarms?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlCondition"]
-	OutcomeAlarms!:  list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlCondition"]
+	BlockingAlarms?: list.MaxItems(1) & list.MinItems(1) & [...#ControlCondition]
+	OutcomeAlarms!:  list.MaxItems(1) & list.MinItems(1) & [...#ControlCondition]
 })
 
-_#defs: "/$defs/Properties/definitions/ZonalAutoshiftStatus": "ENABLED"
+#ZonalAutoshiftStatus: "ENABLED"

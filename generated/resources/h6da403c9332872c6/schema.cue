@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,25 +13,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an association between an ID namespace and a collaboration
-#Properties: close({
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	IdMappingConfig?:      _#defs."/$defs/Properties/definitions/IdMappingConfig"
-	InputReferenceConfig!: _#defs."/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceConfig"
-	MembershipIdentifier!: _#defs."/$defs/Properties/definitions/UUID"
-	Name!:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::IdNamespaceAssociation"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		IdMappingConfig?:      #IdMappingConfig
+		InputReferenceConfig!: #IdNamespaceAssociationInputReferenceConfig
+		MembershipIdentifier!: #UUID
+		Name!:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Document": fn.#Object & {...} | string | fn.#StringObjectExpression
+#Document: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdMappingConfig": close(
+#IdMappingConfig: close(
 	{AllowUseAsDimensionColumn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceConfig": close({
+#IdNamespaceAssociationInputReferenceConfig: close({
 	InputReferenceArn!: strings.MaxRunes(256) &
 	=~"^arn:aws:entityresolution:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:idnamespace/[\\d\\w-]+$" |
 	fn.#StringExpression
@@ -39,23 +42,17 @@ _#defs: "/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceConfi
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceProperties": close({
-	IdMappingWorkflowsSupported?: [..._#defs."/$defs/Properties/definitions/Document"] | fn.#ListExpression
+#IdNamespaceAssociationInputReferenceProperties: close({
+	IdMappingWorkflowsSupported?: [...#Document] | fn.#ListExpression
 	IdNamespaceType?:             "SOURCE" | "TARGET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UUID": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::IdNamespaceAssociation"
-	Properties!: #Properties
-}

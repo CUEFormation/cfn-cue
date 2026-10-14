@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -17,36 +17,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::Url
-#Properties: close({
-	AuthType!:          "AWS_IAM" | "NONE" | fn.#StringExpression
-	Cors?:              _#defs."/$defs/Properties/definitions/Cors"
-	InvokeMode?:        "BUFFERED" | "RESPONSE_STREAM" | fn.#StringExpression
-	Qualifier?:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TargetFunctionArn!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::Url"
+	Properties!: close({
+		AuthType!:          "AWS_IAM" | "NONE" | fn.#StringExpression
+		Cors?:              #Cors
+		InvokeMode?:        "BUFFERED" | "RESPONSE_STREAM" | fn.#StringExpression
+		Qualifier?:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		TargetFunctionArn!: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AllowHeaders": list.MaxItems(100) & list.MinItems(1) & [
+#AllowHeaders: list.MaxItems(100) & list.MinItems(1) & [
 	...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AllowMethods": list.MaxItems(6) & list.MinItems(1) & [
+#AllowMethods: list.MaxItems(6) & list.MinItems(1) & [
 	...("GET" | "PUT" | "HEAD" | "POST" | "PATCH" | "DELETE" | "*") & (strings.MaxRunes(6) & strings.MinRunes(0)) |
 	fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AllowOrigins": list.MaxItems(100) & list.MinItems(1) & [
+#AllowOrigins: list.MaxItems(100) & list.MinItems(1) & [
 	...strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Cors": close({
+#Cors: close({
 	AllowCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AllowHeaders?:     _#defs."/$defs/Properties/definitions/AllowHeaders" | fn.#ListExpression
-	AllowMethods?:     _#defs."/$defs/Properties/definitions/AllowMethods" | fn.#ListExpression
-	AllowOrigins?:     _#defs."/$defs/Properties/definitions/AllowOrigins" | fn.#ListExpression
-	ExposeHeaders?:    _#defs."/$defs/Properties/definitions/ExposeHeaders" | fn.#ListExpression
+
+	// Represents a collection of allowed headers.
+	AllowHeaders?: #AllowHeaders
+
+	// Represents a collection of allowed HTTP methods.
+	AllowMethods?: #AllowMethods
+
+	// Represents a collection of allowed origins.
+	AllowOrigins?: #AllowOrigins
+
+	// Represents a collection of exposed headers.
+	ExposeHeaders?: #ExposeHeaders
 	MaxAge?: int & <=86400 & >=0 |
 		{
 			string &
@@ -66,11 +77,7 @@ _#defs: "/$defs/Properties/definitions/Cors": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExposeHeaders": list.MaxItems(100) & list.MinItems(1) & [
+#ExposeHeaders: list.MaxItems(100) & list.MinItems(1) & [
 	...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 ] |
 fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::Url"
-	Properties!: #Properties
-}

@@ -12,25 +12,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for an IP access control group for Amazon WorkSpaces.
-#Properties: close({
-	GroupDesc?: string | fn.#StringExpression
-	GroupName!: string | fn.#StringExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserRules?: [..._#defs."/$defs/Properties/definitions/IpRuleItem"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpaces::WorkspaceIpGroup"
+	Properties!: close({
+		GroupDesc?: string | fn.#StringExpression
+		GroupName!: string | fn.#StringExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+		UserRules?: [...#IpRuleItem] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/IpRuleItem": close({
+#IpRuleItem: close({
 	IpRule!:   string | fn.#StringExpression
 	RuleDesc?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpaces::WorkspaceIpGroup"
-	Properties!: #Properties
-}

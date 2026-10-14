@@ -14,106 +14,98 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Amazon DataZone projects are business use case–based groupings of people,
 // assets (data), and tools used to simplify access to the AWS analytics.
-#Properties: close({
-	Description?:      strings.MaxRunes(2048) | fn.#StringExpression
-	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	DomainUnitId?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
-	GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression] |
-		fn.#ListExpression
-	MembershipAssignments?: [..._#defs."/$defs/Properties/definitions/ProjectMembershipAssignment"] | fn.#ListExpression
-	Name!:                  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	ProjectCategory?:       string | fn.#StringExpression
-	ProjectExecutionRole?:  =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" | fn.#StringExpression
-	ProjectProfileId?:      =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	ProjectProfileVersion?: string | fn.#StringExpression
-	ResourceTags?:          [..._#defs."/$defs/Properties/definitions/ResourceTag"] | fn.#ListExpression
-	UserParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentConfigurationUserParameter"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::Project"
+	Properties!: close({
+		Description?:      strings.MaxRunes(2048) | fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		DomainUnitId?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
+		GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression] |
+			fn.#ListExpression
+		MembershipAssignments?: [...#ProjectMembershipAssignment] | fn.#ListExpression
+		Name!:                  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+		ProjectCategory?:       string | fn.#StringExpression
+		ProjectExecutionRole?:  =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" | fn.#StringExpression
+		ProjectProfileId?:      =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		ProjectProfileVersion?: string | fn.#StringExpression
+		ResourceTags?:          [...#ResourceTag] | fn.#ListExpression
+		UserParameters?:        [...#EnvironmentConfigurationUserParameter] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EnvironmentConfigurationUserParameter": close({
+#EnvironmentConfigurationUserParameter: close({
 	EnvironmentConfigurationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
 	EnvironmentId?:                =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnvironmentParameters?:        [..._#defs."/$defs/Properties/definitions/EnvironmentParameter"] | fn.#ListExpression
+	EnvironmentParameters?:        [...#EnvironmentParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentDeploymentDetails": close({
-	EnvironmentFailureReasons?: _#defs."/$defs/Properties/definitions/EnvironmentFailureReasons"
-	OverallDeploymentStatus?:   _#defs."/$defs/Properties/definitions/OverallDeploymentStatus"
+#EnvironmentDeploymentDetails: close({
+	EnvironmentFailureReasons?: #EnvironmentFailureReasons
+	OverallDeploymentStatus?:   #OverallDeploymentStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentError": close({
+#EnvironmentError: close({
 	Code?:    string | fn.#StringExpression
 	Message!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentFailureReasons": close({
+#EnvironmentFailureReasons: close({
 
-	{[=~".+"]: [..._#defs."/$defs/Properties/definitions/EnvironmentError"] | fn.#ListExpression}}) |
+	{[=~".+"]: [...#EnvironmentError] | fn.#ListExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentParameter": close({
+#EnvironmentParameter: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentResolvedAccount": close({
+#EnvironmentResolvedAccount: close({
 	AwsAccountId!:        =~"^\\d{12}$" | fn.#StringExpression
 	RegionName!:          =~"^[a-z]{2}-[a-z]{4,10}-\\d$" | fn.#StringExpression
 	SourceAccountPoolId!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Member": close({
+#Member: close({
 	GroupIdentifier?: string | fn.#StringExpression
 	UserIdentifier?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OverallDeploymentStatus": "PENDING_DEPLOYMENT" |
+#OverallDeploymentStatus: "PENDING_DEPLOYMENT" |
 	"IN_PROGRESS" |
 	"SUCCESSFUL" |
 	"FAILED_VALIDATION" |
 	"FAILED_DEPLOYMENT" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectDeletionError": close({
+#ProjectDeletionError: close({
 	Code?:    string | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectMembershipAssignment": close({
-	Designation!: _#defs."/$defs/Properties/definitions/UserDesignation"
-	Member!:      _#defs."/$defs/Properties/definitions/Member"
+#ProjectMembershipAssignment: close({
+	Designation!: #UserDesignation
+	Member!:      #Member
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectStatus": "ACTIVE" |
-	"MOVING" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	fn.#StringExpression
+#ProjectStatus: "ACTIVE" | "MOVING" | "DELETING" | "DELETE_FAILED" | "UPDATING" | "UPDATE_FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^[\\w \\.:/=+@-]+$"]: strings.MaxRunes(256) & =~"^[\\w \\.:/=+@-]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserDesignation": =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::Project"
-	Properties!: #Properties
-}
+#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression

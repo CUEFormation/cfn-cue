@@ -9,10 +9,10 @@ package schema
 	Id?:         string
 	MetricName!: string
 	Name!:       string
-	Predicates?: [..._#defs."/$defs/Properties/definitions/Predicate"]
+	Predicates?: [...#Predicate]
 })
 
-_#defs: "/$defs/Properties/definitions/Predicate": close({
+#Predicate: close({
 	DataId!:  string
 	Negated!: bool
 	Type!:    string

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,50 +13,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Amazon OpenSearchService application resource
-#Properties: close({
-	AppConfigs?:  [..._#defs."/$defs/Properties/definitions/AppConfig"] | fn.#ListExpression
-	DataSources?: [..._#defs."/$defs/Properties/definitions/DataSource"] | fn.#ListExpression
-	Endpoint?:    string | fn.#StringExpression
-	IamIdentityCenterOptions?: close({
-		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		IamIdentityCenterInstanceArn?: _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292" |
-			fn.#StringExpression
-		IamRoleForIdentityCenterApplicationArn?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws(-[a-z]+)*:kms:[a-z0-9-]+:\\d{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(40) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpenSearchService::Application"
+	Properties!: close({
+		AppConfigs?:  [...#AppConfig] | fn.#ListExpression
+		DataSources?: [...#DataSource] | fn.#ListExpression
+		Endpoint?:    string | fn.#StringExpression
+		IamIdentityCenterOptions?: close({
+			Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/AppConfig": close({
-	Key!:   _#defs."/$defs/Properties/definitions/AppConfigType" | fn.#StringExpression
+			// The ARN of the IAM Identity Center instance.
+			IamIdentityCenterInstanceArn?:           _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292"
+			IamRoleForIdentityCenterApplicationArn?: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[a-z]+)*:kms:[a-z0-9-]+:\\d{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(40) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AppConfig: close({
+	// The configuration key
+	Key!:   #AppConfigType
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AppConfigType": "opensearchDashboards.dashboardAdmin.users" |
+#AppConfigType: "opensearchDashboards.dashboardAdmin.users" |
 	"opensearchDashboards.dashboardAdmin.groups" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSource": close({
-	DataSourceArn!:         _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292" | fn.#StringExpression
+#DataSource: close({
+	// The ARN of the data source.
+	DataSourceArn!:         _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292"
 	DataSourceDescription?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292": string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearchService::Application"
-	Properties!: #Properties
-}

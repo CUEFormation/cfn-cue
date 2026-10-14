@@ -15,27 +15,27 @@ import "strings"
 	MultiplexId?: string
 
 	// The settings for this multiplex program.
-	MultiplexProgramSettings?: _#defs."/$defs/Properties/definitions/MultiplexProgramSettings"
+	MultiplexProgramSettings?: #MultiplexProgramSettings
 
 	// The packet identifier map for this multiplex program.
-	PacketIdentifiersMap?: _#defs."/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap"
+	PacketIdentifiersMap?: #MultiplexProgramPacketIdentifiersMap
 
 	// Contains information about the current sources for the specified program in
 	// the specified multiplex. Keep in mind that each multiplex pipeline connects
 	// to both pipelines in a given source channel (the channel identified by the
 	// program). But only one of those channel pipelines is ever active at one
 	// time.
-	PipelineDetails?: [..._#defs."/$defs/Properties/definitions/MultiplexProgramPipelineDetail"]
+	PipelineDetails?: [...#MultiplexProgramPipelineDetail]
 
 	// The settings for this multiplex program.
-	PreferredChannelPipeline?: _#defs."/$defs/Properties/definitions/PreferredChannelPipeline"
+	PreferredChannelPipeline?: #PreferredChannelPipeline
 
 	// The name of the multiplex program.
 	ProgramName?: string
 })
 
 // Packet identifiers map for a given Multiplex program.
-_#defs: "/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap": close({
+#MultiplexProgramPacketIdentifiersMap: close({
 	AudioPids?:          [...int]
 	DvbSubPids?:         [...int]
 	DvbTeletextPid?:     int
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap": cl
 })
 
 // The current source for one of the pipelines in the multiplex.
-_#defs: "/$defs/Properties/definitions/MultiplexProgramPipelineDetail": close({
+#MultiplexProgramPipelineDetail: close({
 	// Identifies the channel pipeline that is currently active for the pipeline
 	// (identified by PipelineId) in the multiplex.
 	ActiveChannelPipeline?: string
@@ -62,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/MultiplexProgramPipelineDetail": close({
 })
 
 // Transport stream service descriptor configuration for the Multiplex program.
-_#defs: "/$defs/Properties/definitions/MultiplexProgramServiceDescriptor": close({
+#MultiplexProgramServiceDescriptor: close({
 	// Name of the provider.
 	ProviderName!: strings.MaxRunes(256) & strings.MinRunes(1)
 
@@ -71,21 +71,21 @@ _#defs: "/$defs/Properties/definitions/MultiplexProgramServiceDescriptor": close
 })
 
 // Multiplex Program settings configuration.
-_#defs: "/$defs/Properties/definitions/MultiplexProgramSettings": close({
-	PreferredChannelPipeline?: _#defs."/$defs/Properties/definitions/PreferredChannelPipeline"
+#MultiplexProgramSettings: close({
+	PreferredChannelPipeline?: #PreferredChannelPipeline
 
 	// Unique program number.
 	ProgramNumber!: int & <=65535 & >=0
 
 	// Transport stream service descriptor configuration for the Multiplex program.
-	ServiceDescriptor?: _#defs."/$defs/Properties/definitions/MultiplexProgramServiceDescriptor"
+	ServiceDescriptor?: #MultiplexProgramServiceDescriptor
 
 	// Program video settings configuration.
-	VideoSettings?: _#defs."/$defs/Properties/definitions/MultiplexVideoSettings"
+	VideoSettings?: #MultiplexVideoSettings
 })
 
 // Statmux rate control settings
-_#defs: "/$defs/Properties/definitions/MultiplexStatmuxVideoSettings": close({
+#MultiplexStatmuxVideoSettings: close({
 	// Maximum statmux bitrate.
 	MaximumBitrate?: int & <=100000000 & >=100000
 
@@ -101,14 +101,14 @@ _#defs: "/$defs/Properties/definitions/MultiplexStatmuxVideoSettings": close({
 })
 
 // The video configuration for each program in a multiplex.
-_#defs: "/$defs/Properties/definitions/MultiplexVideoSettings": matchN(1, [close({
+#MultiplexVideoSettings: matchN(1, [close({
 	// The constant bitrate configuration for the video encode.
 	// When this field is defined, StatmuxSettings must be undefined.
 	ConstantBitrate!: int & <=100000000 & >=100000
 }), close({
 	// Statmux rate control settings.
 	// When this field is defined, ConstantBitrate must be undefined.
-	StatmuxSettings!: _#defs."/$defs/Properties/definitions/MultiplexStatmuxVideoSettings"
+	StatmuxSettings!: #MultiplexStatmuxVideoSettings
 })])
 
 // Indicates which pipeline is preferred by the multiplex for program ingest.
@@ -117,4 +117,4 @@ _#defs: "/$defs/Properties/definitions/MultiplexVideoSettings": matchN(1, [close
 // it will switch back once that ingest is healthy again. If set to \"CURRENTLY_ACTIVE\",
 // it will not switch back to the other pipeline based on it recovering to a healthy state,
 // it will only switch if the active pipeline becomes unhealthy.
-_#defs: "/$defs/Properties/definitions/PreferredChannelPipeline": "CURRENTLY_ACTIVE" | "PIPELINE_0" | "PIPELINE_1"
+#PreferredChannelPipeline: "CURRENTLY_ACTIVE" | "PIPELINE_0" | "PIPELINE_1"

@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Route53 Recovery Control Routing Control resource schema .
-#Properties: close({
-	ClusterArn?:      =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
-	ControlPanelArn?: =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
-	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryControl::RoutingControl"
-	Properties!: #Properties
+	Type!: "AWS::Route53RecoveryControl::RoutingControl"
+	Properties!: close({
+		ClusterArn?:      =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
+		ControlPanelArn?: =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
+		Name!:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

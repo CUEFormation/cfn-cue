@@ -6,13 +6,13 @@ package schema
 
 // Resource Type definition for ManagedNotificationAccountContactAssociation
 #Properties: close({
-	ContactIdentifier!:                   _#defs."/$defs/Properties/definitions/ContactIdentifier"
-	IsSensitiveEventsSubscribed?:         _#defs."/$defs/Properties/definitions/IsSensitiveEventsSubscribed"
-	ManagedNotificationConfigurationArn!: _#defs."/$defs/Properties/definitions/ManagedNotificationConfigurationArn"
+	ContactIdentifier!:                   #ContactIdentifier
+	IsSensitiveEventsSubscribed?:         #IsSensitiveEventsSubscribed
+	ManagedNotificationConfigurationArn!: #ManagedNotificationConfigurationArn
 })
 
 // This unique identifier for Contact
-_#defs: "/$defs/Properties/definitions/ContactIdentifier": "ACCOUNT_PRIMARY" |
+#ContactIdentifier: "ACCOUNT_PRIMARY" |
 	"ACCOUNT_ALTERNATE_SECURITY" |
 	"ACCOUNT_ALTERNATE_OPERATIONS" |
 	"ACCOUNT_ALTERNATE_BILLING"
@@ -20,8 +20,8 @@ _#defs: "/$defs/Properties/definitions/ContactIdentifier": "ACCOUNT_PRIMARY" |
 // Whether the account contact association is subscribed to sensitive events.
 // Access to sensitive events is gated by the SubscribeSensitiveEvents virtual
 // IAM action.
-_#defs: "/$defs/Properties/definitions/IsSensitiveEventsSubscribed": bool
+#IsSensitiveEventsSubscribed: bool
 
 // The managed notification configuration ARN, against which the account contact
 // association will be created
-_#defs: "/$defs/Properties/definitions/ManagedNotificationConfigurationArn": =~"^arn:[a-z-]{3,10}:notifications::([0-9]{12}|):managed-notification-configuration/category/[a-zA-Z0-9\\-]{3,64}/sub-category/[a-zA-Z0-9\\-]{3,64}$"
+#ManagedNotificationConfigurationArn: =~"^arn:[a-z-]{3,10}:notifications::([0-9]{12}|):managed-notification-configuration/category/[a-zA-Z0-9\\-]{3,64}/sub-category/[a-zA-Z0-9\\-]{3,64}$"

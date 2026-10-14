@@ -14,23 +14,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents an AWS IoT SiteWise application that provides IAM Identity Center
 // based access to a workspace.
-#Properties: close({
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	IdcInstanceArn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[A-Za-z0-9 ._()\\-]*[A-Za-z0-9._()\\-])?$" |
-	fn.#StringExpression
-	Tags?:          list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WorkspaceName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::Application"
+	Properties!: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		IdcInstanceArn?: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[A-Za-z0-9](?:[A-Za-z0-9 ._()\\-]*[A-Za-z0-9._()\\-])?$" |
+		fn.#StringExpression
+		Tags?:          list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		WorkspaceName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::Application"
-	Properties!: #Properties
-}

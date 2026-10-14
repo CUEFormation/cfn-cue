@@ -12,62 +12,56 @@ import (
 // Resource type definition for AWS::NetworkFirewall::TLSInspectionConfiguration
 #Properties: close({
 	Description?:                   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$"
-	TLSInspectionConfiguration!:    _#defs."/$defs/Properties/definitions/TLSInspectionConfiguration"
-	TLSInspectionConfigurationArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
+	TLSInspectionConfiguration!:    #TLSInspectionConfiguration
+	TLSInspectionConfigurationArn?: #ResourceArn
 	TLSInspectionConfigurationId?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$"
 	TLSInspectionConfigurationName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                           list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Address": close(
-	{AddressDefinition!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-fA-F\\d:\\.]+/\\d{1,3})$"},
-)
+#Address: close({AddressDefinition!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-fA-F\\d:\\.]+/\\d{1,3})$"})
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
-	FromPort!: _#defs."/$defs/Properties/definitions/PortRangeBound"
-	ToPort!:   _#defs."/$defs/Properties/definitions/PortRangeBound"
+#PortRange: close({
+	FromPort!: #PortRangeBound
+	ToPort!:   #PortRangeBound
 })
 
-_#defs: "/$defs/Properties/definitions/PortRangeBound": int & <=65535 & >=0
+#PortRangeBound: int & <=65535 & >=0
 
-_#defs: "/$defs/Properties/definitions/ProtocolNumber": int & <=255 & >=0
+#ProtocolNumber: int & <=255 & >=0
 
 // A resource ARN.
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$"
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$"
 
-_#defs: "/$defs/Properties/definitions/RevokedStatusAction": "PASS" | "DROP" | "REJECT"
+#RevokedStatusAction: "PASS" | "DROP" | "REJECT"
 
-_#defs: "/$defs/Properties/definitions/ServerCertificate": close(
-	{ResourceArn?: _#defs."/$defs/Properties/definitions/ResourceArn"},
-)
+#ServerCertificate: close({ResourceArn?: #ResourceArn})
 
-_#defs: "/$defs/Properties/definitions/ServerCertificateConfiguration": close({
-	CertificateAuthorityArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
+#ServerCertificateConfiguration: close({
+	CertificateAuthorityArn?: #ResourceArn
 	CheckCertificateRevocationStatus?: close({
-		RevokedStatusAction?: _#defs."/$defs/Properties/definitions/RevokedStatusAction"
-		UnknownStatusAction?: _#defs."/$defs/Properties/definitions/UnknownStatusAction"
+		RevokedStatusAction?: #RevokedStatusAction
+		UnknownStatusAction?: #UnknownStatusAction
 	})
-	Scopes?:             [..._#defs."/$defs/Properties/definitions/ServerCertificateScope"]
-	ServerCertificates?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ServerCertificate"]
+	Scopes?:             [...#ServerCertificateScope]
+	ServerCertificates?: list.UniqueItems() & [...#ServerCertificate]
 })
 
-_#defs: "/$defs/Properties/definitions/ServerCertificateScope": close({
-	DestinationPorts?: [..._#defs."/$defs/Properties/definitions/PortRange"]
-	Destinations?:     [..._#defs."/$defs/Properties/definitions/Address"]
-	Protocols?:        [..._#defs."/$defs/Properties/definitions/ProtocolNumber"]
-	SourcePorts?:      [..._#defs."/$defs/Properties/definitions/PortRange"]
-	Sources?:          [..._#defs."/$defs/Properties/definitions/Address"]
+#ServerCertificateScope: close({
+	DestinationPorts?: [...#PortRange]
+	Destinations?:     [...#Address]
+	Protocols?:        [...#ProtocolNumber]
+	SourcePorts?:      [...#PortRange]
+	Sources?:          [...#Address]
 })
 
-_#defs: "/$defs/Properties/definitions/TLSInspectionConfiguration": close(
-	{ServerCertificateConfigurations?: [..._#defs."/$defs/Properties/definitions/ServerCertificateConfiguration"]},
-)
+#TLSInspectionConfiguration: close({ServerCertificateConfigurations?: [...#ServerCertificateConfiguration]})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$"
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/UnknownStatusAction": "PASS" | "DROP" | "REJECT"
+#UnknownStatusAction: "PASS" | "DROP" | "REJECT"

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,58 +13,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EMR::Studio
-#Properties: close({
-	AuthMode!:          "SSO" | "IAM" | fn.#StringExpression
-	DefaultS3Location!: strings.MaxRunes(10280) & strings.MinRunes(6) & =~"^s3://.*" | fn.#StringExpression
-	Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EncryptionKeyArn?:  _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	EngineSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
-	fn.#StringExpression
-	IdcInstanceArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	IdcUserAssignment?: "REQUIRED" | "OPTIONAL" | fn.#StringExpression
-	IdpAuthUrl?: strings.MaxRunes(4096) &
-	strings.MinRunes(0) &
-	=~"^https://[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])(:[0-9]*)*([?/#].*)?$" |
-	fn.#StringExpression
-	IdpRelayStateParameterName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:                       strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
-	ServiceRole!:                _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	SubnetIds!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
-	Tags?:      _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-	TrustedIdentityPropagationEnabled?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	UserRole?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
-	fn.#StringExpression
-	WorkspaceSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::Studio"
+	Properties!: close({
+		AuthMode!:          "SSO" | "IAM" | fn.#StringExpression
+		DefaultS3Location!: strings.MaxRunes(10280) & strings.MinRunes(6) & =~"^s3://.*" | fn.#StringExpression
+		Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(10280) &
+		// The AWS KMS key identifier (ARN) used to encrypt AWS EMR Studio workspace and
+		// notebook files when backed up to AWS S3.
+		EncryptionKeyArn?: #Arn
+		EngineSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
+		fn.#StringExpression
+		IdcInstanceArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		IdcUserAssignment?: "REQUIRED" | "OPTIONAL" | fn.#StringExpression
+		IdpAuthUrl?: strings.MaxRunes(4096) &
+		strings.MinRunes(0) &
+		=~"^https://[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])(:[0-9]*)*([?/#].*)?$" |
+		fn.#StringExpression
+		IdpRelayStateParameterName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
+
+		// The IAM role that will be assumed by the Amazon EMR Studio. The service role
+		// provides a way for Amazon EMR Studio to interoperate with other AWS
+		// services.
+		ServiceRole!: #Arn
+		SubnetIds!:   list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
+
+		// A list of tags to associate with the Studio. Tags are user-defined key-value
+		// pairs that consist of a required key string with a maximum of 128
+		// characters, and an optional value string with a maximum of 256 characters.
+		Tags?: #Tags
+		TrustedIdentityPropagationEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+
+		// The IAM user role that will be assumed by users and groups logged in to a
+		// Studio. The permissions attached to this IAM role can be scoped down for
+		// each user or group using session policies.
+		UserRole?: #Arn
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
+		fn.#StringExpression
+		WorkspaceSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
+		fn.#StringExpression
+	})
+}
+
+#Arn: strings.MaxRunes(10280) &
 strings.MinRunes(0) &
 =~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": string | fn.#StringExpression
+#SubnetId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::Studio"
-	Properties!: #Properties
-}
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression

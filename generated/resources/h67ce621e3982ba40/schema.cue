@@ -15,50 +15,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // connector establishes a connection between Security Hub CSPM and a
 // third-party cloud provider, enabling Security Hub CSPM to ingest security
 // findings and resource data from the connected environment.
-#Properties: close({
-	Description?: =~"\\S" | fn.#StringExpression
-	Name!:        =~"\\S" | fn.#StringExpression
-	Provider!:    _#defs."/$defs/Properties/definitions/Provider" | fn.#ObjectExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::Connector"
+	Properties!: close({
+		Description?: =~"\\S" | fn.#StringExpression
+		Name!:        =~"\\S" | fn.#StringExpression
+		Provider!:    #Provider
+		Tags?:        #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AzureProviderConfiguration": close({
+#AzureProviderConfiguration: close({
 	AWSConfigConnectorArn!: string | fn.#StringExpression
 	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/AzureScopeConfiguration" | fn.#ObjectExpression
+
+	// The scope configuration that defines which Azure resources are monitored.
+	ScopeConfiguration!: #AzureScopeConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AzureScopeConfiguration": close({
+#AzureScopeConfiguration: close({
 	ScopeType!: "TENANT" | "SUBSCRIPTION" | fn.#StringExpression
 	ScopeValues?: list.MaxItems(100) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorStatus": string | fn.#StringExpression
+#ConnectorStatus: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnablementStatus": string | fn.#StringExpression
+#EnablementStatus: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HealthIssue": close({
-	Code!:    _#defs."/$defs/Properties/definitions/HealthIssueCode" | fn.#StringExpression
+#HealthIssue: close({
+	// The error code that identifies the type of health issue.
+	Code!:    #HealthIssueCode
 	Message!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthIssueCode": string | fn.#StringExpression
+#HealthIssueCode: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
+#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Provider": close(
-	{Azure!: _#defs."/$defs/Properties/definitions/AzureProviderConfiguration" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#Provider: close({Azure!: #AzureProviderConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::Connector"
-	Properties!: #Properties
-}
+#Tags: {...} | fn.#ObjectExpression

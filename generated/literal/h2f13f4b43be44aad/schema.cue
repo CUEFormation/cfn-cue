@@ -23,10 +23,10 @@ import "strings"
 	Policy?: string | {...}
 
 	// Virtual Private Cloud (VPC) from which requests can be made to the AccessPoint.
-	VpcConfiguration!: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	VpcConfiguration!: #VpcConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	// Virtual Private Cloud (VPC) Id from which AccessPoint will allow requests.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1))
 })

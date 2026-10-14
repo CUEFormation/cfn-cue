@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,62 +13,81 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The details of the repository creation template associated with the request.
-#Properties: close({
-	AppliedFor!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AppliedForItem"] | fn.#ListExpression
-	CustomRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[A-Za-z0-9+=,-.@_]*$" |
-	fn.#StringExpression
-	Description?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	ImageTagMutability?: "MUTABLE" |
-		"IMMUTABLE" |
-		"IMMUTABLE_WITH_EXCLUSION" |
-		"MUTABLE_WITH_EXCLUSION" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECR::RepositoryCreationTemplate"
+	Properties!: close({
+		AppliedFor!: list.UniqueItems() & [...#AppliedForItem] | fn.#ListExpression
+		CustomRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[A-Za-z0-9+=,-.@_]*$" |
 		fn.#StringExpression
-	ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ImageTagMutabilityExclusionFilter"
-	] |
-		fn.#ListExpression
-	LifecyclePolicy?: strings.MaxRunes(30720) & strings.MinRunes(100) | fn.#StringExpression
-	Prefix!: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
-	fn.#StringExpression
-	RepositoryPolicy?: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
-	ResourceTags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AppliedForItem": "REPLICATION" |
-	"PULL_THROUGH_CACHE" |
-	"CREATE_ON_PUSH" |
-	fn.#StringExpression
+		// The encryption configuration associated with the repository creation template.
+		EncryptionConfiguration?: #EncryptionConfiguration
+		ImageTagMutability?: "MUTABLE" |
+			"IMMUTABLE" |
+			"IMMUTABLE_WITH_EXCLUSION" |
+			"MUTABLE_WITH_EXCLUSION" |
+			fn.#StringExpression
+		ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [
+			...#ImageTagMutabilityExclusionFilter
+		] |
+			fn.#ListExpression
+		LifecyclePolicy?: strings.MaxRunes(30720) & strings.MinRunes(100) | fn.#StringExpression
+		Prefix!: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
+		fn.#StringExpression
+		RepositoryPolicy?: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
+		ResourceTags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	EncryptionType!: _#defs."/$defs/Properties/definitions/EncryptionType" | fn.#StringExpression
-	KmsKey?:         _#defs."/$defs/Properties/definitions/KmsKey" | fn.#StringExpression
+#AppliedForItem: "REPLICATION" | "PULL_THROUGH_CACHE" | "CREATE_ON_PUSH" | fn.#StringExpression
+
+#EncryptionConfiguration: close({
+	// The encryption type to use.
+	// If you use the ``KMS`` encryption type, the contents of the repository will
+	// be encrypted using server-side encryption with KMSlong key stored in KMS.
+	// When you use KMS to encrypt your data, you can either use the default AWS
+	// managed KMS key for Amazon ECR, or specify your own KMS key, which you
+	// already created.
+	// If you use the ``KMS_DSSE`` encryption type, the contents of the repository
+	// will be encrypted with two layers of encryption using server-side encryption
+	// with the KMS Management Service key stored in KMS. Similar to the ``KMS``
+	// encryption type, you can either use the default AWS managed KMS key for
+	// Amazon ECR, or specify your own KMS key, which you've already created.
+	// If you use the ``AES256`` encryption type, Amazon ECR uses server-side
+	// encryption with Amazon S3-managed encryption keys which encrypts the images
+	// in the repository using an AES256 encryption algorithm.
+	// For more information, see [Amazon ECR encryption at
+	// rest](https://docs.aws.amazon.com/AmazonECR/latest/userguide/encryption-at-rest.html)
+	// in the *Amazon Elastic Container Registry User Guide*.
+	EncryptionType!: #EncryptionType
+
+	// If you use the ``KMS`` encryption type, specify the KMS key to use for
+	// encryption. The alias, key ID, or full ARN of the KMS key can be specified.
+	// The key must exist in the same Region as the repository. If no key is
+	// specified, the default AWS managed KMS key for Amazon ECR will be used.
+	KmsKey?: #KmsKey
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionType": "AES256" | "KMS" | "KMS_DSSE" | fn.#StringExpression
+#EncryptionType: "AES256" | "KMS" | "KMS_DSSE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageTagMutabilityExclusionFilter": close({
+#ImageTagMutabilityExclusionFilter: close({
 	ImageTagMutabilityExclusionFilterType!: "WILDCARD" | fn.#StringExpression
 	ImageTagMutabilityExclusionFilterValue!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._*-]{1,128}" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKey": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#KmsKey: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::RepositoryCreationTemplate"
-	Properties!: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,24 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::NetworkConnector
-#Properties: close({
-	Configuration!: _#defs."/$defs/Properties/definitions/Config"
-	Name?:          _#defs."/$defs/Properties/definitions/Name"
-	OperatorRole?:  _#defs."/$defs/Properties/definitions/RoleArn"
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::NetworkConnector"
+	Properties!: close({
+		Configuration!: #Config
+		Name?:          #Name
+		OperatorRole?:  #RoleArn
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(140) &
+#Arn: strings.MaxRunes(140) &
 strings.MinRunes(1) &
 =~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Config": close(
-	{VpcEgressConfiguration!: _#defs."/$defs/Properties/definitions/VpcEgressConfiguration"},
-) |
-	fn.#ObjectExpression
+#Config: close({VpcEgressConfiguration!: #VpcEgressConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LatestVersion": int & >=1 |
+#LatestVersion: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -50,36 +50,30 @@ _#defs: "/$defs/Properties/definitions/LatestVersion": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/LatestVersionArn": strings.MaxRunes(140) &
+#LatestVersionArn: strings.MaxRunes(140) &
 strings.MinRunes(1) &
 =~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(140) &
+#Name: strings.MaxRunes(140) &
 strings.MinRunes(1) &
 =~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)|[a-zA-Z0-9_-]{1,64}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(10000) &
+#RoleArn: strings.MaxRunes(10000) &
 strings.MinRunes(0) &
 =~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/State": "PENDING" |
-	"ACTIVE" |
-	"INACTIVE" |
-	"FAILED" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
+#State: "PENDING" | "ACTIVE" | "INACTIVE" | "FAILED" | "DELETING" | "DELETE_FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEgressConfiguration": close({
+#VpcEgressConfiguration: close({
 	AssociatedComputeResourceTypes!: list.MaxItems(1) & list.MinItems(1) & [
 		..."MicroVm" | "WebFunction" | fn.#StringExpression
 	] |
@@ -99,7 +93,3 @@ _#defs: "/$defs/Properties/definitions/VpcEgressConfiguration": close({
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::NetworkConnector"
-	Properties!: #Properties
-}

@@ -16,36 +16,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::Layer
-#Properties: close({
-	Attributes?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
-		...
-	} | fn.#ObjectExpression
-	AutoAssignElasticIps!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutoAssignPublicIps!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CustomInstanceProfileArn?: string | fn.#StringExpression
-	CustomJson?:               fn.#Object & {...} | string | fn.#StringObjectExpression
-	CustomRecipes?:            _#defs."/$defs/Properties/definitions/Recipes"
-	CustomSecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	EnableAutoHealing!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstallUpdatesOnBoot?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LifecycleEventConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleEventConfiguration"
-	LoadBasedAutoScaling?:        _#defs."/$defs/Properties/definitions/LoadBasedAutoScaling"
-	Name!:                        string | fn.#StringExpression
-	Packages?:                    [...string | fn.#StringExpression] | fn.#ListExpression
-	Shortname!:                   string | fn.#StringExpression
-	StackId!:                     string | fn.#StringExpression
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!:                        string | fn.#StringExpression
-	UseEbsOptimizedInstances?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VolumeConfigurations?:        [..._#defs."/$defs/Properties/definitions/VolumeConfiguration"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpsWorks::Layer"
+	Properties!: close({
+		Attributes?: {
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			...
+		} | fn.#ObjectExpression
+		AutoAssignElasticIps!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AutoAssignPublicIps!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CustomInstanceProfileArn?: string | fn.#StringExpression
+		CustomJson?:               fn.#Object & {...} | string | fn.#StringObjectExpression
+		CustomRecipes?:            #Recipes
+		CustomSecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		EnableAutoHealing!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstallUpdatesOnBoot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		LifecycleEventConfiguration?: #LifecycleEventConfiguration
+		LoadBasedAutoScaling?:        #LoadBasedAutoScaling
+		Name!:                        string | fn.#StringExpression
+		Packages?:                    [...string | fn.#StringExpression] | fn.#ListExpression
+		Shortname!:                   string | fn.#StringExpression
+		StackId!:                     string | fn.#StringExpression
+		Tags?:                        [...#Tag] | fn.#ListExpression
+		Type!:                        string | fn.#StringExpression
+		UseEbsOptimizedInstances?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		VolumeConfigurations?:     [...#VolumeConfiguration] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AutoScalingThresholds": close({
+#AutoScalingThresholds: close({
 	CpuThreshold?: number |
 		{
 			string &
@@ -148,19 +151,16 @@ _#defs: "/$defs/Properties/definitions/AutoScalingThresholds": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleEventConfiguration": close(
-	{ShutdownEventConfiguration?: _#defs."/$defs/Properties/definitions/ShutdownEventConfiguration"},
-) |
-	fn.#ObjectExpression
+#LifecycleEventConfiguration: close({ShutdownEventConfiguration?: #ShutdownEventConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoadBasedAutoScaling": close({
-	DownScaling?: _#defs."/$defs/Properties/definitions/AutoScalingThresholds"
+#LoadBasedAutoScaling: close({
+	DownScaling?: #AutoScalingThresholds
 	Enable?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	UpScaling?:   _#defs."/$defs/Properties/definitions/AutoScalingThresholds"
+	UpScaling?:   #AutoScalingThresholds
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Recipes": close({
+#Recipes: close({
 	Configure?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Deploy?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Setup?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -169,7 +169,7 @@ _#defs: "/$defs/Properties/definitions/Recipes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ShutdownEventConfiguration": close({
+#ShutdownEventConfiguration: close({
 	DelayUntilElbConnectionsDrained?: bool |
 		"true" |
 		"True" |
@@ -195,13 +195,13 @@ _#defs: "/$defs/Properties/definitions/ShutdownEventConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeConfiguration": close({
+#VolumeConfiguration: close({
 	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int |
 		{
@@ -263,7 +263,3 @@ _#defs: "/$defs/Properties/definitions/VolumeConfiguration": close({
 	VolumeType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpsWorks::Layer"
-	Properties!: #Properties
-}

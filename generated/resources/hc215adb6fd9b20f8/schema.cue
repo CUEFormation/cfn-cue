@@ -17,18 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associate a set of ECS Capacity Providers with a specified ECS Cluster
-#Properties: close({
-	CapacityProviders?:               _#defs."/$defs/Properties/definitions/CapacityProviders"
-	Cluster!:                         _#defs."/$defs/Properties/definitions/Cluster"
-	DefaultCapacityProviderStrategy!: _#defs."/$defs/Properties/definitions/DefaultCapacityProviderStrategy"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::ClusterCapacityProviderAssociations"
+	Properties!: close({
+		CapacityProviders?:               #CapacityProviders
+		Cluster!:                         #Cluster
+		DefaultCapacityProviderStrategy!: #DefaultCapacityProviderStrategy
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CapacityProvider": "FARGATE" |
-"FARGATE_SPOT" |
-strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
+#CapacityProvider: "FARGATE" | "FARGATE_SPOT" | strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategy": close({
+#CapacityProviderStrategy: close({
 	Base?: int & <=100000 & >=0 |
 		{
 			string &
@@ -45,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategy": close({
 				)
 		} |
 		fn.#NumberExpression
-	CapacityProvider!: _#defs."/$defs/Properties/definitions/CapacityProvider"
+	CapacityProvider!: #CapacityProvider
 	Weight?: int & <=1000 & >=0 |
 		{
 			string &
@@ -65,18 +65,8 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviders": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CapacityProvider"
-] |
-	fn.#ListExpression
+#CapacityProviders: list.UniqueItems() & [...#CapacityProvider] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Cluster": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#Cluster: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultCapacityProviderStrategy": [
-	..._#defs."/$defs/Properties/definitions/CapacityProviderStrategy"
-] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::ClusterCapacityProviderAssociations"
-	Properties!: #Properties
-}
+#DefaultCapacityProviderStrategy: [...#CapacityProviderStrategy] | fn.#ListExpression

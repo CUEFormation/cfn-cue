@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -13,35 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An object representing an Amazon EKS AccessEntry.
-#Properties: close({
-	AccessPolicies?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AccessPolicy"] |
-		fn.#ListExpression
-	ClusterName!:      strings.MinRunes(1) | fn.#StringExpression
-	KubernetesGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	PrincipalArn!:     strings.MinRunes(1) | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type?:             string | fn.#StringExpression
-	Username?:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::AccessEntry"
+	Properties!: close({
+		AccessPolicies?:   list.MaxItems(20) & list.UniqueItems() & [...#AccessPolicy] | fn.#ListExpression
+		ClusterName!:      strings.MinRunes(1) | fn.#StringExpression
+		KubernetesGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		PrincipalArn!:     strings.MinRunes(1) | fn.#StringExpression
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type?:             string | fn.#StringExpression
+		Username?:         string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccessPolicy": close({
-	AccessScope!: _#defs."/$defs/Properties/definitions/AccessScope"
+#AccessPolicy: close({
+	AccessScope!: #AccessScope
 	PolicyArn!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessScope": close({
+#AccessScope: close({
 	Namespaces?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Type!:       "namespace" | "cluster" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::AccessEntry"
-	Properties!: #Properties
-}

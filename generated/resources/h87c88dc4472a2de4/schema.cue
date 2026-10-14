@@ -12,11 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudTrail::ResourcePolicy
-#Properties: close({
-	ResourceArn!:    strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" | fn.#StringExpression
-	ResourcePolicy!: fn.#Object & {...} | strings.MaxRunes(8192) & strings.MinRunes(1) | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudTrail::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::CloudTrail::ResourcePolicy"
+	Properties!: close({
+		ResourceArn!:    strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" | fn.#StringExpression
+		ResourcePolicy!: fn.#Object & {...} | strings.MaxRunes(8192) & strings.MinRunes(1) | fn.#StringObjectExpression
+	})
 }

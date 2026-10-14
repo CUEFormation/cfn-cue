@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -28,14 +28,10 @@ import (
 
 	// The regions Resource Discovery is enabled for. Allows resource discoveries to
 	// be created in these regions, as well as enabling monitoring
-	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/IpamOperatingRegion"
-	]
+	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion]
 
 	// A set of organizational unit (OU) exclusions for this resource.
-	OrganizationalUnitExclusions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpamResourceDiscoveryOrganizationalUnitExclusion"
-	]
+	OrganizationalUnitExclusions?: list.UniqueItems() & [...#IpamResourceDiscoveryOrganizationalUnitExclusion]
 
 	// Owner Account ID of the Resource Discovery
 	OwnerId?: string
@@ -44,11 +40,11 @@ import (
 	State?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The regions IPAM Resource Discovery is enabled for. Allows for monitoring.
-_#defs: "/$defs/Properties/definitions/IpamOperatingRegion": close({
+#IpamOperatingRegion: close({
 	// The name of the region.
 	RegionName!: string
 })
@@ -56,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/IpamOperatingRegion": close({
 // If your IPAM is integrated with AWS Organizations and you add an
 // organizational unit (OU) exclusion, IPAM will not manage the IP addresses in
 // accounts in that OU exclusion.
-_#defs: "/$defs/Properties/definitions/IpamResourceDiscoveryOrganizationalUnitExclusion": close({
+#IpamResourceDiscoveryOrganizationalUnitExclusion: close({
 	// An AWS Organizations entity path. Build the path for the OU(s) using AWS
 	// Organizations IDs separated by a '/'. Include all child OUs by ending the
 	// path with '/*'.
@@ -64,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/IpamResourceDiscoveryOrganizationalUnitEx
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

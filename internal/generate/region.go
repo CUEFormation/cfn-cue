@@ -25,8 +25,40 @@ func Region(module string, resources map[string]string, extensions bool) (*ast.F
 		types.Elts = append(types.Elts, &ast.Field{Label: ast.NewString(typ), Value: v})
 	}
 	f.Decls = append(f.Decls, def("ResourceTypes", types), def("Resource", union(alternatives...)))
-	regionTemplate(f, module, extensions)
+	_, custom := resources[cfn.CustomResourceType]
+	regionTemplate(f, module, extensions, selectResource(custom))
 	return f, nil
+}
+
+// selectResource checks each resource against #ResourceTypes[Type]. Matching
+// the #Resource union instead tries every type in the region for every
+// resource: about 0.3 ms per type in CUE v0.18, or 0.5 s per resource in a
+// complete region. CloudFormation requires Type to be a literal string, so
+// the lookup is always concrete. Custom:: names select the CustomResource
+// schema, whose Type pattern then checks the name.
+func selectResource(custom bool) func(ast.Expr) *ast.Field {
+	return func(label ast.Expr) *ast.Field {
+		lookup := func(key ast.Expr) ast.Expr {
+			return &ast.IndexExpr{X: id("#ResourceTypes"), Index: key}
+		}
+		r := &ast.StructLit{Elts: []ast.Decl{field("Type", id("string"), false)}}
+		typ := ast.NewSel(id("R"), "Type")
+		if custom {
+			r.Elts = append(r.Elts,
+				&ast.Comprehension{Clauses: []ast.Clause{&ast.IfClause{Condition: &ast.BinaryExpr{X: typ, Op: token.MAT, Y: str("^Custom::")}}},
+					Value: &ast.StructLit{Elts: []ast.Decl{&ast.EmbedDecl{Expr: lookup(str(cfn.CustomResourceType))}}}},
+				&ast.Comprehension{Clauses: []ast.Clause{&ast.IfClause{Condition: &ast.BinaryExpr{X: ast.NewSel(id("R"), "Type"), Op: token.NMAT, Y: str("^Custom::")}}},
+					Value: &ast.StructLit{Elts: []ast.Decl{&ast.EmbedDecl{Expr: lookup(ast.NewSel(id("R"), "Type"))}}}})
+		} else {
+			r.Elts = append(r.Elts, &ast.EmbedDecl{Expr: lookup(typ)})
+		}
+		return &ast.Field{Label: ast.NewList(label), Alias: &ast.PostfixAlias{Label: ast.NewIdent("_"), Field: ast.NewIdent("R")}, Value: r}
+	}
+}
+
+// matchResource checks resources against #Resource.
+func matchResource(label ast.Expr) *ast.Field {
+	return &ast.Field{Label: ast.NewList(label), Value: id("#Resource")}
 }
 
 // RegionTypes checks regional availability without importing resource property
@@ -50,16 +82,16 @@ func RegionTypes(module string, resources map[string]string, extensions bool) *a
 		def("ResourceType", union(names...)),
 		def("Resource", and(sel("base", "ResourceAttributes"), obj(field("Type", id("#ResourceType"), false)))),
 	)
-	regionTemplate(f, module, extensions)
+	regionTemplate(f, module, extensions, matchResource)
 	return f
 }
 
-func regionTemplate(f *ast.File, module string, extensions bool) {
-	collection := pattern(sel("base", "LogicalID"), id("#Resource"))
+func regionTemplate(f *ast.File, module string, extensions bool, resource func(ast.Expr) *ast.Field) {
+	collection := &ast.StructLit{Elts: []ast.Decl{resource(sel("base", "LogicalID"))}}
 	if extensions {
 		addImport(f, "fn", module+"/fn:fn")
 		f.Decls = append(f.Decls, def("ForEach", tuple(id("string"), union(list(id("string")), sel("fn", "Ref")), id("#Fragment"))))
-		fragment := pattern(and(id("string"), &ast.UnaryExpr{Op: token.NMAT, X: str("^Fn::ForEach::")}), id("#Resource"))
+		fragment := &ast.StructLit{Elts: []ast.Decl{resource(and(id("string"), &ast.UnaryExpr{Op: token.NMAT, X: str("^Fn::ForEach::")}))}}
 		// Fragment keys may include ${Identifier} / &{Identifier} substitutions.
 		fragment.Elts = append(fragment.Elts, &ast.Field{Label: ast.NewList(&ast.UnaryExpr{Op: token.MAT, X: str("^Fn::ForEach::[A-Za-z0-9]+$")}), Value: id("#ForEach")})
 		f.Decls = append(f.Decls, def("Fragment", fragment))

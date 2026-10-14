@@ -19,44 +19,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a virtual tape with a user-defined barcode on a Tape Gateway (VTL). A
 // virtual tape is stored in Amazon S3 and can be archived to S3 Glacier or S3
 // Glacier Deep Archive.
-#Properties: close({
-	GatewayARN!:   strings.MaxRunes(500) & strings.MinRunes(50) | fn.#StringExpression
-	KMSEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KMSKey?: strings.MaxRunes(2048) &
-	strings.MinRunes(7) &
-	=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
-	fn.#StringExpression
-	PoolId?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TapeBarcode?: strings.MaxRunes(16) & strings.MinRunes(5) & =~"^[A-Z0-9]*$" | fn.#StringExpression
-	TapeSizeInBytes!: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::StorageGateway::Tape"
+	Properties!: close({
+		GatewayARN!:   strings.MaxRunes(500) & strings.MinRunes(50) | fn.#StringExpression
+		KMSEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KMSKey?: strings.MaxRunes(2048) &
+		strings.MinRunes(7) &
+		=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
+		fn.#StringExpression
+		PoolId?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TapeBarcode?: strings.MaxRunes(16) & strings.MinRunes(5) & =~"^[A-Z0-9]*$" | fn.#StringExpression
+		TapeSizeInBytes!: >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Worm?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Worm?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::StorageGateway::Tape"
-	Properties!: #Properties
-}

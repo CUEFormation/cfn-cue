@@ -9,37 +9,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::PinpointEmail::ConfigurationSet
-#Properties: close({
-	DeliveryOptions?:   _#defs."/$defs/Properties/definitions/DeliveryOptions"
-	Name!:              string | fn.#StringExpression
-	ReputationOptions?: _#defs."/$defs/Properties/definitions/ReputationOptions"
-	SendingOptions?:    _#defs."/$defs/Properties/definitions/SendingOptions"
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
-	TrackingOptions?:   _#defs."/$defs/Properties/definitions/TrackingOptions"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PinpointEmail::ConfigurationSet"
+	Properties!: close({
+		DeliveryOptions?:   #DeliveryOptions
+		Name!:              string | fn.#StringExpression
+		ReputationOptions?: #ReputationOptions
+		SendingOptions?:    #SendingOptions
+		Tags?:              [...#Tags] | fn.#ListExpression
+		TrackingOptions?:   #TrackingOptions
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DeliveryOptions": close({SendingPoolName?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#DeliveryOptions: close({SendingPoolName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReputationOptions": close(
+#ReputationOptions: close(
 	{ReputationMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SendingOptions": close(
+#SendingOptions: close(
 	{SendingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrackingOptions": close({CustomRedirectDomain?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PinpointEmail::ConfigurationSet"
-	Properties!: #Properties
-}
+#TrackingOptions: close({CustomRedirectDomain?: string | fn.#StringExpression}) | fn.#ObjectExpression

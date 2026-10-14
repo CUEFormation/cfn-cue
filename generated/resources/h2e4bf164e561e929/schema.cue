@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,26 +12,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::RAM::Permission
-#Properties: close({
-	Name!:           strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[\\w.-]*$" | fn.#StringExpression
-	PolicyTemplate!: fn.#Object & {...} | string | fn.#StringObjectExpression
-	ResourceType!:   string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RAM::Permission"
+	Properties!: close({
+		Name!:           strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[\\w.-]*$" | fn.#StringExpression
+		PolicyTemplate!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		ResourceType!:   string | fn.#StringExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PermissionTemplateParameterDeclaration": close({
+#PermissionTemplateParameterDeclaration: close({
 	Description!: string | fn.#StringExpression
 	Name!:        string | fn.#StringExpression
 	Type!:        "STRING" | "STRING_LIST" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RAM::Permission"
-	Properties!: #Properties
-}

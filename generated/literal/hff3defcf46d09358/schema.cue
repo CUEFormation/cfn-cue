@@ -16,7 +16,7 @@ import (
 	Arn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
 
 	// The attributes for the instance.
-	Attributes!: _#defs."/$defs/Properties/definitions/Attributes"
+	Attributes!: #Attributes
 
 	// Timestamp of instance creation logged as part of instance creation.
 	CreatedTime?: time.Time
@@ -40,63 +40,63 @@ import (
 	ServiceRole?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Attributes": close({
-	AutoResolveBestVoices?:     _#defs."/$defs/Properties/definitions/AutoResolveBestVoices"
-	ContactLens?:               _#defs."/$defs/Properties/definitions/ContactLens"
-	ContactflowLogs?:           _#defs."/$defs/Properties/definitions/ContactflowLogs"
-	EarlyMedia?:                _#defs."/$defs/Properties/definitions/EarlyMedia"
-	EnhancedChatMonitoring?:    _#defs."/$defs/Properties/definitions/EnhancedChatMonitoring"
-	EnhancedContactMonitoring?: _#defs."/$defs/Properties/definitions/EnhancedContactMonitoring"
-	HighVolumeOutBound?:        _#defs."/$defs/Properties/definitions/HighVolumeOutBound"
-	InboundCalls!:              _#defs."/$defs/Properties/definitions/InboundCalls"
-	MessageStreaming?:          _#defs."/$defs/Properties/definitions/MessageStreaming"
-	MultiPartyChatConference?:  _#defs."/$defs/Properties/definitions/MultiPartyChatConference"
-	MultiPartyConference?:      _#defs."/$defs/Properties/definitions/MultiPartyConference"
-	OutboundCalls!:             _#defs."/$defs/Properties/definitions/OutboundCalls"
-	UseCustomTTSVoices?:        _#defs."/$defs/Properties/definitions/UseCustomTTSVoices"
+#Attributes: close({
+	AutoResolveBestVoices?:     #AutoResolveBestVoices
+	ContactLens?:               #ContactLens
+	ContactflowLogs?:           #ContactflowLogs
+	EarlyMedia?:                #EarlyMedia
+	EnhancedChatMonitoring?:    #EnhancedChatMonitoring
+	EnhancedContactMonitoring?: #EnhancedContactMonitoring
+	HighVolumeOutBound?:        #HighVolumeOutBound
+	InboundCalls!:              #InboundCalls
+	MessageStreaming?:          #MessageStreaming
+	MultiPartyChatConference?:  #MultiPartyChatConference
+	MultiPartyConference?:      #MultiPartyConference
+	OutboundCalls!:             #OutboundCalls
+	UseCustomTTSVoices?:        #UseCustomTTSVoices
 })
 
 // Boolean flag which enables AUTO_RESOLVE_BEST_VOICES on an instance.
-_#defs: "/$defs/Properties/definitions/AutoResolveBestVoices": bool
+#AutoResolveBestVoices: bool
 
 // Boolean flag which enables CONTACT_LENS on an instance.
-_#defs: "/$defs/Properties/definitions/ContactLens": bool
+#ContactLens: bool
 
 // Boolean flag which enables CONTACTFLOW_LOGS on an instance.
-_#defs: "/$defs/Properties/definitions/ContactflowLogs": bool
+#ContactflowLogs: bool
 
 // Boolean flag which enables EARLY_MEDIA on an instance.
-_#defs: "/$defs/Properties/definitions/EarlyMedia": bool
+#EarlyMedia: bool
 
 // Boolean flag which enables ENHANCED_CHAT_MONITORING on an instance.
-_#defs: "/$defs/Properties/definitions/EnhancedChatMonitoring": bool
+#EnhancedChatMonitoring: bool
 
 // Boolean flag which enables ENHANCED_CONTACT_MONITORING on an instance.
-_#defs: "/$defs/Properties/definitions/EnhancedContactMonitoring": bool
+#EnhancedContactMonitoring: bool
 
 // Boolean flag which enables HIGH_VOLUME_OUTBOUND on an instance.
-_#defs: "/$defs/Properties/definitions/HighVolumeOutBound": bool
+#HighVolumeOutBound: bool
 
 // Mandatory element which enables inbound calls on new instance.
-_#defs: "/$defs/Properties/definitions/InboundCalls": bool
+#InboundCalls: bool
 
 // Boolean flag which enables MESSAGE_STREAMING on an instance.
-_#defs: "/$defs/Properties/definitions/MessageStreaming": bool
+#MessageStreaming: bool
 
 // Boolean flag which enables MULTI_PARTY_CHAT_CONFERENCE on an instance.
-_#defs: "/$defs/Properties/definitions/MultiPartyChatConference": bool
+#MultiPartyChatConference: bool
 
 // Boolean flag which enables MULTI_PARTY_CONFERENCE on an instance.
-_#defs: "/$defs/Properties/definitions/MultiPartyConference": bool
+#MultiPartyConference: bool
 
 // Mandatory element which enables outbound calls on new instance.
-_#defs: "/$defs/Properties/definitions/OutboundCalls": bool
+#OutboundCalls: bool
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -111,4 +111,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Boolean flag which enables USE_CUSTOM_TTS_VOICES on an instance.
-_#defs: "/$defs/Properties/definitions/UseCustomTTSVoices": bool
+#UseCustomTTSVoices: bool

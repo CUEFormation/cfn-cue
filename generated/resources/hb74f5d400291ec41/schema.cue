@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -21,25 +21,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // MediaLive. The channel continuously analyzes the content that it receives
 // and prepares it to be distributed to consumers via one or more origin
 // endpoints.</p>
-#Properties: close({
-	ChannelGroupName!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ChannelName!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Description?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	InputSwitchConfiguration?: _#defs."/$defs/Properties/definitions/InputSwitchConfiguration"
-	InputType?:                _#defs."/$defs/Properties/definitions/InputType"
-	MultiviewConfiguration?:   _#defs."/$defs/Properties/definitions/MultiviewConfiguration"
-	OutputHeaderConfiguration?: _#defs."/$defs/Properties/definitions/OutputHeaderConfiguration"
-	OutputLockingMode?:         _#defs."/$defs/Properties/definitions/OutputLockingMode"
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackageV2::Channel"
+	Properties!: close({
+		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		InputSwitchConfiguration?:  #InputSwitchConfiguration
+		InputType?:                 #InputType
+		MultiviewConfiguration?:    #MultiviewConfiguration
+		OutputHeaderConfiguration?: #OutputHeaderConfiguration
+		OutputLockingMode?:         #OutputLockingMode
+		Tags?:                      [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/IngestEndpoint": close({
+#IngestEndpoint: close({
 	Id?:  string | fn.#StringExpression
 	Url?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputSwitchConfiguration": close({
+#InputSwitchConfiguration: close({
 	MQCSInputSwitching?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PreferredInput?: int & <=2 & >=1 |
 		{
@@ -60,13 +63,10 @@ _#defs: "/$defs/Properties/definitions/InputSwitchConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputType": "HLS" | "CMAF" | "MULTIVIEW" | fn.#StringExpression
+#InputType: "HLS" | "CMAF" | "MULTIVIEW" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MultiviewConfiguration": close({
-	AvailableLayouts!: list.MaxItems(6) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MultiviewLayoutType"
-	] |
-		fn.#ListExpression
+#MultiviewConfiguration: close({
+	AvailableLayouts!: list.MaxItems(6) & list.MinItems(1) & [...#MultiviewLayoutType] | fn.#ListExpression
 	AvailableSources!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	] |
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/MultiviewConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiviewLayoutType": "LAYOUT_2EH" |
+#MultiviewLayoutType: "LAYOUT_2EH" |
 	"LAYOUT_2PL" |
 	"LAYOUT_3EL" |
 	"LAYOUT_3PL" |
@@ -82,19 +82,15 @@ _#defs: "/$defs/Properties/definitions/MultiviewLayoutType": "LAYOUT_2EH" |
 	"LAYOUT_4PL" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutputHeaderConfiguration": close(
+#OutputHeaderConfiguration: close(
 	{PublishMQCS?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutputLockingMode": "EPOCH_LOCKED" | "NON_EPOCH_LOCKED" | fn.#StringExpression
+#OutputLockingMode: "EPOCH_LOCKED" | "NON_EPOCH_LOCKED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackageV2::Channel"
-	Properties!: #Properties
-}

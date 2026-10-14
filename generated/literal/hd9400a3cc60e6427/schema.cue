@@ -19,7 +19,7 @@ import (
 
 	// List of the certificate IDs associated with this profile to be used for
 	// encryption and signing of AS2 messages.
-	CertificateIds?: [..._#defs."/$defs/Properties/definitions/CertificateId"]
+	CertificateIds?: [...#CertificateId]
 
 	// A unique identifier for the profile
 	ProfileId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$"
@@ -28,16 +28,14 @@ import (
 	ProfileType!: "LOCAL" | "PARTNER"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 })
 
 // A unique identifier for the certificate.
-_#defs: "/$defs/Properties/definitions/CertificateId": strings.MaxRunes(22) &
-strings.MinRunes(22) &
-=~"^cert-([0-9a-f]{17})$"
+#CertificateId: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^cert-([0-9a-f]{17})$"
 
 // Creates a key-value pair for a specific resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The name assigned to the tag that you create.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

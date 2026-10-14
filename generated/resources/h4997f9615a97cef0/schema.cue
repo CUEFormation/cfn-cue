@@ -9,15 +9,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudFormation::Macro
-#Properties: close({
-	Description?:  string | fn.#StringExpression
-	FunctionName!: string | fn.#StringExpression
-	LogGroupName?: string | fn.#StringExpression
-	LogRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Name!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::Macro"
-	Properties!: #Properties
+	Type!: "AWS::CloudFormation::Macro"
+	Properties!: close({
+		Description?:  string | fn.#StringExpression
+		FunctionName!: string | fn.#StringExpression
+		LogGroupName?: string | fn.#StringExpression
+		LogRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Name!: string | fn.#StringExpression
+	})
 }

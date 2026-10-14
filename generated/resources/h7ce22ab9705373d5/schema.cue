@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::ServiceCatalog::ServiceActionAssociation
-#Properties: close({
-	ProductId!:              strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ProvisioningArtifactId!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ServiceActionId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::ServiceActionAssociation"
-	Properties!: #Properties
+	Type!: "AWS::ServiceCatalog::ServiceActionAssociation"
+	Properties!: close({
+		ProductId!:              strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ProvisioningArtifactId!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ServiceActionId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

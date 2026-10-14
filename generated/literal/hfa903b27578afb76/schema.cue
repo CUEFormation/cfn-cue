@@ -28,7 +28,7 @@ import (
 
 	// The combination of Package, Station and Model which represents the version of
 	// the LoRaWAN Wireless Device.
-	LoRaWAN?: _#defs."/$defs/Properties/definitions/LoRaWANDevice"
+	LoRaWAN?: #LoRaWANDevice
 
 	// Wireless device name
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0)
@@ -38,7 +38,7 @@ import (
 
 	// A list of key-value pairs that contain metadata for the device. Currently not
 	// supported, will not create if tags are passed.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 
 	// Thing arn. Passed into update to associate Thing with Wireless device.
 	ThingArn?: string
@@ -50,18 +50,18 @@ import (
 	Type!: "Sidewalk" | "LoRaWAN"
 })
 
-_#defs: "/$defs/Properties/definitions/AbpV10x": close({
+#AbpV10x: close({
 	DevAddr!:     =~"[a-fA-F0-9]{8}"
-	SessionKeys!: _#defs."/$defs/Properties/definitions/SessionKeysAbpV10x"
+	SessionKeys!: #SessionKeysAbpV10x
 })
 
-_#defs: "/$defs/Properties/definitions/AbpV11": close({
+#AbpV11: close({
 	DevAddr!:     =~"[a-fA-F0-9]{8}"
-	SessionKeys!: _#defs."/$defs/Properties/definitions/SessionKeysAbpV11"
+	SessionKeys!: #SessionKeysAbpV11
 })
 
 // LoRaWAN application configuration, which can be used to perform geolocation.
-_#defs: "/$defs/Properties/definitions/Application": close({
+#Application: close({
 	// The name of the position data destination that describes the AWS IoT rule
 	// that processes the device's position data for use by AWS IoT Core for
 	// LoRaWAN.
@@ -75,58 +75,70 @@ _#defs: "/$defs/Properties/definitions/Application": close({
 	Type?: "SemtechGeolocation" | "SemtechGNSS" | "SemtechGNSSNG" | "SemtechWiFi"
 })
 
-_#defs: "/$defs/Properties/definitions/FPorts": close({
+#FPorts: close({
 	// A list of optional LoRaWAN application information, which can be used for geolocation.
-	Applications?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Application"]
+	Applications?: list.UniqueItems() & [...#Application]
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWANDevice": matchN(1, [{
-	OtaaV11!: _
-	...
-}, {
-	OtaaV10x!: _
-	...
-}, {
-	AbpV11!: _
-	...
-}, {
-	AbpV10x!: _
-	...
-}]) & close({
-	AbpV10x?:          _#defs."/$defs/Properties/definitions/AbpV10x"
-	AbpV11?:           _#defs."/$defs/Properties/definitions/AbpV11"
+#LoRaWANDevice: close({
+	AbpV10x?:          #AbpV10x
+	AbpV11?:           #AbpV11
 	DevEui?:           =~"[a-f0-9]{16}"
 	DeviceProfileId?:  strings.MaxRunes(256) & strings.MinRunes(0)
-	FPorts?:           _#defs."/$defs/Properties/definitions/FPorts"
-	OtaaV10x?:         _#defs."/$defs/Properties/definitions/OtaaV10x"
-	OtaaV11?:          _#defs."/$defs/Properties/definitions/OtaaV11"
+	FPorts?:           #FPorts
+	OtaaV10x?:         #OtaaV10x
+	OtaaV11?:          #OtaaV11
 	ServiceProfileId?: strings.MaxRunes(256) & strings.MinRunes(0)
-})
+	if OtaaV11 != _|_ if OtaaV11."Fn::If" == _|_ {
+		OtaaV10x?: close({"Fn::If": _}) | error(
+			"OtaaV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+		AbpV11?: close({"Fn::If": _}) | error(
+			"AbpV11 cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+		AbpV10x?: close({"Fn::If": _}) | error(
+			"AbpV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+	}
+	if OtaaV10x != _|_ if OtaaV10x."Fn::If" == _|_ {
+		AbpV11?: close({"Fn::If": _}) | error(
+			"AbpV11 cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+		AbpV10x?: close({"Fn::If": _}) | error(
+			"AbpV10x cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+	}
+	if AbpV11 != _|_ if AbpV11."Fn::If" == _|_ {
+		AbpV10x?: close({"Fn::If": _}) | error(
+			"AbpV10x cannot be used with AbpV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+	}
+}) & matchN(>=1, [{OtaaV11!: _}, {OtaaV10x!: _}, {AbpV11!: _}, {AbpV10x!: _}])
 
-_#defs: "/$defs/Properties/definitions/OtaaV10x": close({
+#OtaaV10x: close({
 	AppEui!: =~"[a-fA-F0-9]{16}"
 	AppKey!: =~"[a-fA-F0-9]{32}"
 })
 
-_#defs: "/$defs/Properties/definitions/OtaaV11": close({
+#OtaaV11: close({
 	AppKey!:  =~"[a-fA-F0-9]{32}"
 	JoinEui!: =~"[a-fA-F0-9]{16}"
 	NwkKey!:  =~"[a-fA-F0-9]{32}"
 })
 
-_#defs: "/$defs/Properties/definitions/SessionKeysAbpV10x": close({
+#SessionKeysAbpV10x: close({
 	AppSKey!: =~"[a-fA-F0-9]{32}"
 	NwkSKey!: =~"[a-fA-F0-9]{32}"
 })
 
-_#defs: "/$defs/Properties/definitions/SessionKeysAbpV11": close({
+#SessionKeysAbpV11: close({
 	AppSKey!:     =~"[a-fA-F0-9]{32}"
 	FNwkSIntKey!: =~"[a-fA-F0-9]{32}"
 	NwkSEncKey!:  =~"[a-fA-F0-9]{32}"
 	SNwkSIntKey!: =~"[a-fA-F0-9]{32}"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

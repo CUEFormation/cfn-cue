@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayMulticastDomainAssociation type
-#Properties: close({
-	SubnetId!:                        string | fn.#StringExpression
-	TransitGatewayAttachmentId!:      string | fn.#StringExpression
-	TransitGatewayMulticastDomainId!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayMulticastDomainAssociation"
-	Properties!: #Properties
+	Type!: "AWS::EC2::TransitGatewayMulticastDomainAssociation"
+	Properties!: close({
+		SubnetId!:                        string | fn.#StringExpression
+		TransitGatewayAttachmentId!:      string | fn.#StringExpression
+		TransitGatewayMulticastDomainId!: string | fn.#StringExpression
+	})
 }

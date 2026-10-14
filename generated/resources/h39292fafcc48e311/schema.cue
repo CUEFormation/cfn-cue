@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"strings"
 	"list"
 )
 
@@ -21,18 +21,121 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // a dynamically repackaged version of its content through various streaming
 // media protocols. The content can be efficiently disseminated to end-users
 // via a Content Delivery Network (CDN), like Amazon CloudFront.</p>
-#Properties: close({
-	ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ContainerType!:    _#defs."/$defs/Properties/definitions/ContainerType"
-	DashManifests?:    [..._#defs."/$defs/Properties/definitions/DashManifestConfiguration"] | fn.#ListExpression
-	Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ForceEndpointErrorConfiguration?: _#defs."/$defs/Properties/definitions/ForceEndpointErrorConfiguration"
-	HlsManifests?: [...close({
-		ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
-		ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ManifestWindowSeconds?: int |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackageV2::OriginEndpoint"
+	Properties!: close({
+		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		ContainerType!:    #ContainerType
+		DashManifests?:    [...#DashManifestConfiguration] | fn.#ListExpression
+		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ForceEndpointErrorConfiguration?: #ForceEndpointErrorConfiguration
+		HlsManifests?: [...close({
+			ChildManifestName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+			fn.#StringExpression
+			FilterConfiguration?: #FilterConfiguration
+			ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+			ManifestWindowSeconds?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ProgramDateTimeIntervalSeconds?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ScteHls?:     #ScteHls
+			StartTag?:    #StartTag
+			UriPathType?: #UriPathType
+			UrlEncodeChildManifest?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		LowLatencyHlsManifests?: [...close({
+			ChildManifestName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+			fn.#StringExpression
+			FilterConfiguration?: #FilterConfiguration
+			ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+			ManifestWindowSeconds?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ProgramDateTimeIntervalSeconds?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ScteHls?:     #ScteHls
+			StartTag?:    #StartTag
+			UriPathType?: #UriPathType
+			UrlEncodeChildManifest?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		MssManifests?:       [...#MssManifestConfiguration] | fn.#ListExpression
+		OriginEndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Segment?:            #Segment
+		StartoverWindowSeconds?: int & <=1209600 & >=0 |
 			{
 				string &
 					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -42,125 +145,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							cfnScalarStrconv.Atoi(
 								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
 							) &
-								int,
+								int &
+								<=1209600 &
+								>=0,
 							10,
 						))*0 + 1,
 					)
 			} |
 			fn.#NumberExpression
-		ProgramDateTimeIntervalSeconds?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ScteHls?:                _#defs."/$defs/Properties/definitions/ScteHls"
-		StartTag?:               _#defs."/$defs/Properties/definitions/StartTag"
-		UriPathType?:            _#defs."/$defs/Properties/definitions/UriPathType"
-		UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	LowLatencyHlsManifests?: [...close({
-		ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
-		ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ManifestWindowSeconds?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ProgramDateTimeIntervalSeconds?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ScteHls?:                _#defs."/$defs/Properties/definitions/ScteHls"
-		StartTag?:               _#defs."/$defs/Properties/definitions/StartTag"
-		UriPathType?:            _#defs."/$defs/Properties/definitions/UriPathType"
-		UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	MssManifests?:       [..._#defs."/$defs/Properties/definitions/MssManifestConfiguration"] | fn.#ListExpression
-	OriginEndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Segment?:            _#defs."/$defs/Properties/definitions/Segment"
-	StartoverWindowSeconds?: int & <=1209600 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1209600 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StreamNameOutputMode?: _#defs."/$defs/Properties/definitions/StreamNameOutputMode"
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UriSeparator?:         _#defs."/$defs/Properties/definitions/UriSeparator"
-})
+		StreamNameOutputMode?: #StreamNameOutputMode
+		Tags?:                 [...#Tag] | fn.#ListExpression
+		UriSeparator?:         #UriSeparator
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AdMarkerDash": "BINARY" | "XML" | fn.#StringExpression
+#AdMarkerDash: "BINARY" | "XML" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AdMarkerHls": "DATERANGE" | "SCTE35_ENHANCED" | fn.#StringExpression
+#AdMarkerHls: "DATERANGE" | "SCTE35_ENHANCED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CmafEncryptionMethod": "CENC" | "CBCS" | fn.#StringExpression
+#CmafEncryptionMethod: "CENC" | "CBCS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerType": "TS" | "CMAF" | "ISM" | fn.#StringExpression
+#ContainerType: "TS" | "CMAF" | "ISM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAdType": "PROGRAM" |
+#CustomAdType: "PROGRAM" |
 	"CHAPTER" |
 	"UNSCHEDULED_EVENT" |
 	"ALTERNATE_CONTENT_OPPORTUNITY" |
 	"NETWORK" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DashAudioTimelinePattern": "NONE" | "PATTERNED" | fn.#StringExpression
+#DashAudioTimelinePattern: "NONE" | "PATTERNED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DashAvailabilityStartTimeConfiguration": close(
-	{FixedAvailabilityStartTime!: time.Time | fn.#StringExpression},
-) |
+#DashAvailabilityStartTimeConfiguration: close({FixedAvailabilityStartTime!: time.Time | fn.#StringExpression}) |
 	fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/DashBaseUrl": close({
+#DashBaseUrl: close({
 	DvbPriority?: int & <=15000 & >=1 |
 		{
 			string &
@@ -198,11 +217,11 @@ _#defs: "/$defs/Properties/definitions/DashBaseUrl": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashCompactness": "STANDARD" | "NONE" | fn.#StringExpression
+#DashCompactness: "STANDARD" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DashDrmSignaling": "INDIVIDUAL" | "REFERENCED" | fn.#StringExpression
+#DashDrmSignaling: "INDIVIDUAL" | "REFERENCED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DashDvbFontDownload": close({
+#DashDvbFontDownload: close({
 	FontFamily?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	MimeType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_/-]*[a-zA-Z0-9]$" |
 	fn.#StringExpression
@@ -210,7 +229,7 @@ _#defs: "/$defs/Properties/definitions/DashDvbFontDownload": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashDvbMetricsReporting": close({
+#DashDvbMetricsReporting: close({
 	Probability?: int & <=1000 & >=1 |
 		{
 			string &
@@ -231,22 +250,21 @@ _#defs: "/$defs/Properties/definitions/DashDvbMetricsReporting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashDvbSettings": close({
-	ErrorMetrics?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/DashDvbMetricsReporting"] |
-		fn.#ListExpression
-	FontDownload?: _#defs."/$defs/Properties/definitions/DashDvbFontDownload"
+#DashDvbSettings: close({
+	ErrorMetrics?: list.MaxItems(20) & [...] & [...#DashDvbMetricsReporting] | fn.#ListExpression
+	FontDownload?: #DashDvbFontDownload
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashManifestConfiguration": close({
-	AudioTimelinePattern?:               _#defs."/$defs/Properties/definitions/DashAudioTimelinePattern"
-	AvailabilityStartTimeConfiguration?: _#defs."/$defs/Properties/definitions/DashAvailabilityStartTimeConfiguration"
-	BaseUrls?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/DashBaseUrl"] | fn.#ListExpression
-	Compactness?:         _#defs."/$defs/Properties/definitions/DashCompactness"
-	DrmSignaling?:        _#defs."/$defs/Properties/definitions/DashDrmSignaling"
-	DvbSettings?:         _#defs."/$defs/Properties/definitions/DashDvbSettings"
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
-	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+#DashManifestConfiguration: close({
+	AudioTimelinePattern?:               #DashAudioTimelinePattern
+	AvailabilityStartTimeConfiguration?: #DashAvailabilityStartTimeConfiguration
+	BaseUrls?:                           list.MaxItems(20) & [...] & [...#DashBaseUrl] | fn.#ListExpression
+	Compactness?:                        #DashCompactness
+	DrmSignaling?:                       #DashDrmSignaling
+	DvbSettings?:                        #DashDvbSettings
+	FilterConfiguration?:                #FilterConfiguration
+	ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	ManifestWindowSeconds?: int |
 		{
 			string &
@@ -289,13 +307,12 @@ _#defs: "/$defs/Properties/definitions/DashManifestConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	PeriodTriggers?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/DashPeriodTrigger"] |
-		fn.#ListExpression
-	Profiles?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/DashProfile"] | fn.#ListExpression
-	ProgramInformation?:    _#defs."/$defs/Properties/definitions/DashProgramInformation"
-	ScteDash?:              _#defs."/$defs/Properties/definitions/ScteDash"
-	SegmentTemplateFormat?: _#defs."/$defs/Properties/definitions/DashSegmentTemplateFormat"
-	SubtitleConfiguration?: _#defs."/$defs/Properties/definitions/DashSubtitleConfiguration"
+	PeriodTriggers?:        list.MaxItems(100) & [...] & [...#DashPeriodTrigger] | fn.#ListExpression
+	Profiles?:              list.MaxItems(5) & [...] & [...#DashProfile] | fn.#ListExpression
+	ProgramInformation?:    #DashProgramInformation
+	ScteDash?:              #ScteDash
+	SegmentTemplateFormat?: #DashSegmentTemplateFormat
+	SubtitleConfiguration?: #DashSubtitleConfiguration
 	SuggestedPresentationDelaySeconds?: int |
 		{
 			string &
@@ -310,21 +327,21 @@ _#defs: "/$defs/Properties/definitions/DashManifestConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	UriPathType?: _#defs."/$defs/Properties/definitions/UriPathType"
-	UtcTiming?:   _#defs."/$defs/Properties/definitions/DashUtcTiming"
+	UriPathType?: #UriPathType
+	UtcTiming?:   #DashUtcTiming
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashPeriodTrigger": "AVAILS" |
+#DashPeriodTrigger: "AVAILS" |
 	"DRM_KEY_ROTATION" |
 	"SOURCE_CHANGES" |
 	"SOURCE_DISRUPTIONS" |
 	"NONE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DashProfile": "DVB_DASH" | fn.#StringExpression
+#DashProfile: "DVB_DASH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DashProgramInformation": close({
+#DashProgramInformation: close({
 	Copyright?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	LanguageCode?: strings.MaxRunes(5) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$" |
 	fn.#StringExpression
@@ -334,40 +351,25 @@ _#defs: "/$defs/Properties/definitions/DashProgramInformation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashSegmentTemplateFormat": "NUMBER_WITH_TIMELINE" | fn.#StringExpression
+#DashSegmentTemplateFormat: "NUMBER_WITH_TIMELINE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DashSubtitleConfiguration": close(
-	{TtmlConfiguration?: _#defs."/$defs/Properties/definitions/DashTtmlConfiguration"},
-) |
-	fn.#ObjectExpression
+#DashSubtitleConfiguration: close({TtmlConfiguration?: #DashTtmlConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashTtmlConfiguration": close(
-	{TtmlProfile!: _#defs."/$defs/Properties/definitions/DashTtmlProfile"},
-) |
-	fn.#ObjectExpression
+#DashTtmlConfiguration: close({TtmlProfile!: #DashTtmlProfile}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashTtmlProfile": "IMSC_1" | "EBU_TT_D_101" | fn.#StringExpression
+#DashTtmlProfile: "IMSC_1" | "EBU_TT_D_101" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DashUtcTiming": close({
-	TimingMode?:   _#defs."/$defs/Properties/definitions/DashUtcTimingMode"
+#DashUtcTiming: close({
+	TimingMode?:   #DashUtcTimingMode
 	TimingSource?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashUtcTimingMode": "HTTP_HEAD" |
-	"HTTP_ISO" |
-	"HTTP_XSDATE" |
-	"UTC_DIRECT" |
-	fn.#StringExpression
+#DashUtcTimingMode: "HTTP_HEAD" | "HTTP_ISO" | "HTTP_XSDATE" | "UTC_DIRECT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DrmSystem": "CLEAR_KEY_AES_128" |
-	"FAIRPLAY" |
-	"PLAYREADY" |
-	"WIDEVINE" |
-	"IRDETO" |
-	fn.#StringExpression
+#DrmSystem: "CLEAR_KEY_AES_128" | "FAIRPLAY" | "PLAYREADY" | "WIDEVINE" | "IRDETO" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	CmafExcludeSegmentDrmMetadata?: bool |
 		"true" |
 		"True" |
@@ -378,7 +380,7 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 		fn.#BooleanExpression
 	ConstantInitializationVector?: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[0-9a-fA-F]+$" |
 	fn.#StringExpression
-	EncryptionMethod!: _#defs."/$defs/Properties/definitions/EncryptionMethod"
+	EncryptionMethod!: #EncryptionMethod
 	KeyRotationIntervalSeconds?: int & <=31536000 & >=300 |
 		{
 			string &
@@ -395,30 +397,30 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 				)
 		} |
 		fn.#NumberExpression
-	SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!: #SpekeKeyProvider
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
-	PresetSpeke20Audio!: _#defs."/$defs/Properties/definitions/PresetSpeke20Audio"
-	PresetSpeke20Video!: _#defs."/$defs/Properties/definitions/PresetSpeke20Video"
+#EncryptionContractConfiguration: close({
+	PresetSpeke20Audio!: #PresetSpeke20Audio
+	PresetSpeke20Video!: #PresetSpeke20Video
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionMethod": close({
-	CmafEncryptionMethod?: _#defs."/$defs/Properties/definitions/CmafEncryptionMethod"
-	IsmEncryptionMethod?:  _#defs."/$defs/Properties/definitions/IsmEncryptionMethod"
-	TsEncryptionMethod?:   _#defs."/$defs/Properties/definitions/TsEncryptionMethod"
+#EncryptionMethod: close({
+	CmafEncryptionMethod?: #CmafEncryptionMethod
+	IsmEncryptionMethod?:  #IsmEncryptionMethod
+	TsEncryptionMethod?:   #TsEncryptionMethod
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointErrorCondition": "STALE_MANIFEST" |
+#EndpointErrorCondition: "STALE_MANIFEST" |
 	"INCOMPLETE_MANIFEST" |
 	"MISSING_DRM_KEY" |
 	"SLATE_INPUT" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
+#FilterConfiguration: close({
 	ClipStartTime?:  time.Time | fn.#StringExpression
 	DrmSettings?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	End?:            time.Time | fn.#StringExpression
@@ -443,14 +445,12 @@ _#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ForceEndpointErrorConfiguration": close(
-	{EndpointErrorConditions?: [..._#defs."/$defs/Properties/definitions/EndpointErrorCondition"] | fn.#ListExpression},
-) |
+#ForceEndpointErrorConfiguration: close({EndpointErrorConditions?: [...#EndpointErrorCondition] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsManifestConfiguration": close({
+#HlsManifestConfiguration: close({
 	ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	FilterConfiguration?: #FilterConfiguration
 	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	ManifestWindowSeconds?: int |
 		{
@@ -480,19 +480,19 @@ _#defs: "/$defs/Properties/definitions/HlsManifestConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	ScteHls?:                _#defs."/$defs/Properties/definitions/ScteHls"
-	StartTag?:               _#defs."/$defs/Properties/definitions/StartTag"
-	UriPathType?:            _#defs."/$defs/Properties/definitions/UriPathType"
+	ScteHls?:                #ScteHls
+	StartTag?:               #StartTag
+	UriPathType?:            #UriPathType
 	Url?:                    string | fn.#StringExpression
 	UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IsmEncryptionMethod": "CENC" | fn.#StringExpression
+#IsmEncryptionMethod: "CENC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LowLatencyHlsManifestConfiguration": close({
+#LowLatencyHlsManifestConfiguration: close({
 	ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	FilterConfiguration?: #FilterConfiguration
 	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	ManifestWindowSeconds?: int |
 		{
@@ -522,17 +522,17 @@ _#defs: "/$defs/Properties/definitions/LowLatencyHlsManifestConfiguration": clos
 				)
 		} |
 		fn.#NumberExpression
-	ScteHls?:                _#defs."/$defs/Properties/definitions/ScteHls"
-	StartTag?:               _#defs."/$defs/Properties/definitions/StartTag"
-	UriPathType?:            _#defs."/$defs/Properties/definitions/UriPathType"
+	ScteHls?:                #ScteHls
+	StartTag?:               #StartTag
+	UriPathType?:            #UriPathType
 	Url?:                    string | fn.#StringExpression
 	UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MssManifestConfiguration": close({
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
-	ManifestLayout?:      _#defs."/$defs/Properties/definitions/MssManifestLayout"
+#MssManifestConfiguration: close({
+	FilterConfiguration?: #FilterConfiguration
+	ManifestLayout?:      #MssManifestLayout
 	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 	ManifestWindowSeconds?: int |
 		{
@@ -551,20 +551,18 @@ _#defs: "/$defs/Properties/definitions/MssManifestConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MssManifestLayout": "FULL" | "COMPACT" | fn.#StringExpression
+#MssManifestLayout: "FULL" | "COMPACT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutputTimestampMode": "PASSTHROUGH" |
-	"REBASED_TO_CHANNEL_START" |
-	fn.#StringExpression
+#OutputTimestampMode: "PASSTHROUGH" | "REBASED_TO_CHANNEL_START" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PresetSpeke20Audio": "PRESET_AUDIO_1" |
+#PresetSpeke20Audio: "PRESET_AUDIO_1" |
 	"PRESET_AUDIO_2" |
 	"PRESET_AUDIO_3" |
 	"SHARED" |
 	"UNENCRYPTED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PresetSpeke20Video": "PRESET_VIDEO_1" |
+#PresetSpeke20Video: "PRESET_VIDEO_1" |
 	"PRESET_VIDEO_2" |
 	"PRESET_VIDEO_3" |
 	"PRESET_VIDEO_4" |
@@ -576,22 +574,20 @@ _#defs: "/$defs/Properties/definitions/PresetSpeke20Video": "PRESET_VIDEO_1" |
 	"UNENCRYPTED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Scte": close({
-	CustomAdTypes?: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/CustomAdType"] |
-		fn.#ListExpression
-	ScteFilter?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ScteFilter"] |
-		fn.#ListExpression
-	ScteInSegments?: _#defs."/$defs/Properties/definitions/ScteInSegments"
+#Scte: close({
+	CustomAdTypes?:  list.MaxItems(25) & [...] & [...#CustomAdType] | fn.#ListExpression
+	ScteFilter?:     list.MaxItems(100) & [...] & [...#ScteFilter] | fn.#ListExpression
+	ScteInSegments?: #ScteInSegments
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScteDash": close({
-	AdMarkerDash?:    _#defs."/$defs/Properties/definitions/AdMarkerDash"
-	ScteInManifests?: _#defs."/$defs/Properties/definitions/ScteInManifests"
+#ScteDash: close({
+	AdMarkerDash?:    #AdMarkerDash
+	ScteInManifests?: #ScteInManifests
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScteFilter": "SPLICE_INSERT" |
+#ScteFilter: "SPLICE_INSERT" |
 	"BREAK" |
 	"PROVIDER_ADVERTISEMENT" |
 	"DISTRIBUTOR_ADVERTISEMENT" |
@@ -612,21 +608,21 @@ _#defs: "/$defs/Properties/definitions/ScteFilter": "SPLICE_INSERT" |
 	"CALL_AD_SERVER" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScteHls": close({
-	AdMarkerHls?:     _#defs."/$defs/Properties/definitions/AdMarkerHls"
-	ScteInManifests?: _#defs."/$defs/Properties/definitions/ScteInManifests"
+#ScteHls: close({
+	AdMarkerHls?:     #AdMarkerHls
+	ScteInManifests?: #ScteInManifests
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScteInManifests": "ALL" | "MATCHES_FILTER" | fn.#StringExpression
+#ScteInManifests: "ALL" | "MATCHES_FILTER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScteInSegments": "NONE" | "ALL" | "MATCHES_FILTER" | fn.#StringExpression
+#ScteInSegments: "NONE" | "ALL" | "MATCHES_FILTER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Segment": close({
-	Encryption?:               _#defs."/$defs/Properties/definitions/Encryption"
+#Segment: close({
+	Encryption?:               #Encryption
 	IncludeIframeOnlyStreams?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OutputTimestampMode?:      _#defs."/$defs/Properties/definitions/OutputTimestampMode"
-	Scte?:                     _#defs."/$defs/Properties/definitions/Scte"
+	OutputTimestampMode?:      #OutputTimestampMode
+	Scte?:                     #Scte
 	SegmentDurationSeconds?: int & <=30 & >=1 |
 		{
 			string &
@@ -649,14 +645,13 @@ _#defs: "/$defs/Properties/definitions/Segment": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
+#SpekeKeyProvider: close({
 	CertificateArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:([^:\\n]+):acm:([^:\\n]+):([0-9]+):certificate/[a-zA-Z0-9-_]+$" |
 	fn.#StringExpression
-	DrmSystems!: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DrmSystem"] |
-		fn.#ListExpression
-	EncryptionContractConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration"
+	DrmSystems!:                      list.MaxItems(4) & list.MinItems(1) & [...#DrmSystem] | fn.#ListExpression
+	EncryptionContractConfiguration!: #EncryptionContractConfiguration
 	ResourceId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]+$" | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
@@ -664,7 +659,7 @@ _#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StartTag": close({
+#StartTag: close({
 	Precise?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TimeOffset!: number |
 		{
@@ -688,20 +683,16 @@ _#defs: "/$defs/Properties/definitions/StartTag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamNameOutputMode": "INDEX" | "PASSTHROUGH_NAME" | fn.#StringExpression
+#StreamNameOutputMode: "INDEX" | "PASSTHROUGH_NAME" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TsEncryptionMethod": "AES_128" | "SAMPLE_AES" | fn.#StringExpression
+#TsEncryptionMethod: "AES_128" | "SAMPLE_AES" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UriPathType": "LEAF" | "ROOT" | fn.#StringExpression
+#UriPathType: "LEAF" | "ROOT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UriSeparator": "UNDERSCORE" | "HYPHEN" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackageV2::OriginEndpoint"
-	Properties!: #Properties
-}
+#UriSeparator: "UNDERSCORE" | "HYPHEN" | fn.#StringExpression

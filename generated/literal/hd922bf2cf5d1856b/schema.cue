@@ -13,15 +13,15 @@ import (
 #Properties: close({
 	// Unique identifier of the agent space
 	AgentSpaceId?:       string
-	AwsResources?:       _#defs."/$defs/Properties/definitions/AWSResources"
-	CodeReviewSettings?: _#defs."/$defs/Properties/definitions/CodeReviewSettings"
+	AwsResources?:       #AWSResources
+	CodeReviewSettings?: #CodeReviewSettings
 
 	// Timestamp when the agent space was created
 	CreatedAt?: time.Time
 
 	// Description of the agent space
 	Description?:         string
-	IntegratedResources?: _#defs."/$defs/Properties/definitions/IntegratedResources"
+	IntegratedResources?: #IntegratedResources
 
 	// Identifier of the KMS key used to encrypt data. Can be a key ID, key ARN,
 	// alias name, or alias ARN. If not specified, an AWS managed key is used.
@@ -31,7 +31,7 @@ import (
 	Name!: string
 
 	// Tags for the agent space
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// List of target domain identifiers registered with the agent space
 	TargetDomainIds?: [...string]
@@ -41,7 +41,7 @@ import (
 })
 
 // AWS resource configuration
-_#defs: "/$defs/Properties/definitions/AWSResources": close({
+#AWSResources: close({
 	// IAM role ARNs
 	IamRoles?: [...string]
 
@@ -58,11 +58,11 @@ _#defs: "/$defs/Properties/definitions/AWSResources": close({
 	SecretArns?: [...string]
 
 	// VPC configurations
-	Vpcs?: [..._#defs."/$defs/Properties/definitions/VpcConfig"]
+	Vpcs?: [...#VpcConfig]
 })
 
 // Bitbucket repository capabilities
-_#defs: "/$defs/Properties/definitions/BitbucketCapabilitiesResource": close({
+#BitbucketCapabilitiesResource: close({
 	// Enables Code Review in the repository
 	LeaveComments?: bool
 
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/BitbucketCapabilitiesResource": close({
 })
 
 // Bitbucket repository details
-_#defs: "/$defs/Properties/definitions/BitbucketRepositoryResource": close({
+#BitbucketRepositoryResource: close({
 	// Bitbucket repository name
 	Name!: string
 
@@ -80,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/BitbucketRepositoryResource": close({
 })
 
 // Details of code review settings
-_#defs: "/$defs/Properties/definitions/CodeReviewSettings": close({
+#CodeReviewSettings: close({
 	// Whether Controls are utilized for code review analysis
 	ControlsScanning!: bool
 
@@ -89,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/CodeReviewSettings": close({
 })
 
 // Confluence document capabilities
-_#defs: "/$defs/Properties/definitions/ConfluenceCapabilitiesResource": close({
+#ConfluenceCapabilitiesResource: close({
 	// Enables creation of new Confluence documents in the same space
 	CreateDocument?: bool
 
@@ -101,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/ConfluenceCapabilitiesResource": close({
 })
 
 // Confluence document details
-_#defs: "/$defs/Properties/definitions/ConfluenceDocumentResource": close({
+#ConfluenceDocumentResource: close({
 	// Customer-supplied logical name for the Confluence document
 	Name!: string
 
@@ -119,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/ConfluenceDocumentResource": close({
 })
 
 // GitHub repository capabilities
-_#defs: "/$defs/Properties/definitions/GitHubCapabilitiesResource": close({
+#GitHubCapabilitiesResource: close({
 	// Enables Code Review in the repository
 	LeaveComments!: bool
 
@@ -128,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/GitHubCapabilitiesResource": close({
 })
 
 // GitHub repository details
-_#defs: "/$defs/Properties/definitions/GitHubRepositoryResource": close({
+#GitHubRepositoryResource: close({
 	// GitHub repository name
 	Name!: string
 
@@ -137,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/GitHubRepositoryResource": close({
 })
 
 // GitLab repository capabilities
-_#defs: "/$defs/Properties/definitions/GitLabCapabilitiesResource": close({
+#GitLabCapabilitiesResource: close({
 	// Enables Code Review in the repository
 	LeaveComments?: bool
 
@@ -146,7 +146,7 @@ _#defs: "/$defs/Properties/definitions/GitLabCapabilitiesResource": close({
 })
 
 // GitLab repository details
-_#defs: "/$defs/Properties/definitions/GitLabRepositoryResource": close({
+#GitLabRepositoryResource: close({
 	// GitLab project name
 	Name!: string
 
@@ -155,21 +155,19 @@ _#defs: "/$defs/Properties/definitions/GitLabRepositoryResource": close({
 })
 
 // Integrated Resource details
-_#defs: "/$defs/Properties/definitions/IntegratedResource": close({
+#IntegratedResource: close({
 	// Unique identifier of the Provider Integration
 	Integration!: string
 
 	// List of selected Resources from the Integration
-	ProviderResources!: [..._#defs."/$defs/Properties/definitions/ProviderResource"]
+	ProviderResources!: [...#ProviderResource]
 })
 
 // Integrated Resources configuration
-_#defs: "/$defs/Properties/definitions/IntegratedResources": [
-	..._#defs."/$defs/Properties/definitions/IntegratedResource"
-]
+#IntegratedResources: [...#IntegratedResource]
 
 // Selected Resource (eg: Code Repository, Document) from an Integration
-_#defs: "/$defs/Properties/definitions/ProviderResource": matchN(2, [matchN(1, [{
+#ProviderResource: matchN(2, [matchN(1, [{
 	GitHubRepository!: _
 	...
 }, {
@@ -194,18 +192,18 @@ _#defs: "/$defs/Properties/definitions/ProviderResource": matchN(2, [matchN(1, [
 	ConfluenceCapabilities!: _
 	...
 }])]) & close({
-	BitbucketCapabilities?:  _#defs."/$defs/Properties/definitions/BitbucketCapabilitiesResource"
-	BitbucketRepository?:    _#defs."/$defs/Properties/definitions/BitbucketRepositoryResource"
-	ConfluenceCapabilities?: _#defs."/$defs/Properties/definitions/ConfluenceCapabilitiesResource"
-	ConfluenceDocument?:     _#defs."/$defs/Properties/definitions/ConfluenceDocumentResource"
-	GitHubCapabilities?:     _#defs."/$defs/Properties/definitions/GitHubCapabilitiesResource"
-	GitHubRepository?:       _#defs."/$defs/Properties/definitions/GitHubRepositoryResource"
-	GitLabCapabilities?:     _#defs."/$defs/Properties/definitions/GitLabCapabilitiesResource"
-	GitLabRepository?:       _#defs."/$defs/Properties/definitions/GitLabRepositoryResource"
+	BitbucketCapabilities?:  #BitbucketCapabilitiesResource
+	BitbucketRepository?:    #BitbucketRepositoryResource
+	ConfluenceCapabilities?: #ConfluenceCapabilitiesResource
+	ConfluenceDocument?:     #ConfluenceDocumentResource
+	GitHubCapabilities?:     #GitHubCapabilitiesResource
+	GitHubRepository?:       #GitHubRepositoryResource
+	GitLabCapabilities?:     #GitLabCapabilitiesResource
+	GitLabRepository?:       #GitLabRepositoryResource
 })
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -214,7 +212,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Customer VPC configuration that the security testing environment accesses
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// List of security group ARNs in the customer VPC
 	SecurityGroupArns?: [...string]
 

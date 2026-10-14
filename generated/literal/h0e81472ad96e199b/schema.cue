@@ -15,13 +15,13 @@ package schema
 	DatabaseName?: string
 
 	// Settings in JSON format for the source and target DocumentDB endpoint
-	DocDbSettings?: _#defs."/$defs/Properties/definitions/DocDbSettings"
+	DocDbSettings?: #DocDbSettings
 
 	// Settings in JSON format for the target Amazon DynamoDB endpoint
-	DynamoDbSettings?: _#defs."/$defs/Properties/definitions/DynamoDbSettings"
+	DynamoDbSettings?: #DynamoDbSettings
 
 	// Settings in JSON format for the target OpenSearch endpoint
-	ElasticsearchSettings?: _#defs."/$defs/Properties/definitions/ElasticsearchSettings"
+	ElasticsearchSettings?: #ElasticsearchSettings
 
 	// The endpoint ARN.
 	EndpointArn?: string
@@ -44,16 +44,16 @@ package schema
 	ExtraConnectionAttributes?: string
 
 	// Settings in JSON format for the source GCP MySQL endpoint
-	GcpMySQLSettings?: _#defs."/$defs/Properties/definitions/GcpMySQLSettings"
+	GcpMySQLSettings?: #GcpMySQLSettings
 
 	// Settings in JSON format for the source IBM Db2 LUW endpoint
-	IbmDb2Settings?: _#defs."/$defs/Properties/definitions/IbmDb2Settings"
+	IbmDb2Settings?: #IbmDb2Settings
 
 	// Settings in JSON format for the target Apache Kafka endpoint
-	KafkaSettings?: _#defs."/$defs/Properties/definitions/KafkaSettings"
+	KafkaSettings?: #KafkaSettings
 
 	// Settings in JSON format for the target endpoint for Amazon Kinesis Data Streams
-	KinesisSettings?: _#defs."/$defs/Properties/definitions/KinesisSettings"
+	KinesisSettings?: #KinesisSettings
 
 	// An AWS KMS key identifier that is used to encrypt the connection parameters
 	// for the endpoint.If you don't specify a value for the KmsKeyId parameter,
@@ -61,19 +61,19 @@ package schema
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// Settings in JSON format for the source and target Microsoft SQL Server endpoint
-	MicrosoftSqlServerSettings?: _#defs."/$defs/Properties/definitions/MicrosoftSqlServerSettings"
+	MicrosoftSqlServerSettings?: #MicrosoftSqlServerSettings
 
 	// Settings in JSON format for the source MongoDB endpoint
-	MongoDbSettings?: _#defs."/$defs/Properties/definitions/MongoDbSettings"
+	MongoDbSettings?: #MongoDbSettings
 
 	// Settings in JSON format for the source and target MySQL endpoin
-	MySqlSettings?: _#defs."/$defs/Properties/definitions/MySqlSettings"
+	MySqlSettings?: #MySqlSettings
 
 	// Settings in JSON format for the target Amazon Neptune endpoint
-	NeptuneSettings?: _#defs."/$defs/Properties/definitions/NeptuneSettings"
+	NeptuneSettings?: #NeptuneSettings
 
 	// Settings in JSON format for the source and target Oracle endpoint
-	OracleSettings?: _#defs."/$defs/Properties/definitions/OracleSettings"
+	OracleSettings?: #OracleSettings
 
 	// The password to be used to log in to the endpoint database.
 	Password?: string
@@ -82,20 +82,20 @@ package schema
 	Port?: int
 
 	// Settings in JSON format for the source and target PostgreSQL endpoint.
-	PostgreSqlSettings?: _#defs."/$defs/Properties/definitions/PostgreSqlSettings"
+	PostgreSqlSettings?: #PostgreSqlSettings
 
 	// Settings in JSON format for the target Redis endpoint
-	RedisSettings?: _#defs."/$defs/Properties/definitions/RedisSettings"
+	RedisSettings?: #RedisSettings
 
 	// Settings in JSON format for the Amazon Redshift endpoint.
-	RedshiftSettings?: _#defs."/$defs/Properties/definitions/RedshiftSettings"
+	RedshiftSettings?: #RedshiftSettings
 
 	// A display name for the resource identifier at the end of the EndpointArn
 	// response parameter that is returned in the created Endpoint object.
 	ResourceIdentifier?: string
 
 	// Settings in JSON format for the source and target Amazon S3 endpoint
-	S3Settings?: _#defs."/$defs/Properties/definitions/S3Settings"
+	S3Settings?: #S3Settings
 
 	// The name of the server where the endpoint database resides.
 	ServerName?: string
@@ -104,17 +104,17 @@ package schema
 	SslMode?: string
 
 	// Settings in JSON format for the source and target SAP ASE endpoint.
-	SybaseSettings?: _#defs."/$defs/Properties/definitions/SybaseSettings"
+	SybaseSettings?: #SybaseSettings
 
 	// One or more tags to be assigned to the endpoint.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The user name to be used to log in to the endpoint database.
 	Username?: string
 })
 
 // Provides information that defines a DocumentDB endpoint.
-_#defs: "/$defs/Properties/definitions/DocDbSettings": close({
+#DocDbSettings: close({
 	// Indicates the number of documents to preview to determine the document
 	// organization. Use this setting when NestingLevel is set to "one".
 	DocsToInvestigate?: int
@@ -142,14 +142,14 @@ _#defs: "/$defs/Properties/definitions/DocDbSettings": close({
 
 // Provides information, including the Amazon Resource Name (ARN) of the IAM
 // role used to define an Amazon DynamoDB target endpoint.
-_#defs: "/$defs/Properties/definitions/DynamoDbSettings": close({
+#DynamoDbSettings: close({
 	// The Amazon Resource Name (ARN) used by the service to access the IAM role.
 	// The role must allow the iam:PassRole action.
 	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // Provides information that defines an OpenSearch endpoint.
-_#defs: "/$defs/Properties/definitions/ElasticsearchSettings": close({
+#ElasticsearchSettings: close({
 	// The endpoint for the OpenSearch cluster. AWS DMS uses HTTPS if a transport
 	// protocol (either HTTP or HTTPS) isn't specified.
 	EndpointUri?: string
@@ -167,7 +167,7 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchSettings": close({
 })
 
 // Provides information that defines a GCP MySQL endpoint.
-_#defs: "/$defs/Properties/definitions/GcpMySQLSettings": close({
+#GcpMySQLSettings: close({
 	// Specifies a script to run immediately after AWS DMS connects to the endpoint.
 	// The migration task continues running regardless if the SQL statement
 	// succeeds or fails.
@@ -233,7 +233,7 @@ _#defs: "/$defs/Properties/definitions/GcpMySQLSettings": close({
 })
 
 // Provides information that defines an IBMDB2 endpoint.
-_#defs: "/$defs/Properties/definitions/IbmDb2Settings": close({
+#IbmDb2Settings: close({
 	// For ongoing replication (CDC), use CurrentLSN to specify a log sequence
 	// number (LSN) where you want the replication to start.
 	CurrentLsn?: string
@@ -273,7 +273,7 @@ _#defs: "/$defs/Properties/definitions/IbmDb2Settings": close({
 })
 
 // Provides information that describes an Apache Kafka endpoint.
-_#defs: "/$defs/Properties/definitions/KafkaSettings": close({
+#KafkaSettings: close({
 	// A comma-separated list of one or more broker locations in your Kafka cluster
 	// that host your Kafka instance. Specify each broker location in the form
 	// broker-hostname-or-ip:port
@@ -355,7 +355,7 @@ _#defs: "/$defs/Properties/definitions/KafkaSettings": close({
 })
 
 // Provides information that describes an Amazon Kinesis Data Stream endpoint.
-_#defs: "/$defs/Properties/definitions/KinesisSettings": close({
+#KinesisSettings: close({
 	// Shows detailed control information for table definition, column definition,
 	// and table and column changes in the Kinesis message output. The default is
 	// false.
@@ -396,7 +396,7 @@ _#defs: "/$defs/Properties/definitions/KinesisSettings": close({
 })
 
 // Provides information that defines a Microsoft SQL Server endpoint.
-_#defs: "/$defs/Properties/definitions/MicrosoftSqlServerSettings": close({
+#MicrosoftSqlServerSettings: close({
 	// The maximum size of the packets (in bytes) used to transfer data using BCP.
 	BcpPacketSize?: int
 
@@ -468,7 +468,7 @@ _#defs: "/$defs/Properties/definitions/MicrosoftSqlServerSettings": close({
 })
 
 // Provides information that defines a MongoDB endpoint.
-_#defs: "/$defs/Properties/definitions/MongoDbSettings": close({
+#MongoDbSettings: close({
 	// The authentication mechanism you use to access the MongoDB source endpoint.
 	AuthMechanism?: string
 
@@ -514,7 +514,7 @@ _#defs: "/$defs/Properties/definitions/MongoDbSettings": close({
 })
 
 // Provides information that defines a MySQL endpoint.
-_#defs: "/$defs/Properties/definitions/MySqlSettings": close({
+#MySqlSettings: close({
 	// Specifies a script to run immediately after AWS DMS connects to the endpoint.
 	// The migration task continues running regardless if the SQL statement
 	// succeeds or fails.
@@ -555,7 +555,7 @@ _#defs: "/$defs/Properties/definitions/MySqlSettings": close({
 })
 
 // Provides information that defines an Amazon Neptune endpoint
-_#defs: "/$defs/Properties/definitions/NeptuneSettings": close({
+#NeptuneSettings: close({
 	// The number of milliseconds for AWS DMS to wait to retry a bulk-load of
 	// migrated graph data to the Neptune target database before raising an error.
 	// The default is 250.
@@ -587,7 +587,7 @@ _#defs: "/$defs/Properties/definitions/NeptuneSettings": close({
 })
 
 // Provides information that defines an Oracle endpoint
-_#defs: "/$defs/Properties/definitions/OracleSettings": close({
+#OracleSettings: close({
 	// Set this attribute to false in order to use the Binary Reader to capture
 	// change data for an Amazon RDS for Oracle as the source.
 	AccessAlternateDirectly?: bool
@@ -725,7 +725,7 @@ _#defs: "/$defs/Properties/definitions/OracleSettings": close({
 })
 
 // Provides information that defines a PostgreSQL endpoint
-_#defs: "/$defs/Properties/definitions/PostgreSqlSettings": close({
+#PostgreSqlSettings: close({
 	// For use with change data capture (CDC) only, this attribute has AWS DMS
 	// bypass foreign keys and user triggers to reduce the time it takes to bulk
 	// load data.
@@ -787,7 +787,7 @@ _#defs: "/$defs/Properties/definitions/PostgreSqlSettings": close({
 })
 
 // Provides information that defines a Redis target endpoint.
-_#defs: "/$defs/Properties/definitions/RedisSettings": close({
+#RedisSettings: close({
 	// The password provided with the auth-role and auth-token options of the
 	// AuthType setting for a Redis target endpoint.
 	AuthPassword?: string
@@ -815,7 +815,7 @@ _#defs: "/$defs/Properties/definitions/RedisSettings": close({
 })
 
 // Provides information that defines an Amazon Redshift endpoint.
-_#defs: "/$defs/Properties/definitions/RedshiftSettings": close({
+#RedshiftSettings: close({
 	// A value that indicates to allow any date format, including invalid formats
 	// such as 00/00/00 00:00:00, to be loaded without generating an error. You can
 	// choose true or false (the default).
@@ -925,7 +925,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftSettings": close({
 })
 
 // Provides information that defines an Amazon S3 endpoint.
-_#defs: "/$defs/Properties/definitions/S3Settings": close({
+#S3Settings: close({
 	// An optional parameter that, when set to true or y, you can use to add column
 	// name information to the .csv output file.
 	AddColumnName?: bool
@@ -1090,7 +1090,7 @@ _#defs: "/$defs/Properties/definitions/S3Settings": close({
 })
 
 // Provides information that defines a SAP ASE endpoint.
-_#defs: "/$defs/Properties/definitions/SybaseSettings": close({
+#SybaseSettings: close({
 	// The full Amazon Resource Name (ARN) of the IAM role that specifies AWS DMS as
 	// the trusted entity and grants the required permissions to access the value
 	// in SecretsManagerSecret
@@ -1103,7 +1103,7 @@ _#defs: "/$defs/Properties/definitions/SybaseSettings": close({
 
 // A user-defined key-value pair that describes metadata added to an AWS DMS
 // resource and that is used by operations.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key is the required name of the tag.
 	Key!: string
 

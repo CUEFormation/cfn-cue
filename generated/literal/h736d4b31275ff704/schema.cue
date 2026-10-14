@@ -7,35 +7,35 @@ package schema
 // Resource Type definition for AWS::CodeBuild::Project
 #Properties: close({
 	Arn?:                     string
-	Artifacts!:               _#defs."/$defs/Properties/definitions/Artifacts"
+	Artifacts!:               #Artifacts
 	AutoRetryLimit?:          number
 	BadgeEnabled?:            bool
-	BuildBatchConfig?:        _#defs."/$defs/Properties/definitions/ProjectBuildBatchConfig"
-	Cache?:                   _#defs."/$defs/Properties/definitions/ProjectCache"
+	BuildBatchConfig?:        #ProjectBuildBatchConfig
+	Cache?:                   #ProjectCache
 	ConcurrentBuildLimit?:    int
 	Description?:             string
 	EncryptionKey?:           string
-	Environment!:             _#defs."/$defs/Properties/definitions/Environment"
-	FileSystemLocations?:     [..._#defs."/$defs/Properties/definitions/ProjectFileSystemLocation"]
+	Environment!:             #Environment
+	FileSystemLocations?:     [...#ProjectFileSystemLocation]
 	Id?:                      string
-	LogsConfig?:              _#defs."/$defs/Properties/definitions/LogsConfig"
+	LogsConfig?:              #LogsConfig
 	Name?:                    string
 	QueuedTimeoutInMinutes?:  int & <=480 & >=5
 	ResourceAccessRole?:      string
-	SecondaryArtifacts?:      [..._#defs."/$defs/Properties/definitions/Artifacts"]
-	SecondarySourceVersions?: [..._#defs."/$defs/Properties/definitions/ProjectSourceVersion"]
-	SecondarySources?:        [..._#defs."/$defs/Properties/definitions/Source"]
+	SecondaryArtifacts?:      [...#Artifacts]
+	SecondarySourceVersions?: [...#ProjectSourceVersion]
+	SecondarySources?:        [...#Source]
 	ServiceRole!:             string
-	Source!:                  _#defs."/$defs/Properties/definitions/Source"
+	Source!:                  #Source
 	SourceVersion?:           string
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                    [...#Tag]
 	TimeoutInMinutes?:        int & <=2160 & >=5
-	Triggers?:                _#defs."/$defs/Properties/definitions/ProjectTriggers"
+	Triggers?:                #ProjectTriggers
 	Visibility?:              string
-	VpcConfig?:               _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?:               #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/Artifacts": close({
+#Artifacts: close({
 	ArtifactIdentifier?:   string
 	EncryptionDisabled?:   bool
 	Location?:             string
@@ -47,72 +47,72 @@ _#defs: "/$defs/Properties/definitions/Artifacts": close({
 	Type!:                 string
 })
 
-_#defs: "/$defs/Properties/definitions/BatchRestrictions": close({
+#BatchRestrictions: close({
 	ComputeTypesAllowed?:  [...string]
 	MaximumBuildsAllowed?: int
 })
 
-_#defs: "/$defs/Properties/definitions/BuildStatusConfig": close({
+#BuildStatusConfig: close({
 	Context?:   string
 	TargetUrl?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsConfig": close({
+#CloudWatchLogsConfig: close({
 	GroupName?:  string
 	Status!:     string
 	StreamName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/DockerServer": close({
+#DockerServer: close({
 	ComputeType!:      string
 	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 	Certificate?:              string
 	ComputeType!:              string
-	DockerServer?:             _#defs."/$defs/Properties/definitions/DockerServer"
-	EnvironmentVariables?:     [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"]
-	Fleet?:                    _#defs."/$defs/Properties/definitions/ProjectFleet"
+	DockerServer?:             #DockerServer
+	EnvironmentVariables?:     [...#EnvironmentVariable]
+	Fleet?:                    #ProjectFleet
 	HostKernel?:               string
 	Image!:                    string
 	ImagePullCredentialsType?: string
 	PrivilegedMode?:           bool
-	RegistryCredential?:       _#defs."/$defs/Properties/definitions/RegistryCredential"
+	RegistryCredential?:       #RegistryCredential
 	Type!:                     string
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Name!:  string
 	Type?:  string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/FilterGroup": [...]
+#FilterGroup: [...]
 
-_#defs: "/$defs/Properties/definitions/GitSubmodulesConfig": close({FetchSubmodules!: bool})
+#GitSubmodulesConfig: close({FetchSubmodules!: bool})
 
-_#defs: "/$defs/Properties/definitions/LogsConfig": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsConfig"
-	S3Logs?:         _#defs."/$defs/Properties/definitions/S3LogsConfig"
+#LogsConfig: close({
+	CloudWatchLogs?: #CloudWatchLogsConfig
+	S3Logs?:         #S3LogsConfig
 })
 
-_#defs: "/$defs/Properties/definitions/ProjectBuildBatchConfig": close({
+#ProjectBuildBatchConfig: close({
 	BatchReportMode?:  string
 	CombineArtifacts?: bool
-	Restrictions?:     _#defs."/$defs/Properties/definitions/BatchRestrictions"
+	Restrictions?:     #BatchRestrictions
 	ServiceRole?:      string
 	TimeoutInMins?:    int
 })
 
-_#defs: "/$defs/Properties/definitions/ProjectCache": close({
+#ProjectCache: close({
 	CacheNamespace?: string
 	Location?:       string
 	Modes?:          [...string]
 	Type!:           string
 })
 
-_#defs: "/$defs/Properties/definitions/ProjectFileSystemLocation": close({
+#ProjectFileSystemLocation: close({
 	Identifier!:   string
 	Location!:     string
 	MountOptions?: string
@@ -120,49 +120,49 @@ _#defs: "/$defs/Properties/definitions/ProjectFileSystemLocation": close({
 	Type!:         string
 })
 
-_#defs: "/$defs/Properties/definitions/ProjectFleet": close({FleetArn?: string})
+#ProjectFleet: close({FleetArn?: string})
 
-_#defs: "/$defs/Properties/definitions/ProjectSourceVersion": close({
+#ProjectSourceVersion: close({
 	SourceIdentifier!: string
 	SourceVersion?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/ProjectTriggers": close({
+#ProjectTriggers: close({
 	BuildType?:              string
-	FilterGroups?:           [..._#defs."/$defs/Properties/definitions/FilterGroup"]
-	PullRequestBuildPolicy?: _#defs."/$defs/Properties/definitions/PullRequestBuildPolicy"
-	ScopeConfiguration?:     _#defs."/$defs/Properties/definitions/ScopeConfiguration"
+	FilterGroups?:           [...#FilterGroup]
+	PullRequestBuildPolicy?: #PullRequestBuildPolicy
+	ScopeConfiguration?:     #ScopeConfiguration
 	Webhook?:                bool
 })
 
-_#defs: "/$defs/Properties/definitions/PullRequestBuildPolicy": close({
+#PullRequestBuildPolicy: close({
 	ApproverRoles?:           [...string]
 	RequiresCommentApproval!: string
 })
 
-_#defs: "/$defs/Properties/definitions/RegistryCredential": close({
+#RegistryCredential: close({
 	Credential!:         string
 	CredentialProvider!: string
 })
 
-_#defs: "/$defs/Properties/definitions/S3LogsConfig": close({
+#S3LogsConfig: close({
 	EncryptionDisabled?: bool
 	Location?:           string
 	Status!:             string
 })
 
-_#defs: "/$defs/Properties/definitions/ScopeConfiguration": close({
+#ScopeConfiguration: close({
 	Domain?: string
 	Name!:   string
 	Scope?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/Source": close({
-	Auth?:                _#defs."/$defs/Properties/definitions/SourceAuth"
+#Source: close({
+	Auth?:                #SourceAuth
 	BuildSpec?:           string
-	BuildStatusConfig?:   _#defs."/$defs/Properties/definitions/BuildStatusConfig"
+	BuildStatusConfig?:   #BuildStatusConfig
 	GitCloneDepth?:       int
-	GitSubmodulesConfig?: _#defs."/$defs/Properties/definitions/GitSubmodulesConfig"
+	GitSubmodulesConfig?: #GitSubmodulesConfig
 	InsecureSsl?:         bool
 	Location?:            string
 	ReportBuildStatus?:   bool
@@ -170,17 +170,17 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 	Type!:                string
 })
 
-_#defs: "/$defs/Properties/definitions/SourceAuth": close({
+#SourceAuth: close({
 	Resource?: string
 	Type!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets?:          [...string]
 	VpcId?:            =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"

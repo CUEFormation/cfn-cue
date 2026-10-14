@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,14 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::S3Outposts::Bucket
-#Properties: close({
-	BucketName!:             strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
-	OutpostId!:              =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Outposts::Bucket"
+	Properties!: close({
+		BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+		// Rules that define how Amazon S3Outposts manages objects during their lifetime.
+		LifecycleConfiguration?: #LifecycleConfiguration
+		OutpostId!:              =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AbortIncompleteMultipartUpload: close({
 	DaysAfterInitiation!: int & >=0 |
 		{
 			string &
@@ -43,16 +48,16 @@ _#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterAndOperator": close({
-	Prefix?: _#defs."/$defs/Properties/definitions/FilterPrefix" | fn.#StringExpression
-	Tags!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FilterTag"] |
-		fn.#ListExpression
+#FilterAndOperator: close({
+	// Prefix identifies one or more objects to which the rule applies.
+	Prefix?: #FilterPrefix
+	Tags!:   list.MinItems(1) & list.UniqueItems() & [...#FilterTag] | fn.#ListExpression
 }) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FilterPrefix": string | fn.#StringExpression
+#FilterPrefix: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FilterTag": close({
+#FilterTag: close({
 	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
 	fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
@@ -60,12 +65,9 @@ _#defs: "/$defs/Properties/definitions/FilterTag": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close(
-	{Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#LifecycleConfiguration: close({Rules!: list.UniqueItems() & [...#Rule] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
+#Rule: matchN(>=1, [{
 	Status!:                         _
 	AbortIncompleteMultipartUpload!: _
 	...
@@ -78,9 +80,13 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
 	ExpirationInDays!: _
 	...
 }]) & close({
-	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload" |
-		fn.#ObjectExpression
-	ExpirationDate?: _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
+	// Specifies a lifecycle rule that stops incomplete multipart uploads to an
+	// Amazon S3Outposts bucket.
+	AbortIncompleteMultipartUpload?: #AbortIncompleteMultipartUpload
+
+	// Indicates when objects are deleted from Amazon S3Outposts. The date value
+	// must be in ISO 8601 format. The time is always midnight UTC.
+	ExpirationDate?: #iso8601UTC
 	ExpirationInDays?: int & >=1 |
 		{
 			string &
@@ -96,36 +102,42 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
 				)
 		} |
 		fn.#NumberExpression
-	Filter?: matchN(1, [{
-		Prefix!: _
-		...
-	}, {
-		Tag!: _
-		...
-	}, {
-		AndOperator!: _
-		...
-	}]) & close({
-		AndOperator?: _#defs."/$defs/Properties/definitions/FilterAndOperator" | fn.#ValueExpression
-		Prefix?:      _#defs."/$defs/Properties/definitions/FilterPrefix" | fn.#StringExpression
-		Tag?:         _#defs."/$defs/Properties/definitions/FilterTag" | fn.#ObjectExpression
-	}) |
+	Filter?: close({
+		// The container for the AND condition for the lifecycle rule. A combination of
+		// Prefix and 1 or more Tags OR a minimum of 2 or more tags.
+		AndOperator?: #FilterAndOperator
+
+		// Object key prefix that identifies one or more objects to which this rule applies.
+		Prefix?: #FilterPrefix
+
+		// Specifies a tag used to identify a subset of objects for an Amazon S3Outposts bucket.
+		Tag?: #FilterTag
+		if Prefix != _|_ if Prefix."Fn::If" == _|_ {
+			Tag?: close({"Fn::If": _}) | error(
+				"Tag cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator",
+			)
+			AndOperator?: close({"Fn::If": _}) | error(
+				"AndOperator cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator",
+			)
+		}
+		if Tag != _|_ if Tag."Fn::If" == _|_ {
+			AndOperator?: close({"Fn::If": _}) | error(
+				"AndOperator cannot be used with Tag; set exactly one of Prefix, Tag, AndOperator",
+			)
+		}
+	}) & matchN(>=1, [{Prefix!: _}, {Tag!: _}, {AndOperator!: _}]) |
 	fn.#ObjectExpression
 	Id?:     strings.MaxRunes(255) | fn.#StringExpression
 	Status?: "Enabled" | "Disabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Outposts::Bucket"
-	Properties!: #Properties
-}

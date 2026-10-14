@@ -13,14 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Allocates an internet gateway for use with a VPC. After creating the Internet
 // gateway, you then attach it to a VPC.
-#Properties: close({Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::EC2::InternetGateway"
+	Properties?: close({Tags?: [...#Tag] | fn.#ListExpression})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::InternetGateway"
-	Properties?: #Properties
-}

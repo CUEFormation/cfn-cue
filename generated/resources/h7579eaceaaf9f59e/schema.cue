@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,38 +17,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema for creating an Amazon Connect Customer Profiles Integration.
-#Properties: close({
-	DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	EventTriggerNames?: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	FlowDefinition?:  _#defs."/$defs/Properties/definitions/FlowDefinition"
-	ObjectTypeName?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" | fn.#StringExpression
-	ObjectTypeNames?: [..._#defs."/$defs/Properties/definitions/ObjectTypeMapping"] | fn.#ListExpression
-	Scope?: ("PROFILE" | "DOMAIN") & strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Uri?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::Integration"
+	Properties!: close({
+		DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		EventTriggerNames?: list.MaxItems(1) & list.MinItems(1) & [
+			...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		FlowDefinition?: #FlowDefinition
+		ObjectTypeName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
+		fn.#StringExpression
+		ObjectTypeNames?: [...#ObjectTypeMapping] | fn.#ListExpression
+		Scope?: ("PROFILE" | "DOMAIN") & strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Uri?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ConnectorOperator": close({
-	Marketo?:    _#defs."/$defs/Properties/definitions/MarketoConnectorOperator"
-	S3?:         _#defs."/$defs/Properties/definitions/S3ConnectorOperator"
-	Salesforce?: _#defs."/$defs/Properties/definitions/SalesforceConnectorOperator"
-	ServiceNow?: _#defs."/$defs/Properties/definitions/ServiceNowConnectorOperator"
-	Zendesk?:    _#defs."/$defs/Properties/definitions/ZendeskConnectorOperator"
+#ConnectorOperator: close({
+	Marketo?:    #MarketoConnectorOperator
+	S3?:         #S3ConnectorOperator
+	Salesforce?: #SalesforceConnectorOperator
+	ServiceNow?: #ServiceNowConnectorOperator
+	Zendesk?:    #ZendeskConnectorOperator
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorType": "Salesforce" |
-	"Marketo" |
-	"ServiceNow" |
-	"Zendesk" |
-	"S3" |
-	fn.#StringExpression
+#ConnectorType: "Salesforce" | "Marketo" | "ServiceNow" | "Zendesk" | "S3" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Date": number |
+#Date: number |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -68,10 +67,9 @@ _#defs: "/$defs/Properties/definitions/Date": number |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationField": strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
-fn.#StringExpression
+#DestinationField: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FlowDefinition": close({
+#FlowDefinition: close({
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*" | fn.#StringExpression
 	FlowName!:    strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
 	KmsArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -79,18 +77,18 @@ _#defs: "/$defs/Properties/definitions/FlowDefinition": close({
 	strings.MinRunes(20) &
 	=~"arn:aws:kms:.*:[0-9]+:.*" |
 	fn.#StringExpression
-	SourceFlowConfig!: _#defs."/$defs/Properties/definitions/SourceFlowConfig"
-	Tasks!:            [..._#defs."/$defs/Properties/definitions/Task"] | fn.#ListExpression
-	TriggerConfig!:    _#defs."/$defs/Properties/definitions/TriggerConfig"
+	SourceFlowConfig!: #SourceFlowConfig
+	Tasks!:            [...#Task] | fn.#ListExpression
+	TriggerConfig!:    #TriggerConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IncrementalPullConfig": close(
+#IncrementalPullConfig: close(
 	{DatetimeTypeFieldName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MarketoConnectorOperator": "PROJECTION" |
+#MarketoConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -108,21 +106,17 @@ _#defs: "/$defs/Properties/definitions/MarketoConnectorOperator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MarketoSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#MarketoSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Object": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#Object: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectTypeMapping": close({
+#ObjectTypeMapping: close({
 	Key!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Operator": "PROJECTION" |
+#Operator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"CONTAINS" |
@@ -145,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/Operator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OperatorPropertiesKeys": "VALUE" |
+#OperatorPropertiesKeys: "VALUE" |
 	"VALUES" |
 	"DATA_TYPE" |
 	"UPPER_BOUND" |
@@ -161,7 +155,7 @@ _#defs: "/$defs/Properties/definitions/OperatorPropertiesKeys": "VALUE" |
 	"SUBFIELD_CATEGORY_MAP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3ConnectorOperator": "PROJECTION" |
+#S3ConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -183,13 +177,13 @@ _#defs: "/$defs/Properties/definitions/S3ConnectorOperator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3SourceProperties": close({
+#S3SourceProperties: close({
 	BucketName!:   strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+" | fn.#StringExpression
 	BucketPrefix?: strings.MaxRunes(512) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceConnectorOperator": "PROJECTION" |
+#SalesforceConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"CONTAINS" |
@@ -212,17 +206,17 @@ _#defs: "/$defs/Properties/definitions/SalesforceConnectorOperator": "PROJECTION
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceSourceProperties": close({
+#SalesforceSourceProperties: close({
 	EnableDynamicFieldUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeDeletedRecords?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Object!:                   _#defs."/$defs/Properties/definitions/Object"
+	Object!:                   #Object
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledTriggerProperties": close({
+#ScheduledTriggerProperties: close({
 	DataPullMode?:       "Incremental" | "Complete" | fn.#StringExpression
-	FirstExecutionFrom?: _#defs."/$defs/Properties/definitions/Date"
-	ScheduleEndTime?:    _#defs."/$defs/Properties/definitions/Date"
+	FirstExecutionFrom?: #Date
+	ScheduleEndTime?:    #Date
 	ScheduleExpression!: =~"(?i)^(?:rate\\(5minutes\\)|rate\\(15minutes\\)|rate\\(1hours\\)|rate\\(1days\\))$" &
 	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
@@ -244,12 +238,12 @@ _#defs: "/$defs/Properties/definitions/ScheduledTriggerProperties": close({
 				)
 		} |
 		fn.#NumberExpression
-	ScheduleStartTime?: _#defs."/$defs/Properties/definitions/Date"
+	ScheduleStartTime?: #Date
 	Timezone?:          strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConnectorOperator": "PROJECTION" |
+#ServiceNowConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"CONTAINS" |
@@ -272,73 +266,60 @@ _#defs: "/$defs/Properties/definitions/ServiceNowConnectorOperator": "PROJECTION
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#ServiceNowSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConnectorProperties": close({
-	Marketo?:    _#defs."/$defs/Properties/definitions/MarketoSourceProperties"
-	S3?:         _#defs."/$defs/Properties/definitions/S3SourceProperties"
-	Salesforce?: _#defs."/$defs/Properties/definitions/SalesforceSourceProperties"
-	ServiceNow?: _#defs."/$defs/Properties/definitions/ServiceNowSourceProperties"
-	Zendesk?:    _#defs."/$defs/Properties/definitions/ZendeskSourceProperties"
+#SourceConnectorProperties: close({
+	Marketo?:    #MarketoSourceProperties
+	S3?:         #S3SourceProperties
+	Salesforce?: #SalesforceSourceProperties
+	ServiceNow?: #ServiceNowSourceProperties
+	Zendesk?:    #ZendeskSourceProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceFlowConfig": close({
+#SourceFlowConfig: close({
 	ConnectorProfileName?:      strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
-	ConnectorType!:             _#defs."/$defs/Properties/definitions/ConnectorType"
-	IncrementalPullConfig?:     _#defs."/$defs/Properties/definitions/IncrementalPullConfig"
-	SourceConnectorProperties!: _#defs."/$defs/Properties/definitions/SourceConnectorProperties"
+	ConnectorType!:             #ConnectorType
+	IncrementalPullConfig?:     #IncrementalPullConfig
+	SourceConnectorProperties!: #SourceConnectorProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Task": close({
-	ConnectorOperator?: _#defs."/$defs/Properties/definitions/ConnectorOperator"
-	DestinationField?:  _#defs."/$defs/Properties/definitions/DestinationField"
+#Task: close({
+	ConnectorOperator?: #ConnectorOperator
+	DestinationField?:  #DestinationField
 	SourceFields!: [...strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression] |
 	fn.#ListExpression
-	TaskProperties?: [..._#defs."/$defs/Properties/definitions/TaskPropertiesMap"] | fn.#ListExpression
-	TaskType!:       _#defs."/$defs/Properties/definitions/TaskType"
+	TaskProperties?: [...#TaskPropertiesMap] | fn.#ListExpression
+	TaskType!:       #TaskType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskPropertiesMap": close({
-	OperatorPropertyKey!: _#defs."/$defs/Properties/definitions/OperatorPropertiesKeys"
+#TaskPropertiesMap: close({
+	OperatorPropertyKey!: #OperatorPropertiesKeys
 	Property!:            strings.MaxRunes(2048) & =~".+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskType": "Arithmetic" |
-	"Filter" |
-	"Map" |
-	"Mask" |
-	"Merge" |
-	"Truncate" |
-	"Validate" |
-	fn.#StringExpression
+#TaskType: "Arithmetic" | "Filter" | "Map" | "Mask" | "Merge" | "Truncate" | "Validate" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerConfig": close({
-	TriggerProperties?: _#defs."/$defs/Properties/definitions/TriggerProperties"
-	TriggerType!:       _#defs."/$defs/Properties/definitions/TriggerType"
+#TriggerConfig: close({
+	TriggerProperties?: #TriggerProperties
+	TriggerType!:       #TriggerType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerProperties": close(
-	{Scheduled?: _#defs."/$defs/Properties/definitions/ScheduledTriggerProperties"},
-) |
-	fn.#ObjectExpression
+#TriggerProperties: close({Scheduled?: #ScheduledTriggerProperties}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerType": "Scheduled" | "Event" | "OnDemand" | fn.#StringExpression
+#TriggerType: "Scheduled" | "Event" | "OnDemand" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ZendeskConnectorOperator": "PROJECTION" |
+#ZendeskConnectorOperator: "PROJECTION" |
 	"GREATER_THAN" |
 	"ADDITION" |
 	"MULTIPLICATION" |
@@ -354,11 +335,4 @@ _#defs: "/$defs/Properties/definitions/ZendeskConnectorOperator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ZendeskSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::Integration"
-	Properties!: #Properties
-}
+#ZendeskSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression

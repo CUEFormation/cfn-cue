@@ -13,25 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MemoryDB::User
-#Properties: close({
-	AccessString?: =~"\\S" | fn.#StringExpression
-	AuthenticationMode?: close({
-		Passwords?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
-			fn.#ListExpression
-		Type?: "password" | "iam" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	UserName!: strings.MinRunes(1) & =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MemoryDB::User"
+	Properties!: close({
+		AccessString?: =~"\\S" | fn.#StringExpression
+		AuthenticationMode?: close({
+			Passwords?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
+				fn.#ListExpression
+			Type?: "password" | "iam" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?:     list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		UserName!: strings.MinRunes(1) & =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MemoryDB::User"
-	Properties!: #Properties
-}

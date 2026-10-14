@@ -34,12 +34,12 @@ import (
 	// automatically becomes one of its moderators, so the same ARN can
 	// subsequently read, update and delete the channel.
 	ChimeBearer!: strings.MaxRunes(1600) & strings.MinRunes(5)
-	CreatedBy?:   _#defs."/$defs/Properties/definitions/Identity"
+	CreatedBy?:   #Identity
 
 	// The time at which the channel was created.
 	CreatedTimestamp?:            time.Time
-	ElasticChannelConfiguration?: _#defs."/$defs/Properties/definitions/ElasticChannelConfiguration"
-	ExpirationSettings?:          _#defs."/$defs/Properties/definitions/ExpirationSettings"
+	ElasticChannelConfiguration?: #ElasticChannelConfiguration
+	ExpirationSettings?:          #ExpirationSettings
 
 	// The time at which a member sent the last message in the channel.
 	LastMessageTimestamp?: time.Time
@@ -73,13 +73,13 @@ import (
 	Privacy?: "PUBLIC" | "PRIVATE"
 
 	// The tags for the channel.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 })
 
 // The attributes required to configure and create an elastic channel. An
 // elastic channel must use RESTRICTED mode, cannot be created with MemberArns,
 // and is available only in some regions.
-_#defs: "/$defs/Properties/definitions/ElasticChannelConfiguration": close({
+#ElasticChannelConfiguration: close({
 	// The maximum number of SubChannels allowed in the elastic channel.
 	MaximumSubChannels!: int & >=2
 
@@ -92,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/ElasticChannelConfiguration": close({
 })
 
 // Settings that control the interval after which the channel is automatically deleted.
-_#defs: "/$defs/Properties/definitions/ExpirationSettings": close({
+#ExpirationSettings: close({
 	// The condition the expiration period is measured from.
 	ExpirationCriterion!: "CREATED_TIMESTAMP" | "LAST_MESSAGE_TIMESTAMP"
 
@@ -101,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/ExpirationSettings": close({
 })
 
 // The AppInstanceUser or AppInstanceBot that created the channel.
-_#defs: "/$defs/Properties/definitions/Identity": close({
+#Identity: close({
 	// The ARN in an identity.
 	Arn?: strings.MaxRunes(1600) & strings.MinRunes(5)
 
@@ -109,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/Identity": close({
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key in a tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

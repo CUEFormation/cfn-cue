@@ -29,7 +29,7 @@ import "strings"
 	OperationsRole?: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// Key-value pairs defining configuration options for this environment, such as the instance type.
-	OptionSettings?: [..._#defs."/$defs/Properties/definitions/OptionSetting"]
+	OptionSettings?: [...#OptionSetting]
 
 	// The Amazon Resource Name (ARN) of the custom platform to use with the environment.
 	PlatformArn?: string
@@ -38,7 +38,7 @@ import "strings"
 	SolutionStackName?: string
 
 	// Specifies the tags applied to resources in the environment.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The name of the Elastic Beanstalk configuration template to use with the environment.
 	TemplateName?: strings.MaxRunes(100) & strings.MinRunes(1)
@@ -47,13 +47,13 @@ import "strings"
 	// that you choose determines whether Elastic Beanstalk provisions resources to
 	// support a web application that handles HTTP(S) requests or a web application
 	// that handles background-processing tasks.
-	Tier?: _#defs."/$defs/Properties/definitions/Tier"
+	Tier?: #Tier
 
 	// The name of the application version to deploy.
 	VersionLabel?: strings.MaxRunes(100) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/OptionSetting": close({
+#OptionSetting: close({
 	// A unique namespace that identifies the option's associated AWS resource.
 	Namespace!: string
 
@@ -68,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/OptionSetting": close({
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tier": close({
+#Tier: close({
 	// The name of this environment tier.
 	Name?: string
 

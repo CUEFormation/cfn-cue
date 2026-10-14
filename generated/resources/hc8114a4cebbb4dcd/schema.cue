@@ -22,52 +22,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // On January 1, 2016, the Swagger Specification was donated to the [OpenAPI
 // initiative](https://docs.aws.amazon.com/https://www.openapis.org/), becoming
 // the foundation of the OpenAPI Specification.
-#Properties: close({
-	ApiKeySourceType?:          string | fn.#StringExpression
-	BinaryMediaTypes?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
-	BodyS3Location?:            _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-	CloneFrom?:                 string | fn.#StringExpression
-	Description?:               string | fn.#StringExpression
-	DisableExecuteApiEndpoint?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndpointAccessMode?:        string | fn.#StringExpression
-	EndpointConfiguration?:     _#defs."/$defs/Properties/definitions/EndpointConfiguration" | fn.#ObjectExpression
-	FailOnWarnings?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MinimumCompressionSize?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Mode?: string | fn.#StringExpression
-	Name?: string | fn.#StringExpression
-	Parameters?: string |
-	close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::RestApi"
+	Properties?: close({
+		ApiKeySourceType?: string | fn.#StringExpression
+		BinaryMediaTypes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Body?:             fn.#Object & {...} | string | fn.#StringObjectExpression
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#StringObjectExpression
-	Policy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
-	SecurityPolicy?: string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Version?:        string | fn.#StringExpression
-})
+		// The Amazon Simple Storage Service (Amazon S3) location that points to an
+		// OpenAPI file, which defines a set of RESTful APIs in JSON or YAML format.
+		BodyS3Location?: #S3Location
+		CloneFrom?:      string | fn.#StringExpression
+		Description?:    string | fn.#StringExpression
+		DisableExecuteApiEndpoint?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		EndpointAccessMode?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+		// A list of the endpoint types and IP address types of the API. Use this
+		// property when creating an API. When importing an existing API, specify the
+		// endpoint configuration types using the ``Parameters`` property.
+		EndpointConfiguration?: #EndpointConfiguration
+		FailOnWarnings?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		MinimumCompressionSize?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Mode?: string | fn.#StringExpression
+		Name?: string | fn.#StringExpression
+		Parameters?: string |
+		close({
+
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#StringObjectExpression
+		Policy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+		SecurityPolicy?: string | fn.#StringExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+		Version?:        string | fn.#StringExpression
+	})
+}
+
+#EndpointConfiguration: close({
 	IpAddressType?:  string | fn.#StringExpression
 	Types?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	VpcEndpointIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket?:  string | fn.#StringExpression
 	ETag?:    string | fn.#StringExpression
 	Key?:     string | fn.#StringExpression
@@ -75,12 +94,8 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::RestApi"
-	Properties?: #Properties
-}

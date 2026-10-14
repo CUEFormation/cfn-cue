@@ -13,19 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The configuration of the workers, which are the processes that run the connector logic.
-#Properties: close({
-	Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:                  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	PropertiesFileContent!: string | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KafkaConnect::WorkerConfiguration"
+	Properties!: close({
+		Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:                  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		PropertiesFileContent!: string | fn.#StringExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KafkaConnect::WorkerConfiguration"
-	Properties!: #Properties
-}

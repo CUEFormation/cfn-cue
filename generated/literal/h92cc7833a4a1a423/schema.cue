@@ -12,9 +12,9 @@ import "strings"
 	DirectoryRegistrationArn?: strings.MaxRunes(200) &
 	strings.MinRunes(5) &
 	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:directory-registration(\\/[\\w-]+)$"
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~".+"]: string}})

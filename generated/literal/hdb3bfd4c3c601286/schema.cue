@@ -12,20 +12,20 @@ import (
 // Resource Type definition for AWS::Glue::Trigger
 #Properties: close({
 	// The actions initiated by this trigger.
-	Actions!: [..._#defs."/$defs/Properties/definitions/Action"]
+	Actions!: [...#Action]
 
 	// A description of this trigger.
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0)
 
 	// Batch condition that must be met (specified number of events received or
 	// batch time window expired) before EventBridge event trigger fires.
-	EventBatchingCondition?: _#defs."/$defs/Properties/definitions/EventBatchingCondition"
+	EventBatchingCondition?: #EventBatchingCondition
 
 	// The name of the trigger.
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The predicate of this trigger, which defines when it will fire.
-	Predicate?: _#defs."/$defs/Properties/definitions/Predicate"
+	Predicate?: #Predicate
 
 	// A cron expression used to specify the schedule.
 	Schedule?: string
@@ -43,7 +43,7 @@ import (
 })
 
 // The actions initiated by this trigger.
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	Arguments?: string | {...}
 
 	// The name of the crawler to be used with this action.
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 	JobName?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Specifies configuration properties of a job run notification.
-	NotificationProperty?: _#defs."/$defs/Properties/definitions/NotificationProperty"
+	NotificationProperty?: #NotificationProperty
 
 	// The name of the SecurityConfiguration structure to be used with this action.
 	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -66,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 })
 
 // Defines a condition under which a trigger fires.
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	// The state of the crawler to which this condition applies.
 	CrawlState?: "CANCELLED" | "CANCELLING" | "ERROR" | "FAILED" | "RUNNING" | "SUCCEEDED"
 
@@ -85,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 
 // Batch condition that must be met (specified number of events received or
 // batch time window expired) before EventBridge event trigger fires.
-_#defs: "/$defs/Properties/definitions/EventBatchingCondition": close({
+#EventBatchingCondition: close({
 	// Number of events that must be received from Amazon EventBridge before
 	// EventBridge event trigger fires.
 	BatchSize!: int & <=100 & >=1
@@ -96,15 +96,15 @@ _#defs: "/$defs/Properties/definitions/EventBatchingCondition": close({
 })
 
 // Specifies configuration properties of a job run notification.
-_#defs: "/$defs/Properties/definitions/NotificationProperty": close({
+#NotificationProperty: close({
 	// After a job run starts, the number of minutes to wait before sending a job run delay notification
 	NotifyDelayAfter?: int & >=1
 })
 
 // The predicate of this trigger, which defines when it will fire.
-_#defs: "/$defs/Properties/definitions/Predicate": close({
+#Predicate: close({
 	// A list of the conditions that determine when the trigger will fire.
-	Conditions?: list.MaxItems(500) & [...] & [..._#defs."/$defs/Properties/definitions/Condition"]
+	Conditions?: list.MaxItems(500) & [...] & [...#Condition]
 
 	// An optional field if only one condition is listed. If multiple conditions are
 	// listed, then this field is required.

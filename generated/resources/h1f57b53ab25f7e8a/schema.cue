@@ -13,24 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WorkSpacesWeb::SessionLogger Resource Type
-#Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
-	CustomerManagedKey?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	DisplayName?:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
-	EventFilter!:      _#defs."/$defs/Properties/definitions/EventFilter"
-	LogConfiguration!: _#defs."/$defs/Properties/definitions/LogConfiguration"
-	Tags?:             list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpacesWeb::SessionLogger"
+	Properties!: close({
+		AdditionalEncryptionContext?: #EncryptionContextMap
+		CustomerManagedKey?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		DisplayName?:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
+		EventFilter!:      #EventFilter
+		LogConfiguration!: #LogConfiguration
+		Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Event": "WebsiteInteract" |
+#Event: "WebsiteInteract" |
 	"FileDownloadFromSecureBrowserToRemoteDisk" |
 	"FileTransferFromRemoteToLocalDisk" |
 	"FileTransferFromLocalToRemoteDisk" |
@@ -49,43 +52,33 @@ _#defs: "/$defs/Properties/definitions/Event": "WebsiteInteract" |
 	"UrlBlockByContentFilter" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventFilter": matchN(1, [close(
-	{All!: _#defs."/$defs/Properties/definitions/Unit"},
-), close({
-	Include!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Event"
-	] |
-		fn.#ListExpression
-})]) |
+#EventFilter: matchN(1, [close(
+	{All!: #Unit},
+), close(
+	{Include!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#Event] | fn.#ListExpression},
+)]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FolderStructure": "Flat" | "NestedByDate" | fn.#StringExpression
+#FolderStructure: "Flat" | "NestedByDate" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/S3LogConfiguration"},
-) |
-	fn.#ObjectExpression
+#LogConfiguration: close({S3?: #S3LogConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogFileFormat": "JSONLines" | "Json" | fn.#StringExpression
+#LogFileFormat: "JSONLines" | "Json" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3LogConfiguration": close({
+#S3LogConfiguration: close({
 	Bucket!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
 	fn.#StringExpression
 	BucketOwner?:     =~"^[0-9]{12}$" | fn.#StringExpression
-	FolderStructure!: _#defs."/$defs/Properties/definitions/FolderStructure"
+	FolderStructure!: #FolderStructure
 	KeyPrefix?:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\d\\w\\-_/!().*']+$" | fn.#StringExpression
-	LogFileFormat!:   _#defs."/$defs/Properties/definitions/LogFileFormat"
+	LogFileFormat!:   #LogFileFormat
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpacesWeb::SessionLogger"
-	Properties!: #Properties
-}
+#Unit: close({}) | fn.#ObjectExpression

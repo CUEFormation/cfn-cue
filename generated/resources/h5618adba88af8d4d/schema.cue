@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -19,104 +19,135 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::GameLift::Fleet resource creates an Amazon GameLift (GameLift) fleet
 // to host game servers. A fleet is a set of EC2 or Anywhere instances, each of
 // which can host multiple game sessions.
-#Properties: close({
-	AnywhereConfiguration?: _#defs."/$defs/Properties/definitions/AnywhereConfiguration" | fn.#ValueExpression
-	ApplyCapacity?: "ON_UPDATE" |
-		"ON_CREATE_AND_UPDATE" |
-		"ON_CREATE_AND_UPDATE_WITH_AUTOSCALING" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::Fleet"
+	Properties!: close({
+		// Configuration for Anywhere fleet.
+		AnywhereConfiguration?: #AnywhereConfiguration
+		ApplyCapacity?: "ON_UPDATE" |
+			"ON_CREATE_AND_UPDATE" |
+			"ON_CREATE_AND_UPDATE_WITH_AUTOSCALING" |
+			fn.#StringExpression
+		BuildId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^build-\\S+|^arn:.*:build/build-\\S+" |
 		fn.#StringExpression
-	BuildId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^build-\\S+|^arn:.*:build/build-\\S+" |
-	fn.#StringExpression
-	CertificateConfiguration?: _#defs."/$defs/Properties/definitions/CertificateConfiguration" | fn.#ObjectExpression
-	ComputeType?:              "EC2" | "ANYWHERE" | fn.#StringExpression
-	Description?:              strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	DesiredEC2Instances?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EC2InboundPermissions?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/IpPermission"] |
-		fn.#ListExpression
-	EC2InstanceType?: =~"^.*..*$" | fn.#StringExpression
-	FleetType?:       "ON_DEMAND" | "SPOT" | fn.#StringExpression
-	InstanceRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
-	fn.#StringExpression
-	InstanceRoleCredentialsProvider?: "SHARED_CREDENTIAL_FILE" | fn.#StringExpression
-	Locations?: list.MaxItems(100) & list.MinItems(1) & [...close({
-		Location!:         _#defs."/$defs/Properties/definitions/Location"
-		LocationCapacity?: _#defs."/$defs/Properties/definitions/LocationCapacity"
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	LogPaths?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	MaxSize?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MetricGroups?: list.MaxItems(1) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	MinSize?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:                           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
-	PeerVpcAwsAccountId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression
-	PeerVpcId?:           strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^vpc-\\S+" | fn.#StringExpression
-	PlayerGatewayConfiguration?: _#defs."/$defs/Properties/definitions/PlayerGatewayConfiguration" |
-		fn.#ObjectExpression
-	PlayerGatewayMode?: "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
-	ResourceCreationLimitPolicy?: _#defs."/$defs/Properties/definitions/ResourceCreationLimitPolicy" |
-		fn.#ObjectExpression
-	RuntimeConfiguration?: _#defs."/$defs/Properties/definitions/RuntimeConfiguration" | fn.#ObjectExpression
-	ScalingPolicies?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/ScalingPolicy"] | fn.#ListExpression
-	ScriptId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^script-\\S+|^arn:.*:script/script-\\S+" |
-	fn.#StringExpression
-	ServerLaunchParameters?: strings.MaxRunes(1024) &
-	strings.MinRunes(1) &
-	=~"^[A-Za-z0-9_:.+\\/\\\\\\- =@;{},?'\\[\\]\"]+$" |
-	fn.#StringExpression
-	ServerLaunchPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:.+\\/\\\\\\- ]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
 
-_#defs: "/$defs/Properties/definitions/AnywhereConfiguration": null |
+		// Indicates whether to generate a TLS/SSL certificate for the new fleet. TLS
+		// certificates are used for encrypting traffic between game clients and game
+		// servers running on GameLift. If this parameter is not set, certificate
+		// generation is disabled. This fleet setting cannot be changed once the fleet
+		// is created.
+		CertificateConfiguration?: #CertificateConfiguration
+		ComputeType?:              "EC2" | "ANYWHERE" | fn.#StringExpression
+		Description?:              strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		DesiredEC2Instances?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EC2InboundPermissions?: list.MaxItems(50) & [...] & [...#IpPermission] | fn.#ListExpression
+		EC2InstanceType?:       =~"^.*..*$" | fn.#StringExpression
+		FleetType?:             "ON_DEMAND" | "SPOT" | fn.#StringExpression
+		InstanceRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+		fn.#StringExpression
+		InstanceRoleCredentialsProvider?: "SHARED_CREDENTIAL_FILE" | fn.#StringExpression
+		Locations?: list.MaxItems(100) & list.MinItems(1) & [...close({
+			Location!:         #Location
+			LocationCapacity?: #LocationCapacity
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		LogPaths?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		MaxSize?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MetricGroups?: list.MaxItems(1) & [...] & [
+			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		MinSize?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:                           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
+		PeerVpcAwsAccountId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression
+		PeerVpcId?:           strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^vpc-\\S+" | fn.#StringExpression
+
+		// Configuration for player gateway.
+		PlayerGatewayConfiguration?: #PlayerGatewayConfiguration
+		PlayerGatewayMode?:          "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
+
+		// A policy that limits the number of game sessions an individual player can
+		// create over a span of time for this fleet.
+		ResourceCreationLimitPolicy?: #ResourceCreationLimitPolicy
+
+		// Instructions for launching server processes on each instance in the fleet.
+		// Server processes run either a custom game build executable or a Realtime
+		// script. The runtime configuration defines the server executables or launch
+		// script file, launch parameters, and the number of processes to run
+		// concurrently on each instance. When creating a fleet, the runtime
+		// configuration must have at least one server process configuration; otherwise
+		// the request fails with an invalid request exception.
+		//
+		// This parameter is required unless the parameters ServerLaunchPath and
+		// ServerLaunchParameters are defined. Runtime configuration has replaced these
+		// parameters, but fleets that use them will continue to work.
+		RuntimeConfiguration?: #RuntimeConfiguration
+		ScalingPolicies?:      list.MaxItems(50) & [...#ScalingPolicy] | fn.#ListExpression
+		ScriptId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^script-\\S+|^arn:.*:script/script-\\S+" |
+		fn.#StringExpression
+		ServerLaunchParameters?: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^[A-Za-z0-9_:.+\\/\\\\\\- =@;{},?'\\[\\]\"]+$" |
+		fn.#StringExpression
+		ServerLaunchPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:.+\\/\\\\\\- ]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AnywhereConfiguration: null |
 bool |
 number |
 string |
@@ -124,12 +155,10 @@ string |
 close({Cost!: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^\\d{1,5}(?:\\.\\d{1,5})?$" | fn.#StringExpression}) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateConfiguration": close(
-	{CertificateType!: "DISABLED" | "GENERATED" | fn.#StringExpression},
-) |
+#CertificateConfiguration: close({CertificateType!: "DISABLED" | "GENERATED" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpPermission": close({
+#IpPermission: close({
 	FromPort!: int & <=60000 & >=1 |
 		{
 			string &
@@ -168,10 +197,9 @@ _#defs: "/$defs/Properties/definitions/IpPermission": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Location": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" |
-fn.#StringExpression
+#Location: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LocationCapacity": close({
+#LocationCapacity: close({
 	DesiredEC2Instances?: int & >=0 |
 		{
 			string &
@@ -187,8 +215,9 @@ _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
 				)
 		} |
 		fn.#NumberExpression
-	ManagedCapacityConfiguration?: _#defs."/$defs/Properties/definitions/ManagedCapacityConfiguration" |
-		fn.#ObjectExpression
+
+	// Configuration options for Amazon GameLift Servers-managed capacity behavior.
+	ManagedCapacityConfiguration?: #ManagedCapacityConfiguration
 	MaxSize!: int & >=0 |
 		{
 			string &
@@ -222,14 +251,14 @@ _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocationConfiguration": close({
-	Location!:            _#defs."/$defs/Properties/definitions/Location"
-	LocationCapacity?:    _#defs."/$defs/Properties/definitions/LocationCapacity"
+#LocationConfiguration: close({
+	Location!:            #Location
+	LocationCapacity?:    #LocationCapacity
 	PlayerGatewayStatus?: "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
+#ManagedCapacityConfiguration: close({
 	ScaleInAfterInactivityMinutes?: int & <=1440 & >=5 |
 		{
 			string &
@@ -250,12 +279,10 @@ _#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlayerGatewayConfiguration": close(
-	{GameServerIpProtocolSupported?: "IPv4" | "DUAL_STACK" | fn.#StringExpression},
-) |
+#PlayerGatewayConfiguration: close({GameServerIpProtocolSupported?: "IPv4" | "DUAL_STACK" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceCreationLimitPolicy": close({
+#ResourceCreationLimitPolicy: close({
 	NewGameSessionsPerCreator?: int & >=0 |
 		{
 			string &
@@ -289,7 +316,7 @@ _#defs: "/$defs/Properties/definitions/ResourceCreationLimitPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuntimeConfiguration": close({
+#RuntimeConfiguration: close({
 	GameSessionActivationTimeoutSeconds?: int & <=600 & >=1 |
 		{
 			string &
@@ -322,12 +349,11 @@ _#defs: "/$defs/Properties/definitions/RuntimeConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	ServerProcesses?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ServerProcess"] |
-		fn.#ListExpression
+	ServerProcesses?: list.MaxItems(50) & list.MinItems(1) & [...#ServerProcess] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
+#ScalingPolicy: close({
 	ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
 		"GreaterThanThreshold" |
 		"LessThanThreshold" |
@@ -348,7 +374,7 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 				)
 		} |
 		fn.#NumberExpression
-	Location?: _#defs."/$defs/Properties/definitions/Location"
+	Location?: #Location
 	MetricName?: "ActivatingGameSessions" |
 		"ActiveGameSessions" |
 		"ActiveInstances" |
@@ -387,7 +413,9 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 		"DELETED" |
 		"ERROR" |
 		fn.#StringExpression
-	TargetConfiguration?: _#defs."/$defs/Properties/definitions/TargetConfiguration" | fn.#ObjectExpression
+
+	// An object that contains settings for a target-based scaling policy.
+	TargetConfiguration?: #TargetConfiguration
 	Threshold?: number |
 		{
 			string &
@@ -411,7 +439,7 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerProcess": close({
+#ServerProcess: close({
 	ConcurrentExecutions!: int & >=1 |
 		{
 			string &
@@ -434,13 +462,13 @@ _#defs: "/$defs/Properties/definitions/ServerProcess": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetConfiguration": close({
+#TargetConfiguration: close({
 	TargetValue!: number |
 		{
 			string &
@@ -462,7 +490,3 @@ _#defs: "/$defs/Properties/definitions/TargetConfiguration": close({
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::Fleet"
-	Properties!: #Properties
-}

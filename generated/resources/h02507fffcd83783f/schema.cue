@@ -10,23 +10,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for Local Gateway Route which describes a route for
 // a local gateway route table.
-#Properties: matchN(1, [{
-	DestinationCidrBlock!:                _
-	LocalGatewayRouteTableId!:            _
-	LocalGatewayVirtualInterfaceGroupId!: _
-	...
-}, {
-	DestinationCidrBlock!:     _
-	LocalGatewayRouteTableId!: _
-	NetworkInterfaceId!:       _
-	...
-}]) & close({
-	DestinationCidrBlock?:                string | fn.#StringExpression
-	LocalGatewayRouteTableId?:            string | fn.#StringExpression
-	LocalGatewayVirtualInterfaceGroupId?: string | fn.#StringExpression
-	NetworkInterfaceId?:                  string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::LocalGatewayRoute"
-	Properties?: #Properties
+	Type!: "AWS::EC2::LocalGatewayRoute"
+	Properties?: matchN(1, [{
+		DestinationCidrBlock!:                _
+		LocalGatewayRouteTableId!:            _
+		LocalGatewayVirtualInterfaceGroupId!: _
+		...
+	}, {
+		DestinationCidrBlock!:     _
+		LocalGatewayRouteTableId!: _
+		NetworkInterfaceId!:       _
+		...
+	}]) & close({
+		DestinationCidrBlock?:                string | fn.#StringExpression
+		LocalGatewayRouteTableId?:            string | fn.#StringExpression
+		LocalGatewayVirtualInterfaceGroupId?: string | fn.#StringExpression
+		NetworkInterfaceId?:                  string | fn.#StringExpression
+	})
 }

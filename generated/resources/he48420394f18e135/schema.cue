@@ -13,28 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::VerifiedAccessGroup resource creates an AWS EC2 Verified Access Group.
-#Properties: close({
-	Description?:              string | fn.#StringExpression
-	PolicyDocument?:           string | fn.#StringExpression
-	PolicyEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SseSpecification?:         _#defs."/$defs/Properties/definitions/SseSpecification" | fn.#ObjectExpression
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VerifiedAccessInstanceId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VerifiedAccessGroup"
+	Properties!: close({
+		Description?:    string | fn.#StringExpression
+		PolicyDocument?: string | fn.#StringExpression
+		PolicyEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/SseSpecification": close({
+		// The configuration options for customer provided KMS encryption.
+		SseSpecification?:         #SseSpecification
+		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VerifiedAccessInstanceId!: string | fn.#StringExpression
+	})
+}
+
+#SseSpecification: close({
 	CustomerManagedKeyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VerifiedAccessGroup"
-	Properties!: #Properties
-}

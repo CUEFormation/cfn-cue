@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,55 +17,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents the resource definition of AWS IoT Command.
-#Properties: close({
-	CommandId!:           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	CreatedAt?:           string | fn.#StringExpression
-	Deprecated?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:         strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
-	DisplayName?:         strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
-	LastUpdatedAt?:       string | fn.#StringExpression
-	MandatoryParameters?: _#defs."/$defs/Properties/definitions/CommandParameterList" | fn.#ListExpression
-	Namespace?:           "AWS-IoT" | "AWS-IoT-FleetWise" | fn.#StringExpression
-	Payload?:             _#defs."/$defs/Properties/definitions/CommandPayload" | fn.#ObjectExpression
-	PayloadTemplate?:     strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
-	PendingDeletion?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Preprocessor?:        _#defs."/$defs/Properties/definitions/CommandPreprocessor" | fn.#ObjectExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2028) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::Command"
+	Properties!: close({
+		CommandId!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		CreatedAt?:     string | fn.#StringExpression
+		Deprecated?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?:   strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
+		DisplayName?:   strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
+		LastUpdatedAt?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AwsJsonSubstitutionCommandPreprocessorConfig": close(
-	{OutputFormat!: _#defs."/$defs/Properties/definitions/OutputFormat"},
-) |
-	fn.#ObjectExpression
+		// The list of mandatory parameters for the command.
+		MandatoryParameters?: #CommandParameterList
+		Namespace?:           "AWS-IoT" | "AWS-IoT-FleetWise" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameter": close({
-	DefaultValue?:    _#defs."/$defs/Properties/definitions/CommandParameterValue"
-	Description?:     _#defs."/$defs/Properties/definitions/CommandParameterDescription"
-	Name!:            _#defs."/$defs/Properties/definitions/CommandParameterName"
-	Type?:            _#defs."/$defs/Properties/definitions/CommandParameterType"
-	Value?:           _#defs."/$defs/Properties/definitions/CommandParameterValue"
-	ValueConditions?: _#defs."/$defs/Properties/definitions/CommandParameterValueConditionList"
+		// The payload associated with the command.
+		Payload?:         #CommandPayload
+		PayloadTemplate?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
+		PendingDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The command preprocessor configuration.
+		Preprocessor?: #CommandPreprocessor
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2028) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AwsJsonSubstitutionCommandPreprocessorConfig: close({OutputFormat!: #OutputFormat}) | fn.#ObjectExpression
+
+#CommandParameter: close({
+	DefaultValue?:    #CommandParameterValue
+	Description?:     #CommandParameterDescription
+	Name!:            #CommandParameterName
+	Type?:            #CommandParameterType
+	Value?:           #CommandParameterValue
+	ValueConditions?: #CommandParameterValueConditionList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterDescription": strings.MaxRunes(2028) &
-strings.MinRunes(0) &
-=~"^[^\\p{C}]*$" |
-fn.#StringExpression
+#CommandParameterDescription: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/CommandParameter"
-] |
-	fn.#ListExpression
+#CommandParameterList: list.MinItems(1) & [...#CommandParameter] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterName": strings.MaxRunes(192) &
-strings.MinRunes(1) &
-=~"^[.$a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#CommandParameterName: strings.MaxRunes(192) & strings.MinRunes(1) & =~"^[.$a-zA-Z0-9_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterType": "STRING" |
+#CommandParameterType: "STRING" |
 	"INTEGER" |
 	"DOUBLE" |
 	"LONG" |
@@ -74,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/CommandParameterType": "STRING" |
 	"BINARY" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValue": close({
+#CommandParameterValue: close({
 	B?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BIN?: strings.MinRunes(1) | fn.#StringExpression
 	D?: number |
@@ -116,16 +113,16 @@ _#defs: "/$defs/Properties/definitions/CommandParameterValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueComparisonOperand": close({
+#CommandParameterValueComparisonOperand: close({
 	Number?:      strings.MinRunes(1) | fn.#StringExpression
-	NumberRange?: _#defs."/$defs/Properties/definitions/CommandParameterValueNumberRange"
-	Numbers?:     _#defs."/$defs/Properties/definitions/CommandParameterValueStringList"
+	NumberRange?: #CommandParameterValueNumberRange
+	Numbers?:     #CommandParameterValueStringList
 	String?:      strings.MinRunes(1) | fn.#StringExpression
-	Strings?:     _#defs."/$defs/Properties/definitions/CommandParameterValueStringList"
+	Strings?:     #CommandParameterValueStringList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueComparisonOperator": "EQUALS" |
+#CommandParameterValueComparisonOperator: "EQUALS" |
 	"NOT_EQUALS" |
 	"LESS_THAN" |
 	"LESS_THAN_EQUALS" |
@@ -137,51 +134,40 @@ _#defs: "/$defs/Properties/definitions/CommandParameterValueComparisonOperator":
 	"NOT_IN_RANGE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueCondition": close({
-	ComparisonOperator!: _#defs."/$defs/Properties/definitions/CommandParameterValueComparisonOperator"
-	Operand!:            _#defs."/$defs/Properties/definitions/CommandParameterValueComparisonOperand"
+#CommandParameterValueCondition: close({
+	ComparisonOperator!: #CommandParameterValueComparisonOperator
+	Operand!:            #CommandParameterValueComparisonOperand
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueConditionList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/CommandParameterValueCondition"
-] |
-	fn.#ListExpression
+#CommandParameterValueConditionList: list.MinItems(1) & [...#CommandParameterValueCondition] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueNumberRange": close({
+#CommandParameterValueNumberRange: close({
 	Max!: strings.MinRunes(1) | fn.#StringExpression
 	Min!: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueStringList": list.MaxItems(10) & list.MinItems(1) & [
-	...strings.MinRunes(1) | fn.#StringExpression
-] |
+#CommandParameterValueStringList: list.MaxItems(10) & list.MinItems(1) & [...strings.MinRunes(1) | fn.#StringExpression] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CommandPayload": close({
-	Content?:     _#defs."/$defs/Properties/definitions/CommandPayloadContent"
-	ContentType?: _#defs."/$defs/Properties/definitions/MimeType"
+#CommandPayload: close({
+	Content?:     #CommandPayloadContent
+	ContentType?: #MimeType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommandPayloadContent": string | fn.#StringExpression
+#CommandPayloadContent: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CommandPreprocessor": close(
-	{AwsJsonSubstitution?: _#defs."/$defs/Properties/definitions/AwsJsonSubstitutionCommandPreprocessorConfig"},
-) |
+#CommandPreprocessor: close({AwsJsonSubstitution?: #AwsJsonSubstitutionCommandPreprocessorConfig}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MimeType": strings.MinRunes(1) | fn.#StringExpression
+#MimeType: strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutputFormat": "JSON" | "CBOR" | fn.#StringExpression
+#OutputFormat: "JSON" | "CBOR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::Command"
-	Properties!: #Properties
-}

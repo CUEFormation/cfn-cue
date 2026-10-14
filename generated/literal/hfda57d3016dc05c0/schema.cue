@@ -32,7 +32,7 @@ import (
 #Properties: close({
 	// Specific configuration settings for an Amazon Managed Streaming for Apache
 	// Kafka (Amazon MSK) event source.
-	AmazonManagedKafkaEventSourceConfig?: _#defs."/$defs/Properties/definitions/AmazonManagedKafkaEventSourceConfig"
+	AmazonManagedKafkaEventSourceConfig?: #AmazonManagedKafkaEventSourceConfig
 
 	// The maximum number of records in each batch that Lambda pulls from your
 	// stream or queue and sends to your function. Lambda passes all of the records
@@ -59,10 +59,10 @@ import (
 	// (Kinesis, DynamoDB Streams, Amazon MSK, and self-managed Apache Kafka) A
 	// configuration object that specifies the destination of an event after Lambda
 	// processes it.
-	DestinationConfig?: _#defs."/$defs/Properties/definitions/DestinationConfig"
+	DestinationConfig?: #DestinationConfig
 
 	// Specific configuration settings for a DocumentDB event source.
-	DocumentDBEventSourceConfig?: _#defs."/$defs/Properties/definitions/DocumentDBEventSourceConfig"
+	DocumentDBEventSourceConfig?: #DocumentDBEventSourceConfig
 
 	// When true, the event source mapping is active. When false, Lambda pauses polling and invocation.
 	// Default: True
@@ -87,7 +87,7 @@ import (
 	// An object that defines the filter criteria that determine whether Lambda
 	// should process an event. For more information, see [Lambda event
 	// filtering](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html).
-	FilterCriteria?: _#defs."/$defs/Properties/definitions/FilterCriteria"
+	FilterCriteria?: #FilterCriteria
 
 	// The name or ARN of the Lambda function.
 	// **Name formats**
@@ -121,7 +121,7 @@ import (
 	// (Amazon MSK, and self-managed Apache Kafka only) The logging configuration
 	// for your event source. For more information, see [Event source mapping
 	// logging](https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html).
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig"
+	LoggingConfig?: #LoggingConfig
 
 	// The maximum amount of time, in seconds, that Lambda spends gathering records
 	// before invoking the function.
@@ -151,7 +151,7 @@ import (
 	// The metrics configuration for your event source. For more information, see
 	// [Event source mapping
 	// metrics](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics).
-	MetricsConfig?: _#defs."/$defs/Properties/definitions/MetricsConfig"
+	MetricsConfig?: #MetricsConfig
 
 	// (Kinesis and DynamoDB Streams only) The number of batches to process
 	// concurrently from each shard. The default value is 1.
@@ -161,7 +161,7 @@ import (
 	// mode configuration for the event source. For more information, see
 	// [provisioned
 	// mode](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#invocation-eventsourcemapping-provisioned-mode).
-	ProvisionedPollerConfig?: _#defs."/$defs/Properties/definitions/ProvisionedPollerConfig"
+	ProvisionedPollerConfig?: #ProvisionedPollerConfig
 
 	// (Amazon MQ) The name of the Amazon MQ broker destination queue to consume.
 	Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
@@ -172,18 +172,18 @@ import (
 	// ``ProvisionedPollerConfig`` while using ``ScalingConfig``. These options are
 	// mutually exclusive. To remove the scaling configuration, pass an empty
 	// value.
-	ScalingConfig?: _#defs."/$defs/Properties/definitions/ScalingConfig"
+	ScalingConfig?: #ScalingConfig
 
 	// The self-managed Apache Kafka cluster for your event source.
-	SelfManagedEventSource?: _#defs."/$defs/Properties/definitions/SelfManagedEventSource"
+	SelfManagedEventSource?: #SelfManagedEventSource
 
 	// Specific configuration settings for a self-managed Apache Kafka event source.
-	SelfManagedKafkaEventSourceConfig?: _#defs."/$defs/Properties/definitions/SelfManagedKafkaEventSourceConfig"
+	SelfManagedKafkaEventSourceConfig?: #SelfManagedKafkaEventSourceConfig
 
 	// An array of the authentication protocol, VPC components, or virtual host to
 	// secure and define your event source.
 	SourceAccessConfigurations?: list.MaxItems(29) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SourceAccessConfiguration"
+		...#SourceAccessConfiguration
 	]
 
 	// The position in a stream from which to start reading. Required for Amazon
@@ -205,7 +205,7 @@ import (
 	// to manage the CFN stack. If you don't have these permissions, there might be
 	// unexpected behavior with stack-level tags propagating to the resource during
 	// resource creation and update.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The name of the Kafka topic.
 	Topics?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
@@ -220,38 +220,36 @@ import (
 
 // Specific configuration settings for an Amazon Managed Streaming for Apache
 // Kafka (Amazon MSK) event source.
-_#defs: "/$defs/Properties/definitions/AmazonManagedKafkaEventSourceConfig": close({
+#AmazonManagedKafkaEventSourceConfig: close({
 	// The identifier for the Kafka consumer group to join. The consumer group ID
 	// must be unique among all your Kafka event sources. After creating a Kafka
 	// event source mapping with the consumer group ID specified, you cannot update
 	// this value. For more information, see [Customizable consumer group
 	// ID](https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html#services-msk-consumer-group-id).
-	ConsumerGroupId?: _#defs."/$defs/Properties/definitions/ConsumerGroupId"
+	ConsumerGroupId?: #ConsumerGroupId
 
 	// Specific configuration settings for a Kafka schema registry.
-	SchemaRegistryConfig?: _#defs."/$defs/Properties/definitions/SchemaRegistryConfig"
+	SchemaRegistryConfig?: #SchemaRegistryConfig
 })
 
 // The identifier for the Kafka Consumer Group to join.
-_#defs: "/$defs/Properties/definitions/ConsumerGroupId": strings.MaxRunes(200) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9-\\/*:_+=.@-]*"
+#ConsumerGroupId: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\/*:_+=.@-]*"
 
 // The mode that determines how Lambda reads from a Kafka topic. Use Stream for
 // ordered processing or Queue for higher throughput when ordering is not
 // required.
-_#defs: "/$defs/Properties/definitions/ConsumptionMode": "Stream" | "Queue"
+#ConsumptionMode: "Stream" | "Queue"
 
 // A configuration object that specifies the destination of an event after
 // Lambda processes it. For more information, see [Adding a
 // destination](https://docs.aws.amazon.com/lambda/latest/dg/invocation-async-retain-records.html#invocation-async-destinations).
-_#defs: "/$defs/Properties/definitions/DestinationConfig": close({
+#DestinationConfig: close({
 	// The destination configuration for failed invocations.
-	OnFailure?: _#defs."/$defs/Properties/definitions/OnFailure"
+	OnFailure?: #OnFailure
 })
 
 // Specific configuration settings for a DocumentDB event source.
-_#defs: "/$defs/Properties/definitions/DocumentDBEventSourceConfig": close({
+#DocumentDBEventSourceConfig: close({
 	// The name of the collection to consume within the database. If you do not
 	// specify a collection, Lambda consumes all collections.
 	CollectionName?: strings.MaxRunes(57) & strings.MinRunes(1)
@@ -268,7 +266,7 @@ _#defs: "/$defs/Properties/definitions/DocumentDBEventSourceConfig": close({
 
 // The list of bootstrap servers for your Kafka brokers in the following format:
 // ``"KafkaBootstrapServers": ["abc.xyz.com:xxxx","abc2.xyz.com:xxxx"]``.
-_#defs: "/$defs/Properties/definitions/Endpoints": close({
+#Endpoints: close({
 	// The list of bootstrap servers for your Kafka brokers in the following format:
 	// ``"KafkaBootstrapServers": ["abc.xyz.com:xxxx","abc2.xyz.com:xxxx"]``.
 	KafkaBootstrapServers?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
@@ -279,7 +277,7 @@ _#defs: "/$defs/Properties/definitions/Endpoints": close({
 })
 
 // A structure within a ``FilterCriteria`` object that defines an event filtering pattern.
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	// A filter pattern. For more information on the syntax of a filter pattern, see
 	// [Filter rule
 	// syntax](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html#filtering-syntax).
@@ -287,15 +285,13 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 })
 
 // An object that contains the filters for an event source.
-_#defs: "/$defs/Properties/definitions/FilterCriteria": close({
+#FilterCriteria: close({
 	// A list of filters.
-	Filters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Filter"
-	]
+	Filters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#Filter]
 })
 
 // The function's Amazon CloudWatch Logs configuration settings.
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	// Set this property to filter the system logs for your function that Lambda
 	// sends to CloudWatch. Lambda only sends system logs at the selected level of
 	// detail and lower, where ``DEBUG`` is the highest level and ``WARN`` is the
@@ -304,12 +300,12 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 })
 
 // The maximum number of concurrent functions that an event source can invoke.
-_#defs: "/$defs/Properties/definitions/MaximumConcurrency": int & <=1000 & >=2
+#MaximumConcurrency: int & <=1000 & >=2
 
 // The metrics configuration for your event source. Use this configuration
 // object to define which metrics you want your event source mapping to
 // produce.
-_#defs: "/$defs/Properties/definitions/MetricsConfig": close({
+#MetricsConfig: close({
 	// The metrics you want your event source mapping to produce, including
 	// ``EventCount``, ``ErrorCount``, ``KafkaMetrics``.
 	// + ``EventCount`` to receive metrics related to the number of events processed
@@ -328,7 +324,7 @@ _#defs: "/$defs/Properties/definitions/MetricsConfig": close({
 // A destination for events that failed processing. For more information, see
 // [Adding a
 // destination](https://docs.aws.amazon.com/lambda/latest/dg/invocation-async-retain-records.html#invocation-async-destinations).
-_#defs: "/$defs/Properties/definitions/OnFailure": close({
+#OnFailure: close({
 	// The Amazon Resource Name (ARN) of the destination resource.
 	// To retain records of failed invocations from
 	// [Kinesis](https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html),
@@ -362,7 +358,7 @@ _#defs: "/$defs/Properties/definitions/OnFailure": close({
 // mode](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#invocation-eventsourcemapping-provisioned-mode)
 // configuration for the event source. Use Provisioned Mode to customize the
 // minimum and maximum number of event pollers for your event source.
-_#defs: "/$defs/Properties/definitions/ProvisionedPollerConfig": close({
+#ProvisionedPollerConfig: close({
 	// The maximum number of event pollers this event source can scale up to. For
 	// Amazon SQS event source mappings, the accepted range is between 2 and
 	// 10,000, with a default of 200. For Amazon MSK and self-managed Apache Kafka
@@ -387,9 +383,9 @@ _#defs: "/$defs/Properties/definitions/ProvisionedPollerConfig": close({
 
 // (Amazon SQS only) The scaling configuration for the event source. To remove
 // the configuration, pass an empty value.
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close({
+#ScalingConfig: close({
 	// Limits the number of concurrent instances that the SQS event source can invoke.
-	MaximumConcurrency?: _#defs."/$defs/Properties/definitions/MaximumConcurrency"
+	MaximumConcurrency?: #MaximumConcurrency
 })
 
 // Specific access configuration settings that tell Lambda how to authenticate
@@ -400,7 +396,7 @@ _#defs: "/$defs/Properties/definitions/ScalingConfig": close({
 // If you're working with a Confluent schema registry, choose the authentication
 // method in the ``Type`` field, and provide the ASMlong secret ARN in the
 // ``URI`` field.
-_#defs: "/$defs/Properties/definitions/SchemaRegistryAccessConfig": close({
+#SchemaRegistryAccessConfig: close({
 	// The type of authentication Lambda uses to access your schema registry.
 	Type?: "BASIC_AUTH" | "CLIENT_CERTIFICATE_TLS_AUTH" | "SERVER_ROOT_CA_CERTIFICATE" | "OAUTHBEARER_AUTH"
 
@@ -411,12 +407,10 @@ _#defs: "/$defs/Properties/definitions/SchemaRegistryAccessConfig": close({
 })
 
 // Specific configuration settings for a Kafka schema registry.
-_#defs: "/$defs/Properties/definitions/SchemaRegistryConfig": close({
+#SchemaRegistryConfig: close({
 	// An array of access configuration objects that tell Lambda how to authenticate
 	// with your schema registry.
-	AccessConfigs?: list.MaxItems(2) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SchemaRegistryAccessConfig"
-	]
+	AccessConfigs?: list.MaxItems(2) & list.UniqueItems() & [...#SchemaRegistryAccessConfig]
 
 	// The record format that Lambda delivers to your function after schema validation.
 	// + Choose ``JSON`` to have Lambda deliver the record to your function as a standard JSON object.
@@ -434,15 +428,13 @@ _#defs: "/$defs/Properties/definitions/SchemaRegistryConfig": close({
 	// An array of schema validation configuration objects, which tell Lambda the
 	// message attributes you want to validate and filter using your schema
 	// registry.
-	SchemaValidationConfigs?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SchemaValidationConfig"
-	]
+	SchemaValidationConfigs?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#SchemaValidationConfig]
 })
 
 // Specific schema validation configuration settings that tell Lambda the
 // message attributes you want to validate and filter using your schema
 // registry.
-_#defs: "/$defs/Properties/definitions/SchemaValidationConfig": close({
+#SchemaValidationConfig: close({
 	// The attributes you want your schema registry to validate and filter for. If
 	// you selected ``JSON`` as the ``EventRecordFormat``, Lambda also deserializes
 	// the selected message attributes.
@@ -450,29 +442,29 @@ _#defs: "/$defs/Properties/definitions/SchemaValidationConfig": close({
 })
 
 // The self-managed Apache Kafka cluster for your event source.
-_#defs: "/$defs/Properties/definitions/SelfManagedEventSource": close({
+#SelfManagedEventSource: close({
 	// The list of bootstrap servers for your Kafka brokers in the following format:
 	// ``"KafkaBootstrapServers": ["abc.xyz.com:xxxx","abc2.xyz.com:xxxx"]``.
-	Endpoints?: _#defs."/$defs/Properties/definitions/Endpoints"
+	Endpoints?: #Endpoints
 })
 
 // Specific configuration settings for a self-managed Apache Kafka event source.
-_#defs: "/$defs/Properties/definitions/SelfManagedKafkaEventSourceConfig": close({
+#SelfManagedKafkaEventSourceConfig: close({
 	// The identifier for the Kafka consumer group to join. The consumer group ID
 	// must be unique among all your Kafka event sources. After creating a Kafka
 	// event source mapping with the consumer group ID specified, you cannot update
 	// this value. For more information, see [Customizable consumer group
 	// ID](https://docs.aws.amazon.com/lambda/latest/dg/with-kafka-process.html#services-smaa-topic-add).
-	ConsumerGroupId?: _#defs."/$defs/Properties/definitions/ConsumerGroupId"
-	ConsumptionMode?: _#defs."/$defs/Properties/definitions/ConsumptionMode"
+	ConsumerGroupId?: #ConsumerGroupId
+	ConsumptionMode?: #ConsumptionMode
 
 	// Specific configuration settings for a Kafka schema registry.
-	SchemaRegistryConfig?: _#defs."/$defs/Properties/definitions/SchemaRegistryConfig"
+	SchemaRegistryConfig?: #SchemaRegistryConfig
 })
 
 // An array of the authentication protocol, VPC components, or virtual host to
 // secure and define your event source.
-_#defs: "/$defs/Properties/definitions/SourceAccessConfiguration": close({
+#SourceAccessConfiguration: close({
 	// The type of authentication protocol, VPC components, or virtual host for your
 	// event source. For example: ``"Type":"SASL_SCRAM_512_AUTH"``.
 	// + ``BASIC_AUTH`` – (Amazon MQ) The ASMlong secret that stores your broker credentials.
@@ -523,7 +515,7 @@ _#defs: "/$defs/Properties/definitions/SourceAccessConfiguration": close({
 
 // A [tag](https://docs.aws.amazon.com/lambda/latest/dg/tagging.html) to apply
 // to the event source mapping.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for this tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

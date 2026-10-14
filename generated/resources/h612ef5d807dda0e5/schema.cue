@@ -12,15 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolReplica
-#Properties: close({
-	RegionName!: strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
-	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
-	UserPoolTagsAtCreate?: close({
-
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolReplica"
-	Properties!: #Properties
+	Type!: "AWS::Cognito::UserPoolReplica"
+	Properties!: close({
+		RegionName!: strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+		UserPoolTagsAtCreate?: close({
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
 }

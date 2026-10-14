@@ -11,18 +11,18 @@ import (
 
 // The ``AWS::ApiGateway::Stage`` resource creates a stage for a deployment.
 #Properties: close({
-	AccessLogSetting?:     _#defs."/$defs/Properties/definitions/AccessLogSetting"
+	AccessLogSetting?:     #AccessLogSetting
 	CacheClusterEnabled?:  bool
 	CacheClusterSize?:     string
-	CanarySetting?:        _#defs."/$defs/Properties/definitions/CanarySetting"
+	CanarySetting?:        #CanarySetting
 	ClientCertificateId?:  string
 	DeploymentId?:         string
 	Description?:          string
 	DocumentationVersion?: string
-	MethodSettings?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MethodSetting"]
+	MethodSettings?:       list.UniqueItems() & [...#MethodSetting]
 	RestApiId!:            string
 	StageName?:            string
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                 [...#Tag]
 	TracingEnabled?:       bool
 
 	// A map (string-to-string map) that defines the stage variables, where the
@@ -38,7 +38,7 @@ import (
 // ``AccessLogSetting`` is a property of the
 // [AWS::ApiGateway::Stage](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-stage.html)
 // resource.
-_#defs: "/$defs/Properties/definitions/AccessLogSetting": close({
+#AccessLogSetting: close({
 	// The Amazon Resource Name (ARN) of the CloudWatch Logs log group or Kinesis
 	// Data Firehose delivery stream to receive access logs. If you specify a
 	// Kinesis Data Firehose delivery stream, the stream name must begin with
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/AccessLogSetting": close({
 	Format?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CanarySetting": close({
+#CanarySetting: close({
 	DeploymentId?:   string
 	PercentTraffic?: <=100 & >=0
 	StageVariableOverrides?: close({
@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/CanarySetting": close({
 // The ``MethodSetting`` property type configures settings for all methods in a stage.
 // The ``MethodSettings`` property of the ``AWS::ApiGateway::Stage`` resource
 // contains a list of ``MethodSetting`` property types.
-_#defs: "/$defs/Properties/definitions/MethodSetting": close({
+#MethodSetting: close({
 	CacheDataEncrypted?: bool
 	CacheTtlInSeconds?:  int
 	CachingEnabled?:     bool
@@ -94,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/MethodSetting": close({
 // An array of key-value pairs to apply to this resource.
 // For more information, see
 // [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

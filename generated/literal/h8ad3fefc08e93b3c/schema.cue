@@ -15,7 +15,7 @@ import "strings"
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The instance metadata option settings for the infrastructure configuration.
-	InstanceMetadataOptions?: _#defs."/$defs/Properties/definitions/InstanceMetadataOptions"
+	InstanceMetadataOptions?: #InstanceMetadataOptions
 
 	// The instance profile of the infrastructure configuration.
 	InstanceProfileName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$"
@@ -27,13 +27,13 @@ import "strings"
 	KeyPair?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The logging configuration of the infrastructure configuration.
-	Logging?: _#defs."/$defs/Properties/definitions/Logging"
+	Logging?: #Logging
 
 	// The name of the infrastructure configuration.
 	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$"
 
 	// The placement option settings for the infrastructure configuration.
-	Placement?: _#defs."/$defs/Properties/definitions/Placement"
+	Placement?: #Placement
 
 	// The tags attached to the resource created by Image Builder.
 	ResourceTags?: close({
@@ -62,7 +62,7 @@ import "strings"
 })
 
 // The instance metadata option settings for the infrastructure configuration.
-_#defs: "/$defs/Properties/definitions/InstanceMetadataOptions": close({
+#InstanceMetadataOptions: close({
 	// Limit the number of hops that an instance metadata request can traverse to reach its destination.
 	HttpPutResponseHopLimit?: int & <=64 & >=1
 
@@ -72,10 +72,10 @@ _#defs: "/$defs/Properties/definitions/InstanceMetadataOptions": close({
 })
 
 // The logging configuration of the infrastructure configuration.
-_#defs: "/$defs/Properties/definitions/Logging": close({S3Logs?: _#defs."/$defs/Properties/definitions/S3Logs"})
+#Logging: close({S3Logs?: #S3Logs})
 
 // The placement options
-_#defs: "/$defs/Properties/definitions/Placement": close({
+#Placement: close({
 	// AvailabilityZone
 	AvailabilityZone?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/Placement": close({
 })
 
 // The S3 path in which to store the logs.
-_#defs: "/$defs/Properties/definitions/S3Logs": close({
+#S3Logs: close({
 	// S3BucketName
 	S3BucketName?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
@@ -99,7 +99,7 @@ _#defs: "/$defs/Properties/definitions/S3Logs": close({
 })
 
 // TagMap
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 	// TagKey
 	TagKey?: strings.MaxRunes(128) & strings.MinRunes(1)
 

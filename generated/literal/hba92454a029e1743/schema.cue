@@ -7,11 +7,11 @@ package schema
 // Resource Type definition for AWS::Greengrass::DeviceDefinitionVersion
 #Properties: close({
 	DeviceDefinitionId!: string
-	Devices!:            [..._#defs."/$defs/Properties/definitions/Device"]
+	Devices!:            [...#Device]
 	Id?:                 string
 })
 
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	CertificateArn!: string
 	Id!:             string
 	SyncShadow?:     bool

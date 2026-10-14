@@ -11,7 +11,7 @@ import (
 
 // Resource Type definition for AWS::SSM::PatchBaseline
 #Properties: close({
-	ApprovalRules?: _#defs."/$defs/Properties/definitions/RuleGroup"
+	ApprovalRules?: #RuleGroup
 
 	// A list of explicitly approved patches for the baseline.
 	ApprovedPatches?: list.MaxItems(50) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1)]
@@ -37,7 +37,7 @@ import (
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// A set of global filters used to include patches in the baseline.
-	GlobalFilters?: _#defs."/$defs/Properties/definitions/PatchFilterGroup"
+	GlobalFilters?: #PatchFilterGroup
 
 	// The ID of the patch baseline.
 	Id?: strings.MaxRunes(128) & strings.MinRunes(20) & =~"^[a-zA-Z0-9_\\-:/]{20,128}$"
@@ -74,15 +74,15 @@ import (
 	// Information about the patches to use to update the instances, including
 	// target operating systems and source repository. Applies to Linux instances
 	// only.
-	Sources?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PatchSource"]
+	Sources?: list.MaxItems(20) & [...] & [...#PatchSource]
 
 	// Optional metadata that you assign to a resource. Tags enable you to
 	// categorize a resource in different ways.
-	Tags?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(1000) & [...] & [...#Tag]
 })
 
 // Defines which patches should be included in a patch baseline.
-_#defs: "/$defs/Properties/definitions/PatchFilter": close({
+#PatchFilter: close({
 	Key?: "ADVISORY_ID" |
 		"ARCH" |
 		"BUGZILLA_ID" |
@@ -106,35 +106,31 @@ _#defs: "/$defs/Properties/definitions/PatchFilter": close({
 })
 
 // The patch filter group that defines the criteria for the rule.
-_#defs: "/$defs/Properties/definitions/PatchFilterGroup": close(
-	{PatchFilters?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/PatchFilter"]},
-)
+#PatchFilterGroup: close({PatchFilters?: list.MaxItems(5) & [...] & [...#PatchFilter]})
 
 // Information about the patches to use to update the instances, including
 // target operating systems and source repository. Applies to Linux instances
 // only.
-_#defs: "/$defs/Properties/definitions/PatchSource": close({
+#PatchSource: close({
 	Configuration?: strings.MaxRunes(1024) & strings.MinRunes(1)
 	Name?:          =~"^[a-zA-Z0-9_\\-.]{3,50}$"
 	Products?:      list.MaxItems(20) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1)]
 })
 
 // Defines an approval rule for a patch baseline.
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	ApproveAfterDays?:  int & <=360 & >=0
 	ApproveUntilDate?:  strings.MaxRunes(10) & strings.MinRunes(0)
 	ComplianceLevel?:   "CRITICAL" | "HIGH" | "INFORMATIONAL" | "LOW" | "MEDIUM" | "UNSPECIFIED"
 	EnableNonSecurity?: bool
-	PatchFilterGroup?:  _#defs."/$defs/Properties/definitions/PatchFilterGroup"
+	PatchFilterGroup?:  #PatchFilterGroup
 })
 
 // A set of rules defining the approval rules for a patch baseline.
-_#defs: "/$defs/Properties/definitions/RuleGroup": close(
-	{PatchRules?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Rule"]},
-)
+#RuleGroup: close({PatchRules?: list.MaxItems(10) & [...] & [...#Rule]})
 
 // Metadata that you assign to your AWS resources.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

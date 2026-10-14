@@ -9,8 +9,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Route53::DelegationSet. Creates a reusable
 // delegation set (a group of four name servers) that can be associated with
 // multiple hosted zones.
-#Properties: close({})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Route53::DelegationSet"
-	Properties?: #Properties
+	Properties?: close({})
 }

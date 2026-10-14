@@ -13,31 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::PackagingGroup
-#Properties: close({
-	Authorization?:    _#defs."/$defs/Properties/definitions/Authorization" | fn.#ObjectExpression
-	EgressAccessLogs?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Id!:               strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackage::PackagingGroup"
+	Properties!: close({
+		// CDN Authorization
+		Authorization?: #Authorization
 
-_#defs: "/$defs/Properties/definitions/Authorization": close({
+		// The configuration parameters for egress access logging.
+		EgressAccessLogs?: #LogConfiguration
+		Id!:               strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#Authorization: close({
 	CdnIdentifierSecret!: string | fn.#StringExpression
 	SecretsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close(
-	{LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#LogConfiguration: close({LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackage::PackagingGroup"
-	Properties!: #Properties
-}

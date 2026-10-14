@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,36 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::AccessSource
-#Properties: close({
-	Cidr!:          _#defs."/$defs/Properties/definitions/Cidr"
-	ClientToken?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	DnsViewId!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType"
-	Name?:          _#defs."/$defs/Properties/definitions/ResourceName"
-	Protocol!:      _#defs."/$defs/Properties/definitions/DnsProtocol"
-	Tags?:          list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53GlobalResolver::AccessSource"
+	Properties!: close({
+		Cidr!:          #Cidr
+		ClientToken?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		DnsViewId!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
+		IpAddressType?: #IpAddressType
+		Name?:          #ResourceName
+		Protocol!:      #DnsProtocol
+		Tags?:          list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" |
-	"OPERATIONAL" |
-	"UPDATING" |
-	"DELETING" |
-	fn.#StringExpression
+#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Cidr": strings.MaxRunes(42) & strings.MinRunes(1) | fn.#StringExpression
+#Cidr: strings.MaxRunes(42) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DnsProtocol": "DO53" | "DOH" | "DOT" | fn.#StringExpression
+#DnsProtocol: "DO53" | "DOH" | "DOT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "IPV4" | "IPV6" | fn.#StringExpression
+#IpAddressType: "IPV4" | "IPV6" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53GlobalResolver::AccessSource"
-	Properties!: #Properties
-}

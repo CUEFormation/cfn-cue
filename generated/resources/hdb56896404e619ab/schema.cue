@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 	"time"
 )
@@ -15,71 +15,83 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates and manages a multi-cloud connector for Amazon Inspector, enabling
 // vulnerability scanning of Azure resources.
-#Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}_-]+$" | fn.#StringExpression
-	Provider!:    _#defs."/$defs/Properties/definitions/CloudProvider" | fn.#StringExpression
-	ProviderConfiguration!: close({
-		Azure!: close({
-			AutoInstallVMScanner?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			AwsConfigConnectorArn!: strings.MaxRunes(512) &
-			strings.MinRunes(1) &
-			=~"arn:([^:]+):config:([^:]+):([^:]+):connector/([^/]+)/([^/]+)/([^/:\\s]+)" |
-			fn.#StringExpression
-			AzureRegions!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-			ScopeConfiguration!: close({
-				ContainerImageScanning?: close({
-					ScopeType!:   _#defs."/$defs/Properties/definitions/ScopeType"
-					ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
-				}) |
-				fn.#ObjectExpression
-				ServerlessScanning?: close({
-					ScopeType!:   _#defs."/$defs/Properties/definitions/ScopeType"
-					ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
-				}) |
-				fn.#ObjectExpression
-				VmScanning?: close({
-					ScopeType!:   _#defs."/$defs/Properties/definitions/ScopeType"
-					ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InspectorV2::Connector"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}_-]+$" | fn.#StringExpression
+
+		// The cloud provider for this connector.
+		Provider!: #CloudProvider
+		ProviderConfiguration!: close({
+			Azure!: close({
+				AutoInstallVMScanner?: bool |
+					"true" |
+					"True" |
+					"TRUE" |
+					"false" |
+					"False" |
+					"FALSE" |
+					fn.#BooleanExpression
+				AwsConfigConnectorArn!: strings.MaxRunes(512) &
+				strings.MinRunes(1) &
+				=~"arn:([^:]+):config:([^:]+):([^:]+):connector/([^/]+)/([^/]+)/([^/:\\s]+)" |
+				fn.#StringExpression
+				AzureRegions!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+				ScopeConfiguration!: close({
+					ContainerImageScanning?: close({
+						ScopeType!:   #ScopeType
+						ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+					}) |
+					fn.#ObjectExpression
+					ServerlessScanning?: close({
+						ScopeType!:   #ScopeType
+						ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+					}) |
+					fn.#ObjectExpression
+					VmScanning?: close({
+						ScopeType!:   #ScopeType
+						ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+					}) |
+					fn.#ObjectExpression
 				}) |
 				fn.#ObjectExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AzureProviderConfiguration": close({
+#AzureProviderConfiguration: close({
 	AutoInstallVMScanner?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AwsConfigConnectorArn!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:([^:]+):config:([^:]+):([^:]+):connector/([^/]+)/([^/]+)/([^/:\\s]+)" |
 	fn.#StringExpression
 	AzureRegions!:       list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/AzureScopeConfigurationMap"
+	ScopeConfiguration!: #AzureScopeConfigurationMap
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AzureScopeConfigurationMap": close({
-	ContainerImageScanning?: _#defs."/$defs/Properties/definitions/ScopeConfiguration"
-	ServerlessScanning?:     _#defs."/$defs/Properties/definitions/ScopeConfiguration"
-	VmScanning?:             _#defs."/$defs/Properties/definitions/ScopeConfiguration"
+#AzureScopeConfigurationMap: close({
+	ContainerImageScanning?: #ScopeConfiguration
+	ServerlessScanning?:     #ScopeConfiguration
+	VmScanning?:             #ScopeConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudProvider": "AZURE" | fn.#StringExpression
+#CloudProvider: "AZURE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorHealth": close({
-	ConnectorStatus?: _#defs."/$defs/Properties/definitions/ConnectorHealthStatus"
+#ConnectorHealth: close({
+	ConnectorStatus?: #ConnectorHealthStatus
 	LastCheckedAt?:   time.Time | fn.#StringExpression
 	Message?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorHealthStatus": "CONNECTED" |
+#ConnectorHealthStatus: "CONNECTED" |
 	"DEGRADED" |
 	"FAILED_TO_CONNECT" |
 	"PENDING_AUTHORIZATION" |
@@ -87,7 +99,7 @@ _#defs: "/$defs/Properties/definitions/ConnectorHealthStatus": "CONNECTED" |
 	"UNKNOWN" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorState": "ENABLED" |
+#ConnectorState: "ENABLED" |
 	"PENDING_ENABLEMENT" |
 	"FAILED_TO_ENABLE" |
 	"PENDING_UPDATE" |
@@ -97,29 +109,22 @@ _#defs: "/$defs/Properties/definitions/ConnectorState": "ENABLED" |
 	"FAILED_TO_DELETE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProviderConfiguration": close(
-	{Azure!: _#defs."/$defs/Properties/definitions/AzureProviderConfiguration"},
-) |
-	fn.#ObjectExpression
+#ProviderConfiguration: close({Azure!: #AzureProviderConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScopeConfiguration": close({
-	ScopeType!:   _#defs."/$defs/Properties/definitions/ScopeType"
+#ScopeConfiguration: close({
+	ScopeType!:   #ScopeType
 	ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
-	State?:       _#defs."/$defs/Properties/definitions/ScopeState"
+	State?:       #ScopeState
 	StateReason?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScopeState": "ACTIVE" | "PENDING" | "ERROR" | "DISABLED" | fn.#StringExpression
+#ScopeState: "ACTIVE" | "PENDING" | "ERROR" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScopeType": "TENANT" | "SUBSCRIPTION" | fn.#StringExpression
+#ScopeType: "TENANT" | "SUBSCRIPTION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.:/=+\\-@]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InspectorV2::Connector"
-	Properties!: #Properties
-}

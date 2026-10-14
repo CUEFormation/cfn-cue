@@ -22,21 +22,17 @@ import (
 	Id?:               strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$"
 	Identifier?:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$"
 	Name?:             strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$"
-	ProvisioningType!: _#defs."/$defs/Properties/definitions/ProvisioningType"
-	Status?:           _#defs."/$defs/Properties/definitions/Status"
-	Tags?:             _#defs."/$defs/Properties/definitions/TagsMap"
+	ProvisioningType!: #ProvisioningType
+	Status?:           #Status
+	Tags?:             #TagsMap
 })
 
-_#defs: "/$defs/Properties/definitions/ProvisioningType": "FLEET_PROVISIONING" | "JITR"
+#ProvisioningType: "FLEET_PROVISIONING" | "JITR"
 
-_#defs: "/$defs/Properties/definitions/Status": "CREATE_IN_PROGRESS" |
-	"CREATE_FAILED" |
-	"CREATED" |
-	"DELETE_IN_PROGRESS" |
-	"DELETE_FAILED"
+#Status: "CREATE_IN_PROGRESS" | "CREATE_FAILED" | "CREATED" | "DELETE_IN_PROGRESS" | "DELETE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.MinFields(0) & close({
+#TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

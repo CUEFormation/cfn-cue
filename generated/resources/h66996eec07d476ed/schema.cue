@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,55 +13,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Capability Resource Type
-#Properties: close({
-	Configuration!: _#defs."/$defs/Properties/definitions/CapabilityConfiguration"
-	InstructionsDocuments?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/S3Location"] |
-		fn.#ListExpression
-	Name!: strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/CapabilityType"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::B2BI::Capability"
+	Properties!: close({
+		Configuration!:         #CapabilityConfiguration
+		InstructionsDocuments?: list.MaxItems(5) & [...] & [...#S3Location] | fn.#ListExpression
+		Name!:                  strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:                  #CapabilityType
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CapabilityConfiguration": close(
-	{Edi!: _#defs."/$defs/Properties/definitions/EdiConfiguration"},
-) |
-	fn.#ValueExpression
+#CapabilityConfiguration: close({Edi!: #EdiConfiguration}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/CapabilityDirection": "INBOUND" | "OUTBOUND" | fn.#StringExpression
+#CapabilityDirection: "INBOUND" | "OUTBOUND" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapabilityType": "edi" | fn.#StringExpression
+#CapabilityType: "edi" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EdiConfiguration": close({
-	CapabilityDirection?: _#defs."/$defs/Properties/definitions/CapabilityDirection"
-	InputLocation!:       _#defs."/$defs/Properties/definitions/S3Location"
-	OutputLocation!:      _#defs."/$defs/Properties/definitions/S3Location"
+#EdiConfiguration: close({
+	CapabilityDirection?: #CapabilityDirection
+	InputLocation!:       #S3Location
+	OutputLocation!:      #S3Location
 	TransformerId!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Type!:                _#defs."/$defs/Properties/definitions/EdiType"
+	Type!:                #EdiType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EdiType": close({X12Details!: _#defs."/$defs/Properties/definitions/X12Details"}) |
-	fn.#ValueExpression
+#EdiType: close({X12Details!: #X12Details}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	Key?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12Details": close({
-	TransactionSet?: _#defs."/$defs/Properties/definitions/X12TransactionSet"
-	Version?:        _#defs."/$defs/Properties/definitions/X12Version"
+#X12Details: close({
+	TransactionSet?: #X12TransactionSet
+	Version?:        #X12Version
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12TransactionSet": "X12_100" |
+#X12TransactionSet: "X12_100" |
 	"X12_101" |
 	"X12_102" |
 	"X12_103" |
@@ -405,14 +403,10 @@ _#defs: "/$defs/Properties/definitions/X12TransactionSet": "X12_100" |
 	"X12_999_X231" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/X12Version": "VERSION_4010" |
+#X12Version: "VERSION_4010" |
 	"VERSION_4030" |
 	"VERSION_4050" |
 	"VERSION_4060" |
 	"VERSION_5010" |
 	"VERSION_5010_HIPAA" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::B2BI::Capability"
-	Properties!: #Properties
-}

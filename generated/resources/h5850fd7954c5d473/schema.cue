@@ -14,12 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Route53::TrafficPolicy. Creates a Route 53
 // traffic policy, a JSON document that describes how Route 53 responds to DNS
 // queries for a domain name.
-#Properties: close({
-	Comment?:  strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Document!: strings.MaxRunes(102400) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::TrafficPolicy"
-	Properties!: #Properties
+	Type!: "AWS::Route53::TrafficPolicy"
+	Properties!: close({
+		Comment?:  strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Document!: strings.MaxRunes(102400) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+	})
 }

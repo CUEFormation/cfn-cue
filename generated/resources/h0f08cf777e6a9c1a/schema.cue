@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,71 +15,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A case rule. In the Amazon Connect admin website, case rules are known as
 // case field conditions. Case rules are used to define the situations under
 // which fields should have certain effects (such as required).
-#Properties: close({
-	Description?: strings.MaxRunes(255) | fn.#StringExpression
-	DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Rule!:        _#defs."/$defs/Properties/definitions/CaseRuleDetails"
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cases::CaseRule"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) | fn.#StringExpression
+		DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
+		Rule!:        #CaseRuleDetails
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BooleanCondition": matchN(1, [close(
-	{EqualTo!: _#defs."/$defs/Properties/definitions/BooleanOperands"},
-), close(
-	{NotEqualTo!: _#defs."/$defs/Properties/definitions/BooleanOperands"},
-)]) |
+#BooleanCondition: matchN(1, [close({EqualTo!: #BooleanOperands}), close({NotEqualTo!: #BooleanOperands})]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/BooleanOperands": close({
-	OperandOne!: _#defs."/$defs/Properties/definitions/OperandOne"
-	OperandTwo!: _#defs."/$defs/Properties/definitions/OperandTwo"
+#BooleanOperands: close({
+	OperandOne!: #OperandOne
+	OperandTwo!: #OperandTwo
 	Result!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaseRuleDetails": matchN(1, [close(
-	{Required!: _#defs."/$defs/Properties/definitions/RequiredCaseRule"},
-), close(
-	{Hidden!: _#defs."/$defs/Properties/definitions/HiddenCaseRule"},
-)]) |
+#CaseRuleDetails: matchN(1, [close({Required!: #RequiredCaseRule}), close({Hidden!: #HiddenCaseRule})]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/EmptyOperandValue": close({}) | fn.#ObjectExpression
+#EmptyOperandValue: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HiddenCaseRule": close({
-	Conditions!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/BooleanCondition"] | fn.#ListExpression
+#HiddenCaseRule: close({
+	Conditions!:   list.MaxItems(100) & [...#BooleanCondition] | fn.#ListExpression
 	DefaultValue!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OperandOne": close(
-	{FieldId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ValueExpression
+#OperandOne: close({FieldId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/OperandTwo": matchN(1, [close(
+#OperandTwo: matchN(1, [close(
 	{StringValue!: strings.MaxRunes(1500) & strings.MinRunes(1) | fn.#StringExpression},
 ), close(
 	{BooleanValue!: bool | fn.#BooleanExpression},
 ), close(
 	{DoubleValue!: number | fn.#NumberExpression},
 ), close(
-	{EmptyValue!: _#defs."/$defs/Properties/definitions/EmptyOperandValue"},
+	{EmptyValue!: #EmptyOperandValue},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RequiredCaseRule": close({
-	Conditions!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/BooleanCondition"] | fn.#ListExpression
+#RequiredCaseRule: close({
+	Conditions!:   list.MaxItems(100) & [...#BooleanCondition] | fn.#ListExpression
 	DefaultValue!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cases::CaseRule"
-	Properties!: #Properties
-}

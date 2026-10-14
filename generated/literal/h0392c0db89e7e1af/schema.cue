@@ -27,37 +27,37 @@ import (
 	// until you import one or more host keys (see AWS::Transfer::HostKey). This
 	// property cannot be changed after resource creation. Default: `true`.
 	CreateWithHostKey?:             bool
-	Domain?:                        _#defs."/$defs/Properties/definitions/Domain"
-	EndpointDetails?:               _#defs."/$defs/Properties/definitions/EndpointDetails"
-	EndpointType?:                  _#defs."/$defs/Properties/definitions/EndpointType"
-	IdentityProviderDetails?:       _#defs."/$defs/Properties/definitions/IdentityProviderDetails"
-	IdentityProviderType?:          _#defs."/$defs/Properties/definitions/IdentityProviderType"
-	IpAddressType?:                 _#defs."/$defs/Properties/definitions/IpAddressType"
+	Domain?:                        #Domain
+	EndpointDetails?:               #EndpointDetails
+	EndpointType?:                  #EndpointType
+	IdentityProviderDetails?:       #IdentityProviderDetails
+	IdentityProviderType?:          #IdentityProviderType
+	IpAddressType?:                 #IpAddressType
 	LoggingRole?:                   strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^(|arn:.*role/\\S+)$"
 	PostAuthenticationLoginBanner?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$"
 	PreAuthenticationLoginBanner?:  strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$"
-	ProtocolDetails?:               _#defs."/$defs/Properties/definitions/ProtocolDetails"
-	Protocols?:          list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Protocol"]
-	S3StorageOptions?:   _#defs."/$defs/Properties/definitions/S3StorageOptions"
-	SecurityPolicyName?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^TransferSecurityPolicy-.+$"
-	ServerId?:           strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$"
-	State?:              _#defs."/$defs/Properties/definitions/State"
+	ProtocolDetails?:               #ProtocolDetails
+	Protocols?:                     list.MaxItems(4) & list.MinItems(1) & [...#Protocol]
+	S3StorageOptions?:              #S3StorageOptions
+	SecurityPolicyName?:            strings.MaxRunes(100) & strings.MinRunes(0) & =~"^TransferSecurityPolicy-.+$"
+	ServerId?:                      strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$"
+	State?:                         #State
 	StructuredLogDestinations?: list.MaxItems(1) & [...] & [
 		...strings.MaxRunes(1600) & strings.MinRunes(20) & =~"^arn:\\S+$"
 	]
-	Tags?:            list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	WorkflowDetails?: _#defs."/$defs/Properties/definitions/WorkflowDetails"
+	Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag]
+	WorkflowDetails?: #WorkflowDetails
 })
 
-_#defs: "/$defs/Properties/definitions/As2Transport": "HTTP"
+#As2Transport: "HTTP"
 
 // Indicates whether optimization to directory listing on S3 servers is used.
 // Disabled by default for compatibility.
-_#defs: "/$defs/Properties/definitions/DirectoryListingOptimization": "ENABLED" | "DISABLED"
+#DirectoryListingOptimization: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/Domain": "S3" | "EFS"
+#Domain: "S3" | "EFS"
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": close({
+#EndpointDetails: close({
 	AddressAllocationIds?: [...string]
 	SecurityGroupIds?: [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
@@ -70,70 +70,55 @@ _#defs: "/$defs/Properties/definitions/EndpointDetails": close({
 	VpcId?:         =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointType": "PUBLIC" | "VPC" | "VPC_ENDPOINT"
+#EndpointType: "PUBLIC" | "VPC" | "VPC_ENDPOINT"
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({
+#IdentityProviderDetails: close({
 	DirectoryId?:               strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$"
 	Function?:                  strings.MaxRunes(170) & strings.MinRunes(1) & =~"^arn:[a-z-]+:lambda:.*$"
 	InvocationRole?:            strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$"
-	SftpAuthenticationMethods?: _#defs."/$defs/Properties/definitions/SftpAuthenticationMethods"
+	SftpAuthenticationMethods?: #SftpAuthenticationMethods
 	Url?:                       strings.MaxRunes(255) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderType": "SERVICE_MANAGED" |
-	"API_GATEWAY" |
-	"AWS_DIRECTORY_SERVICE" |
-	"AWS_LAMBDA"
+#IdentityProviderType: "SERVICE_MANAGED" | "API_GATEWAY" | "AWS_DIRECTORY_SERVICE" | "AWS_LAMBDA"
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "IPV4" | "DUALSTACK"
+#IpAddressType: "IPV4" | "DUALSTACK"
 
-_#defs: "/$defs/Properties/definitions/Protocol": "SFTP" | "FTP" | "FTPS" | "AS2"
+#Protocol: "SFTP" | "FTP" | "FTPS" | "AS2"
 
-_#defs: "/$defs/Properties/definitions/ProtocolDetails": close({
-	As2Transports?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/As2Transport"]
-	PassiveIp?:     strings.MaxRunes(15) & strings.MinRunes(0)
-	ProxyConfig?:   _#defs."/$defs/Properties/definitions/ProxyConfig"
-	SetStatOption?: _#defs."/$defs/Properties/definitions/SetStatOption"
-	TlsSessionResumptionMode?: _#defs."/$defs/Properties/definitions/TlsSessionResumptionMode"
+#ProtocolDetails: close({
+	As2Transports?:            list.MaxItems(1) & list.MinItems(1) & [...#As2Transport]
+	PassiveIp?:                strings.MaxRunes(15) & strings.MinRunes(0)
+	ProxyConfig?:              #ProxyConfig
+	SetStatOption?:            #SetStatOption
+	TlsSessionResumptionMode?: #TlsSessionResumptionMode
 })
 
-_#defs: "/$defs/Properties/definitions/ProxyConfig": close(
-	{SftpMode?: _#defs."/$defs/Properties/definitions/ProxyMode"},
-)
+#ProxyConfig: close({SftpMode?: #ProxyMode})
 
-_#defs: "/$defs/Properties/definitions/ProxyMode": "PROXY_PROTOCOL_V2_ENFORCED" | "NONE"
+#ProxyMode: "PROXY_PROTOCOL_V2_ENFORCED" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/S3StorageOptions": close(
-	{DirectoryListingOptimization?: _#defs."/$defs/Properties/definitions/DirectoryListingOptimization"},
-)
+#S3StorageOptions: close({DirectoryListingOptimization?: #DirectoryListingOptimization})
 
-_#defs: "/$defs/Properties/definitions/SetStatOption": "DEFAULT" | "ENABLE_NO_OP"
+#SetStatOption: "DEFAULT" | "ENABLE_NO_OP"
 
-_#defs: "/$defs/Properties/definitions/SftpAuthenticationMethods": "PASSWORD" |
-	"PUBLIC_KEY" |
-	"PUBLIC_KEY_OR_PASSWORD" |
-	"PUBLIC_KEY_AND_PASSWORD"
+#SftpAuthenticationMethods: "PASSWORD" | "PUBLIC_KEY" | "PUBLIC_KEY_OR_PASSWORD" | "PUBLIC_KEY_AND_PASSWORD"
 
-_#defs: "/$defs/Properties/definitions/State": "OFFLINE" |
-	"ONLINE" |
-	"STARTING" |
-	"STOPPING" |
-	"START_FAILED" |
-	"STOP_FAILED"
+#State: "OFFLINE" | "ONLINE" | "STARTING" | "STOPPING" | "START_FAILED" | "STOP_FAILED"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(0)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TlsSessionResumptionMode": "DISABLED" | "ENABLED" | "ENFORCED"
+#TlsSessionResumptionMode: "DISABLED" | "ENABLED" | "ENFORCED"
 
-_#defs: "/$defs/Properties/definitions/WorkflowDetail": close({
+#WorkflowDetail: close({
 	ExecutionRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$"
 	WorkflowId!:    strings.MaxRunes(19) & strings.MinRunes(19) & =~"^w-([a-z0-9]{17})$"
 })
 
-_#defs: "/$defs/Properties/definitions/WorkflowDetails": close({
-	OnPartialUpload?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/WorkflowDetail"]
-	OnUpload?:        list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/WorkflowDetail"]
+#WorkflowDetails: close({
+	OnPartialUpload?: list.MaxItems(1) & [...] & [...#WorkflowDetail]
+	OnUpload?:        list.MaxItems(1) & [...] & [...#WorkflowDetail]
 })

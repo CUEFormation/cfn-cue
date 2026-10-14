@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,29 +16,23 @@ import (
 	AllowedAccessControlHierarchyGroupId?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]*$"
 
 	// The list of tags that a security profile uses to restrict access to resources in Amazon Connect.
-	AllowedAccessControlTags?: list.MaxItems(4) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	AllowedAccessControlTags?: list.MaxItems(4) & list.UniqueItems() & [...#Tag]
 
 	// The list of flow-module resources to be linked to a security profile in Amazon Connect.
-	AllowedFlowModules?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/FlowModule"
-	]
+	AllowedFlowModules?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#FlowModule]
 
 	// A list of third-party applications that the security profile will give access to.
-	Applications?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Application"
-	]
+	Applications?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#Application]
 
 	// The description of the security profile.
 	Description?: strings.MaxRunes(250) & strings.MinRunes(0)
-	GranularAccessControlConfiguration?: close({
-		DataTableAccessControlConfiguration?: _#defs."/$defs/Properties/definitions/DataTableAccessControlConfiguration"
-	})
+	GranularAccessControlConfiguration?: close(
+		{DataTableAccessControlConfiguration?: #DataTableAccessControlConfiguration},
+	)
 
 	// The list of resources that a security profile applies hierarchy restrictions
 	// to in Amazon Connect.
-	HierarchyRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResourceName"
-	]
+	HierarchyRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...#ResourceName]
 
 	// The identifier of the Amazon Connect instance.
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
@@ -50,9 +44,7 @@ import (
 	LastModifiedTime?: number
 
 	// Permissions assigned to the security profile.
-	Permissions?: list.MaxItems(500) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Permission"
-	]
+	Permissions?: list.MaxItems(500) & list.UniqueItems() & [...] & [...#Permission]
 
 	// The Amazon Resource Name (ARN) for the security profile.
 	SecurityProfileArn?:
@@ -62,20 +54,16 @@ import (
 	SecurityProfileName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_@-]+$"
 
 	// The list of resources that a security profile applies tag restrictions to in Amazon Connect.
-	TagRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceName"
-	]
+	TagRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ResourceName]
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // A third-party application's metadata.
-_#defs: "/$defs/Properties/definitions/Application": close({
+#Application: close({
 	// The permissions that the agent is granted on the application
-	ApplicationPermissions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ApplicationPermission"
-	]
+	ApplicationPermissions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ApplicationPermission]
 
 	// Namespace of the application that you want to give access to.
 	Namespace?: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -85,16 +73,15 @@ _#defs: "/$defs/Properties/definitions/Application": close({
 })
 
 // The permissions that the agent is granted on the application.
-_#defs: "/$defs/Properties/definitions/ApplicationPermission": strings.MaxRunes(128) & strings.MinRunes(1)
+#ApplicationPermission: strings.MaxRunes(128) & strings.MinRunes(1)
 
 // Defines the access control configuration for data tables.
-_#defs: "/$defs/Properties/definitions/DataTableAccessControlConfiguration": close({
-	PrimaryAttributeAccessControlConfiguration?:
-		_#defs."/$defs/Properties/definitions/PrimaryAttributeAccessControlConfigurationItem"
-})
+#DataTableAccessControlConfiguration: close(
+	{PrimaryAttributeAccessControlConfiguration?: #PrimaryAttributeAccessControlConfigurationItem},
+)
 
 // A first-party application's metadata.
-_#defs: "/$defs/Properties/definitions/FlowModule": close({
+#FlowModule: close({
 	// The identifier of the application that you want to give access to.
 	FlowModuleId?: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -103,18 +90,16 @@ _#defs: "/$defs/Properties/definitions/FlowModule": close({
 })
 
 // A permission associated with the security profile.
-_#defs: "/$defs/Properties/definitions/Permission": strings.MaxRunes(128) & strings.MinRunes(1)
+#Permission: strings.MaxRunes(128) & strings.MinRunes(1)
 
 // Contains the configuration for record-based access control.
-_#defs: "/$defs/Properties/definitions/PrimaryAttributeAccessControlConfigurationItem": close({
+#PrimaryAttributeAccessControlConfigurationItem: close({
 	// An array of PrimaryAttributeValue objects.
-	PrimaryAttributeValues?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PrimaryAttributeValue"
-	]
+	PrimaryAttributeValues?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#PrimaryAttributeValue]
 })
 
 // An object defining the access control for a specific attribute and its values.
-_#defs: "/$defs/Properties/definitions/PrimaryAttributeValue": close({
+#PrimaryAttributeValue: close({
 	// Specifies the type of access granted. Currently, only "ALLOW" is supported
 	AccessType?: "ALLOW"
 
@@ -130,10 +115,10 @@ _#defs: "/$defs/Properties/definitions/PrimaryAttributeValue": close({
 })
 
 // A resource that a security profile applies tag or hierarchy restrictions to in Amazon Connect.
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(128) & strings.MinRunes(1)
+#ResourceName: strings.MaxRunes(128) & strings.MinRunes(1)
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

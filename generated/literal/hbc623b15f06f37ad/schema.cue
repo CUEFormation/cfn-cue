@@ -6,8 +6,8 @@ package schema
 
 // Resource Type definition for AWS::AppStream::ApplicationFleetAssociation
 #Properties: close({
-	ApplicationArn!: _#defs."/$defs/Properties/definitions/Arn"
+	ApplicationArn!: #Arn
 	FleetName!:      string
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string

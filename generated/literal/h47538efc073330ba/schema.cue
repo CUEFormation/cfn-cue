@@ -14,10 +14,10 @@ import (
 	AddressListArn?:  string
 	AddressListId?:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 	AddressListName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$"
-	Tags?:            list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:            list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

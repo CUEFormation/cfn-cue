@@ -52,7 +52,7 @@ import (
 	Status?: string
 
 	// Tags for the OpsItem.
-	Tags?: list.MaxItems(1000) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(1000) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The title of the OpsItem.
 	Title!: strings.MaxRunes(1024) & strings.MinRunes(1)
@@ -61,7 +61,7 @@ import (
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

@@ -23,13 +23,13 @@ import "strings"
 	SourceNetworkID?: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^sn-[0-9a-zA-Z]{17}$"
 
 	// A set of tags associated with the Source Network.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The VPC ID to protect.
 	VpcID!: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[0-9a-fA-F]{8,}$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(0)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

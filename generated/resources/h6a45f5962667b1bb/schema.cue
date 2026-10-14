@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,31 +12,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::Flow Resource Type
-#Properties: close({
-	AwsAccountId!:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	FlowDefinition!: fn.#Value
-	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?:    [..._#defs."/$defs/Properties/definitions/Permission"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Flow"
+	Properties!: close({
+		AwsAccountId!:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		FlowDefinition!: fn.#Value
+		Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Permissions?:    [...#Permission] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/FlowPublishState": "PUBLISHED" |
-	"DRAFT" |
-	"PENDING_APPROVAL" |
-	fn.#StringExpression
+#FlowPublishState: "PUBLISHED" | "DRAFT" | "PENDING_APPROVAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Permission": close({
+#Permission: close({
 	Actions!:   [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StepAliasMapping": close({
+#StepAliasMapping: close({
 	StepAlias!: string | fn.#StringExpression
 	StepId!:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Flow"
-	Properties!: #Properties
-}

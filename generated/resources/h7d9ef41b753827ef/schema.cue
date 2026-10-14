@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,26 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Profile Resource Type
-#Properties: close({
-	BusinessName!: strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-	Email?:        strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
-	Logging!:      _#defs."/$defs/Properties/definitions/Logging"
-	Name!:         strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-	Phone!: strings.MaxRunes(22) &
-	strings.MinRunes(7) &
-	=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::B2BI::Profile"
+	Properties!: close({
+		BusinessName!: strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
+		Email?:   strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
+		Logging!: #Logging
+		Name!:    strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
+		Phone!: strings.MaxRunes(22) &
+		strings.MinRunes(7) &
+		=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Logging": "ENABLED" | "DISABLED" | fn.#StringExpression
+#Logging: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::B2BI::Profile"
-	Properties!: #Properties
-}

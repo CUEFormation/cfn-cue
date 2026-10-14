@@ -16,7 +16,7 @@ import (
 	ApplicationType?: "None" | "Lakehouse"
 
 	// The token issuer list for the Amazon Redshift IAM Identity Center application instance.
-	AuthorizedTokenIssuerList?: [..._#defs."/$defs/Properties/definitions/AuthorizedTokenIssuer"]
+	AuthorizedTokenIssuerList?: [...#AuthorizedTokenIssuer]
 
 	// The IAM role ARN for the Amazon Redshift IAM Identity Center application
 	// instance. It has the required permissions to be assumed and invoke the IDC
@@ -54,17 +54,17 @@ import (
 	RedshiftIdcApplicationName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
 
 	// A collection of service integrations for the Redshift IAM Identity Center application.
-	ServiceIntegrations?: [..._#defs."/$defs/Properties/definitions/ServiceIntegrationsUnion"]
+	ServiceIntegrations?: [...#ServiceIntegrationsUnion]
 
 	// A list of tag keys that Redshift Identity Center applications copy to IAM Identity Center.
 	SsoTagKeys?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0)]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The authorized token issuer for the Amazon Redshift IAM Identity Center application.
-_#defs: "/$defs/Properties/definitions/AuthorizedTokenIssuer": close({
+#AuthorizedTokenIssuer: close({
 	// The list of audiences for the authorized token issuer.
 	AuthorizedAudiencesList?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0)]
 
@@ -75,51 +75,45 @@ _#defs: "/$defs/Properties/definitions/AuthorizedTokenIssuer": close({
 })
 
 // The Amazon Redshift connect integration scope.
-_#defs: "/$defs/Properties/definitions/Connect": close({
+#Connect: close({
 	// Determines whether the Amazon Redshift connect integration is enabled or disabled.
 	Authorization!: "Enabled" | "Disabled"
 })
 
 // The Lake Formation scope.
-_#defs: "/$defs/Properties/definitions/LakeFormationQuery": close({
+#LakeFormationQuery: close({
 	// Determines whether the query scope is enabled or disabled.
 	Authorization!: "Enabled" | "Disabled"
 })
 
 // A list of scopes set up for Lake Formation integration.
-_#defs: "/$defs/Properties/definitions/LakeFormationScopeUnion": close(
-	{LakeFormationQuery?: _#defs."/$defs/Properties/definitions/LakeFormationQuery"},
-)
+#LakeFormationScopeUnion: close({LakeFormationQuery?: #LakeFormationQuery})
 
 // The S3 Access Grants scope.
-_#defs: "/$defs/Properties/definitions/ReadWriteAccess": close({
+#ReadWriteAccess: close({
 	// Determines whether the read/write scope is enabled or disabled.
 	Authorization!: "Enabled" | "Disabled"
 })
 
 // A union structure that defines the scope of Amazon Redshift service integrations.
-_#defs: "/$defs/Properties/definitions/RedshiftScopeUnion": close(
-	{Connect?: _#defs."/$defs/Properties/definitions/Connect"},
-)
+#RedshiftScopeUnion: close({Connect?: #Connect})
 
 // A list of scopes set up for S3 Access Grants integration.
-_#defs: "/$defs/Properties/definitions/S3AccessGrantsScopeUnion": close(
-	{ReadWriteAccess?: _#defs."/$defs/Properties/definitions/ReadWriteAccess"},
-)
+#S3AccessGrantsScopeUnion: close({ReadWriteAccess?: #ReadWriteAccess})
 
 // A list of service integrations.
-_#defs: "/$defs/Properties/definitions/ServiceIntegrationsUnion": close({
+#ServiceIntegrationsUnion: close({
 	// A list of scopes set up for Lake Formation integration.
-	LakeFormation?: [..._#defs."/$defs/Properties/definitions/LakeFormationScopeUnion"]
+	LakeFormation?: [...#LakeFormationScopeUnion]
 
 	// A list of scopes set up for Amazon Redshift integration.
-	Redshift?: [..._#defs."/$defs/Properties/definitions/RedshiftScopeUnion"]
+	Redshift?: [...#RedshiftScopeUnion]
 
 	// A list of scopes set up for S3 Access Grants integration.
-	S3AccessGrants?: [..._#defs."/$defs/Properties/definitions/S3AccessGrantsScopeUnion"]
+	S3AccessGrants?: [...#S3AccessGrantsScopeUnion]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

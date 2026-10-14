@@ -9,23 +9,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::XssMatchSet
-#Properties: close({
-	Name!:           string | fn.#StringExpression
-	XssMatchTuples?: [..._#defs."/$defs/Properties/definitions/XssMatchTuple"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFRegional::XssMatchSet"
+	Properties!: close({
+		Name!:           string | fn.#StringExpression
+		XssMatchTuples?: [...#XssMatchTuple] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string | fn.#StringExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/XssMatchTuple": close({
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
+#XssMatchTuple: close({
+	FieldToMatch!:       #FieldToMatch
 	TextTransformation!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFRegional::XssMatchSet"
-	Properties!: #Properties
-}

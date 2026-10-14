@@ -3,17 +3,17 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"list"
+	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AgentRegistry::Registry Resource Type
 #Properties: close({
-	ApprovalConfiguration?: _#defs."/$defs/Properties/definitions/ApprovalConfiguration"
-	AuthorizerType?:        _#defs."/$defs/Properties/definitions/RegistryAuthorizerType"
+	ApprovalConfiguration?: #ApprovalConfiguration
+	AuthorizerType?:        #RegistryAuthorizerType
 
 	// Specifies whether auto-detection is requested for the registry. Must be
 	// specified together with AutoDetectionScope. Setting this to true is
@@ -25,16 +25,16 @@ import (
 	// deleted while auto-detection is enabled: set this to false and update the
 	// stack before deleting the registry.
 	AutoDetectionEnabled?: bool
-	AutoDetectionScope?:   _#defs."/$defs/Properties/definitions/AutoDetectionScope"
-	AutoDetectionStatus?:  _#defs."/$defs/Properties/definitions/AutoDetectionStatus"
+	AutoDetectionScope?:   #AutoDetectionScope
+	AutoDetectionStatus?:  #AutoDetectionStatus
 
 	// The timestamp when the registry was created.
 	CreatedAt?: time.Time
 
 	// The description of the registry.
 	Description?:             strings.MaxRunes(4096) & strings.MinRunes(1)
-	DiscoveryConfiguration?:  _#defs."/$defs/Properties/definitions/DiscoveryConfiguration"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	DiscoveryConfiguration?:  #DiscoveryConfiguration
+	EncryptionConfiguration?: #EncryptionConfiguration
 
 	// The name of the registry.
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$"
@@ -46,67 +46,64 @@ import (
 
 	// The unique identifier of the registry.
 	RegistryId?: strings.MaxRunes(16) & strings.MinRunes(12) & =~"^[a-zA-Z0-9]{12,16}$"
-	Status?:     _#defs."/$defs/Properties/definitions/RegistryStatus"
+	Status?:     #RegistryStatus
 
 	// Tags to assign to the registry.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The timestamp when the registry was last updated.
 	UpdatedAt?: time.Time
 })
 
 // Configuration for the registry's record approval workflow.
-_#defs: "/$defs/Properties/definitions/ApprovalConfiguration": close({
+#ApprovalConfiguration: close({
 	// The rules that determine which registry records are automatically approved on
 	// submission. When omitted or empty, submitted records require manual review.
-	AutoApprovalRules?: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/AutoApprovalRule"]
+	AutoApprovalRules?: list.MaxItems(10) & [...#AutoApprovalRule]
 })
 
 // The authorizer configuration for the registry. This is a union - specify exactly one member.
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-)
+#AuthorizerConfiguration: close({CustomJWTAuthorizer!: #CustomJWTAuthorizerConfiguration})
 
 // The value and match operator used to authorize a claim during JWT validation.
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
+#AuthorizingClaimMatchValueType: close({
 	ClaimMatchOperator!: "EQUALS" | "CONTAINS" | "CONTAINS_ANY"
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+	ClaimMatchValue!:    #ClaimMatchValueType
 })
 
 // A rule that determines which registry records are automatically approved on submission.
-_#defs: "/$defs/Properties/definitions/AutoApprovalRule": "APPROVE_ALL"
+#AutoApprovalRule: "APPROVE_ALL"
 
 // The source from which resources are detected. ORGANIZATION sources resources
 // from all member accounts of an AWS Organization.
-_#defs: "/$defs/Properties/definitions/AutoDetectionScope": "ORGANIZATION"
+#AutoDetectionScope: "ORGANIZATION"
 
 // The current auto-detection status. ACTIVE indicates that the registry is
 // actively being populated with detected resources. INACTIVE indicates that
 // the preconditions required at the configured scope are not currently met.
-_#defs: "/$defs/Properties/definitions/AutoDetectionStatus": "ACTIVE" | "INACTIVE"
+#AutoDetectionStatus: "ACTIVE" | "INACTIVE"
 
 // The expected value used to match a claim. Exactly one member is set.
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [{
-	MatchValueString!: _
-	...
-}, {
-	MatchValueStringList!: _
-	...
-}]) & close({
+#ClaimMatchValueType: close({
 	MatchValueString?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$"
 	MatchValueStringList?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$"]
-})
+	if MatchValueString != _|_ if MatchValueString."Fn::If" == _|_ {
+		MatchValueStringList?: close({"Fn::If": _}) | error(
+			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
+		)
+	}
+}) & matchN(>=1, [{MatchValueString!: _}, {MatchValueStringList!: _}])
 
 // A validation rule applied to a single claim of an inbound JWT.
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
 	InboundTokenClaimName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-:]+$"
 	InboundTokenClaimValueType!: "STRING" | "STRING_ARRAY"
 })
 
 // Configuration for a custom JWT authorizer that validates inbound bearer
 // tokens against an OpenID Connect identity provider.
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
+#CustomJWTAuthorizerConfiguration: close({
 	// The audience values accepted during JWT validation.
 	AllowedAudience?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 
@@ -119,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close(
 	]
 
 	// Additional custom claim validations applied to the inbound JWT.
-	CustomClaims?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"]
+	CustomClaims?: list.MinItems(1) & [...#CustomClaimValidationType]
 
 	// The OpenID Connect discovery URL used to retrieve the identity provider's
 	// metadata and signing keys.
@@ -128,9 +125,7 @@ _#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close(
 
 // Discovery configuration for the registry. Controls how consumers are
 // authorized to search the registry and invoke its MCP endpoint.
-_#defs: "/$defs/Properties/definitions/DiscoveryConfiguration": close(
-	{AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"},
-)
+#DiscoveryConfiguration: close({AuthorizerConfiguration?: #AuthorizerConfiguration})
 
 // The server-side encryption configuration for a registry. Specifies a customer
 // managed key used to encrypt the registry's content. When omitted, the
@@ -142,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/DiscoveryConfiguration": close(
 // records it contains. Registry records that are not managed by the stack are
 // not re-created in the new registry, and if any remain in the original
 // registry its deletion fails and it is left behind.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// The Amazon Resource Name (ARN) of the customer-managed AWS KMS key used to
 	// encrypt the registry's content. The key must be a symmetric encryption key
 	// in the same AWS account and Region as the registry. Multi-Region keys are
@@ -155,19 +150,13 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 
 // The type of authorizer that controls how consumers access the registry's
 // search and MCP invoke operations.
-_#defs: "/$defs/Properties/definitions/RegistryAuthorizerType": "CUSTOM_JWT" | "AWS_IAM"
+#RegistryAuthorizerType: "CUSTOM_JWT" | "AWS_IAM"
 
 // The status of the registry.
-_#defs: "/$defs/Properties/definitions/RegistryStatus": "CREATING" |
-	"READY" |
-	"UPDATING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"DELETING" |
-	"DELETE_FAILED"
+#RegistryStatus: "CREATING" | "READY" | "UPDATING" | "CREATE_FAILED" | "UPDATE_FAILED" | "DELETING" | "DELETE_FAILED"
 
 // A tag to assign to the registry.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 

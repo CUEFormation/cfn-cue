@@ -14,82 +14,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This is a CloudFormation resource for the first-party AWS::Hooks::LambdaHook.
-#Properties: close({
-	Alias!:         string | fn.#StringExpression
-	AutoUpdate?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExecutionRole!: _#defs."/$defs/Properties/definitions/Role" | fn.#StringExpression
-	FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
-	HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
-	LambdaFunction!: strings.MaxRunes(170) &
-	strings.MinRunes(1) &
-	=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}(-gov)?(-iso([a-z])?)?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?" |
-	fn.#StringExpression
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
-	StackFilters?: close({
-		FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
-		StackNames?: struct.MinFields(1) & close({
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackName"
-			] |
-				fn.#ListExpression
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackName"
-			] |
-				fn.#ListExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFormation::LambdaHook"
+	Properties!: close({
+		Alias!:      string | fn.#StringExpression
+		AutoUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The execution role ARN assumed by Hooks to invoke Lambda.
+		ExecutionRole!: #Role
+		FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
+		HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
+		LambdaFunction!: strings.MaxRunes(170) &
+		strings.MinRunes(1) &
+		=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}(-gov)?(-iso([a-z])?)?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?" |
+		fn.#StringExpression
+
+		// Contains logging configuration information for the hook.
+		LoggingConfig?: #LoggingConfig
+		StackFilters?: close({
+			FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
+			StackNames?: struct.MinFields(1) & close({
+				Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] |
+					fn.#ListExpression
+				Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+			StackRoles?: struct.MinFields(1) & close({
+				Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] |
+					fn.#ListExpression
+				Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		StackRoles?: struct.MinFields(1) & close({
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackRole"
-			] |
-				fn.#ListExpression
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackRole"
-			] |
-				fn.#ListExpression
-		}) |
+		TargetFilters?: fn.#Object & {...} & matchN(1, [
+			struct.MinFields(1) & close({
+				Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
+				InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#InvocationPoint] |
+					fn.#ListExpression
+				TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#TargetName] |
+					fn.#ListExpression
+			}),
+			close({
+				Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#HookTarget] |
+					fn.#ListExpression
+			})
+		]) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	TargetFilters?: fn.#Object & {...} & matchN(1, [
-		struct.MinFields(1) & close({
-			Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/Action"
-			] |
-				fn.#ListExpression
-			InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/InvocationPoint"
-			] |
-				fn.#ListExpression
-			TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/TargetName"
-			] |
-				fn.#ListExpression
-		}),
-		close({
-			Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/HookTarget"
-			] |
-				fn.#ListExpression
-		})
-	]) |
-	fn.#ObjectExpression
-	TargetOperations!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetOperation"] |
-		fn.#ListExpression
-})
+		TargetOperations!: list.UniqueItems() & [...#TargetOperation] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Action": "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
+#Action: "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HookTarget": close({
-	Action!:          _#defs."/$defs/Properties/definitions/Action"
-	InvocationPoint!: _#defs."/$defs/Properties/definitions/InvocationPoint"
-	TargetName!:      _#defs."/$defs/Properties/definitions/TargetName"
+#HookTarget: close({
+	Action!:          #Action
+	InvocationPoint!: #InvocationPoint
+	TargetName!:      #TargetName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InvocationPoint": "PRE_PROVISION" | fn.#StringExpression
+#InvocationPoint: "PRE_PROVISION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	LogRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(256) &
@@ -99,23 +88,12 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Role": strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" |
-fn.#StringExpression
+#Role: strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StackName": strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" |
-fn.#StringExpression
+#StackName: strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StackRole": (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) |
-fn.#StringExpression
+#StackRole: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TargetName": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#TargetName: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TargetOperation": "RESOURCE" |
-	"STACK" |
-	"CHANGE_SET" |
-	"CLOUD_CONTROL" |
-	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::LambdaHook"
-	Properties!: #Properties
-}
+#TargetOperation: "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL" | fn.#StringExpression

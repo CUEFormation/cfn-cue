@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,54 +13,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // resource definition
-#Properties: close({
-	Artifact?:    _#defs."/$defs/Properties/definitions/PackageVersionArtifact"
-	Attributes?:  _#defs."/$defs/Properties/definitions/ResourceAttributes"
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
-	PackageName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
-	Recipe?:      strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
-	Sbom?:        _#defs."/$defs/Properties/definitions/Sbom"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VersionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::SoftwarePackageVersion"
+	Properties!: close({
+		Artifact?:    #PackageVersionArtifact
+		Attributes?:  #ResourceAttributes
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
+		PackageName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
+		Recipe?:      strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
+		Sbom?:        #Sbom
+		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VersionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PackageVersionArtifact": close(
-	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
-) |
-	fn.#ObjectExpression
+#PackageVersionArtifact: close({S3Location!: #S3Location}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PackageVersionStatus": "DRAFT" |
-	"PUBLISHED" |
-	"DEPRECATED" |
-	fn.#StringExpression
+#PackageVersionStatus: "DRAFT" | "PUBLISHED" | "DEPRECATED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceAttributes": close({
+#ResourceAttributes: close({
 
 	{[=~"^[a-zA-Z0-9:_-]+$"]: strings.MinRunes(1) & =~"^[^\\p{C}]+$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:  strings.MinRunes(1) | fn.#StringExpression
 	Key!:     strings.MinRunes(1) | fn.#StringExpression
 	Version!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Sbom": close({S3Location!: _#defs."/$defs/Properties/definitions/S3Location"}) |
-	fn.#ObjectExpression
+#Sbom: close({S3Location!: #S3Location}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SbomValidationStatus": "IN_PROGRESS" |
-	"FAILED" |
-	"SUCCEEDED" |
-	"" |
-	fn.#StringExpression
+#SbomValidationStatus: "IN_PROGRESS" | "FAILED" | "SUCCEEDED" | "" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::SoftwarePackageVersion"
-	Properties!: #Properties
-}

@@ -10,10 +10,10 @@ import "strings"
 #Properties: close({
 	ComputeEnvironmentArn?:     string
 	ComputeEnvironmentName?:    string
-	ComputeResources?:          _#defs."/$defs/Properties/definitions/ComputeResources"
+	ComputeResources?:          #ComputeResources
 	Context?:                   string
-	EcsSettings?:               _#defs."/$defs/Properties/definitions/EcsSettings"
-	EksConfiguration?:          _#defs."/$defs/Properties/definitions/EksConfiguration"
+	EcsSettings?:               #EcsSettings
+	EksConfiguration?:          #EksConfiguration
 	ReplaceComputeEnvironment?: bool
 	ServiceRole?:               string
 	State?:                     string
@@ -24,15 +24,15 @@ import "strings"
 		{[=~".*"]: string}})
 	Type!:           =~"(?i)^(?:managed|unmanaged)$"
 	UnmanagedvCpus?: int
-	UpdatePolicy?:   _#defs."/$defs/Properties/definitions/UpdatePolicy"
+	UpdatePolicy?:   #UpdatePolicy
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityReservations": close({
+#CapacityReservations: close({
 	ReservationGroupArn?:   string
 	ReservationPreference?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ComputeResources": close({
+#ComputeResources: close({
 	AllocationStrategy?:
 		=~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$"
 	BidPercentage?: int
@@ -42,17 +42,17 @@ _#defs: "/$defs/Properties/definitions/ComputeResources": close({
 
 		{[=~".*"]: string}})
 	DesiredvCpus?:             int
-	Ec2Configuration?:         [..._#defs."/$defs/Properties/definitions/Ec2ConfigurationObject"]
+	Ec2Configuration?:         [...#Ec2ConfigurationObject]
 	Ec2KeyPair?:               string
 	ImageId?:                  =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$"
 	InstanceRole?:             string
 	InstanceTypes?:            [...string]
-	LaunchTemplate?:           _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
-	ManagedInstancesProvider?: _#defs."/$defs/Properties/definitions/ManagedInstancesProvider"
+	LaunchTemplate?:           #LaunchTemplateSpecification
+	ManagedInstancesProvider?: #ManagedInstancesProvider
 	MaxvCpus!:                 int
 	MinvCpus?:                 int
 	PlacementGroup?:           string
-	ScalingPolicy?:            _#defs."/$defs/Properties/definitions/ComputeScalingPolicy"
+	ScalingPolicy?:            #ComputeScalingPolicy
 	SecurityGroupIds?:         [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SpotIamFleetRole?:         string
 	Subnets?:                  [...string]
@@ -65,16 +65,16 @@ _#defs: "/$defs/Properties/definitions/ComputeResources": close({
 	UpdateToLatestImageVersion?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/ComputeScalingPolicy": close({MinScaleDownDelayMinutes?: int})
+#ComputeScalingPolicy: close({MinScaleDownDelayMinutes?: int})
 
-_#defs: "/$defs/Properties/definitions/Ec2ConfigurationObject": close({
+#Ec2ConfigurationObject: close({
 	BatchImageStatus?:       string
 	ImageIdOverride?:        string
 	ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1)
 	ImageType!:              strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/EcsSettings": close({
+#EcsSettings: close({
 	// The CloudWatch Container Insights setting applied to the Amazon ECS cluster
 	// that backs this compute environment. After you set this property, you can't
 	// revert it to the default (unset) state in which the setting is managed
@@ -89,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/EcsSettings": close({
 // The EKS access entry configuration for the compute environment. Controls
 // whether AWS Batch manages the EKS access entry for the compute environment's
 // service role, or inherits it from the cluster.
-_#defs: "/$defs/Properties/definitions/EksAccessEntry": close({
+#EksAccessEntry: close({
 	// The desired state of the EKS access entry managed by AWS Batch. When omitted,
 	// AWS Batch applies INHERIT_FROM_CLUSTER.
 	DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$"
@@ -98,38 +98,38 @@ _#defs: "/$defs/Properties/definitions/EksAccessEntry": close({
 	Status?: =~"(?i)^(?:active|inactive)$"
 })
 
-_#defs: "/$defs/Properties/definitions/EksConfiguration": close({
-	AccessEntry?:         _#defs."/$defs/Properties/definitions/EksAccessEntry"
+#EksConfiguration: close({
+	AccessEntry?:         #EksAccessEntry
 	EksClusterArn!:       string
 	KubernetesNamespace!: string
 })
 
-_#defs: "/$defs/Properties/definitions/InfrastructureOptimization": close({ScaleInAfter?: int})
+#InfrastructureOptimization: close({ScaleInAfter?: int})
 
-_#defs: "/$defs/Properties/definitions/InstanceLaunchTemplate": close({
+#InstanceLaunchTemplate: close({
 	CapacityOptionType?:              "ON_DEMAND" | "SPOT" | "RESERVED"
-	CapacityReservations?:            _#defs."/$defs/Properties/definitions/CapacityReservations"
+	CapacityReservations?:            #CapacityReservations
 	Ec2InstanceProfileArn!:           string
 	FipsEnabled?:                     bool
 	InstanceMetadataTagsPropagation?: bool
-	InstanceRequirements?:            _#defs."/$defs/Properties/definitions/InstanceRequirements"
-	LocalStorageConfiguration?:       _#defs."/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration"
+	InstanceRequirements?:            #InstanceRequirements
+	LocalStorageConfiguration?:       #ManagedInstancesLocalStorageConfiguration
 	Monitoring?:                      string
-	NetworkConfiguration!:            _#defs."/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration"
-	StorageConfiguration?:            _#defs."/$defs/Properties/definitions/ManagedInstancesStorageConfiguration"
+	NetworkConfiguration!:            #ManagedInstancesNetworkConfiguration
+	StorageConfiguration?:            #ManagedInstancesStorageConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({AllowedInstanceTypes?: [...string]})
+#InstanceRequirements: close({AllowedInstanceTypes?: [...string]})
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
+#LaunchTemplateSpecification: close({
 	LaunchTemplateId?:   string
 	LaunchTemplateName?: string
-	Overrides?:          [..._#defs."/$defs/Properties/definitions/LaunchTemplateSpecificationOverride"]
+	Overrides?:          [...#LaunchTemplateSpecificationOverride]
 	UserdataType?:       =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$"
 	Version?:            string
 })
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecificationOverride": close({
+#LaunchTemplateSpecificationOverride: close({
 	LaunchTemplateId?:    string
 	LaunchTemplateName?:  string
 	TargetInstanceTypes?: [...string]
@@ -137,23 +137,23 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecificationOverride": clo
 	Version?:             string
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration": close({UseLocalStorage?: bool})
+#ManagedInstancesLocalStorageConfiguration: close({UseLocalStorage?: bool})
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration": close({
+#ManagedInstancesNetworkConfiguration: close({
 	SecurityGroups!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets!:        [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesProvider": close({
-	InfrastructureOptimization?: _#defs."/$defs/Properties/definitions/InfrastructureOptimization"
+#ManagedInstancesProvider: close({
+	InfrastructureOptimization?: #InfrastructureOptimization
 	InfrastructureRoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	InstanceLaunchTemplate!:     _#defs."/$defs/Properties/definitions/InstanceLaunchTemplate"
+	InstanceLaunchTemplate!:     #InstanceLaunchTemplate
 	PropagateTags?:              "CAPACITY_PROVIDER" | "NONE"
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesStorageConfiguration": close({StorageSizeGiB?: int})
+#ManagedInstancesStorageConfiguration: close({StorageSizeGiB?: int})
 
-_#defs: "/$defs/Properties/definitions/UpdatePolicy": close({
+#UpdatePolicy: close({
 	JobExecutionTimeoutMinutes?: int
 	TerminateJobsOnUpdate?:      bool
 })

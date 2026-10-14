@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,26 +17,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a gateway task definition.
-#Properties: close({
-	AutoCreateTasks!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LoRaWANUpdateGatewayTaskEntry?: _#defs."/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskEntry" |
-		fn.#ObjectExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	TaskDefinitionType?: "UPDATE" | fn.#StringExpression
-	Update?:             _#defs."/$defs/Properties/definitions/UpdateWirelessGatewayTaskCreate" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::TaskDefinition"
+	Properties!: close({
+		AutoCreateTasks!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/LoRaWANGatewayVersion": close({
+		// The list of task definitions.
+		LoRaWANUpdateGatewayTaskEntry?: #LoRaWANUpdateGatewayTaskEntry
+		Name?:                          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TaskDefinitionType?:            "UPDATE" | fn.#StringExpression
+
+		// Information about the gateways to update.
+		Update?: #UpdateWirelessGatewayTaskCreate
+	})
+}
+
+#LoRaWANGatewayVersion: close({
 	Model?:          strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	PackageVersion?: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 	Station?:        strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskCreate": close({
-	CurrentVersion?: _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
+#LoRaWANUpdateGatewayTaskCreate: close({
+	CurrentVersion?: #LoRaWANGatewayVersion
 	SigKeyCrc?: int & <=4294967295 & >=1 |
 		{
 			string &
@@ -54,31 +59,27 @@ _#defs: "/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskCreate": close({
 		} |
 		fn.#NumberExpression
 	UpdateSignature?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	UpdateVersion?:   _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
+	UpdateVersion?:   #LoRaWANGatewayVersion
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskEntry": close({
-	CurrentVersion?: _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
-	UpdateVersion?:  _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
+#LoRaWANUpdateGatewayTaskEntry: close({
+	CurrentVersion?: #LoRaWANGatewayVersion
+	UpdateVersion?:  #LoRaWANGatewayVersion
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateWirelessGatewayTaskCreate": close({
-	LoRaWAN?:          _#defs."/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskCreate"
+#UpdateWirelessGatewayTaskCreate: close({
+	LoRaWAN?:          #LoRaWANUpdateGatewayTaskCreate
 	UpdateDataRole?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	UpdateDataSource?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/_PropertyRefcde43015987bd6b3": "UPDATE" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::TaskDefinition"
-	Properties!: #Properties
-}

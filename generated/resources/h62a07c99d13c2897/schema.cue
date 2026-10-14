@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,25 +12,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PCAConnectorAD::TemplateGroupAccessControlEntry Resource Type
-#Properties: close({
-	AccessRights!:     _#defs."/$defs/Properties/definitions/AccessRights"
-	GroupDisplayName!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\x20-\\x7E]+$" | fn.#StringExpression
-	GroupSecurityIdentifier!: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^S-[0-9]-([0-9]+-){1,14}[0-9]+$" |
-	fn.#StringExpression
-	TemplateArn!: strings.MaxRunes(200) &
-	strings.MinRunes(5) &
-	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector(\\/[\\w-]+)\\/template(\\/[\\w-]+)$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCAConnectorAD::TemplateGroupAccessControlEntry"
+	Properties!: close({
+		AccessRights!:     #AccessRights
+		GroupDisplayName!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\x20-\\x7E]+$" | fn.#StringExpression
+		GroupSecurityIdentifier!: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^S-[0-9]-([0-9]+-){1,14}[0-9]+$" |
+		fn.#StringExpression
+		TemplateArn!: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector(\\/[\\w-]+)\\/template(\\/[\\w-]+)$" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccessRight": "ALLOW" | "DENY" | fn.#StringExpression
+#AccessRight: "ALLOW" | "DENY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccessRights": close({
-	AutoEnroll?: _#defs."/$defs/Properties/definitions/AccessRight"
-	Enroll?:     _#defs."/$defs/Properties/definitions/AccessRight"
+#AccessRights: close({
+	AutoEnroll?: #AccessRight
+	Enroll?:     #AccessRight
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCAConnectorAD::TemplateGroupAccessControlEntry"
-	Properties!: #Properties
-}

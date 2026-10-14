@@ -18,8 +18,8 @@ import (
 #Properties: close({
 	// One or more actions to update finding fields if a finding matches the
 	// conditions specified in ``Criteria``.
-	Actions!:   list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AutomationRulesAction"]
-	CreatedAt?: _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	Actions!:   list.MaxItems(1) & list.MinItems(1) & [...#AutomationRulesAction]
+	CreatedAt?: #ISO8601DateString
 	CreatedBy?: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// A set of [Security Finding Format
@@ -27,7 +27,7 @@ import (
 	// finding field attributes and corresponding expected values that ASH uses to
 	// filter findings. If a rule is enabled and a finding matches the criteria
 	// specified in this parameter, ASH applies the rule action to the finding.
-	Criteria!: _#defs."/$defs/Properties/definitions/AutomationRulesFindingFilters"
+	Criteria!: #AutomationRulesFindingFilters
 
 	// A description of the rule.
 	Description!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S"
@@ -55,14 +55,14 @@ import (
 	RuleStatus?: "ENABLED" | "DISABLED"
 
 	// User-defined tags associated with an automation rule.
-	Tags?:      _#defs."/$defs/Properties/definitions/Tags"
-	UpdatedAt?: _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	Tags?:      #Tags
+	UpdatedAt?: #ISO8601DateString
 })
 
 // One or more actions that ASHlong takes when a finding matches the defined criteria of a rule.
-_#defs: "/$defs/Properties/definitions/AutomationRulesAction": {
+#AutomationRulesAction: {
 	// Specifies that the automation rule action is an update to a finding field.
-	FindingFieldsUpdate!: _#defs."/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdate"
+	FindingFieldsUpdate!: #AutomationRulesFindingFieldsUpdate
 
 	// Specifies the type of action that Security Hub CSPM takes when a finding
 	// matches the defined criteria of a rule.
@@ -72,46 +72,46 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesAction": {
 
 // Identifies the finding fields that the automation rule action updates when a
 // finding matches the defined criteria.
-_#defs: "/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdate": {
+#AutomationRulesFindingFieldsUpdate: {
 	// The rule action updates the ``Confidence`` field of a finding.
-	Confidence?: _#defs."/$defs/Properties/definitions/int100"
+	Confidence?: #int100
 
 	// The rule action updates the ``Criticality`` field of a finding.
-	Criticality?: _#defs."/$defs/Properties/definitions/int100"
+	Criticality?: #int100
 
 	// The rule action will update the ``Note`` field of a finding.
-	Note?: _#defs."/$defs/Properties/definitions/NoteUpdate"
+	Note?: #NoteUpdate
 
 	// The rule action will update the ``RelatedFindings`` field of a finding.
-	RelatedFindings?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RelatedFinding"]
+	RelatedFindings?: list.MaxItems(10) & list.MinItems(1) & [...#RelatedFinding]
 
 	// The rule action will update the ``Severity`` field of a finding.
-	Severity?: _#defs."/$defs/Properties/definitions/SeverityUpdate"
+	Severity?: #SeverityUpdate
 
 	// The rule action updates the ``Types`` field of a finding.
 	Types?: list.MaxItems(50) & list.UniqueItems() & [...=~"^([^/]+)(/[^/]+){0,2}$"]
 
 	// The rule action updates the ``UserDefinedFields`` field of a finding.
-	UserDefinedFields?: _#defs."/$defs/Properties/definitions/map"
+	UserDefinedFields?: #map
 
 	// The rule action updates the ``VerificationState`` field of a finding.
 	VerificationState?: "UNKNOWN" | "TRUE_POSITIVE" | "FALSE_POSITIVE" | "BENIGN_POSITIVE"
 
 	// The rule action will update the ``Workflow`` field of a finding.
-	Workflow?: _#defs."/$defs/Properties/definitions/WorkflowUpdate"
+	Workflow?: #WorkflowUpdate
 	...
 }
 
 // The criteria that determine which findings a rule applies to.
-_#defs: "/$defs/Properties/definitions/AutomationRulesFindingFilters": close({
+#AutomationRulesFindingFilters: close({
 	// The AWS-account ID in which a finding was generated.
 	// Array Members: Minimum number of 1 item. Maximum number of 100 items.
-	AwsAccountId?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	AwsAccountId?: list.MaxItems(100) & [...#StringFilter]
 
 	// The name of the company for the product that generated the finding. For
 	// control-based findings, the company is AWS.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	CompanyName?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	CompanyName?: list.MaxItems(20) & [...#StringFilter]
 
 	// The unique identifier of a standard in which a control is enabled. This field
 	// consists of the resource portion of the Amazon Resource Name (ARN) returned
@@ -119,16 +119,16 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFilters": close({
 	// [DescribeStandards](https://docs.aws.amazon.com/securityhub/1.0/APIReference/API_DescribeStandards.html)
 	// API response.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	ComplianceAssociatedStandardsId?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ComplianceAssociatedStandardsId?: list.MaxItems(20) & [...#StringFilter]
 
 	// The security control ID for which a finding was generated. Security control
 	// IDs are the same across standards.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	ComplianceSecurityControlId?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ComplianceSecurityControlId?: list.MaxItems(20) & [...#StringFilter]
 
 	// The result of a security check. This field is only used for findings generated from controls.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	ComplianceStatus?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ComplianceStatus?: list.MaxItems(20) & [...#StringFilter]
 
 	// The likelihood that a finding accurately identifies the behavior or issue
 	// that it was intended to identify. ``Confidence`` is scored on a 0–100 basis
@@ -140,14 +140,14 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFilters": close({
 	// [Confidence](https://docs.aws.amazon.com/securityhub/latest/userguide/asff-top-level-attributes.html#asff-confidence)
 	// in the *User Guide*.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	Confidence?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/NumberFilter"]
+	Confidence?: list.MaxItems(20) & [...#NumberFilter]
 
 	// A timestamp that indicates when this finding record was created.
 	// For more information about the validation and formatting of timestamp fields
 	// in ASHlong, see
 	// [Timestamps](https://docs.aws.amazon.com/securityhub/1.0/APIReference/Welcome.html#timestamps).
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	CreatedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	CreatedAt?: list.MaxItems(20) & [...#DateFilter]
 
 	// The level of importance that is assigned to the resources that are associated
 	// with a finding. ``Criticality`` is scored on a 0–100 basis, using a ratio
@@ -157,11 +157,11 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFilters": close({
 	// [Criticality](https://docs.aws.amazon.com/securityhub/latest/userguide/asff-top-level-attributes.html#asff-criticality)
 	// in the *User Guide*.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	Criticality?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/NumberFilter"]
+	Criticality?: list.MaxItems(20) & [...#NumberFilter]
 
 	// A finding's description.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	Description?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	Description?: list.MaxItems(20) & [...#StringFilter]
 
 	// A timestamp that indicates when the potential security issue captured by a
 	// finding was first observed by the security findings product.
@@ -169,15 +169,15 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFilters": close({
 	// in ASHlong, see
 	// [Timestamps](https://docs.aws.amazon.com/securityhub/1.0/APIReference/Welcome.html#timestamps).
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	FirstObservedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	FirstObservedAt?: list.MaxItems(20) & [...#DateFilter]
 
 	// The identifier for the solution-specific component that generated a finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 100 items.
-	GeneratorId?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	GeneratorId?: list.MaxItems(100) & [...#StringFilter]
 
 	// The product-specific identifier for a finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	Id?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	Id?: list.MaxItems(20) & [...#StringFilter]
 
 	// A timestamp that indicates when the security findings provider most recently
 	// observed a change in the resource that is involved in the finding.
@@ -185,48 +185,48 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFilters": close({
 	// in ASHlong, see
 	// [Timestamps](https://docs.aws.amazon.com/securityhub/1.0/APIReference/Welcome.html#timestamps).
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	LastObservedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	LastObservedAt?: list.MaxItems(20) & [...#DateFilter]
 
 	// The text of a user-defined note that's added to a finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	NoteText?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	NoteText?: list.MaxItems(20) & [...#StringFilter]
 
 	// The timestamp of when the note was updated.
 	// For more information about the validation and formatting of timestamp fields
 	// in ASHlong, see
 	// [Timestamps](https://docs.aws.amazon.com/securityhub/1.0/APIReference/Welcome.html#timestamps).
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	NoteUpdatedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	NoteUpdatedAt?: list.MaxItems(20) & [...#DateFilter]
 
 	// The principal that created a note.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	NoteUpdatedBy?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	NoteUpdatedBy?: list.MaxItems(20) & [...#StringFilter]
 
 	// The Amazon Resource Name (ARN) for a third-party product that generated a
 	// finding in Security Hub CSPM.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	ProductArn?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ProductArn?: list.MaxItems(20) & [...#StringFilter]
 
 	// Provides the name of the product that generated the finding. For
 	// control-based findings, the product name is Security Hub CSPM.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	ProductName?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ProductName?: list.MaxItems(20) & [...#StringFilter]
 
 	// Provides the current state of a finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	RecordState?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	RecordState?: list.MaxItems(20) & [...#StringFilter]
 
 	// The product-generated identifier for a related finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	RelatedFindingsId?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	RelatedFindingsId?: list.MaxItems(20) & [...#StringFilter]
 
 	// The ARN for the product that generated a related finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	RelatedFindingsProductArn?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	RelatedFindingsProductArn?: list.MaxItems(20) & [...#StringFilter]
 
 	// Custom fields and values about the resource that a finding pertains to.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	ResourceDetailsOther?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/MapFilter"]
+	ResourceDetailsOther?: list.MaxItems(20) & [...#MapFilter]
 
 	// The identifier for the given resource type. For AWS resources that are
 	// identified by Amazon Resource Names (ARNs), this is the ARN. For AWS
@@ -234,37 +234,37 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFilters": close({
 	// AWS-service that created the resource. For non-AWS resources, this is a
 	// unique identifier that is associated with the resource.
 	// Array Members: Minimum number of 1 item. Maximum number of 100 items.
-	ResourceId?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ResourceId?: list.MaxItems(100) & [...#StringFilter]
 
 	// The partition in which the resource that the finding pertains to is located.
 	// A partition is a group of AWS-Regions. Each AWS-account is scoped to one
 	// partition.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	ResourcePartition?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ResourcePartition?: list.MaxItems(20) & [...#StringFilter]
 
 	// The AWS-Region where the resource that a finding pertains to is located.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	ResourceRegion?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ResourceRegion?: list.MaxItems(20) & [...#StringFilter]
 
 	// A list of AWS tags associated with a resource at the time the finding was processed.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	ResourceTags?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/MapFilter"]
+	ResourceTags?: list.MaxItems(20) & [...#MapFilter]
 
 	// A finding's title.
 	// Array Members: Minimum number of 1 item. Maximum number of 100 items.
-	ResourceType?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ResourceType?: list.MaxItems(20) & [...#StringFilter]
 
 	// The severity value of the finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	SeverityLabel?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	SeverityLabel?: list.MaxItems(20) & [...#StringFilter]
 
 	// Provides a URL that links to a page about the current finding in the finding product.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	SourceUrl?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	SourceUrl?: list.MaxItems(20) & [...#StringFilter]
 
 	// A finding's title.
 	// Array Members: Minimum number of 1 item. Maximum number of 100 items.
-	Title?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	Title?: list.MaxItems(100) & [...#StringFilter]
 
 	// One or more finding types in the format of namespace/category/classifier that
 	// classify a finding. For a list of namespaces, classifiers, and categories,
@@ -272,35 +272,35 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFilters": close({
 	// ASFF](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings-format-type-taxonomy.html)
 	// in the *User Guide*.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	Type?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	Type?: list.MaxItems(20) & [...#StringFilter]
 
 	// A timestamp that indicates when the finding record was most recently updated.
 	// For more information about the validation and formatting of timestamp fields
 	// in ASHlong, see
 	// [Timestamps](https://docs.aws.amazon.com/securityhub/1.0/APIReference/Welcome.html#timestamps).
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	UpdatedAt?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	UpdatedAt?: list.MaxItems(20) & [...#DateFilter]
 
 	// A list of user-defined name and value string pairs added to a finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	UserDefinedFields?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/MapFilter"]
+	UserDefinedFields?: list.MaxItems(20) & [...#MapFilter]
 
 	// Provides the veracity of a finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	VerificationState?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	VerificationState?: list.MaxItems(20) & [...#StringFilter]
 
 	// Provides information about the status of the investigation into a finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	WorkflowStatus?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	WorkflowStatus?: list.MaxItems(20) & [...#StringFilter]
 })
 
-_#defs: "/$defs/Properties/definitions/BooleanFilter": close({
+#BooleanFilter: close({
 	// The value of the boolean.
 	Value!: bool
 })
 
 // A date filter for querying findings.
-_#defs: "/$defs/Properties/definitions/DateFilter": matchN(1, [
+#DateFilter: matchN(1, [
 	{
 		DateRange!: _
 		...
@@ -314,23 +314,23 @@ _#defs: "/$defs/Properties/definitions/DateFilter": matchN(1, [
 	}
 ]) & close({
 	// A date range for the date filter.
-	DateRange?: _#defs."/$defs/Properties/definitions/DateRange"
+	DateRange?: #DateRange
 
 	// A timestamp that provides the end date for the date filter.
 	// For more information about the validation and formatting of timestamp fields
 	// in ASHlong, see
 	// [Timestamps](https://docs.aws.amazon.com/securityhub/1.0/APIReference/Welcome.html#timestamps).
-	End?: _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	End?: #ISO8601DateString
 
 	// A timestamp that provides the start date for the date filter.
 	// For more information about the validation and formatting of timestamp fields
 	// in ASHlong, see
 	// [Timestamps](https://docs.aws.amazon.com/securityhub/1.0/APIReference/Welcome.html#timestamps).
-	Start?: _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	Start?: #ISO8601DateString
 })
 
 // A date range for the date filter.
-_#defs: "/$defs/Properties/definitions/DateRange": close({
+#DateRange: close({
 	// A date range unit for the date filter.
 	Unit!: "DAYS"
 
@@ -339,11 +339,11 @@ _#defs: "/$defs/Properties/definitions/DateRange": close({
 })
 
 // The date and time, in UTC and ISO 8601 format.
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
+#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
 
 // A map filter for filtering ASHlong findings. Each map filter provides the
 // field to check for, the value to check for, and the comparison operator.
-_#defs: "/$defs/Properties/definitions/MapFilter": close({
+#MapFilter: close({
 	// The condition to apply to the key value when filtering Security Hub CSPM
 	// findings with a map filter.
 	// To search for values that have the filter value, use one of the following comparison operators:
@@ -403,19 +403,19 @@ _#defs: "/$defs/Properties/definitions/MapFilter": close({
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/NonEmptyString": strings.MinRunes(1)
+#NonEmptyString: strings.MinRunes(1)
 
 // The updated note.
-_#defs: "/$defs/Properties/definitions/NoteUpdate": close({
+#NoteUpdate: close({
 	// The updated note text.
 	Text!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\S"
 
 	// The principal that updated the note.
-	UpdatedBy!: _#defs."/$defs/Properties/definitions/arnOrId"
+	UpdatedBy!: #arnOrId
 })
 
 // A number filter for querying findings.
-_#defs: "/$defs/Properties/definitions/NumberFilter": matchN(1, [{
+#NumberFilter: matchN(1, [{
 	Eq!: _
 	...
 }, matchN(>=1, [{
@@ -436,17 +436,17 @@ _#defs: "/$defs/Properties/definitions/NumberFilter": matchN(1, [{
 })
 
 // Provides details about a list of findings that the current finding relates to.
-_#defs: "/$defs/Properties/definitions/RelatedFinding": close({
+#RelatedFinding: close({
 	// The product-generated identifier for a related finding.
 	// Array Members: Minimum number of 1 item. Maximum number of 20 items.
-	Id!: _#defs."/$defs/Properties/definitions/arnOrId"
+	Id!: #arnOrId
 
 	// The Amazon Resource Name (ARN) for the product that generated a related finding.
-	ProductArn!: _#defs."/$defs/Properties/definitions/arn"
+	ProductArn!: #arn
 })
 
 // Updates to the severity information for a finding.
-_#defs: "/$defs/Properties/definitions/SeverityUpdate": close({
+#SeverityUpdate: close({
 	// The severity value of the finding. The allowed values are the following.
 	// + ``INFORMATIONAL`` - No issue was found.
 	// + ``LOW`` - The issue does not require action on its own.
@@ -464,7 +464,7 @@ _#defs: "/$defs/Properties/definitions/SeverityUpdate": close({
 	// + 40–69 - ``MEDIUM``
 	// + 70–89 - ``HIGH``
 	// + 90–100 - ``CRITICAL``
-	Normalized?: _#defs."/$defs/Properties/definitions/int100"
+	Normalized?: #int100
 
 	// The native severity as defined by the AWS service or integrated partner
 	// product that generated the finding.
@@ -472,7 +472,7 @@ _#defs: "/$defs/Properties/definitions/SeverityUpdate": close({
 })
 
 // A string filter for filtering ASHlong findings.
-_#defs: "/$defs/Properties/definitions/StringFilter": close({
+#StringFilter: close({
 	// The condition to apply to a string value when filtering Security Hub CSPM findings.
 	// To search for values that have the filter value, use one of the following comparison operators:
 	// + To search for values that include the filter value, use ``CONTAINS``. For
@@ -537,7 +537,7 @@ _#defs: "/$defs/Properties/definitions/StringFilter": close({
 	// ``GetResourcesStatisticsV2`` APIs. For more information, see [Automation
 	// rules](https://docs.aws.amazon.com/securityhub/latest/userguide/automation-rules.html)
 	// in the *User Guide*.
-	Comparison!: _#defs."/$defs/Properties/definitions/StringFilterComparison"
+	Comparison!: #StringFilterComparison
 
 	// The string filter value. Filter values are case sensitive. For example, the
 	// product name for control-based findings is ``Security Hub CSPM``. If you
@@ -546,20 +546,15 @@ _#defs: "/$defs/Properties/definitions/StringFilter": close({
 })
 
 // The condition to apply to a string value when filtering Security Hub findings.
-_#defs: "/$defs/Properties/definitions/StringFilterComparison": "EQUALS" |
-	"PREFIX" |
-	"NOT_EQUALS" |
-	"PREFIX_NOT_EQUALS" |
-	"CONTAINS" |
-	"NOT_CONTAINS"
+#StringFilterComparison: "EQUALS" | "PREFIX" | "NOT_EQUALS" | "PREFIX_NOT_EQUALS" | "CONTAINS" | "NOT_CONTAINS"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^[a-zA-Z0-9]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
 // Used to update information about the investigation into the finding.
-_#defs: "/$defs/Properties/definitions/WorkflowUpdate": close({
+#WorkflowUpdate: close({
 	// The status of the investigation into the finding. The workflow status is
 	// specific to an individual finding. It does not affect the generation of new
 	// findings. For example, setting the workflow status to ``SUPPRESSED`` or
@@ -582,22 +577,20 @@ _#defs: "/$defs/Properties/definitions/WorkflowUpdate": close({
 })
 
 // The Amazon Resource Name (ARN) of the automation rule.
-_#defs: "/$defs/Properties/definitions/arn": strings.MaxRunes(2048) &
+#arn: strings.MaxRunes(2048) &
 strings.MinRunes(12) &
 =~"^arn:(aws|aws-cn|aws-us-gov|aws-iso-?[a-z]{0,2}):[A-Za-z0-9]{1,63}:[a-z]+-([a-z]{1,10}-)?[a-z]+-[0-9]+:([0-9]{12})?:.+$"
 
 // The Amazon Resource Name (ARN) or Id of the automation rule.
-_#defs: "/$defs/Properties/definitions/arnOrId": (strings.MaxRunes(512) & strings.MinRunes(1) |
-_#defs."/$defs/Properties/definitions/arn") &
-=~"\\S"
+#arnOrId: (strings.MaxRunes(512) & strings.MinRunes(1) | #arn) & =~"\\S"
 
 // Integer from 0 to 100.
-_#defs: "/$defs/Properties/definitions/int100": int & <=100 & >=0
+#int100: int & <=100 & >=0
 
 // An object of user-defined name and value string pair added to a finding.
-_#defs: "/$defs/Properties/definitions/map": struct.MaxFields(50) & struct.MinFields(1) & close({
+#map: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: strings.MaxRunes(1024) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/timestamp": time.Time &
+#timestamp: time.Time &
 	=~"(\\d\\d\\d\\d)-[0-1](\\d)-[0-3](\\d)[Tt](?:[0-2](\\d):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?(?:[Zz]|[+-](\\d\\d)(?::?(\\d\\d))?)$"

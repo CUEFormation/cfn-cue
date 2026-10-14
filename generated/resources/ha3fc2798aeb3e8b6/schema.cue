@@ -16,49 +16,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS Ground Station DataflowEndpointGroupV2
-#Properties: close({
-	ContactPostPassDurationSeconds?: int & <=480 & >=30 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=480 &
-							>=30,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ContactPrePassDurationSeconds?: int & <=480 & >=30 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=480 &
-							>=30,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Endpoints?: list.MaxItems(12) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CreateEndpointDetails"] |
-		fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GroundStation::DataflowEndpointGroupV2"
+	Properties?: close({
+		ContactPostPassDurationSeconds?: int & <=480 & >=30 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=480 &
+								>=30,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ContactPrePassDurationSeconds?: int & <=480 & >=30 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=480 &
+								>=30,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Endpoints?: list.MaxItems(12) & list.MinItems(1) & [...#CreateEndpointDetails] | fn.#ListExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AgentStatus": "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE" | fn.#StringExpression
+#AgentStatus: "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AuditResults": "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
+#AuditResults: "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionDetails": close({
+#ConnectionDetails: close({
 	Mtu?: int & <=1500 & >=1400 |
 		{
 			string &
@@ -75,63 +81,59 @@ _#defs: "/$defs/Properties/definitions/ConnectionDetails": close({
 				)
 		} |
 		fn.#NumberExpression
-	SocketAddress!: _#defs."/$defs/Properties/definitions/SocketAddress"
+	SocketAddress!: #SocketAddress
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreateEndpointDetails": matchN(1, [{
-	UplinkAwsGroundStationAgentEndpoint!: _
-	...
-}, {
-	DownlinkAwsGroundStationAgentEndpoint!: _
-	...
-}]) & close({
-	DownlinkAwsGroundStationAgentEndpoint?: _#defs."/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpoint"
-	UplinkAwsGroundStationAgentEndpoint?:   _#defs."/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpoint"
-}) |
+#CreateEndpointDetails: close({
+	DownlinkAwsGroundStationAgentEndpoint?: #DownlinkAwsGroundStationAgentEndpoint
+	UplinkAwsGroundStationAgentEndpoint?:   #UplinkAwsGroundStationAgentEndpoint
+	if UplinkAwsGroundStationAgentEndpoint != _|_ if UplinkAwsGroundStationAgentEndpoint."Fn::If" == _|_ {
+		DownlinkAwsGroundStationAgentEndpoint?: close({"Fn::If": _}) | error(
+			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
+		)
+	}
+}) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpoint": close({
-	DataflowDetails!: _#defs."/$defs/Properties/definitions/DownlinkDataflowDetails"
+#DownlinkAwsGroundStationAgentEndpoint: close({
+	DataflowDetails!: #DownlinkDataflowDetails
 	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpointDetails": close({
-	AgentStatus?:     _#defs."/$defs/Properties/definitions/AgentStatus"
-	AuditResults?:    _#defs."/$defs/Properties/definitions/AuditResults"
-	DataflowDetails!: _#defs."/$defs/Properties/definitions/DownlinkDataflowDetails"
+#DownlinkAwsGroundStationAgentEndpointDetails: close({
+	AgentStatus?:     #AgentStatus
+	AuditResults?:    #AuditResults
+	DataflowDetails!: #DownlinkDataflowDetails
 	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DownlinkConnectionDetails": close({
-	AgentIpAndPortAddress!: _#defs."/$defs/Properties/definitions/RangedConnectionDetails"
-	EgressAddressAndPort!:  _#defs."/$defs/Properties/definitions/ConnectionDetails"
+#DownlinkConnectionDetails: close({
+	AgentIpAndPortAddress!: #RangedConnectionDetails
+	EgressAddressAndPort!:  #ConnectionDetails
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DownlinkDataflowDetails": {
-	AgentConnectionDetails!: _
-	...
-} & close({AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/DownlinkConnectionDetails"}) |
+#DownlinkDataflowDetails: close({AgentConnectionDetails?: #DownlinkConnectionDetails}) & matchN(
+	>=1,
+	[{AgentConnectionDetails!: _}],
+) |
+	fn.#ObjectExpression
+
+#EndpointDetails: close({
+	DownlinkAwsGroundStationAgentEndpoint?: #DownlinkAwsGroundStationAgentEndpointDetails
+	UplinkAwsGroundStationAgentEndpoint?:   #UplinkAwsGroundStationAgentEndpointDetails
+	if UplinkAwsGroundStationAgentEndpoint != _|_ if UplinkAwsGroundStationAgentEndpoint."Fn::If" == _|_ {
+		DownlinkAwsGroundStationAgentEndpoint?: close({"Fn::If": _}) | error(
+			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
+		)
+	}
+}) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": matchN(1, [{
-	UplinkAwsGroundStationAgentEndpoint!: _
-	...
-}, {
-	DownlinkAwsGroundStationAgentEndpoint!: _
-	...
-}]) & close({
-	DownlinkAwsGroundStationAgentEndpoint?:
-		_#defs."/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpointDetails"
-	UplinkAwsGroundStationAgentEndpoint?:
-		_#defs."/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpointDetails"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/IntegerRange": close({
+#IntegerRange: close({
 	Maximum!: int |
 		{
 			string &
@@ -163,7 +165,7 @@ _#defs: "/$defs/Properties/definitions/IntegerRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RangedConnectionDetails": close({
+#RangedConnectionDetails: close({
 	Mtu?: int & <=1500 & >=1400 |
 		{
 			string &
@@ -180,17 +182,19 @@ _#defs: "/$defs/Properties/definitions/RangedConnectionDetails": close({
 				)
 		} |
 		fn.#NumberExpression
-	SocketAddress!: _#defs."/$defs/Properties/definitions/RangedSocketAddress"
+	SocketAddress!: #RangedSocketAddress
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RangedSocketAddress": close({
-	Name!:      =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" | fn.#StringExpression
-	PortRange!: _#defs."/$defs/Properties/definitions/IntegerRange" | fn.#ObjectExpression
+#RangedSocketAddress: close({
+	Name!: =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" | fn.#StringExpression
+
+	// Port range of a socket address.
+	PortRange!: #IntegerRange
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SocketAddress": close({
+#SocketAddress: close({
 	Name!: string | fn.#StringExpression
 	Port!: int |
 		{
@@ -209,38 +213,34 @@ _#defs: "/$defs/Properties/definitions/SocketAddress": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" | fn.#StringExpression
 	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpoint": close({
-	DataflowDetails!: _#defs."/$defs/Properties/definitions/UplinkDataflowDetails"
+#UplinkAwsGroundStationAgentEndpoint: close({
+	DataflowDetails!: #UplinkDataflowDetails
 	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpointDetails": close({
-	AgentStatus?:     _#defs."/$defs/Properties/definitions/AgentStatus"
-	AuditResults?:    _#defs."/$defs/Properties/definitions/AuditResults"
-	DataflowDetails!: _#defs."/$defs/Properties/definitions/UplinkDataflowDetails"
+#UplinkAwsGroundStationAgentEndpointDetails: close({
+	AgentStatus?:     #AgentStatus
+	AuditResults?:    #AuditResults
+	DataflowDetails!: #UplinkDataflowDetails
 	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UplinkConnectionDetails": close({
-	AgentIpAndPortAddress!: _#defs."/$defs/Properties/definitions/RangedConnectionDetails"
-	IngressAddressAndPort!: _#defs."/$defs/Properties/definitions/ConnectionDetails"
+#UplinkConnectionDetails: close({
+	AgentIpAndPortAddress!: #RangedConnectionDetails
+	IngressAddressAndPort!: #ConnectionDetails
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UplinkDataflowDetails": {
-	AgentConnectionDetails!: _
-	...
-} & close({AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/UplinkConnectionDetails"}) |
-fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GroundStation::DataflowEndpointGroupV2"
-	Properties?: #Properties
-}
+#UplinkDataflowDetails: close({AgentConnectionDetails?: #UplinkConnectionDetails}) & matchN(
+	>=1,
+	[{AgentConnectionDetails!: _}],
+) |
+	fn.#ObjectExpression

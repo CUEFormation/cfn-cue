@@ -47,7 +47,7 @@ import (
 	ProvisioningArtifactNames?: string
 
 	// The configuration of the provisioning artifact (also known as a version).
-	ProvisioningArtifactParameters?: [..._#defs."/$defs/Properties/definitions/ProvisioningArtifactProperties"]
+	ProvisioningArtifactParameters?: [...#ProvisioningArtifactProperties]
 
 	// This property is turned off by default. If turned off, you can update
 	// provisioning artifacts or product attributes (such as description,
@@ -63,7 +63,7 @@ import (
 	// UpdateProduct, DescribeProductAsAdmin, and SearchProductAsAdmin APIs. This
 	// response contains the same fields as the ConnectionParameters request, with
 	// the addition of the LastSync response.
-	SourceConnection?: _#defs."/$defs/Properties/definitions/SourceConnection"
+	SourceConnection?: #SourceConnection
 
 	// The support information about the product.
 	SupportDescription?: strings.MaxRunes(8191) & strings.MinRunes(0)
@@ -75,10 +75,10 @@ import (
 	SupportUrl?: strings.MaxRunes(2083) & strings.MinRunes(0)
 
 	// One or more tags.
-	Tags?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(20) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CodeStarParameters": close({
+#CodeStarParameters: close({
 	// The absolute path where the artifact resides within the repo and branch,
 	// formatted as "folder/file.json".
 	ArtifactPath!: strings.MaxRunes(4096) & strings.MinRunes(1)
@@ -95,12 +95,12 @@ _#defs: "/$defs/Properties/definitions/CodeStarParameters": close({
 	Repository!: strings.MaxRunes(100) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionParameters": close({
+#ConnectionParameters: close({
 	// The connection details based on the connection Type.
-	CodeStar?: _#defs."/$defs/Properties/definitions/CodeStarParameters"
+	CodeStar?: #CodeStarParameters
 })
 
-_#defs: "/$defs/Properties/definitions/ProvisioningArtifactProperties": close({
+#ProvisioningArtifactProperties: close({
 	// The description of the provisioning artifact, including how it differs from
 	// the previous provisioning artifact.
 	Description?: string
@@ -123,15 +123,15 @@ _#defs: "/$defs/Properties/definitions/ProvisioningArtifactProperties": close({
 		"EXTERNAL"
 })
 
-_#defs: "/$defs/Properties/definitions/SourceConnection": close({
+#SourceConnection: close({
 	// The connection details based on the connection Type.
-	ConnectionParameters!: close({CodeStar?: _#defs."/$defs/Properties/definitions/CodeStarParameters"})
+	ConnectionParameters!: close({CodeStar?: #CodeStarParameters})
 
 	// The only supported SourceConnection type is Codestar.
 	Type!: "CODESTAR"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

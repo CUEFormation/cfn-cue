@@ -13,22 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::BridgeSource
-#Properties: close({
-	BridgeArn!:     string | fn.#StringExpression
-	FlowSource?:    _#defs."/$defs/Properties/definitions/BridgeFlowSource"
-	Name!:          string | fn.#StringExpression
-	NetworkSource?: _#defs."/$defs/Properties/definitions/BridgeNetworkSource"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::BridgeSource"
+	Properties!: close({
+		BridgeArn!:     string | fn.#StringExpression
+		FlowSource?:    #BridgeFlowSource
+		Name!:          string | fn.#StringExpression
+		NetworkSource?: #BridgeNetworkSource
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BridgeFlowSource": close({
-	FlowArn!:                    string | fn.#StringExpression
-	FlowVpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment" | fn.#ObjectExpression
+#BridgeFlowSource: close({
+	FlowArn!: string | fn.#StringExpression
+
+	// The name of the VPC interface attachment to use for this source.
+	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
-	MulticastIp!:             string | fn.#StringExpression
-	MulticastSourceSettings?: _#defs."/$defs/Properties/definitions/MulticastSourceSettings" | fn.#ObjectExpression
+#BridgeNetworkSource: close({
+	MulticastIp!: string | fn.#StringExpression
+
+	// The settings related to the multicast source.
+	MulticastSourceSettings?: #MulticastSourceSettings
 	NetworkName!:             string | fn.#StringExpression
 	Port!: int |
 		{
@@ -44,22 +51,14 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
+
+	// The network source protocol.
+	Protocol!: #ProtocolEnum
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MulticastSourceSettings": close(
-	{MulticastSourceIp?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#MulticastSourceSettings: close({MulticastSourceIp?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProtocolEnum": "rtp-fec" | "rtp" | "udp" | fn.#StringExpression
+#ProtocolEnum: "rtp-fec" | "rtp" | "udp" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close(
-	{VpcInterfaceName?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::BridgeSource"
-	Properties!: #Properties
-}
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression

@@ -12,39 +12,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Chatbot::MicrosoftTeamsChannelConfiguration.
-#Properties: close({
-	ConfigurationName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
-	CustomizationResourceArns?: [
-		...=~"^arn:aws:chatbot:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:custom-action/[a-zA-Z0-9_-]{1,64}$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chatbot::MicrosoftTeamsChannelConfiguration"
+	Properties!: close({
+		ConfigurationName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
+		CustomizationResourceArns?: [
+			...=~"^arn:aws:chatbot:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:custom-action/[a-zA-Z0-9_-]{1,64}$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		GuardrailPolicies?: [...string | fn.#StringExpression] | fn.#ListExpression
+		IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	GuardrailPolicies?: [...string | fn.#StringExpression] | fn.#ListExpression
-	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		LoggingLevel?: strings.MaxRunes(5) & strings.MinRunes(4) & =~"^(ERROR|INFO|NONE)$" | fn.#StringExpression
+		SnsTopicArns?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:         [...#Tag] | fn.#ListExpression
+		TeamId!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$" |
 		fn.#StringExpression
-	LoggingLevel?: strings.MaxRunes(5) & strings.MinRunes(4) & =~"^(ERROR|INFO|NONE)$" | fn.#StringExpression
-	SnsTopicArns?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TeamId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$" |
-	fn.#StringExpression
-	TeamsChannelId!: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^([a-zA-Z0-9-_=+/.,])*%3[aA]([a-zA-Z0-9-_=+/.,])*%40([a-zA-Z0-9-_=+/.,])*$" |
-	fn.#StringExpression
-	TeamsChannelName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(.*)$" | fn.#StringExpression
-	TeamsTenantId!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$" |
-	fn.#StringExpression
-	UserRoleRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+		TeamsChannelId!: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^([a-zA-Z0-9-_=+/.,])*%3[aA]([a-zA-Z0-9-_=+/.,])*%40([a-zA-Z0-9-_=+/.,])*$" |
+		fn.#StringExpression
+		TeamsChannelName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(.*)$" | fn.#StringExpression
+		TeamsTenantId!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$" |
+		fn.#StringExpression
+		UserRoleRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chatbot::MicrosoftTeamsChannelConfiguration"
-	Properties!: #Properties
-}

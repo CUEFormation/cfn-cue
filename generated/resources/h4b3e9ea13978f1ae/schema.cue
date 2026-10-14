@@ -12,11 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::KnowledgeBasePolicy Resource Type
-#Properties: close({
-	KnowledgeBaseId!: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
-	PolicyDocument!:  fn.#Object & {...} | fn.#ObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::KnowledgeBasePolicy"
-	Properties!: #Properties
+	Type!: "AWS::Bedrock::KnowledgeBasePolicy"
+	Properties!: close({
+		KnowledgeBaseId!: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
+		PolicyDocument!:  fn.#Object & {...} | fn.#ObjectExpression
+	})
 }

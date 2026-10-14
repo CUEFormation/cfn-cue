@@ -34,7 +34,7 @@ go run ./cmd/cfn-cue -source snapshots/schemas-2026-10-12.zip \
   -out sam -include-sam
 ```
 
-`-source` accepts a local ZIP, a directory containing `providers/` and `resources/`, or an HTTPS ZIP URL. `-module` sets the generated CUE module path. `-strict` refuses to publish output if conversion diagnostics identify omitted or approximated upstream constraints. Strict mode covers schema conversion; semantic CloudFormation checks remain separate.
+`-source` accepts a local ZIP, a directory containing `providers/` and `resources/`, or an HTTPS ZIP URL. `-module` sets the generated CUE module path. `-strict` refuses to publish output if conversion diagnostics identify omitted or approximated upstream constraints. Strict mode covers schema conversion; semantic CloudFormation checks remain separate. `-iam-policies=false` keeps provider schemas for IAM policy properties (see [IAM policies](#iam-policies)).
 
 Output is generated in a staging directory. A failed run leaves the previous output intact. Only directories containing this generator's manifest marker may be replaced. Treat the entire generated directory as disposable; put authored templates elsewhere.
 
@@ -69,14 +69,19 @@ generated/
   cue.mod/module.cue
   fn/functions.cue                 Intrinsic function definitions
   template/template.cue            Shared template sections and resource envelope
-  literal/h<hash>/schema.cue        #Properties for literal resource data
-  resources/h<hash>/schema.cue      #Properties with intrinsics, plus #Resource
+  iam/iam.cue                      IAM policy grammar and per-placement profiles
+  literal/h<hash>/schema.cue        #Properties and definitions for literal resource data
+  resources/h<hash>/schema.cue      #Resource with inline properties, and definitions with intrinsics
   regions/<region>/region.cue      #Template, #Resources, #Resource, #ResourceTypes
   regions/<region>/types/region.cue #Template, #Resources, #Resource, #ResourceType
   manifest.json                   Source checksum, availability, conversion report
 ```
 
-The two resource representations serve different purposes. `literal/` preserves resource data shapes, including read-only properties. `resources/` describes inputs to a template: it removes read-only properties and permits expressions at value boundaries. Required fields, closed objects, numeric limits, enums, arrays, local references and schema applicators are handled by the CUE JSON Schema extractor.
+The two resource representations serve different purposes. `literal/` preserves resource data shapes, including read-only properties. `resources/` describes inputs to a template: it removes read-only properties and permits expressions at value boundaries. Required fields, closed objects, numeric limits, enums, arrays, local references and schema applicators are handled by the CUE JSON Schema extractor. Presence rules between properties are emitted as CUE directly, so errors name the fields. This covers mutually exclusive properties and exactly-one-of or at-least-one-of groups (for example `CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, ...`). Groups that name several properties per alternative, or names that aren't capitalized identifiers, keep the extractor's `matchN` form.
+
+In `resources/`, `#Resource` holds the properties schema inline, so a file reads from the resource envelope to its properties and then the definitions they use. CUE can't select an optional or required field, so to reuse the properties schema on its own write `(s3.#Resource & {Properties: _}).Properties`. `literal/` packages have no envelope and keep `#Properties`.
+
+Each provider definition becomes a package-level definition, such as `#Tag` or `#TargetResource`, so other packages can reference it. Read-only removal applies to property paths, so a shared definition keeps the provider's complete shape. A definition named `Properties` or `Resource`, or one whose name is not an identifier, stays in the extractor's hidden `_#defs` namespace.
 
 Template-input schemas also permit CloudFormation boolean spellings and numeric
 strings, checking parsed numbers against the property's numeric constraints.
@@ -118,12 +123,13 @@ their intrinsic validation. The full regional imports above retain property and
 intrinsic checking. The two packages are isolated so importing the lightweight
 one never imports the full resource registry.
 
-**Scaling limitation:** prior complete us-east-1 evaluation with CUE
-v0.18.0-alpha.3 exceeded a three-minute limit with `GOMEMLIMIT=2GiB` as the soft
-Go memory target. Both versions are retained so this can be measured as CUE and
-the schemas evolve. Use the lightweight package for structure/type-name checks,
-`-resources` for a smaller full module, or individual resource imports for full
-property checks. The full regional representation remains experimental at scale.
+**Scaling:** the full package's `#Template` selects each resource's schema by
+`Type` (`#ResourceTypes[Type]`), so validation costs about 1 ms per resource
+whatever the region's size. Loading the complete us-east-1 package (1,839 types)
+takes about 2.7 s, because every resource package is imported; `-resources`
+modules load faster. The lightweight package checks structure and type names
+without loading property schemas. [BENCHMARKS.md](BENCHMARKS.md) has the
+measurements.
 
 To record paired measurements at several resource counts:
 
@@ -159,7 +165,7 @@ The schema checks call shapes and known result categories. Dynamic functions suc
 
 This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-lint in the validation workflow for reference existence, attribute names and return types, `Sub` variables, function-specific nesting permissions, function placement, transform execution, condition evaluation, cross-resource relationships, and AWS service rules.
 
-Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Policy objects, parameter type names, and SAM Globals have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
+Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Parameter type names and SAM Globals have structural coverage. Listed IAM policy properties use the profiles described below; other policy objects have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
 
 The conversion report in generated/manifest.json lists every remaining approximation. Unsupported Python/ECMAScript regex features are reported; Unicode `\uXXXX` escapes are translated to RE2 notation. Selected-key uniqueness degrades to whole-item uniqueness. Other unsupported constraints are reported rather than silently presented as enforced. AWS provider annotations and defaults are not emitted as deployable values.
 
@@ -172,6 +178,27 @@ that property. Dynamic references still receive existing provider constraints;
 placement and syntax checks remain with cfn-lint. Embedded IAM policy semantics
 remain separate.
 
+## IAM policies
+
+`iam/iam.cue` defines the IAM policy grammar and one profile per policy kind. In `resources/` schemas, the generator replaces the provider type of these properties with a profile:
+
+| Profile | Properties |
+|---|---|
+| `#TrustPolicyValue` | `AWS::IAM::Role.AssumeRolePolicyDocument` |
+| `#IdentityPolicyValue` | inline `Policies[].PolicyDocument` on IAM Role, User and Group; `PolicyDocument` on IAM Policy, ManagedPolicy, RolePolicy, UserPolicy and GroupPolicy; `AWS::SSO::PermissionSet.InlinePolicy` |
+| `#S3BucketPolicyValue` | `AWS::S3::BucketPolicy.PolicyDocument` |
+| `#KMSKeyPolicyValue` | `KeyPolicy` on `AWS::KMS::Key` and `AWS::KMS::ReplicaKey` |
+| `#ServiceControlPolicyValue`, `#ResourceControlPolicyValue` | `AWS::Organizations::Policy.Content` when `Type` is `SERVICE_CONTROL_POLICY` or `RESOURCE_CONTROL_POLICY` |
+
+The profiles check which elements each policy kind allows. Trust policies need a principal and take no `Resource`. Identity policies take no `Principal`. SCP `Allow` statements may only name `Resource: "*"`. Customer-managed RCPs only deny, with `Principal: "*"`. They also check `Version`, the `Action` and ARN shapes, condition operators, and the exactly-one rules for `Action`/`NotAction` and the other element pairs. Every value also accepts an intrinsic, which is not evaluated: an intrinsic `Effect` skips the SCP `Resource` rule, for example. `Statement`, a single statement, `Principal` or `Condition` can be `Fn::If`, and a statement, `Condition` or the whole policy can be removed with `AWS::NoValue`. Condition keys may use OIDC issuer namespaces such as `token.actions.githubusercontent.com:sub`. The profiles don't check whether an action, resource or condition key exists; leave that to IAM Access Analyzer or cfn-lint.
+
+A placement that no longer matches the provider schema is reported as an `iamPolicy` diagnostic. `literal/` schemas keep provider types. Known limits with CUE v0.18.0-alpha.3:
+
+- A policy written as a literal JSON string is checked with `json.Validate`, which skips the exactly-one rules.
+- A failing policy often produces a vague error such as `Statement: field not allowed`. To find the failing field, unify the statement with its statement profile, for example `iam.#TrustStatement & {...}`.
+
+Other templates can import `iam` and unify profiles with their own values, or add organization rules on top.
+
 ## Checks
 
 ```sh
@@ -182,12 +209,22 @@ go vet ./...
 CFN_CUE_INTEGRATION=1 go test ./internal/generate \
   -run TestCurrentResources -timeout 3m
 
+# The smoke corpus against the complete us-east-1 and us-west-2 #Template.
+CFN_CUE_INTEGRATION=1 go test ./internal/validate \
+  -run TestCorpusRegionalTemplates -timeout 3m
+
 # Benchmark the complete us-east-1 aggregate with a bounded run.
 GOMEMLIMIT=2GiB CFN_CUE_INTEGRATION=1 CFN_CUE_FULL_REGION=1 \
   go test ./internal/generate -run TestCurrentResources -timeout 3m
+
+# Per-resource cost against each resource's own schema.
+CFN_CUE_PERF=1 go test ./internal/generate -run TestResourcePerformance -v
+
+# Union versus Type-selection cost at several region sizes (see BENCHMARKS.md).
+scripts/region-bench.sh
 ```
 
-Tests cover recursive provider definitions, nested intrinsics, conditional branches, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects.
+Tests cover recursive provider definitions, nested intrinsics, conditional branches, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects. A second opt-in test checks the 46 smoke corpus templates against the complete us-east-1 and us-west-2 `#Template` and compares the results with `corpus/smoke/expectations.json`.
 
 See [RESEARCH.md](RESEARCH.md) for upstream locations and the next design decisions.
 

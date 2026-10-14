@@ -15,20 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Links for HTTP
 // APIs](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vpc-links.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	Name!: string | fn.#StringExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: close({
-
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::VpcLink"
-	Properties!: #Properties
+	Type!: "AWS::ApiGatewayV2::VpcLink"
+	Properties!: close({
+		Name!: string | fn.#StringExpression
+		SecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SubnetIds!: [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?: close({
+
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
 }

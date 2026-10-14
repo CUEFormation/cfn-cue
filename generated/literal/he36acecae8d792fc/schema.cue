@@ -59,7 +59,7 @@ import (
 		"GLOBAL_ACCELERATOR"
 
 	// One or more tag key-value pairs for the Protection object.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // A tag associated with an AWS resource. Tags are key:value pairs that you can
@@ -70,7 +70,7 @@ import (
 // the tag key to "customer" and the value to the customer name or ID. You can
 // specify one or more tags to add to each AWS resource, up to 50 tags for a
 // resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Part of the key:value pair that defines a tag. You can use a tag key to
 	// describe a category of information, such as "customer." Tag keys are
 	// case-sensitive.

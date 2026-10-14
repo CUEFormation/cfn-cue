@@ -13,25 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Omics::Configuration
-#Properties: close({
-	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" | fn.#StringExpression
-	RunConfigurations!: _#defs."/$defs/Properties/definitions/RunConfigurations" | fn.#ObjectExpression
-	Tags?:              _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Omics::Configuration"
+	Properties!: close({
+		Description?: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RunConfigurations": close(
-	{VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"},
-) |
-	fn.#ObjectExpression
+		// Required run-specific configurations.
+		RunConfigurations!: #RunConfigurations
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+		// Tags for the configuration.
+		Tags?: #TagMap
+	})
+}
+
+#RunConfigurations: close({VpcConfig?: #VpcConfig}) | fn.#ObjectExpression
+
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: list.MaxItems(5) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(128) &
@@ -46,7 +52,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Omics::Configuration"
-	Properties!: #Properties
-}

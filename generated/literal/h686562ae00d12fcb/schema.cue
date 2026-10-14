@@ -13,7 +13,7 @@ import (
 // Creates an AWS Firewall Manager applications list.
 #Properties: close({
 	// An array of applications in the Firewall Manager applications list.
-	AppsList!: [..._#defs."/$defs/Properties/definitions/App"]
+	AppsList!: [...#App]
 
 	// The Amazon Resource Name (ARN) of the applications list.
 	Arn?: strings.MaxRunes(1024) &
@@ -33,11 +33,11 @@ import (
 	ListName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
 	// An array of key-value pairs to apply to the applications list.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag]
 })
 
 // An individual Firewall Manager application.
-_#defs: "/$defs/Properties/definitions/App": close({
+#App: close({
 	// The application's name.
 	AppName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/App": close({
 })
 
 // A tag to associate with the applications list. A tag is a key-value pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

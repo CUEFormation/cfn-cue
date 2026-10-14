@@ -16,29 +16,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Archive
-#Properties: close({
-	ArchiveName?:      strings.MaxRunes(48) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
-	Description?:      strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	EventPattern?:     fn.#Object & {...} | string | fn.#StringObjectExpression
-	KmsKeyIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	RetentionDays?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SourceArn!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Events::Archive"
-	Properties!: #Properties
+	Type!: "AWS::Events::Archive"
+	Properties!: close({
+		ArchiveName?:      strings.MaxRunes(48) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
+		Description?:      strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		EventPattern?:     fn.#Object & {...} | string | fn.#StringObjectExpression
+		KmsKeyIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		RetentionDays?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SourceArn!: string | fn.#StringExpression
+	})
 }

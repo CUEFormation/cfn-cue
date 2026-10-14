@@ -6,7 +6,7 @@ package schema
 
 // This resource schema represents the LogAnomalyDetectionIntegration resource
 // in the Amazon DevOps Guru.
-#Properties: close({AccountId?: _#defs."/$defs/Properties/definitions/AccountId"})
+#Properties: close({AccountId?: #AccountId})
 
 // User account id, used as the primary identifier for the resource
-_#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$"
+#AccountId: =~"^\\d{12}$"

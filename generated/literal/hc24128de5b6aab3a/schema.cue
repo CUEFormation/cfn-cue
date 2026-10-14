@@ -24,7 +24,7 @@ import (
 
 	// A list of document IDs for the documents you want to feature at the top of
 	// the search results page.
-	FeaturedDocuments?: [..._#defs."/$defs/Properties/definitions/FeaturedDocument"]
+	FeaturedDocuments?: [...#FeaturedDocument]
 
 	// The identifier of the set of featured results.
 	FeaturedResultsSetId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z-0-9]*$"
@@ -43,17 +43,17 @@ import (
 	Status?: "ACTIVE" | "INACTIVE"
 
 	// A list of key-value pairs that identify or categorize the featured results set.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // A featured document. This document is displayed at the top of the search results page.
-_#defs: "/$defs/Properties/definitions/FeaturedDocument": close({
+#FeaturedDocument: close({
 	// The identifier of the document to feature in the search results.
 	Id?: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
 // A key-value pair that identifies or categorizes a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -7,19 +7,8 @@ import "list"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::NetworkInterface resource creates network interface
-#Properties: matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6AddressCount!: _
-		Ipv6Addresses!:    _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6Addresses!:    _
-		Ipv6AddressCount!: _
-		...
-	}]) & {...}
-]) & close({
-	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification"
+#Properties: close({
+	ConnectionTrackingSpecification?: #ConnectionTrackingSpecification
 
 	// A description for the network interface.
 	Description?: string
@@ -59,7 +48,7 @@ import "list"
 	// can't specify IPv4 prefixes if you've specified one of the following: a
 	// count of IPv4 prefixes, specific private IPv4 addresses, or a count of
 	// private IPv4 addresses.
-	Ipv4Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv4PrefixSpecification"]
+	Ipv4Prefixes?: [...#Ipv4PrefixSpecification]
 
 	// The number of IPv6 addresses to assign to a network interface. Amazon EC2
 	// automatically selects the IPv6 addresses from the subnet range. To specify
@@ -71,7 +60,7 @@ import "list"
 	// subnet to associate with the network interface. If you're specifying a
 	// number of IPv6 addresses, use the Ipv6AddressCount property and don't
 	// specify this property.
-	Ipv6Addresses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"]
+	Ipv6Addresses?: list.UniqueItems() & [...#InstanceIpv6Address]
 
 	// The number of IPv6 prefixes to assign to a network interface. When you
 	// specify a number of IPv6 prefixes, Amazon EC2 selects these prefixes from
@@ -87,7 +76,7 @@ import "list"
 	// can't specify IPv6 prefixes if you've specified one of the following: a
 	// count of IPv6 prefixes, specific IPv6 addresses, or a count of IPv6
 	// addresses.
-	Ipv6Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv6PrefixSpecification"]
+	Ipv6Prefixes?: [...#Ipv6PrefixSpecification]
 
 	// The primary IPv6 address
 	PrimaryIpv6Address?: string
@@ -105,13 +94,13 @@ import "list"
 	// property to true in the PrivateIpAddressSpecification property. If you want
 	// EC2 to automatically assign private IP addresses, use the
 	// SecondaryPrivateIpAddressCount property and do not specify this property.
-	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification"]
+	PrivateIpAddresses?: [...#PrivateIpAddressSpecification]
 
 	// Public IP DNS hostname type
 	PublicIpDnsHostnameTypeSpecification?: "public-dual-stack-dns-name" |
 		"public-ipv4-dns-name" |
 		"public-ipv6-dns-name"
-	PublicIpDnsNameOptions?: _#defs."/$defs/Properties/definitions/PublicIpDnsNameOptions"
+	PublicIpDnsNameOptions?: #PublicIpDnsNameOptions
 
 	// The number of secondary private IPv4 addresses to assign to a network
 	// interface. When you specify a number of secondary IPv4 addresses, Amazon EC2
@@ -130,25 +119,28 @@ import "list"
 	SubnetId!: string
 
 	// An arbitrary set of tags (key-value pairs) for this network interface.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the VPC
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
+	if Ipv6AddressCount != _|_ if Ipv6AddressCount."Fn::If" == _|_ {
+		Ipv6Addresses?: close({"Fn::If": _}) | error("Ipv6Addresses cannot be used with Ipv6AddressCount")
+	}
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
+#ConnectionTrackingSpecification: close({
 	TcpEstablishedTimeout?: int
 	UdpStreamTimeout?:      int
 	UdpTimeout?:            int
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceIpv6Address": close({Ipv6Address!: string})
+#InstanceIpv6Address: close({Ipv6Address!: string})
 
-_#defs: "/$defs/Properties/definitions/Ipv4PrefixSpecification": close({Ipv4Prefix!: string})
+#Ipv4PrefixSpecification: close({Ipv4Prefix!: string})
 
-_#defs: "/$defs/Properties/definitions/Ipv6PrefixSpecification": close({Ipv6Prefix!: string})
+#Ipv6PrefixSpecification: close({Ipv6Prefix!: string})
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
+#PrivateIpAddressSpecification: close({
 	Primary!:          bool
 	PrivateIpAddress!: string
 })
@@ -156,14 +148,14 @@ _#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
 // Describes the public hostname type options, including public hostname type,
 // IPv4-enabled public hostname, IPv6-enabled public hostname, and dual-stack
 // public hostname.
-_#defs: "/$defs/Properties/definitions/PublicIpDnsNameOptions": close({
+#PublicIpDnsNameOptions: close({
 	DnsHostnameType?:        string
 	PublicDualStackDnsName?: string
 	PublicIpv4DnsName?:      string
 	PublicIpv6DnsName?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

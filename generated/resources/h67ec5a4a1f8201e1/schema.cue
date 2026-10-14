@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,73 +17,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::FirewallRuleGroup.
-#Properties: close({
-	FirewallRules?: list.UniqueItems() & [...close({
-		Action!:               "ALLOW" | "BLOCK" | "ALERT" | fn.#StringExpression
-		BlockOverrideDnsType?: "CNAME" | fn.#StringExpression
-		BlockOverrideDomain?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		BlockOverrideTtl?: int & <=604800 & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=604800 &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		BlockResponse?:        "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
-		ConfidenceThreshold?:  "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
-		DnsThreatProtection?:  "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
-		FirewallDomainListId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" |
-			"TRUST_REDIRECTION_DOMAIN" |
-			fn.#StringExpression
-		FirewallRuleType?: _#defs."/$defs/Properties/definitions/FirewallRuleType" | fn.#ObjectExpression
-		Priority!: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		Qtype?: strings.MaxRunes(16) & strings.MinRunes(1) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Name?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53Resolver::FirewallRuleGroup"
+	Properties?: close({
+		FirewallRules?: list.UniqueItems() & [...close({
+			Action!:               "ALLOW" | "BLOCK" | "ALERT" | fn.#StringExpression
+			BlockOverrideDnsType?: "CNAME" | fn.#StringExpression
+			BlockOverrideDomain?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+			BlockOverrideTtl?: int & <=604800 & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=604800 &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			BlockResponse?:        "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
+			ConfidenceThreshold?:  "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
+			DnsThreatProtection?:  "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
+			FirewallDomainListId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+			FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" |
+				"TRUST_REDIRECTION_DOMAIN" |
+				fn.#StringExpression
+
+			// Advanced firewall rule type. Mutually exclusive with FirewallDomainListId and
+			// DnsThreatProtection/ConfidenceThreshold.
+			FirewallRuleType?: #FirewallRuleType
+			Priority!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			Qtype?: strings.MaxRunes(16) & strings.MinRunes(1) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
 		fn.#ListExpression
-})
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/FirewallAdvancedContentCategoryConfig": close(
+#FirewallAdvancedContentCategoryConfig: close(
 	{Category!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallAdvancedThreatCategoryConfig": close(
+#FirewallAdvancedThreatCategoryConfig: close(
 	{Category!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallRule": close({
+#FirewallRule: close({
 	Action!:               "ALLOW" | "BLOCK" | "ALERT" | fn.#StringExpression
 	BlockOverrideDnsType?: "CNAME" | fn.#StringExpression
 	BlockOverrideDomain?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -108,8 +113,11 @@ _#defs: "/$defs/Properties/definitions/FirewallRule": close({
 	DnsThreatProtection?:             "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
 	FirewallDomainListId?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" | "TRUST_REDIRECTION_DOMAIN" | fn.#StringExpression
-	FirewallRuleType?:                _#defs."/$defs/Properties/definitions/FirewallRuleType" | fn.#ObjectExpression
-	FirewallThreatProtectionId?:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Advanced firewall rule type. Mutually exclusive with FirewallDomainListId and
+	// DnsThreatProtection/ConfidenceThreshold.
+	FirewallRuleType?:           #FirewallRuleType
+	FirewallThreatProtectionId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Priority!: int |
 		{
 			string &
@@ -129,33 +137,34 @@ _#defs: "/$defs/Properties/definitions/FirewallRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallRuleType": matchN(1, [{
-	PartnerThreatProtection!: _
-	...
-}, {
-	FirewallAdvancedContentCategory!: _
-	...
-}, {
-	FirewallAdvancedThreatCategory!: _
-	...
-}]) & close({
-	FirewallAdvancedContentCategory?: _#defs."/$defs/Properties/definitions/FirewallAdvancedContentCategoryConfig"
-	FirewallAdvancedThreatCategory?:  _#defs."/$defs/Properties/definitions/FirewallAdvancedThreatCategoryConfig"
-	PartnerThreatProtection?:         _#defs."/$defs/Properties/definitions/PartnerThreatProtectionConfig"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/PartnerThreatProtectionConfig": close(
-	{Partner!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
+#FirewallRuleType: close({
+	FirewallAdvancedContentCategory?: #FirewallAdvancedContentCategoryConfig
+	FirewallAdvancedThreatCategory?:  #FirewallAdvancedThreatCategoryConfig
+	PartnerThreatProtection?:         #PartnerThreatProtectionConfig
+	if PartnerThreatProtection != _|_ if PartnerThreatProtection."Fn::If" == _|_ {
+		FirewallAdvancedContentCategory?: close({"Fn::If": _}) | error(
+			"FirewallAdvancedContentCategory cannot be used with PartnerThreatProtection; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
+		)
+		FirewallAdvancedThreatCategory?: close({"Fn::If": _}) | error(
+			"FirewallAdvancedThreatCategory cannot be used with PartnerThreatProtection; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
+		)
+	}
+	if FirewallAdvancedContentCategory != _|_ if FirewallAdvancedContentCategory."Fn::If" == _|_ {
+		FirewallAdvancedThreatCategory?: close({"Fn::If": _}) | error(
+			"FirewallAdvancedThreatCategory cannot be used with FirewallAdvancedContentCategory; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{PartnerThreatProtection!: _}, {FirewallAdvancedContentCategory!: _}, {FirewallAdvancedThreatCategory!: _}],
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#PartnerThreatProtectionConfig: close({Partner!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
+fn.#ObjectExpression
+
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53Resolver::FirewallRuleGroup"
-	Properties?: #Properties
-}

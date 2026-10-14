@@ -14,21 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Logging Options enable you to configure your IoT V2 logging role and default
 // logging level so that you can monitor progress events logs as it passes from
 // your devices through Iot core service.
-#Properties: close({
-	AccountId!:           strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	DefaultLogLevel!:     "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression
-	EventConfigurations?: [..._#defs."/$defs/Properties/definitions/EventConfiguration"] | fn.#ListExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::Logging"
+	Properties!: close({
+		AccountId!:           strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		DefaultLogLevel!:     "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression
+		EventConfigurations?: [...#EventConfiguration] | fn.#ListExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EventConfiguration": close({
+#EventConfiguration: close({
 	EventType!:      strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	LogDestination?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	LogLevel?:       "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::Logging"
-	Properties!: #Properties
-}

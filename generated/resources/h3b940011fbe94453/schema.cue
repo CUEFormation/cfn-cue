@@ -12,61 +12,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for the AWS Route53 Recovery Readiness ResourceSet Resource and API.
-#Properties: close({
-	ResourceSetName?: string | fn.#StringExpression
-	ResourceSetType!: =~"^AWS::[A-Za-z0-9]+::[A-Za-z0-9]+$" | fn.#StringExpression
-	Resources!: list.MaxItems(6) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Resource"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53RecoveryReadiness::ResourceSet"
+	Properties!: close({
+		ResourceSetName?: string | fn.#StringExpression
+		ResourceSetType!: =~"^AWS::[A-Za-z0-9]+::[A-Za-z0-9]+$" | fn.#StringExpression
+		Resources!: list.MaxItems(6) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Resource"] |
+			fn.#ListExpression
+		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
 		fn.#ListExpression
-	Tags?: [
-		..._#defs."/$defs/Properties/definitions/Tag" & (null | bool | number | string | list.MaxItems(20) | {...}) |
-		fn.#ObjectExpression
-	] |
-	fn.#ListExpression
-})
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DNSTargetResource": close({
+#DNSTargetResource: close({
 	DomainName?:     string | fn.#StringExpression
 	HostedZoneArn?:  string | fn.#StringExpression
 	RecordSetId?:    string | fn.#StringExpression
 	RecordType?:     string | fn.#StringExpression
-	TargetResource?: _#defs."/$defs/Properties/definitions/TargetResource"
+	TargetResource?: #TargetResource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NLBResource": close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#NLBResource: close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/R53ResourceRecord": close({
+#R53ResourceRecord: close({
 	DomainName?:  string | fn.#StringExpression
 	RecordSetId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Resource": close({
-	ComponentId?:       string | fn.#StringExpression
-	DnsTargetResource?: _#defs."/$defs/Properties/definitions/DNSTargetResource"
-	ReadinessScopes?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceArn?:       string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetResource": matchN(1, [{
-	NLBResource!: _
-	...
-}, {
-	R53Resource!: _
-	...
-}]) & close({
-	NLBResource?: _#defs."/$defs/Properties/definitions/NLBResource"
-	R53Resource?: _#defs."/$defs/Properties/definitions/R53ResourceRecord"
+#TargetResource: close({
+	NLBResource?: #NLBResource
+	R53Resource?: #R53ResourceRecord
+	if NLBResource != _|_ if NLBResource."Fn::If" == _|_ {
+		R53Resource?: close({"Fn::If": _}) | error(
+			"R53Resource cannot be used with NLBResource; set exactly one of NLBResource, R53Resource",
+		)
+	}
+}) & matchN(>=1, [{NLBResource!: _}, {R53Resource!: _}]) |
+fn.#ObjectExpression
+
+_#defs: "/$defs/Properties/definitions/Resource": close({
+	ComponentId?:       string | fn.#StringExpression
+	DnsTargetResource?: #DNSTargetResource
+	ReadinessScopes?:   [...string | fn.#StringExpression] | fn.#ListExpression
+	ResourceArn?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryReadiness::ResourceSet"
-	Properties!: #Properties
-}

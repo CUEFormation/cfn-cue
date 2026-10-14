@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Connect::DataLakeAssociation
-#Properties: close({
-	DataSetId!:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9]*$" | fn.#StringExpression
-	TargetAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::DataLakeAssociation"
-	Properties!: #Properties
+	Type!: "AWS::Connect::DataLakeAssociation"
+	Properties!: close({
+		DataSetId!:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9]*$" | fn.#StringExpression
+		TargetAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" | fn.#StringExpression
+	})
 }

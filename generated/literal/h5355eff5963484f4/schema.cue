@@ -12,48 +12,48 @@ import (
 
 // Definition of AWS::WorkSpacesWeb::UserSettings Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
+	AdditionalEncryptionContext?: #EncryptionContextMap
 	AssociatedPortalArns?: [
 		...strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
 	]
-	BrandingConfiguration?:              _#defs."/$defs/Properties/definitions/BrandingConfiguration"
-	CookieSynchronizationConfiguration?: _#defs."/$defs/Properties/definitions/CookieSynchronizationConfiguration"
-	CopyAllowed!:                        _#defs."/$defs/Properties/definitions/EnabledType"
+	BrandingConfiguration?:              #BrandingConfiguration
+	CookieSynchronizationConfiguration?: #CookieSynchronizationConfiguration
+	CopyAllowed!:                        #EnabledType
 	CustomerManagedKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$"
-	DeepLinkAllowed?:                _#defs."/$defs/Properties/definitions/EnabledType"
+	DeepLinkAllowed?:                #EnabledType
 	DisconnectTimeoutInMinutes?:     <=600 & >=1
-	DownloadAllowed!:                _#defs."/$defs/Properties/definitions/EnabledType"
+	DownloadAllowed!:                #EnabledType
 	IdleDisconnectTimeoutInMinutes?: <=60 & >=0
-	PasteAllowed!:                   _#defs."/$defs/Properties/definitions/EnabledType"
-	PrintAllowed!:                   _#defs."/$defs/Properties/definitions/EnabledType"
-	Tags?:                           list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	ToolbarConfiguration?:           _#defs."/$defs/Properties/definitions/ToolbarConfiguration"
-	UploadAllowed!:                  _#defs."/$defs/Properties/definitions/EnabledType"
+	PasteAllowed!:                   #EnabledType
+	PrintAllowed!:                   #EnabledType
+	Tags?:                           list.MaxItems(200) & [...] & [...#Tag]
+	ToolbarConfiguration?:           #ToolbarConfiguration
+	UploadAllowed!:                  #EnabledType
 	UserSettingsArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
-	WebAuthnAllowed?: _#defs."/$defs/Properties/definitions/EnabledType"
+	WebAuthnAllowed?: #EnabledType
 })
 
-_#defs: "/$defs/Properties/definitions/BrandingConfiguration": close({
-	ColorTheme?:        _#defs."/$defs/Properties/definitions/ColorTheme"
+#BrandingConfiguration: close({
+	ColorTheme?:        #ColorTheme
 	Favicon?:           string
-	FaviconMetadata?:   _#defs."/$defs/Properties/definitions/ImageMetadata"
-	LocalizedStrings?:  _#defs."/$defs/Properties/definitions/LocalizedBrandingStringMap"
+	FaviconMetadata?:   #ImageMetadata
+	LocalizedStrings?:  #LocalizedBrandingStringMap
 	Logo?:              string
-	LogoMetadata?:      _#defs."/$defs/Properties/definitions/ImageMetadata"
+	LogoMetadata?:      #ImageMetadata
 	TermsOfService?:    strings.MaxRunes(153600)
 	Wallpaper?:         string
-	WallpaperMetadata?: _#defs."/$defs/Properties/definitions/ImageMetadata"
+	WallpaperMetadata?: #ImageMetadata
 })
 
-_#defs: "/$defs/Properties/definitions/ColorTheme": "Light" | "Dark"
+#ColorTheme: "Light" | "Dark"
 
-_#defs: "/$defs/Properties/definitions/CookieSpecification": close({
+#CookieSpecification: close({
 	Domain!: strings.MaxRunes(253) &
 	strings.MinRunes(0) &
 	=~"^(\\.?)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)*[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$"
@@ -61,40 +61,30 @@ _#defs: "/$defs/Properties/definitions/CookieSpecification": close({
 	Path?: strings.MaxRunes(2000) & strings.MinRunes(0) & =~"^/(\\S)*$"
 })
 
-_#defs: "/$defs/Properties/definitions/CookieSynchronizationConfiguration": close({
-	Allowlist!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/CookieSpecification"]
-	Blocklist?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/CookieSpecification"]
+#CookieSynchronizationConfiguration: close({
+	Allowlist!: list.MaxItems(10) & [...] & [...#CookieSpecification]
+	Blocklist?: list.MaxItems(10) & [...] & [...#CookieSpecification]
 })
 
-_#defs: "/$defs/Properties/definitions/EnabledType": "Disabled" | "Enabled"
+#EnabledType: "Disabled" | "Enabled"
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$"}})
 
-_#defs: "/$defs/Properties/definitions/ImageMetadata": close({
+#ImageMetadata: close({
 	FileExtension!:       strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 	LastUploadTimestamp!: time.Time
-	MimeType!:            _#defs."/$defs/Properties/definitions/MimeType"
+	MimeType!:            #MimeType
 })
 
-_#defs: "/$defs/Properties/definitions/Locale": "de-DE" |
-	"en-US" |
-	"es-ES" |
-	"fr-FR" |
-	"id-ID" |
-	"it-IT" |
-	"ja-JP" |
-	"ko-KR" |
-	"pt-BR" |
-	"zh-CN" |
-	"zh-TW"
+#Locale: "de-DE" | "en-US" | "es-ES" | "fr-FR" | "id-ID" | "it-IT" | "ja-JP" | "ko-KR" | "pt-BR" | "zh-CN" | "zh-TW"
 
-_#defs: "/$defs/Properties/definitions/LocalizedBrandingStringMap": close({
+#LocalizedBrandingStringMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/LocalizedBrandingStrings"}})
+	{[=~".+"]: #LocalizedBrandingStrings}})
 
-_#defs: "/$defs/Properties/definitions/LocalizedBrandingStrings": close({
+#LocalizedBrandingStrings: close({
 	BrowserTabTitle!:   =~"^[^<>&'`~\\\\]*$"
 	ContactButtonText?: =~"^[^<>&'`~\\\\]*$"
 	ContactLink?:       =~"^(https?://|mailto:).*"
@@ -105,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/LocalizedBrandingStrings": close({
 	WelcomeText!:       =~"^[^<>&'`~\\\\]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/MaxDisplayResolution": "size4096X2160" |
+#MaxDisplayResolution: "size4096X2160" |
 	"size3840X2160" |
 	"size3440X1440" |
 	"size2560X1440" |
@@ -114,22 +104,22 @@ _#defs: "/$defs/Properties/definitions/MaxDisplayResolution": "size4096X2160" |
 	"size1024X768" |
 	"size800X600"
 
-_#defs: "/$defs/Properties/definitions/MimeType": "image/png" | "image/jpeg" | "image/x-icon"
+#MimeType: "image/png" | "image/jpeg" | "image/x-icon"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/ToolbarConfiguration": close({
-	HiddenToolbarItems?:   [..._#defs."/$defs/Properties/definitions/ToolbarItem"]
-	MaxDisplayResolution?: _#defs."/$defs/Properties/definitions/MaxDisplayResolution"
-	ToolbarType?:          _#defs."/$defs/Properties/definitions/ToolbarType"
-	VisualMode?:           _#defs."/$defs/Properties/definitions/VisualMode"
+#ToolbarConfiguration: close({
+	HiddenToolbarItems?:   [...#ToolbarItem]
+	MaxDisplayResolution?: #MaxDisplayResolution
+	ToolbarType?:          #ToolbarType
+	VisualMode?:           #VisualMode
 })
 
-_#defs: "/$defs/Properties/definitions/ToolbarItem": "Windows" | "DualMonitor" | "FullScreen" | "Webcam" | "Microphone"
+#ToolbarItem: "Windows" | "DualMonitor" | "FullScreen" | "Webcam" | "Microphone"
 
-_#defs: "/$defs/Properties/definitions/ToolbarType": "Floating" | "Docked"
+#ToolbarType: "Floating" | "Docked"
 
-_#defs: "/$defs/Properties/definitions/VisualMode": "Dark" | "Light"
+#VisualMode: "Dark" | "Light"

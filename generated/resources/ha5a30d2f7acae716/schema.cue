@@ -17,46 +17,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a rule for the specified CON instance.
-#Properties: close({
-	Actions!:       _#defs."/$defs/Properties/definitions/Actions" | fn.#ObjectExpression
-	Function!:      string | fn.#StringExpression
-	InstanceArn!:   =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Name!:          =~"^[a-zA-Z0-9._-]{1,200}$" | fn.#StringExpression
-	PublishStatus!: "DRAFT" | "PUBLISHED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TriggerEventSource!: _#defs."/$defs/Properties/definitions/RuleTriggerEventSource" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::Rule"
+	Properties!: close({
+		// A list of actions to be run when the rule is triggered.
+		Actions!:     #Actions
+		Function!:    string | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Name!:        =~"^[a-zA-Z0-9._-]{1,200}$" | fn.#StringExpression
+		PublishStatus!: "DRAFT" | "PUBLISHED" | fn.#StringExpression
+		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Actions": close({
-	AssignContactCategoryActions?: _#defs."/$defs/Properties/definitions/AssignContactCategoryActions" |
-		fn.#ListExpression
-	AssignSlaActions?:          _#defs."/$defs/Properties/definitions/AssignSlaActions" | fn.#ListExpression
-	CreateCaseActions?:         _#defs."/$defs/Properties/definitions/CreateCaseActions" | fn.#ListExpression
-	EndAssociatedTasksActions?: _#defs."/$defs/Properties/definitions/EndAssociatedTasksActions" | fn.#ListExpression
-	EventBridgeActions?:        _#defs."/$defs/Properties/definitions/EventBridgeActions" | fn.#ListExpression
-	SendNotificationActions?:   _#defs."/$defs/Properties/definitions/SendNotificationActions" | fn.#ListExpression
-	SubmitAutoEvaluationActions?: _#defs."/$defs/Properties/definitions/SubmitAutoEvaluationActions" |
-		fn.#ListExpression
-	TaskActions?:       _#defs."/$defs/Properties/definitions/TaskActions" | fn.#ListExpression
-	UpdateCaseActions?: _#defs."/$defs/Properties/definitions/UpdateCaseActions" | fn.#ListExpression
+		// The event source to trigger the rule.
+		TriggerEventSource!: #RuleTriggerEventSource
+	})
+}
+
+#Actions: close({
+	// Information about the contact category action. The syntax can be empty, for example, ``{}``.
+	AssignContactCategoryActions?: #AssignContactCategoryActions
+	AssignSlaActions?:             #AssignSlaActions
+	CreateCaseActions?:            #CreateCaseActions
+	EndAssociatedTasksActions?:    #EndAssociatedTasksActions
+
+	// Information about the EV action.
+	EventBridgeActions?: #EventBridgeActions
+
+	// Information about the send notification action.
+	SendNotificationActions?:     #SendNotificationActions
+	SubmitAutoEvaluationActions?: #SubmitAutoEvaluationActions
+
+	// Information about the task action. This field is required if
+	// ``TriggerEventSource`` is one of the following values:
+	// ``OnZendeskTicketCreate`` | ``OnZendeskTicketStatusUpdate`` |
+	// ``OnSalesforceCaseCreate``
+	TaskActions?:       #TaskActions
+	UpdateCaseActions?: #UpdateCaseActions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssignContactCategoryAction": fn.#Object & {...} |
-string |
-fn.#StringObjectExpression
+#AssignContactCategoryAction: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssignContactCategoryActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AssignContactCategoryAction"
+#AssignContactCategoryActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+	...#AssignContactCategoryAction
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AssignSlaAction": close({
+#AssignSlaAction: close({
 	CaseSlaConfiguration!: close({
-		FieldId?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		TargetFieldValues?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/SlaTargetFieldValue"] |
-			fn.#ListExpression
+		FieldId?:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:              strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		TargetFieldValues?: list.MaxItems(1) & [...#SlaTargetFieldValue] | fn.#ListExpression
 		TargetSlaMinutes!: <=1051200 & >=1 |
 			{
 				string &
@@ -84,48 +95,34 @@ _#defs: "/$defs/Properties/definitions/AssignSlaAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssignSlaActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AssignSlaAction"
-] |
-	fn.#ListExpression
+#AssignSlaActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#AssignSlaAction] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CreateCaseAction": close({
-	Fields!:     _#defs."/$defs/Properties/definitions/Fields" | fn.#ListExpression
+#CreateCaseAction: close({
+	Fields!:     #Fields
 	TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreateCaseActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CreateCaseAction"
-] |
+#CreateCaseActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#CreateCaseAction] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/EndAssociatedTasksAction": fn.#Object & {...} |
-string |
-fn.#StringObjectExpression
+#EndAssociatedTasksAction: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndAssociatedTasksActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/EndAssociatedTasksAction"
-] |
+#EndAssociatedTasksActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#EndAssociatedTasksAction] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeAction": close(
-	{Name!: =~"^[a-zA-Z0-9._-]{1,100}$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#EventBridgeAction: close({Name!: =~"^[a-zA-Z0-9._-]{1,100}$" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/EventBridgeAction"
-] |
+#EventBridgeActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#EventBridgeAction] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Field": close({
+#Field: close({
 	Id!:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/FieldValue" | fn.#ObjectExpression
+	Value!: #FieldValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldValue": close({
+#FieldValue: close({
 	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DoubleValue?: number |
 		{
@@ -151,16 +148,10 @@ _#defs: "/$defs/Properties/definitions/FieldValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Fields": list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Field"
-] |
-	fn.#ListExpression
+#Fields: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#Field] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationRecipientType": close({
-	UserArns?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/UserArn"
-	] |
-		fn.#ListExpression
+#NotificationRecipientType: close({
+	UserArns?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#UserArn] | fn.#ListExpression
 	UserTags?: null |
 	bool |
 	number |
@@ -173,13 +164,13 @@ _#defs: "/$defs/Properties/definitions/NotificationRecipientType": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Reference": close({
+#Reference: close({
 	Type!:  "URL" | "ATTACHMENT" | "NUMBER" | "STRING" | "DATE" | "EMAIL" | fn.#StringExpression
 	Value!: =~"^(/|https:)" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleTriggerEventSource": close({
+#RuleTriggerEventSource: close({
 	EventSourceName!: "OnEmailAnalysisAvailable" |
 		"OnContactEvaluationSubmit" |
 		"OnPostCallAnalysisAvailable" |
@@ -202,42 +193,41 @@ _#defs: "/$defs/Properties/definitions/RuleTriggerEventSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SendNotificationAction": close({
+#SendNotificationAction: close({
 	Content!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	ContentType!:    "PLAIN_TEXT" | fn.#StringExpression
 	DeliveryMethod!: "EMAIL" | fn.#StringExpression
-	Exclusion?:      _#defs."/$defs/Properties/definitions/NotificationRecipientType" | fn.#ObjectExpression
-	Recipient!:      _#defs."/$defs/Properties/definitions/NotificationRecipientType" | fn.#ObjectExpression
-	Subject?:        strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	Exclusion?:      #NotificationRecipientType
+
+	// Notification recipient.
+	Recipient!: #NotificationRecipientType
+	Subject?:   strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SendNotificationActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SendNotificationAction"
-] |
+#SendNotificationActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#SendNotificationAction] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SlaTargetFieldValue": close({StringValue?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SlaTargetFieldValue: close({StringValue?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubmitAutoEvaluationAction": close({
+#SubmitAutoEvaluationAction: close({
 	EvaluationFormArn!: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/evaluation-form/[-a-zA-Z0-9]*$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubmitAutoEvaluationActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SubmitAutoEvaluationAction"
+#SubmitAutoEvaluationActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+	...#SubmitAutoEvaluationAction
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskAction": close({
+#TaskAction: close({
 	ContactFlowArn!: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*$" |
 		fn.#StringExpression
 	Description?: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
@@ -249,29 +239,17 @@ _#defs: "/$defs/Properties/definitions/TaskAction": close({
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Reference"}}) |
+		{[=~"^.+$"]: #Reference}}) |
 	fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/TaskAction"
-] |
+#TaskActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#TaskAction] | fn.#ListExpression
+
+#UpdateCaseAction: close({Fields!: #Fields}) | fn.#ObjectExpression
+
+#UpdateCaseActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#UpdateCaseAction] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateCaseAction": close(
-	{Fields!: _#defs."/$defs/Properties/definitions/Fields" | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/UpdateCaseActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/UpdateCaseAction"
-] |
-	fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/UserArn": =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$|^\\$\\..+$" |
+#UserArn: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$|^\\$\\..+$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::Rule"
-	Properties!: #Properties
-}

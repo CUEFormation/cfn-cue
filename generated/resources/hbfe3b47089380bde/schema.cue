@@ -9,22 +9,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SNS::Subscription
-#Properties: close({
-	DeliveryPolicy?:     fn.#Object & {...} | string | fn.#StringObjectExpression
-	Endpoint?:           string | fn.#StringExpression
-	FilterPolicy?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-	FilterPolicyScope?:  string | fn.#StringExpression
-	Protocol!:           string | fn.#StringExpression
-	RawMessageDelivery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RedrivePolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
-	Region?:             string | fn.#StringExpression
-	ReplayPolicy?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-	SubscriptionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SNS::Subscription"
-	Properties!: #Properties
+	Type!: "AWS::SNS::Subscription"
+	Properties!: close({
+		DeliveryPolicy?:     fn.#Object & {...} | string | fn.#StringObjectExpression
+		Endpoint?:           string | fn.#StringExpression
+		FilterPolicy?:       fn.#Object & {...} | string | fn.#StringObjectExpression
+		FilterPolicyScope?:  string | fn.#StringExpression
+		Protocol!:           string | fn.#StringExpression
+		RawMessageDelivery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RedrivePolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
+		Region?:             string | fn.#StringExpression
+		ReplayPolicy?:       fn.#Object & {...} | string | fn.#StringObjectExpression
+		SubscriptionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
 }

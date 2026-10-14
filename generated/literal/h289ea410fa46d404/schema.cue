@@ -7,37 +7,33 @@ package schema
 // Resource Type definition for AWS::PinpointEmail::ConfigurationSetEventDestination
 #Properties: close({
 	ConfigurationSetName!: string
-	EventDestination?:     _#defs."/$defs/Properties/definitions/EventDestination"
+	EventDestination?:     #EventDestination
 	EventDestinationName!: string
 	Id?:                   string
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchDestination": close(
-	{DimensionConfigurations?: [..._#defs."/$defs/Properties/definitions/DimensionConfiguration"]},
-)
+#CloudWatchDestination: close({DimensionConfigurations?: [...#DimensionConfiguration]})
 
-_#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
+#DimensionConfiguration: close({
 	DefaultDimensionValue!: string
 	DimensionName!:         string
 	DimensionValueSource!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/EventDestination": close({
-	CloudWatchDestination?:      _#defs."/$defs/Properties/definitions/CloudWatchDestination"
+#EventDestination: close({
+	CloudWatchDestination?:      #CloudWatchDestination
 	Enabled?:                    bool
-	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination"
+	KinesisFirehoseDestination?: #KinesisFirehoseDestination
 	MatchingEventTypes!:         [...string]
-	PinpointDestination?:        _#defs."/$defs/Properties/definitions/PinpointDestination"
-	SnsDestination?:             _#defs."/$defs/Properties/definitions/SnsDestination"
+	PinpointDestination?:        #PinpointDestination
+	SnsDestination?:             #SnsDestination
 })
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
+#KinesisFirehoseDestination: close({
 	DeliveryStreamArn!: string
 	IamRoleArn!:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/PinpointDestination": close({ApplicationArn?: string})
+#PinpointDestination: close({ApplicationArn?: string})
 
-_#defs: "/$defs/Properties/definitions/SnsDestination": close(
-	{TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"},
-)
+#SnsDestination: close({TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"})

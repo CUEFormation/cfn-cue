@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -94,9 +94,7 @@ import (
 	// cluster grant permission for the DB cluster to access other Amazon Web
 	// Services on your behalf.
 	// Valid for: Aurora DB clusters and Multi-AZ DB clusters
-	AssociatedRoles?: list.MaxItems(15) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/DBClusterRole"
-	]
+	AssociatedRoles?: list.MaxItems(15) & list.UniqueItems() & [...] & [...#DBClusterRole]
 
 	// Specifies whether minor engine upgrades are applied automatically to the DB
 	// cluster during the maintenance window. By default, minor engine upgrades are
@@ -293,7 +291,7 @@ import (
 	// reader DB instances.
 	// Valid for: Aurora DB clusters only
 	EnableLocalWriteForwarding?: bool
-	Endpoint?:                   _#defs."/$defs/Properties/definitions/Endpoint"
+	Endpoint?:                   #Endpoint
 
 	// The name of the database engine to be used for this DB cluster.
 	// Valid Values:
@@ -469,7 +467,7 @@ import (
 	// in the *Amazon RDS User Guide* and [Password management with Secrets
 	// Manager](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/rds-secrets-manager.html)
 	// in the *Amazon Aurora User Guide.*
-	MasterUserSecret?: _#defs."/$defs/Properties/definitions/MasterUserSecret"
+	MasterUserSecret?: #MasterUserSecret
 
 	// The name of the master user for the DB cluster.
 	// If you specify the ``SourceDBClusterIdentifier``, ``SnapshotIdentifier``, or
@@ -601,7 +599,7 @@ import (
 	// in doesn't have an internet gateway attached to it, Amazon RDS returns an
 	// error.
 	PubliclyAccessible?: bool
-	ReadEndpoint?:       _#defs."/$defs/Properties/definitions/ReadEndpoint"
+	ReadEndpoint?:       #ReadEndpoint
 
 	// The Amazon Resource Name (ARN) of the source DB instance or DB cluster if
 	// this DB cluster is created as a read replica.
@@ -636,13 +634,13 @@ import (
 	// This property is only supported for Aurora Serverless v1. For Aurora
 	// Serverless v2, Use the ``ServerlessV2ScalingConfiguration`` property.
 	// Valid for: Aurora Serverless v1 DB clusters only
-	ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ScalingConfiguration"
+	ScalingConfiguration?: #ScalingConfiguration
 
 	// The scaling configuration of an Aurora Serverless V2 DB cluster.
 	// This property is only supported for Aurora Serverless v2. For Aurora
 	// Serverless v1, Use the ``ScalingConfiguration`` property.
 	// Valid for: Aurora Serverless v2 DB clusters only
-	ServerlessV2ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessV2ScalingConfiguration"
+	ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration
 
 	// The identifier for the DB snapshot or DB cluster snapshot to restore from.
 	// You can use either the name or the Amazon Resource Name (ARN) to specify a DB
@@ -743,7 +741,7 @@ import (
 
 	// Tags to assign to the DB cluster.
 	// Valid for Cluster Type: Aurora DB clusters and Multi-AZ DB clusters
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// A value that indicates whether to restore the DB cluster to the latest
 	// restorable backup time. By default, the DB cluster is not restored to the
@@ -758,7 +756,7 @@ import (
 })
 
 // Describes an AWS Identity and Access Management (IAM) role that is associated with a DB cluster.
-_#defs: "/$defs/Properties/definitions/DBClusterRole": close({
+#DBClusterRole: close({
 	// The name of the feature associated with the AWS Identity and Access
 	// Management (IAM) role. IAM roles that are associated with a DB cluster grant
 	// permission for the DB cluster to access other AWS services on your behalf.
@@ -777,7 +775,7 @@ _#defs: "/$defs/Properties/definitions/DBClusterRole": close({
 
 // The ``Endpoint`` return value specifies the connection endpoint for the
 // primary instance of the DB cluster.
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	// Specifies the connection endpoint for the primary instance of the DB cluster.
 	Address?: string
 
@@ -792,7 +790,7 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 // in the *Amazon RDS User Guide* and [Password management with Secrets
 // Manager](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/rds-secrets-manager.html)
 // in the *Amazon Aurora User Guide.*
-_#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
+#MasterUserSecret: close({
 	// The AWS KMS key identifier that is used to encrypt the secret.
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
@@ -817,7 +815,7 @@ _#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
 // For more information about Aurora endpoints, see [Amazon Aurora connection
 // management](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.Endpoints.html)
 // in the *Amazon Aurora User Guide*.
-_#defs: "/$defs/Properties/definitions/ReadEndpoint": close({
+#ReadEndpoint: close({
 	// The host address of the reader endpoint.
 	Address?: string
 })
@@ -830,7 +828,7 @@ _#defs: "/$defs/Properties/definitions/ReadEndpoint": close({
 // This property is only supported for Aurora Serverless v1. For Aurora
 // Serverless v2, Use the ``ServerlessV2ScalingConfiguration`` property.
 // Valid for: Aurora Serverless v1 DB clusters only
-_#defs: "/$defs/Properties/definitions/ScalingConfiguration": close({
+#ScalingConfiguration: close({
 	// Indicates whether to allow or disallow automatic pause for an Aurora DB
 	// cluster in ``serverless`` DB engine mode. A DB cluster can be paused only
 	// when it's idle (it has no connections).
@@ -892,7 +890,7 @@ _#defs: "/$defs/Properties/definitions/ScalingConfiguration": close({
 // This property is only supported for Aurora Serverless v2. For Aurora
 // Serverless v1, use the ``ScalingConfiguration`` property.
 // Valid for: Aurora Serverless v2 DB clusters
-_#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close({
+#ServerlessV2ScalingConfiguration: close({
 	// The maximum number of Aurora capacity units (ACUs) for a DB instance in an
 	// Aurora Serverless v2 cluster. You can specify ACU values in half-step
 	// increments, such as 40, 40.5, 41, and so on. The largest value that you can
@@ -930,7 +928,7 @@ _#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close(
 // in the *Amazon RDS User Guide* or [Tagging Amazon Aurora and Amazon RDS
 // resources](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_Tagging.html)
 // in the *Amazon Aurora User Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key is the required name of the tag. The string value can be from 1 to 128
 	// Unicode characters in length and can't be prefixed with ``aws:`` or
 	// ``rds:``. The string can only contain only the set of Unicode letters,

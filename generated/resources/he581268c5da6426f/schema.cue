@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates a specified resource with a resource share.
-#Properties: close({
-	ResourceArn!:      string | fn.#StringExpression
-	ResourceShareArn!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RAM::ResourceAssociation"
-	Properties!: #Properties
+	Type!: "AWS::RAM::ResourceAssociation"
+	Properties!: close({
+		ResourceArn!:      string | fn.#StringExpression
+		ResourceShareArn!: string | fn.#StringExpression
+	})
 }

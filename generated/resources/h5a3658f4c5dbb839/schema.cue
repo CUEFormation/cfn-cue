@@ -13,30 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an AWS Firewall Manager resource set.
-#Properties: close({
-	Description?: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]*)$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
-	ResourceTypeList!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ResourceType"] |
-		fn.#ListExpression
-	Resources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
-	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FMS::ResourceSet"
+	Properties!: close({
+		Description?: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]*)$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
+		ResourceTypeList!: list.UniqueItems() & [...#ResourceType] | fn.#ListExpression
+		Resources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Base62Id": strings.MaxRunes(22) & strings.MinRunes(22) & =~"^([a-z0-9A-Z]*)$" |
-fn.#StringExpression
+#Base62Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^([a-z0-9A-Z]*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Resource": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
-fn.#StringExpression
+#ResourceType: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceType": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^([^\\s]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FMS::ResourceSet"
-	Properties!: #Properties
-}
+
+_#defs: "/$defs/Properties/definitions/Resource": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
+fn.#StringExpression

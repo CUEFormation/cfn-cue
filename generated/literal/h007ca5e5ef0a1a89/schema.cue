@@ -15,56 +15,56 @@ import "strings"
 	AccessPolicyId?: string
 
 	// The identity for this access policy. Choose either a user or a group but not both.
-	AccessPolicyIdentity!: _#defs."/$defs/Properties/definitions/AccessPolicyIdentity"
+	AccessPolicyIdentity!: #AccessPolicyIdentity
 
 	// The permission level for this access policy. Valid values are ADMINISTRATOR or VIEWER.
 	AccessPolicyPermission!: "ADMINISTRATOR" | "VIEWER"
 
 	// The AWS IoT SiteWise Monitor resource for this access policy. Choose either
 	// portal or project but not both.
-	AccessPolicyResource!: _#defs."/$defs/Properties/definitions/AccessPolicyResource"
+	AccessPolicyResource!: #AccessPolicyResource
 })
 
 // The identity for this access policy. Choose either an SSO user or group or an IAM user or role.
-_#defs: "/$defs/Properties/definitions/AccessPolicyIdentity": close({
-	IamRole?: _#defs."/$defs/Properties/definitions/IamRole"
-	IamUser?: _#defs."/$defs/Properties/definitions/IamUser"
-	User?:    _#defs."/$defs/Properties/definitions/User"
+#AccessPolicyIdentity: close({
+	IamRole?: #IamRole
+	IamUser?: #IamUser
+	User?:    #User
 })
 
 // The AWS IoT SiteWise Monitor resource for this access policy. Choose either
 // portal or project but not both.
-_#defs: "/$defs/Properties/definitions/AccessPolicyResource": close({
-	Portal?:  _#defs."/$defs/Properties/definitions/Portal"
-	Project?: _#defs."/$defs/Properties/definitions/Project"
+#AccessPolicyResource: close({
+	Portal?:  #Portal
+	Project?: #Project
 })
 
 // Contains information for an IAM role identity in an access policy.
-_#defs: "/$defs/Properties/definitions/IamRole": close({
+#IamRole: close({
 	// The ARN of the IAM role.
 	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$"
 })
 
 // Contains information for an IAM user identity in an access policy.
-_#defs: "/$defs/Properties/definitions/IamUser": close({
+#IamUser: close({
 	// The ARN of the IAM user.
 	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$"
 })
 
 // A portal resource.
-_#defs: "/$defs/Properties/definitions/Portal": close({
+#Portal: close({
 	// The ID of the portal.
 	id?: strings.MaxRunes(36) & strings.MinRunes(36)
 })
 
 // A project resource.
-_#defs: "/$defs/Properties/definitions/Project": close({
+#Project: close({
 	// The ID of the project.
 	id?: strings.MaxRunes(36) & strings.MinRunes(36)
 })
 
 // Contains information for a user identity in an access policy.
-_#defs: "/$defs/Properties/definitions/User": close({
+#User: close({
 	// The AWS SSO ID of the user.
 	id?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$"
 })

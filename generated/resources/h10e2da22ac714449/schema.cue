@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,33 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMResourceDiscovery Type
-#Properties: close({
-	Description?: string | fn.#StringExpression
-	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/IpamOperatingRegion"
-	] |
-		fn.#ListExpression
-	OrganizationalUnitExclusions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpamResourceDiscoveryOrganizationalUnitExclusion"
-	] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::IPAMResourceDiscovery"
+	Properties?: close({
+		Description?: string | fn.#StringExpression
+		OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion] |
+			fn.#ListExpression
+		OrganizationalUnitExclusions?: list.UniqueItems() & [...#IpamResourceDiscoveryOrganizationalUnitExclusion] |
+			fn.#ListExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/IpamOperatingRegion": close({RegionName!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#IpamOperatingRegion: close({RegionName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpamResourceDiscoveryOrganizationalUnitExclusion": close(
+#IpamResourceDiscoveryOrganizationalUnitExclusion: close(
 	{OrganizationsEntityPath!: strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::IPAMResourceDiscovery"
-	Properties?: #Properties
-}

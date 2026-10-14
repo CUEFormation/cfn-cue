@@ -12,7 +12,7 @@ import (
 // The AWS::NetworkManager::Link type describes a link.
 #Properties: close({
 	// The Bandwidth for the link.
-	Bandwidth!: _#defs."/$defs/Properties/definitions/Bandwidth"
+	Bandwidth!: #Bandwidth
 
 	// The date and time that the device was created.
 	CreatedAt?: string
@@ -39,14 +39,14 @@ import (
 	State?: string
 
 	// The tags for the link.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The type of the link.
 	Type?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 })
 
 // The bandwidth for the link.
-_#defs: "/$defs/Properties/definitions/Bandwidth": close({
+#Bandwidth: close({
 	// Download speed in Mbps.
 	DownloadSpeed?: int
 
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/Bandwidth": close({
 })
 
 // A key-value pair to associate with a link resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

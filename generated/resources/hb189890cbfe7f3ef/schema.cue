@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 	"struct"
 )
 
@@ -18,40 +18,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTManagedIntegrations::ManagedThing Resource Type
-#Properties: close({
-	AuthenticationMaterial?: strings.MaxRunes(512) &
-	strings.MinRunes(1) &
-	=~"^[0-9A-Za-z!#$%&()*\\+\\-;<=>?@^_`{|}~\\/: ]+$" |
-	fn.#StringExpression
-	AuthenticationMaterialType?: _#defs."/$defs/Properties/definitions/AuthMaterialType"
-	Brand?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	CapabilityReport?:   _#defs."/$defs/Properties/definitions/CapabilityReport"
-	Classification?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	CredentialLockerId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
-	MetaData?:           _#defs."/$defs/Properties/definitions/MetaData"
-	Model?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Name?:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z]+$" | fn.#StringExpression
-	Owner?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.,@-]+$" | fn.#StringExpression
-	Role!:               _#defs."/$defs/Properties/definitions/Role"
-	SerialNumber?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Tags?:               _#defs."/$defs/Properties/definitions/TagsMap"
-	WiFiSimpleSetupConfiguration?: _#defs."/$defs/Properties/definitions/WiFiSimpleSetupConfiguration"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTManagedIntegrations::ManagedThing"
+	Properties!: close({
+		AuthenticationMaterial?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[0-9A-Za-z!#$%&()*\\+\\-;<=>?@^_`{|}~\\/: ]+$" |
+		fn.#StringExpression
+		AuthenticationMaterialType?: #AuthMaterialType
+		Brand?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		CapabilityReport?:   #CapabilityReport
+		Classification?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		CredentialLockerId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
+		MetaData?:           #MetaData
+		Model?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		Name?:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z]+$" | fn.#StringExpression
+		Owner?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.,@-]+$" | fn.#StringExpression
+		Role!:               #Role
+		SerialNumber?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		Tags?:               #TagsMap
+		WiFiSimpleSetupConfiguration?: #WiFiSimpleSetupConfiguration
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuthMaterialType": "WIFI_SETUP_QR_BAR_CODE" |
-	"ZWAVE_QR_BAR_CODE" |
-	"ZIGBEE_QR_BAR_CODE" |
-	fn.#StringExpression
+#AuthMaterialType: "WIFI_SETUP_QR_BAR_CODE" | "ZWAVE_QR_BAR_CODE" | "ZIGBEE_QR_BAR_CODE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapabilityReport": close({
-	Endpoints!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/CapabilityReportEndpoint"] |
-		fn.#ListExpression
-	NodeId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_.,@\\+\\-/]+$" | fn.#StringExpression
-	Version!: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^1\\.0\\.0$" | fn.#StringExpression
+#CapabilityReport: close({
+	Endpoints!: list.MaxItems(50) & [...] & [...#CapabilityReportEndpoint] | fn.#ListExpression
+	NodeId?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_.,@\\+\\-/]+$" | fn.#StringExpression
+	Version!:   strings.MaxRunes(10) & strings.MinRunes(1) & =~"^1\\.0\\.0$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapabilityReportCapability": close({
+#CapabilityReportCapability: close({
 	Actions!: list.MaxItems(100) & [...] & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" | fn.#StringExpression
 	] |
@@ -71,9 +70,8 @@ _#defs: "/$defs/Properties/definitions/CapabilityReportCapability": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapabilityReportEndpoint": close({
-	Capabilities!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/CapabilityReportCapability"] |
-		fn.#ListExpression
+#CapabilityReportEndpoint: close({
+	Capabilities!: list.MaxItems(50) & [...] & [...#CapabilityReportCapability] | fn.#ListExpression
 	DeviceTypes!: list.MaxItems(50) & [...] & [
 		...strings.MaxRunes(256) & =~"^[a-zA-Z0-9=_. ,@\\+\\-/]+$" | fn.#StringExpression
 	] |
@@ -82,14 +80,14 @@ _#defs: "/$defs/Properties/definitions/CapabilityReportEndpoint": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HubNetworkMode": "STANDARD" | "NETWORK_WIDE_EXCLUSION" | fn.#StringExpression
+#HubNetworkMode: "STANDARD" | "NETWORK_WIDE_EXCLUSION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MetaData": struct.MaxFields(50) & struct.MinFields(1) & close({
+#MetaData: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"[a-zA-Z0-9_.,@/:#-]+"]: strings.MaxRunes(800) & =~"[a-zA-Z0-9_.,@/:#-]*" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisioningStatus": "UNASSOCIATED" |
+#ProvisioningStatus: "UNASSOCIATED" |
 	"PRE_ASSOCIATED" |
 	"DISCOVERED" |
 	"ACTIVATED" |
@@ -99,16 +97,16 @@ _#defs: "/$defs/Properties/definitions/ProvisioningStatus": "UNASSOCIATED" |
 	"DELETED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Role": "CONTROLLER" | "DEVICE" | fn.#StringExpression
+#Role: "CONTROLLER" | "DEVICE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.MinFields(0) & close({
+#TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
+#Unit: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WiFiSimpleSetupConfiguration": close({
+#WiFiSimpleSetupConfiguration: close({
 	EnableAsProvisionee?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableAsProvisioner?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TimeoutInMinutes?: int & <=15 & >=5 |
@@ -129,7 +127,3 @@ _#defs: "/$defs/Properties/definitions/WiFiSimpleSetupConfiguration": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTManagedIntegrations::ManagedThing"
-	Properties!: #Properties
-}

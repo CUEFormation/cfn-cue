@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,87 +17,92 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationInsights::Application
-#Properties: close({
-	AttachMissingPermission?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutoConfigurationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CWEMonitorEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ComponentMonitoringSettings?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ComponentMonitoringSetting"
-	] |
-		fn.#ListExpression
-	CustomComponents?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomComponent"] |
-		fn.#ListExpression
-	GroupingType?:     "ACCOUNT_BASED" | fn.#StringExpression
-	LogPatternSets?:   list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogPatternSet"] | fn.#ListExpression
-	OpsCenterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OpsItemSNSTopicArn?: strings.MaxRunes(300) &
-	strings.MinRunes(20) &
-	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
-	fn.#StringExpression
-	ResourceGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
-	SNSNotificationArn?: strings.MaxRunes(300) &
-	strings.MinRunes(20) &
-	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApplicationInsights::Application"
+	Properties!: close({
+		AttachMissingPermission?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AutoConfigurationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CWEMonitorEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ComponentMonitoringSettings?: list.MinItems(1) & [...#ComponentMonitoringSetting] | fn.#ListExpression
+		CustomComponents?:            list.MinItems(1) & [...#CustomComponent] | fn.#ListExpression
+		GroupingType?:                "ACCOUNT_BASED" | fn.#StringExpression
+		LogPatternSets?:              list.MinItems(1) & [...#LogPatternSet] | fn.#ListExpression
+		OpsCenterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		OpsItemSNSTopicArn?: strings.MaxRunes(300) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
+		fn.#StringExpression
+		ResourceGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
+		SNSNotificationArn?: strings.MaxRunes(300) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Alarm": close({
+#Alarm: close({
 	AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Severity?:  "HIGH" | "MEDIUM" | "LOW" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AlarmMetric": close({AlarmMetricName!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#AlarmMetric: close({AlarmMetricName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
-	ConfigurationDetails?: _#defs."/$defs/Properties/definitions/ConfigurationDetails" | fn.#ObjectExpression
-	SubComponentTypeConfigurations?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SubComponentTypeConfiguration"
-	] |
-		fn.#ListExpression
+#ComponentConfiguration: close({
+	// The configuration settings
+	ConfigurationDetails?:           #ConfigurationDetails
+	SubComponentTypeConfigurations?: list.MinItems(1) & [...#SubComponentTypeConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": matchN(1, [{
-	ComponentName!: _
-	...
-}, {
-	ComponentARN!: _
-	...
-}]) & close({
+#ComponentMonitoringSetting: close({
 	ComponentARN?: strings.MaxRunes(300) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
 	fn.#StringExpression
 	ComponentConfigurationMode!: "DEFAULT" | "DEFAULT_WITH_OVERWRITE" | "CUSTOM" | fn.#StringExpression
 	ComponentName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$" | fn.#StringExpression
-	CustomComponentConfiguration?: _#defs."/$defs/Properties/definitions/ComponentConfiguration" | fn.#ObjectExpression
-	DefaultOverwriteComponentConfiguration?: _#defs."/$defs/Properties/definitions/ComponentConfiguration" |
-		fn.#ObjectExpression
-	Tier!: =~"^[A-Z][A-Z_]*$" | fn.#StringExpression
+
+	// The monitoring configuration of the component.
+	CustomComponentConfiguration?: #ComponentConfiguration
+
+	// The overwritten settings on default component monitoring configuration.
+	DefaultOverwriteComponentConfiguration?: #ComponentConfiguration
+	Tier!:                                   =~"^[A-Z][A-Z_]*$" | fn.#StringExpression
+	if ComponentName != _|_ if ComponentName."Fn::If" == _|_ {
+		ComponentARN?: close({"Fn::If": _}) | error(
+			"ComponentARN cannot be used with ComponentName; set exactly one of ComponentName, ComponentARN",
+		)
+	}
+}) & matchN(>=1, [{ComponentName!: _}, {ComponentARN!: _}]) |
+fn.#ObjectExpression
+
+#ConfigurationDetails: close({
+	AlarmMetrics?: [...#AlarmMetric] | fn.#ListExpression
+	Alarms?:       [...#Alarm] | fn.#ListExpression
+
+	// The HA cluster Prometheus Exporter settings.
+	HAClusterPrometheusExporter?: #HAClusterPrometheusExporter
+
+	// The HANA DB Prometheus Exporter settings.
+	HANAPrometheusExporter?: #HANAPrometheusExporter
+
+	// The JMX Prometheus Exporter settings.
+	JMXPrometheusExporter?: #JMXPrometheusExporter
+	Logs?:                  [...#Log] | fn.#ListExpression
+
+	// The NetWeaver Prometheus Exporter settings.
+	NetWeaverPrometheusExporter?: #NetWeaverPrometheusExporter
+	Processes?:                   [...#Process] | fn.#ListExpression
+
+	// The SQL Prometheus Exporter settings.
+	SQLServerPrometheusExporter?: #SQLServerPrometheusExporter
+	WindowsEvents?:               [...#WindowsEvent] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationDetails": close({
-	AlarmMetrics?: [..._#defs."/$defs/Properties/definitions/AlarmMetric"] | fn.#ListExpression
-	Alarms?:       [..._#defs."/$defs/Properties/definitions/Alarm"] | fn.#ListExpression
-	HAClusterPrometheusExporter?: _#defs."/$defs/Properties/definitions/HAClusterPrometheusExporter" |
-		fn.#ObjectExpression
-	HANAPrometheusExporter?: _#defs."/$defs/Properties/definitions/HANAPrometheusExporter" | fn.#ObjectExpression
-	JMXPrometheusExporter?:  _#defs."/$defs/Properties/definitions/JMXPrometheusExporter" | fn.#ObjectExpression
-	Logs?:                   [..._#defs."/$defs/Properties/definitions/Log"] | fn.#ListExpression
-	NetWeaverPrometheusExporter?: _#defs."/$defs/Properties/definitions/NetWeaverPrometheusExporter" |
-		fn.#ObjectExpression
-	Processes?: [..._#defs."/$defs/Properties/definitions/Process"] | fn.#ListExpression
-	SQLServerPrometheusExporter?: _#defs."/$defs/Properties/definitions/SQLServerPrometheusExporter" |
-		fn.#ObjectExpression
-	WindowsEvents?: [..._#defs."/$defs/Properties/definitions/WindowsEvent"] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/CustomComponent": close({
+#CustomComponent: close({
 	ComponentName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$" | fn.#StringExpression
 	ResourceList!: list.MinItems(1) & [
 		...strings.MaxRunes(300) &
@@ -109,19 +114,11 @@ _#defs: "/$defs/Properties/definitions/CustomComponent": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventLevel": "INFORMATION" |
-	"WARNING" |
-	"ERROR" |
-	"CRITICAL" |
-	"VERBOSE" |
-	fn.#StringExpression
+#EventLevel: "INFORMATION" | "WARNING" | "ERROR" | "CRITICAL" | "VERBOSE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HAClusterPrometheusExporter": close(
-	{PrometheusPort?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#HAClusterPrometheusExporter: close({PrometheusPort?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HANAPrometheusExporter": close({
+#HANAPrometheusExporter: close({
 	AgreeToInstallHANADBClient!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HANAPort!:                   string | fn.#StringExpression
 	HANASID!:                    string | fn.#StringExpression
@@ -130,14 +127,14 @@ _#defs: "/$defs/Properties/definitions/HANAPrometheusExporter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JMXPrometheusExporter": close({
+#JMXPrometheusExporter: close({
 	HostPort?:       string | fn.#StringExpression
 	JMXURL?:         string | fn.#StringExpression
 	PrometheusPort?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Log": close({
+#Log: close({
 	Encoding?:     "utf-8" | "utf-16" | "ascii" | fn.#StringExpression
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 	LogPath?: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^([a-zA-Z]:\\\\[\\\\\\S|*\\S]?.*|/[^\"']*)$" |
@@ -147,7 +144,7 @@ _#defs: "/$defs/Properties/definitions/Log": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogPattern": close({
+#LogPattern: close({
 	Pattern!:     strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	PatternName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
 	Rank!: int |
@@ -167,13 +164,13 @@ _#defs: "/$defs/Properties/definitions/LogPattern": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogPatternSet": close({
-	LogPatterns!:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogPattern"] | fn.#ListExpression
+#LogPatternSet: close({
+	LogPatterns!:    list.MinItems(1) & [...#LogPattern] | fn.#ListExpression
 	PatternSetName!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetWeaverPrometheusExporter": close({
+#NetWeaverPrometheusExporter: close({
 	InstanceNumbers!: [
 		...strings.MaxRunes(2) & strings.MinRunes(1) & =~"\\b([0-9]|[0-9][0-9])\\b" | fn.#StringExpression
 	] |
@@ -183,47 +180,43 @@ _#defs: "/$defs/Properties/definitions/NetWeaverPrometheusExporter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Process": close({
-	AlarmMetrics!: [..._#defs."/$defs/Properties/definitions/AlarmMetric"] | fn.#ListExpression
+#Process: close({
+	AlarmMetrics!: [...#AlarmMetric] | fn.#ListExpression
 	ProcessName!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_,-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SQLServerPrometheusExporter": close({
+#SQLServerPrometheusExporter: close({
 	PrometheusPort!: string | fn.#StringExpression
 	SQLSecretName!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubComponentConfigurationDetails": close({
-	AlarmMetrics?:  [..._#defs."/$defs/Properties/definitions/AlarmMetric"] | fn.#ListExpression
-	Logs?:          [..._#defs."/$defs/Properties/definitions/Log"] | fn.#ListExpression
-	Processes?:     [..._#defs."/$defs/Properties/definitions/Process"] | fn.#ListExpression
-	WindowsEvents?: [..._#defs."/$defs/Properties/definitions/WindowsEvent"] | fn.#ListExpression
+#SubComponentConfigurationDetails: close({
+	AlarmMetrics?:  [...#AlarmMetric] | fn.#ListExpression
+	Logs?:          [...#Log] | fn.#ListExpression
+	Processes?:     [...#Process] | fn.#ListExpression
+	WindowsEvents?: [...#WindowsEvent] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubComponentTypeConfiguration": close({
-	SubComponentConfigurationDetails!: _#defs."/$defs/Properties/definitions/SubComponentConfigurationDetails" |
-		fn.#ObjectExpression
-	SubComponentType!: "AWS::EC2::Instance" | "AWS::EC2::Volume" | fn.#StringExpression
+#SubComponentTypeConfiguration: close({
+	// The configuration settings of sub components.
+	SubComponentConfigurationDetails!: #SubComponentConfigurationDetails
+	SubComponentType!:                 "AWS::EC2::Instance" | "AWS::EC2::Volume" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WindowsEvent": close({
-	EventLevels!:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EventLevel"] | fn.#ListExpression
+#WindowsEvent: close({
+	EventLevels!:  list.MinItems(1) & [...#EventLevel] | fn.#ListExpression
 	EventName!:    strings.MaxRunes(260) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ \\\\/-]+$" | fn.#StringExpression
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 	PatternSet?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationInsights::Application"
-	Properties!: #Properties
-}

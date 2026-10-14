@@ -8,15 +8,15 @@ package schema
 #Properties: close({
 	Arn?:               string
 	Description?:       string
-	KafkaVersionsList?: _#defs."/$defs/Properties/definitions/KafkaVersionsList"
-	LatestRevision?:    _#defs."/$defs/Properties/definitions/LatestRevision"
+	KafkaVersionsList?: #KafkaVersionsList
+	LatestRevision?:    #LatestRevision
 	Name!:              string
 	ServerProperties!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/KafkaVersionsList": [...string]
+#KafkaVersionsList: [...string]
 
-_#defs: "/$defs/Properties/definitions/LatestRevision": close({
+#LatestRevision: close({
 	CreationTime?: string
 	Description?:  string
 	Revision?:     int

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,29 +14,29 @@ import (
 // accounts, and others.
 #Properties: close({
 	// The unique identifier of the AgentSpace
-	AgentSpaceId!: _#defs."/$defs/Properties/definitions/AgentSpaceId"
+	AgentSpaceId!: #AgentSpaceId
 
 	// The unique identifier of the association
-	AssociationId?: _#defs."/$defs/Properties/definitions/AssociationId"
+	AssociationId?: #AssociationId
 
 	// The configuration that directs how AgentSpace interacts with the given service
-	Configuration!: _#defs."/$defs/Properties/definitions/ServiceConfiguration"
+	Configuration!: #ServiceConfiguration
 
 	// The timestamp when the association was created
 	CreatedAt?: time.Time
 
 	// Set of linked association IDs for parent-child relationships
-	LinkedAssociationIds?: [..._#defs."/$defs/Properties/definitions/AssociationId"]
+	LinkedAssociationIds?: [...#AssociationId]
 
 	// The identifier for the associated service
-	ServiceId!: _#defs."/$defs/Properties/definitions/ServiceId"
+	ServiceId!: #ServiceId
 
 	// The timestamp when the association was last updated
 	UpdatedAt?: time.Time
 })
 
 // AWS association for 'monitor' account
-_#defs: "/$defs/Properties/definitions/AWSConfiguration": close({
+#AWSConfiguration: close({
 	// AWS Account Id corresponding to provided resources
 	AccountId!: =~"\\d{12}"
 
@@ -53,12 +53,12 @@ _#defs: "/$defs/Properties/definitions/AWSConfiguration": close({
 
 	// Role ARN to be assumed by DevOpsAgent to operate on behalf of customer
 	AssumableRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	Resources?:        _#defs."/$defs/Properties/definitions/AWSResourceList"
-	Tags?:             _#defs."/$defs/Properties/definitions/AWSTagList"
+	Resources?:        #AWSResourceList
+	Tags?:             #AWSTagList
 })
 
 // AWS resource definition
-_#defs: "/$defs/Properties/definitions/AWSResource": close({
+#AWSResource: close({
 	// The Amazon Resource Name (ARN) of the resource
 	ResourceArn!: string
 
@@ -70,25 +70,25 @@ _#defs: "/$defs/Properties/definitions/AWSResource": close({
 })
 
 // List of AWS resources
-_#defs: "/$defs/Properties/definitions/AWSResourceList": [..._#defs."/$defs/Properties/definitions/AWSResource"]
+#AWSResourceList: [...#AWSResource]
 
 // List of AWS tags as key-value pairs
-_#defs: "/$defs/Properties/definitions/AWSTagList": [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
+#AWSTagList: [...#KeyValuePair]
 
 // The unique identifier of the AgentSpace
-_#defs: "/$defs/Properties/definitions/AgentSpaceId": strings.MaxRunes(255) & strings.MinRunes(1)
+#AgentSpaceId: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // The unique identifier of the association
-_#defs: "/$defs/Properties/definitions/AssociationId": strings.MaxRunes(255) & strings.MinRunes(1)
+#AssociationId: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // Azure subscription integration configuration
-_#defs: "/$defs/Properties/definitions/AzureConfiguration": close({
+#AzureConfiguration: close({
 	// Azure subscription ID corresponding to provided resources
 	SubscriptionId!: string
 })
 
 // Dynatrace monitoring configuration
-_#defs: "/$defs/Properties/definitions/DynatraceConfiguration": close({
+#DynatraceConfiguration: close({
 	// When set to true, enables the Agent Space to create and update webhooks for
 	// receiving notifications and events from the service
 	EnableWebhookUpdates?: bool
@@ -101,14 +101,14 @@ _#defs: "/$defs/Properties/definitions/DynatraceConfiguration": close({
 })
 
 // EventChannelconfiguration
-_#defs: "/$defs/Properties/definitions/EventChannelConfiguration": close({
+#EventChannelConfiguration: close({
 	// When set to true, enables the Agent Space to create and update webhooks for
 	// receiving notifications and events from the service
 	EnableWebhookUpdates?: bool
 })
 
 // GitHub repository integration configuration
-_#defs: "/$defs/Properties/definitions/GitHubConfiguration": close({
+#GitHubConfiguration: close({
 	// Repository owner
 	Owner!: string
 
@@ -123,7 +123,7 @@ _#defs: "/$defs/Properties/definitions/GitHubConfiguration": close({
 })
 
 // GitLab project integration configuration
-_#defs: "/$defs/Properties/definitions/GitLabConfiguration": close({
+#GitLabConfiguration: close({
 	// When set to true, enables the Agent Space to create and update webhooks for
 	// receiving notifications and events from the service
 	EnableWebhookUpdates?: bool
@@ -139,13 +139,13 @@ _#defs: "/$defs/Properties/definitions/GitLabConfiguration": close({
 })
 
 // A key-value pair for tags
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	Key!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
 // MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerConfiguration": close({
+#MCPServerConfiguration: close({
 	// The description of the MCP server
 	Description?: string
 
@@ -164,7 +164,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerConfiguration": close({
 })
 
 // Datadog MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerDatadogConfiguration": close({
+#MCPServerDatadogConfiguration: close({
 	// The description of the MCP server
 	Description?: string
 
@@ -188,7 +188,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerDatadogConfiguration": close({
 })
 
 // Grafana MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerGrafanaConfiguration": close({
+#MCPServerGrafanaConfiguration: close({
 	// When set to true, enables the Agent Space to create and update webhooks for
 	// receiving notifications and events from the service
 	EnableWebhookUpdates?: bool
@@ -230,7 +230,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerGrafanaConfiguration": close({
 })
 
 // NewRelic MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerNewRelicConfiguration": close({
+#MCPServerNewRelicConfiguration: close({
 	// New Relic Account ID
 	AccountId!: strings.MinRunes(6) & =~"^[0-9]+$"
 
@@ -239,13 +239,13 @@ _#defs: "/$defs/Properties/definitions/MCPServerNewRelicConfiguration": close({
 })
 
 // SigV4-authenticated MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerSigV4Configuration": close({
+#MCPServerSigV4Configuration: close({
 	// List of MCP tools available for the association
 	Tools!: [...=~"^[a-zA-Z0-9_-]+$"]
 })
 
 // Splunk MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerSplunkConfiguration": close({
+#MCPServerSplunkConfiguration: close({
 	// The description of the MCP server
 	Description?: string
 
@@ -261,7 +261,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerSplunkConfiguration": close({
 })
 
 // PagerDuty integration configuration
-_#defs: "/$defs/Properties/definitions/PagerDutyConfiguration": close({
+#PagerDutyConfiguration: close({
 	// Email to be used in PagerDuty API header
 	CustomerEmail!: string
 
@@ -274,47 +274,47 @@ _#defs: "/$defs/Properties/definitions/PagerDutyConfiguration": close({
 })
 
 // The configuration that directs how AgentSpace interacts with the given service
-_#defs: "/$defs/Properties/definitions/ServiceConfiguration": matchN(1, [close(
-	{SourceAws!: _#defs."/$defs/Properties/definitions/SourceAwsConfiguration"},
+#ServiceConfiguration: matchN(1, [close(
+	{SourceAws!: #SourceAwsConfiguration},
 ), close(
-	{Aws!: _#defs."/$defs/Properties/definitions/AWSConfiguration"},
+	{Aws!: #AWSConfiguration},
 ), close(
-	{GitHub!: _#defs."/$defs/Properties/definitions/GitHubConfiguration"},
+	{GitHub!: #GitHubConfiguration},
 ), close(
-	{Slack!: _#defs."/$defs/Properties/definitions/SlackConfiguration"},
+	{Slack!: #SlackConfiguration},
 ), close(
-	{Dynatrace!: _#defs."/$defs/Properties/definitions/DynatraceConfiguration"},
+	{Dynatrace!: #DynatraceConfiguration},
 ), close(
-	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowConfiguration"},
+	{ServiceNow!: #ServiceNowConfiguration},
 ), close(
-	{MCPServer!: _#defs."/$defs/Properties/definitions/MCPServerConfiguration"},
+	{MCPServer!: #MCPServerConfiguration},
 ), close(
-	{GitLab!: _#defs."/$defs/Properties/definitions/GitLabConfiguration"},
+	{GitLab!: #GitLabConfiguration},
 ), close(
-	{MCPServerDatadog!: _#defs."/$defs/Properties/definitions/MCPServerDatadogConfiguration"},
+	{MCPServerDatadog!: #MCPServerDatadogConfiguration},
 ), close(
-	{MCPServerSplunk!: _#defs."/$defs/Properties/definitions/MCPServerSplunkConfiguration"},
+	{MCPServerSplunk!: #MCPServerSplunkConfiguration},
 ), close(
-	{MCPServerNewRelic!: _#defs."/$defs/Properties/definitions/MCPServerNewRelicConfiguration"},
+	{MCPServerNewRelic!: #MCPServerNewRelicConfiguration},
 ), close(
-	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaConfiguration"},
+	{MCPServerGrafana!: #MCPServerGrafanaConfiguration},
 ), close(
-	{PagerDuty!: _#defs."/$defs/Properties/definitions/PagerDutyConfiguration"},
+	{PagerDuty!: #PagerDutyConfiguration},
 ), close(
-	{EventChannel!: _#defs."/$defs/Properties/definitions/EventChannelConfiguration"},
+	{EventChannel!: #EventChannelConfiguration},
 ), close(
-	{Azure!: _#defs."/$defs/Properties/definitions/AzureConfiguration"},
+	{Azure!: #AzureConfiguration},
 ), close(
-	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/MCPServerSigV4Configuration"},
+	{MCPServerSigV4!: #MCPServerSigV4Configuration},
 )])
 
 // The identifier for the associated service. For SourceAws and Aws
 // configurations, this must be 'aws'. For all other service types, this is a
 // UUID generated from the RegisterService command
-_#defs: "/$defs/Properties/definitions/ServiceId": strings.MaxRunes(255) & strings.MinRunes(1)
+#ServiceId: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // ServiceNow integration configuration
-_#defs: "/$defs/Properties/definitions/ServiceNowConfiguration": close({
+#ServiceNowConfiguration: close({
 	// When set to true, enables the Agent Space to create and update webhooks for
 	// receiving notifications and events from the service
 	EnableWebhookUpdates?: bool
@@ -326,7 +326,7 @@ _#defs: "/$defs/Properties/definitions/ServiceNowConfiguration": close({
 // Optional bidirectional communication configuration. Supply this configuration
 // and set Enabled to true so you can interact with the agent directly from
 // Slack
-_#defs: "/$defs/Properties/definitions/SlackBidirectionalConfiguration": close({
+#SlackBidirectionalConfiguration: close({
 	// Whether bidirectional communication is enabled for this association. When set
 	// to true, you can mention the agent in a configured Slack channel and it
 	// responds in that channel. When omitted or set to false, the agent ignores
@@ -342,7 +342,7 @@ _#defs: "/$defs/Properties/definitions/SlackBidirectionalConfiguration": close({
 })
 
 // Slack channel configuration
-_#defs: "/$defs/Properties/definitions/SlackChannel": close({
+#SlackChannel: close({
 	// Slack channel ID
 	ChannelId!: strings.MaxRunes(16) & strings.MinRunes(8) & =~"^[CGD][A-Z0-9]+$"
 
@@ -351,9 +351,9 @@ _#defs: "/$defs/Properties/definitions/SlackChannel": close({
 })
 
 // Slack workspace integration configuration
-_#defs: "/$defs/Properties/definitions/SlackConfiguration": close({
-	Bidirectional?:      _#defs."/$defs/Properties/definitions/SlackBidirectionalConfiguration"
-	TransmissionTarget!: _#defs."/$defs/Properties/definitions/SlackTransmissionTarget"
+#SlackConfiguration: close({
+	Bidirectional?:      #SlackBidirectionalConfiguration
+	TransmissionTarget!: #SlackTransmissionTarget
 
 	// Associated Slack workspace ID
 	WorkspaceId!: =~"^[TE][A-Z0-9]+$"
@@ -363,13 +363,13 @@ _#defs: "/$defs/Properties/definitions/SlackConfiguration": close({
 })
 
 // Transmission targets for agent notifications
-_#defs: "/$defs/Properties/definitions/SlackTransmissionTarget": close({
+#SlackTransmissionTarget: close({
 	// Destination for IncidentResponse agent.
-	IncidentResponseTarget!: _#defs."/$defs/Properties/definitions/SlackChannel"
+	IncidentResponseTarget!: #SlackChannel
 })
 
 // AWS association for 'source' account
-_#defs: "/$defs/Properties/definitions/SourceAwsConfiguration": close({
+#SourceAwsConfiguration: close({
 	// AWS Account Id corresponding to provided resources
 	AccountId!: =~"\\d{12}"
 
@@ -386,6 +386,6 @@ _#defs: "/$defs/Properties/definitions/SourceAwsConfiguration": close({
 
 	// Role ARN to be assumed by DevOpsAgent to operate on behalf of customer
 	AssumableRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	Resources?:        _#defs."/$defs/Properties/definitions/AWSResourceList"
-	Tags?:             _#defs."/$defs/Properties/definitions/AWSTagList"
+	Resources?:        #AWSResourceList
+	Tags?:             #AWSTagList
 })

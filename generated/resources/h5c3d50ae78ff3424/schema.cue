@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,21 +19,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::BedrockAgentCore::CapacityProvider. A
 // capacity provider defines the compute resources (EC2) used to run Amazon
 // Bedrock AgentCore agent runtimes.
-#Properties: close({
-	ComputeConfiguration!: _#defs."/$defs/Properties/definitions/ComputeConfiguration"
-	Description?:          strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	PermissionsConfiguration!: _#defs."/$defs/Properties/definitions/PermissionsConfiguration"
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::CapacityProvider"
+	Properties!: close({
+		ComputeConfiguration!: #ComputeConfiguration
+		Description?:          strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+		PermissionsConfiguration!: #PermissionsConfiguration
+		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	CapacityReservationPreference?: "capacity-reservations-only" | "open" | "none" | fn.#StringExpression
-	CapacityReservationTarget?:     _#defs."/$defs/Properties/definitions/CapacityReservationTarget"
+	CapacityReservationTarget?:     #CapacityReservationTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
+#CapacityReservationTarget: close({
 	CapacityReservationId?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^cr-[0-9a-z]+$" | fn.#StringExpression
 	CapacityReservationResourceGroupArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -42,12 +45,9 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComputeConfiguration": close(
-	{Ec2Configuration!: _#defs."/$defs/Properties/definitions/Ec2Configuration"},
-) |
-	fn.#ObjectExpression
+#ComputeConfiguration: close({Ec2Configuration!: #Ec2Configuration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsVolumeConfiguration": close({
+#EbsVolumeConfiguration: close({
 	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int & <=256000 & >=100 |
 		{
@@ -109,23 +109,23 @@ _#defs: "/$defs/Properties/definitions/EbsVolumeConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ec2Configuration": close({
-	LaunchTemplateSource!:   _#defs."/$defs/Properties/definitions/LaunchTemplateSource"
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/InstanceLifecycleConfiguration"
-	RootVolume?:             _#defs."/$defs/Properties/definitions/RootVolumeConfiguration"
-	Volumes?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/VolumeConfiguration"] | fn.#ListExpression
-	VpcConfiguration!: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+#Ec2Configuration: close({
+	LaunchTemplateSource!:   #LaunchTemplateSource
+	LifecycleConfiguration?: #InstanceLifecycleConfiguration
+	RootVolume?:             #RootVolumeConfiguration
+	Volumes?:                list.MaxItems(5) & [...#VolumeConfiguration] | fn.#ListExpression
+	VpcConfiguration!:       #VpcConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EphemeralBlockDeviceMapping": close({
+#EphemeralBlockDeviceMapping: close({
 	DeviceName?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/._-]+$" | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration"
+	Ebs?:         #EphemeralEBSVolumeConfiguration
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^ephemeral[0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration": close({
+#EphemeralEBSVolumeConfiguration: close({
 	EbsCardIndex?: int & >=0 |
 		{
 			string &
@@ -217,7 +217,7 @@ _#defs: "/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceLifecycleConfiguration": close({
+#InstanceLifecycleConfiguration: close({
 	IdleInstanceTimeout?: int & <=1209600 & >=60 |
 		{
 			string &
@@ -253,7 +253,7 @@ _#defs: "/$defs/Properties/definitions/InstanceLifecycleConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
+#InstanceRequirements: close({
 	AllowedInstanceTypes!: list.MaxItems(30) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -261,19 +261,17 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchParameters": close({
-	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification"
-	EphemeralVolumes?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/EphemeralBlockDeviceMapping"] |
-		fn.#ListExpression
+#LaunchParameters: close({
+	CapacityReservationSpecification?: #CapacityReservationSpecification
+	EphemeralVolumes?:                 list.MaxItems(5) & [...#EphemeralBlockDeviceMapping] | fn.#ListExpression
 	InstanceProfileArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:instance-profile/([!-~]{1,510}/)?([\\w+=,.@-]{1,128})$" |
 	fn.#StringExpression
-	InstanceRequirements!: _#defs."/$defs/Properties/definitions/InstanceRequirements"
-	LicenseSpecifications?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/LicenseSpecification"] |
-		fn.#ListExpression
-	Monitoring?:      "BASIC" | "DETAILED" | fn.#StringExpression
-	OperatingSystem!: "LINUX_X86_64" | "LINUX_ARM64" | fn.#StringExpression
+	InstanceRequirements!:  #InstanceRequirements
+	LicenseSpecifications?: list.MaxItems(5) & [...#LicenseSpecification] | fn.#ListExpression
+	Monitoring?:            "BASIC" | "DETAILED" | fn.#StringExpression
+	OperatingSystem!:       "LINUX_X86_64" | "LINUX_ARM64" | fn.#StringExpression
 	PropagatedTags?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
@@ -282,12 +280,9 @@ _#defs: "/$defs/Properties/definitions/LaunchParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSource": close(
-	{LaunchParameters!: _#defs."/$defs/Properties/definitions/LaunchParameters"},
-) |
-	fn.#ObjectExpression
+#LaunchTemplateSource: close({LaunchParameters!: #LaunchParameters}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseSpecification": close({
+#LicenseSpecification: close({
 	LicenseConfigurationArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:license-manager:[a-z0-9-]+:[0-9]{12}:license-configuration:[a-zA-Z0-9_-]+$" |
@@ -295,7 +290,7 @@ _#defs: "/$defs/Properties/definitions/LicenseSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PermissionsConfiguration": close({
+#PermissionsConfiguration: close({
 	CapacityProviderOperatorRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -304,7 +299,7 @@ _#defs: "/$defs/Properties/definitions/PermissionsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
+#RootVolumeConfiguration: close({
 	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FreeSpaceGiB?: int & <=65000 & >=2 |
 		{
@@ -364,18 +359,15 @@ _#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeConfiguration": close(
-	{EbsConfiguration!: _#defs."/$defs/Properties/definitions/EbsVolumeConfiguration"},
-) |
-	fn.#ObjectExpression
+#VolumeConfiguration: close({EbsConfiguration!: #EbsVolumeConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 			=~"^sg-[0-9a-zA-Z]{8,17}$" |
@@ -386,7 +378,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::CapacityProvider"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,49 +13,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::ConfigurationBundle Resource Type
-#Properties: close({
-	BranchName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_/-]{0,127}$" |
-	fn.#StringExpression
-	BundleName!:    =~"^[a-zA-Z][a-zA-Z0-9_]{0,99}$" | fn.#StringExpression
-	CommitMessage?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Components!:    {...} | fn.#ObjectExpression
-	CreatedBy?:     _#defs."/$defs/Properties/definitions/VersionCreatedBySource"
-	Description?:   strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::ConfigurationBundle"
+	Properties!: close({
+		BranchName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_/-]{0,127}$" |
+		fn.#StringExpression
+		BundleName!:    =~"^[a-zA-Z][a-zA-Z0-9_]{0,99}$" | fn.#StringExpression
+		CommitMessage?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		Components!:    {...} | fn.#ObjectExpression
+		CreatedBy?:     #VersionCreatedBySource
+		Description?:   strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ComponentConfiguration": close(
-	{Configuration!: fn.#Object & {...} | fn.#ObjectExpression},
-) |
-fn.#ObjectExpression
+#ComponentConfiguration: close({Configuration!: fn.#Object & {...} | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VersionCreatedBySource": close({
+#VersionCreatedBySource: close({
 	Arn?:  string | fn.#StringExpression
 	Name!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VersionLineageMetadata": close({
+#VersionLineageMetadata: close({
 	BranchName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_/-]{0,127}$" |
 	fn.#StringExpression
 	CommitMessage?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	CreatedBy?:     _#defs."/$defs/Properties/definitions/VersionCreatedBySource"
+	CreatedBy?:     #VersionCreatedBySource
 	ParentVersionIds?: [...=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::ConfigurationBundle"
-	Properties!: #Properties
-}

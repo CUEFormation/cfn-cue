@@ -27,15 +27,15 @@ import (
 	Description!:        strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$"
 	ExecutablePath!:     strings.MaxRunes(1024) & strings.MinRunes(1)
 	Id?:                 strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
-	RuntimeEnvironment!: _#defs."/$defs/Properties/definitions/RuntimeEnvironment"
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
+	RuntimeEnvironment!: #RuntimeEnvironment
+	Tags?:               #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/RuntimeEnvironment": close({
+#RuntimeEnvironment: close({
 	Type!:    strings.MaxRunes(256) & strings.MinRunes(1)
 	Version!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & struct.MinFields(1) & close({
+#Tags: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})

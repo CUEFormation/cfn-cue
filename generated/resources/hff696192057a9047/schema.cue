@@ -16,91 +16,100 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EMR::Cluster
-#Properties: close({
-	AdditionalInfo?:  fn.#Object & {...} | string | fn.#StringObjectExpression
-	Applications?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Application"] | fn.#ListExpression
-	AutoScalingRole?: string | fn.#StringExpression
-	AutoTerminationPolicy?: _#defs."/$defs/Properties/definitions/AutoTerminationPolicy"
-	BootstrapActions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BootstrapActionConfig"] |
-		fn.#ListExpression
-	Configurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Configuration"] | fn.#ListExpression
-	CustomAmiId?:    string | fn.#StringExpression
-	EbsRootVolumeIops?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EbsRootVolumeSize?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EbsRootVolumeThroughput?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Instances!:             _#defs."/$defs/Properties/definitions/JobFlowInstancesConfig"
-	JobFlowRole!:           string | fn.#StringExpression
-	KerberosAttributes?:    _#defs."/$defs/Properties/definitions/KerberosAttributes"
-	LogEncryptionKmsKeyId?: string | fn.#StringExpression
-	LogUri?:                string | fn.#StringExpression
-	ManagedScalingPolicy?:  _#defs."/$defs/Properties/definitions/ManagedScalingPolicy"
-	Name!:                  string | fn.#StringExpression
-	OSReleaseLabel?:        string | fn.#StringExpression
-	PlacementGroupConfigs?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PlacementGroupConfig"] |
-		fn.#ListExpression
-	ReleaseLabel?:          string | fn.#StringExpression
-	ScaleDownBehavior?:     string | fn.#StringExpression
-	SecurityConfiguration?: string | fn.#StringExpression
-	ServiceRole!:           string | fn.#StringExpression
-	StepConcurrencyLevel?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Steps?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StepConfig"] | fn.#ListExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VisibleToAllUsers?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::Cluster"
+	Properties!: close({
+		AdditionalInfo?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+		Applications?:          list.UniqueItems() & [...#Application] | fn.#ListExpression
+		AutoScalingRole?:       string | fn.#StringExpression
+		AutoTerminationPolicy?: #AutoTerminationPolicy
+		BootstrapActions?:      list.UniqueItems() & [...#BootstrapActionConfig] | fn.#ListExpression
+		Configurations?:        list.UniqueItems() & [...#Configuration] | fn.#ListExpression
+		CustomAmiId?:           string | fn.#StringExpression
+		EbsRootVolumeIops?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EbsRootVolumeSize?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EbsRootVolumeThroughput?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Instances!:             #JobFlowInstancesConfig
+		JobFlowRole!:           string | fn.#StringExpression
+		KerberosAttributes?:    #KerberosAttributes
+		LogEncryptionKmsKeyId?: string | fn.#StringExpression
+		LogUri?:                string | fn.#StringExpression
+		ManagedScalingPolicy?:  #ManagedScalingPolicy
+		Name!:                  string | fn.#StringExpression
+		OSReleaseLabel?:        string | fn.#StringExpression
+		PlacementGroupConfigs?: list.UniqueItems() & [...#PlacementGroupConfig] | fn.#ListExpression
+		ReleaseLabel?:          string | fn.#StringExpression
+		ScaleDownBehavior?:     string | fn.#StringExpression
+		SecurityConfiguration?: string | fn.#StringExpression
+		ServiceRole!:           string | fn.#StringExpression
+		StepConcurrencyLevel?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Steps?:             list.UniqueItems() & [...#StepConfig] | fn.#ListExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+		VisibleToAllUsers?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Application": close({
+#Application: close({
 	AdditionalInfo?: {
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
@@ -111,13 +120,13 @@ _#defs: "/$defs/Properties/definitions/Application": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingPolicy": close({
-	Constraints!: _#defs."/$defs/Properties/definitions/ScalingConstraints"
-	Rules!:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ScalingRule"] | fn.#ListExpression
+#AutoScalingPolicy: close({
+	Constraints!: #ScalingConstraints
+	Rules!:       list.UniqueItems() & [...#ScalingRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoTerminationPolicy": close({
+#AutoTerminationPolicy: close({
 	IdleTimeout?: int |
 		{
 			string &
@@ -135,15 +144,15 @@ _#defs: "/$defs/Properties/definitions/AutoTerminationPolicy": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BootstrapActionConfig": close({
+#BootstrapActionConfig: close({
 	Name!:                  string | fn.#StringExpression
-	ScriptBootstrapAction!: _#defs."/$defs/Properties/definitions/ScriptBootstrapActionConfig"
+	ScriptBootstrapAction!: #ScriptBootstrapActionConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
+#CloudWatchAlarmDefinition: close({
 	ComparisonOperator!: string | fn.#StringExpression
-	Dimensions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
+	Dimensions?:         list.UniqueItems() & [...#MetricDimension] | fn.#ListExpression
 	EvaluationPeriods?: int |
 		{
 			string &
@@ -198,7 +207,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogConfiguration": null |
+#CloudWatchLogConfiguration: null |
 bool |
 number |
 string |
@@ -209,7 +218,7 @@ string |
 } |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ComputeLimits": close({
+#ComputeLimits: close({
 	MaximumCapacityUnits!: int |
 		{
 			string &
@@ -270,18 +279,18 @@ _#defs: "/$defs/Properties/definitions/ComputeLimits": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Configuration": close({
+#Configuration: close({
 	Classification?: string | fn.#StringExpression
 	ConfigurationProperties?: {
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
 	} | fn.#ObjectExpression
-	Configurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Configuration"] | fn.#ListExpression
+	Configurations?: list.UniqueItems() & [...#Configuration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
-	VolumeSpecification!: _#defs."/$defs/Properties/definitions/VolumeSpecification"
+#EbsBlockDeviceConfig: close({
+	VolumeSpecification!: #VolumeSpecification
 	VolumesPerInstance?: int |
 		{
 			string &
@@ -299,27 +308,25 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsConfiguration": close({
-	EbsBlockDeviceConfigs?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EbsBlockDeviceConfig"] |
-		fn.#ListExpression
-	EbsOptimized?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+#EbsConfiguration: close({
+	EbsBlockDeviceConfigs?: list.UniqueItems() & [...#EbsBlockDeviceConfig] | fn.#ListExpression
+	EbsOptimized?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HadoopJarStepConfig": close({
+#HadoopJarStepConfig: close({
 	Args?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Jar!:            string | fn.#StringExpression
 	MainClass?:      string | fn.#StringExpression
-	StepProperties?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValue"] | fn.#ListExpression
+	StepProperties?: list.UniqueItems() & [...#KeyValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetConfig": close({
-	InstanceTypeConfigs?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceTypeConfig"] |
-		fn.#ListExpression
-	LaunchSpecifications?: _#defs."/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications"
+#InstanceFleetConfig: close({
+	InstanceTypeConfigs?:  list.UniqueItems() & [...#InstanceTypeConfig] | fn.#ListExpression
+	LaunchSpecifications?: #InstanceFleetProvisioningSpecifications
 	Name?:                 string | fn.#StringExpression
-	ResizeSpecifications?: _#defs."/$defs/Properties/definitions/InstanceFleetResizingSpecifications"
+	ResizeSpecifications?: #InstanceFleetResizingSpecifications
 	TargetOnDemandCapacity?: int |
 		{
 			string &
@@ -351,24 +358,24 @@ _#defs: "/$defs/Properties/definitions/InstanceFleetConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications": close({
-	OnDemandSpecification?: _#defs."/$defs/Properties/definitions/OnDemandProvisioningSpecification"
-	SpotSpecification?:     _#defs."/$defs/Properties/definitions/SpotProvisioningSpecification"
+#InstanceFleetProvisioningSpecifications: close({
+	OnDemandSpecification?: #OnDemandProvisioningSpecification
+	SpotSpecification?:     #SpotProvisioningSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetResizingSpecifications": close({
-	OnDemandResizeSpecification?: _#defs."/$defs/Properties/definitions/OnDemandResizingSpecification"
-	SpotResizeSpecification?:     _#defs."/$defs/Properties/definitions/SpotResizingSpecification"
+#InstanceFleetResizingSpecifications: close({
+	OnDemandResizeSpecification?: #OnDemandResizingSpecification
+	SpotResizeSpecification?:     #SpotResizingSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceGroupConfig": close({
-	AutoScalingPolicy?: _#defs."/$defs/Properties/definitions/AutoScalingPolicy"
+#InstanceGroupConfig: close({
+	AutoScalingPolicy?: #AutoScalingPolicy
 	BidPrice?:          string | fn.#StringExpression
-	Configurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Configuration"] | fn.#ListExpression
-	CustomAmiId?:    string | fn.#StringExpression
-	EbsConfiguration?: _#defs."/$defs/Properties/definitions/EbsConfiguration"
+	Configurations?:    list.UniqueItems() & [...#Configuration] | fn.#ListExpression
+	CustomAmiId?:       string | fn.#StringExpression
+	EbsConfiguration?:  #EbsConfiguration
 	InstanceCount!: int |
 		{
 			string &
@@ -389,7 +396,7 @@ _#defs: "/$defs/Properties/definitions/InstanceGroupConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
+#InstanceTypeConfig: close({
 	BidPrice?: string | fn.#StringExpression
 	BidPriceAsPercentageOfOnDemandPrice?: number |
 		{
@@ -410,9 +417,9 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	Configurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Configuration"] | fn.#ListExpression
-	CustomAmiId?:    string | fn.#StringExpression
-	EbsConfiguration?: _#defs."/$defs/Properties/definitions/EbsConfiguration"
+	Configurations?:   list.UniqueItems() & [...#Configuration] | fn.#ListExpression
+	CustomAmiId?:      string | fn.#StringExpression
+	EbsConfiguration?: #EbsConfiguration
 	InstanceType!:     string | fn.#StringExpression
 	Priority?: number |
 		{
@@ -450,11 +457,11 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobFlowInstancesConfig": close({
+#JobFlowInstancesConfig: close({
 	AdditionalMasterSecurityGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	AdditionalSlaveSecurityGroups?:  list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CoreInstanceFleet?:              _#defs."/$defs/Properties/definitions/InstanceFleetConfig"
-	CoreInstanceGroup?:              _#defs."/$defs/Properties/definitions/InstanceGroupConfig"
+	CoreInstanceFleet?:              #InstanceFleetConfig
+	CoreInstanceGroup?:              #InstanceGroupConfig
 	Ec2KeyName?:                     string | fn.#StringExpression
 	Ec2SubnetId?:                    string | fn.#StringExpression
 	Ec2SubnetIds?:                   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -462,20 +469,18 @@ _#defs: "/$defs/Properties/definitions/JobFlowInstancesConfig": close({
 	EmrManagedSlaveSecurityGroup?:   string | fn.#StringExpression
 	HadoopVersion?:                  string | fn.#StringExpression
 	KeepJobFlowAliveWhenNoSteps?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MasterInstanceFleet?:         _#defs."/$defs/Properties/definitions/InstanceFleetConfig"
-	MasterInstanceGroup?:         _#defs."/$defs/Properties/definitions/InstanceGroupConfig"
-	Placement?:                   _#defs."/$defs/Properties/definitions/PlacementType"
+	MasterInstanceFleet?:         #InstanceFleetConfig
+	MasterInstanceGroup?:         #InstanceGroupConfig
+	Placement?:                   #PlacementType
 	ServiceAccessSecurityGroup?:  string | fn.#StringExpression
-	TaskInstanceFleets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceFleetConfig"] |
-		fn.#ListExpression
-	TaskInstanceGroups?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceGroupConfig"] |
-		fn.#ListExpression
-	TerminationProtected?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	UnhealthyNodeReplacement?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	TaskInstanceFleets?:          list.UniqueItems() & [...#InstanceFleetConfig] | fn.#ListExpression
+	TaskInstanceGroups?:          list.UniqueItems() & [...#InstanceGroupConfig] | fn.#ListExpression
+	TerminationProtected?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	UnhealthyNodeReplacement?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KerberosAttributes": close({
+#KerberosAttributes: close({
 	ADDomainJoinPassword?:             string | fn.#StringExpression
 	ADDomainJoinUser?:                 string | fn.#StringExpression
 	CrossRealmTrustPrincipalPassword?: string | fn.#StringExpression
@@ -484,14 +489,14 @@ _#defs: "/$defs/Properties/definitions/KerberosAttributes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValue": close({
+#KeyValue: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedScalingPolicy": close({
-	ComputeLimits?:   _#defs."/$defs/Properties/definitions/ComputeLimits"
+#ManagedScalingPolicy: close({
+	ComputeLimits?:   #ComputeLimits
 	ScalingStrategy?: string | fn.#StringExpression
 	UtilizationPerformanceIndex?: int |
 		{
@@ -510,28 +515,28 @@ _#defs: "/$defs/Properties/definitions/ManagedScalingPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandCapacityReservationOptions": close({
+#OnDemandCapacityReservationOptions: close({
 	CapacityReservationPreference?:       string | fn.#StringExpression
 	CapacityReservationResourceGroupArn?: string | fn.#StringExpression
 	UsageStrategy?:                       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandProvisioningSpecification": close({
+#OnDemandProvisioningSpecification: close({
 	AllocationStrategy!:         string | fn.#StringExpression
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions"
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandResizingSpecification": close({
+#OnDemandResizingSpecification: close({
 	AllocationStrategy?:         string | fn.#StringExpression
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions"
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 	TimeoutDurationMinutes?: int |
 		{
 			string &
@@ -549,22 +554,21 @@ _#defs: "/$defs/Properties/definitions/OnDemandResizingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementGroupConfig": close({
+#PlacementGroupConfig: close({
 	InstanceRole!:      string | fn.#StringExpression
 	PlacementStrategy?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementType": close({AvailabilityZone!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#PlacementType: close({AvailabilityZone!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingAction": close({
+#ScalingAction: close({
 	Market?:                           string | fn.#StringExpression
-	SimpleScalingPolicyConfiguration!: _#defs."/$defs/Properties/definitions/SimpleScalingPolicyConfiguration"
+	SimpleScalingPolicyConfiguration!: #SimpleScalingPolicyConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConstraints": close({
+#ScalingConstraints: close({
 	MaxCapacity!: int |
 		{
 			string &
@@ -596,26 +600,23 @@ _#defs: "/$defs/Properties/definitions/ScalingConstraints": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingRule": close({
-	Action!:      _#defs."/$defs/Properties/definitions/ScalingAction"
+#ScalingRule: close({
+	Action!:      #ScalingAction
 	Description?: string | fn.#StringExpression
 	Name!:        string | fn.#StringExpression
-	Trigger!:     _#defs."/$defs/Properties/definitions/ScalingTrigger"
+	Trigger!:     #ScalingTrigger
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingTrigger": close(
-	{CloudWatchAlarmDefinition!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmDefinition"},
-) |
-	fn.#ObjectExpression
+#ScalingTrigger: close({CloudWatchAlarmDefinition!: #CloudWatchAlarmDefinition}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScriptBootstrapActionConfig": close({
+#ScriptBootstrapActionConfig: close({
 	Args?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Path!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SimpleScalingPolicyConfiguration": close({
+#SimpleScalingPolicyConfiguration: close({
 	AdjustmentType?: string | fn.#StringExpression
 	CoolDown?: int |
 		{
@@ -648,7 +649,7 @@ _#defs: "/$defs/Properties/definitions/SimpleScalingPolicyConfiguration": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpotProvisioningSpecification": close({
+#SpotProvisioningSpecification: close({
 	AllocationStrategy?: string | fn.#StringExpression
 	BlockDurationMinutes?: int |
 		{
@@ -682,7 +683,7 @@ _#defs: "/$defs/Properties/definitions/SpotProvisioningSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpotResizingSpecification": close({
+#SpotResizingSpecification: close({
 	AllocationStrategy?: string | fn.#StringExpression
 	TimeoutDurationMinutes?: int |
 		{
@@ -701,20 +702,20 @@ _#defs: "/$defs/Properties/definitions/SpotResizingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StepConfig": close({
+#StepConfig: close({
 	ActionOnFailure?: string | fn.#StringExpression
-	HadoopJarStep!:   _#defs."/$defs/Properties/definitions/HadoopJarStepConfig"
+	HadoopJarStep!:   #HadoopJarStepConfig
 	Name!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
+#VolumeSpecification: close({
 	Iops?: int |
 		{
 			string &
@@ -760,7 +761,3 @@ _#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
 	VolumeType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::Cluster"
-	Properties!: #Properties
-}

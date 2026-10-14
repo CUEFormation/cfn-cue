@@ -13,170 +13,189 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaConnect::Flow
-#Properties: close({
-	AvailabilityZone?: string | fn.#StringExpression
-	EncodingConfig?:   _#defs."/$defs/Properties/definitions/EncodingConfig" | fn.#ObjectExpression
-	FlowSize?:         "MEDIUM" | "LARGE" | "LARGE_4X" | fn.#StringExpression
-	Maintenance?:      _#defs."/$defs/Properties/definitions/Maintenance" | fn.#ObjectExpression
-	MediaStreams?:     [..._#defs."/$defs/Properties/definitions/MediaStream"] | fn.#ListExpression
-	Name!:             string | fn.#StringExpression
-	NdiConfig?:        _#defs."/$defs/Properties/definitions/NdiConfig" | fn.#ObjectExpression
-	Source!: close({
-		Decryption?:  _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
-		Description?: string | fn.#StringExpression
-		EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-			fn.#StringExpression
-		GatewayBridgeSource?: _#defs."/$defs/Properties/definitions/GatewayBridgeSource" | fn.#ObjectExpression
-		IngestPort?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MaxBitrate?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MaxLatency?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MaxSyncBuffer?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MediaStreamSourceConfigurations?: [..._#defs."/$defs/Properties/definitions/MediaStreamSourceConfiguration"] |
-			fn.#ListExpression
-		MinLatency?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		Name?:              string | fn.#StringExpression
-		NdiSourceSettings?: _#defs."/$defs/Properties/definitions/NdiSourceSettings" | fn.#ObjectExpression
-		Protocol?: "zixi-push" |
-			"rtp-fec" |
-			"rtp" |
-			"rist" |
-			"srt-listener" |
-			"srt-caller" |
-			"st2110-jpegxs" |
-			"cdi" |
-			"ndi-speed-hq" |
-			fn.#StringExpression
-		RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
-		RouterIntegrationTransitDecryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
-		SenderControlPort?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		SenderIpAddress?:       string | fn.#StringExpression
-		SourceListenerAddress?: string | fn.#StringExpression
-		SourceListenerPort?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		StreamId?:         string | fn.#StringExpression
-		Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-		VpcInterfaceName?: string | fn.#StringExpression
-		WhitelistCidr?:    string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	SourceFailoverConfig?:   _#defs."/$defs/Properties/definitions/FailoverConfig" | fn.#ObjectExpression
-	SourceMonitoringConfig?: _#defs."/$defs/Properties/definitions/SourceMonitoringConfig" | fn.#ObjectExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcInterfaces?:          [..._#defs."/$defs/Properties/definitions/VpcInterface"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::Flow"
+	Properties!: close({
+		AvailabilityZone?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AudioMonitoringSetting": close(
-	{SilentAudio?: _#defs."/$defs/Properties/definitions/SilentAudio"},
-) |
-	fn.#ObjectExpression
+		// The encoding configuration to apply to the NDI source content when
+		// transcoding it to a transport stream (TS) for downstream distribution. You
+		// can choose between several predefined encoding profiles based on common use
+		// cases.
+		EncodingConfig?: #EncodingConfig
+		FlowSize?:       "MEDIUM" | "LARGE" | "LARGE_4X" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({}) | fn.#ObjectExpression
+		// The maintenance settings you want to use for the flow.
+		Maintenance?:  #Maintenance
+		MediaStreams?: [...#MediaStream] | fn.#ListExpression
+		Name!:         string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BlackFrames": close({
+		// Specifies the configuration settings for NDI sources and outputs. Required
+		// when the flow includes NDI sources or outputs.
+		NdiConfig?: #NdiConfig
+		Source!: close({
+			// The type of decryption that is used on the content ingested from this source.
+			Decryption?:  #Encryption
+			Description?: string | fn.#StringExpression
+			EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
+				fn.#StringExpression
+
+			// The source configuration for cloud flows receiving a stream from a bridge.
+			GatewayBridgeSource?: #GatewayBridgeSource
+			IngestPort?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MaxBitrate?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MaxLatency?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MaxSyncBuffer?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MediaStreamSourceConfigurations?: [...#MediaStreamSourceConfiguration] | fn.#ListExpression
+			MinLatency?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			Name?: string | fn.#StringExpression
+
+			// The settings for the NDI flow source. This includes the exact name of the
+			// upstream NDI sender that you want to connect to your flow source.
+			NdiSourceSettings?: #NdiSourceSettings
+			Protocol?: "zixi-push" |
+				"rtp-fec" |
+				"rtp" |
+				"rist" |
+				"srt-listener" |
+				"srt-caller" |
+				"st2110-jpegxs" |
+				"cdi" |
+				"ndi-speed-hq" |
+				fn.#StringExpression
+			RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
+			RouterIntegrationTransitDecryption?: #FlowTransitEncryption
+			SenderControlPort?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			SenderIpAddress?:       string | fn.#StringExpression
+			SourceListenerAddress?: string | fn.#StringExpression
+			SourceListenerPort?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			StreamId?:         string | fn.#StringExpression
+			Tags?:             [...#Tag] | fn.#ListExpression
+			VpcInterfaceName?: string | fn.#StringExpression
+			WhitelistCidr?:    string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+
+		// The source failover config of the flow.
+		SourceFailoverConfig?: #FailoverConfig
+
+		// The source monitoring config of the flow.
+		SourceMonitoringConfig?: #SourceMonitoringConfig
+		Tags?:                   [...#Tag] | fn.#ListExpression
+		VpcInterfaces?:          [...#VpcInterface] | fn.#ListExpression
+	})
+}
+
+#AudioMonitoringSetting: close({SilentAudio?: #SilentAudio}) | fn.#ObjectExpression
+
+#AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
+
+#BlackFrames: close({
 	State?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	ThresholdSeconds?: int |
 		{
@@ -195,8 +214,8 @@ _#defs: "/$defs/Properties/definitions/BlackFrames": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncodingConfig": close({
-	EncodingProfile?: _#defs."/$defs/Properties/definitions/EncodingProfile"
+#EncodingConfig: close({
+	EncodingProfile?: #EncodingProfile
 	VideoMaxBitrate?: int |
 		{
 			string &
@@ -214,11 +233,9 @@ _#defs: "/$defs/Properties/definitions/EncodingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncodingProfile": "DISTRIBUTION_H264_DEFAULT" |
-	"CONTRIBUTION_H264_DEFAULT" |
-	fn.#StringExpression
+#EncodingProfile: "DISTRIBUTION_H264_DEFAULT" | "CONTRIBUTION_H264_DEFAULT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	Algorithm?:                    "aes128" | "aes192" | "aes256" | fn.#StringExpression
 	ConstantInitializationVector?: string | fn.#StringExpression
 	DeviceId?:                     string | fn.#StringExpression
@@ -234,7 +251,7 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverConfig": close({
+#FailoverConfig: close({
 	FailoverMode?: "MERGE" | "FAILOVER" | fn.#StringExpression
 	RecoveryWindow?: int |
 		{
@@ -255,24 +272,22 @@ _#defs: "/$defs/Properties/definitions/FailoverConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
+#FlowTransitEncryption: close({
+	EncryptionKeyConfiguration!: #FlowTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #FlowTransitEncryptionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#FlowTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyType": "SECRETS_MANAGER" |
-	"AUTOMATIC" |
-	fn.#StringExpression
+#FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Fmtp": close({
+#Fmtp: close({
 	ChannelOrder?:   string | fn.#StringExpression
 	Colorimetry?:    "BT601" | "BT709" | "BT2020" | "BT2100" | "ST2065-1" | "ST2065-3" | "XYZ" | fn.#StringExpression
 	ExactFramerate?: string | fn.#StringExpression
@@ -292,7 +307,7 @@ _#defs: "/$defs/Properties/definitions/Fmtp": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FrozenFrames": close({
+#FrozenFrames: close({
 	State?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	ThresholdSeconds?: int |
 		{
@@ -311,14 +326,16 @@ _#defs: "/$defs/Properties/definitions/FrozenFrames": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayBridgeSource": close({
+#GatewayBridgeSource: close({
 	BridgeArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
-	VpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment" | fn.#ObjectExpression
+
+	// The name of the VPC interface attachment to use for this bridge source.
+	VpcInterfaceAttachment?: #VpcInterfaceAttachment
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputConfiguration": close({
+#InputConfiguration: close({
 	InputPort!: int |
 		{
 			string &
@@ -333,13 +350,15 @@ _#defs: "/$defs/Properties/definitions/InputConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Interface!: _#defs."/$defs/Properties/definitions/Interface" | fn.#ObjectExpression
+
+	// The VPC interface where the media stream comes in from.
+	Interface!: #Interface
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Interface": close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Interface: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Maintenance": close({
+#Maintenance: close({
 	MaintenanceDay!: "Monday" |
 		"Tuesday" |
 		"Wednesday" |
@@ -352,8 +371,9 @@ _#defs: "/$defs/Properties/definitions/Maintenance": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaStream": close({
-	Attributes?: _#defs."/$defs/Properties/definitions/MediaStreamAttributes" | fn.#ObjectExpression
+#MediaStream: close({
+	// Attributes that are related to the media stream.
+	Attributes?: #MediaStreamAttributes
 	ClockRate?: int |
 		{
 			string &
@@ -399,32 +419,37 @@ _#defs: "/$defs/Properties/definitions/MediaStream": close({
 		fn.#NumberExpression
 	MediaStreamName!: string | fn.#StringExpression
 	MediaStreamType!: "video" | "audio" | "ancillary-data" | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            [...#Tag] | fn.#ListExpression
 	VideoFormat?:     "2160p" | "1080p" | "1080i" | "720p" | "480p" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaStreamAttributes": close({
-	Fmtp?: _#defs."/$defs/Properties/definitions/Fmtp" | fn.#ObjectExpression
+#MediaStreamAttributes: close({
+	// A set of parameters that define the media stream.
+	Fmtp?: #Fmtp
 	Lang?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaStreamSourceConfiguration": close({
+#MediaStreamSourceConfiguration: close({
 	EncodingName!:        "jxsv" | "raw" | "smpte291" | "pcm" | fn.#StringExpression
-	InputConfigurations?: [..._#defs."/$defs/Properties/definitions/InputConfiguration"] | fn.#ListExpression
+	InputConfigurations?: [...#InputConfiguration] | fn.#ListExpression
 	MediaStreamName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NdiConfig": close({
+#NdiConfig: close({
 	MachineName?:         string | fn.#StringExpression
-	NdiDiscoveryServers?: [..._#defs."/$defs/Properties/definitions/NdiDiscoveryServerConfig"] | fn.#ListExpression
-	NdiState?:            _#defs."/$defs/Properties/definitions/NdiState" | fn.#StringExpression
+	NdiDiscoveryServers?: [...#NdiDiscoveryServerConfig] | fn.#ListExpression
+
+	// A setting that controls whether NDI sources or outputs can be used in the
+	// flow. The default value is DISABLED. This value must be set as ENABLED for
+	// your flow to support NDI sources or outputs.
+	NdiState?: #NdiState
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NdiDiscoveryServerConfig": close({
+#NdiDiscoveryServerConfig: close({
 	DiscoveryServerAddress!: string | fn.#StringExpression
 	DiscoveryServerPort?: int |
 		{
@@ -444,12 +469,11 @@ _#defs: "/$defs/Properties/definitions/NdiDiscoveryServerConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NdiSourceSettings": close({SourceName?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#NdiSourceSettings: close({SourceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NdiState": "ENABLED" | "DISABLED" | fn.#StringExpression
+#NdiState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
+#SecretsManagerEncryptionKeyConfiguration: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
 		fn.#StringExpression
@@ -458,7 +482,7 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SilentAudio": close({
+#SilentAudio: close({
 	State?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	ThresholdSeconds?: int |
 		{
@@ -477,12 +501,15 @@ _#defs: "/$defs/Properties/definitions/SilentAudio": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
-	Decryption?:  _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
+#Source: close({
+	// The type of decryption that is used on the content ingested from this source.
+	Decryption?:  #Encryption
 	Description?: string | fn.#StringExpression
 	EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
-	GatewayBridgeSource?: _#defs."/$defs/Properties/definitions/GatewayBridgeSource" | fn.#ObjectExpression
+
+	// The source configuration for cloud flows receiving a stream from a bridge.
+	GatewayBridgeSource?: #GatewayBridgeSource
 	IngestIp?:            string | fn.#StringExpression
 	IngestPort?: int |
 		{
@@ -540,8 +567,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 				)
 		} |
 		fn.#NumberExpression
-	MediaStreamSourceConfigurations?: [..._#defs."/$defs/Properties/definitions/MediaStreamSourceConfiguration"] |
-		fn.#ListExpression
+	MediaStreamSourceConfigurations?: [...#MediaStreamSourceConfiguration] | fn.#ListExpression
 	MinLatency?: int |
 		{
 			string &
@@ -556,8 +582,11 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 				)
 		} |
 		fn.#NumberExpression
-	Name?:              string | fn.#StringExpression
-	NdiSourceSettings?: _#defs."/$defs/Properties/definitions/NdiSourceSettings" | fn.#ObjectExpression
+	Name?: string | fn.#StringExpression
+
+	// The settings for the NDI flow source. This includes the exact name of the
+	// upstream NDI sender that you want to connect to your flow source.
+	NdiSourceSettings?: #NdiSourceSettings
 	Protocol?: "zixi-push" |
 		"rtp-fec" |
 		"rtp" |
@@ -569,7 +598,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 		"ndi-speed-hq" |
 		fn.#StringExpression
 	RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
-	RouterIntegrationTransitDecryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
+	RouterIntegrationTransitDecryption?: #FlowTransitEncryption
 	SenderControlPort?: int |
 		{
 			string &
@@ -604,33 +633,33 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 		} |
 		fn.#NumberExpression
 	StreamId?:         string | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 	VpcInterfaceName?: string | fn.#StringExpression
 	WhitelistCidr?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceMonitoringConfig": close({
-	AudioMonitoringSettings?: [..._#defs."/$defs/Properties/definitions/AudioMonitoringSetting"] | fn.#ListExpression
+#SourceMonitoringConfig: close({
+	AudioMonitoringSettings?:     [...#AudioMonitoringSetting] | fn.#ListExpression
 	ContentQualityAnalysisState?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	ThumbnailState?:              "ENABLED" | "DISABLED" | fn.#StringExpression
-	VideoMonitoringSettings?: [..._#defs."/$defs/Properties/definitions/VideoMonitoringSetting"] | fn.#ListExpression
+	VideoMonitoringSettings?:     [...#VideoMonitoringSetting] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoMonitoringSetting": close({
-	BlackFrames?:  _#defs."/$defs/Properties/definitions/BlackFrames"
-	FrozenFrames?: _#defs."/$defs/Properties/definitions/FrozenFrames"
+#VideoMonitoringSetting: close({
+	BlackFrames?:  #BlackFrames
+	FrozenFrames?: #FrozenFrames
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcInterface": close({
+#VpcInterface: close({
 	Name!:                 string | fn.#StringExpression
 	NetworkInterfaceIds?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	NetworkInterfaceType?: "ena" | "efa" | fn.#StringExpression
@@ -643,15 +672,8 @@ _#defs: "/$defs/Properties/definitions/VpcInterface": close({
 	] |
 		fn.#ListExpression
 	SubnetId!: string | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:     [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close(
-	{VpcInterfaceName?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::Flow"
-	Properties!: #Properties
-}
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression

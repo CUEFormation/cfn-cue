@@ -5,13 +5,7 @@ package schema
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::NetworkAclEntry
-#Properties: matchN(1, [{
-	Ipv6CidrBlock!: _
-	...
-}, {
-	CidrBlock!: _
-	...
-}]) & close({
+#Properties: close({
 	// The IPv4 CIDR range to allow or deny, in CIDR notation (for example,
 	// 172.16.0.0/24). Requirement is conditional: You must specify the CidrBlock
 	// or Ipv6CidrBlock property
@@ -22,7 +16,7 @@ package schema
 
 	// The Internet Control Message Protocol (ICMP) code and type. Requirement is
 	// conditional: Required if specifying 1 (ICMP) for the protocol parameter
-	Icmp?: _#defs."/$defs/Properties/definitions/Icmp"
+	Icmp?: #Icmp
 	Id?:   string
 
 	// The IPv6 network range to allow or deny, in CIDR notation (for example 2001:db8:1234:1a00::/64)
@@ -34,7 +28,7 @@ package schema
 	// The IPv4 network range to allow or deny, in CIDR notation (for example
 	// 172.16.0.0/24). We modify the specified CIDR block to its canonical form;
 	// for example, if you specify 100.68.0.18/18, we modify it to 100.68.0.0/18
-	PortRange?: _#defs."/$defs/Properties/definitions/PortRange"
+	PortRange?: #PortRange
 
 	// The protocol number. A value of "-1" means all protocols. If you specify "-1"
 	// or a protocol number other than "6" (TCP), "17" (UDP), or "1" (ICMP),
@@ -52,14 +46,19 @@ package schema
 	// ascending order by rule number. Entries can't use the same rule number
 	// unless one is an egress rule and the other is an ingress rule
 	RuleNumber!: int
-})
+	if Ipv6CidrBlock != _|_ if Ipv6CidrBlock."Fn::If" == _|_ {
+		CidrBlock?: close({"Fn::If": _}) | error(
+			"CidrBlock cannot be used with Ipv6CidrBlock; set exactly one of Ipv6CidrBlock, CidrBlock",
+		)
+	}
+}) & matchN(>=1, [{Ipv6CidrBlock!: _}, {CidrBlock!: _}])
 
-_#defs: "/$defs/Properties/definitions/Icmp": close({
+#Icmp: close({
 	Code?: int
 	Type?: int
 })
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
+#PortRange: close({
 	From?: int
 	To?:   int
 })

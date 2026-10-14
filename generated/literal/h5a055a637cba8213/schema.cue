@@ -12,13 +12,13 @@ import (
 // Amazon OpenSearchService application resource
 #Properties: close({
 	// List of application configurations.
-	AppConfigs?: [..._#defs."/$defs/Properties/definitions/AppConfig"]
+	AppConfigs?: [...#AppConfig]
 
 	// Amazon Resource Name (ARN) format.
 	Arn?: _#defs."/$defs/Properties/properties/Arn"
 
 	// List of data sources.
-	DataSources?: [..._#defs."/$defs/Properties/definitions/DataSource"]
+	DataSources?: [...#DataSource]
 
 	// The endpoint for the application.
 	Endpoint?: string
@@ -48,24 +48,23 @@ import (
 	Name!: strings.MaxRunes(40) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+"
 
 	// An arbitrary set of tags (key-value pairs) for this application.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A key-value pair of AppConfig
-_#defs: "/$defs/Properties/definitions/AppConfig": close({
+#AppConfig: close({
 	// The configuration key
-	Key!: _#defs."/$defs/Properties/definitions/AppConfigType"
+	Key!: #AppConfigType
 
 	// The configuration value.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // AppConfig type values.
-_#defs: "/$defs/Properties/definitions/AppConfigType": "opensearchDashboards.dashboardAdmin.users" |
-	"opensearchDashboards.dashboardAdmin.groups"
+#AppConfigType: "opensearchDashboards.dashboardAdmin.users" | "opensearchDashboards.dashboardAdmin.groups"
 
 // Datasource arn and description
-_#defs: "/$defs/Properties/definitions/DataSource": close({
+#DataSource: close({
 	// The ARN of the data source.
 	DataSourceArn!: _#defs."/$defs/Properties/properties/Arn"
 
@@ -74,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/DataSource": close({
 })
 
 // A key-value pair metadata associated with resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key in the key-value pair
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

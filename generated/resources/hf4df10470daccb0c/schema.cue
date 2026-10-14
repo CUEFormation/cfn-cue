@@ -17,65 +17,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::Link Resource Type
-#Properties: close({
-	GatewayId!:               _#defs."/$defs/Properties/definitions/GatewayId"
-	HttpResponderAllowed?:    _#defs."/$defs/Properties/definitions/HttpResponderAllowed"
-	LinkAttributes?:          _#defs."/$defs/Properties/definitions/LinkAttributes"
-	LinkLogSettings!:         _#defs."/$defs/Properties/definitions/LinkLogSettings"
-	ModuleConfigurationList?: _#defs."/$defs/Properties/definitions/ModuleConfigurationList"
-	PeerGatewayId!:           _#defs."/$defs/Properties/definitions/GatewayId"
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RTBFabric::Link"
+	Properties!: close({
+		GatewayId!:               #GatewayId
+		HttpResponderAllowed?:    #HttpResponderAllowed
+		LinkAttributes?:          #LinkAttributes
+		LinkLogSettings!:         #LinkLogSettings
+		ModuleConfigurationList?: #ModuleConfigurationList
+		PeerGatewayId!:           #GatewayId
+		Tags?:                    #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedTimestamp": string | fn.#StringExpression
+#CreatedTimestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close(
-	{Criteria!: [..._#defs."/$defs/Properties/definitions/FilterCriterion"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#Filter: close({Criteria!: [...#FilterCriterion] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterCriterion": close({
+#FilterCriterion: close({
 	Path!:   string | fn.#StringExpression
 	Values!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayId": =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderTagAction": close({
+#HeaderTagAction: close({
 	Name!:  string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpResponderAllowed": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#HttpResponderAllowed: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/LinkAttributes": close({
+#LinkAttributes: close({
 	CustomerProvidedId?: string | fn.#StringExpression
-	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode"
-	] |
+	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [...#ResponderErrorMaskingForHttpCode] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinkDirection": "REQUEST" | "RESPONSE" | fn.#StringExpression
+#LinkDirection: "REQUEST" | "RESPONSE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LinkId": =~"^link-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#LinkId: =~"^link-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LinkLogSettings": close({
+#LinkLogSettings: close({
 	ApplicationLogs!: close({
 		LinkApplicationLogSampling!: close({
 			ErrorLog!: <=100 & >=0 |
@@ -125,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/LinkLogSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinkStatus": "PENDING_CREATION" |
+#LinkStatus: "PENDING_CREATION" |
 	"PENDING_REQUEST" |
 	"REQUESTED" |
 	"ACCEPTED" |
@@ -141,27 +132,22 @@ _#defs: "/$defs/Properties/definitions/LinkStatus": "PENDING_CREATION" |
 	"UNKNOWN_TO_SDK_VERSION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModuleConfiguration": close({
+#ModuleConfiguration: close({
 	DependsOn?:        [...=~"^[A-Za-z0-9 -]+$" | fn.#StringExpression] | fn.#ListExpression
-	ModuleParameters?: _#defs."/$defs/Properties/definitions/ModuleParameters"
+	ModuleParameters?: #ModuleParameters
 	Name!:             =~"^[A-Za-z0-9 -]+$" | fn.#StringExpression
 	Version?:          =~"^[a-z0-9]{1,25}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModuleConfigurationList": [
-	..._#defs."/$defs/Properties/definitions/ModuleConfiguration"
-] |
-	fn.#ListExpression
+#ModuleConfigurationList: [...#ModuleConfiguration] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ModuleParameters": fn.#Object & {...} & matchN(1, [close(
-	{NoBid!: _#defs."/$defs/Properties/definitions/NoBidModuleParameters"},
-), close(
-	{OpenRtbAttribute!: _#defs."/$defs/Properties/definitions/OpenRtbAttributeModuleParameters"},
-)]) |
+#ModuleParameters: fn.#Object & {...} & matchN(1, [
+	close({NoBid!: #NoBidModuleParameters}), close({OpenRtbAttribute!: #OpenRtbAttributeModuleParameters}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NoBidAction": close({
+#NoBidAction: close({
 	NoBidReasonCode?: int & >=0 |
 		{
 			string &
@@ -180,7 +166,7 @@ _#defs: "/$defs/Properties/definitions/NoBidAction": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NoBidModuleParameters": close({
+#NoBidModuleParameters: close({
 	PassThroughPercentage?: <=100 & >=0 |
 		{
 			string &
@@ -221,14 +207,10 @@ _#defs: "/$defs/Properties/definitions/NoBidModuleParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenRtbAttributeModuleParameters": close({
-	Action!: fn.#Object & {...} & matchN(1, [close(
-		{NoBid!: _#defs."/$defs/Properties/definitions/NoBidAction"},
-	), close(
-		{HeaderTag!: _#defs."/$defs/Properties/definitions/HeaderTagAction"},
-	)]) |
+#OpenRtbAttributeModuleParameters: close({
+	Action!: fn.#Object & {...} & matchN(1, [close({NoBid!: #NoBidAction}), close({HeaderTag!: #HeaderTagAction})]) |
 	fn.#ObjectExpression
-	FilterConfiguration!: [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
+	FilterConfiguration!: [...#Filter] | fn.#ListExpression
 	FilterType!:          "INCLUDE" | "EXCLUDE" | fn.#StringExpression
 	HoldbackPercentage!: <=100 & >=0 |
 		{
@@ -253,12 +235,10 @@ _#defs: "/$defs/Properties/definitions/OpenRtbAttributeModuleParameters": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode": close({
+#ResponderErrorMaskingForHttpCode: close({
 	Action!:   "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
 	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" | fn.#StringExpression
-	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingLoggingType"
-	] |
+	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#ResponderErrorMaskingLoggingType] |
 		fn.#ListExpression
 	ResponseLoggingPercentage?: <=100 & >=0 |
 		{
@@ -283,25 +263,15 @@ _#defs: "/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponderErrorMaskingLoggingType": "NONE" |
-	"METRIC" |
-	"RESPONSE" |
-	fn.#StringExpression
+#ResponderErrorMaskingLoggingType: "NONE" | "METRIC" | "RESPONSE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
 	fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RTBFabric::Link"
-	Properties!: #Properties
-}
+#UpdatedTimestamp: string | fn.#StringExpression

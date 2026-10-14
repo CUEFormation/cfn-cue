@@ -13,55 +13,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaConvert::JobTemplate
-#Properties: close({
-	AccelerationSettings?: _#defs."/$defs/Properties/definitions/AccelerationSettings" | fn.#ObjectExpression
-	Category?:             string | fn.#StringExpression
-	Description?:          string | fn.#StringExpression
-	HopDestinations?:      [..._#defs."/$defs/Properties/definitions/HopDestination"] | fn.#ListExpression
-	Name?:                 string | fn.#StringExpression
-	Priority?: int & <=50 & >=-50 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=50 &
-							>=-50,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Queue?:        string | fn.#StringExpression
-	SettingsJson!: fn.#Object & {...} | string | fn.#StringObjectExpression
-	StatusUpdateInterval?: "SECONDS_10" |
-		"SECONDS_12" |
-		"SECONDS_120" |
-		"SECONDS_15" |
-		"SECONDS_180" |
-		"SECONDS_20" |
-		"SECONDS_240" |
-		"SECONDS_30" |
-		"SECONDS_300" |
-		"SECONDS_360" |
-		"SECONDS_420" |
-		"SECONDS_480" |
-		"SECONDS_540" |
-		"SECONDS_60" |
-		"SECONDS_600" |
-		fn.#StringExpression
-	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConvert::JobTemplate"
+	Properties!: close({
+		// Accelerated transcoding can significantly speed up jobs with long, visually
+		// complex content. Outputs that use this feature incur pro-tier pricing.
+		AccelerationSettings?: #AccelerationSettings
+		Category?:             string | fn.#StringExpression
+		Description?:          string | fn.#StringExpression
+		HopDestinations?:      [...#HopDestination] | fn.#ListExpression
+		Name?:                 string | fn.#StringExpression
+		Priority?: int & <=50 & >=-50 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=50 &
+								>=-50,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Queue?:        string | fn.#StringExpression
+		SettingsJson!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		StatusUpdateInterval?: "SECONDS_10" |
+			"SECONDS_12" |
+			"SECONDS_120" |
+			"SECONDS_15" |
+			"SECONDS_180" |
+			"SECONDS_20" |
+			"SECONDS_240" |
+			"SECONDS_30" |
+			"SECONDS_300" |
+			"SECONDS_360" |
+			"SECONDS_420" |
+			"SECONDS_480" |
+			"SECONDS_540" |
+			"SECONDS_60" |
+			"SECONDS_600" |
+			fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccelerationSettings": close(
-	{Mode!: "DISABLED" | "ENABLED" | "PREFERRED" | fn.#StringExpression},
-) |
+#AccelerationSettings: close({Mode!: "DISABLED" | "ENABLED" | "PREFERRED" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HopDestination": close({
+#HopDestination: close({
 	Priority?: int & <=50 & >=-50 |
 		{
 			string &
@@ -97,7 +102,3 @@ _#defs: "/$defs/Properties/definitions/HopDestination": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConvert::JobTemplate"
-	Properties!: #Properties
-}

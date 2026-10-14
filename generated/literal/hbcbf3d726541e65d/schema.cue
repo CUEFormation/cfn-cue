@@ -24,42 +24,40 @@ import (
 	// Dataflow Endpoint Group State Change event will be emitted when the Dataflow
 	// Endpoint Group enters and exits the PREPASS state.
 	ContactPrePassDurationSeconds?: int & <=480 & >=30
-	EndpointDetails!: list.MaxItems(500) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EndpointDetails"
-	]
-	Id?:   string
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	EndpointDetails!:               list.MaxItems(500) & list.MinItems(1) & [...#EndpointDetails]
+	Id?:                            string
+	Tags?:                          [...#Tag]
 })
 
 // The status of AgentEndpoint.
-_#defs: "/$defs/Properties/definitions/AgentStatus": "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE"
+#AgentStatus: "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE"
 
 // The results of the audit.
-_#defs: "/$defs/Properties/definitions/AuditResults": "HEALTHY" | "UNHEALTHY"
+#AuditResults: "HEALTHY" | "UNHEALTHY"
 
 // Information about AwsGroundStationAgentEndpoint.
-_#defs: "/$defs/Properties/definitions/AwsGroundStationAgentEndpoint": close({
-	AgentStatus?:    _#defs."/$defs/Properties/definitions/AgentStatus"
-	AuditResults?:   _#defs."/$defs/Properties/definitions/AuditResults"
-	EgressAddress?:  _#defs."/$defs/Properties/definitions/ConnectionDetails"
-	IngressAddress?: _#defs."/$defs/Properties/definitions/RangedConnectionDetails"
+#AwsGroundStationAgentEndpoint: close({
+	AgentStatus?:    #AgentStatus
+	AuditResults?:   #AuditResults
+	EgressAddress?:  #ConnectionDetails
+	IngressAddress?: #RangedConnectionDetails
 	Name?:           =~"^[ a-zA-Z0-9_:-]{1,256}$"
 })
 
 // Egress address of AgentEndpoint with an optional mtu.
-_#defs: "/$defs/Properties/definitions/ConnectionDetails": close({
+#ConnectionDetails: close({
 	// Maximum transmission unit (MTU) size in bytes of a dataflow endpoint.
 	Mtu?:           int
-	SocketAddress?: _#defs."/$defs/Properties/definitions/SocketAddress"
+	SocketAddress?: #SocketAddress
 })
 
-_#defs: "/$defs/Properties/definitions/DataflowEndpoint": close({
-	Address?: _#defs."/$defs/Properties/definitions/SocketAddress"
+#DataflowEndpoint: close({
+	Address?: #SocketAddress
 	Mtu?:     int
 	Name?:    =~"^[ a-zA-Z0-9_:-]{1,256}$"
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": matchN(1, [{
+#EndpointDetails: matchN(1, [{
 	Endpoint!:        _
 	SecurityDetails!: _
 	...
@@ -67,13 +65,13 @@ _#defs: "/$defs/Properties/definitions/EndpointDetails": matchN(1, [{
 	AwsGroundStationAgentEndpoint!: _
 	...
 }]) & close({
-	AwsGroundStationAgentEndpoint?: _#defs."/$defs/Properties/definitions/AwsGroundStationAgentEndpoint"
-	Endpoint?:                      _#defs."/$defs/Properties/definitions/DataflowEndpoint"
-	SecurityDetails?:               _#defs."/$defs/Properties/definitions/SecurityDetails"
+	AwsGroundStationAgentEndpoint?: #AwsGroundStationAgentEndpoint
+	Endpoint?:                      #DataflowEndpoint
+	SecurityDetails?:               #SecurityDetails
 })
 
 // An integer range that has a minimum and maximum value.
-_#defs: "/$defs/Properties/definitions/IntegerRange": close({
+#IntegerRange: close({
 	// A maximum value.
 	Maximum?: int
 
@@ -82,22 +80,22 @@ _#defs: "/$defs/Properties/definitions/IntegerRange": close({
 })
 
 // Ingress address of AgentEndpoint with a port range and an optional mtu.
-_#defs: "/$defs/Properties/definitions/RangedConnectionDetails": close({
+#RangedConnectionDetails: close({
 	// Maximum transmission unit (MTU) size in bytes of a dataflow endpoint.
 	Mtu?:           int
-	SocketAddress?: _#defs."/$defs/Properties/definitions/RangedSocketAddress"
+	SocketAddress?: #RangedSocketAddress
 })
 
 // A socket address with a port range.
-_#defs: "/$defs/Properties/definitions/RangedSocketAddress": close({
+#RangedSocketAddress: close({
 	// IPv4 socket address.
 	Name?: strings.MaxRunes(16) & strings.MinRunes(7) & =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$"
 
 	// Port range of a socket address.
-	PortRange?: _#defs."/$defs/Properties/definitions/IntegerRange"
+	PortRange?: #IntegerRange
 })
 
-_#defs: "/$defs/Properties/definitions/SecurityDetails": close({
+#SecurityDetails: close({
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(165) &
 	strings.MinRunes(30) &
@@ -106,12 +104,12 @@ _#defs: "/$defs/Properties/definitions/SecurityDetails": close({
 	SubnetIds?:        [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/SocketAddress": close({
+#SocketAddress: close({
 	Name?: string
 	Port?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$"
 	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$"
 })

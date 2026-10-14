@@ -16,10 +16,10 @@ import (
 	AssessmentTemplateName?:    strings.MaxRunes(140) & strings.MinRunes(1)
 	DurationInSeconds!:         int & <=86400 & >=180
 	RulesPackageArns!:          list.MaxItems(50) & [...] & [...strings.MaxRunes(300) & strings.MinRunes(1)]
-	UserAttributesForFindings?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	UserAttributesForFindings?: list.MaxItems(10) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

@@ -19,48 +19,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a cached iSCSI volume on a Storage Gateway. A cached volume stores
 // data in Amazon S3 and retains a copy of frequently accessed data subsets
 // locally.
-#Properties: close({
-	GatewayARN!:   strings.MaxRunes(500) & strings.MinRunes(50) | fn.#StringExpression
-	KMSEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KMSKey?: strings.MaxRunes(2048) &
-	strings.MinRunes(7) &
-	=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
-	fn.#StringExpression
-	NetworkInterfaceId!: string | fn.#StringExpression
-	SnapshotId?:         =~"^snap-([0-9A-Fa-f]{8}|[0-9A-Fa-f]{17})$" | fn.#StringExpression
-	SourceVolumeARN?: strings.MaxRunes(500) &
-	strings.MinRunes(50) &
-	=~"^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):storagegateway:[a-z\\-0-9]+:[0-9]+:gateway\\/(.+)\\/volume\\/vol-(\\S+)$" |
-	fn.#StringExpression
-	Tags?:       list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-\\.;a-z0-9]+$" | fn.#StringExpression
-	VolumeSizeInBytes!: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::StorageGateway::Volume"
+	Properties!: close({
+		GatewayARN!:   strings.MaxRunes(500) & strings.MinRunes(50) | fn.#StringExpression
+		KMSEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KMSKey?: strings.MaxRunes(2048) &
+		strings.MinRunes(7) &
+		=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
+		fn.#StringExpression
+		NetworkInterfaceId!: string | fn.#StringExpression
+		SnapshotId?:         =~"^snap-([0-9A-Fa-f]{8}|[0-9A-Fa-f]{17})$" | fn.#StringExpression
+		SourceVolumeARN?: strings.MaxRunes(500) &
+		strings.MinRunes(50) &
+		=~"^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):storagegateway:[a-z\\-0-9]+:[0-9]+:gateway\\/(.+)\\/volume\\/vol-(\\S+)$" |
+		fn.#StringExpression
+		Tags?:       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TargetName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-\\.;a-z0-9]+$" | fn.#StringExpression
+		VolumeSizeInBytes!: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
 							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::StorageGateway::Volume"
-	Properties!: #Properties
-}

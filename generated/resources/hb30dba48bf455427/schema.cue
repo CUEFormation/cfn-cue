@@ -9,38 +9,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::PCS::Queue resource creates an AWS PCS queue.
-#Properties: close({
-	ClusterId!: string | fn.#StringExpression
-	ComputeNodeGroupConfigurations?: [..._#defs."/$defs/Properties/definitions/ComputeNodeGroupConfiguration"] |
-		fn.#ListExpression
-	Name?: string | fn.#StringExpression
-	SlurmConfiguration?: close(
-		{SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting"] | fn.#ListExpression},
-	) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCS::Queue"
+	Properties!: close({
+		ClusterId!:                      string | fn.#StringExpression
+		ComputeNodeGroupConfigurations?: [...#ComputeNodeGroupConfiguration] | fn.#ListExpression
+		Name?:                           string | fn.#StringExpression
+		SlurmConfiguration?: close({SlurmCustomSettings?: [...#SlurmCustomSetting] | fn.#ListExpression}) |
+			fn.#ObjectExpression
+		Tags?: close({
+
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-	Tags?: close({
+	})
+}
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+#ComputeNodeGroupConfiguration: close({ComputeNodeGroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComputeNodeGroupConfiguration": close(
-	{ComputeNodeGroupId?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ErrorInfo": close({
+#ErrorInfo: close({
 	Code?:    string | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({
+#SlurmCustomSetting: close({
 	ParameterName!:  string | fn.#StringExpression
 	ParameterValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCS::Queue"
-	Properties!: #Properties
-}

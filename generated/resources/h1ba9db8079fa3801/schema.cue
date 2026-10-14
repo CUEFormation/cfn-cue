@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,22 +12,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Omics::VariantStore Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        =~"^([a-z]){1}([a-z0-9_]){2,254}" | fn.#StringExpression
-	Reference!:   _#defs."/$defs/Properties/definitions/ReferenceItem"
-	SseConfig?:   _#defs."/$defs/Properties/definitions/SseConfig"
-	Tags?:        _#defs."/$defs/Properties/definitions/TagMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Omics::VariantStore"
+	Properties!: close({
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        =~"^([a-z]){1}([a-z0-9_]){2,254}" | fn.#StringExpression
+		Reference!:   #ReferenceItem
+		SseConfig?:   #SseConfig
+		Tags?:        #TagMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EncryptionType": "KMS" | fn.#StringExpression
+#EncryptionType: "KMS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReferenceItem": close(
+#ReferenceItem: close(
 	{ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SseConfig": close({
+#SseConfig: close({
 	KeyArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"""
@@ -38,22 +41,13 @@ _#defs: "/$defs/Properties/definitions/SseConfig": close({
 		]*)
 		""" |
 	fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/EncryptionType"
+	Type!: #EncryptionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StoreStatus": "CREATING" |
-	"UPDATING" |
-	"DELETING" |
-	"ACTIVE" |
-	"FAILED" |
-	fn.#StringExpression
+#StoreStatus: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Omics::VariantStore"
-	Properties!: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,73 +17,80 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DataSync::LocationHDFS.
-#Properties: close({
-	AgentArns!: list.MaxItems(8) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
-		strings.MinRunes(0) &
-		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	AuthenticationType!: "SIMPLE" | "KERBEROS" | fn.#StringExpression
-	BlockSize?: int & <=1073741824 & >=1048576 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1073741824 &
-							>=1048576,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	CmkSecretConfig?: close({
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(2048) &
-		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
-	KerberosKeytab?:     strings.MaxRunes(87384) | fn.#StringExpression
-	KerberosKrb5Conf?:   strings.MaxRunes(174764) | fn.#StringExpression
-	KerberosPrincipal?:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	KmsKeyProviderUri?: strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^kms:\\/\\/http[s]?@(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])(;(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9]))*:[0-9]{1,5}\\/kms$" |
-	fn.#StringExpression
-	NameNodes!:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/NameNode"] | fn.#ListExpression
-	QopConfiguration?: _#defs."/$defs/Properties/definitions/QopConfiguration"
-	ReplicationFactor?: int & <=512 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=512 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SimpleUser?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[_.A-Za-z0-9][-_.A-Za-z0-9]*$" | fn.#StringExpression
-	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::LocationHDFS"
+	Properties!: close({
+		AgentArns!: list.MaxItems(8) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
+			fn.#StringExpression
+		] |
 		fn.#ListExpression
-})
+		AuthenticationType!: "SIMPLE" | "KERBEROS" | fn.#StringExpression
+		BlockSize?: int & <=1073741824 & >=1048576 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1073741824 &
+								>=1048576,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		CmkSecretConfig?: close({
+			KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		CustomSecretConfig?: #CustomSecretConfig
+		KerberosKeytab?:     strings.MaxRunes(87384) | fn.#StringExpression
+		KerberosKrb5Conf?:   strings.MaxRunes(174764) | fn.#StringExpression
+		KerberosPrincipal?:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		KmsKeyProviderUri?: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^kms:\\/\\/http[s]?@(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])(;(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9]))*:[0-9]{1,5}\\/kms$" |
+		fn.#StringExpression
+		NameNodes!:        list.MinItems(1) & [...#NameNode] | fn.#ListExpression
+		QopConfiguration?: #QopConfiguration
+		ReplicationFactor?: int & <=512 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=512 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SimpleUser?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[_.A-Za-z0-9][-_.A-Za-z0-9]*$" |
+		fn.#StringExpression
+		Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -96,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	SecretAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -109,14 +116,14 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NameNode": close({
+#NameNode: close({
 	Hostname!: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])$" |
@@ -140,18 +147,14 @@ _#defs: "/$defs/Properties/definitions/NameNode": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QopConfiguration": close({
+#QopConfiguration: close({
 	DataTransferProtection?: "AUTHENTICATION" | "INTEGRITY" | "PRIVACY" | "DISABLED" | fn.#StringExpression
 	RpcProtection?:          "AUTHENTICATION" | "INTEGRITY" | "PRIVACY" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::LocationHDFS"
-	Properties!: #Properties
-}

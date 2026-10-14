@@ -17,43 +17,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataBrew::Recipe.
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Steps!: [..._#defs."/$defs/Properties/definitions/RecipeStep" & fn.#Object & {...} | fn.#ObjectExpression] |
-	fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataBrew::Recipe"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Steps!:       [...#RecipeStep & fn.#Object & {...} | fn.#ObjectExpression] | fn.#ListExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	Operation!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" | fn.#StringExpression
-	Parameters?: _#defs."/$defs/Properties/definitions/RecipeParameters" |
-		_#defs."/$defs/Properties/definitions/ParameterMap" |
-		fn.#ValueExpression
+#Action: close({
+	Operation!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" | fn.#StringExpression
+	Parameters?: #RecipeParameters | #ParameterMap | fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionExpression": close({
+#ConditionExpression: close({
 	Condition!:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" | fn.#StringExpression
 	TargetColumn!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Value?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataCatalogInputDefinition": close({
+#DataCatalogInputDefinition: close({
 	CatalogId?:     string | fn.#StringExpression
 	DatabaseName?:  string | fn.#StringExpression
 	TableName?:     string | fn.#StringExpression
-	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location"
+	TempDirectory?: #S3Location
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterMap": close({
+#ParameterMap: close({
 
 	{[=~"^[A-Za-z0-9]{1,128}$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecipeParameters": null |
+#RecipeParameters: null |
 bool |
 number |
 string |
@@ -88,16 +88,15 @@ close({
 	HiddenColumns?:                 string | fn.#StringExpression
 	IgnoreCase?:                    string | fn.#StringExpression
 	IncludeInSplit?:                string | fn.#StringExpression
-	Input?: matchN(1, [{
-		S3InputDefinition!: _
-		...
-	}, {
-		DataCatalogInputDefinition!: _
-		...
-	}]) & close({
-		DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
-		S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
-	}) |
+	Input?: close({
+		DataCatalogInputDefinition?: #DataCatalogInputDefinition
+		S3InputDefinition?:          #S3Location
+		if S3InputDefinition != _|_ if S3InputDefinition."Fn::If" == _|_ {
+			DataCatalogInputDefinition?: close({"Fn::If": _}) | error(
+				"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
+			)
+		}
+	}) & matchN(>=1, [{S3InputDefinition!: _}, {DataCatalogInputDefinition!: _}]) |
 	fn.#ObjectExpression
 	Interval?:               string | fn.#StringExpression
 	IsText?:                 string | fn.#StringExpression
@@ -137,7 +136,7 @@ close({
 	SampleSize?:                          string | fn.#StringExpression
 	SampleType?:                          string | fn.#StringExpression
 	SecondInput?:                         string | fn.#StringExpression
-	SecondaryInputs?: [..._#defs."/$defs/Properties/definitions/SecondaryInput"] | fn.#ListExpression
+	SecondaryInputs?:                     [...#SecondaryInput] | fn.#ListExpression
 	SheetIndexes?: list.MaxItems(1) & list.MinItems(1) & [
 		...int |
 			{
@@ -191,36 +190,31 @@ close({
 }) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RecipeStep": close({
-	Action!:               _#defs."/$defs/Properties/definitions/Action"
-	ConditionExpressions?: [..._#defs."/$defs/Properties/definitions/ConditionExpression"] | fn.#ListExpression
+#RecipeStep: close({
+	Action!:               #Action
+	ConditionExpressions?: [...#ConditionExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!: string | fn.#StringExpression
 	Key?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecondaryInput": matchN(1, [{
-	S3InputDefinition!: _
-	...
-}, {
-	DataCatalogInputDefinition!: _
-	...
-}]) & close({
-	DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
-	S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
-}) |
+#SecondaryInput: close({
+	DataCatalogInputDefinition?: #DataCatalogInputDefinition
+	S3InputDefinition?:          #S3Location
+	if S3InputDefinition != _|_ if S3InputDefinition."Fn::If" == _|_ {
+		DataCatalogInputDefinition?: close({"Fn::If": _}) | error(
+			"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
+		)
+	}
+}) & matchN(>=1, [{S3InputDefinition!: _}, {DataCatalogInputDefinition!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataBrew::Recipe"
-	Properties!: #Properties
-}

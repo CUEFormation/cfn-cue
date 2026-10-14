@@ -13,13 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityLake::AwsLogSource
-#Properties: close({
-	Accounts?:      list.UniqueItems() & [...=~"^[0-9]{12}$" | fn.#StringExpression] | fn.#ListExpression
-	DataLakeArn!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	SourceName!:    string | fn.#StringExpression
-	SourceVersion!: =~"^(latest|[0-9]\\.[0-9])$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityLake::AwsLogSource"
-	Properties!: #Properties
+	Type!: "AWS::SecurityLake::AwsLogSource"
+	Properties!: close({
+		Accounts?:      list.UniqueItems() & [...=~"^[0-9]{12}$" | fn.#StringExpression] | fn.#ListExpression
+		DataLakeArn!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		SourceName!:    string | fn.#StringExpression
+		SourceVersion!: =~"^(latest|[0-9]\\.[0-9])$" | fn.#StringExpression
+	})
 }

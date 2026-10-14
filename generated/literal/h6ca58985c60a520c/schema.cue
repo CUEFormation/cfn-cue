@@ -12,23 +12,23 @@ import (
 // Definition of AWS::ControlTower::LandingZone Resource Type
 #Properties: close({
 	Arn?:                    strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$"
-	DriftStatus?:            _#defs."/$defs/Properties/definitions/LandingZoneDriftStatus"
+	DriftStatus?:            #LandingZoneDriftStatus
 	LandingZoneIdentifier?:  string
 	LatestAvailableVersion?: strings.MaxRunes(10) & strings.MinRunes(3) & =~"\\d+.\\d+"
 	Manifest!:               string | {...}
-	RemediationTypes?:       _#defs."/$defs/Properties/definitions/RemediationTypes"
-	Status?:                 _#defs."/$defs/Properties/definitions/LandingZoneStatus"
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"]
+	RemediationTypes?:       #RemediationTypes
+	Status?:                 #LandingZoneStatus
+	Tags?:                   [...#Tag]
 	Version!:                strings.MaxRunes(10) & strings.MinRunes(3) & =~"\\d+.\\d+"
 })
 
-_#defs: "/$defs/Properties/definitions/LandingZoneDriftStatus": "DRIFTED" | "IN_SYNC"
+#LandingZoneDriftStatus: "DRIFTED" | "IN_SYNC"
 
-_#defs: "/$defs/Properties/definitions/LandingZoneStatus": "ACTIVE" | "PROCESSING" | "FAILED"
+#LandingZoneStatus: "ACTIVE" | "PROCESSING" | "FAILED"
 
-_#defs: "/$defs/Properties/definitions/RemediationTypes": list.MaxItems(1) & list.MinItems(1) & [..."INHERITANCE_DRIFT"]
+#RemediationTypes: list.MaxItems(1) & list.MinItems(1) & [..."INHERITANCE_DRIFT"]
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(256) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

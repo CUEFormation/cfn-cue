@@ -19,13 +19,13 @@ package schema
 	MulticastSupport?:                string
 	PropagationDefaultRouteTableId?:  string
 	SecurityGroupReferencingSupport?: string
-	Tags?:                            [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                            [...#Tag]
 	TransitGatewayArn?:               string
 	TransitGatewayCidrBlocks?:        [...string]
 	VpnEcmpSupport?:                  string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

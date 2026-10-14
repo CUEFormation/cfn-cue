@@ -14,33 +14,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::Alias resource creates an alias for an Amazon GameLift
 // (GameLift) fleet destination.
-#Properties: close({
-	Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:            strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	RoutingStrategy!: _#defs."/$defs/Properties/definitions/RoutingStrategy" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::Alias"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingStrategy": matchN(>=1, [{
-	FleetId!: _
-	...
-}, {
-	Message!: _
-	...
-}]) & close({
+		// A routing configuration that specifies where traffic is directed for this
+		// alias, such as to a fleet or to a message.
+		RoutingStrategy!: #RoutingStrategy
+		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#RoutingStrategy: close({
 	FleetId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-z]*fleet-[a-zA-Z0-9\\-]+" | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 	Type!:    "SIMPLE" | "TERMINAL" | fn.#StringExpression
-}) |
+}) & matchN(>=1, [{FleetId!: _}, {Message!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::Alias"
-	Properties!: #Properties
-}

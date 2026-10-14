@@ -6,7 +6,7 @@ package schema
 
 // Resource Type definition for AWS::SecurityLake::SubscriberNotification
 #Properties: close({
-	NotificationConfiguration!: _#defs."/$defs/Properties/definitions/NotificationConfiguration"
+	NotificationConfiguration!: #NotificationConfiguration
 
 	// The ARN for the subscriber
 	SubscriberArn!: =~"^arn:.*$"
@@ -16,7 +16,7 @@ package schema
 })
 
 // The configuration for HTTPS subscriber notification.
-_#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
+#HttpsNotificationConfiguration: close({
 	// The key name for the notification subscription.
 	AuthorizationApiKeyName?: string
 
@@ -33,15 +33,14 @@ _#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
 	TargetRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": matchN(1, [{
-	HttpsNotificationConfiguration!: _
-	...
-}, {
-	SqsNotificationConfiguration!: _
-	...
-}]) & close({
-	HttpsNotificationConfiguration?: _#defs."/$defs/Properties/definitions/HttpsNotificationConfiguration"
-	SqsNotificationConfiguration?:   _#defs."/$defs/Properties/definitions/SqsNotificationConfiguration"
-})
+#NotificationConfiguration: close({
+	HttpsNotificationConfiguration?: #HttpsNotificationConfiguration
+	SqsNotificationConfiguration?:   #SqsNotificationConfiguration
+	if HttpsNotificationConfiguration != _|_ if HttpsNotificationConfiguration."Fn::If" == _|_ {
+		SqsNotificationConfiguration?: close({"Fn::If": _}) | error(
+			"SqsNotificationConfiguration cannot be used with HttpsNotificationConfiguration; set exactly one of HttpsNotificationConfiguration, SqsNotificationConfiguration",
+		)
+	}
+}) & matchN(>=1, [{HttpsNotificationConfiguration!: _}, {SqsNotificationConfiguration!: _}])
 
-_#defs: "/$defs/Properties/definitions/SqsNotificationConfiguration": string | {...}
+#SqsNotificationConfiguration: string | {...}

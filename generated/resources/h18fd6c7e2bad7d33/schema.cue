@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::ResourcePolicy
-#Properties: close({
-	PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
-	ResourceArn!:    =~"^arn:\\S+$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::SMSVOICE::ResourcePolicy"
+	Properties!: close({
+		PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
+		ResourceArn!:    =~"^arn:\\S+$" | fn.#StringExpression
+	})
 }

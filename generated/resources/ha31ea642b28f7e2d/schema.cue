@@ -12,18 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::StackSetConstraint
-#Properties: close({
-	AcceptLanguage?:       strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	AccountList!:          [...string | fn.#StringExpression] | fn.#ListExpression
-	AdminRole!:            string | fn.#StringExpression
-	Description!:          strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	ExecutionRole!:        string | fn.#StringExpression
-	PortfolioId!:          strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-	ProductId!:            strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-	RegionList!:           [...string | fn.#StringExpression] | fn.#ListExpression
-	StackInstanceControl!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::StackSetConstraint"
-	Properties!: #Properties
+	Type!: "AWS::ServiceCatalog::StackSetConstraint"
+	Properties!: close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		AccountList!:    [...string | fn.#StringExpression] | fn.#ListExpression
+		AdminRole!:      string | fn.#StringExpression
+		Description!:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
+		ExecutionRole!:  string | fn.#StringExpression
+		PortfolioId!:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
+		ProductId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
+		RegionList!:     [...string | fn.#StringExpression] | fn.#ListExpression
+		StackInstanceControl!: string | fn.#StringExpression
+	})
 }

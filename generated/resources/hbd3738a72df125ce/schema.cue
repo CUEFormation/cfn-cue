@@ -9,26 +9,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates and manages an Amazon FPGA Image (AFI) from a design checkpoint (DCP).
-#Properties: close({
-	Description?:          string | fn.#StringExpression
-	InputStorageLocation?: _#defs."/$defs/Properties/definitions/StorageLocation" | fn.#ObjectExpression
-	LogsStorageLocation?:  _#defs."/$defs/Properties/definitions/StorageLocation" | fn.#ObjectExpression
-	Name?:                 string | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::FpgaImage"
+	Properties?: close({
+		Description?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageLocation": close({
+		// The location of the encrypted design checkpoint in Amazon S3. The input must be a tarball.
+		InputStorageLocation?: #StorageLocation
+
+		// The location in Amazon S3 for the output logs.
+		LogsStorageLocation?: #StorageLocation
+		Name?:                string | fn.#StringExpression
+		Tags?:                [...#Tag] | fn.#ListExpression
+	})
+}
+
+#StorageLocation: close({
 	Bucket?: string | fn.#StringExpression
 	Key?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::FpgaImage"
-	Properties?: #Properties
-}

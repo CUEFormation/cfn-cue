@@ -16,21 +16,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The `AWS::Redshift::ScheduledAction` resource creates an Amazon Redshift Scheduled Action.
-#Properties: close({
-	Enable?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndTime?:                    _#defs."/$defs/Properties/definitions/timestamp" | fn.#StringExpression
-	IamRole?:                    strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	Schedule?:                   strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduledActionDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduledActionName!:        strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	StartTime?:                  _#defs."/$defs/Properties/definitions/timestamp" | fn.#StringExpression
-	TargetAction?:               _#defs."/$defs/Properties/definitions/ScheduledActionType" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::ScheduledAction"
+	Properties!: close({
+		Enable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/PauseClusterMessage": close({ClusterIdentifier!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+		// The end time in UTC of the scheduled action. After this time, the scheduled
+		// action does not trigger.
+		EndTime?:                    #timestamp
+		IamRole?:                    strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		Schedule?:                   strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		ScheduledActionDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		ScheduledActionName!:        strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResizeClusterMessage": close({
+		// The start time in UTC of the scheduled action. Before this time, the
+		// scheduled action does not trigger.
+		StartTime?: #timestamp
+
+		// A JSON format string of the Amazon Redshift API operation with input parameters.
+		TargetAction?: #ScheduledActionType
+	})
+}
+
+#PauseClusterMessage: close({ClusterIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#ResizeClusterMessage: close({
 	Classic?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ClusterIdentifier!: string | fn.#StringExpression
 	ClusterType?:       string | fn.#StringExpression
@@ -52,20 +62,15 @@ _#defs: "/$defs/Properties/definitions/ResizeClusterMessage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResumeClusterMessage": close({ClusterIdentifier!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ResumeClusterMessage: close({ClusterIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledActionType": fn.#Object & {...} & matchN(1, [close(
-	{ResizeCluster?: _#defs."/$defs/Properties/definitions/ResizeClusterMessage"},
+#ScheduledActionType: fn.#Object & {...} & matchN(1, [close(
+	{ResizeCluster?: #ResizeClusterMessage},
 ), close(
-	{PauseCluster?: _#defs."/$defs/Properties/definitions/PauseClusterMessage"},
+	{PauseCluster?: #PauseClusterMessage},
 ), close(
-	{ResumeCluster?: _#defs."/$defs/Properties/definitions/ResumeClusterMessage"},
+	{ResumeCluster?: #ResumeClusterMessage},
 )]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/timestamp": string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::ScheduledAction"
-	Properties!: #Properties
-}
+#timestamp: string | fn.#StringExpression

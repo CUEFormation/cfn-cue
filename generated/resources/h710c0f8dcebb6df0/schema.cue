@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -17,48 +17,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SecurityHub::AutomationRuleV2
-#Properties: close({
-	Actions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AutomationRulesActionV2"
-	] |
-		fn.#ListExpression
-	Criteria!:    _#defs."/$defs/Properties/definitions/Criteria"
-	Description!: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	RuleOrder!: <=1000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::AutomationRuleV2"
+	Properties!: close({
+		Actions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#AutomationRulesActionV2] |
+			fn.#ListExpression
+		Criteria!:    #Criteria
+		Description!: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		RuleOrder!: <=1000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=1000 &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							<=1000 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RuleStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:       _#defs."/$defs/Properties/definitions/Tags"
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RuleStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:       #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AllowedOperators": "AND" | "OR" | fn.#StringExpression
+#AllowedOperators: "AND" | "OR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutomationRulesActionV2": close({
-	ExternalIntegrationConfiguration?: _#defs."/$defs/Properties/definitions/ExternalIntegrationConfiguration"
-	FindingFieldsUpdate?:              _#defs."/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdateV2"
+#AutomationRulesActionV2: close({
+	ExternalIntegrationConfiguration?: #ExternalIntegrationConfiguration
+	FindingFieldsUpdate?:              #AutomationRulesFindingFieldsUpdateV2
 	Type!:                             "FINDING_FIELDS_UPDATE" | "EXTERNAL_INTEGRATION" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdateV2": close({
+#AutomationRulesFindingFieldsUpdateV2: close({
 	Comment?: =~".*\\S.*" | fn.#StringExpression
 	SeverityId?: int |
 		{
@@ -91,47 +92,32 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdateV2": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BooleanFilter": close(
-	{Value!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#BooleanFilter: close({Value!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CompositeFilter": close({
-	BooleanFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OcsfBooleanFilter"
-	] |
+#CompositeFilter: close({
+	BooleanFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#OcsfBooleanFilter] |
 		fn.#ListExpression
-	DateFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OcsfDateFilter"
-	] |
+	DateFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#OcsfDateFilter] | fn.#ListExpression
+	MapFilters?:  list.MaxItems(20) & list.MinItems(1) & [...#OcsfMapFilter] | fn.#ListExpression
+	NumberFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#OcsfNumberFilter] |
 		fn.#ListExpression
-	MapFilters?: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/OcsfMapFilter"] |
-		fn.#ListExpression
-	NumberFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OcsfNumberFilter"
-	] |
-		fn.#ListExpression
-	Operator?: _#defs."/$defs/Properties/definitions/AllowedOperators"
-	StringFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OcsfStringFilter"
-	] |
+	Operator?: #AllowedOperators
+	StringFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#OcsfStringFilter] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Criteria": close(
-	{OcsfFindingCriteria?: _#defs."/$defs/Properties/definitions/OcsfFindingFilters"},
-) |
-	fn.#ObjectExpression
+#Criteria: close({OcsfFindingCriteria?: #OcsfFindingFilters}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DateFilter": close({
-	DateRange?: _#defs."/$defs/Properties/definitions/DateRange"
-	End?:       _#defs."/$defs/Properties/definitions/ISO8601DateString"
-	Start?:     _#defs."/$defs/Properties/definitions/ISO8601DateString"
+#DateFilter: close({
+	DateRange?: #DateRange
+	End?:       #ISO8601DateString
+	Start?:     #ISO8601DateString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DateRange": close({
+#DateRange: close({
 	Unit!: "DAYS" | fn.#StringExpression
 	Value!: number |
 		{
@@ -155,22 +141,19 @@ _#defs: "/$defs/Properties/definitions/DateRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExternalIntegrationConfiguration": close(
-	{ConnectorArn?: =~".*\\S.*" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ExternalIntegrationConfiguration: close({ConnectorArn?: =~".*\\S.*" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
+#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MapFilter": close({
+#MapFilter: close({
 	Comparison!: "EQUALS" | "NOT_EQUALS" | fn.#StringExpression
 	Key!:        strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	Value!:      strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NumberFilter": close({
+#NumberFilter: close({
 	Eq?: number |
 		{
 			string &
@@ -231,50 +214,49 @@ _#defs: "/$defs/Properties/definitions/NumberFilter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OcsfBooleanFilter": close({
+#OcsfBooleanFilter: close({
 	FieldName!: "compliance.assessments.meets_criteria" |
 		"vulnerabilities.is_exploit_available" |
 		"vulnerabilities.is_fix_available" |
 		fn.#StringExpression
-	Filter!: _#defs."/$defs/Properties/definitions/BooleanFilter"
+	Filter!: #BooleanFilter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OcsfDateFilter": close({
+#OcsfDateFilter: close({
 	FieldName!: "finding_info.created_time_dt" |
 		"finding_info.first_seen_time_dt" |
 		"finding_info.last_seen_time_dt" |
 		"finding_info.modified_time_dt" |
 		fn.#StringExpression
-	Filter!: _#defs."/$defs/Properties/definitions/DateFilter"
+	Filter!: #DateFilter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OcsfFindingFilters": close({
-	CompositeFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CompositeFilter"] |
-		fn.#ListExpression
-	CompositeOperator?: _#defs."/$defs/Properties/definitions/AllowedOperators"
+#OcsfFindingFilters: close({
+	CompositeFilters?:  list.UniqueItems() & [...#CompositeFilter] | fn.#ListExpression
+	CompositeOperator?: #AllowedOperators
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OcsfMapFilter": close({
+#OcsfMapFilter: close({
 	FieldName!: "resources.tags" | fn.#StringExpression
-	Filter!:    _#defs."/$defs/Properties/definitions/MapFilter"
+	Filter!:    #MapFilter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OcsfNumberFilter": close({
+#OcsfNumberFilter: close({
 	FieldName!: "activity_id" |
 		"compliance.status_id" |
 		"confidence_score" |
 		"finding_info.related_events_count" |
 		"vendor_attributes.severity_id" |
 		fn.#StringExpression
-	Filter!: _#defs."/$defs/Properties/definitions/NumberFilter"
+	Filter!: #NumberFilter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OcsfStringField": "activity_name" |
+#OcsfStringField: "activity_name" |
 	"cloud.account.name" |
 	"cloud.account.uid" |
 	"cloud.provider" |
@@ -308,20 +290,16 @@ _#defs: "/$defs/Properties/definitions/OcsfStringField": "activity_name" |
 	"vendor_attributes.severity" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OcsfStringFilter": close({
-	FieldName!: _#defs."/$defs/Properties/definitions/OcsfStringField"
-	Filter!:    _#defs."/$defs/Properties/definitions/StringFilter"
+#OcsfStringFilter: close({
+	FieldName!: #OcsfStringField
+	Filter!:    #StringFilter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StringFilter": close({
+#StringFilter: close({
 	Comparison!: "EQUALS" | "PREFIX" | "NOT_EQUALS" | "PREFIX_NOT_EQUALS" | "CONTAINS" | fn.#StringExpression
 	Value!:      strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::AutomationRuleV2"
-	Properties!: #Properties
-}
+#Tags: {...} | fn.#ObjectExpression

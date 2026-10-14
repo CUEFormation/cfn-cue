@@ -4,9 +4,9 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"struct"
 	"strings"
 	"list"
-	"struct"
 )
 
 import cfnScalarStrings "strings"
@@ -21,29 +21,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // subscription that delivers events from an event bus to a target. Canonical
 // identity is the combination of bus, name, and target. Replacement uses
 // delete_then_create.
-#Properties: close({
-	BatchConfiguration?: _#defs."/$defs/Properties/definitions/BatchConfiguration" | fn.#ObjectExpression
-	Description?:        strings.MaxRunes(512) | fn.#StringExpression
-	EventBusArn!: strings.MaxRunes(1011) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
-	fn.#StringExpression
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration" | fn.#ObjectExpression
-	InvokeConfiguration!: _#defs."/$defs/Properties/definitions/InvokeConfiguration" | fn.#ObjectExpression
-	LogConfiguration?:    _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
-	OnFailureConfiguration?:   _#defs."/$defs/Properties/definitions/OnFailureConfiguration" | fn.#ObjectExpression
-	PointInTimeConfiguration?: _#defs."/$defs/Properties/definitions/PointInTimeConfiguration" | fn.#ObjectExpression
-	ResumePosition?:           "LAST_PROCESSED" | "LATEST" | fn.#StringExpression
-	RetryPolicy?:              _#defs."/$defs/Properties/definitions/RetryPolicy" | fn.#ObjectExpression
-	StartingPosition?:         "LATEST" | "POINT_IN_TIME" | fn.#StringExpression
-	State?:                    "RUNNING" | "STOPPED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Transformer?: _#defs."/$defs/Properties/definitions/Transformer" | fn.#ObjectExpression
-	Type?:        "FIFO" | "UNORDERED" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EventsV2::Subscriber"
+	Properties!: close({
+		// Configuration for batching events into a single delivery to the target.
+		BatchConfiguration?: #BatchConfiguration
+		Description?:        strings.MaxRunes(512) | fn.#StringExpression
+		EventBusArn!: strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BatchConfiguration": close({
+		// Configuration for filtering which events are delivered to the target. An
+		// event must match every filter to be delivered.
+		FilterConfiguration?: #FilterConfiguration
+
+		// Configuration for how the subscriber invokes its target, including the target
+		// ARN, the IAM role used to invoke it, and, optionally, the target-specific
+		// parameters object that matches the target type.
+		InvokeConfiguration!: #InvokeConfiguration
+
+		// Delivery logging configuration for the subscriber.
+		LogConfiguration?: #LogConfiguration
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
+
+		// The destination for events that could not be delivered to the target.
+		OnFailureConfiguration?: #OnFailureConfiguration
+
+		// The point in time to start delivering events from. Used when StartingPosition is POINT_IN_TIME.
+		PointInTimeConfiguration?: #PointInTimeConfiguration
+		ResumePosition?:           "LAST_PROCESSED" | "LATEST" | fn.#StringExpression
+
+		// The retry policy for failed deliveries to the target.
+		RetryPolicy?:      #RetryPolicy
+		StartingPosition?: "LATEST" | "POINT_IN_TIME" | fn.#StringExpression
+		State?:            "RUNNING" | "STOPPED" | fn.#StringExpression
+		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Configuration for transforming events before delivery to the target.
+		Transformer?: #Transformer
+		Type?:        "FIFO" | "UNORDERED" | fn.#StringExpression
+	})
+}
+
+#BatchConfiguration: close({
 	MaxBatchSize?: int & <=500 & >=1 |
 		{
 			string &
@@ -79,38 +100,34 @@ _#defs: "/$defs/Properties/definitions/BatchConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeduplicationConfiguration": close(
-	{DeduplicationType!: "CONTENT_BASED" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DeduplicationConfiguration: close({DeduplicationType!: "CONTENT_BASED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBusV2MetadataMap": struct.MaxFields(100) & close({
+#EventBusV2MetadataMap: struct.MaxFields(100) & close({
 
 	{[=~"^[\\s\\S]*$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBusV2SystemMetadata": close({
+#EventBusV2SystemMetadata: close({
 	DeduplicationId?: string | fn.#StringExpression
 	EventGroupId?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	Pattern!: strings.MaxRunes(4096) | fn.#StringExpression
 	Scope!:   "DATA" | "METADATA" | "SYSTEM_METADATA" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
-	Filters!: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter"] |
-		fn.#ListExpression
+#FilterConfiguration: close({
+	Filters!:  list.MaxItems(50) & list.MinItems(1) & [...#Filter] | fn.#ListExpression
 	Language?: "EVENT_BRIDGE_PATTERN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderParametersMap": struct.MaxFields(50) & {...} | fn.#ObjectExpression
+#HeaderParametersMap: struct.MaxFields(50) & {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
+#InvokeConfiguration: ({
 	TargetArn?: fn.#Value
 	...
 } | {
@@ -407,17 +424,25 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 	}
 	{}
 	"EventBusV2Parameters"?: close({
-		DeduplicationConfiguration?: _#defs."/$defs/Properties/definitions/DeduplicationConfiguration" |
-			fn.#ObjectExpression
-		Metadata?:       _#defs."/$defs/Properties/definitions/EventBusV2MetadataMap" | fn.#ObjectExpression
-		SystemMetadata?: _#defs."/$defs/Properties/definitions/EventBusV2SystemMetadata" | fn.#ObjectExpression
+		// Deduplication settings applied to the forwarded events on the downstream event bus.
+		DeduplicationConfiguration?: #DeduplicationConfiguration
+
+		// Metadata forwarded with each event, as key-value string pairs.
+		Metadata?: #EventBusV2MetadataMap
+
+		// System metadata attached to each forwarded event, controlling FIFO ordering
+		// and deduplication on the downstream event bus.
+		SystemMetadata?: #EventBusV2SystemMetadata
 	}) |
 	fn.#ObjectExpression
 	"HttpParameters"?: close({
-		HeaderParameters?:         _#defs."/$defs/Properties/definitions/HeaderParametersMap" | fn.#ObjectExpression
+		// HTTP headers to add to the request.
+		HeaderParameters?:         #HeaderParametersMap
 		InvocationTimeoutSeconds?: string | fn.#StringExpression
 		PathParameterValues?:      list.MaxItems(50) & [...string | fn.#StringExpression] | fn.#ListExpression
-		QueryStringParameters?: _#defs."/$defs/Properties/definitions/QueryStringParametersMap" | fn.#ObjectExpression
+
+		// Query string parameters to add to the request.
+		QueryStringParameters?: #QueryStringParametersMap
 	}) |
 	fn.#ObjectExpression
 	"KinesisParameters"?: close({
@@ -439,7 +464,9 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 	=~"^arn:aws(-[a-z0-9]+)*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" |
 	fn.#StringExpression
 	"SnsParameters"?: close({
-		MessageAttributes?:      _#defs."/$defs/Properties/definitions/MessageAttributeMap" | fn.#ObjectExpression
+		// Custom message attributes to attach to each message; Amazon SNS subscription
+		// filter policies can match on them.
+		MessageAttributes?:      #MessageAttributeMap
 		MessageDeduplicationId?: string | fn.#StringExpression
 		MessageGroupId?:         string | fn.#StringExpression
 		MessageStructure?:       string | fn.#StringExpression
@@ -447,11 +474,15 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 	}) |
 	fn.#ObjectExpression
 	"SqsParameters"?: close({
-		DelaySeconds?:            string | fn.#StringExpression
-		MessageAttributes?:       _#defs."/$defs/Properties/definitions/MessageAttributeMap" | fn.#ObjectExpression
-		MessageDeduplicationId?:  string | fn.#StringExpression
-		MessageGroupId?:          string | fn.#StringExpression
-		MessageSystemAttributes?: _#defs."/$defs/Properties/definitions/MessageAttributeMap" | fn.#ObjectExpression
+		DelaySeconds?: string | fn.#StringExpression
+
+		// Custom message attributes to attach to each message.
+		MessageAttributes?:      #MessageAttributeMap
+		MessageDeduplicationId?: string | fn.#StringExpression
+		MessageGroupId?:         string | fn.#StringExpression
+
+		// Message system attributes to attach to each message, such as AWSTraceHeader.
+		MessageSystemAttributes?: #MessageAttributeMap
 	}) |
 	fn.#ObjectExpression
 	"StepFunctionsParameters"?: close({
@@ -470,30 +501,28 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonataConfiguration": close(
-	{Expression!: strings.MaxRunes(8192) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#JsonataConfiguration: close({Expression!: strings.MaxRunes(8192) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	IncludePayload?: "FULL" | "ON_ERROR_ONLY" | fn.#StringExpression
 	Level?:          "OFF" | "ERROR" | "INFO" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MessageAttributeMap": struct.MaxFields(50) & close({
+#MessageAttributeMap: struct.MaxFields(50) & close({
 
-	{[=~"^[\\s\\S]*$"]: _#defs."/$defs/Properties/definitions/MessageAttributeValue"}}) |
+	{[=~"^[\\s\\S]*$"]: #MessageAttributeValue}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MessageAttributeValue": close({
+#MessageAttributeValue: close({
 	BinaryValue?: string | fn.#StringExpression
 	DataType!:    string | fn.#StringExpression
 	StringValue?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnFailureConfiguration": close({
+#OnFailureConfiguration: close({
 	Arn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[a-z0-9]+)*:sqs:[a-z][a-z0-9]*(-[a-z0-9]+)*:[0-9]{12}:([A-Za-z0-9_-]{1,80}|[A-Za-z0-9_-]{1,75}\\.fifo)$" |
@@ -501,7 +530,7 @@ _#defs: "/$defs/Properties/definitions/OnFailureConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PointInTimeConfiguration": close({
+#PointInTimeConfiguration: close({
 	EndPoint?: int |
 		{
 			string &
@@ -534,14 +563,14 @@ _#defs: "/$defs/Properties/definitions/PointInTimeConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringParametersMap": struct.MaxFields(50) & close({
+#QueryStringParametersMap: struct.MaxFields(50) & close({
 
 	{[=~"^[^\\x{0000}-\\x{001F}\\x{007F}]{1,512}$"]: strings.MaxRunes(512) &
 	=~"^[^\\x{0000}-\\x{0009}\\x{000B}\\x{000C}\\x{000E}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetryPolicy": close({
+#RetryPolicy: close({
 	MaxEventAgeInSeconds?: int & <=86400 & >=60 |
 		{
 			string &
@@ -578,18 +607,15 @@ _#defs: "/$defs/Properties/definitions/RetryPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Transformer": close({
-	JsonataConfiguration?: _#defs."/$defs/Properties/definitions/JsonataConfiguration" | fn.#ObjectExpression
+#Transformer: close({
+	// The JSONata expression configuration. Required when Type is JSONATA.
+	JsonataConfiguration?: #JsonataConfiguration
 	Type?:                 "RAW" | "WITH_METADATA" | "JSONATA" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventsV2::Subscriber"
-	Properties!: #Properties
-}

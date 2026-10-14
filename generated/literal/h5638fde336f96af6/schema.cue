@@ -63,7 +63,7 @@ import (
 	State?: "CREATION_IN_PROGRESS" | "ACTIVE" | "CREATION_FAILED" | "DELETE_IN_PROGRESS"
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The identifier of the custom vocabulary.
 	VocabularyId?: strings.MaxRunes(500) & strings.MinRunes(1)
@@ -72,7 +72,7 @@ import (
 	VocabularyName!: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

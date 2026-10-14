@@ -12,64 +12,76 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The distribution tenant.
-#Properties: close({
-	ConnectionGroupId?:         string | fn.#StringExpression
-	Customizations?:            _#defs."/$defs/Properties/definitions/Customizations" | fn.#ObjectExpression
-	DistributionId!:            string | fn.#StringExpression
-	Domains!:                   [...string | fn.#StringExpression] | fn.#ListExpression
-	Enabled?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ManagedCertificateRequest?: _#defs."/$defs/Properties/definitions/ManagedCertificateRequest" | fn.#ObjectExpression
-	Name!:                      string | fn.#StringExpression
-	Parameters?:                [..._#defs."/$defs/Properties/definitions/Parameter"] | fn.#ListExpression
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::DistributionTenant"
+	Properties!: close({
+		ConnectionGroupId?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Certificate": close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+		// Customizations for the distribution tenant. For each distribution tenant, you
+		// can specify the geographic restrictions, and the Amazon Resource Names
+		// (ARNs) for the ACM certificate and WAF web ACL. These are specific values
+		// that you can override or disable from the multi-tenant distribution that was
+		// used to create the distribution tenant.
+		Customizations?: #Customizations
+		DistributionId!: string | fn.#StringExpression
+		Domains!:        [...string | fn.#StringExpression] | fn.#ListExpression
+		Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/Customizations": close({
-	Certificate?:     _#defs."/$defs/Properties/definitions/Certificate" | fn.#ObjectExpression
-	GeoRestrictions?: _#defs."/$defs/Properties/definitions/GeoRestrictionCustomization" | fn.#ObjectExpression
-	WebAcl?:          _#defs."/$defs/Properties/definitions/WebAclCustomization" | fn.#ObjectExpression
+		// An object that represents the request for the Amazon CloudFront managed ACM certificate.
+		ManagedCertificateRequest?: #ManagedCertificateRequest
+		Name!:                      string | fn.#StringExpression
+		Parameters?:                [...#Parameter] | fn.#ListExpression
+		Tags?:                      [...#Tag] | fn.#ListExpression
+	})
+}
+
+#Certificate: close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#Customizations: close({
+	// The ACMlong (ACM) certificate.
+	Certificate?: #Certificate
+
+	// The geographic restrictions.
+	GeoRestrictions?: #GeoRestrictionCustomization
+
+	// The WAF web ACL.
+	WebAcl?: #WebAclCustomization
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DomainResult": close({
+#DomainResult: close({
 	Domain?: string | fn.#StringExpression
 	Status?: "active" | "inactive" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeoRestrictionCustomization": close({
+#GeoRestrictionCustomization: close({
 	Locations?:       [...string | fn.#StringExpression] | fn.#ListExpression
 	RestrictionType?: "blacklist" | "whitelist" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedCertificateRequest": close({
+#ManagedCertificateRequest: close({
 	CertificateTransparencyLoggingPreference?: "enabled" | "disabled" | fn.#StringExpression
 	PrimaryDomainName?:                        string | fn.#StringExpression
 	ValidationTokenHost?:                      "cloudfront" | "self-hosted" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	Name?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebAclCustomization": close({
+#WebAclCustomization: close({
 	Action?: "override" | "disable" | fn.#StringExpression
 	Arn?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::DistributionTenant"
-	Properties!: #Properties
-}

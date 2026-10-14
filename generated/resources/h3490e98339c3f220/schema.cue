@@ -13,24 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An Event Stream resource of Amazon Connect Customer Profiles
-#Properties: close({
-	DomainName!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	EventStreamName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Uri!: _#defs."/$defs/Properties/definitions/Uri"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::EventStream"
+	Properties!: close({
+		DomainName!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		EventStreamName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Uri!:             #Uri
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Status": "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
+#Status: "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Uri": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::EventStream"
-	Properties!: #Properties
-}
+#Uri: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression

@@ -15,32 +15,32 @@ import (
 	Arn?:                           strings.MaxRunes(1000) & =~"(?s).*"
 	AutoSubDomainCreationPatterns?: [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(?s).+"]
 	AutoSubDomainIAMRole?:          strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^$|^arn:.+:iam::\\d{12}:role.+"
-	Certificate?:                   _#defs."/$defs/Properties/definitions/Certificate"
+	Certificate?:                   #Certificate
 	CertificateRecord?:             strings.MaxRunes(1000)
-	CertificateSettings?:           _#defs."/$defs/Properties/definitions/CertificateSettings"
+	CertificateSettings?:           #CertificateSettings
 	DomainName!:                    strings.MaxRunes(255) & strings.MinRunes(0)
 	DomainStatus?:                  string
 	EnableAutoSubDomain?:           bool
 	StatusReason?:                  strings.MaxRunes(1000)
-	SubDomainSettings!: list.MaxItems(255) & [...] & [..._#defs."/$defs/Properties/definitions/SubDomainSetting"]
-	UpdateStatus?:      string
+	SubDomainSettings!:             list.MaxItems(255) & [...] & [...#SubDomainSetting]
+	UpdateStatus?:                  string
 })
 
-_#defs: "/$defs/Properties/definitions/Certificate": close({
+#Certificate: close({
 	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
 		=~"\"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$\""
 	CertificateType?:                  "AMPLIFY_MANAGED" | "CUSTOM"
 	CertificateVerificationDNSRecord?: strings.MaxRunes(1000)
 })
 
-_#defs: "/$defs/Properties/definitions/CertificateSettings": close({
+#CertificateSettings: close({
 	CertificateType?: "AMPLIFY_MANAGED" | "CUSTOM"
 	CustomCertificateArn?: strings.MaxRunes(1000) &
 	strings.MinRunes(0) &
 	=~"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$"
 })
 
-_#defs: "/$defs/Properties/definitions/SubDomainSetting": close({
+#SubDomainSetting: close({
 	BranchName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+"
 	Prefix!:     strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*"
 })

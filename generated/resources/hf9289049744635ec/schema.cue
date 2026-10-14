@@ -9,12 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityLake::SubscriberNotification
-#Properties: close({
-	NotificationConfiguration!: _#defs."/$defs/Properties/definitions/NotificationConfiguration"
-	SubscriberArn!:             =~"^arn:.*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityLake::SubscriberNotification"
+	Properties!: close({
+		NotificationConfiguration!: #NotificationConfiguration
+		SubscriberArn!:             =~"^arn:.*$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
+#HttpsNotificationConfiguration: close({
 	AuthorizationApiKeyName?:  string | fn.#StringExpression
 	AuthorizationApiKeyValue?: string | fn.#StringExpression
 	Endpoint!:                 =~"^https?://.+$" | fn.#StringExpression
@@ -25,22 +28,15 @@ _#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": matchN(1, [{
-	HttpsNotificationConfiguration!: _
-	...
-}, {
-	SqsNotificationConfiguration!: _
-	...
-}]) & close({
-	HttpsNotificationConfiguration?: _#defs."/$defs/Properties/definitions/HttpsNotificationConfiguration"
-	SqsNotificationConfiguration?:   _#defs."/$defs/Properties/definitions/SqsNotificationConfiguration"
-}) |
+#NotificationConfiguration: close({
+	HttpsNotificationConfiguration?: #HttpsNotificationConfiguration
+	SqsNotificationConfiguration?:   #SqsNotificationConfiguration
+	if HttpsNotificationConfiguration != _|_ if HttpsNotificationConfiguration."Fn::If" == _|_ {
+		SqsNotificationConfiguration?: close({"Fn::If": _}) | error(
+			"SqsNotificationConfiguration cannot be used with HttpsNotificationConfiguration; set exactly one of HttpsNotificationConfiguration, SqsNotificationConfiguration",
+		)
+	}
+}) & matchN(>=1, [{HttpsNotificationConfiguration!: _}, {SqsNotificationConfiguration!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqsNotificationConfiguration": fn.#Object & {...} |
-string |
-fn.#StringObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityLake::SubscriberNotification"
-	Properties!: #Properties
-}
+#SqsNotificationConfiguration: fn.#Object & {...} | string | fn.#StringObjectExpression

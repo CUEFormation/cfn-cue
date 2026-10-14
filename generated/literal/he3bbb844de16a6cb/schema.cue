@@ -11,7 +11,7 @@ import (
 
 // Resource Type definition for AWS::KafkaConnect::Connector
 #Properties: close({
-	Capacity!: _#defs."/$defs/Properties/definitions/Capacity"
+	Capacity!: #Capacity
 
 	// Amazon Resource Name for the created Connector.
 	ConnectorArn?: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*"
@@ -26,20 +26,20 @@ import (
 
 	// The name of the connector.
 	ConnectorName!:                    strings.MaxRunes(128) & strings.MinRunes(1)
-	KafkaCluster!:                     _#defs."/$defs/Properties/definitions/KafkaCluster"
-	KafkaClusterClientAuthentication!: _#defs."/$defs/Properties/definitions/KafkaClusterClientAuthentication"
-	KafkaClusterEncryptionInTransit!:  _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransit"
+	KafkaCluster!:                     #KafkaCluster
+	KafkaClusterClientAuthentication!: #KafkaClusterClientAuthentication
+	KafkaClusterEncryptionInTransit!:  #KafkaClusterEncryptionInTransit
 
 	// The version of Kafka Connect. It has to be compatible with both the Kafka
 	// cluster's version and the plugins.
 	KafkaConnectVersion!: string
-	LogDelivery?:         _#defs."/$defs/Properties/definitions/LogDelivery"
+	LogDelivery?:         #LogDelivery
 
 	// The network type of the Connector.
 	NetworkType?: "IPV4" | "DUAL"
 
 	// List of plugins to use with the connector.
-	Plugins!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Plugin"]
+	Plugins!: list.MinItems(1) & list.UniqueItems() & [...#Plugin]
 
 	// The Amazon Resource Name (ARN) of the IAM role used by the connector to
 	// access Amazon S3 objects and other external resources.
@@ -47,19 +47,19 @@ import (
 		=~"arn:(aws|aws-us-gov|aws-cn):iam:.*"
 
 	// A collection of tags associated with a resource
-	Tags?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	WorkerConfiguration?: _#defs."/$defs/Properties/definitions/WorkerConfiguration"
+	Tags?:                list.UniqueItems() & [...#Tag]
+	WorkerConfiguration?: #WorkerConfiguration
 })
 
 // Details of how to connect to an Apache Kafka cluster.
-_#defs: "/$defs/Properties/definitions/ApacheKafkaCluster": close({
+#ApacheKafkaCluster: close({
 	// The bootstrap servers string of the Apache Kafka cluster.
 	BootstrapServers!: string
-	Vpc!:              _#defs."/$defs/Properties/definitions/Vpc"
+	Vpc!:              #Vpc
 })
 
 // Details about auto scaling of a connector.
-_#defs: "/$defs/Properties/definitions/AutoScaling": close({
+#AutoScaling: close({
 	// The maximum number of tasks allocated to the connector during autoscaling operations.
 	MaxAutoscalingTaskCount?: int
 
@@ -71,24 +71,23 @@ _#defs: "/$defs/Properties/definitions/AutoScaling": close({
 
 	// The minimum number of workers for a connector.
 	MinWorkerCount!: int
-	ScaleInPolicy!:  _#defs."/$defs/Properties/definitions/ScaleInPolicy"
-	ScaleOutPolicy!: _#defs."/$defs/Properties/definitions/ScaleOutPolicy"
+	ScaleInPolicy!:  #ScaleInPolicy
+	ScaleOutPolicy!: #ScaleOutPolicy
 })
 
 // Information about the capacity allocated to the connector.
-_#defs: "/$defs/Properties/definitions/Capacity": matchN(1, [{
-	AutoScaling!: _
-	...
-}, {
-	ProvisionedCapacity!: _
-	...
-}]) & close({
-	AutoScaling?:         _#defs."/$defs/Properties/definitions/AutoScaling"
-	ProvisionedCapacity?: _#defs."/$defs/Properties/definitions/ProvisionedCapacity"
-})
+#Capacity: close({
+	AutoScaling?:         #AutoScaling
+	ProvisionedCapacity?: #ProvisionedCapacity
+	if AutoScaling != _|_ if AutoScaling."Fn::If" == _|_ {
+		ProvisionedCapacity?: close({"Fn::If": _}) | error(
+			"ProvisionedCapacity cannot be used with AutoScaling; set exactly one of AutoScaling, ProvisionedCapacity",
+		)
+	}
+}) & matchN(>=1, [{AutoScaling!: _}, {ProvisionedCapacity!: _}])
 
 // Details about delivering logs to Amazon CloudWatch Logs.
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsLogDelivery": close({
+#CloudWatchLogsLogDelivery: close({
 	// Specifies whether the logs get sent to the specified CloudWatch Logs destination.
 	Enabled!: bool
 
@@ -97,7 +96,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsLogDelivery": close({
 })
 
 // Details about a custom plugin.
-_#defs: "/$defs/Properties/definitions/CustomPlugin": close({
+#CustomPlugin: close({
 	// The Amazon Resource Name (ARN) of the custom plugin to use.
 	CustomPluginArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*"
 
@@ -106,7 +105,7 @@ _#defs: "/$defs/Properties/definitions/CustomPlugin": close({
 })
 
 // Details about delivering logs to Amazon Kinesis Data Firehose.
-_#defs: "/$defs/Properties/definitions/FirehoseLogDelivery": close({
+#FirehoseLogDelivery: close({
 	// The Kinesis Data Firehose delivery stream that is the destination for log delivery.
 	DeliveryStream?: string
 
@@ -115,39 +114,29 @@ _#defs: "/$defs/Properties/definitions/FirehoseLogDelivery": close({
 })
 
 // Details of how to connect to the Kafka cluster.
-_#defs: "/$defs/Properties/definitions/KafkaCluster": close(
-	{ApacheKafkaCluster!: _#defs."/$defs/Properties/definitions/ApacheKafkaCluster"},
-)
+#KafkaCluster: close({ApacheKafkaCluster!: #ApacheKafkaCluster})
 
 // Details of the client authentication used by the Kafka cluster.
-_#defs: "/$defs/Properties/definitions/KafkaClusterClientAuthentication": close(
-	{AuthenticationType!: _#defs."/$defs/Properties/definitions/KafkaClusterClientAuthenticationType"},
-)
+#KafkaClusterClientAuthentication: close({AuthenticationType!: #KafkaClusterClientAuthenticationType})
 
 // The type of client authentication used to connect to the Kafka cluster. Value
 // NONE means that no client authentication is used.
-_#defs: "/$defs/Properties/definitions/KafkaClusterClientAuthenticationType": "NONE" | "IAM"
+#KafkaClusterClientAuthenticationType: "NONE" | "IAM"
 
 // Details of encryption in transit to the Kafka cluster.
-_#defs: "/$defs/Properties/definitions/KafkaClusterEncryptionInTransit": close(
-	{EncryptionType!: _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransitType"},
-)
+#KafkaClusterEncryptionInTransit: close({EncryptionType!: #KafkaClusterEncryptionInTransitType})
 
 // The type of encryption in transit to the Kafka cluster.
-_#defs: "/$defs/Properties/definitions/KafkaClusterEncryptionInTransitType": "PLAINTEXT" | "TLS"
+#KafkaClusterEncryptionInTransitType: "PLAINTEXT" | "TLS"
 
 // Details of what logs are delivered and where they are delivered.
-_#defs: "/$defs/Properties/definitions/LogDelivery": close(
-	{WorkerLogDelivery!: _#defs."/$defs/Properties/definitions/WorkerLogDelivery"},
-)
+#LogDelivery: close({WorkerLogDelivery!: #WorkerLogDelivery})
 
 // Details about a Kafka Connect plugin which will be used with the connector.
-_#defs: "/$defs/Properties/definitions/Plugin": close(
-	{CustomPlugin!: _#defs."/$defs/Properties/definitions/CustomPlugin"},
-)
+#Plugin: close({CustomPlugin!: #CustomPlugin})
 
 // Details about a fixed capacity allocated to a connector.
-_#defs: "/$defs/Properties/definitions/ProvisionedCapacity": close({
+#ProvisionedCapacity: close({
 	// Specifies how many MSK Connect Units (MCU) are allocated to the connector.
 	McuCount!: (==1 | ==2 | ==4 | ==8) & int & <=8 & >=1
 
@@ -156,7 +145,7 @@ _#defs: "/$defs/Properties/definitions/ProvisionedCapacity": close({
 })
 
 // Details about delivering logs to Amazon S3.
-_#defs: "/$defs/Properties/definitions/S3LogDelivery": close({
+#S3LogDelivery: close({
 	// The name of the S3 bucket that is the destination for log delivery.
 	Bucket?: string
 
@@ -168,24 +157,24 @@ _#defs: "/$defs/Properties/definitions/S3LogDelivery": close({
 })
 
 // Information about the scale in policy of the connector.
-_#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
+#ScaleInPolicy: close({
 	// Specifies the CPU utilization percentage threshold at which connector scale in should trigger.
 	CpuUtilizationPercentage!: int & <=100 & >=1
 })
 
 // Information about the scale out policy of the connector.
-_#defs: "/$defs/Properties/definitions/ScaleOutPolicy": close({
+#ScaleOutPolicy: close({
 	// Specifies the CPU utilization percentage threshold at which connector scale out should trigger.
 	CpuUtilizationPercentage!: int & <=100 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256)
 })
 
 // Information about a VPC used with the connector.
-_#defs: "/$defs/Properties/definitions/Vpc": close({
+#Vpc: close({
 	// The AWS security groups to associate with the elastic network interfaces in
 	// order to specify what the connector has access to.
 	SecurityGroups!: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
@@ -196,7 +185,7 @@ _#defs: "/$defs/Properties/definitions/Vpc": close({
 })
 
 // Specifies the worker configuration to use with the connector.
-_#defs: "/$defs/Properties/definitions/WorkerConfiguration": close({
+#WorkerConfiguration: close({
 	// The revision of the worker configuration to use.
 	Revision!: int & <=9223372036854776000 & >=1
 
@@ -205,8 +194,8 @@ _#defs: "/$defs/Properties/definitions/WorkerConfiguration": close({
 })
 
 // Specifies where worker logs are delivered.
-_#defs: "/$defs/Properties/definitions/WorkerLogDelivery": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogDelivery"
-	Firehose?:       _#defs."/$defs/Properties/definitions/FirehoseLogDelivery"
-	S3?:             _#defs."/$defs/Properties/definitions/S3LogDelivery"
+#WorkerLogDelivery: close({
+	CloudWatchLogs?: #CloudWatchLogsLogDelivery
+	Firehose?:       #FirehoseLogDelivery
+	S3?:             #S3LogDelivery
 })

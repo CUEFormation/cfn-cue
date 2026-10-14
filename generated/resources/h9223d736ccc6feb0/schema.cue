@@ -13,59 +13,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualGateway
-#Properties: close({
-	MeshName!:           string | fn.#StringExpression
-	MeshOwner?:          string | fn.#StringExpression
-	Spec!:               _#defs."/$defs/Properties/definitions/VirtualGatewaySpec"
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VirtualGatewayName?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::VirtualGateway"
+	Properties!: close({
+		MeshName!:           string | fn.#StringExpression
+		MeshOwner?:          string | fn.#StringExpression
+		Spec!:               #VirtualGatewaySpec
+		Tags?:               [...#Tag] | fn.#ListExpression
+		VirtualGatewayName?: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/JsonFormatRef": close({
+#JsonFormatRef: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingFormat": close({
-	Json?: [..._#defs."/$defs/Properties/definitions/JsonFormatRef"] | fn.#ListExpression
+#LoggingFormat: close({
+	Json?: [...#JsonFormatRef] | fn.#ListExpression
 	Text?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubjectAlternativeNameMatchers": close(
-	{Exact?: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#SubjectAlternativeNameMatchers: close({Exact?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubjectAlternativeNames": close(
-	{Match!: _#defs."/$defs/Properties/definitions/SubjectAlternativeNameMatchers"},
-) |
-	fn.#ObjectExpression
+#SubjectAlternativeNames: close({Match!: #SubjectAlternativeNameMatchers}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayAccessLog": close(
-	{File?: _#defs."/$defs/Properties/definitions/VirtualGatewayFileAccessLog"},
-) |
-	fn.#ObjectExpression
+#VirtualGatewayAccessLog: close({File?: #VirtualGatewayFileAccessLog}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayBackendDefaults": close(
-	{ClientPolicy?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientPolicy"},
-) |
-	fn.#ObjectExpression
+#VirtualGatewayBackendDefaults: close({ClientPolicy?: #VirtualGatewayClientPolicy}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayClientPolicy": close(
-	{TLS?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientPolicyTls"},
-) |
-	fn.#ObjectExpression
+#VirtualGatewayClientPolicy: close({TLS?: #VirtualGatewayClientPolicyTls}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayClientPolicyTls": close({
-	Certificate?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientTlsCertificate"
+#VirtualGatewayClientPolicyTls: close({
+	Certificate?: #VirtualGatewayClientTlsCertificate
 	Enforce?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Ports?: [
 		...int |
@@ -86,30 +75,30 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayClientPolicyTls": close({
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	Validation!: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContext"
+	Validation!: #VirtualGatewayTlsValidationContext
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayClientTlsCertificate": close({
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate"
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate"
+#VirtualGatewayClientTlsCertificate: close({
+	File?: #VirtualGatewayListenerTlsFileCertificate
+	SDS?:  #VirtualGatewayListenerTlsSdsCertificate
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayConnectionPool": close({
-	GRPC?:  _#defs."/$defs/Properties/definitions/VirtualGatewayGrpcConnectionPool"
-	HTTP?:  _#defs."/$defs/Properties/definitions/VirtualGatewayHttpConnectionPool"
-	HTTP2?: _#defs."/$defs/Properties/definitions/VirtualGatewayHttp2ConnectionPool"
+#VirtualGatewayConnectionPool: close({
+	GRPC?:  #VirtualGatewayGrpcConnectionPool
+	HTTP?:  #VirtualGatewayHttpConnectionPool
+	HTTP2?: #VirtualGatewayHttp2ConnectionPool
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayFileAccessLog": close({
-	Format?: _#defs."/$defs/Properties/definitions/LoggingFormat"
+#VirtualGatewayFileAccessLog: close({
+	Format?: #LoggingFormat
 	Path!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayGrpcConnectionPool": close({
+#VirtualGatewayGrpcConnectionPool: close({
 	MaxRequests!: int |
 		{
 			string &
@@ -127,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayGrpcConnectionPool": close(
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayHealthCheckPolicy": close({
+#VirtualGatewayHealthCheckPolicy: close({
 	HealthyThreshold!: int |
 		{
 			string &
@@ -203,7 +192,7 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayHealthCheckPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayHttp2ConnectionPool": close({
+#VirtualGatewayHttp2ConnectionPool: close({
 	MaxRequests!: int |
 		{
 			string &
@@ -221,7 +210,7 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayHttp2ConnectionPool": close
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayHttpConnectionPool": close({
+#VirtualGatewayHttpConnectionPool: close({
 	MaxConnections!: int |
 		{
 			string &
@@ -253,63 +242,57 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayHttpConnectionPool": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListener": close({
-	ConnectionPool?: _#defs."/$defs/Properties/definitions/VirtualGatewayConnectionPool"
-	HealthCheck?:    _#defs."/$defs/Properties/definitions/VirtualGatewayHealthCheckPolicy"
-	PortMapping!:    _#defs."/$defs/Properties/definitions/VirtualGatewayPortMapping"
-	TLS?:            _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTls"
+#VirtualGatewayListener: close({
+	ConnectionPool?: #VirtualGatewayConnectionPool
+	HealthCheck?:    #VirtualGatewayHealthCheckPolicy
+	PortMapping!:    #VirtualGatewayPortMapping
+	TLS?:            #VirtualGatewayListenerTls
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTls": close({
-	Certificate!: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsCertificate"
+#VirtualGatewayListenerTls: close({
+	Certificate!: #VirtualGatewayListenerTlsCertificate
 	Mode!:        string | fn.#StringExpression
-	Validation?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContext"
+	Validation?:  #VirtualGatewayListenerTlsValidationContext
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate": close({
+#VirtualGatewayListenerTlsAcmCertificate: close({
 	CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsCertificate": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate"
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate"
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate"
+#VirtualGatewayListenerTlsCertificate: close({
+	ACM?:  #VirtualGatewayListenerTlsAcmCertificate
+	File?: #VirtualGatewayListenerTlsFileCertificate
+	SDS?:  #VirtualGatewayListenerTlsSdsCertificate
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate": close({
+#VirtualGatewayListenerTlsFileCertificate: close({
 	CertificateChain!: string | fn.#StringExpression
 	PrivateKey!:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate": close(
-	{SecretName!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#VirtualGatewayListenerTlsSdsCertificate: close({SecretName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
-	Trust!:                   _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContextTrust"
+#VirtualGatewayListenerTlsValidationContext: close({
+	SubjectAlternativeNames?: #SubjectAlternativeNames
+	Trust!:                   #VirtualGatewayListenerTlsValidationContextTrust
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContextTrust": close({
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust"
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust"
+#VirtualGatewayListenerTlsValidationContextTrust: close({
+	File?: #VirtualGatewayTlsValidationContextFileTrust
+	SDS?:  #VirtualGatewayTlsValidationContextSdsTrust
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayLogging": close(
-	{AccessLog?: _#defs."/$defs/Properties/definitions/VirtualGatewayAccessLog"},
-) |
-	fn.#ObjectExpression
+#VirtualGatewayLogging: close({AccessLog?: #VirtualGatewayAccessLog}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayPortMapping": close({
+#VirtualGatewayPortMapping: close({
 	Port!: int |
 		{
 			string &
@@ -328,41 +311,32 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayPortMapping": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewaySpec": close({
-	BackendDefaults?: _#defs."/$defs/Properties/definitions/VirtualGatewayBackendDefaults"
-	Listeners!:       [..._#defs."/$defs/Properties/definitions/VirtualGatewayListener"] | fn.#ListExpression
-	Logging?:         _#defs."/$defs/Properties/definitions/VirtualGatewayLogging"
+#VirtualGatewaySpec: close({
+	BackendDefaults?: #VirtualGatewayBackendDefaults
+	Listeners!:       [...#VirtualGatewayListener] | fn.#ListExpression
+	Logging?:         #VirtualGatewayLogging
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
-	Trust!:                   _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextTrust"
+#VirtualGatewayTlsValidationContext: close({
+	SubjectAlternativeNames?: #SubjectAlternativeNames
+	Trust!:                   #VirtualGatewayTlsValidationContextTrust
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextAcmTrust": close(
+#VirtualGatewayTlsValidationContextAcmTrust: close(
 	{CertificateAuthorityArns!: [...string | fn.#StringExpression] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust": close(
-	{CertificateChain!: string | fn.#StringExpression},
-) |
+#VirtualGatewayTlsValidationContextFileTrust: close({CertificateChain!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust": close(
-	{SecretName!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#VirtualGatewayTlsValidationContextSdsTrust: close({SecretName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextTrust": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextAcmTrust"
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust"
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust"
+#VirtualGatewayTlsValidationContextTrust: close({
+	ACM?:  #VirtualGatewayTlsValidationContextAcmTrust
+	File?: #VirtualGatewayTlsValidationContextFileTrust
+	SDS?:  #VirtualGatewayTlsValidationContextSdsTrust
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::VirtualGateway"
-	Properties!: #Properties
-}

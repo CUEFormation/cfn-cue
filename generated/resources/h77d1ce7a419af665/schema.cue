@@ -10,20 +10,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Neptune::DBClusterParameterGroup resource creates a new Amazon
 // Neptune DB cluster parameter group
-#Properties: close({
-	Description!: string | fn.#StringExpression
-	Family!:      string | fn.#StringExpression
-	Name?:        string | fn.#StringExpression
-	Parameters!:  fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Neptune::DBClusterParameterGroup"
+	Properties!: close({
+		Description!: string | fn.#StringExpression
+		Family!:      string | fn.#StringExpression
+		Name?:        string | fn.#StringExpression
+		Parameters!:  fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Neptune::DBClusterParameterGroup"
-	Properties!: #Properties
-}

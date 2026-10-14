@@ -20,9 +20,7 @@ import "list"
 #Properties: close({
 	// Specifies which controls are to be disabled in a standard.
 	// *Maximum*: ``100``
-	DisabledStandardsControls?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/StandardsControl"
-	]
+	DisabledStandardsControls?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#StandardsControl]
 
 	// The ARN of the standard that you want to enable. To view a list of available
 	// ASH standards and their ARNs, use the
@@ -36,7 +34,7 @@ import "list"
 // controls, see [controls
 // reference](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-controls-reference.html)
 // in the *User Guide*.
-_#defs: "/$defs/Properties/definitions/StandardsControl": close({
+#StandardsControl: close({
 	// A user-defined reason for changing a control's enablement status in a
 	// specified standard. If you are disabling a control, then this property is
 	// required.

@@ -23,12 +23,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // test CDN configuration
 // changes](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/continuous-deployment.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({
-	ContinuousDeploymentPolicyConfig!: _#defs."/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig" |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::ContinuousDeploymentPolicy"
+	Properties!: close({
+		// Contains the configuration for a continuous deployment policy.
+		ContinuousDeploymentPolicyConfig!: #ContinuousDeploymentPolicyConfig
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig": close({
+#ContinuousDeploymentPolicyConfig: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SingleHeaderPolicyConfig?: close({
 		Header!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -36,42 +39,49 @@ _#defs: "/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig": close(
 	}) |
 	fn.#ObjectExpression
 	SingleWeightPolicyConfig?: close({
-		SessionStickinessConfig?: _#defs."/$defs/Properties/definitions/SessionStickinessConfig"
+		SessionStickinessConfig?: #SessionStickinessConfig
 		Weight!:                  math.MultipleOf(0.01) & <=1 & >=0 | fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 	StagingDistributionDnsNames!: list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	TrafficConfig?: _#defs."/$defs/Properties/definitions/TrafficConfig" | fn.#ObjectExpression
+
+	// Contains the parameters for routing production traffic from your primary to
+	// staging distributions.
+	TrafficConfig?: #TrafficConfig
 	Type?:          "SingleWeight" | "SingleHeader" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionStickinessConfig": close({
+#SessionStickinessConfig: close({
 	IdleTTL!:    math.MultipleOf(1) & int & <=3600 & >=300 | fn.#NumberExpression
 	MaximumTTL!: math.MultipleOf(1) & int & <=3600 & >=300 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SingleHeaderConfig": close({
+#SingleHeaderConfig: close({
 	Header!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Value!:  strings.MaxRunes(1783) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SingleWeightConfig": close({
-	SessionStickinessConfig?: _#defs."/$defs/Properties/definitions/SessionStickinessConfig" | fn.#ObjectExpression
+#SingleWeightConfig: close({
+	// Session stickiness provides the ability to define multiple requests from a
+	// single viewer as a single session. This prevents the potentially
+	// inconsistent experience of sending some of a given user's requests to your
+	// staging distribution, while others are sent to your primary distribution.
+	// Define the session duration using TTL values.
+	SessionStickinessConfig?: #SessionStickinessConfig
 	Weight!:                  math.MultipleOf(0.01) & <=1 & >=0 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficConfig": close({
-	SingleHeaderConfig?: _#defs."/$defs/Properties/definitions/SingleHeaderConfig" | fn.#ObjectExpression
-	SingleWeightConfig?: _#defs."/$defs/Properties/definitions/SingleWeightConfig" | fn.#ObjectExpression
+#TrafficConfig: close({
+	// Determines which HTTP requests are sent to the staging distribution.
+	SingleHeaderConfig?: #SingleHeaderConfig
+
+	// Contains the percentage of traffic to send to the staging distribution.
+	SingleWeightConfig?: #SingleWeightConfig
 	Type!:               "SingleWeight" | "SingleHeader" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::ContinuousDeploymentPolicy"
-	Properties!: #Properties
-}

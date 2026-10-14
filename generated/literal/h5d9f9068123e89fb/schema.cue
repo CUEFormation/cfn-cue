@@ -17,19 +17,19 @@ import (
 	Id?:              string
 	ModifiedAt?:      time.Time
 	Name?:            strings.MaxRunes(255) & strings.MinRunes(1)
-	Overrides?:       [..._#defs."/$defs/Properties/definitions/ThemeValues"]
-	Tags?:            _#defs."/$defs/Properties/definitions/Tags"
-	Values?:          [..._#defs."/$defs/Properties/definitions/ThemeValues"]
+	Overrides?:       [...#ThemeValues]
+	Tags?:            #Tags
+	Values?:          [...#ThemeValues]
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}
 
-_#defs: "/$defs/Properties/definitions/ThemeValue": close({
-	Children?: [..._#defs."/$defs/Properties/definitions/ThemeValues"]
+#ThemeValue: close({
+	Children?: [...#ThemeValues]
 	Value?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/ThemeValues": close({
+#ThemeValues: close({
 	Key?:   string
-	Value?: _#defs."/$defs/Properties/definitions/ThemeValue"
+	Value?: #ThemeValue
 })

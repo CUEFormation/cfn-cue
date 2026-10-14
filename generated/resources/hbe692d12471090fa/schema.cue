@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::WebACL
-#Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/Action"
-	MetricName!:    string | fn.#StringExpression
-	Name!:          string | fn.#StringExpression
-	Rules?:         [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFRegional::WebACL"
+	Properties!: close({
+		DefaultAction!: #Action
+		MetricName!:    string | fn.#StringExpression
+		Name!:          string | fn.#StringExpression
+		Rules?:         [...#Rule] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Action": close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Action: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	Action!: _#defs."/$defs/Properties/definitions/Action"
+#Rule: close({
+	Action!: #Action
 	Priority!: int |
 		{
 			string &
@@ -41,7 +44,3 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 	RuleId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFRegional::WebACL"
-	Properties!: #Properties
-}

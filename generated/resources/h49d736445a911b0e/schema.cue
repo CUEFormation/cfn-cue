@@ -20,36 +20,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // exposes a Lambda web function over HTTPS and routes traffic to one or more
 // revisions. The endpoint type determines how traffic is served and routed
 // across Regions.
-#Properties: close({
-	AuthType!:     "ApplicationManaged" | "IamAuth" | fn.#StringExpression
-	Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	EndpointType!: "HomeRegion" | "MultiRegion" | "PerRegion" | fn.#StringExpression
-	FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Regions?: list.UniqueItems() & [
-		...strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RevisionWeight"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::WebFunctionEndpoint"
+	Properties!: close({
+		AuthType!:     "ApplicationManaged" | "IamAuth" | fn.#StringExpression
+		Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		EndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		EndpointType!: "HomeRegion" | "MultiRegion" | "PerRegion" | fn.#StringExpression
+		FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Regions?: list.UniqueItems() & [
+			...strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	ScalingConfig?:  _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
-	ThrottleConfig?: _#defs."/$defs/Properties/definitions/ThrottleConfig" | fn.#ObjectExpression
-})
+		RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [...#RevisionWeight] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RegionalEndpoint": close({
-	AuthType?:           "ApplicationManaged" | "IamAuth" | fn.#StringExpression
-	DomainName?:         string | fn.#StringExpression
-	RevisionWeights?:    [..._#defs."/$defs/Properties/definitions/RevisionWeight"] | fn.#ListExpression
-	ScalingConfig?:      _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
-	State?:              "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
-	StateReason?:        string | fn.#StringExpression
-	ThrottleConfig?:     _#defs."/$defs/Properties/definitions/ThrottleConfig" | fn.#ObjectExpression
+		// The scaling configuration for the endpoint. Optionally constrains how many
+		// concurrent execution environments the endpoint can use, in addition to your
+		// account's vCPU quota.
+		ScalingConfig?: #ScalingConfig
+
+		// The throttling configuration for the endpoint. Optionally constrains the
+		// request rate that the endpoint accepts, in addition to your account's rate
+		// limit quota.
+		ThrottleConfig?: #ThrottleConfig
+	})
+}
+
+#RegionalEndpoint: close({
+	AuthType?:        "ApplicationManaged" | "IamAuth" | fn.#StringExpression
+	DomainName?:      string | fn.#StringExpression
+	RevisionWeights?: [...#RevisionWeight] | fn.#ListExpression
+
+	// The scaling configuration for the endpoint.
+	ScalingConfig?: #ScalingConfig
+	State?:         "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
+	StateReason?:   string | fn.#StringExpression
+
+	// The throttling configuration for the endpoint.
+	ThrottleConfig?:     #ThrottleConfig
 	UpdateStatus?:       "InProgress" | "Successful" | "Failed" | fn.#StringExpression
 	UpdateStatusReason?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RevisionWeight": close({
+#RevisionWeight: close({
 	RevisionId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Weight!: int & <=100 & >=1 |
 		{
@@ -70,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/RevisionWeight": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close({
+#ScalingConfig: close({
 	MaxEnvironments?: int & >=2 |
 		{
 			string &
@@ -89,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/ScalingConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThrottleConfig": close({
+#ThrottleConfig: close({
 	RateLimit?: int & >=0 |
 		{
 			string &
@@ -107,7 +121,3 @@ _#defs: "/$defs/Properties/definitions/ThrottleConfig": close({
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::WebFunctionEndpoint"
-	Properties!: #Properties
-}

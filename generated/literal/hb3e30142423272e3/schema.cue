@@ -21,10 +21,10 @@ import "list"
 
 	// Descriptor for where the location actually points
 	LocationScope!: string
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

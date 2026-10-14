@@ -18,48 +18,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::Vehicle Resource Type
-#Properties: close({
-	AssociationBehavior?: _#defs."/$defs/Properties/definitions/VehicleAssociationBehavior"
-	Attributes?:          _#defs."/$defs/Properties/definitions/attributesMap"
-	DecoderManifestArn!:  string | fn.#StringExpression
-	ModelManifestArn!:    string | fn.#StringExpression
-	Name!:                strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	StateTemplates?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/StateTemplateAssociation"
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTFleetWise::Vehicle"
+	Properties!: close({
+		AssociationBehavior?: #VehicleAssociationBehavior
+		Attributes?:          #attributesMap
+		DecoderManifestArn!:  string | fn.#StringExpression
+		ModelManifestArn!:    string | fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		StateTemplates?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#StateTemplateAssociation] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/OnChangeStateTemplateUpdateStrategy": close({}) | fn.#ObjectExpression
+#OnChangeStateTemplateUpdateStrategy: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PeriodicStateTemplateUpdateStrategy": close(
-	{StateTemplateUpdateRate!: _#defs."/$defs/Properties/definitions/TimePeriod"},
-) |
-	fn.#ObjectExpression
+#PeriodicStateTemplateUpdateStrategy: close({StateTemplateUpdateRate!: #TimePeriod}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StateTemplateAssociation": struct.MinFields(0) & close({
+#StateTemplateAssociation: struct.MinFields(0) & close({
 	Identifier!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	StateTemplateUpdateStrategy!: _#defs."/$defs/Properties/definitions/StateTemplateUpdateStrategy"
+	StateTemplateUpdateStrategy!: #StateTemplateUpdateStrategy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StateTemplateUpdateStrategy": matchN(1, [close(
-	{Periodic!: _#defs."/$defs/Properties/definitions/PeriodicStateTemplateUpdateStrategy"},
-), close(
-	{OnChange!: _#defs."/$defs/Properties/definitions/OnChangeStateTemplateUpdateStrategy"},
-)]) |
+#StateTemplateUpdateStrategy: matchN(1, [
+	close({Periodic!: #PeriodicStateTemplateUpdateStrategy}), close({OnChange!: #OnChangeStateTemplateUpdateStrategy}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimePeriod": close({
-	Unit!: _#defs."/$defs/Properties/definitions/TimeUnit"
+#TimePeriod: close({
+	Unit!: #TimeUnit
 	Value!: >=1 |
 		{
 			string &
@@ -82,17 +77,11 @@ _#defs: "/$defs/Properties/definitions/TimePeriod": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeUnit": "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | fn.#StringExpression
+#TimeUnit: "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VehicleAssociationBehavior": "CreateIotThing" |
-	"ValidateIotThingExists" |
-	fn.#StringExpression
+#VehicleAssociationBehavior: "CreateIotThing" | "ValidateIotThingExists" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/attributesMap": struct.MinFields(1) & close({
+#attributesMap: struct.MinFields(1) & close({
 
 	{[=~"^[a-zA-Z0-9_.-]+$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTFleetWise::Vehicle"
-	Properties!: #Properties
-}

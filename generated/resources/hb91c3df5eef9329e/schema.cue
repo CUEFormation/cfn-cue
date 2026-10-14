@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,26 +17,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a dataset group that holds a collection of related datasets
-#Properties: close({
-	DatasetArns?:      [..._#defs."/$defs/Properties/definitions/Arn"] | fn.#ListExpression
-	DatasetGroupName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" | fn.#StringExpression
-	Domain!: "RETAIL" |
-		"CUSTOM" |
-		"INVENTORY_PLANNING" |
-		"EC2_CAPACITY" |
-		"WORK_FORCE" |
-		"WEB_TRAFFIC" |
-		"METRICS" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Forecast::DatasetGroup"
+	Properties!: close({
+		DatasetArns?: [...#Arn] | fn.#ListExpression
+		DatasetGroupName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		Domain!: "RETAIL" |
+			"CUSTOM" |
+			"INVENTORY_PLANNING" |
+			"EC2_CAPACITY" |
+			"WORK_FORCE" |
+			"WEB_TRAFFIC" |
+			"METRICS" |
+			fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" |
-fn.#StringExpression
+#Arn: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaxResults": int & <=100 & >=1 |
+#MaxResults: int & <=100 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -53,14 +54,10 @@ _#defs: "/$defs/Properties/definitions/MaxResults": int & <=100 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/NextToken": strings.MaxRunes(3000) & strings.MinRunes(1) | fn.#StringExpression
+#NextToken: strings.MaxRunes(3000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Forecast::DatasetGroup"
-	Properties!: #Properties
-}

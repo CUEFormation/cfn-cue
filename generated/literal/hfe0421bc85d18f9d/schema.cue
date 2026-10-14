@@ -18,11 +18,11 @@ import "strings"
 	Location!:  strings.MaxRunes(300) & strings.MinRunes(1)
 	Name?:      strings.MaxRunes(300) & strings.MinRunes(1)
 	Status?:    "INACTIVE" | "ACTIVATING" | "ACTIVE" | "DEACTIVATING" | "ERROR" | "DELETE_PENDING" | "DELETED"
-	Tags?:      [..._#defs."/$defs/Properties/definitions/TagItem"]
+	Tags?:      [...#TagItem]
 	UpdatedAt?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

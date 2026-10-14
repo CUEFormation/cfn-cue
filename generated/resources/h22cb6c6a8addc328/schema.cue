@@ -12,19 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::Rule
-#Properties: close({
-	MetricName!: string | fn.#StringExpression
-	Name!:       string | fn.#StringExpression
-	Predicates?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Predicate"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAF::Rule"
+	Properties!: close({
+		MetricName!: string | fn.#StringExpression
+		Name!:       string | fn.#StringExpression
+		Predicates?: list.UniqueItems() & [...#Predicate] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Predicate": close({
+#Predicate: close({
 	DataId!:  string | fn.#StringExpression
 	Negated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAF::Rule"
-	Properties!: #Properties
-}

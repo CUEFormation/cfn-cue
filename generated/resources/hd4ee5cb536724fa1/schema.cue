@@ -13,25 +13,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecretsManager::RotationSchedule
-#Properties: close({
-	ExternalSecretRotationMetadata?: [..._#defs."/$defs/Properties/definitions/ExternalSecretRotationMetadataItem"] |
-		fn.#ListExpression
-	ExternalSecretRotationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	HostedRotationLambda?:      _#defs."/$defs/Properties/definitions/HostedRotationLambda" | fn.#ObjectExpression
-	RotateImmediatelyOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RotationLambdaARN?:         string | fn.#StringExpression
-	RotationRules?:             _#defs."/$defs/Properties/definitions/RotationRules" | fn.#ObjectExpression
-	SecretId!:                  string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecretsManager::RotationSchedule"
+	Properties!: close({
+		ExternalSecretRotationMetadata?: [...#ExternalSecretRotationMetadataItem] | fn.#ListExpression
+		ExternalSecretRotationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExternalSecretRotationMetadataItem": close({
+		// Creates a new Lambda rotation function based on one of the Secrets Manager
+		// rotation function templates. To use a rotation function that already exists,
+		// specify RotationLambdaARN instead.
+		HostedRotationLambda?: #HostedRotationLambda
+		RotateImmediatelyOnUpdate?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		RotationLambdaARN?: string | fn.#StringExpression
+
+		// A structure that defines the rotation configuration for this secret.
+		RotationRules?: #RotationRules
+		SecretId!:      string | fn.#StringExpression
+	})
+}
+
+#ExternalSecretRotationMetadataItem: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HostedRotationLambda": close({
+#HostedRotationLambda: close({
 	ExcludeCharacters?: string | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -47,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/HostedRotationLambda": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RotationRules": close({
+#RotationRules: close({
 	AutomaticallyAfterDays?: int |
 		{
 			string &
@@ -66,7 +81,3 @@ _#defs: "/$defs/Properties/definitions/RotationRules": close({
 	ScheduleExpression?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecretsManager::RotationSchedule"
-	Properties!: #Properties
-}

@@ -72,10 +72,10 @@ import "strings"
 	// to. For a function, you can use a qualified or an unqualified ARN. The value
 	// must be a complete ARN, and the operation does not accept wildcard
 	// characters.
-	ResourceArn!: _#defs."/$defs/Properties/definitions/FunctionResourceArn" &
+	ResourceArn!: #FunctionResourceArn &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(12) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:(runtime/|function:)[a-zA-Z0-9-_]+(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_])+)?$"
 })
 
-_#defs: "/$defs/Properties/definitions/FunctionResourceArn": =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$"
+#FunctionResourceArn: =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$"

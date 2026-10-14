@@ -16,7 +16,7 @@ import (
 	Ipv4CidrBlock!: string
 
 	// Information about the IPv4 CIDR blocks associated with the secondary network.
-	Ipv4CidrBlockAssociations?: [..._#defs."/$defs/Properties/definitions/Ipv4CidrBlockAssociation"]
+	Ipv4CidrBlockAssociations?: [...#Ipv4CidrBlockAssociation]
 
 	// The type of secondary network.
 	NetworkType!: "rdma"
@@ -31,10 +31,10 @@ import (
 	SecondaryNetworkId?: string
 
 	// The tags for the secondary network.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Ipv4CidrBlockAssociation": close({
+#Ipv4CidrBlockAssociation: close({
 	// The association ID for the IPv4 CIDR block.
 	AssociationId?: string
 
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/Ipv4CidrBlockAssociation": close({
 		"disassociation-failed"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

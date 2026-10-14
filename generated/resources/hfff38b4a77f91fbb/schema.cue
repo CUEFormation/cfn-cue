@@ -15,18 +15,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SecurityAgent::Integration. Creates a
 // connection between Security Agent and a third-party provider for code review
 // and remediation.
-#Properties: close({
-	DisplayName!: string | fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	PrivateConnectionName?: string | fn.#StringExpression
-	Provider!:              "GITHUB" | "GITLAB" | "BITBUCKET" | "CONFLUENCE" | fn.#StringExpression
-	ProviderInput?:         _#defs."/$defs/Properties/definitions/ProviderInput"
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityAgent::Integration"
+	Properties!: close({
+		DisplayName!: string | fn.#StringExpression
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		PrivateConnectionName?: string | fn.#StringExpression
+		Provider!:              "GITHUB" | "GITLAB" | "BITBUCKET" | "CONFLUENCE" | fn.#StringExpression
+		ProviderInput?:         #ProviderInput
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BitbucketInput": close({
+#BitbucketInput: close({
 	Code!:           string | fn.#StringExpression
 	InstallationId!: string | fn.#StringExpression
 	State!:          string | fn.#StringExpression
@@ -34,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/BitbucketInput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceInput": close({
+#ConfluenceInput: close({
 	Code!:           string | fn.#StringExpression
 	InstallationId!: string | fn.#StringExpression
 	SiteUrl!:        string | fn.#StringExpression
@@ -42,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/ConfluenceInput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitHubInput": close({
+#GitHubInput: close({
 	Code!:             string | fn.#StringExpression
 	InstallationId?:   string | fn.#StringExpression
 	OrganizationName?: string | fn.#StringExpression
@@ -51,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/GitHubInput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitLabInput": close({
+#GitLabInput: close({
 	AccessToken!: string | fn.#StringExpression
 	GroupId?:     string | fn.#StringExpression
 	TargetUrl?:   string | fn.#StringExpression
@@ -59,20 +62,16 @@ _#defs: "/$defs/Properties/definitions/GitLabInput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProviderInput": close({
-	Bitbucket?:  _#defs."/$defs/Properties/definitions/BitbucketInput"
-	Confluence?: _#defs."/$defs/Properties/definitions/ConfluenceInput"
-	Github?:     _#defs."/$defs/Properties/definitions/GitHubInput"
-	Gitlab?:     _#defs."/$defs/Properties/definitions/GitLabInput"
+#ProviderInput: close({
+	Bitbucket?:  #BitbucketInput
+	Confluence?: #ConfluenceInput
+	Github?:     #GitHubInput
+	Gitlab?:     #GitLabInput
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityAgent::Integration"
-	Properties!: #Properties
-}

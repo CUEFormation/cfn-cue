@@ -30,7 +30,7 @@ import (
 	// For more information about managing passwords, see [Managing
 	// passwords](https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingLogins.html)
 	// in the *User Guide*.
-	LoginProfile?: _#defs."/$defs/Properties/definitions/LoginProfile"
+	LoginProfile?: #LoginProfile
 
 	// A list of Amazon Resource Names (ARNs) of the IAM managed policies that you
 	// want to attach to the user.
@@ -77,7 +77,7 @@ import (
 	// embed in a user, see [Limitations on
 	// Entities](https://docs.aws.amazon.com/IAM/latest/UserGuide/LimitationsOnEntities.html)
 	// in the *User Guide*.
-	Policies?: [..._#defs."/$defs/Properties/definitions/Policy"]
+	Policies?: [...#Policy]
 
 	// A list of tags that you want to attach to the new user. Each tag consists of
 	// a key name and an associated value. For more information about tagging, see
@@ -86,7 +86,7 @@ import (
 	// the *IAM User Guide*.
 	// If any one of the tags is invalid or if you exceed the allowed maximum number
 	// of tags, then the entire request fails and the resource is not created.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The name of the user to create. Do not include the path in this value.
 	// This parameter allows (per its [regex
@@ -115,7 +115,7 @@ import (
 // passwords, see [Managing
 // Passwords](https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingLogins.html)
 // in the *User Guide*.
-_#defs: "/$defs/Properties/definitions/LoginProfile": close({
+#LoginProfile: close({
 	// The user's password.
 	Password!: string
 
@@ -129,7 +129,7 @@ _#defs: "/$defs/Properties/definitions/LoginProfile": close({
 // Inline
 // Policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/policies-managed-vs-inline.html)
 // in the *User Guide*.
-_#defs: "/$defs/Properties/definitions/Policy": close({
+#Policy: close({
 	// The entire contents of the policy that defines permissions. For more
 	// information, see [Overview of JSON
 	// policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#access_policies-json).
@@ -143,7 +143,7 @@ _#defs: "/$defs/Properties/definitions/Policy": close({
 // with an IAM resource. For more information about tagging, see [Tagging IAM
 // resources](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_tags.html) in
 // the *IAM User Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name that can be used to look up or retrieve the associated value.
 	// For example, ``Department`` or ``Cost Center`` are common choices.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$"

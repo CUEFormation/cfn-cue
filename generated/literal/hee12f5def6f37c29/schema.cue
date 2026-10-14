@@ -19,17 +19,17 @@ import (
 
 	// The Amazon Resource Name (ARN) of the listener.
 	ListenerArn?: string
-	PortRanges!:  list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PortRange"]
+	PortRanges!:  list.MaxItems(10) & list.MinItems(1) & [...#PortRange]
 
 	// The protocol for the listener.
 	Protocol!: "TCP" | "UDP"
 })
 
 // A network port number
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0
+#Port: int & <=65535 & >=0
 
 // A port range to support for connections from clients to your accelerator.
-_#defs: "/$defs/Properties/definitions/PortRange": close({
-	FromPort!: _#defs."/$defs/Properties/definitions/Port"
-	ToPort!:   _#defs."/$defs/Properties/definitions/Port"
+#PortRange: close({
+	FromPort!: #Port
+	ToPort!:   #Port
 })

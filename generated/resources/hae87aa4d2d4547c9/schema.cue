@@ -6,11 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/iam:iam"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -30,45 +27,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and inline
 // policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/policies-managed-vs-inline.html)
 // in the *IAM User Guide*.
-#Properties: close({
-	Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	Groups?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	ManagedPolicyName?: string | fn.#StringExpression
-	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^((/[A-Za-z0-9\\.,\\+@=_-]+)*)/$" | fn.#StringExpression
-	PolicyDocument!: null |
-	bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	number |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						number,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	} |
-	strings.MaxRunes(131072) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
-	[...] |
-	{...} |
-	fn.#ValueExpression
-	Roles?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Users?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::ManagedPolicy"
-	Properties!: #Properties
+	Type!: "AWS::IAM::ManagedPolicy"
+	Properties!: close({
+		Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		Groups?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		ManagedPolicyName?: string | fn.#StringExpression
+		Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^((/[A-Za-z0-9\\.,\\+@=_-]+)*)/$" | fn.#StringExpression
+		PolicyDocument!: iam.#IdentityPolicyValue
+		Roles?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Users?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	})
 }

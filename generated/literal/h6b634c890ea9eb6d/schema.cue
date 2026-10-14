@@ -7,7 +7,7 @@ package schema
 // Resource Type definition for AWS::Pinpoint::InAppTemplate
 #Properties: close({
 	Arn?:                 string
-	Content?:             [..._#defs."/$defs/Properties/definitions/InAppMessageContent"]
+	Content?:             [...#InAppMessageContent]
 	CustomConfig?:        {...}
 	Layout?:              "BOTTOM_BANNER" | "TOP_BANNER" | "OVERLAYS" | "MOBILE_FEED" | "MIDDLE_BANNER" | "CAROUSEL"
 	Tags?:                string | {...}
@@ -15,48 +15,48 @@ package schema
 	TemplateName!:        string
 })
 
-_#defs: "/$defs/Properties/definitions/Alignment": "LEFT" | "CENTER" | "RIGHT"
+#Alignment: "LEFT" | "CENTER" | "RIGHT"
 
-_#defs: "/$defs/Properties/definitions/BodyConfig": close({
-	Alignment?: _#defs."/$defs/Properties/definitions/Alignment"
+#BodyConfig: close({
+	Alignment?: #Alignment
 	Body?:      string
 	TextColor?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ButtonAction": "LINK" | "DEEP_LINK" | "CLOSE"
+#ButtonAction: "LINK" | "DEEP_LINK" | "CLOSE"
 
-_#defs: "/$defs/Properties/definitions/ButtonConfig": close({
-	Android?:       _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
-	DefaultConfig?: _#defs."/$defs/Properties/definitions/DefaultButtonConfiguration"
-	IOS?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
-	Web?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
+#ButtonConfig: close({
+	Android?:       #OverrideButtonConfiguration
+	DefaultConfig?: #DefaultButtonConfiguration
+	IOS?:           #OverrideButtonConfiguration
+	Web?:           #OverrideButtonConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultButtonConfiguration": close({
+#DefaultButtonConfiguration: close({
 	BackgroundColor?: string
 	BorderRadius?:    int
-	ButtonAction?:    _#defs."/$defs/Properties/definitions/ButtonAction"
+	ButtonAction?:    #ButtonAction
 	Link?:            string
 	Text?:            string
 	TextColor?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/HeaderConfig": close({
-	Alignment?: _#defs."/$defs/Properties/definitions/Alignment"
+#HeaderConfig: close({
+	Alignment?: #Alignment
 	Header?:    string
 	TextColor?: string
 })
 
-_#defs: "/$defs/Properties/definitions/InAppMessageContent": close({
+#InAppMessageContent: close({
 	BackgroundColor?: string
-	BodyConfig?:      _#defs."/$defs/Properties/definitions/BodyConfig"
-	HeaderConfig?:    _#defs."/$defs/Properties/definitions/HeaderConfig"
+	BodyConfig?:      #BodyConfig
+	HeaderConfig?:    #HeaderConfig
 	ImageUrl?:        string
-	PrimaryBtn?:      _#defs."/$defs/Properties/definitions/ButtonConfig"
-	SecondaryBtn?:    _#defs."/$defs/Properties/definitions/ButtonConfig"
+	PrimaryBtn?:      #ButtonConfig
+	SecondaryBtn?:    #ButtonConfig
 })
 
-_#defs: "/$defs/Properties/definitions/OverrideButtonConfiguration": close({
-	ButtonAction?: _#defs."/$defs/Properties/definitions/ButtonAction"
+#OverrideButtonConfiguration: close({
+	ButtonAction?: #ButtonAction
 	Link?:         string
 })

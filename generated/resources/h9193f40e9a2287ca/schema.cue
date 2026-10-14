@@ -12,26 +12,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSMContacts::ContactChannel
-#Properties: {
-	ContactId!:      _
-	ChannelName!:    _
-	ChannelType!:    _
-	ChannelAddress!: _
-	...
-} & close({
-	ChannelAddress?: string | fn.#StringExpression
-	ChannelName?: strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"[a-zA-Z 0-9_\\-+'&amp;\\x{D83C}-\\x{DBFF}\\x{DC00}-\\x{DFFF}\\x{2000}-\\x{3300}]+" |
-	fn.#StringExpression
-	ChannelType?: "SMS" | "VOICE" | "EMAIL" | fn.#StringExpression
-	ContactId?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" |
-	fn.#StringExpression
-	DeferActivation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMContacts::ContactChannel"
-	Properties?: #Properties
+	Type!: "AWS::SSMContacts::ContactChannel"
+	Properties?: {
+		ContactId!:      _
+		ChannelName!:    _
+		ChannelType!:    _
+		ChannelAddress!: _
+		...
+	} & close({
+		ChannelAddress?: string | fn.#StringExpression
+		ChannelName?: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"[a-zA-Z 0-9_\\-+'&amp;\\x{D83C}-\\x{DBFF}\\x{DC00}-\\x{DFFF}\\x{2000}-\\x{3300}]+" |
+		fn.#StringExpression
+		ChannelType?: "SMS" | "VOICE" | "EMAIL" | fn.#StringExpression
+		ContactId?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" |
+		fn.#StringExpression
+		DeferActivation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
 }

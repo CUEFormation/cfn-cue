@@ -19,13 +19,13 @@ import (
 	Name!:                 strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$"
 	Nodes?:                list.MinItems(1) & list.UniqueItems() & [...string]
 	SignalCatalogArn!:     string
-	Status?:               _#defs."/$defs/Properties/definitions/ManifestStatus"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Status?:               #ManifestStatus
+	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ManifestStatus": "ACTIVE" | "DRAFT"
+#ManifestStatus: "ACTIVE" | "DRAFT"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

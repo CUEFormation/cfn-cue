@@ -19,36 +19,36 @@ import (
 
 	// This is an optional parameter for component details to which the SAP ABAP
 	// application is attached, such as Web Dispatcher.
-	ComponentsInfo?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentInfo"]
-	Credentials?:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Credential"]
+	ComponentsInfo?: list.MinItems(1) & [...#ComponentInfo]
+	Credentials?:    list.MinItems(1) & [...#Credential]
 
 	// The ARN of the SAP HANA database
 	DatabaseArn?:       =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$"
-	Instances?:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Instance"]
+	Instances?:         list.MinItems(1) & [...#Instance]
 	SapInstanceNumber?: =~"[0-9]{2}"
 	Sid?:               =~"[A-Z][A-Z0-9]{2}"
 
 	// The tags of a SystemsManagerSAP application.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentInfo": {
+#ComponentInfo: {
 	ComponentType?: "HANA" | "HANA_NODE" | "ABAP" | "ASCS" | "DIALOG" | "WEBDISP" | "WD" | "ERS"
 	Ec2InstanceId?: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$"
 	Sid?:           =~"[A-Z][A-Z0-9]{2}"
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/Credential": close({
+#Credential: close({
 	CredentialType?: "ADMIN"
 	DatabaseName?:   string
 	SecretId?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/Instance": =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$"
+#Instance: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

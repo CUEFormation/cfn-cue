@@ -3,27 +3,27 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ProcessingJob
 #Properties: close({
-	AppSpecification!: _#defs."/$defs/Properties/definitions/AppSpecification"
+	AppSpecification!: #AppSpecification
 
 	// The ARN of an AutoML job associated with this processing job.
 	AutoMLJobArn?: strings.MaxRunes(256)
 
 	// The time at which the processing job was created.
 	CreationTime?: string
-	Environment?:  _#defs."/$defs/Properties/definitions/Environment"
+	Environment?:  #Environment
 
 	// An optional string, up to one KB in size, that contains metadata from the
 	// processing container when the processing job exits.
 	ExitMessage?:      strings.MaxRunes(1024) & =~"[\\S\\s]*"
-	ExperimentConfig?: _#defs."/$defs/Properties/definitions/ExperimentConfig"
+	ExperimentConfig?: #ExperimentConfig
 
 	// A string, up to one KB in size, that contains the reason a processing job failed, if it failed.
 	FailureReason?: strings.MaxRunes(1024)
@@ -33,13 +33,13 @@ import (
 
 	// The ARN of a monitoring schedule for an endpoint associated with this processing job.
 	MonitoringScheduleArn?: strings.MaxRunes(256)
-	NetworkConfig?:         _#defs."/$defs/Properties/definitions/NetworkConfig"
+	NetworkConfig?:         #NetworkConfig
 
 	// The time at which the processing job completed.
 	ProcessingEndTime?: string
 
 	// An array of inputs configuring the data to download into the processing container.
-	ProcessingInputs?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/ProcessingInputsObject"]
+	ProcessingInputs?: list.MaxItems(10) & [...] & [...#ProcessingInputsObject]
 
 	// The Amazon Resource Name (ARN) of the processing job.
 	ProcessingJobArn?: strings.MaxRunes(256) &
@@ -51,8 +51,8 @@ import (
 
 	// Provides the status of a processing job.
 	ProcessingJobStatus?:    "Completed" | "InProgress" | "Stopping" | "Stopped" | "Failed"
-	ProcessingOutputConfig?: _#defs."/$defs/Properties/definitions/ProcessingOutputConfig"
-	ProcessingResources!:    _#defs."/$defs/Properties/definitions/ProcessingResources"
+	ProcessingOutputConfig?: #ProcessingOutputConfig
+	ProcessingResources!:    #ProcessingResources
 
 	// The time at which the processing job started.
 	ProcessingStartTime?: string
@@ -63,20 +63,20 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
-	StoppingCondition?: _#defs."/$defs/Properties/definitions/StoppingCondition"
+	StoppingCondition?: #StoppingCondition
 
 	// (Optional) An array of key-value pairs. For more information, see Using Cost
 	// Allocation
 	// Tags(https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html#allocation-whatURL)
 	// in the AWS Billing and Cost Management User Guide.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The ARN of a training job associated with this processing job
 	TrainingJobArn?: strings.MaxRunes(256)
 })
 
 // Configures the processing job to run a specified Docker container image.
-_#defs: "/$defs/Properties/definitions/AppSpecification": close({
+#AppSpecification: close({
 	// The arguments for a container used to run a processing job.
 	ContainerArguments?: list.MaxItems(100) & [...] & [...strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"]
 
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/AppSpecification": close({
 })
 
 // Configuration for Athena Dataset Definition input.
-_#defs: "/$defs/Properties/definitions/AthenaDatasetDefinition": close({
+#AthenaDatasetDefinition: close({
 	// The name of the data catalog used in Athena query execution.
 	Catalog!: strings.MaxRunes(256) & strings.MinRunes(1)
 
@@ -119,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/AthenaDatasetDefinition": close({
 })
 
 // Configuration for the cluster used to run a processing job.
-_#defs: "/$defs/Properties/definitions/ClusterConfig": close({
+#ClusterConfig: close({
 	// The number of ML compute instances to use in the processing job. For
 	// distributed processing jobs, specify a value greater than 1. The default
 	// value is 1.
@@ -254,8 +254,8 @@ _#defs: "/$defs/Properties/definitions/ClusterConfig": close({
 // Configuration for Dataset Definition inputs. The Dataset Definition input
 // must specify exactly one of either `AthenaDatasetDefinition` or
 // `RedshiftDatasetDefinition` types.
-_#defs: "/$defs/Properties/definitions/DatasetDefinition": close({
-	AthenaDatasetDefinition?: _#defs."/$defs/Properties/definitions/AthenaDatasetDefinition"
+#DatasetDefinition: close({
+	AthenaDatasetDefinition?: #AthenaDatasetDefinition
 
 	// Whether the generated dataset is FullyReplicated or ShardedByS3Key (default).
 	DataDistributionType?: "FullyReplicated" | "ShardedByS3Key"
@@ -273,16 +273,16 @@ _#defs: "/$defs/Properties/definitions/DatasetDefinition": close({
 	// the input data. This is a required parameter when AppManaged is False
 	// (default).
 	LocalPath?:                 strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"
-	RedshiftDatasetDefinition?: _#defs."/$defs/Properties/definitions/RedshiftDatasetDefinition"
+	RedshiftDatasetDefinition?: #RedshiftDatasetDefinition
 })
 
 // Sets the environment variables in the Docker container
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 
 	{[=~"^[a-zA-Z_][a-zA-Z0-9_]{0,255}$"]: strings.MaxRunes(256) & =~"[\\S\\s]*"}})
 
 // Associates a SageMaker job as a trial component with an experiment and trial.
-_#defs: "/$defs/Properties/definitions/ExperimentConfig": close({
+#ExperimentConfig: close({
 	// The name of an existing experiment to associate with the trial component.
 	ExperimentName?: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}"
 
@@ -299,7 +299,7 @@ _#defs: "/$defs/Properties/definitions/ExperimentConfig": close({
 })
 
 // Configuration for processing job outputs in Amazon SageMaker Feature Store.
-_#defs: "/$defs/Properties/definitions/FeatureStoreOutput": close({
+#FeatureStoreOutput: close({
 	// The name of the Amazon SageMaker FeatureGroup to use as the destination for
 	// processing job output. Note that your processing script is responsible for
 	// putting records into your Feature Store.
@@ -310,7 +310,7 @@ _#defs: "/$defs/Properties/definitions/FeatureStoreOutput": close({
 // containers, whether to allow inbound and outbound network calls to and from
 // containers, and the VPC subnets and security groups to use for VPC-enabled
 // jobs.
-_#defs: "/$defs/Properties/definitions/NetworkConfig": close({
+#NetworkConfig: close({
 	// Whether to encrypt all communications between distributed processing jobs.
 	// Choose True to encrypt communications. Encryption provides greater security
 	// for distributed processing jobs, but the processing might take longer.
@@ -319,25 +319,25 @@ _#defs: "/$defs/Properties/definitions/NetworkConfig": close({
 	// Whether to allow inbound and outbound network calls to and from the
 	// containers used for the processing job.
 	EnableNetworkIsolation?: bool
-	VpcConfig?:              _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?:              #VpcConfig
 })
 
 // The inputs for a processing job. The processing input must specify exactly
 // one of either S3Input or DatasetDefinition types.
-_#defs: "/$defs/Properties/definitions/ProcessingInputsObject": close({
+#ProcessingInputsObject: close({
 	// When True, input operations such as data download are managed natively by the
 	// processing job application. When False (default), input operations are
 	// managed by Amazon SageMaker.
 	AppManaged?:        bool
-	DatasetDefinition?: _#defs."/$defs/Properties/definitions/DatasetDefinition"
+	DatasetDefinition?: #DatasetDefinition
 
 	// The name for the processing job input.
 	InputName!: string
-	S3Input?:   _#defs."/$defs/Properties/definitions/S3Input"
+	S3Input?:   #S3Input
 })
 
 // Configuration for uploading output from the processing container.
-_#defs: "/$defs/Properties/definitions/ProcessingOutputConfig": close({
+#ProcessingOutputConfig: close({
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the processing job output. KmsKeyId can be an ID of a KMS key, ARN
 	// of a KMS key, or alias of a KMS key. The KmsKeyId is applied to all outputs.
@@ -347,32 +347,30 @@ _#defs: "/$defs/Properties/definitions/ProcessingOutputConfig": close({
 	=~"[a-zA-Z0-9:/_-]*"
 
 	// An array of outputs configuring the data to upload from the processing container.
-	Outputs!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/ProcessingOutputsObject"]
+	Outputs!: list.MaxItems(10) & [...] & [...#ProcessingOutputsObject]
 })
 
 // Describes the results of a processing job. The processing output must specify
 // exactly one of either S3Output or FeatureStoreOutput types.
-_#defs: "/$defs/Properties/definitions/ProcessingOutputsObject": close({
+#ProcessingOutputsObject: close({
 	// When True, output operations such as data upload are managed natively by the
 	// processing job application. When False (default), output operations are
 	// managed by Amazon SageMaker.
 	AppManaged?:         bool
-	FeatureStoreOutput?: _#defs."/$defs/Properties/definitions/FeatureStoreOutput"
+	FeatureStoreOutput?: #FeatureStoreOutput
 
 	// The name for the processing job output.
 	OutputName!: string
-	S3Output?:   _#defs."/$defs/Properties/definitions/S3Output"
+	S3Output?:   #S3Output
 })
 
 // Identifies the resources, ML compute instances, and ML storage volumes to
 // deploy for a processing job. In distributed training, you specify more than
 // one instance.
-_#defs: "/$defs/Properties/definitions/ProcessingResources": close(
-	{ClusterConfig!: _#defs."/$defs/Properties/definitions/ClusterConfig"},
-)
+#ProcessingResources: close({ClusterConfig!: #ClusterConfig})
 
 // Configuration for Redshift Dataset Definition input.
-_#defs: "/$defs/Properties/definitions/RedshiftDatasetDefinition": close({
+#RedshiftDatasetDefinition: close({
 	// The Redshift cluster Identifier.
 	ClusterId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~".*"
 
@@ -409,7 +407,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftDatasetDefinition": close({
 })
 
 // Configuration for downloading input data from Amazon S3 into the processing container.
-_#defs: "/$defs/Properties/definitions/S3Input": close({
+#S3Input: close({
 	// The local path in your container where you want Amazon SageMaker to write
 	// input data to. `LocalPath` is an absolute path to the input data and must
 	// begin with `/opt/ml/processing/`. LocalPath is a required parameter when
@@ -448,7 +446,7 @@ _#defs: "/$defs/Properties/definitions/S3Input": close({
 })
 
 // Configuration for uploading output data to Amazon S3 from the processing container.
-_#defs: "/$defs/Properties/definitions/S3Output": close({
+#S3Output: close({
 	// The local path of a directory where you want Amazon SageMaker to upload its
 	// contents to Amazon S3. LocalPath is an absolute path to a directory
 	// containing output files. This directory will be created by the platform and
@@ -466,7 +464,7 @@ _#defs: "/$defs/Properties/definitions/S3Output": close({
 // Configures conditions under which the processing job should be stopped, such
 // as how long the processing job has been running. After the condition is met,
 // the processing job is stopped.
-_#defs: "/$defs/Properties/definitions/StoppingCondition": close({
+#StoppingCondition: close({
 	// Specifies the maximum runtime in seconds.
 	MaxRuntimeInSeconds!: int & <=777600 & >=1
 })
@@ -484,7 +482,7 @@ _#defs: "/$defs/Properties/definitions/StoppingCondition": close({
 // For advice on best practices for managing AWS resources with tagging, see
 // Tagging Best Practices: Implement an Effective AWS Resource Tagging
 // Strategy(https://d1.awsstatic.com/whitepapers/aws-tagging-best-practices.pdf).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. Tag keys must be unique per resource.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)"
 
@@ -496,7 +494,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // hosted models, and compute resources have access to. You can control access
 // to and from your resources by configuring a VPC. For more information, see
 // https://docs.aws.amazon.com/sagemaker/latest/dg/infrastructure-give-access.html
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// The VPC security group IDs, in the form 'sg-xxxxxxxx'. Specify the security
 	// groups for the VPC that is specified in the 'Subnets' field.
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [

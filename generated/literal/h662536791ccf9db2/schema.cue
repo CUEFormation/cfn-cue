@@ -18,17 +18,17 @@ import (
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1)
 
 	// The Amazon Resource Name (ARN) for the parent user hierarchy group.
-	ParentGroupArn?: _#defs."/$defs/Properties/definitions/UserHierarchyGroupArn"
+	ParentGroupArn?: #UserHierarchyGroupArn
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The Amazon Resource Name (ARN) for the user hierarchy group.
-	UserHierarchyGroupArn?: _#defs."/$defs/Properties/definitions/UserHierarchyGroupArn"
+	UserHierarchyGroupArn?: #UserHierarchyGroupArn
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -43,4 +43,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The Amazon Resource Name (ARN) for the User hierarchy group.
-_#defs: "/$defs/Properties/definitions/UserHierarchyGroupArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$"
+#UserHierarchyGroupArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$"

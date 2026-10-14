@@ -16,43 +16,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::JobQueue
-#Properties: matchN(1, [{
-	ComputeEnvironmentOrder!: _
-	...
-}, {
-	ServiceEnvironmentOrder!: _
-	...
-}]) & close({
-	ComputeEnvironmentOrder?: [..._#defs."/$defs/Properties/definitions/ComputeEnvironmentOrder"] | fn.#ListExpression
-	JobQueueName?:            strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	JobQueueType?: =~"(?i)^(?:ecs|ecs_fargate|ecs_managed_instances|eks|sagemaker_training)$" | fn.#StringExpression
-	JobStateTimeLimitActions?: [..._#defs."/$defs/Properties/definitions/JobStateTimeLimitAction"] | fn.#ListExpression
-	Priority!: int & <=1000 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1000 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SchedulingPolicyArn?:     _#defs."/$defs/Properties/definitions/ResourceArn"
-	ServiceEnvironmentOrder?: [..._#defs."/$defs/Properties/definitions/ServiceEnvironmentOrder"] | fn.#ListExpression
-	State?:                   "DISABLED" | "ENABLED" | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Batch::JobQueue"
+	Properties!: close({
+		ComputeEnvironmentOrder?: [...#ComputeEnvironmentOrder] | fn.#ListExpression
+		JobQueueName?:            strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		JobQueueType?: =~"(?i)^(?:ecs|ecs_fargate|ecs_managed_instances|eks|sagemaker_training)$" | fn.#StringExpression
+		JobStateTimeLimitActions?: [...#JobStateTimeLimitAction] | fn.#ListExpression
+		Priority!: int & <=1000 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1000 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SchedulingPolicyArn?:     #ResourceArn
+		ServiceEnvironmentOrder?: [...#ServiceEnvironmentOrder] | fn.#ListExpression
+		State?:                   "DISABLED" | "ENABLED" | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		if ComputeEnvironmentOrder != _|_ if ComputeEnvironmentOrder."Fn::If" == _|_ {
+			ServiceEnvironmentOrder?: close({"Fn::If": _}) | error(
+				"ServiceEnvironmentOrder cannot be used with ComputeEnvironmentOrder; set exactly one of ComputeEnvironmentOrder, ServiceEnvironmentOrder",
+			)
+		}
+	}) & matchN(>=1, [{ComputeEnvironmentOrder!: _}, {ServiceEnvironmentOrder!: _}])
+}
 
-_#defs: "/$defs/Properties/definitions/ComputeEnvironmentOrder": close({
+#ComputeEnvironmentOrder: close({
 	ComputeEnvironment!: string | fn.#StringExpression
 	Order!: int |
 		{
@@ -71,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/ComputeEnvironmentOrder": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobStateTimeLimitAction": close({
+#JobStateTimeLimitAction: close({
 	Action!: =~"(?i)^(?:cancel|terminate)$" | fn.#StringExpression
 	MaxTimeSeconds!: int & <=86400 & >=600 |
 		{
@@ -94,9 +98,9 @@ _#defs: "/$defs/Properties/definitions/JobStateTimeLimitAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": string | fn.#StringExpression
+#ResourceArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceEnvironmentOrder": close({
+#ServiceEnvironmentOrder: close({
 	Order!: int |
 		{
 			string &
@@ -114,7 +118,3 @@ _#defs: "/$defs/Properties/definitions/ServiceEnvironmentOrder": close({
 	ServiceEnvironment!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Batch::JobQueue"
-	Properties!: #Properties
-}

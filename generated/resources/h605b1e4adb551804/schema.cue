@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A pseudo-resource that manages which of your ECS task sets is primary.
-#Properties: close({
-	Cluster!:   string | fn.#StringExpression
-	Service!:   string | fn.#StringExpression
-	TaskSetId!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::PrimaryTaskSet"
-	Properties!: #Properties
+	Type!: "AWS::ECS::PrimaryTaskSet"
+	Properties!: close({
+		Cluster!:   string | fn.#StringExpression
+		Service!:   string | fn.#StringExpression
+		TaskSetId!: string | fn.#StringExpression
+	})
 }

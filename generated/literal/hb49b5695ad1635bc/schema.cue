@@ -13,7 +13,7 @@ import (
 // you can use to access buckets.
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the specified accesspoint.
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// The name of the bucket that you want to associate this Access Point with.
 	Bucket!: strings.MaxRunes(255) & strings.MinRunes(3)
@@ -41,22 +41,22 @@ import (
 	Policy?: {...}
 
 	// The PublicAccessBlock configuration that you want to apply to this Access Point.
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration"
+	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
 
 	// For directory buckets, you can ﬁlter access control to speciﬁc preﬁxes, API
 	// operations, or a combination of both.
-	Scope?: _#defs."/$defs/Properties/definitions/Scope"
-	Tags?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Scope?: #Scope
+	Tags?:  list.UniqueItems() & [...#Tag]
 
 	// If you include this field, Amazon S3 restricts access to this Access Point to
 	// requests from the specified Virtual Private Cloud (VPC).
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	VpcConfiguration?: #VpcConfiguration
 })
 
 // the Amazon Resource Name (ARN) of the specified accesspoint.
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": {
+#PublicAccessBlockConfiguration: {
 	// Specifies whether Amazon S3 should block public access control lists (ACLs)
 	// for buckets in this account. Setting this element to TRUE causes the
 	// following behavior:
@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": {
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/Scope": {
+#Scope: {
 	// You can include one or more API operations as permissions
 	Permissions?: [
 		..."GetObject" |
@@ -109,13 +109,13 @@ _#defs: "/$defs/Properties/definitions/Scope": {
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$"
 })
 
 // The Virtual Private Cloud (VPC) configuration for a bucket access point.
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": {
+#VpcConfiguration: {
 	// If this field is specified, this access point will only allow connections
 	// from the specified VPC ID.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1))

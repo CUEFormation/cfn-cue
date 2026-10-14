@@ -13,21 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeBuild::ReportGroup
-#Properties: close({
-	DeleteReports?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExportConfig!:  _#defs."/$defs/Properties/definitions/ReportExportConfig"
-	Name?:          strings.MaxRunes(128) & strings.MinRunes(2) | fn.#StringExpression
-	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!:          "TEST" | "CODE_COVERAGE" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeBuild::ReportGroup"
+	Properties!: close({
+		DeleteReports?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ExportConfig!:  #ReportExportConfig
+		Name?:          strings.MaxRunes(128) & strings.MinRunes(2) | fn.#StringExpression
+		Tags?:          list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:          "TEST" | "CODE_COVERAGE" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ReportExportConfig": close({
+#ReportExportConfig: close({
 	ExportConfigType!: "S3" | "NO_EXPORT" | fn.#StringExpression
-	S3Destination?:    _#defs."/$defs/Properties/definitions/S3ReportExportConfig"
+	S3Destination?:    #S3ReportExportConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3ReportExportConfig": close({
+#S3ReportExportConfig: close({
 	Bucket!:             strings.MinRunes(1) | fn.#StringExpression
 	BucketOwner?:        string | fn.#StringExpression
 	EncryptionDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -37,12 +40,8 @@ _#defs: "/$defs/Properties/definitions/S3ReportExportConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeBuild::ReportGroup"
-	Properties!: #Properties
-}

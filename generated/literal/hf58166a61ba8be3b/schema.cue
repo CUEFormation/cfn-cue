@@ -24,7 +24,7 @@ import (
 	DomainId!: strings.MaxRunes(500) & strings.MinRunes(1)
 
 	// A list of tags for the case.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// A unique identifier of a template.
 	TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1)
@@ -34,7 +34,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

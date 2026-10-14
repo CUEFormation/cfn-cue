@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,57 +16,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EMR::InstanceFleetConfig
-#Properties: close({
-	ClusterId!:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	InstanceFleetType!:   string | fn.#StringExpression
-	InstanceTypeConfigs?: [..._#defs."/$defs/Properties/definitions/InstanceTypeConfig"] | fn.#ListExpression
-	LaunchSpecifications?: _#defs."/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications" |
-		fn.#ObjectExpression
-	Name?: string | fn.#StringExpression
-	ResizeSpecifications?: _#defs."/$defs/Properties/definitions/InstanceFleetResizingSpecifications" |
-		fn.#ObjectExpression
-	TargetOnDemandCapacity?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TargetSpotCapacity?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::InstanceFleetConfig"
+	Properties!: close({
+		ClusterId!:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		InstanceFleetType!:   string | fn.#StringExpression
+		InstanceTypeConfigs?: [...#InstanceTypeConfig] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationConfiguration": close({
+		// The launch specification for the instance fleet.
+		LaunchSpecifications?: #InstanceFleetProvisioningSpecifications
+		Name?:                 string | fn.#StringExpression
+
+		// The resize specification for the instance fleet.
+		ResizeSpecifications?: #InstanceFleetResizingSpecifications
+		TargetOnDemandCapacity?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TargetSpotCapacity?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
+
+#ApplicationConfiguration: close({
 	Classification?: string | fn.#StringExpression
 	ConfigurationProperties?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Configurations?: [..._#defs."/$defs/Properties/definitions/ApplicationConfiguration"] | fn.#ListExpression
+	Configurations?: [...#ApplicationConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
-	VolumeSpecification!: _#defs."/$defs/Properties/definitions/VolumeSpecification" | fn.#ObjectExpression
+#EbsBlockDeviceConfig: close({
+	// EBS volume specifications such as volume type, IOPS, size (GiB) and
+	// throughput (MiB/s) that are requested for the EBS volume attached to an
+	// Amazon EC2 instance in the cluster.
+	VolumeSpecification!: #VolumeSpecification
 	VolumesPerInstance?: int |
 		{
 			string &
@@ -84,27 +96,37 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsConfiguration": close({
-	EbsBlockDeviceConfigs?: [..._#defs."/$defs/Properties/definitions/EbsBlockDeviceConfig"] | fn.#ListExpression
+#EbsConfiguration: close({
+	EbsBlockDeviceConfigs?: [...#EbsBlockDeviceConfig] | fn.#ListExpression
 	EbsOptimized?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications": close({
-	OnDemandSpecification?: _#defs."/$defs/Properties/definitions/OnDemandProvisioningSpecification" |
-		fn.#ObjectExpression
-	SpotSpecification?: _#defs."/$defs/Properties/definitions/SpotProvisioningSpecification" | fn.#ObjectExpression
+#InstanceFleetProvisioningSpecifications: close({
+	// The launch specification for On-Demand Instances in the instance fleet, which
+	// determines the allocation strategy.
+	OnDemandSpecification?: #OnDemandProvisioningSpecification
+
+	// The launch specification for Spot instances in the fleet, which determines
+	// the defined duration, provisioning timeout behavior, and allocation
+	// strategy.
+	SpotSpecification?: #SpotProvisioningSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetResizingSpecifications": close({
-	OnDemandResizeSpecification?: _#defs."/$defs/Properties/definitions/OnDemandResizingSpecification" |
-		fn.#ObjectExpression
-	SpotResizeSpecification?: _#defs."/$defs/Properties/definitions/SpotResizingSpecification" | fn.#ObjectExpression
+#InstanceFleetResizingSpecifications: close({
+	// The resize specification for On-Demand Instances in the instance fleet, which
+	// contains the allocation strategy, capacity reservation options, and the
+	// resize timeout period.
+	OnDemandResizeSpecification?: #OnDemandResizingSpecification
+
+	// The resize specification for Spot Instances in the instance fleet, which
+	// contains the allocation strategy and the resize timeout period.
+	SpotResizeSpecification?: #SpotResizingSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
+#InstanceTypeConfig: close({
 	BidPrice?: string | fn.#StringExpression
 	BidPriceAsPercentageOfOnDemandPrice?: number |
 		{
@@ -125,9 +147,12 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	Configurations?:   [..._#defs."/$defs/Properties/definitions/ApplicationConfiguration"] | fn.#ListExpression
-	CustomAmiId?:      string | fn.#StringExpression
-	EbsConfiguration?: _#defs."/$defs/Properties/definitions/EbsConfiguration" | fn.#ObjectExpression
+	Configurations?: [...#ApplicationConfiguration] | fn.#ListExpression
+	CustomAmiId?:    string | fn.#StringExpression
+
+	// The configuration of Amazon Elastic Block Store (Amazon EBS) attached to each
+	// instance as defined by InstanceType.
+	EbsConfiguration?: #EbsConfiguration
 	InstanceType!:     string | fn.#StringExpression
 	Priority?: number |
 		{
@@ -165,23 +190,24 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandCapacityReservationOptions": close({
+#OnDemandCapacityReservationOptions: close({
 	CapacityReservationPreference?:       string | fn.#StringExpression
 	CapacityReservationResourceGroupArn?: string | fn.#StringExpression
 	UsageStrategy?:                       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandProvisioningSpecification": close({
+#OnDemandProvisioningSpecification: close({
 	AllocationStrategy!:         string | fn.#StringExpression
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions"
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandResizingSpecification": close({
+#OnDemandResizingSpecification: close({
 	AllocationStrategy?: string | fn.#StringExpression
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions" |
-		fn.#ObjectExpression
+
+	// Describes the strategy for using unused Capacity Reservations for fulfilling On-Demand capacity.
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 	TimeoutDurationMinutes?: int |
 		{
 			string &
@@ -199,7 +225,7 @@ _#defs: "/$defs/Properties/definitions/OnDemandResizingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpotProvisioningSpecification": close({
+#SpotProvisioningSpecification: close({
 	AllocationStrategy?: string | fn.#StringExpression
 	BlockDurationMinutes?: int |
 		{
@@ -233,7 +259,7 @@ _#defs: "/$defs/Properties/definitions/SpotProvisioningSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpotResizingSpecification": close({
+#SpotResizingSpecification: close({
 	AllocationStrategy?: string | fn.#StringExpression
 	TimeoutDurationMinutes?: int |
 		{
@@ -252,7 +278,7 @@ _#defs: "/$defs/Properties/definitions/SpotResizingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
+#VolumeSpecification: close({
 	Iops?: int |
 		{
 			string &
@@ -298,7 +324,3 @@ _#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
 	VolumeType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::InstanceFleetConfig"
-	Properties!: #Properties
-}

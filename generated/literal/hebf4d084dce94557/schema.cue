@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,7 +19,7 @@ import (
 
 	// Specifies how block devices are exposed to the instance. You can specify
 	// virtual devices and EBS volumes.
-	BlockDeviceMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"]
+	BlockDeviceMappings?: list.UniqueItems() & [...#BlockDeviceMapping]
 
 	// The ID of a ClassicLink-enabled VPC to link your EC2-Classic instances to.
 	ClassicLinkVPCId?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -59,7 +59,7 @@ import (
 	LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The metadata options for the instances.
-	MetadataOptions?: _#defs."/$defs/Properties/definitions/MetadataOptions"
+	MetadataOptions?: #MetadataOptions
 
 	// The tenancy of the instance, either default or dedicated.
 	PlacementTenancy?: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -79,7 +79,7 @@ import (
 })
 
 // BlockDevice is a subproperty of BlockDeviceMapping that describes an Amazon EBS volume.
-_#defs: "/$defs/Properties/definitions/BlockDevice": close({
+#BlockDevice: close({
 	// Indicates whether the volume is deleted on instance termination.
 	DeleteOnTermination?: bool
 
@@ -104,21 +104,12 @@ _#defs: "/$defs/Properties/definitions/BlockDevice": close({
 
 // BlockDeviceMapping is a property of AWS::AutoScaling::LaunchConfiguration
 // that describes a block device mapping for an Auto Scaling group.
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+#BlockDeviceMapping: close({
 	// The device name exposed to the EC2 instance (for example, /dev/sdh or xvdh).
 	DeviceName!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Parameters used to automatically set up EBS volumes when an instance is launched.
-	Ebs?: _#defs."/$defs/Properties/definitions/BlockDevice"
+	Ebs?: #BlockDevice
 
 	// Setting this value to true suppresses the specified device included in the
 	// block device mapping of the AMI.
@@ -126,11 +117,24 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
 
 	// The name of the virtual device.
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1)
-})
+	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
+		Ebs?: close({"Fn::If": _}) | error(
+			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+	}
+	if Ebs != _|_ if Ebs."Fn::If" == _|_ {
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
 // MetadataOptions is a property of AWS::AutoScaling::LaunchConfiguration that
 // describes metadata options for the instances.
-_#defs: "/$defs/Properties/definitions/MetadataOptions": close({
+#MetadataOptions: close({
 	// This parameter enables or disables the HTTP metadata endpoint on your instances.
 	HttpEndpoint?: "disabled" | "enabled"
 

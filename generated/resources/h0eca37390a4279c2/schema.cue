@@ -16,15 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	ContentType!: "JAR" | "ZIP" | fn.#StringExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Location!:    _#defs."/$defs/Properties/definitions/CustomPluginLocation"
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KafkaConnect::CustomPlugin"
+	Properties!: close({
+		ContentType!: "JAR" | "ZIP" | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Location!:    #CustomPluginLocation
+		Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CustomPluginFileDescription": close({
+#CustomPluginFileDescription: close({
 	FileMd5?: string | fn.#StringExpression
 	FileSize?: int |
 		{
@@ -43,24 +46,17 @@ _#defs: "/$defs/Properties/definitions/CustomPluginFileDescription": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPluginLocation": close(
-	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
-) |
-	fn.#ObjectExpression
+#CustomPluginLocation: close({S3Location!: #S3Location}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	BucketArn!:     string | fn.#StringExpression
 	FileKey!:       string | fn.#StringExpression
 	ObjectVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KafkaConnect::CustomPlugin"
-	Properties!: #Properties
-}

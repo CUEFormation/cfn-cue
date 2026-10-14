@@ -11,18 +11,18 @@ import (
 
 // Resource Type definition for AWS::SageMaker::ModelCard.
 #Properties: close({
-	Content!: _#defs."/$defs/Properties/definitions/Content"
+	Content!: #Content
 
 	// Information about the user who created or modified an experiment, trial,
 	// trial component, lineage group, project, or model card.
-	CreatedBy?: _#defs."/$defs/Properties/definitions/UserContext"
+	CreatedBy?: #UserContext
 
 	// The date and time the model card was created.
 	CreationTime?: string
 
 	// Information about the user who created or modified an experiment, trial,
 	// trial component, lineage group, project, or model card.
-	LastModifiedBy?: _#defs."/$defs/Properties/definitions/UserContext"
+	LastModifiedBy?: #UserContext
 
 	// The date and time the model card was last modified.
 	LastModifiedTime?: string
@@ -52,13 +52,13 @@ import (
 
 	// A version of the model card.
 	ModelCardVersion?: int & >=1
-	SecurityConfig?:   _#defs."/$defs/Properties/definitions/SecurityConfig"
+	SecurityConfig?:   #SecurityConfig
 
 	// Key-value pairs used to manage metadata for model cards.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalInformation": close({
+#AdditionalInformation: close({
 	// Caveats and recommendations for people who might use this model in their applications.
 	CaveatsAndRecommendations?: strings.MaxRunes(2048)
 
@@ -71,21 +71,21 @@ _#defs: "/$defs/Properties/definitions/AdditionalInformation": close({
 	EthicalConsiderations?: strings.MaxRunes(2048)
 })
 
-_#defs: "/$defs/Properties/definitions/AxisNameArray": [...strings.MaxRunes(63)]
+#AxisNameArray: [...strings.MaxRunes(63)]
 
-_#defs: "/$defs/Properties/definitions/AxisNameString": strings.MaxRunes(63)
+#AxisNameString: strings.MaxRunes(63)
 
-_#defs: "/$defs/Properties/definitions/BarChartMetric": close({
+#BarChartMetric: close({
 	Name!:      =~".{1,255}"
 	Notes?:     strings.MaxRunes(1024)
 	Type!:      "bar_chart"
 	Value!:     list.MinItems(1) & [...number | string]
-	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameArray"
-	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
+	XAxisName?: #AxisNameArray
+	YAxisName?: #AxisNameString
 })
 
 // Business details.
-_#defs: "/$defs/Properties/definitions/BusinessDetails": close({
+#BusinessDetails: close({
 	// What business problem does the model solve?
 	BusinessProblem?: strings.MaxRunes(2048)
 
@@ -96,7 +96,7 @@ _#defs: "/$defs/Properties/definitions/BusinessDetails": close({
 	LineOfBusiness?: strings.MaxRunes(2048)
 })
 
-_#defs: "/$defs/Properties/definitions/Container": close({
+#Container: close({
 	// Inference environment path. The Amazon EC2 Container Registry (Amazon ECR)
 	// path where inference code is stored.
 	Image!: strings.MaxRunes(255)
@@ -110,18 +110,18 @@ _#defs: "/$defs/Properties/definitions/Container": close({
 })
 
 // The content of the model card.
-_#defs: "/$defs/Properties/definitions/Content": close({
-	AdditionalInformation?: _#defs."/$defs/Properties/definitions/AdditionalInformation"
-	BusinessDetails?:       _#defs."/$defs/Properties/definitions/BusinessDetails"
-	EvaluationDetails?:     _#defs."/$defs/Properties/definitions/EvaluationDetails"
-	IntendedUses?:          _#defs."/$defs/Properties/definitions/IntendedUses"
-	ModelOverview?:         _#defs."/$defs/Properties/definitions/ModelOverview"
-	ModelPackageDetails?:   _#defs."/$defs/Properties/definitions/ModelPackageDetails"
-	TrainingDetails?:       _#defs."/$defs/Properties/definitions/TrainingDetails"
+#Content: close({
+	AdditionalInformation?: #AdditionalInformation
+	BusinessDetails?:       #BusinessDetails
+	EvaluationDetails?:     #EvaluationDetails
+	IntendedUses?:          #IntendedUses
+	ModelOverview?:         #ModelOverview
+	ModelPackageDetails?:   #ModelPackageDetails
+	TrainingDetails?:       #TrainingDetails
 })
 
 // item of evaluation details
-_#defs: "/$defs/Properties/definitions/EvaluationDetail": close({
+#EvaluationDetail: close({
 	Datasets?:              list.MaxItems(10) & [...strings.MaxRunes(1024)]
 	EvaluationJobArn?:      strings.MaxRunes(256)
 	EvaluationObservation?: strings.MaxRunes(2096)
@@ -130,19 +130,19 @@ _#defs: "/$defs/Properties/definitions/EvaluationDetail": close({
 	Metadata?: close({
 
 		{[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(1024)}})
-	MetricGroups?: [..._#defs."/$defs/Properties/definitions/MetricGroup"]
+	MetricGroups?: [...#MetricGroup]
 	Name!:         =~".{1,63}"
 })
 
-_#defs: "/$defs/Properties/definitions/EvaluationDetails": [..._#defs."/$defs/Properties/definitions/EvaluationDetail"]
+#EvaluationDetails: [...#EvaluationDetail]
 
-_#defs: "/$defs/Properties/definitions/InferenceSpecification": close({
+#InferenceSpecification: close({
 	// Contains inference related information which were used to create model package.
-	Containers!: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Container"]
+	Containers!: list.MaxItems(15) & list.MinItems(1) & [...#Container]
 })
 
 // Intended usage of model.
-_#defs: "/$defs/Properties/definitions/IntendedUses": close({
+#IntendedUses: close({
 	ExplanationsForRiskRating?:       strings.MaxRunes(2048)
 	FactorsAffectingModelEfficiency?: strings.MaxRunes(2048)
 
@@ -151,41 +151,36 @@ _#defs: "/$defs/Properties/definitions/IntendedUses": close({
 
 	// Why the model was developed?
 	PurposeOfModel?: strings.MaxRunes(2048)
-	RiskRating?:     _#defs."/$defs/Properties/definitions/RiskRating"
+	RiskRating?:     #RiskRating
 })
 
 // Linear graph metric.
-_#defs: "/$defs/Properties/definitions/LinearGraphMetric": close({
+#LinearGraphMetric: close({
 	Name!:      =~".{1,255}"
 	Notes?:     strings.MaxRunes(1024)
 	Type!:      "linear_graph"
 	Value!:     list.MinItems(1) & [...list.MaxItems(2) & list.MinItems(2) & [...number | string]]
-	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
-	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
+	XAxisName?: #AxisNameString
+	YAxisName?: #AxisNameString
 })
 
-_#defs: "/$defs/Properties/definitions/MatrixMetric": close({
+#MatrixMetric: close({
 	Name!:      =~".{1,255}"
 	Notes?:     strings.MaxRunes(1024)
 	Type!:      "matrix"
 	Value!:     list.MaxItems(20) & list.MinItems(1) & [...list.MaxItems(20) & list.MinItems(1) & [...number | string]]
-	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameArray"
-	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameArray"
+	XAxisName?: #AxisNameArray
+	YAxisName?: #AxisNameArray
 })
 
 // item in metric groups
-_#defs: "/$defs/Properties/definitions/MetricGroup": close({
-	MetricData!: [
-		..._#defs."/$defs/Properties/definitions/SimpleMetric" |
-			_#defs."/$defs/Properties/definitions/LinearGraphMetric" |
-			_#defs."/$defs/Properties/definitions/BarChartMetric" |
-			_#defs."/$defs/Properties/definitions/MatrixMetric"
-	]
-	Name!: =~".{1,63}"
+#MetricGroup: close({
+	MetricData!: [...#SimpleMetric | #LinearGraphMetric | #BarChartMetric | #MatrixMetric]
+	Name!:       =~".{1,63}"
 })
 
 // Overview about the model.
-_#defs: "/$defs/Properties/definitions/ModelOverview": close({
+#ModelOverview: close({
 	// Algorithm used to solve the problem.
 	AlgorithmType?: strings.MaxRunes(1024)
 
@@ -220,18 +215,18 @@ _#defs: "/$defs/Properties/definitions/ModelOverview": close({
 	ProblemType?: strings.MaxRunes(1024)
 })
 
-_#defs: "/$defs/Properties/definitions/ModelPackageCreator": close({
+#ModelPackageCreator: close({
 	// The name of the user's profile in Studio
 	UserProfileName?: strings.MaxRunes(63)
 })
 
 // Metadata information related to model package version
-_#defs: "/$defs/Properties/definitions/ModelPackageDetails": close({
+#ModelPackageDetails: close({
 	// A description provided for the model approval
 	ApprovalDescription?: strings.MaxRunes(1024)
 
 	// Information about the user who created model package.
-	CreatedBy?: _#defs."/$defs/Properties/definitions/ModelPackageCreator"
+	CreatedBy?: #ModelPackageCreator
 
 	// The machine learning domain of the model package you specified. Common
 	// machine learning domains include computer vision and natural language
@@ -239,7 +234,7 @@ _#defs: "/$defs/Properties/definitions/ModelPackageDetails": close({
 	Domain?: string
 
 	// Details about inference jobs that can be run with models based on this model package.
-	InferenceSpecification?: _#defs."/$defs/Properties/definitions/InferenceSpecification"
+	InferenceSpecification?: #InferenceSpecification
 
 	// Current approval status of model package
 	ModelApprovalStatus?: "Approved" | "Rejected" | "PendingManualApproval"
@@ -264,7 +259,7 @@ _#defs: "/$defs/Properties/definitions/ModelPackageDetails": close({
 	ModelPackageVersion?: >=1
 
 	// A list of algorithms that were used to create a model package.
-	SourceAlgorithms?: _#defs."/$defs/Properties/definitions/SourceAlgorithms"
+	SourceAlgorithms?: #SourceAlgorithms
 
 	// The machine learning task you specified that your model package accomplishes.
 	// Common machine learning tasks include object detection and image
@@ -273,7 +268,7 @@ _#defs: "/$defs/Properties/definitions/ModelPackageDetails": close({
 })
 
 // the objective function the model will optimize for.
-_#defs: "/$defs/Properties/definitions/ObjectiveFunction": close({
+#ObjectiveFunction: close({
 	// objective function that training job is optimized for.
 	Function?: close({
 		Condition?: strings.MaxRunes(63)
@@ -284,11 +279,11 @@ _#defs: "/$defs/Properties/definitions/ObjectiveFunction": close({
 })
 
 // Risk rating of model.
-_#defs: "/$defs/Properties/definitions/RiskRating": "High" | "Medium" | "Low" | "Unknown"
+#RiskRating: "High" | "Medium" | "Low" | "Unknown"
 
 // An optional Key Management Service key to encrypt, decrypt, and re-encrypt
 // model card content for regulated workloads with highly sensitive data.
-_#defs: "/$defs/Properties/definitions/SecurityConfig": close({
+#SecurityConfig: close({
 	// A Key Management Service key ID to use for encrypting a model card.
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(2048) &
@@ -297,16 +292,16 @@ _#defs: "/$defs/Properties/definitions/SecurityConfig": close({
 })
 
 // metric data
-_#defs: "/$defs/Properties/definitions/SimpleMetric": close({
+#SimpleMetric: close({
 	Name!:      =~".{1,255}"
 	Notes?:     strings.MaxRunes(1024)
 	Type!:      "number" | "string" | "boolean"
 	Value!:     number | strings.MaxRunes(63) | bool
-	XAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
-	YAxisName?: _#defs."/$defs/Properties/definitions/AxisNameString"
+	XAxisName?: #AxisNameString
+	YAxisName?: #AxisNameString
 })
 
-_#defs: "/$defs/Properties/definitions/SourceAlgorithm": close({
+#SourceAlgorithm: close({
 	// The name of an algorithm that was used to create the model package. The
 	// algorithm must be either an algorithm resource in your SageMaker account or
 	// an algorithm in AWS Marketplace that you are subscribed to.
@@ -316,12 +311,10 @@ _#defs: "/$defs/Properties/definitions/SourceAlgorithm": close({
 	ModelDataUrl?: strings.MaxRunes(1024)
 })
 
-_#defs: "/$defs/Properties/definitions/SourceAlgorithms": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SourceAlgorithm"
-]
+#SourceAlgorithms: list.MaxItems(1) & list.MinItems(1) & [...#SourceAlgorithm]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. Tag keys must be unique per resource.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -330,10 +323,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Overview about the training.
-_#defs: "/$defs/Properties/definitions/TrainingDetails": close({
-	ObjectiveFunction?: _#defs."/$defs/Properties/definitions/ObjectiveFunction"
+#TrainingDetails: close({
+	ObjectiveFunction?: #ObjectiveFunction
 	TrainingJobDetails?: close({
-		HyperParameters?: [..._#defs."/$defs/Properties/definitions/TrainingHyperParameter"]
+		HyperParameters?: [...#TrainingHyperParameter]
 
 		// SageMaker Training job arn.
 		TrainingArn?: strings.MaxRunes(1024)
@@ -344,21 +337,21 @@ _#defs: "/$defs/Properties/definitions/TrainingDetails": close({
 			// SageMaker training image uri.
 			ContainerImage?: list.MaxItems(15) & [...strings.MaxRunes(1024)]
 		})
-		TrainingMetrics?:             [..._#defs."/$defs/Properties/definitions/TrainingMetric"]
-		UserProvidedHyperParameters?: [..._#defs."/$defs/Properties/definitions/TrainingHyperParameter"]
-		UserProvidedTrainingMetrics?: [..._#defs."/$defs/Properties/definitions/TrainingMetric"]
+		TrainingMetrics?:             [...#TrainingMetric]
+		UserProvidedHyperParameters?: [...#TrainingHyperParameter]
+		UserProvidedTrainingMetrics?: [...#TrainingMetric]
 	})
 	TrainingObservations?: strings.MaxRunes(1024)
 })
 
 // training hyper parameter
-_#defs: "/$defs/Properties/definitions/TrainingHyperParameter": close({
+#TrainingHyperParameter: close({
 	Name!:  =~".{1,255}"
 	Value!: =~".{1,255}"
 })
 
 // training metric data.
-_#defs: "/$defs/Properties/definitions/TrainingMetric": close({
+#TrainingMetric: close({
 	Name!:  =~".{1,255}"
 	Notes?: strings.MaxRunes(1024)
 	Value!: number
@@ -366,7 +359,7 @@ _#defs: "/$defs/Properties/definitions/TrainingMetric": close({
 
 // Information about the user who created or modified an experiment, trial,
 // trial component, lineage group, project, or model card.
-_#defs: "/$defs/Properties/definitions/UserContext": close({
+#UserContext: close({
 	// The domain associated with the user.
 	DomainId?: string
 

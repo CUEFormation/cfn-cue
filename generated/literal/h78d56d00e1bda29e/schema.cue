@@ -19,21 +19,21 @@ import (
 
 	// Storage Configuration Name.
 	Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$"
-	S3!:   _#defs."/$defs/Properties/definitions/S3StorageConfiguration"
+	S3!:   #S3StorageConfiguration
 
 	// A list of key-value pairs that contain metadata for the asset model.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // A complex type that describes an S3 location where recorded videos will be stored.
-_#defs: "/$defs/Properties/definitions/S3StorageConfiguration": close({
+#S3StorageConfiguration: close({
 	// Location (S3 bucket name) where recorded videos will be stored. Note that the
 	// StorageConfiguration and S3 bucket must be in the same region as the
 	// Composition.
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

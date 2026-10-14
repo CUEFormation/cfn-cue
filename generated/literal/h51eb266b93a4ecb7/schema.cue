@@ -38,7 +38,7 @@ import (
 	Status?: "DRAFT" | "ACTIVE" | "DISABLED"
 
 	// The tags associated with the rule.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// An ISO 8601 timestamp indicating when the rule was last modified.
 	UpdatedAt?: time.Time
@@ -48,7 +48,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

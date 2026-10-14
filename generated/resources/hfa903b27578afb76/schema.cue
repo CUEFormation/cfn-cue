@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,32 +17,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage wireless gateways, including LoRa gateways.
-#Properties: close({
-	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	DestinationName!:      strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	LastUplinkReceivedAt?: string | fn.#StringExpression
-	LoRaWAN?:              _#defs."/$defs/Properties/definitions/LoRaWANDevice" | fn.#ObjectExpression
-	Name?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Positioning?:          "Enabled" | "Disabled" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	ThingArn?: string | fn.#StringExpression
-	Type!:     "Sidewalk" | "LoRaWAN" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::WirelessDevice"
+	Properties!: close({
+		Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		DestinationName!:      strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		LastUplinkReceivedAt?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AbpV10x": close({
+		// The combination of Package, Station and Model which represents the version of
+		// the LoRaWAN Wireless Device.
+		LoRaWAN?:     #LoRaWANDevice
+		Name?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Positioning?: "Enabled" | "Disabled" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		ThingArn?:    string | fn.#StringExpression
+		Type!:        "Sidewalk" | "LoRaWAN" | fn.#StringExpression
+	})
+}
+
+#AbpV10x: close({
 	DevAddr!:     =~"[a-fA-F0-9]{8}" | fn.#StringExpression
-	SessionKeys!: _#defs."/$defs/Properties/definitions/SessionKeysAbpV10x"
+	SessionKeys!: #SessionKeysAbpV10x
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AbpV11": close({
+#AbpV11: close({
 	DevAddr!:     =~"[a-fA-F0-9]{8}" | fn.#StringExpression
-	SessionKeys!: _#defs."/$defs/Properties/definitions/SessionKeysAbpV11"
+	SessionKeys!: #SessionKeysAbpV11
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Application": close({
+#Application: close({
 	DestinationName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
 	FPort?: int & <=223 & >=1 |
 		{
@@ -64,55 +69,64 @@ _#defs: "/$defs/Properties/definitions/Application": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FPorts": close(
-	{Applications?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Application"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#FPorts: close({Applications?: list.UniqueItems() & [...#Application] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoRaWANDevice": matchN(1, [{
-	OtaaV11!: _
-	...
-}, {
-	OtaaV10x!: _
-	...
-}, {
-	AbpV11!: _
-	...
-}, {
-	AbpV10x!: _
-	...
-}]) & close({
-	AbpV10x?:          _#defs."/$defs/Properties/definitions/AbpV10x"
-	AbpV11?:           _#defs."/$defs/Properties/definitions/AbpV11"
+#LoRaWANDevice: close({
+	AbpV10x?:          #AbpV10x
+	AbpV11?:           #AbpV11
 	DevEui?:           =~"[a-f0-9]{16}" | fn.#StringExpression
 	DeviceProfileId?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FPorts?:           _#defs."/$defs/Properties/definitions/FPorts"
-	OtaaV10x?:         _#defs."/$defs/Properties/definitions/OtaaV10x"
-	OtaaV11?:          _#defs."/$defs/Properties/definitions/OtaaV11"
+	FPorts?:           #FPorts
+	OtaaV10x?:         #OtaaV10x
+	OtaaV11?:          #OtaaV11
 	ServiceProfileId?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
+	if OtaaV11 != _|_ if OtaaV11."Fn::If" == _|_ {
+		OtaaV10x?: close({"Fn::If": _}) | error(
+			"OtaaV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+		AbpV11?: close({"Fn::If": _}) | error(
+			"AbpV11 cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+		AbpV10x?: close({"Fn::If": _}) | error(
+			"AbpV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+	}
+	if OtaaV10x != _|_ if OtaaV10x."Fn::If" == _|_ {
+		AbpV11?: close({"Fn::If": _}) | error(
+			"AbpV11 cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+		AbpV10x?: close({"Fn::If": _}) | error(
+			"AbpV10x cannot be used with OtaaV10x; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+	}
+	if AbpV11 != _|_ if AbpV11."Fn::If" == _|_ {
+		AbpV10x?: close({"Fn::If": _}) | error(
+			"AbpV10x cannot be used with AbpV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
+		)
+	}
+}) & matchN(>=1, [{OtaaV11!: _}, {OtaaV10x!: _}, {AbpV11!: _}, {AbpV10x!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OtaaV10x": close({
+#OtaaV10x: close({
 	AppEui!: =~"[a-fA-F0-9]{16}" | fn.#StringExpression
 	AppKey!: =~"[a-fA-F0-9]{32}" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OtaaV11": close({
+#OtaaV11: close({
 	AppKey!:  =~"[a-fA-F0-9]{32}" | fn.#StringExpression
 	JoinEui!: =~"[a-fA-F0-9]{16}" | fn.#StringExpression
 	NwkKey!:  =~"[a-fA-F0-9]{32}" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionKeysAbpV10x": close({
+#SessionKeysAbpV10x: close({
 	AppSKey!: =~"[a-fA-F0-9]{32}" | fn.#StringExpression
 	NwkSKey!: =~"[a-fA-F0-9]{32}" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionKeysAbpV11": close({
+#SessionKeysAbpV11: close({
 	AppSKey!:     =~"[a-fA-F0-9]{32}" | fn.#StringExpression
 	FNwkSIntKey!: =~"[a-fA-F0-9]{32}" | fn.#StringExpression
 	NwkSEncKey!:  =~"[a-fA-F0-9]{32}" | fn.#StringExpression
@@ -120,12 +134,8 @@ _#defs: "/$defs/Properties/definitions/SessionKeysAbpV11": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::WirelessDevice"
-	Properties!: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -65,163 +65,236 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For a complete introduction to Lambda functions, see [What is
 // Lambda?](https://docs.aws.amazon.com/lambda/latest/dg/lambda-welcome.html)
 // in the *Lambda developer guide.*
-#Properties: close({
-	Architectures?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..."x86_64" | "arm64" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	CapacityProviderConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderConfig" | fn.#ObjectExpression
-	Code!:                   _#defs."/$defs/Properties/definitions/Code" | fn.#ObjectExpression
-	CodeSigningConfigArn?: strings.MaxRunes(200) &
-	strings.MinRunes(0) &
-	=~"arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:code-signing-config:csc-[a-z0-9]{17}" |
-	fn.#StringExpression
-	DeadLetterConfig?: _#defs."/$defs/Properties/definitions/DeadLetterConfig" | fn.#ObjectExpression
-	Description?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DurableConfig?:    _#defs."/$defs/Properties/definitions/DurableConfig" | fn.#ObjectExpression
-	Environment?:      _#defs."/$defs/Properties/definitions/Environment" | fn.#ObjectExpression
-	EphemeralStorage?: _#defs."/$defs/Properties/definitions/EphemeralStorage" | fn.#ObjectExpression
-	FileSystemConfigs?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/FileSystemConfig"] |
-		fn.#ListExpression
-	FunctionName?: strings.MinRunes(1) &
-	=~"^([a-zA-Z0-9_-]{1,64}|arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:function:[a-zA-Z0-9_-]{1,64})$" |
-	fn.#StringExpression
-	FunctionScalingConfig?: _#defs."/$defs/Properties/definitions/FunctionScalingConfig" | fn.#ObjectExpression
-	Handler?:               strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" | fn.#StringExpression
-	ImageConfig?:           _#defs."/$defs/Properties/definitions/ImageConfig" | fn.#ObjectExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(10000) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
-	fn.#StringExpression
-	Layers?: list.MaxItems(5) & list.UniqueItems() & [
-		...strings.MinRunes(1) &
-		=~"^(arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+|arn:[a-zA-Z0-9-]+:lambda:::awslayer:[a-zA-Z0-9-_]+)$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
-	MemorySize?: int & <=32768 & >=128 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=32768 &
-							>=128,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PackageType?:              "Image" | "Zip" | fn.#StringExpression
-	PublishToLatestPublished?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RecursiveLoop?:            _#defs."/$defs/Properties/definitions/RecursiveLoop" | fn.#StringExpression
-	ReservedConcurrentExecutions?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Role!: strings.MaxRunes(10000) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Runtime?: "dotnet10" |
-		"dotnet6" |
-		"dotnet8" |
-		"dotnetcore1.0" |
-		"dotnetcore2.0" |
-		"dotnetcore2.1" |
-		"dotnetcore3.1" |
-		"go1.x" |
-		"java11" |
-		"java11.al2023" |
-		"java17" |
-		"java17.al2023" |
-		"java21" |
-		"java25" |
-		"java8" |
-		"java8.al2" |
-		"java8.al2023" |
-		"nodejs" |
-		"nodejs10.x" |
-		"nodejs12.x" |
-		"nodejs14.x" |
-		"nodejs16.x" |
-		"nodejs18.x" |
-		"nodejs20.x" |
-		"nodejs22.x" |
-		"nodejs24.x" |
-		"nodejs26.x" |
-		"nodejs4.3" |
-		"nodejs4.3-edge" |
-		"nodejs6.10" |
-		"nodejs8.10" |
-		"provided" |
-		"provided.al2" |
-		"provided.al2023" |
-		"python2.7" |
-		"python3.10" |
-		"python3.11" |
-		"python3.12" |
-		"python3.13" |
-		"python3.14" |
-		"python3.15" |
-		"python3.6" |
-		"python3.7" |
-		"python3.8" |
-		"python3.9" |
-		"ruby2.5" |
-		"ruby2.7" |
-		"ruby3.2" |
-		"ruby3.3" |
-		"ruby3.4" |
-		"ruby4.0" |
-		fn.#StringExpression
-	RuntimeManagementConfig?: _#defs."/$defs/Properties/definitions/RuntimeManagementConfig" | fn.#ObjectExpression
-	SnapStart?:               _#defs."/$defs/Properties/definitions/SnapStart" | fn.#ObjectExpression
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TenancyConfig?:           _#defs."/$defs/Properties/definitions/TenancyConfig" | fn.#ObjectExpression
-	Timeout?: int & <=5400 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=5400 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TracingConfig?: _#defs."/$defs/Properties/definitions/TracingConfig" | fn.#ObjectExpression
-	VpcConfig?:     _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::Function"
+	Properties!: close({
+		Architectures?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+			..."x86_64" | "arm64" | fn.#StringExpression
+		] |
+			fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderConfig": close({
-	LambdaManagedInstancesCapacityProviderConfig!: _#defs."/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderConfig" |
-		fn.#ObjectExpression
+		// Configuration for the capacity provider that manages compute resources for Lambda functions.
+		CapacityProviderConfig?: #CapacityProviderConfig
+
+		// The code for the function. You can define your function code in multiple ways:
+		// + For .zip deployment packages, you can specify the S3 location of the .zip
+		// file in the ``S3Bucket``, ``S3Key``, and ``S3ObjectVersion`` properties.
+		// + For .zip deployment packages, you can alternatively define the function
+		// code inline in the ``ZipFile`` property. This method works only for Node.js
+		// and Python functions.
+		// + For container images, specify the URI of your container image in the ECR
+		// registry in the ``ImageUri`` property.
+		Code!: #Code
+		CodeSigningConfigArn?: strings.MaxRunes(200) &
+		strings.MinRunes(0) &
+		=~"arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:code-signing-config:csc-[a-z0-9]{17}" |
+		fn.#StringExpression
+
+		// A dead-letter queue configuration that specifies the queue or topic where
+		// Lambda sends asynchronous events when they fail processing. For more
+		// information, see [Dead-letter
+		// queues](https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-dlq).
+		DeadLetterConfig?: #DeadLetterConfig
+		Description?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Configuration settings for [durable
+		// functions](https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html),
+		// including execution timeout, retention period for execution history, and an
+		// optional ARN of the KMSlong (KMS) customer managed key that is used to
+		// encrypt your durable execution's payload data, including input, output, and
+		// error payloads.
+		DurableConfig?: #DurableConfig
+
+		// Environment variables that are accessible from function code during execution.
+		Environment?: #Environment
+
+		// The size of the function's ``/tmp`` directory in MB. The default value is
+		// 512, but it can be any whole number between 512 and 10,240 MB.
+		EphemeralStorage?:  #EphemeralStorage
+		FileSystemConfigs?: list.MaxItems(1) & [...] & [...#FileSystemConfig] | fn.#ListExpression
+		FunctionName?: strings.MinRunes(1) &
+		=~"^([a-zA-Z0-9_-]{1,64}|arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:function:[a-zA-Z0-9_-]{1,64})$" |
+		fn.#StringExpression
+
+		// Configuration that defines the scaling behavior for a Lambda Managed
+		// Instances function, including the minimum and maximum number of execution
+		// environments that can be provisioned.
+		FunctionScalingConfig?: #FunctionScalingConfig
+		Handler?:               strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" | fn.#StringExpression
+
+		// Configuration values that override the container image Dockerfile settings.
+		// For more information, see [Container image
+		// settings](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#images-parms).
+		ImageConfig?: #ImageConfig
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		fn.#StringExpression
+		Layers?: list.MaxItems(5) & list.UniqueItems() & [
+			...strings.MinRunes(1) &
+			=~"^(arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+|arn:[a-zA-Z0-9-]+:lambda:::awslayer:[a-zA-Z0-9-_]+)$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+
+		// The function's Amazon CloudWatch Logs configuration settings.
+		LoggingConfig?: #LoggingConfig
+		MemorySize?: int & <=32768 & >=128 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=32768 &
+								>=128,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PackageType?:              "Image" | "Zip" | fn.#StringExpression
+		PublishToLatestPublished?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The status of your function's recursive loop detection configuration.
+		// When this value is set to ``Allow``and Lambda detects your function being
+		// invoked as part of a recursive loop, it doesn't take any action.
+		// When this value is set to ``Terminate`` and Lambda detects your function
+		// being invoked as part of a recursive loop, it stops your function being
+		// invoked and notifies you.
+		RecursiveLoop?: #RecursiveLoop
+		ReservedConcurrentExecutions?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Role!: strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Runtime?: "dotnet10" |
+			"dotnet6" |
+			"dotnet8" |
+			"dotnetcore1.0" |
+			"dotnetcore2.0" |
+			"dotnetcore2.1" |
+			"dotnetcore3.1" |
+			"go1.x" |
+			"java11" |
+			"java11.al2023" |
+			"java17" |
+			"java17.al2023" |
+			"java21" |
+			"java25" |
+			"java8" |
+			"java8.al2" |
+			"java8.al2023" |
+			"nodejs" |
+			"nodejs10.x" |
+			"nodejs12.x" |
+			"nodejs14.x" |
+			"nodejs16.x" |
+			"nodejs18.x" |
+			"nodejs20.x" |
+			"nodejs22.x" |
+			"nodejs24.x" |
+			"nodejs26.x" |
+			"nodejs4.3" |
+			"nodejs4.3-edge" |
+			"nodejs6.10" |
+			"nodejs8.10" |
+			"provided" |
+			"provided.al2" |
+			"provided.al2023" |
+			"python2.7" |
+			"python3.10" |
+			"python3.11" |
+			"python3.12" |
+			"python3.13" |
+			"python3.14" |
+			"python3.15" |
+			"python3.6" |
+			"python3.7" |
+			"python3.8" |
+			"python3.9" |
+			"ruby2.5" |
+			"ruby2.7" |
+			"ruby3.2" |
+			"ruby3.3" |
+			"ruby3.4" |
+			"ruby4.0" |
+			fn.#StringExpression
+
+		// Sets the runtime management configuration for a function's version. For more
+		// information, see [Runtime
+		// updates](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html).
+		RuntimeManagementConfig?: #RuntimeManagementConfig
+
+		// The function's [SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html) setting.
+		SnapStart?: #SnapStart
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The function's tenant isolation configuration settings. Determines whether
+		// the Lambda function runs on a shared or dedicated infrastructure per unique
+		// tenant.
+		TenancyConfig?: #TenancyConfig
+		Timeout?: int & <=5400 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=5400 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+
+		// Set ``Mode`` to ``Active`` to sample and trace a subset of incoming requests
+		// with
+		// [X-Ray](https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html).
+		TracingConfig?: #TracingConfig
+
+		// For network connectivity to AWS resources in a VPC, specify a list of
+		// security groups and subnets in the VPC. When you connect a function to a
+		// VPC, it can access resources and the internet only through that VPC. For
+		// more information, see [Configuring a Lambda function to access resources in
+		// a VPC](https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html).
+		VpcConfig?: #VpcConfig
+	})
+}
+
+#CapacityProviderConfig: close({
+	// Configuration for Lambda-managed instances used by the capacity provider.
+	LambdaManagedInstancesCapacityProviderConfig!: #LambdaManagedInstancesCapacityProviderConfig
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Code": close({
+#Code: close({
 	ImageUri?:            string | fn.#StringExpression
 	S3Bucket?:            strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	S3Key?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
@@ -233,13 +306,13 @@ _#defs: "/$defs/Properties/definitions/Code": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
+#DeadLetterConfig: close({
 	TargetArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DurableConfig": close({
+#DurableConfig: close({
 	ExecutionTimeout!: int & <=31622400 & >=1 |
 		{
 			string &
@@ -280,7 +353,7 @@ _#defs: "/$defs/Properties/definitions/DurableConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 	Variables?: close({
 
 		{[=~"[a-zA-Z][a-zA-Z0-9_]+"]: fn.#Object & {...} |
@@ -293,7 +366,7 @@ _#defs: "/$defs/Properties/definitions/Environment": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
+#EphemeralStorage: close({
 	Size!: int & <=32768 & >=512 |
 		{
 			string &
@@ -313,16 +386,22 @@ _#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
+#FileSystemConfig: close({
 	Arn!: strings.MaxRunes(200) &
 	=~"^arn:aws[a-zA-Z-]*:elasticfilesystem:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:access-point/fsap-[a-f0-9]{17}$|^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$" |
 	fn.#StringExpression
 	LocalMountPath!: strings.MaxRunes(160) & strings.MinRunes(0) & =~"^/mnt/[a-zA-Z0-9-_.]+$" | fn.#StringExpression
-	S3FilesConfig?:  _#defs."/$defs/Properties/definitions/S3FilesConfig" | fn.#ObjectExpression
+
+	// The configuration for how your function accesses data on an Amazon S3 file
+	// system. Valid only when the file system access point ARN is an Amazon S3
+	// Files access point. If you specify a different access point type (for
+	// example, Amazon Elastic File System), the operation returns an
+	// ``InvalidParameterException``.
+	S3FilesConfig?: #S3FilesConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
+#FunctionScalingConfig: close({
 	MaxExecutionEnvironments?: int & <=15000 & >=0 |
 		{
 			string &
@@ -358,7 +437,7 @@ _#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageConfig": close({
+#ImageConfig: close({
 	Command?: list.MaxItems(1500) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	EntryPoint?: list.MaxItems(1500) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] |
 		fn.#ListExpression
@@ -366,7 +445,7 @@ _#defs: "/$defs/Properties/definitions/ImageConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderConfig": close({
+#LambdaManagedInstancesCapacityProviderConfig: close({
 	CapacityProviderArn!: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+$" |
@@ -410,7 +489,7 @@ _#defs: "/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderCon
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	ApplicationLogLevel?: "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL" | fn.#StringExpression
 	LogFormat?:           "Text" | "JSON" | fn.#StringExpression
 	LogGroup?:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
@@ -418,45 +497,35 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecursiveLoop": "Allow" | "Terminate" | fn.#StringExpression
+#RecursiveLoop: "Allow" | "Terminate" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuntimeManagementConfig": close({
+#RuntimeManagementConfig: close({
 	RuntimeVersionArn?: string | fn.#StringExpression
 	UpdateRuntimeOn!:   "Auto" | "FunctionUpdate" | "Manual" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3FilesConfig": close(
-	{DirectS3Read?: "ENABLED" | "DISABLED" | "AUTO" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#S3FilesConfig: close({DirectS3Read?: "ENABLED" | "DISABLED" | "AUTO" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnapStart": close(
-	{ApplyOn!: "PublishedVersions" | "None" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#SnapStart: close({ApplyOn!: "PublishedVersions" | "None" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnapStartResponse": close({
+#SnapStartResponse: close({
 	ApplyOn?:            "PublishedVersions" | "None" | fn.#StringExpression
 	OptimizationStatus?: "On" | "Off" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TenancyConfig": close(
-	{TenantIsolationMode!: "PER_TENANT" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#TenancyConfig: close({TenantIsolationMode!: "PER_TENANT" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TracingConfig": close({Mode?: "Active" | "PassThrough" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#TracingConfig: close({Mode?: "Active" | "PassThrough" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	Ipv6AllowedForDualStack?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -472,7 +541,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::Function"
-	Properties!: #Properties
-}

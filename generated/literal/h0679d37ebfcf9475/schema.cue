@@ -43,17 +43,13 @@ import (
 	})
 
 	// The property describes source data provider descriptors for the migration project.
-	SourceDataProviderDescriptors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor"
-	]
+	SourceDataProviderDescriptors?: list.UniqueItems() & [...#DataProviderDescriptor]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The property describes target data provider descriptors for the migration project.
-	TargetDataProviderDescriptors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor"
-	]
+	TargetDataProviderDescriptors?: list.UniqueItems() & [...#DataProviderDescriptor]
 
 	// The property describes transformation rules for the migration project.
 	TransformationRules?: string
@@ -61,7 +57,7 @@ import (
 
 // It is an object that describes Source and Target DataProviders and
 // credentials for connecting to databases that are used in MigrationProject
-_#defs: "/$defs/Properties/definitions/DataProviderDescriptor": close({
+#DataProviderDescriptor: close({
 	DataProviderArn?:             string
 	DataProviderIdentifier?:      string
 	DataProviderName?:            string
@@ -70,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/DataProviderDescriptor": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

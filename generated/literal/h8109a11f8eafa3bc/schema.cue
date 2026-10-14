@@ -21,16 +21,16 @@ import (
 	// persistent metadata store. It contains database definitions, table
 	// definitions, and other control information to manage your Lake Formation
 	// environment.
-	Catalog?: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	Catalog?: #CatalogIdString
 
 	// The permissions granted or revoked.
-	Permissions!: _#defs."/$defs/Properties/definitions/PermissionList"
+	Permissions!: #PermissionList
 
 	// Indicates the ability to grant permissions (as a subset of permissions granted).
-	PermissionsWithGrantOption!: _#defs."/$defs/Properties/definitions/PermissionList"
+	PermissionsWithGrantOption!: #PermissionList
 
 	// The principal to be granted a permission.
-	Principal!:           _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+	Principal!:           #DataLakePrincipal
 	PrincipalIdentifier?: string
 
 	// The resource to be granted or revoked permissions.
@@ -38,126 +38,122 @@ import (
 	ResourceIdentifier?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(255) & strings.MinRunes(12)
+#CatalogIdString: strings.MaxRunes(255) & strings.MinRunes(12)
 
-_#defs: "/$defs/Properties/definitions/CatalogResource": string
+#CatalogResource: string
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"]
+#ColumnNames: [...#NameString]
 
 // A wildcard object, consisting of an optional list of excluded column names or indexes.
-_#defs: "/$defs/Properties/definitions/ColumnWildcard": close({
+#ColumnWildcard: close({
 	// Excludes column names. Any column with this name will be excluded.
-	ExcludedColumnNames?: _#defs."/$defs/Properties/definitions/ColumnNames"
+	ExcludedColumnNames?: #ColumnNames
 })
 
 // A structure that describes certain columns on certain rows.
-_#defs: "/$defs/Properties/definitions/DataCellsFilterResource": close({
+#DataCellsFilterResource: close({
 	// A database in the GLUDC.
-	DatabaseName!: _#defs."/$defs/Properties/definitions/NameString"
+	DatabaseName!: #NameString
 
 	// The name given by the user to the data filter cell.
-	Name!: _#defs."/$defs/Properties/definitions/NameString"
+	Name!: #NameString
 
 	// The ID of the catalog to which the table belongs.
-	TableCatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	TableCatalogId!: #CatalogIdString
 
 	// The name of the table.
-	TableName!: _#defs."/$defs/Properties/definitions/NameString"
+	TableName!: #NameString
 })
 
 // The LFlong principal.
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close({
+#DataLakePrincipal: close({
 	// An identifier for the LFlong principal.
-	DataLakePrincipalIdentifier?: _#defs."/$defs/Properties/definitions/DataLakePrincipalString"
+	DataLakePrincipalIdentifier?: #DataLakePrincipalString
 })
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipalList": [
-	..._#defs."/$defs/Properties/definitions/DataLakePrincipal"
-]
+#DataLakePrincipalList: [...#DataLakePrincipal]
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipalString": strings.MaxRunes(255) & strings.MinRunes(1)
+#DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // A structure for a data location object where permissions are granted or revoked.
-_#defs: "/$defs/Properties/definitions/DataLocationResource": close({
+#DataLocationResource: close({
 	// The identifier for the GLUDC where the location is registered with LFlong.
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	CatalogId!: #CatalogIdString
 
 	// The Amazon Resource Name (ARN) that uniquely identifies the data location resource.
-	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArnString"
+	ResourceArn!: #ResourceArnString
 })
 
 // A structure for the database object.
-_#defs: "/$defs/Properties/definitions/DatabaseResource": close({
+#DatabaseResource: close({
 	// The identifier for the Data Catalog. By default, it is the account ID of the caller.
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	CatalogId!: #CatalogIdString
 
 	// The name of the database resource. Unique to the Data Catalog.
-	Name!: _#defs."/$defs/Properties/definitions/NameString"
+	Name!: #NameString
 })
 
-_#defs: "/$defs/Properties/definitions/Expression": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTag"
-]
+#Expression: list.MaxItems(5) & list.MinItems(1) & [...#LFTag]
 
-_#defs: "/$defs/Properties/definitions/IAMRoleArn": =~"arn:*:iam::[0-9]*:role/.*"
+#IAMRoleArn: =~"arn:*:iam::[0-9]*:role/.*"
 
 // The LF-tag key and values attached to a resource.
-_#defs: "/$defs/Properties/definitions/LFTag": close({
+#LFTag: close({
 	// The key-name for the LF-tag.
-	TagKey?: _#defs."/$defs/Properties/definitions/LFTagKey"
+	TagKey?: #LFTagKey
 
 	// A list of possible values of the corresponding ``TagKey`` of an LF-tag key-value pair.
-	TagValues?: _#defs."/$defs/Properties/definitions/TagValueList"
+	TagValues?: #TagValueList
 })
 
-_#defs: "/$defs/Properties/definitions/LFTagKey": strings.MaxRunes(128) & strings.MinRunes(1)
+#LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1)
 
 // A structure containing an LF-tag key and values for a resource.
-_#defs: "/$defs/Properties/definitions/LFTagKeyResource": close({
+#LFTagKeyResource: close({
 	// The identifier for the GLUDC where the location is registered with GLUDC.
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	CatalogId!: #CatalogIdString
 
 	// The key-name for the LF-tag.
-	TagKey!: _#defs."/$defs/Properties/definitions/NameString"
+	TagKey!: #NameString
 
 	// A list of possible values for the corresponding ``TagKey`` of an LF-tag key-value pair.
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList"
+	TagValues!: #TagValueList
 })
 
-_#defs: "/$defs/Properties/definitions/LFTagPair": close({
-	CatalogId?: _#defs."/$defs/Properties/definitions/CatalogIdString"
-	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey"
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList"
+#LFTagPair: close({
+	CatalogId?: #CatalogIdString
+	TagKey!:    #LFTagKey
+	TagValues!: #TagValueList
 })
 
 // A list of LF-tag conditions that define a resource's LF-tag policy.
 // A structure that allows an admin to grant user permissions on certain
 // conditions. For example, granting a role access to all columns that do not
 // have the LF-tag 'PII' in tables that have the LF-tag 'Prod'.
-_#defs: "/$defs/Properties/definitions/LFTagPolicyResource": close({
+#LFTagPolicyResource: close({
 	// The identifier for the GLUDC. The GLUDC is the persistent metadata store. It
 	// contains database definitions, table definitions, and other control
 	// information to manage your LFlong environment.
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	CatalogId!: #CatalogIdString
 
 	// A list of LF-tag conditions that apply to the resource's LF-tag policy.
-	Expression!: _#defs."/$defs/Properties/definitions/Expression"
+	Expression!: #Expression
 
 	// The resource type for which the LF-tag policy applies.
-	ResourceType!: _#defs."/$defs/Properties/definitions/ResourceType"
+	ResourceType!: #ResourceType
 })
 
-_#defs: "/$defs/Properties/definitions/LFTagValue": strings.MaxRunes(256) & strings.MinRunes(0)
+#LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/LFTagsList": [..._#defs."/$defs/Properties/definitions/LFTagPair"]
+#LFTagsList: [...#LFTagPair]
 
-_#defs: "/$defs/Properties/definitions/NameString": strings.MaxRunes(255) & strings.MinRunes(1)
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/NullableBoolean": null | bool
+#NullableBoolean: null | bool
 
-_#defs: "/$defs/Properties/definitions/PathString": string
+#PathString: string
 
-_#defs: "/$defs/Properties/definitions/Permission": "ALL" |
+#Permission: "ALL" |
 	"SELECT" |
 	"ALTER" |
 	"DROP" |
@@ -171,21 +167,75 @@ _#defs: "/$defs/Properties/definitions/Permission": "ALL" |
 	"ASSOCIATE" |
 	"GRANT_WITH_LF_TAG_EXPRESSION"
 
-_#defs: "/$defs/Properties/definitions/PermissionList": [..._#defs."/$defs/Properties/definitions/Permission"]
+#PermissionList: [...#Permission]
 
-_#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
-	DataLakePrincipal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
-	PermissionList?:    _#defs."/$defs/Properties/definitions/PermissionList"
+#PrincipalPermissions: close({
+	DataLakePrincipal?: #DataLakePrincipal
+	PermissionList?:    #PermissionList
 })
 
-_#defs: "/$defs/Properties/definitions/PrincipalPermissionsList": [
-	..._#defs."/$defs/Properties/definitions/PrincipalPermissions"
-]
+#PrincipalPermissionsList: [...#PrincipalPermissions]
 
-_#defs: "/$defs/Properties/definitions/PrincipalResourcePair": close({
-	Principal!: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+#PrincipalResourcePair: close({
+	Principal!: #DataLakePrincipal
 	Resource!:  _#defs."/$defs/Properties/definitions/Resource"
 })
+
+#ResourceArnString: string
+
+#ResourceType: "DATABASE" | "TABLE"
+
+// A structure for the table object. A table is a metadata definition that
+// represents your data. You can Grant and Revoke table privileges to a
+// principal.
+#TableResource: close({
+	// The identifier for the Data Catalog. By default, it is the account ID of the caller.
+	CatalogId!: #CatalogIdString
+
+	// The name of the database for the table. Unique to a Data Catalog. A database
+	// is a set of associated table definitions organized into a logical group. You
+	// can Grant and Revoke database privileges to a principal.
+	DatabaseName!: #NameString
+
+	// The name of the table.
+	Name?: #NameString
+
+	// A wildcard object representing every table under a database.
+	// At least one of ``TableResource$Name`` or ``TableResource$TableWildcard`` is required.
+	TableWildcard?: #TableWildcard
+})
+
+#TableWildcard: string | {...}
+
+// A structure for a table with columns object. This object is only used when
+// granting a SELECT permission.
+// This object must take a value for at least one of ``ColumnsNames``,
+// ``ColumnsIndexes``, or ``ColumnsWildcard``.
+#TableWithColumnsResource: close({
+	// The identifier for the GLUDC where the location is registered with LFlong.
+	CatalogId!: #CatalogIdString
+
+	// The list of column names for the table. At least one of ``ColumnNames`` or
+	// ``ColumnWildcard`` is required.
+	ColumnNames?: #ColumnNames
+
+	// A wildcard specified by a ``ColumnWildcard`` object. At least one of
+	// ``ColumnNames`` or ``ColumnWildcard`` is required.
+	ColumnWildcard?: #ColumnWildcard
+
+	// The name of the database for the table with columns resource. Unique to the
+	// Data Catalog. A database is a set of associated table definitions organized
+	// into a logical group. You can Grant and Revoke database privileges to a
+	// principal.
+	DatabaseName!: #NameString
+
+	// The name of the table resource. A table is a metadata definition that
+	// represents your data. You can Grant and Revoke table privileges to a
+	// principal.
+	Name!: #NameString
+})
+
+#TagValueList: list.MaxItems(50) & list.MinItems(1) & [...#LFTagValue]
 
 // A structure for the resource.
 _#defs: "/$defs/Properties/definitions/Resource": close({
@@ -193,89 +243,31 @@ _#defs: "/$defs/Properties/definitions/Resource": close({
 	// Catalog is the persistent metadata store. It contains database definitions,
 	// table definitions, and other control information to manage your LFlong
 	// environment.
-	Catalog?: _#defs."/$defs/Properties/definitions/CatalogResource"
+	Catalog?: #CatalogResource
 
 	// A data cell filter.
-	DataCellsFilter?: _#defs."/$defs/Properties/definitions/DataCellsFilterResource"
+	DataCellsFilter?: #DataCellsFilterResource
 
 	// The location of an Amazon S3 path where permissions are granted or revoked.
-	DataLocation?: _#defs."/$defs/Properties/definitions/DataLocationResource"
+	DataLocation?: #DataLocationResource
 
 	// The database for the resource. Unique to the Data Catalog. A database is a
 	// set of associated table definitions organized into a logical group. You can
 	// Grant and Revoke database permissions to a principal.
-	Database?: _#defs."/$defs/Properties/definitions/DatabaseResource"
+	Database?: #DatabaseResource
 
 	// The LF-tag key and values attached to a resource.
-	LFTag?: _#defs."/$defs/Properties/definitions/LFTagKeyResource"
+	LFTag?: #LFTagKeyResource
 
 	// A list of LF-tag conditions that define a resource's LF-tag policy.
-	LFTagPolicy?: _#defs."/$defs/Properties/definitions/LFTagPolicyResource"
+	LFTagPolicy?: #LFTagPolicyResource
 
 	// The table for the resource. A table is a metadata definition that represents
 	// your data. You can Grant and Revoke table privileges to a principal.
-	Table?: _#defs."/$defs/Properties/definitions/TableResource"
+	Table?: #TableResource
 
 	// The table with columns for the resource. A principal with permissions to this
 	// resource can select metadata from the columns of a table in the Data Catalog
 	// and the underlying data in Amazon S3.
-	TableWithColumns?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource"
+	TableWithColumns?: #TableWithColumnsResource
 })
-
-_#defs: "/$defs/Properties/definitions/ResourceArnString": string
-
-_#defs: "/$defs/Properties/definitions/ResourceType": "DATABASE" | "TABLE"
-
-// A structure for the table object. A table is a metadata definition that
-// represents your data. You can Grant and Revoke table privileges to a
-// principal.
-_#defs: "/$defs/Properties/definitions/TableResource": close({
-	// The identifier for the Data Catalog. By default, it is the account ID of the caller.
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
-
-	// The name of the database for the table. Unique to a Data Catalog. A database
-	// is a set of associated table definitions organized into a logical group. You
-	// can Grant and Revoke database privileges to a principal.
-	DatabaseName!: _#defs."/$defs/Properties/definitions/NameString"
-
-	// The name of the table.
-	Name?: _#defs."/$defs/Properties/definitions/NameString"
-
-	// A wildcard object representing every table under a database.
-	// At least one of ``TableResource$Name`` or ``TableResource$TableWildcard`` is required.
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard"
-})
-
-_#defs: "/$defs/Properties/definitions/TableWildcard": string | {...}
-
-// A structure for a table with columns object. This object is only used when
-// granting a SELECT permission.
-// This object must take a value for at least one of ``ColumnsNames``,
-// ``ColumnsIndexes``, or ``ColumnsWildcard``.
-_#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
-	// The identifier for the GLUDC where the location is registered with LFlong.
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
-
-	// The list of column names for the table. At least one of ``ColumnNames`` or
-	// ``ColumnWildcard`` is required.
-	ColumnNames?: _#defs."/$defs/Properties/definitions/ColumnNames"
-
-	// A wildcard specified by a ``ColumnWildcard`` object. At least one of
-	// ``ColumnNames`` or ``ColumnWildcard`` is required.
-	ColumnWildcard?: _#defs."/$defs/Properties/definitions/ColumnWildcard"
-
-	// The name of the database for the table with columns resource. Unique to the
-	// Data Catalog. A database is a set of associated table definitions organized
-	// into a logical group. You can Grant and Revoke database privileges to a
-	// principal.
-	DatabaseName!: _#defs."/$defs/Properties/definitions/NameString"
-
-	// The name of the table resource. A table is a metadata definition that
-	// represents your data. You can Grant and Revoke table privileges to a
-	// principal.
-	Name!: _#defs."/$defs/Properties/definitions/NameString"
-})
-
-_#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue"
-]

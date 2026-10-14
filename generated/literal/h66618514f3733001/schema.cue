@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"list"
 	"time"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,14 +23,14 @@ import (
 	BuyerIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$"
 
 	// List of contact information for portal administrators and technical contacts.
-	Contacts!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Contact"]
+	Contacts!: list.MaxItems(1) & list.MinItems(1) & [...#Contact]
 
 	// The date and time when the procurement portal preference was created.
 	CreateDate?: time.Time
 
 	// Indicates whether e-invoice delivery is enabled for this procurement portal preference.
 	EinvoiceDeliveryEnabled!:    bool
-	EinvoiceDeliveryPreference?: _#defs."/$defs/Properties/definitions/EinvoiceDeliveryPreference"
+	EinvoiceDeliveryPreference?: #EinvoiceDeliveryPreference
 
 	// The current status of the e-invoice delivery preference.
 	EinvoiceDeliveryPreferenceStatus?: "PENDING_VERIFICATION" |
@@ -71,7 +71,7 @@ import (
 		"TEST_FAILED" |
 		"ACTIVE" |
 		"SUSPENDED"
-	Selector?: _#defs."/$defs/Properties/definitions/ProcurementPortalPreferenceSelector"
+	Selector?: #ProcurementPortalPreferenceSelector
 
 	// The domain identifier for the supplier in the procurement portal.
 	SupplierDomain!: "NetworkID"
@@ -80,15 +80,15 @@ import (
 	SupplierIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$"
 
 	// The tags associated with this procurement portal preference.
-	Tags?:              list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TestEnvPreference?: _#defs."/$defs/Properties/definitions/TestEnvPreference"
+	Tags?:              list.MaxItems(200) & [...] & [...#Tag]
+	TestEnvPreference?: #TestEnvPreference
 
 	// The version number of the procurement portal preference configuration.
 	Version?: int
 })
 
 // Contact information for a person or role associated with the procurement portal preference.
-_#defs: "/$defs/Properties/definitions/Contact": close({
+#Contact: close({
 	// The email address of the contact person or role.
 	Email?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"
 
@@ -97,7 +97,7 @@ _#defs: "/$defs/Properties/definitions/Contact": close({
 })
 
 // Specifies the preferences for e-invoice delivery.
-_#defs: "/$defs/Properties/definitions/EinvoiceDeliveryPreference": close({
+#EinvoiceDeliveryPreference: close({
 	// The method to use for testing the connection to the procurement portal.
 	ConnectionTestingMethod?: "PROD_ENV_DOLLAR_TEST" | "TEST_ENV_REPLAY_TEST"
 
@@ -120,11 +120,11 @@ _#defs: "/$defs/Properties/definitions/EinvoiceDeliveryPreference": close({
 	Protocol?: "CXML"
 
 	// The sources of purchase order data.
-	PurchaseOrderDataSources?: [..._#defs."/$defs/Properties/definitions/PurchaseOrderDataSource"]
+	PurchaseOrderDataSources?: [...#PurchaseOrderDataSource]
 })
 
 // Specifies criteria for selecting which invoices should be processed.
-_#defs: "/$defs/Properties/definitions/ProcurementPortalPreferenceSelector": close({
+#ProcurementPortalPreferenceSelector: close({
 	// The Amazon Resource Name (ARN) of invoice unit identifiers to which this preference applies.
 	InvoiceUnitArns?: list.MaxItems(500) & [...] & [
 		...strings.MaxRunes(256) &
@@ -134,7 +134,7 @@ _#defs: "/$defs/Properties/definitions/ProcurementPortalPreferenceSelector": clo
 })
 
 // Specifies the source configuration for retrieving purchase order data.
-_#defs: "/$defs/Properties/definitions/PurchaseOrderDataSource": close({
+#PurchaseOrderDataSource: close({
 	// The type of e-invoice document that requires purchase order data.
 	EinvoiceDeliveryDocumentType?: "AWS_CLOUD_INVOICE" |
 		"AWS_CLOUD_CREDIT_MEMO" |
@@ -147,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/PurchaseOrderDataSource": close({
 })
 
 // A tag key-value pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -156,7 +156,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Configuration settings for the test environment of the procurement portal.
-_#defs: "/$defs/Properties/definitions/TestEnvPreference": close({
+#TestEnvPreference: close({
 	// The domain identifier for the buyer in the test environment.
 	BuyerDomain?: "NetworkID"
 

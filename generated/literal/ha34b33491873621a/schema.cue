@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::DocDB::GlobalCluster resource represents an Amazon DocumentDB Global Cluster.
-#Properties: matchN(1, [{
-	Engine!: _
-	...
-}, {
-	SourceDBClusterIdentifier!: _
-	...
-}]) & close({
+#Properties: close({
 	// Indicates whether the global cluster has deletion protection enabled. The
 	// global cluster can't be deleted when deletion protection is enabled.
 	DeletionProtection?: bool
@@ -49,11 +43,16 @@ import (
 	StorageEncrypted?: bool
 
 	// The tags to be assigned to the Amazon DocumentDB resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-})
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
+	if Engine != _|_ if Engine."Fn::If" == _|_ {
+		SourceDBClusterIdentifier?: close({"Fn::If": _}) | error(
+			"SourceDBClusterIdentifier cannot be used with Engine; set exactly one of Engine, SourceDBClusterIdentifier",
+		)
+	}
+}) & matchN(>=1, [{Engine!: _}, {SourceDBClusterIdentifier!: _}])
 
 // A key-value pair to associate with an Amazon DocumentDB resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

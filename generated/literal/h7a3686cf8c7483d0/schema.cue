@@ -68,24 +68,22 @@ import (
 
 	// The resource types and associated tags for EC2 resources associated with the
 	// EC2 Tags feature for log enrichment.
-	TagFieldSpecifications?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TagFieldSpecification"
-	]
+	TagFieldSpecifications?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#TagFieldSpecification]
 
 	// The tags to apply to the flow logs.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The type of traffic to log. You can log traffic that the resource accepts or
 	// rejects, or all traffic.
 	TrafficType?: "ACCEPT" | "ALL" | "REJECT"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagFieldSpecification": close({
+#TagFieldSpecification: close({
 	ResourceType!: "auto-scaling-group" | "instance" | "network-interface"
 	TagKeys!:      list.MaxItems(2) & list.MinItems(1) & [...strings.MaxRunes(128) & strings.MinRunes(1)]
 })

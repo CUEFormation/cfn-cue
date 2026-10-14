@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,34 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Folder Resource Type.
-#Properties: close({
-	AwsAccountId?:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	FolderId?:        strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	FolderType?:      _#defs."/$defs/Properties/definitions/FolderType"
-	Name?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	ParentFolderArn?: string | fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
-		fn.#ListExpression
-	SharingModel?: _#defs."/$defs/Properties/definitions/SharingModel"
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Folder"
+	Properties?: close({
+		AwsAccountId?:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		FolderId?:        strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+		FolderType?:      #FolderType
+		Name?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		ParentFolderArn?: string | fn.#StringExpression
+		Permissions?:     list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		SharingModel?:    #SharingModel
+		Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/FolderType": "SHARED" | "RESTRICTED" | fn.#StringExpression
+#FolderType: "SHARED" | "RESTRICTED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	Actions!:   list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:.*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SharingModel": "ACCOUNT" | "NAMESPACE" | fn.#StringExpression
+#SharingModel: "ACCOUNT" | "NAMESPACE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Folder"
-	Properties?: #Properties
-}

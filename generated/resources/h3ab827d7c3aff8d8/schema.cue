@@ -13,29 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Wireless Device Import Tasks
-#Properties: close({
-	DestinationName!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
-	Sidewalk!: close({
-		DeviceCreationFile?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Role?:                    _#defs."/$defs/Properties/definitions/Role"
-		SidewalkManufacturingSn?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::WirelessDeviceImportTask"
+	Properties!: close({
+		DestinationName!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
+		Sidewalk!: close({
+			DeviceCreationFile?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+			Role?:                    #Role
+			SidewalkManufacturingSn?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DeviceCreationFileList": [...strings.MaxRunes(1024) | fn.#StringExpression] |
-fn.#ListExpression
+#DeviceCreationFileList: [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Role": strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+#Role: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::WirelessDeviceImportTask"
-	Properties!: #Properties
-}

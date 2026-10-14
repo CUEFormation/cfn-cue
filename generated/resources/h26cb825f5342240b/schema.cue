@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCEndpointServicePermissions
-#Properties: close({
-	AllowedPrincipals?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ServiceId!:         string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPCEndpointServicePermissions"
-	Properties!: #Properties
+	Type!: "AWS::EC2::VPCEndpointServicePermissions"
+	Properties!: close({
+		AllowedPrincipals?: [...string | fn.#StringExpression] | fn.#ListExpression
+		ServiceId!:         string | fn.#StringExpression
+	})
 }

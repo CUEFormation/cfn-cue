@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Configuration
-#Properties: close({
-	Description?:       string | fn.#StringExpression
-	KafkaVersionsList?: _#defs."/$defs/Properties/definitions/KafkaVersionsList"
-	LatestRevision?:    close({}) | fn.#ObjectExpression
-	Name!:              string | fn.#StringExpression
-	ServerProperties!:  string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::Configuration"
+	Properties!: close({
+		Description?:       string | fn.#StringExpression
+		KafkaVersionsList?: #KafkaVersionsList
+		LatestRevision?:    close({}) | fn.#ObjectExpression
+		Name!:              string | fn.#StringExpression
+		ServerProperties!:  string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/KafkaVersionsList": [...string | fn.#StringExpression] | fn.#ListExpression
+#KafkaVersionsList: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/LatestRevision": close({
+#LatestRevision: close({
 	CreationTime?: string | fn.#StringExpression
 	Description?:  string | fn.#StringExpression
 	Revision?: int |
@@ -42,7 +45,3 @@ _#defs: "/$defs/Properties/definitions/LatestRevision": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::Configuration"
-	Properties!: #Properties
-}

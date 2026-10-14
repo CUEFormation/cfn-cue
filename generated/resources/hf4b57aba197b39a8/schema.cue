@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -17,21 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for an Amazon Chime SDK Media Insights Pipeline Configuration
-#Properties: close({
-	Elements!: [..._#defs."/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement"] |
-		fn.#ListExpression
-	MediaInsightsPipelineConfigurationName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" |
-	fn.#StringExpression
-	RealTimeAlertConfiguration?: _#defs."/$defs/Properties/definitions/RealTimeAlertConfiguration"
-	ResourceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(1024) &
-	strings.MinRunes(1) &
-	=~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chime::MediaInsightsPipelineConfiguration"
+	Properties!: close({
+		Elements!: [...#MediaInsightsPipelineConfigurationElement] | fn.#ListExpression
+		MediaInsightsPipelineConfigurationName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" |
+		fn.#StringExpression
+		RealTimeAlertConfiguration?: #RealTimeAlertConfiguration
+		ResourceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorConfiguration": close({
+#AmazonTranscribeCallAnalyticsProcessorConfiguration: close({
 	CallAnalyticsStreamCategories?: list.MaxItems(20) & list.MinItems(1) & [
 		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	] |
@@ -60,14 +62,14 @@ _#defs: "/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorCon
 	LanguageModelName?:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	PartialResultsStability?: "high" | "medium" | "low" | fn.#StringExpression
 	PiiEntityTypes?:          strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[A-Z_, ]+$" | fn.#StringExpression
-	PostCallAnalyticsSettings?: _#defs."/$defs/Properties/definitions/PostCallAnalyticsSettings"
+	PostCallAnalyticsSettings?: #PostCallAnalyticsSettings
 	VocabularyFilterMethod?:    "remove" | "mask" | "tag" | fn.#StringExpression
 	VocabularyFilterName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	VocabularyName?:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration": close({
+#AmazonTranscribeProcessorConfiguration: close({
 	ContentIdentificationType?: "PII" | fn.#StringExpression
 	ContentRedactionType?:      "PII" | fn.#StringExpression
 	EnablePartialResultsStabilization?: bool |
@@ -114,12 +116,12 @@ _#defs: "/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration": 
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IssueDetectionConfiguration": close(
+#IssueDetectionConfiguration: close(
 	{RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeywordMatchConfiguration": close({
+#KeywordMatchConfiguration: close({
 	Keywords!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[\\s0-9a-zA-Z'-]+$" | fn.#StringExpression
 	] |
@@ -129,19 +131,17 @@ _#defs: "/$defs/Properties/definitions/KeywordMatchConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisDataStreamSinkConfiguration": close({
+#KinesisDataStreamSinkConfiguration: close({
 	InsightsTarget?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement": close({
-	AmazonTranscribeCallAnalyticsProcessorConfiguration?:
-		_#defs."/$defs/Properties/definitions/AmazonTranscribeCallAnalyticsProcessorConfiguration"
-	AmazonTranscribeProcessorConfiguration?:
-		_#defs."/$defs/Properties/definitions/AmazonTranscribeProcessorConfiguration"
-	KinesisDataStreamSinkConfiguration?: _#defs."/$defs/Properties/definitions/KinesisDataStreamSinkConfiguration"
-	S3RecordingSinkConfiguration?:       _#defs."/$defs/Properties/definitions/S3RecordingSinkConfiguration"
+#MediaInsightsPipelineConfigurationElement: close({
+	AmazonTranscribeCallAnalyticsProcessorConfiguration?: #AmazonTranscribeCallAnalyticsProcessorConfiguration
+	AmazonTranscribeProcessorConfiguration?:              #AmazonTranscribeProcessorConfiguration
+	KinesisDataStreamSinkConfiguration?:                  #KinesisDataStreamSinkConfiguration
+	S3RecordingSinkConfiguration?:                        #S3RecordingSinkConfiguration
 	Type!: "AmazonTranscribeCallAnalyticsProcessor" |
 		"AmazonTranscribeProcessor" |
 		"KinesisDataStreamSink" |
@@ -150,7 +150,7 @@ _#defs: "/$defs/Properties/definitions/MediaInsightsPipelineConfigurationElement
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PostCallAnalyticsSettings": close({
+#PostCallAnalyticsSettings: close({
 	ContentRedactionOutput?: "redacted" | "redacted_and_unredacted" | fn.#StringExpression
 	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MaxRunes(4096) |
 	fn.#StringExpression
@@ -159,29 +159,28 @@ _#defs: "/$defs/Properties/definitions/PostCallAnalyticsSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RealTimeAlertConfiguration": close({
+#RealTimeAlertConfiguration: close({
 	Disabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Rules?: list.MaxItems(3) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RealTimeAlertRule"] |
-		fn.#ListExpression
+	Rules?:    list.MaxItems(3) & list.MinItems(1) & [...#RealTimeAlertRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RealTimeAlertRule": close({
-	IssueDetectionConfiguration?: _#defs."/$defs/Properties/definitions/IssueDetectionConfiguration"
-	KeywordMatchConfiguration?:   _#defs."/$defs/Properties/definitions/KeywordMatchConfiguration"
-	SentimentConfiguration?:      _#defs."/$defs/Properties/definitions/SentimentConfiguration"
+#RealTimeAlertRule: close({
+	IssueDetectionConfiguration?: #IssueDetectionConfiguration
+	KeywordMatchConfiguration?:   #KeywordMatchConfiguration
+	SentimentConfiguration?:      #SentimentConfiguration
 	Type!:                        "KeywordMatch" | "Sentiment" | "IssueDetection" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3RecordingSinkConfiguration": close({
+#S3RecordingSinkConfiguration: close({
 	Destination?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
 	fn.#StringExpression
 	RecordingFileFormat?: "Wav" | "Opus" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SentimentConfiguration": close({
+#SentimentConfiguration: close({
 	RuleName!:      strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
 	SentimentType!: "NEGATIVE" | fn.#StringExpression
 	TimePeriod!: int & <=1800 & >=60 |
@@ -203,12 +202,8 @@ _#defs: "/$defs/Properties/definitions/SentimentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chime::MediaInsightsPipelineConfiguration"
-	Properties!: #Properties
-}

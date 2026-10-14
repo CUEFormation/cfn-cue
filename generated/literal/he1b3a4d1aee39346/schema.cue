@@ -12,7 +12,7 @@ import (
 // The AWS::NetworkManager::Device type describes a device.
 #Properties: close({
 	// The Amazon Web Services location of the device, if applicable.
-	AWSLocation?: _#defs."/$defs/Properties/definitions/AWSLocation"
+	AWSLocation?: #AWSLocation
 
 	// The date and time that the device was created.
 	CreatedAt?: string
@@ -30,7 +30,7 @@ import (
 	GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 
 	// The site location.
-	Location?: _#defs."/$defs/Properties/definitions/Location"
+	Location?: #Location
 
 	// The device model
 	Model?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
@@ -45,7 +45,7 @@ import (
 	State?: string
 
 	// The tags for the device.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The device type.
 	Type?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
@@ -55,7 +55,7 @@ import (
 })
 
 // The Amazon Web Services location of the device, if applicable.
-_#defs: "/$defs/Properties/definitions/AWSLocation": close({
+#AWSLocation: close({
 	// The Amazon Resource Name (ARN) of the subnet that the device is located in.
 	SubnetArn?: strings.MaxRunes(500) &
 	strings.MinRunes(0) &
@@ -67,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/AWSLocation": close({
 })
 
 // The site location.
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	// The physical address.
 	Address?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 
@@ -79,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/Location": close({
 })
 
 // A key-value pair to associate with a device resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

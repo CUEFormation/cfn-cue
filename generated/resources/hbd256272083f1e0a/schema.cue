@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::APS::ResourcePolicy
-#Properties: close({
-	PolicyDocument!: string | fn.#StringExpression
-	WorkspaceArn!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" |
-		fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::APS::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::APS::ResourcePolicy"
+	Properties!: close({
+		PolicyDocument!: string | fn.#StringExpression
+		WorkspaceArn!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" |
+			fn.#StringExpression
+	})
 }

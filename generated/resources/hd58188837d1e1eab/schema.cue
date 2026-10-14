@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,42 +13,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // VpcLattice ResourceConfiguration CFN resource
-#Properties: close({
-	AllowAssociationToSharableServiceNetwork?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	CustomDomainName?:     strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	DomainVerificationId?: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$" | fn.#StringExpression
-	GroupDomain?:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	Name!:                 strings.MaxRunes(40) & strings.MinRunes(3) | fn.#StringExpression
-	PortRanges?:           [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
-	ProtocolType?:         "TCP" | fn.#StringExpression
-	ResourceConfigurationAuthType?: "NONE" | "AWS_IAM" | fn.#StringExpression
-	ResourceConfigurationDefinition?: fn.#Object & {...} & matchN(1, [close(
-		{IpResource!: _#defs."/$defs/Properties/definitions/IpResource"},
-	), close(
-		{ArnResource!: _#defs."/$defs/Properties/definitions/ArnResource"},
-	), close(
-		{DnsResource!: _#defs."/$defs/Properties/definitions/DnsResource"},
-	), close(
-		{CidrResource!: _#defs."/$defs/Properties/definitions/CidrResource"},
-	)]) |
-	fn.#ObjectExpression
-	ResourceConfigurationGroupId?: _#defs."/$defs/Properties/definitions/Id"
-	ResourceConfigurationType!:    "GROUP" | "CHILD" | "SINGLE" | "ARN" | "CIDR" | fn.#StringExpression
-	ResourceGatewayId?:            string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VpcLattice::ResourceConfiguration"
+	Properties!: close({
+		AllowAssociationToSharableServiceNetwork?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		CustomDomainName?: strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+		DomainVerificationId?: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$" |
+		fn.#StringExpression
+		GroupDomain?:                   strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+		Name!:                          strings.MaxRunes(40) & strings.MinRunes(3) | fn.#StringExpression
+		PortRanges?:                    [...#PortRange] | fn.#ListExpression
+		ProtocolType?:                  "TCP" | fn.#StringExpression
+		ResourceConfigurationAuthType?: "NONE" | "AWS_IAM" | fn.#StringExpression
+		ResourceConfigurationDefinition?: fn.#Object & {...} & matchN(1, [close(
+			{IpResource!: #IpResource},
+		), close(
+			{ArnResource!: #ArnResource},
+		), close(
+			{DnsResource!: #DnsResource},
+		), close(
+			{CidrResource!: #CidrResource},
+		)]) |
+		fn.#ObjectExpression
+		ResourceConfigurationGroupId?: #Id
+		ResourceConfigurationType!:    "GROUP" | "CHILD" | "SINGLE" | "ARN" | "CIDR" | fn.#StringExpression
+		ResourceGatewayId?:            string | fn.#StringExpression
+		Tags?:                         list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ArnResource": strings.MaxRunes(1224) & =~"^arn.*" | fn.#StringExpression
+#ArnResource: strings.MaxRunes(1224) & =~"^arn.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CidrResource": close({
+#CidrResource: close({
 	CidrRanges!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -56,28 +59,20 @@ _#defs: "/$defs/Properties/definitions/CidrResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DnsResource": close({
+#DnsResource: close({
 	DomainName!:    strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
 	IpAddressType!: "IPV4" | "IPV6" | "DUALSTACK" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(22) & strings.MinRunes(22) & =~"^rcfg-[0-9a-z]{17}$" |
-fn.#StringExpression
+#Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^rcfg-[0-9a-z]{17}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IpResource": strings.MaxRunes(39) & strings.MinRunes(4) | fn.#StringExpression
+#IpResource: strings.MaxRunes(39) & strings.MinRunes(4) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PortRange": strings.MaxRunes(11) &
-strings.MinRunes(1) &
-=~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$" |
-fn.#StringExpression
+#PortRange: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::ResourceConfiguration"
-	Properties!: #Properties
-}

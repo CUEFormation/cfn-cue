@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +15,7 @@ import (
 	// uses when accessing the EFS file system.
 	AccessPointArn?: strings.MaxRunes(128) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]+:[0-9]{12}:access-point/fsap-[0-9a-f]{8,40}$"
-	Ec2Config!: _#defs."/$defs/Properties/definitions/Ec2Config"
+	Ec2Config!: #Ec2Config
 
 	// The Amazon Resource Name (ARN) for the Amazon EFS file system.
 	EfsFilesystemArn?: strings.MaxRunes(128) &
@@ -46,11 +46,11 @@ import (
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // The subnet and security group that DataSync uses to access target EFS file system.
-_#defs: "/$defs/Properties/definitions/Ec2Config": close({
+#Ec2Config: close({
 	// The Amazon Resource Names (ARNs) of the security groups that are configured
 	// for the Amazon EC2 resource.
 	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
@@ -66,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/Ec2Config": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 

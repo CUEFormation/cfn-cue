@@ -54,49 +54,47 @@ import (
 	})
 
 	// A Schema specifies the expected data model of the table.
-	Schema?: close({CompositePartitionKey?: _#defs."/$defs/Properties/definitions/PartitionKeyList"})
+	Schema?: close({CompositePartitionKey?: #PartitionKeyList})
 
 	// The name for the table. If you don't specify a name, AWS CloudFormation
 	// generates a unique physical ID and uses that ID for the table name.
 	TableName?: =~"^[a-zA-Z0-9_.-]{3,256}$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
 // An attribute used in partitioning data in a table. There are two types of
 // partition keys: dimension keys and measure keys. A dimension key partitions
 // data on a dimension name, while a measure key partitions data on the measure
 // name.
-_#defs: "/$defs/Properties/definitions/PartitionKey": close({
-	EnforcementInRecord?: _#defs."/$defs/Properties/definitions/PartitionKeyEnforcementLevel"
-	Name?:                _#defs."/$defs/Properties/definitions/SchemaName"
-	Type!:                _#defs."/$defs/Properties/definitions/PartitionKeyType"
+#PartitionKey: close({
+	EnforcementInRecord?: #PartitionKeyEnforcementLevel
+	Name?:                #SchemaName
+	Type!:                #PartitionKeyType
 })
 
 // The level of enforcement for the specification of a dimension key in ingested
 // records. Options are REQUIRED (dimension key must be specified) and OPTIONAL
 // (dimension key does not have to be specified).
-_#defs: "/$defs/Properties/definitions/PartitionKeyEnforcementLevel": "REQUIRED" | "OPTIONAL"
+#PartitionKeyEnforcementLevel: "REQUIRED" | "OPTIONAL"
 
 // A list of partition keys defining the attributes used to partition the table
 // data. The order of the list determines the partition hierarchy. The name and
 // type of each partition key as well as the partition key order cannot be
 // changed after the table is created. However, the enforcement level of each
 // partition key can be changed.
-_#defs: "/$defs/Properties/definitions/PartitionKeyList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PartitionKey"
-]
+#PartitionKeyList: list.MinItems(1) & [...#PartitionKey]
 
 // The type of the partition key. Options are DIMENSION (dimension key) and MEASURE (measure key).
-_#defs: "/$defs/Properties/definitions/PartitionKeyType": "DIMENSION" | "MEASURE"
+#PartitionKeyType: "DIMENSION" | "MEASURE"
 
 // The name of the attribute used for a dimension key.
-_#defs: "/$defs/Properties/definitions/SchemaName": strings.MaxRunes(2048) & strings.MinRunes(1)
+#SchemaName: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 // You can use the Resource Tags property to apply tags to resources, which can
 // help you identify and categorize those resources.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Redshift::ClusterSecurityGroupIngress
-#Properties: close({
-	CIDRIP?:                   string | fn.#StringExpression
-	ClusterSecurityGroupName!: string | fn.#StringExpression
-	EC2SecurityGroupName?:     string | fn.#StringExpression
-	EC2SecurityGroupOwnerId?:  string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::ClusterSecurityGroupIngress"
-	Properties!: #Properties
+	Type!: "AWS::Redshift::ClusterSecurityGroupIngress"
+	Properties!: close({
+		CIDRIP?:                   string | fn.#StringExpression
+		ClusterSecurityGroupName!: string | fn.#StringExpression
+		EC2SecurityGroupName?:     string | fn.#StringExpression
+		EC2SecurityGroupOwnerId?:  string | fn.#StringExpression
+	})
 }

@@ -8,7 +8,7 @@ import "strings"
 
 // This schema is for testing purpose only.
 #Properties: close({
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// The revision ID of robot application.
 	CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1)
@@ -18,17 +18,17 @@ import "strings"
 
 	// The name of the robot application.
 	Name?:               strings.MaxRunes(255) & strings.MinRunes(1)
-	RobotSoftwareSuite!: _#defs."/$defs/Properties/definitions/RobotSoftwareSuite"
+	RobotSoftwareSuite!: #RobotSoftwareSuite
 
 	// The sources of the robot application.
-	Sources?: [..._#defs."/$defs/Properties/definitions/SourceConfig"]
-	Tags?:    _#defs."/$defs/Properties/definitions/Tags"
+	Sources?: [...#SourceConfig]
+	Tags?:    #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"
 
 // The robot software suite used by the robot application.
-_#defs: "/$defs/Properties/definitions/RobotSoftwareSuite": close({
+#RobotSoftwareSuite: close({
 	// The name of robot software suite.
 	Name!: "ROS" | "ROS2" | "General"
 
@@ -36,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/RobotSoftwareSuite": close({
 	Version?: "Kinetic" | "Melodic" | "Dashing"
 })
 
-_#defs: "/$defs/Properties/definitions/SourceConfig": close({
+#SourceConfig: close({
 	// The architecture of robot application.
 	Architecture!: ("X86_64" | "ARM64" | "ARMHF") & (strings.MaxRunes(255) & strings.MinRunes(1))
 
@@ -48,6 +48,6 @@ _#defs: "/$defs/Properties/definitions/SourceConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1)}})

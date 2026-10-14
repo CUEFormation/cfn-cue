@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,35 +17,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisFirehose::DeliveryStream
-#Properties: close({
-	AmazonOpenSearchServerlessDestinationConfiguration?:
-		_#defs."/$defs/Properties/definitions/AmazonOpenSearchServerlessDestinationConfiguration"
-	AmazonopensearchserviceDestinationConfiguration?:
-		_#defs."/$defs/Properties/definitions/AmazonopensearchserviceDestinationConfiguration"
-	DatabaseSourceConfiguration?: _#defs."/$defs/Properties/definitions/DatabaseSourceConfiguration"
-	DeliveryStreamEncryptionConfigurationInput?:
-		_#defs."/$defs/Properties/definitions/DeliveryStreamEncryptionConfigurationInput"
-	DeliveryStreamName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" | fn.#StringExpression
-	DeliveryStreamType?: "DatabaseAsSource" |
-		"DirectPut" |
-		"KinesisStreamAsSource" |
-		"MSKAsSource" |
-		fn.#StringExpression
-	DirectPutSourceConfiguration?:          _#defs."/$defs/Properties/definitions/DirectPutSourceConfiguration"
-	ElasticsearchDestinationConfiguration?: _#defs."/$defs/Properties/definitions/ElasticsearchDestinationConfiguration"
-	ExtendedS3DestinationConfiguration?:    _#defs."/$defs/Properties/definitions/ExtendedS3DestinationConfiguration"
-	HttpEndpointDestinationConfiguration?:  _#defs."/$defs/Properties/definitions/HttpEndpointDestinationConfiguration"
-	IcebergDestinationConfiguration?:       _#defs."/$defs/Properties/definitions/IcebergDestinationConfiguration"
-	KinesisStreamSourceConfiguration?:      _#defs."/$defs/Properties/definitions/KinesisStreamSourceConfiguration"
-	MSKSourceConfiguration?:                _#defs."/$defs/Properties/definitions/MSKSourceConfiguration"
-	RedshiftDestinationConfiguration?:      _#defs."/$defs/Properties/definitions/RedshiftDestinationConfiguration"
-	S3DestinationConfiguration?:            _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	SnowflakeDestinationConfiguration?:     _#defs."/$defs/Properties/definitions/SnowflakeDestinationConfiguration"
-	SplunkDestinationConfiguration?:        _#defs."/$defs/Properties/definitions/SplunkDestinationConfiguration"
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KinesisFirehose::DeliveryStream"
+	Properties?: close({
+		AmazonOpenSearchServerlessDestinationConfiguration?: #AmazonOpenSearchServerlessDestinationConfiguration
+		AmazonopensearchserviceDestinationConfiguration?:    #AmazonopensearchserviceDestinationConfiguration
+		DatabaseSourceConfiguration?:                        #DatabaseSourceConfiguration
+		DeliveryStreamEncryptionConfigurationInput?:         #DeliveryStreamEncryptionConfigurationInput
+		DeliveryStreamName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" | fn.#StringExpression
+		DeliveryStreamType?: "DatabaseAsSource" |
+			"DirectPut" |
+			"KinesisStreamAsSource" |
+			"MSKAsSource" |
+			fn.#StringExpression
+		DirectPutSourceConfiguration?:          #DirectPutSourceConfiguration
+		ElasticsearchDestinationConfiguration?: #ElasticsearchDestinationConfiguration
+		ExtendedS3DestinationConfiguration?:    #ExtendedS3DestinationConfiguration
+		HttpEndpointDestinationConfiguration?:  #HttpEndpointDestinationConfiguration
+		IcebergDestinationConfiguration?:       #IcebergDestinationConfiguration
+		KinesisStreamSourceConfiguration?:      #KinesisStreamSourceConfiguration
+		MSKSourceConfiguration?:                #MSKSourceConfiguration
+		RedshiftDestinationConfiguration?:      #RedshiftDestinationConfiguration
+		S3DestinationConfiguration?:            #S3DestinationConfiguration
+		SnowflakeDestinationConfiguration?:     #SnowflakeDestinationConfiguration
+		SplunkDestinationConfiguration?:        #SplunkDestinationConfiguration
+		Tags?:                                  list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AmazonOpenSearchServerlessBufferingHints": close({
+#AmazonOpenSearchServerlessBufferingHints: close({
 	IntervalInSeconds?: int & <=900 & >=0 |
 		{
 			string &
@@ -81,25 +81,25 @@ _#defs: "/$defs/Properties/definitions/AmazonOpenSearchServerlessBufferingHints"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AmazonOpenSearchServerlessDestinationConfiguration": close({
-	BufferingHints?:           _#defs."/$defs/Properties/definitions/AmazonOpenSearchServerlessBufferingHints"
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+#AmazonOpenSearchServerlessDestinationConfiguration: close({
+	BufferingHints?:           #AmazonOpenSearchServerlessBufferingHints
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	CollectionEndpoint?:       strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" | fn.#StringExpression
 	IndexName!:                strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RetryOptions?:             _#defs."/$defs/Properties/definitions/AmazonOpenSearchServerlessRetryOptions"
+	ProcessingConfiguration?:  #ProcessingConfiguration
+	RetryOptions?:             #AmazonOpenSearchServerlessRetryOptions
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
 	fn.#StringExpression
 	S3BackupMode?:     "FailedDocumentsOnly" | "AllDocuments" | fn.#StringExpression
-	S3Configuration!:  _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	S3Configuration!:  #S3DestinationConfiguration
+	VpcConfiguration?: #VpcConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AmazonOpenSearchServerlessRetryOptions": close({
+#AmazonOpenSearchServerlessRetryOptions: close({
 	DurationInSeconds?: int & <=7200 & >=0 |
 		{
 			string &
@@ -119,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/AmazonOpenSearchServerlessRetryOptions": 
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AmazonopensearchserviceBufferingHints": close({
+#AmazonopensearchserviceBufferingHints: close({
 	IntervalInSeconds?: int & <=900 & >=0 |
 		{
 			string &
@@ -155,29 +155,29 @@ _#defs: "/$defs/Properties/definitions/AmazonopensearchserviceBufferingHints": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AmazonopensearchserviceDestinationConfiguration": close({
-	BufferingHints?:           _#defs."/$defs/Properties/definitions/AmazonopensearchserviceBufferingHints"
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+#AmazonopensearchserviceDestinationConfiguration: close({
+	BufferingHints?:           #AmazonopensearchserviceBufferingHints
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	ClusterEndpoint?:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" | fn.#StringExpression
-	DocumentIdOptions?:        _#defs."/$defs/Properties/definitions/DocumentIdOptions"
+	DocumentIdOptions?:        #DocumentIdOptions
 	DomainARN?:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
 	IndexName!:                strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
 	IndexRotationPeriod?:      "NoRotation" | "OneHour" | "OneDay" | "OneWeek" | "OneMonth" | fn.#StringExpression
-	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RetryOptions?:             _#defs."/$defs/Properties/definitions/AmazonopensearchserviceRetryOptions"
+	ProcessingConfiguration?:  #ProcessingConfiguration
+	RetryOptions?:             #AmazonopensearchserviceRetryOptions
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
 	fn.#StringExpression
 	S3BackupMode?:     "FailedDocumentsOnly" | "AllDocuments" | fn.#StringExpression
-	S3Configuration!:  _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	S3Configuration!:  #S3DestinationConfiguration
 	TypeName?:         strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	VpcConfiguration?: #VpcConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AmazonopensearchserviceRetryOptions": close({
+#AmazonopensearchserviceRetryOptions: close({
 	DurationInSeconds?: int & <=7200 & >=0 |
 		{
 			string &
@@ -197,7 +197,7 @@ _#defs: "/$defs/Properties/definitions/AmazonopensearchserviceRetryOptions": clo
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
+#AuthenticationConfiguration: close({
 	Connectivity!: "PUBLIC" | "PRIVATE" | fn.#StringExpression
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
@@ -207,7 +207,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BufferingHints": close({
+#BufferingHints: close({
 	IntervalInSeconds?: int & <=900 & >=0 |
 		{
 			string &
@@ -243,63 +243,54 @@ _#defs: "/$defs/Properties/definitions/BufferingHints": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CatalogConfiguration": close({
+#CatalogConfiguration: close({
 	CatalogArn?:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
 	WarehouseLocation?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"s3:\\/\\/.*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLoggingOptions": close({
+#CloudWatchLoggingOptions: close({
 	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroupName?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\.\\-_/#A-Za-z0-9]*$" | fn.#StringExpression
 	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[^:*]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CopyCommand": close({
+#CopyCommand: close({
 	CopyOptions?:      strings.MaxRunes(204800) & strings.MinRunes(0) | fn.#StringExpression
 	DataTableColumns?: strings.MaxRunes(204800) & strings.MinRunes(0) | fn.#StringExpression
 	DataTableName!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataFormatConversionConfiguration": close({
+#DataFormatConversionConfiguration: close({
 	Enabled?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InputFormatConfiguration?:  _#defs."/$defs/Properties/definitions/InputFormatConfiguration"
-	OutputFormatConfiguration?: _#defs."/$defs/Properties/definitions/OutputFormatConfiguration"
-	SchemaConfiguration?:       _#defs."/$defs/Properties/definitions/SchemaConfiguration"
+	InputFormatConfiguration?:  #InputFormatConfiguration
+	OutputFormatConfiguration?: #OutputFormatConfiguration
+	SchemaConfiguration?:       #SchemaConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseColumnName": strings.MaxRunes(194) &
-strings.MinRunes(1) &
-=~"[\\x{0001}-\\x{FFFF}]*" |
-fn.#StringExpression
+#DatabaseColumnName: strings.MaxRunes(194) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseColumns": close({
-	Exclude?: [..._#defs."/$defs/Properties/definitions/DatabaseColumnName"] | fn.#ListExpression
-	Include?: [..._#defs."/$defs/Properties/definitions/DatabaseColumnName"] | fn.#ListExpression
+#DatabaseColumns: close({
+	Exclude?: [...#DatabaseColumnName] | fn.#ListExpression
+	Include?: [...#DatabaseColumnName] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"[\\x{0001}-\\x{FFFF}]*" |
-fn.#StringExpression
+#DatabaseName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseSourceAuthenticationConfiguration": close(
-	{SecretsManagerConfiguration!: _#defs."/$defs/Properties/definitions/SecretsManagerConfiguration"},
-) |
+#DatabaseSourceAuthenticationConfiguration: close({SecretsManagerConfiguration!: #SecretsManagerConfiguration}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseSourceConfiguration": close({
-	Columns?: _#defs."/$defs/Properties/definitions/DatabaseColumns"
-	DatabaseSourceAuthenticationConfiguration!:
-		_#defs."/$defs/Properties/definitions/DatabaseSourceAuthenticationConfiguration"
-	DatabaseSourceVPCConfiguration!: _#defs."/$defs/Properties/definitions/DatabaseSourceVPCConfiguration"
-	Databases!:                      _#defs."/$defs/Properties/definitions/Databases"
-	Digest?:                         strings.MaxRunes(512) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	Endpoint!:                       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#DatabaseSourceConfiguration: close({
+	Columns?:                                   #DatabaseColumns
+	DatabaseSourceAuthenticationConfiguration!: #DatabaseSourceAuthenticationConfiguration
+	DatabaseSourceVPCConfiguration!:            #DatabaseSourceVPCConfiguration
+	Databases!:                                 #Databases
+	Digest?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: int & <=65535 & >=0 |
 		{
 			string &
@@ -318,67 +309,56 @@ _#defs: "/$defs/Properties/definitions/DatabaseSourceConfiguration": close({
 		fn.#NumberExpression
 	PublicCertificate?:      strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 	SSLMode?:                "Disabled" | "Enabled" | fn.#StringExpression
-	SnapshotWatermarkTable!: _#defs."/$defs/Properties/definitions/DatabaseTableName"
+	SnapshotWatermarkTable!: #DatabaseTableName
 	SurrogateKeys?: [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression] |
 	fn.#ListExpression
-	Tables!: _#defs."/$defs/Properties/definitions/DatabaseTables"
+	Tables!: #DatabaseTables
 	Type!:   "MySQL" | "PostgreSQL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseSourceVPCConfiguration": close(
-	{VpcEndpointServiceName!: _#defs."/$defs/Properties/definitions/VpcEndpointServiceName"},
-) |
-	fn.#ObjectExpression
+#DatabaseSourceVPCConfiguration: close({VpcEndpointServiceName!: #VpcEndpointServiceName}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseTableName": strings.MaxRunes(129) &
-strings.MinRunes(1) &
-=~"[\\x{0001}-\\x{FFFF}]*" |
-fn.#StringExpression
+#DatabaseTableName: strings.MaxRunes(129) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseTables": close({
-	Exclude?: [..._#defs."/$defs/Properties/definitions/DatabaseTableName"] | fn.#ListExpression
-	Include?: [..._#defs."/$defs/Properties/definitions/DatabaseTableName"] | fn.#ListExpression
+#DatabaseTables: close({
+	Exclude?: [...#DatabaseTableName] | fn.#ListExpression
+	Include?: [...#DatabaseTableName] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Databases": close({
-	Exclude?: [..._#defs."/$defs/Properties/definitions/DatabaseName"] | fn.#ListExpression
-	Include?: [..._#defs."/$defs/Properties/definitions/DatabaseName"] | fn.#ListExpression
+#Databases: close({
+	Exclude?: [...#DatabaseName] | fn.#ListExpression
+	Include?: [...#DatabaseName] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeliveryStreamEncryptionConfigurationInput": close({
+#DeliveryStreamEncryptionConfigurationInput: close({
 	KeyARN?:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
 	KeyType!: "AWS_OWNED_CMK" | "CUSTOMER_MANAGED_CMK" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Deserializer": close({
-	HiveJsonSerDe?:  _#defs."/$defs/Properties/definitions/HiveJsonSerDe"
-	OpenXJsonSerDe?: _#defs."/$defs/Properties/definitions/OpenXJsonSerDe"
+#Deserializer: close({
+	HiveJsonSerDe?:  #HiveJsonSerDe
+	OpenXJsonSerDe?: #OpenXJsonSerDe
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationTableConfiguration": close({
+#DestinationTableConfiguration: close({
 	DestinationDatabaseName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\_]+$" |
 	fn.#StringExpression
 	DestinationTableName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\_]+$" | fn.#StringExpression
-	PartitionSpec?: close({
-		Identity?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PartitionField"] | fn.#ListExpression
-	}) |
+	PartitionSpec?: close({Identity?: list.UniqueItems() & [...#PartitionField] | fn.#ListExpression}) |
 		fn.#ObjectExpression
 	S3ErrorOutputPrefix?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	UniqueKeys?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/UniqueKey"] | fn.#ListExpression
+	UniqueKeys?:          list.UniqueItems() & [...#UniqueKey] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationTableConfigurationList": [
-	..._#defs."/$defs/Properties/definitions/DestinationTableConfiguration"
-] |
-	fn.#ListExpression
+#DestinationTableConfigurationList: [...#DestinationTableConfiguration] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DirectPutSourceConfiguration": close({
+#DirectPutSourceConfiguration: close({
 	ThroughputHintInMBs?: int & <=100 & >=1 |
 		{
 			string &
@@ -398,18 +378,16 @@ _#defs: "/$defs/Properties/definitions/DirectPutSourceConfiguration": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentIdOptions": close(
-	{DefaultDocumentIdFormat!: "FIREHOSE_DEFAULT" | "NO_DOCUMENT_ID" | fn.#StringExpression},
-) |
+#DocumentIdOptions: close({DefaultDocumentIdFormat!: "FIREHOSE_DEFAULT" | "NO_DOCUMENT_ID" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamicPartitioningConfiguration": close({
+#DynamicPartitioningConfiguration: close({
 	Enabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RetryOptions?: _#defs."/$defs/Properties/definitions/RetryOptions"
+	RetryOptions?: #RetryOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchBufferingHints": close({
+#ElasticsearchBufferingHints: close({
 	IntervalInSeconds?: int & <=900 & >=0 |
 		{
 			string &
@@ -445,29 +423,29 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchBufferingHints": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchDestinationConfiguration": close({
-	BufferingHints?:           _#defs."/$defs/Properties/definitions/ElasticsearchBufferingHints"
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+#ElasticsearchDestinationConfiguration: close({
+	BufferingHints?:           #ElasticsearchBufferingHints
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	ClusterEndpoint?:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" | fn.#StringExpression
-	DocumentIdOptions?:        _#defs."/$defs/Properties/definitions/DocumentIdOptions"
+	DocumentIdOptions?:        #DocumentIdOptions
 	DomainARN?:                string & strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
 	IndexName!:                strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
 	IndexRotationPeriod?:      "NoRotation" | "OneHour" | "OneDay" | "OneWeek" | "OneMonth" | fn.#StringExpression
-	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RetryOptions?:             _#defs."/$defs/Properties/definitions/ElasticsearchRetryOptions"
+	ProcessingConfiguration?:  #ProcessingConfiguration
+	RetryOptions?:             #ElasticsearchRetryOptions
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
 	fn.#StringExpression
 	S3BackupMode?:     "FailedDocumentsOnly" | "AllDocuments" | fn.#StringExpression
-	S3Configuration!:  _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	S3Configuration!:  #S3DestinationConfiguration
 	TypeName?:         strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	VpcConfiguration?: #VpcConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchRetryOptions": close({
+#ElasticsearchRetryOptions: close({
 	DurationInSeconds?: int & <=7200 & >=0 |
 		{
 			string &
@@ -487,107 +465,102 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchRetryOptions": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KMSEncryptionConfig?: _#defs."/$defs/Properties/definitions/KMSEncryptionConfig"
+#EncryptionConfiguration: close({
+	KMSEncryptionConfig?: #KMSEncryptionConfig
 	NoEncryptionConfig?:  "NoEncryption" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExtendedS3DestinationConfiguration": close({
+#ExtendedS3DestinationConfiguration: close({
 	BucketARN!:                strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
-	BufferingHints?:           _#defs."/$defs/Properties/definitions/BufferingHints"
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+	BufferingHints?:           #BufferingHints
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	CompressionFormat?:        "UNCOMPRESSED" | "GZIP" | "ZIP" | "Snappy" | "HADOOP_SNAPPY" | fn.#StringExpression
 	CustomTimeZone?:           strings.MaxRunes(50) & strings.MinRunes(0) & =~"^$|[a-zA-Z/_]+$" | fn.#StringExpression
-	DataFormatConversionConfiguration?: _#defs."/$defs/Properties/definitions/DataFormatConversionConfiguration"
-	DynamicPartitioningConfiguration?:  _#defs."/$defs/Properties/definitions/DynamicPartitioningConfiguration"
-	EncryptionConfiguration?:           _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	DataFormatConversionConfiguration?: #DataFormatConversionConfiguration
+	DynamicPartitioningConfiguration?:  #DynamicPartitioningConfiguration
+	EncryptionConfiguration?:           #EncryptionConfiguration
 	ErrorOutputPrefix?:                 strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	FileExtension?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^$|\\.[0-9a-z!\\-_.*'()]+" | fn.#StringExpression
 	Prefix?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ProcessingConfiguration?: _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
+	ProcessingConfiguration?: #ProcessingConfiguration
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
 	fn.#StringExpression
-	S3BackupConfiguration?: _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	S3BackupConfiguration?: #S3DestinationConfiguration
 	S3BackupMode?:          "Disabled" | "Enabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HiveJsonSerDe": close({
+#HiveJsonSerDe: close({
 	TimestampFormats?: list.UniqueItems() & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpEndpointCommonAttribute": close({
+#HttpEndpointCommonAttribute: close({
 	AttributeName!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	AttributeValue!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpEndpointConfiguration": close({
+#HttpEndpointConfiguration: close({
 	AccessKey?: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
 	Name?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Url!:       strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^https://" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpEndpointDestinationConfiguration": close({
-	BufferingHints?:           _#defs."/$defs/Properties/definitions/BufferingHints"
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
-	EndpointConfiguration!:    _#defs."/$defs/Properties/definitions/HttpEndpointConfiguration"
-	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RequestConfiguration?:     _#defs."/$defs/Properties/definitions/HttpEndpointRequestConfiguration"
-	RetryOptions?:             _#defs."/$defs/Properties/definitions/RetryOptions"
+#HttpEndpointDestinationConfiguration: close({
+	BufferingHints?:           #BufferingHints
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
+	EndpointConfiguration!:    #HttpEndpointConfiguration
+	ProcessingConfiguration?:  #ProcessingConfiguration
+	RequestConfiguration?:     #HttpEndpointRequestConfiguration
+	RetryOptions?:             #RetryOptions
 	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
 	fn.#StringExpression
 	S3BackupMode?:                "AllData" | "FailedDataOnly" | fn.#StringExpression
-	S3Configuration!:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	SecretsManagerConfiguration?: _#defs."/$defs/Properties/definitions/SecretsManagerConfiguration"
+	S3Configuration!:             #S3DestinationConfiguration
+	SecretsManagerConfiguration?: #SecretsManagerConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpEndpointRequestConfiguration": close({
-	CommonAttributes?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/HttpEndpointCommonAttribute"
-	] |
+#HttpEndpointRequestConfiguration: close({
+	CommonAttributes?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#HttpEndpointCommonAttribute] |
 		fn.#ListExpression
 	ContentEncoding?: "NONE" | "GZIP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergDestinationConfiguration": close({
+#IcebergDestinationConfiguration: close({
 	AppendOnly?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BufferingHints?:           _#defs."/$defs/Properties/definitions/BufferingHints"
-	CatalogConfiguration!:     _#defs."/$defs/Properties/definitions/CatalogConfiguration"
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
-	DestinationTableConfigurationList?: _#defs."/$defs/Properties/definitions/DestinationTableConfigurationList"
-	ProcessingConfiguration?:           _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RetryOptions?:                      _#defs."/$defs/Properties/definitions/RetryOptions"
+	BufferingHints?:           #BufferingHints
+	CatalogConfiguration!:     #CatalogConfiguration
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
+	DestinationTableConfigurationList?: #DestinationTableConfigurationList
+	ProcessingConfiguration?:           #ProcessingConfiguration
+	RetryOptions?:                      #RetryOptions
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
 	fn.#StringExpression
-	S3Configuration!:              _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	SchemaEvolutionConfiguration?: _#defs."/$defs/Properties/definitions/SchemaEvolutionConfiguration"
-	TableCreationConfiguration?:   _#defs."/$defs/Properties/definitions/TableCreationConfiguration"
+	S3Configuration!:              #S3DestinationConfiguration
+	SchemaEvolutionConfiguration?: #SchemaEvolutionConfiguration
+	TableCreationConfiguration?:   #TableCreationConfiguration
 	s3BackupMode?:                 "AllData" | "FailedDataOnly" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputFormatConfiguration": close(
-	{Deserializer?: _#defs."/$defs/Properties/definitions/Deserializer"},
-) |
-	fn.#ObjectExpression
+#InputFormatConfiguration: close({Deserializer?: #Deserializer}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KMSEncryptionConfig": close({
+#KMSEncryptionConfig: close({
 	AWSKMSKeyARN!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^arn:.*:kms:[a-zA-Z0-9\\-]+:\\d{12}:(key|alias)/[a-zA-Z_0-9+=,.@\\-_/]+$" |
@@ -595,7 +568,7 @@ _#defs: "/$defs/Properties/definitions/KMSEncryptionConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamSourceConfiguration": close({
+#KinesisStreamSourceConfiguration: close({
 	KinesisStreamARN!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
@@ -605,15 +578,15 @@ _#defs: "/$defs/Properties/definitions/KinesisStreamSourceConfiguration": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MSKSourceConfiguration": close({
-	AuthenticationConfiguration!: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration"
+#MSKSourceConfiguration: close({
+	AuthenticationConfiguration!: #AuthenticationConfiguration
 	MSKClusterARN!:               strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
 	ReadFromTimestamp?:           string | fn.#StringExpression
 	TopicName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\._\\-]+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenXJsonSerDe": close({
+#OpenXJsonSerDe: close({
 	CaseInsensitive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ColumnToJsonKeyMappings?: close({
 
@@ -630,7 +603,7 @@ _#defs: "/$defs/Properties/definitions/OpenXJsonSerDe": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrcSerDe": close({
+#OrcSerDe: close({
 	BlockSizeBytes?: int & >=67108864 |
 		{
 			string &
@@ -746,12 +719,9 @@ _#defs: "/$defs/Properties/definitions/OrcSerDe": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutputFormatConfiguration": close(
-	{Serializer?: _#defs."/$defs/Properties/definitions/Serializer"},
-) |
-	fn.#ObjectExpression
+#OutputFormatConfiguration: close({Serializer?: #Serializer}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParquetSerDe": close({
+#ParquetSerDe: close({
 	BlockSizeBytes?: int & >=67108864 |
 		{
 			string &
@@ -803,20 +773,17 @@ _#defs: "/$defs/Properties/definitions/ParquetSerDe": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionField": close(
-	{SourceName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression},
-) |
+#PartitionField: close({SourceName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcessingConfiguration": close({
+#ProcessingConfiguration: close({
 	Enabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Processors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Processor"] | fn.#ListExpression
+	Processors?: list.UniqueItems() & [...#Processor] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Processor": close({
-	Parameters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ProcessorParameter"] |
-		fn.#ListExpression
+#Processor: close({
+	Parameters?: list.UniqueItems() & [...#ProcessorParameter] | fn.#ListExpression
 	Type!: "RecordDeAggregation" |
 		"Decompression" |
 		"CloudWatchLogProcessing" |
@@ -827,7 +794,7 @@ _#defs: "/$defs/Properties/definitions/Processor": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcessorParameter": close({
+#ProcessorParameter: close({
 	ParameterName!: "BufferIntervalInSeconds" |
 		"BufferSizeInMBs" |
 		"CompressionFormat" |
@@ -844,27 +811,27 @@ _#defs: "/$defs/Properties/definitions/ProcessorParameter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftDestinationConfiguration": close({
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+#RedshiftDestinationConfiguration: close({
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	ClusterJDBCURL!:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	CopyCommand!:              _#defs."/$defs/Properties/definitions/CopyCommand"
+	CopyCommand!:              #CopyCommand
 	Password?:                 strings.MaxRunes(512) & strings.MinRunes(6) | fn.#StringExpression
-	ProcessingConfiguration?:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RetryOptions?:             _#defs."/$defs/Properties/definitions/RedshiftRetryOptions"
+	ProcessingConfiguration?:  #ProcessingConfiguration
+	RetryOptions?:             #RedshiftRetryOptions
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
 	fn.#StringExpression
-	S3BackupConfiguration?:       _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	S3BackupConfiguration?:       #S3DestinationConfiguration
 	S3BackupMode?:                "Disabled" | "Enabled" | fn.#StringExpression
-	S3Configuration!:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	SecretsManagerConfiguration?: _#defs."/$defs/Properties/definitions/SecretsManagerConfiguration"
+	S3Configuration!:             #S3DestinationConfiguration
+	SecretsManagerConfiguration?: #SecretsManagerConfiguration
 	Username?:                    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftRetryOptions": close({
+#RedshiftRetryOptions: close({
 	DurationInSeconds?: int & <=7200 & >=0 |
 		{
 			string &
@@ -884,7 +851,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftRetryOptions": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetryOptions": close({
+#RetryOptions: close({
 	DurationInSeconds?: int & <=7200 & >=0 |
 		{
 			string &
@@ -904,12 +871,12 @@ _#defs: "/$defs/Properties/definitions/RetryOptions": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
+#S3DestinationConfiguration: close({
 	BucketARN!:                strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
-	BufferingHints?:           _#defs."/$defs/Properties/definitions/BufferingHints"
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+	BufferingHints?:           #BufferingHints
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	CompressionFormat?:        "UNCOMPRESSED" | "GZIP" | "ZIP" | "Snappy" | "HADOOP_SNAPPY" | fn.#StringExpression
-	EncryptionConfiguration?:  _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration?:  #EncryptionConfiguration
 	ErrorOutputPrefix?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Prefix?:                   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -920,7 +887,7 @@ _#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaConfiguration": close({
+#SchemaConfiguration: close({
 	CatalogId?:    strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
 	DatabaseName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
 	Region?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
@@ -934,12 +901,12 @@ _#defs: "/$defs/Properties/definitions/SchemaConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaEvolutionConfiguration": close(
+#SchemaEvolutionConfiguration: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerConfiguration": close({
+#SecretsManagerConfiguration: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
@@ -953,13 +920,13 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Serializer": close({
-	OrcSerDe?:     _#defs."/$defs/Properties/definitions/OrcSerDe"
-	ParquetSerDe?: _#defs."/$defs/Properties/definitions/ParquetSerDe"
+#Serializer: close({
+	OrcSerDe?:     #OrcSerDe
+	ParquetSerDe?: #ParquetSerDe
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeBufferingHints": close({
+#SnowflakeBufferingHints: close({
 	IntervalInSeconds?: int & <=900 & >=0 |
 		{
 			string &
@@ -995,11 +962,11 @@ _#defs: "/$defs/Properties/definitions/SnowflakeBufferingHints": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeDestinationConfiguration": close({
+#SnowflakeDestinationConfiguration: close({
 	AccountUrl!: strings.MaxRunes(2048) & strings.MinRunes(24) & =~".+?\\.snowflakecomputing\\.com" |
 	fn.#StringExpression
-	BufferingHints?:           _#defs."/$defs/Properties/definitions/SnowflakeBufferingHints"
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+	BufferingHints?:           #SnowflakeBufferingHints
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	ContentColumnName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DataLoadingOption?: "JSON_MAPPING" |
 		"VARIANT_CONTENT_MAPPING" |
@@ -1012,25 +979,25 @@ _#defs: "/$defs/Properties/definitions/SnowflakeDestinationConfiguration": close
 	strings.MinRunes(256) &
 	=~"^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=)?$" |
 	fn.#StringExpression
-	ProcessingConfiguration?: _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RetryOptions?:            _#defs."/$defs/Properties/definitions/SnowflakeRetryOptions"
+	ProcessingConfiguration?: #ProcessingConfiguration
+	RetryOptions?:            #SnowflakeRetryOptions
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
 	fn.#StringExpression
 	S3BackupMode?:                "FailedDataOnly" | "AllData" | fn.#StringExpression
-	S3Configuration!:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	S3Configuration!:             #S3DestinationConfiguration
 	Schema!:                      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SecretsManagerConfiguration?: _#defs."/$defs/Properties/definitions/SecretsManagerConfiguration"
-	SnowflakeRoleConfiguration?:  _#defs."/$defs/Properties/definitions/SnowflakeRoleConfiguration"
-	SnowflakeVpcConfiguration?:   _#defs."/$defs/Properties/definitions/SnowflakeVpcConfiguration"
+	SecretsManagerConfiguration?: #SecretsManagerConfiguration
+	SnowflakeRoleConfiguration?:  #SnowflakeRoleConfiguration
+	SnowflakeVpcConfiguration?:   #SnowflakeVpcConfiguration
 	Table!:                       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	User?:                        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeRetryOptions": close({
+#SnowflakeRetryOptions: close({
 	DurationInSeconds?: int & <=7200 & >=0 |
 		{
 			string &
@@ -1050,13 +1017,13 @@ _#defs: "/$defs/Properties/definitions/SnowflakeRetryOptions": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeRoleConfiguration": close({
+#SnowflakeRoleConfiguration: close({
 	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SnowflakeRole?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeVpcConfiguration": close({
+#SnowflakeVpcConfiguration: close({
 	PrivateLinkVpceId!: strings.MaxRunes(255) &
 	strings.MinRunes(47) &
 	=~"([a-zA-Z0-9\\-\\_]+\\.){2,3}vpce\\.[a-zA-Z0-9\\-]*\\.vpce-svc\\-[a-zA-Z0-9\\-]{17}$" |
@@ -1064,7 +1031,7 @@ _#defs: "/$defs/Properties/definitions/SnowflakeVpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SplunkBufferingHints": close({
+#SplunkBufferingHints: close({
 	IntervalInSeconds?: int & <=60 & >=0 |
 		{
 			string &
@@ -1100,9 +1067,9 @@ _#defs: "/$defs/Properties/definitions/SplunkBufferingHints": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SplunkDestinationConfiguration": close({
-	BufferingHints?:           _#defs."/$defs/Properties/definitions/SplunkBufferingHints"
-	CloudWatchLoggingOptions?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOptions"
+#SplunkDestinationConfiguration: close({
+	BufferingHints?:           #SplunkBufferingHints
+	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	HECAcknowledgmentTimeoutInSeconds?: int & <=600 & >=180 |
 		{
 			string &
@@ -1122,15 +1089,15 @@ _#defs: "/$defs/Properties/definitions/SplunkDestinationConfiguration": close({
 	HECEndpoint!:                 strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	HECEndpointType!:             "Raw" | "Event" | fn.#StringExpression
 	HECToken?:                    strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	ProcessingConfiguration?:     _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	RetryOptions?:                _#defs."/$defs/Properties/definitions/SplunkRetryOptions"
+	ProcessingConfiguration?:     #ProcessingConfiguration
+	RetryOptions?:                #SplunkRetryOptions
 	S3BackupMode?:                "AllEvents" | "FailedEventsOnly" | fn.#StringExpression
-	S3Configuration!:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	SecretsManagerConfiguration?: _#defs."/$defs/Properties/definitions/SecretsManagerConfiguration"
+	S3Configuration!:             #S3DestinationConfiguration
+	SecretsManagerConfiguration?: #SecretsManagerConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SplunkRetryOptions": close({
+#SplunkRetryOptions: close({
 	DurationInSeconds?: int & <=7200 & >=0 |
 		{
 			string &
@@ -1150,22 +1117,21 @@ _#defs: "/$defs/Properties/definitions/SplunkRetryOptions": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableCreationConfiguration": close(
+#TableCreationConfiguration: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UniqueKey": strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\S+$" |
-fn.#StringExpression
+#UniqueKey: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
@@ -1186,11 +1152,7 @@ _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEndpointServiceName": strings.MaxRunes(255) &
+#VpcEndpointServiceName: strings.MaxRunes(255) &
 strings.MinRunes(47) &
 =~"([a-zA-Z0-9\\-\\_]+\\.){2,3}vpce\\.[a-zA-Z0-9\\-]*\\.vpce-svc\\-[a-zA-Z0-9\\-]{17}$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KinesisFirehose::DeliveryStream"
-	Properties?: #Properties
-}

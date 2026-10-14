@@ -33,11 +33,11 @@ import (
 	Status?: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// Tags to apply to the host.
-	Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
+	VpcConfiguration?: #VpcConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -46,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The VPC configuration provisioned for the host.
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	// The ID of the security group or security groups associated with the Amazon VPC.
 	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &

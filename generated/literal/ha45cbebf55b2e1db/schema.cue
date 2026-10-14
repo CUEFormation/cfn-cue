@@ -11,14 +11,14 @@ import (
 
 // This resource schema represents the ResourceCollection resource in the Amazon DevOps Guru.
 #Properties: close({
-	ResourceCollectionFilter!: _#defs."/$defs/Properties/definitions/ResourceCollectionFilter"
+	ResourceCollectionFilter!: #ResourceCollectionFilter
 
 	// The type of ResourceCollection
 	ResourceCollectionType?: "AWS_CLOUD_FORMATION" | "AWS_TAGS"
 })
 
 // CloudFormation resource for DevOps Guru to monitor
-_#defs: "/$defs/Properties/definitions/CloudFormationCollectionFilter": close({
+#CloudFormationCollectionFilter: close({
 	// An array of CloudFormation stack names.
 	StackNames?: list.MaxItems(1000) & list.MinItems(1) & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z*]+[a-zA-Z0-9-]*$"
@@ -27,13 +27,13 @@ _#defs: "/$defs/Properties/definitions/CloudFormationCollectionFilter": close({
 
 // Information about a filter used to specify which AWS resources are analyzed
 // for anomalous behavior by DevOps Guru.
-_#defs: "/$defs/Properties/definitions/ResourceCollectionFilter": close({
-	CloudFormation?: _#defs."/$defs/Properties/definitions/CloudFormationCollectionFilter"
-	Tags?:           _#defs."/$defs/Properties/definitions/TagCollections"
+#ResourceCollectionFilter: close({
+	CloudFormation?: #CloudFormationCollectionFilter
+	Tags?:           #TagCollections
 })
 
 // Tagged resource for DevOps Guru to monitor
-_#defs: "/$defs/Properties/definitions/TagCollection": close({
+#TagCollection: close({
 	// A Tag key for DevOps Guru app boundary.
 	AppBoundaryKey?: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -42,4 +42,4 @@ _#defs: "/$defs/Properties/definitions/TagCollection": close({
 })
 
 // Tagged resources for DevOps Guru to monitor
-_#defs: "/$defs/Properties/definitions/TagCollections": [..._#defs."/$defs/Properties/definitions/TagCollection"]
+#TagCollections: [...#TagCollection]

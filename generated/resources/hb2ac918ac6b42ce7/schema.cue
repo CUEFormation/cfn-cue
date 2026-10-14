@@ -9,34 +9,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::LogDeliveryConfiguration
-#Properties: close({
-	LogConfigurations?: _#defs."/$defs/Properties/definitions/LogConfigurations"
-	UserPoolId!:        string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::LogDeliveryConfiguration"
+	Properties!: close({
+		LogConfigurations?: #LogConfigurations
+		UserPoolId!:        string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsConfiguration": close(
-	{LogGroupArn?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#CloudWatchLogsConfiguration: close({LogGroupArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirehoseConfiguration": close({StreamArn?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#FirehoseConfiguration: close({StreamArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
-	CloudWatchLogsConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchLogsConfiguration"
+#LogConfiguration: close({
+	CloudWatchLogsConfiguration?: #CloudWatchLogsConfiguration
 	EventSource?:                 string | fn.#StringExpression
-	FirehoseConfiguration?:       _#defs."/$defs/Properties/definitions/FirehoseConfiguration"
+	FirehoseConfiguration?:       #FirehoseConfiguration
 	LogLevel?:                    string | fn.#StringExpression
-	S3Configuration?:             _#defs."/$defs/Properties/definitions/S3Configuration"
+	S3Configuration?:             #S3Configuration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfigurations": [..._#defs."/$defs/Properties/definitions/LogConfiguration"] |
-	fn.#ListExpression
+#LogConfigurations: [...#LogConfiguration] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/S3Configuration": close({BucketArn?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::LogDeliveryConfiguration"
-	Properties!: #Properties
-}
+#S3Configuration: close({BucketArn?: string | fn.#StringExpression}) | fn.#ObjectExpression

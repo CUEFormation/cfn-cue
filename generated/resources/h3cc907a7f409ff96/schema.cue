@@ -43,51 +43,104 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // effects on each detector model's detector instances and version number
 // depend on whether the update succeeded or failed, with the results as
 // stated.
-#Properties: close({
-	DetectorModelDefinition!:  _#defs."/$defs/Properties/definitions/DetectorModelDefinition" | fn.#ObjectExpression
-	DetectorModelDescription?: strings.MaxRunes(1024) | fn.#StringExpression
-	DetectorModelName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	EvaluationMethod?:         "BATCH" | "SERIAL" | fn.#StringExpression
-	Key?: strings.MaxRunes(128) &
-	strings.MinRunes(1) &
-	=~"^((`[\\w\\- ]+`)|([\\w\\-]+))(\\.((`[\\w\\- ]+`)|([\\w\\-]+)))*$" |
-	fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTEvents::DetectorModel"
+	Properties!: close({
+		// Information that defines how a detector operates.
+		DetectorModelDefinition!:  #DetectorModelDefinition
+		DetectorModelDescription?: strings.MaxRunes(1024) | fn.#StringExpression
+		DetectorModelName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		EvaluationMethod?:  "BATCH" | "SERIAL" | fn.#StringExpression
+		Key?: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^((`[\\w\\- ]+`)|([\\w\\-]+))(\\.((`[\\w\\- ]+`)|([\\w\\-]+)))*$" |
+		fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	ClearTimer?:      _#defs."/$defs/Properties/definitions/ClearTimer" | fn.#ObjectExpression
-	DynamoDB?:        _#defs."/$defs/Properties/definitions/DynamoDB" | fn.#ObjectExpression
-	DynamoDBv2?:      _#defs."/$defs/Properties/definitions/DynamoDBv2" | fn.#ObjectExpression
-	Firehose?:        _#defs."/$defs/Properties/definitions/Firehose" | fn.#ObjectExpression
-	IotEvents?:       _#defs."/$defs/Properties/definitions/IotEvents" | fn.#ObjectExpression
-	IotSiteWise?:     _#defs."/$defs/Properties/definitions/IotSiteWise" | fn.#ObjectExpression
-	IotTopicPublish?: _#defs."/$defs/Properties/definitions/IotTopicPublish" | fn.#ObjectExpression
-	Lambda?:          _#defs."/$defs/Properties/definitions/Lambda" | fn.#ObjectExpression
-	ResetTimer?:      _#defs."/$defs/Properties/definitions/ResetTimer" | fn.#ObjectExpression
-	SetTimer?:        _#defs."/$defs/Properties/definitions/SetTimer" | fn.#ObjectExpression
-	SetVariable?:     _#defs."/$defs/Properties/definitions/SetVariable" | fn.#ObjectExpression
-	Sns?:             _#defs."/$defs/Properties/definitions/Sns" | fn.#ObjectExpression
-	Sqs?:             _#defs."/$defs/Properties/definitions/Sqs" | fn.#ObjectExpression
+#Action: close({
+	// Information needed to clear the timer.
+	ClearTimer?: #ClearTimer
+
+	// Writes to the DynamoDB table that you created. The default action payload
+	// contains all attribute-value pairs that have the information about the
+	// detector model instance and the event that triggered the action. You can
+	// customize the
+	// [payload](https://docs.aws.amazon.com/iotevents/latest/apireference/API_Payload.html).
+	// One column of the DynamoDB table receives all attribute-value pairs in the
+	// payload that you specify. For more information, see
+	// [Actions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-event-actions.html)
+	// in *Developer Guide*.
+	DynamoDB?: #DynamoDB
+
+	// Writes to the DynamoDB table that you created. The default action payload
+	// contains all attribute-value pairs that have the information about the
+	// detector model instance and the event that triggered the action. You can
+	// customize the
+	// [payload](https://docs.aws.amazon.com/iotevents/latest/apireference/API_Payload.html).
+	// A separate column of the DynamoDB table receives one attribute-value pair in
+	// the payload that you specify. For more information, see
+	// [Actions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-event-actions.html)
+	// in *Developer Guide*.
+	DynamoDBv2?: #DynamoDBv2
+
+	// Sends information about the detector model instance and the event that
+	// triggered the action to an Amazon Kinesis Data Firehose delivery stream.
+	Firehose?: #Firehose
+
+	// Sends ITE input, which passes information about the detector model instance
+	// and the event that triggered the action.
+	IotEvents?: #IotEvents
+
+	// Sends information about the detector model instance and the event that
+	// triggered the action to an asset property in ITSW .
+	IotSiteWise?: #IotSiteWise
+
+	// Publishes an MQTT message with the given topic to the IoT message broker.
+	IotTopicPublish?: #IotTopicPublish
+
+	// Calls a Lambda function, passing in information about the detector model
+	// instance and the event that triggered the action.
+	Lambda?: #Lambda
+
+	// Information needed to reset the timer.
+	ResetTimer?: #ResetTimer
+
+	// Information needed to set the timer.
+	SetTimer?: #SetTimer
+
+	// Sets a variable to a specified value.
+	SetVariable?: #SetVariable
+
+	// Sends an Amazon SNS message.
+	Sns?: #Sns
+
+	// Sends an Amazon SNS message.
+	Sqs?: #Sqs
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyTimestamp": close({
+#AssetPropertyTimestamp: close({
 	OffsetInNanos?: string | fn.#StringExpression
 	TimeInSeconds!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyValue": close({
-	Quality?:   string | fn.#StringExpression
-	Timestamp?: _#defs."/$defs/Properties/definitions/AssetPropertyTimestamp" | fn.#ObjectExpression
-	Value!:     _#defs."/$defs/Properties/definitions/AssetPropertyVariant" | fn.#ObjectExpression
+#AssetPropertyValue: close({
+	Quality?: string | fn.#StringExpression
+
+	// The timestamp associated with the asset property value. The default is the current event time.
+	Timestamp?: #AssetPropertyTimestamp
+
+	// The value to send to an asset property.
+	Value!: #AssetPropertyVariant
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyVariant": close({
+#AssetPropertyVariant: close({
 	BooleanValue?: string | fn.#StringExpression
 	DoubleValue?:  string | fn.#StringExpression
 	IntegerValue?: string | fn.#StringExpression
@@ -95,23 +148,27 @@ _#defs: "/$defs/Properties/definitions/AssetPropertyVariant": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClearTimer": close(
-	{TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#ClearTimer: close({TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DetectorModelDefinition": close({
+#DetectorModelDefinition: close({
 	InitialStateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	States!:           list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/State"] | fn.#ListExpression
+	States!:           list.MinItems(1) & [...#State] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDB": close({
-	HashKeyField!:  string | fn.#StringExpression
-	HashKeyType?:   string | fn.#StringExpression
-	HashKeyValue!:  string | fn.#StringExpression
-	Operation?:     string | fn.#StringExpression
-	Payload?:       _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
+#DynamoDB: close({
+	HashKeyField!: string | fn.#StringExpression
+	HashKeyType?:  string | fn.#StringExpression
+	HashKeyValue!: string | fn.#StringExpression
+	Operation?:    string | fn.#StringExpression
+
+	// Information needed to configure the payload.
+	// By default, ITE generates a standard payload in JSON for any action. This
+	// action payload contains all attribute-value pairs that have the information
+	// about the detector model instance and the event triggered the action. To
+	// configure the action payload, you can use ``contentExpression``.
+	Payload?:       #Payload
 	PayloadField?:  string | fn.#StringExpression
 	RangeKeyField?: string | fn.#StringExpression
 	RangeKeyType?:  string | fn.#StringExpression
@@ -120,82 +177,91 @@ _#defs: "/$defs/Properties/definitions/DynamoDB": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDBv2": close({
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
+#DynamoDBv2: close({
+	// Information needed to configure the payload.
+	// By default, ITE generates a standard payload in JSON for any action. This
+	// action payload contains all attribute-value pairs that have the information
+	// about the detector model instance and the event triggered the action. To
+	// configure the action payload, you can use ``contentExpression``.
+	Payload?:   #Payload
 	TableName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Event": close({
-	Actions?:   [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
+#Event: close({
+	Actions?:   [...#Action] | fn.#ListExpression
 	Condition?: strings.MaxRunes(512) | fn.#StringExpression
 	EventName!: strings.MaxRunes(128) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Firehose": close({
+#Firehose: close({
 	DeliveryStreamName!: string | fn.#StringExpression
-	Payload?:            _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
-	Separator?:          =~"([\\n\\t])|(\\r\\n)|(,)" | fn.#StringExpression
+
+	// You can configure the action payload when you send a message to an Amazon
+	// Data Firehose delivery stream.
+	Payload?:   #Payload
+	Separator?: =~"([\\n\\t])|(\\r\\n)|(,)" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IotEvents": close({
+#IotEvents: close({
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
+
+	// You can configure the action payload when you send a message to an ITE input.
+	Payload?: #Payload
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IotSiteWise": close({
+#IotSiteWise: close({
 	AssetId?:       string | fn.#StringExpression
 	EntryId?:       string | fn.#StringExpression
 	PropertyAlias?: string | fn.#StringExpression
 	PropertyId?:    string | fn.#StringExpression
-	PropertyValue!: _#defs."/$defs/Properties/definitions/AssetPropertyValue" | fn.#ObjectExpression
+
+	// The value to send to the asset property. This value contains timestamp,
+	// quality, and value (TQV) information.
+	PropertyValue!: #AssetPropertyValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IotTopicPublish": close({
+#IotTopicPublish: close({
 	MqttTopic!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
+
+	// You can configure the action payload when you publish a message to an IoTCore topic.
+	Payload?: #Payload
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Lambda": close({
+#Lambda: close({
 	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	Payload?: _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
+
+	// You can configure the action payload when you send a message to a Lambda function.
+	Payload?: #Payload
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnEnter": close(
-	{Events?: [..._#defs."/$defs/Properties/definitions/Event"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#OnEnter: close({Events?: [...#Event] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnExit": close(
-	{Events?: [..._#defs."/$defs/Properties/definitions/Event"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#OnExit: close({Events?: [...#Event] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnInput": close({
-	Events?:           [..._#defs."/$defs/Properties/definitions/Event"] | fn.#ListExpression
-	TransitionEvents?: [..._#defs."/$defs/Properties/definitions/TransitionEvent"] | fn.#ListExpression
+#OnInput: close({
+	Events?:           [...#Event] | fn.#ListExpression
+	TransitionEvents?: [...#TransitionEvent] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Payload": close({
+#Payload: close({
 	ContentExpression!: strings.MinRunes(1) | fn.#StringExpression
 	Type!:              string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResetTimer": close(
-	{TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#ResetTimer: close({TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SetTimer": close({
+#SetTimer: close({
 	DurationExpression?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Seconds?: int & <=31622400 & >=60 |
 		{
@@ -217,47 +283,50 @@ _#defs: "/$defs/Properties/definitions/SetTimer": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SetVariable": close({
+#SetVariable: close({
 	Value!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VariableName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Sns": close({
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
+#Sns: close({
+	// You can configure the action payload when you send a message as an Amazon SNS push notification.
+	Payload?:   #Payload
 	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Sqs": close({
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload" | fn.#ObjectExpression
+#Sqs: close({
+	// You can configure the action payload when you send a message to an Amazon SQS queue.
+	Payload?:   #Payload
 	QueueUrl!:  string | fn.#StringExpression
 	UseBase64?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/State": close({
-	OnEnter?:   _#defs."/$defs/Properties/definitions/OnEnter" | fn.#ObjectExpression
-	OnExit?:    _#defs."/$defs/Properties/definitions/OnExit" | fn.#ObjectExpression
-	OnInput?:   _#defs."/$defs/Properties/definitions/OnInput" | fn.#ObjectExpression
+#State: close({
+	// When entering this state, perform these ``actions`` if the ``condition`` is TRUE.
+	OnEnter?: #OnEnter
+
+	// When exiting this state, perform these ``actions`` if the specified ``condition`` is ``TRUE``.
+	OnExit?: #OnExit
+
+	// When an input is received and the ``condition`` is TRUE, perform the specified ``actions``.
+	OnInput?:   #OnInput
 	StateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransitionEvent": close({
-	Actions?:   [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
+#TransitionEvent: close({
+	Actions?:   [...#Action] | fn.#ListExpression
 	Condition!: strings.MaxRunes(512) | fn.#StringExpression
 	EventName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	NextState!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTEvents::DetectorModel"
-	Properties!: #Properties
-}

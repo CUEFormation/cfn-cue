@@ -8,20 +8,20 @@ import "list"
 
 // Resource Type definition for AWS::WAF::ByteMatchSet
 #Properties: close({
-	ByteMatchTuples?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ByteMatchTuple"]
+	ByteMatchTuples?: list.UniqueItems() & [...#ByteMatchTuple]
 	Id?:              string
 	Name!:            string
 })
 
-_#defs: "/$defs/Properties/definitions/ByteMatchTuple": close({
-	FieldToMatch!:         _#defs."/$defs/Properties/definitions/FieldToMatch"
+#ByteMatchTuple: close({
+	FieldToMatch!:         #FieldToMatch
 	PositionalConstraint!: string
 	TargetString?:         string
 	TargetStringBase64?:   string
 	TextTransformation!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string
 	Type!: string
 })

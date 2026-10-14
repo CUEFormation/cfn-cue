@@ -22,12 +22,12 @@ import (
 
 	// The OpenSearch Dashboards endpoint for the collection.
 	DashboardEndpoint?:  string
-	DeletionProtection?: _#defs."/$defs/Properties/definitions/DeletionProtection"
+	DeletionProtection?: #DeletionProtection
 
 	// The description of the collection
 	Description?:      strings.MaxRunes(1000)
-	EncryptionConfig?: _#defs."/$defs/Properties/definitions/EncryptionConfig"
-	FipsEndpoints?:    _#defs."/$defs/Properties/definitions/FipsEndpoints"
+	EncryptionConfig?: #EncryptionConfig
+	FipsEndpoints?:    #FipsEndpoints
 
 	// The identifier of the collection
 	Id?: strings.MaxRunes(40) & strings.MinRunes(3)
@@ -43,22 +43,22 @@ import (
 	// Contains only lowercase letters a-z, the numbers 0-9 and the hyphen (-)
 	// Contains between 3 and 64 characters
 	Name!:            strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,63}$"
-	StandbyReplicas?: _#defs."/$defs/Properties/definitions/StandbyReplicas"
+	StandbyReplicas?: #StandbyReplicas
 
 	// List of tags to be added to the resource
-	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type?:          _#defs."/$defs/Properties/definitions/CollectionType"
-	VectorOptions?: _#defs."/$defs/Properties/definitions/VectorOptions"
+	Tags?:          list.MaxItems(50) & [...] & [...#Tag]
+	Type?:          #CollectionType
+	VectorOptions?: #VectorOptions
 })
 
 // The possible types for the collection
-_#defs: "/$defs/Properties/definitions/CollectionType": "SEARCH" | "TIMESERIES" | "VECTORSEARCH"
+#CollectionType: "SEARCH" | "TIMESERIES" | "VECTORSEARCH"
 
 // The deletion protection state of the collection
-_#defs: "/$defs/Properties/definitions/DeletionProtection": "ENABLED" | "DISABLED"
+#DeletionProtection: "ENABLED" | "DISABLED"
 
 // Encryption settings for the collection
-_#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
+#EncryptionConfig: close({
 	// Indicates whether to use an AWS owned key for encryption.
 	AWSOwnedKey?: bool
 
@@ -66,19 +66,19 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/FipsEndpoints": close({
+#FipsEndpoints: close({
 	CollectionEndpoint?: string
 	DashboardEndpoint?:  string
 })
 
 // Indicates whether GPU acceleration is enabled for vector indexing
-_#defs: "/$defs/Properties/definitions/ServerlessVectorAcceleration": "ENABLED" | "DISABLED" | "ALLOWED"
+#ServerlessVectorAcceleration: "ENABLED" | "DISABLED" | "ALLOWED"
 
 // The possible standby replicas for the collection
-_#defs: "/$defs/Properties/definitions/StandbyReplicas": "ENABLED" | "DISABLED"
+#StandbyReplicas: "ENABLED" | "DISABLED"
 
 // A key-value pair metadata associated with resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key in the key-value pair
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -87,6 +87,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Vector search configuration options for the collection
-_#defs: "/$defs/Properties/definitions/VectorOptions": close(
-	{ServerlessVectorAcceleration?: _#defs."/$defs/Properties/definitions/ServerlessVectorAcceleration"},
-)
+#VectorOptions: close({ServerlessVectorAcceleration?: #ServerlessVectorAcceleration})

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -34,117 +34,174 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Migrate CloudFormation stacks from launch configurations to launch
 // templates](https://docs.aws.amazon.com/autoscaling/ec2/userguide/migrate-launch-configurations-with-cloudformation.html)
 // in the *Amazon EC2 Auto Scaling User Guide*.
-#Properties: matchN(1, [{
-	InstanceId!: _
-	...
-}, {
-	LaunchConfigurationName!: _
-	...
-}, {
-	LaunchTemplate!: _
-	...
-}, {
-	MixedInstancesPolicy!: _
-	...
-}]) & close({
-	AutoScalingGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	AvailabilityZoneDistribution?: _#defs."/$defs/Properties/definitions/AvailabilityZoneDistribution" |
-		fn.#ObjectExpression
-	AvailabilityZoneIds?: list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	AvailabilityZoneImpairmentPolicy?: _#defs."/$defs/Properties/definitions/AvailabilityZoneImpairmentPolicy" |
-		fn.#ObjectExpression
-	AvailabilityZones?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	CapacityRebalance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification" |
-		fn.#ObjectExpression
-	Context?:  string | fn.#StringExpression
-	Cooldown?: string | fn.#StringExpression
-	DefaultInstanceWarmup?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DeletionProtection?:  "none" | "prevent-all-deletion" | "prevent-force-deletion" | fn.#StringExpression
-	DesiredCapacity?:     =~"^[0-9]+$" | fn.#StringExpression
-	DesiredCapacityType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	HealthCheckGracePeriod?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	HealthCheckType?: strings.MaxRunes(32) &
-	strings.MinRunes(1) &
-	=~"^(EBS|EC2|ELB|VPC_LATTICE)(,(EBS|EC2|ELB|VPC_LATTICE))*,?$" |
-	fn.#StringExpression
-	InstanceId?:                strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceLifecyclePolicy?:   _#defs."/$defs/Properties/definitions/InstanceLifecyclePolicy" | fn.#ObjectExpression
-	InstanceMaintenancePolicy?: _#defs."/$defs/Properties/definitions/InstanceMaintenancePolicy" | fn.#ObjectExpression
-	LaunchConfigurationName?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" | fn.#ObjectExpression
-	LifecycleHookSpecificationList?: [..._#defs."/$defs/Properties/definitions/LifecycleHookSpecification"] |
-		fn.#ListExpression
-	LoadBalancerNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	MaxInstanceLifetime?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxSize!:              =~"^[0-9]+$" | fn.#StringExpression
-	MetricsCollection?:    [..._#defs."/$defs/Properties/definitions/MetricsCollection"] | fn.#ListExpression
-	MinSize!:              =~"^[0-9]+$" | fn.#StringExpression
-	MixedInstancesPolicy?: _#defs."/$defs/Properties/definitions/MixedInstancesPolicy" | fn.#ObjectExpression
-	NewInstancesProtectedFromScaleIn?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	NotificationConfiguration?: _#defs."/$defs/Properties/definitions/NotificationConfiguration" | fn.#ObjectExpression
-	NotificationConfigurations?: [..._#defs."/$defs/Properties/definitions/NotificationConfiguration"] |
-		fn.#ListExpression
-	PlacementGroup?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ServiceLinkedRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	SkipZonalShiftValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/TagProperty"] | fn.#ListExpression
-	TargetGroupARNs?:     [...strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	TerminationPolicies?: [...strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	TrafficSources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TrafficSourceIdentifier"] |
-		fn.#ListExpression
-	VPCZoneIdentifier?: [...string | fn.#StringExpression] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AutoScaling::AutoScalingGroup"
+	Properties!: close({
+		AutoScalingGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
+		// The EC2 instance capacity distribution across Availability Zones for the Auto Scaling group.
+		AvailabilityZoneDistribution?: #AvailabilityZoneDistribution
+		AvailabilityZoneIds?: list.UniqueItems() & [
+			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+
+		// The Availability Zone impairment policy for the Auto Scaling group.
+		AvailabilityZoneImpairmentPolicy?: #AvailabilityZoneImpairmentPolicy
+		AvailabilityZones?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		CapacityRebalance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The capacity reservation specification for the Auto Scaling group.
+		CapacityReservationSpecification?: #CapacityReservationSpecification
+		Context?:                          string | fn.#StringExpression
+		Cooldown?:                         string | fn.#StringExpression
+		DefaultInstanceWarmup?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DeletionProtection?:  "none" | "prevent-all-deletion" | "prevent-force-deletion" | fn.#StringExpression
+		DesiredCapacity?:     =~"^[0-9]+$" | fn.#StringExpression
+		DesiredCapacityType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		HealthCheckGracePeriod?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		HealthCheckType?: strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"^(EBS|EC2|ELB|VPC_LATTICE)(,(EBS|EC2|ELB|VPC_LATTICE))*,?$" |
+		fn.#StringExpression
+		InstanceId?: strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The instance lifecycle policy for the Auto Scaling group.
+		InstanceLifecyclePolicy?: #InstanceLifecyclePolicy
+
+		// An instance maintenance policy. For more information, see [Set instance
+		// maintenance
+		// policy](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-instance-maintenance-policy.html)
+		// in the *Amazon EC2 Auto Scaling User Guide*.
+		InstanceMaintenancePolicy?: #InstanceMaintenancePolicy
+		LaunchConfigurationName?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// Information used to specify the launch template and version to use to launch
+		// instances. You can alternatively associate a launch template to the Auto
+		// Scaling group by specifying a ``MixedInstancesPolicy``. For more information
+		// about creating launch templates, see [Create a launch template for an Auto
+		// Scaling
+		// group](https://docs.aws.amazon.com/autoscaling/ec2/userguide/create-launch-template.html)
+		// in the *Amazon EC2 Auto Scaling User Guide*.
+		// If you omit this property, you must specify ``MixedInstancesPolicy``,
+		// ``LaunchConfigurationName``, or ``InstanceId``.
+		LaunchTemplate?:                 #LaunchTemplateSpecification
+		LifecycleHookSpecificationList?: [...#LifecycleHookSpecification] | fn.#ListExpression
+		LoadBalancerNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		MaxInstanceLifetime?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxSize!:           =~"^[0-9]+$" | fn.#StringExpression
+		MetricsCollection?: [...#MetricsCollection] | fn.#ListExpression
+		MinSize!:           =~"^[0-9]+$" | fn.#StringExpression
+
+		// An embedded object that specifies a mixed instances policy.
+		// The policy includes properties that not only define the distribution of
+		// On-Demand Instances and Spot Instances, the maximum price to pay for Spot
+		// Instances (optional), and how the Auto Scaling group allocates instance
+		// types to fulfill On-Demand and Spot capacities, but also the properties that
+		// specify the instance configuration information—the launch template and
+		// instance types. The policy can also include a weight for each instance type
+		// and different launch templates for individual instance types.
+		// For more information, see [Auto Scaling groups with multiple instance types
+		// and purchase
+		// options](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-mixed-instances-groups.html)
+		// in the *Amazon EC2 Auto Scaling User Guide*.
+		MixedInstancesPolicy?: #MixedInstancesPolicy
+		NewInstancesProtectedFromScaleIn?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		NotificationConfiguration?:  #NotificationConfiguration
+		NotificationConfigurations?: [...#NotificationConfiguration] | fn.#ListExpression
+		PlacementGroup?:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ServiceLinkedRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		SkipZonalShiftValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                     [...#TagProperty] | fn.#ListExpression
+		TargetGroupARNs?: [...strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		TerminationPolicies?: [...strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		TrafficSources?:    list.UniqueItems() & [...#TrafficSourceIdentifier] | fn.#ListExpression
+		VPCZoneIdentifier?: [...string | fn.#StringExpression] | fn.#ListExpression
+		if InstanceId != _|_ if InstanceId."Fn::If" == _|_ {
+			LaunchConfigurationName?: close({"Fn::If": _}) | error(
+				"LaunchConfigurationName cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+			LaunchTemplate?: close({"Fn::If": _}) | error(
+				"LaunchTemplate cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+			MixedInstancesPolicy?: close({"Fn::If": _}) | error(
+				"MixedInstancesPolicy cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+		}
+		if LaunchConfigurationName != _|_ if LaunchConfigurationName."Fn::If" == _|_ {
+			LaunchTemplate?: close({"Fn::If": _}) | error(
+				"LaunchTemplate cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+			MixedInstancesPolicy?: close({"Fn::If": _}) | error(
+				"MixedInstancesPolicy cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+		}
+		if LaunchTemplate != _|_ if LaunchTemplate."Fn::If" == _|_ {
+			MixedInstancesPolicy?: close({"Fn::If": _}) | error(
+				"MixedInstancesPolicy cannot be used with LaunchTemplate; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+		}
+	}) & matchN(
+		>=1,
+		[{InstanceId!: _}, {LaunchConfigurationName!: _}, {LaunchTemplate!: _}, {MixedInstancesPolicy!: _}],
+	)
+}
+
+#AcceleratorCountRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -178,7 +235,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close({
+#AcceleratorTotalMemoryMiBRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -212,7 +269,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneDistribution": close({
+#AvailabilityZoneDistribution: close({
 	CapacityDistributionStrategy?: "balanced-best-effort" |
 		"balanced-only" |
 		"reservations-then-balanced" |
@@ -220,13 +277,13 @@ _#defs: "/$defs/Properties/definitions/AvailabilityZoneDistribution": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneImpairmentPolicy": close({
+#AvailabilityZoneImpairmentPolicy: close({
 	ImpairedZoneHealthCheckBehavior!: "IgnoreUnhealthy" | "ReplaceUnhealthy" | fn.#StringExpression
 	ZonalShiftEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
+#BaselineEbsBandwidthMbpsRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -260,44 +317,54 @@ _#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaselinePerformanceFactorsRequest": close(
-	{Cpu?: _#defs."/$defs/Properties/definitions/CpuPerformanceFactorRequest" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#BaselinePerformanceFactorsRequest: close({
+	// The CPU performance to consider, using an instance family as the baseline reference.
+	Cpu?: #CpuPerformanceFactorRequest
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationIds": list.UniqueItems() & [
+#CapacityReservationIds: list.UniqueItems() & [
 	...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationResourceGroupArns": list.UniqueItems() & [
+#CapacityReservationResourceGroupArns: list.UniqueItems() & [
 	...strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	CapacityReservationPreference!: "capacity-reservations-first" |
 		"capacity-reservations-only" |
 		"default" |
 		"none" |
 		fn.#StringExpression
-	CapacityReservationTarget?: _#defs."/$defs/Properties/definitions/CapacityReservationTarget" | fn.#ObjectExpression
+
+	// Describes a target Capacity Reservation or Capacity Reservation resource group.
+	CapacityReservationTarget?: #CapacityReservationTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
-	CapacityReservationIds?: _#defs."/$defs/Properties/definitions/CapacityReservationIds" | fn.#ListExpression
-	CapacityReservationResourceGroupArns?: _#defs."/$defs/Properties/definitions/CapacityReservationResourceGroupArns" |
-		fn.#ListExpression
+#CapacityReservationTarget: close({
+	// The Capacity Reservation IDs to launch instances into.
+	CapacityReservationIds?: #CapacityReservationIds
+
+	// The resource group ARNs of the Capacity Reservation to launch instances into.
+	CapacityReservationResourceGroupArns?: #CapacityReservationResourceGroupArns
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CpuPerformanceFactorRequest": close(
-	{References?: _#defs."/$defs/Properties/definitions/PerformanceFactorReferenceSetRequest" | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#CpuPerformanceFactorRequest: close({
+	// Specify an instance family to use as the baseline reference for CPU
+	// performance. All instance types that match your specified attributes will be
+	// compared against the CPU performance of the referenced instance family,
+	// regardless of CPU manufacturer or architecture differences.
+	// Currently only one instance family can be specified in the list.
+	References?: #PerformanceFactorReferenceSetRequest
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DistributionSegment": close({
+#DistributionSegment: close({
 	TargetCapacityTypes!: list.MinItems(1) & list.UniqueItems() & [
 		..."on-demand-capacity-reservation" |
 			"capacity-block" |
@@ -309,12 +376,16 @@ _#defs: "/$defs/Properties/definitions/DistributionSegment": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceLifecyclePolicy": close(
-	{RetentionTriggers?: _#defs."/$defs/Properties/definitions/RetentionTriggers" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#InstanceLifecyclePolicy: close({
+	// Specifies the conditions that trigger instance retention behavior. These
+	// triggers determine when instances should move to a ``Retained`` state
+	// instead of automatic termination. This allows you to maintain control over
+	// instance management when lifecycles transition and operations fail.
+	RetentionTriggers?: #RetentionTriggers
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceMaintenancePolicy": close({
+#InstanceMaintenancePolicy: close({
 	MaxHealthyPercentage?: _
 	if MaxHealthyPercentage != _|_ {
 		MinHealthyPercentage!: _
@@ -359,8 +430,12 @@ _#defs: "/$defs/Properties/definitions/InstanceMaintenancePolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
-	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCountRequest" | fn.#ObjectExpression
+#InstanceRequirements: close({
+	// The minimum and maximum number of accelerators (GPUs, FPGAs, or AWS
+	// Inferentia chips) for an instance type.
+	// To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
+	// Default: No minimum or maximum limits
+	AcceleratorCount?: #AcceleratorCountRequest
 	AcceleratorManufacturers?: list.UniqueItems() & [
 		..."amazon-web-services" | "amd" | "nvidia" | "xilinx" | fn.#StringExpression
 	] |
@@ -369,8 +444,10 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 		..."a100" | "k80" | "m60" | "radeon-pro-v520" | "t4" | "v100" | "vu9p" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest" |
-		fn.#ObjectExpression
+
+	// The minimum and maximum total memory size for the accelerators on an instance type, in MiB.
+	// Default: No minimum or maximum limits
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest
 	AcceleratorTypes?: list.UniqueItems() & [..."fpga" | "gpu" | "inference" | fn.#StringExpression] |
 		fn.#ListExpression
 	AllowedInstanceTypes?: list.MaxItems(400) & list.UniqueItems() & [...] & [
@@ -378,11 +455,17 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 	] |
 	fn.#ListExpression
 	BareMetal?: "excluded" | "included" | "required" | fn.#StringExpression
-	BaselineEbsBandwidthMbps?: _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest" |
-		fn.#ObjectExpression
-	BaselinePerformanceFactors?: _#defs."/$defs/Properties/definitions/BaselinePerformanceFactorsRequest" |
-		fn.#ObjectExpression
-	BurstablePerformance?: "excluded" | "included" | "required" | fn.#StringExpression
+
+	// The minimum and maximum baseline bandwidth performance for an instance type,
+	// in Mbps. For more information, see [Amazon EBS–optimized
+	// instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html)
+	// in the *Amazon EC2 User Guide*.
+	// Default: No minimum or maximum limits
+	BaselineEbsBandwidthMbps?: #BaselineEbsBandwidthMbpsRequest
+
+	// The baseline performance factors for the instance requirements.
+	BaselinePerformanceFactors?: #BaselinePerformanceFactorsRequest
+	BurstablePerformance?:       "excluded" | "included" | "required" | fn.#StringExpression
 	CpuManufacturers?: list.UniqueItems() & [
 		..."amazon-web-services" | "amd" | "apple" | "intel" | fn.#StringExpression
 	] |
@@ -409,10 +492,21 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 				)
 		} |
 		fn.#NumberExpression
-	MemoryGiBPerVCpu?:      _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpuRequest" | fn.#ObjectExpression
-	MemoryMiB!:             _#defs."/$defs/Properties/definitions/MemoryMiBRequest" | fn.#ObjectExpression
-	NetworkBandwidthGbps?:  _#defs."/$defs/Properties/definitions/NetworkBandwidthGbpsRequest" | fn.#ObjectExpression
-	NetworkInterfaceCount?: _#defs."/$defs/Properties/definitions/NetworkInterfaceCountRequest" | fn.#ObjectExpression
+
+	// The minimum and maximum amount of memory per vCPU for an instance type, in GiB.
+	// Default: No minimum or maximum limits
+	MemoryGiBPerVCpu?: #MemoryGiBPerVCpuRequest
+
+	// The minimum and maximum instance memory size for an instance type, in MiB.
+	MemoryMiB!: #MemoryMiBRequest
+
+	// The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
+	// Default: No minimum or maximum limits
+	NetworkBandwidthGbps?: #NetworkBandwidthGbpsRequest
+
+	// The minimum and maximum number of network interfaces for an instance type.
+	// Default: No minimum or maximum limits
+	NetworkInterfaceCount?: #NetworkInterfaceCountRequest
 	OnDemandMaxPricePercentageOverLowestPrice?: int & >=0 |
 		{
 			string &
@@ -444,16 +538,18 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 				)
 		} |
 		fn.#NumberExpression
-	TotalLocalStorageGB?: _#defs."/$defs/Properties/definitions/TotalLocalStorageGBRequest" | fn.#ObjectExpression
-	VCpuCount!:           _#defs."/$defs/Properties/definitions/VCpuCountRequest" | fn.#ObjectExpression
+
+	// The minimum and maximum total local storage size for an instance type, in GB.
+	// Default: No minimum or maximum limits
+	TotalLocalStorageGB?: #TotalLocalStorageGBRequest
+
+	// The minimum and maximum number of vCPUs for an instance type.
+	VCpuCount!: #VCpuCountRequest
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstancesDistribution": close({
-	DistributionSegments?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DistributionSegment"
-	] |
-		fn.#ListExpression
+#InstancesDistribution: close({
+	DistributionSegments?:       list.MaxItems(1) & list.MinItems(1) & [...#DistributionSegment] | fn.#ListExpression
 	OnDemandAllocationStrategy?: string | fn.#StringExpression
 	OnDemandBaseCapacity?: int |
 		{
@@ -502,42 +598,62 @@ _#defs: "/$defs/Properties/definitions/InstancesDistribution": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplate": close({
-	LaunchTemplateSpecification!: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" |
-		fn.#ObjectExpression
-	Overrides?: [..._#defs."/$defs/Properties/definitions/LaunchTemplateOverrides"] | fn.#ListExpression
+#LaunchTemplate: close({
+	// The launch template.
+	LaunchTemplateSpecification!: #LaunchTemplateSpecification
+	Overrides?:                   [...#LaunchTemplateOverrides] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
+#LaunchTemplateOverrides: close({
 	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(21) &
 	strings.MinRunes(5) &
 	=~"^ami-[a-z0-9]{1,17}$" |
 	fn.#StringExpression
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
+
+	// The instance requirements. Amazon EC2 Auto Scaling uses your specified
+	// requirements to identify instance types. Then, it uses your On-Demand and
+	// Spot allocation strategies to launch instances from these instance types.
+	// You can specify up to four separate sets of instance requirements per Auto
+	// Scaling group. This is useful for provisioning instances from different
+	// Amazon Machine Images (AMIs) in the same Auto Scaling group. To do this,
+	// create the AMIs and create a new launch template for each AMI. Then, create
+	// a compatible set of instance requirements for each launch template.
+	// If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
+	InstanceRequirements?: #InstanceRequirements
 	InstanceType?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchTemplateSpecification?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" |
-		fn.#ObjectExpression
-	WeightedCapacity?: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Provides a launch template for the specified instance type or set of instance
+	// requirements. For example, some instance types might require a launch
+	// template with a different AMI. If not provided, Amazon EC2 Auto Scaling uses
+	// the launch template that's specified in the ``LaunchTemplate`` definition.
+	// For more information, see [Specifying a different launch template for an
+	// instance
+	// type](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-mixed-instances-groups-launch-template-overrides.html)
+	// in the *Amazon EC2 Auto Scaling User Guide*.
+	// You can specify up to 20 launch templates per Auto Scaling group. The launch
+	// templates specified in the overrides and in the ``LaunchTemplate``
+	// definition count towards this limit.
+	LaunchTemplateSpecification?: #LaunchTemplateSpecification
+	WeightedCapacity?:            strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": matchN(1, [{
-	LaunchTemplateId!: _
-	...
-}, {
-	LaunchTemplateName!: _
-	...
-}]) & close({
+#LaunchTemplateSpecification: close({
 	LaunchTemplateId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	LaunchTemplateName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
 	fn.#StringExpression
 	Version!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-}) |
+	if LaunchTemplateId != _|_ if LaunchTemplateId."Fn::If" == _|_ {
+		LaunchTemplateName?: close({"Fn::If": _}) | error(
+			"LaunchTemplateName cannot be used with LaunchTemplateId; set exactly one of LaunchTemplateId, LaunchTemplateName",
+		)
+	}
+}) & matchN(>=1, [{LaunchTemplateId!: _}, {LaunchTemplateName!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleHookSpecification": close({
+#LifecycleHookSpecification: close({
 	DefaultResult?: string | fn.#StringExpression
 	HeartbeatTimeout?: int |
 		{
@@ -565,7 +681,7 @@ _#defs: "/$defs/Properties/definitions/LifecycleHookSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
+#MemoryGiBPerVCpuRequest: close({
 	Max?: >=0 |
 		{
 			string &
@@ -607,7 +723,7 @@ _#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
+#MemoryMiBRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -641,19 +757,23 @@ _#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsCollection": close({
+#MetricsCollection: close({
 	Granularity!: string | fn.#StringExpression
 	Metrics?:     [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MixedInstancesPolicy": close({
-	InstancesDistribution?: _#defs."/$defs/Properties/definitions/InstancesDistribution" | fn.#ObjectExpression
-	LaunchTemplate!:        _#defs."/$defs/Properties/definitions/LaunchTemplate" | fn.#ObjectExpression
+#MixedInstancesPolicy: close({
+	// The instances distribution.
+	InstancesDistribution?: #InstancesDistribution
+
+	// One or more launch templates and the instance types (overrides) that are used
+	// to launch EC2 instances to fulfill the configured capacities.
+	LaunchTemplate!: #LaunchTemplate
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
+#NetworkBandwidthGbpsRequest: close({
 	Max?: >=0 |
 		{
 			string &
@@ -695,7 +815,7 @@ _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
+#NetworkInterfaceCountRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -729,7 +849,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
+#NotificationConfiguration: close({
 	NotificationTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
 	TopicARN!: string |
 		[
@@ -740,29 +860,20 @@ _#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PerformanceFactorReferenceRequest": close(
-	{InstanceFamily?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#PerformanceFactorReferenceRequest: close({InstanceFamily?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PerformanceFactorReferenceSetRequest": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/PerformanceFactorReferenceRequest"
-] |
-	fn.#ListExpression
+#PerformanceFactorReferenceSetRequest: list.UniqueItems() & [...#PerformanceFactorReferenceRequest] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionTriggers": close(
-	{TerminateHookAbandon?: "retain" | "terminate" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#RetentionTriggers: close({TerminateHookAbandon?: "retain" | "terminate" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagProperty": close({
+#TagProperty: close({
 	Key!:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	PropagateAtLaunch!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Value!:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
+#TotalLocalStorageGBRequest: close({
 	Max?: >=0 |
 		{
 			string &
@@ -804,13 +915,13 @@ _#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficSourceIdentifier": close({
+#TrafficSourceIdentifier: close({
 	Identifier!: strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression
 	Type!:       strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VCpuCountRequest": close({
+#VCpuCountRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -843,7 +954,3 @@ _#defs: "/$defs/Properties/definitions/VCpuCountRequest": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AutoScaling::AutoScalingGroup"
-	Properties!: #Properties
-}

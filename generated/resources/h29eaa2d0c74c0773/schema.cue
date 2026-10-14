@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"struct"
 )
 
@@ -19,44 +19,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a resilience-managed service with associated systems, input sources,
 // assertions, and service functions.
-#Properties: close({
-	Assertions?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/AssertionDefinition"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ResilienceHubV2::Service"
+	Properties!: close({
+		Assertions?:          list.MaxItems(20) & [...#AssertionDefinition] | fn.#ListExpression
+		AssociatedSystems?:   list.MaxItems(1000) & [...#AssociatedSystem] | fn.#ListExpression
+		DependencyDiscovery?: "ENABLED" | "DISABLED" | "INITIALIZING" | fn.#StringExpression
+		Description?:         strings.MaxRunes(615) | fn.#StringExpression
+		InputSources?:        list.MaxItems(20) & [...#InputSourceDefinition] | fn.#ListExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^((arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+))$" |
+		fn.#StringExpression
+		Name!:            =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		PermissionModel?: #PermissionModel
+		PolicyArn?:       string | fn.#StringExpression
+		Regions!: list.MaxItems(10) & list.MinItems(1) & [
+			...strings.MinRunes(6) & =~"^[a-z]{2}-((iso[a-z]{0,1}-)|(gov-)){0,1}[a-z]+-[0-9]$" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	AssociatedSystems?: list.MaxItems(1000) & [..._#defs."/$defs/Properties/definitions/AssociatedSystem"] |
-		fn.#ListExpression
-	DependencyDiscovery?: "ENABLED" | "DISABLED" | "INITIALIZING" | fn.#StringExpression
-	Description?:         strings.MaxRunes(615) | fn.#StringExpression
-	InputSources?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/InputSourceDefinition"] |
-		fn.#ListExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^((arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+))$" |
-	fn.#StringExpression
-	Name!:            =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	PermissionModel?: _#defs."/$defs/Properties/definitions/PermissionModel"
-	PolicyArn?:       string | fn.#StringExpression
-	Regions!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MinRunes(6) & =~"^[a-z]{2}-((iso[a-z]{0,1}-)|(gov-)){0,1}[a-z]+-[0-9]$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	ReportConfiguration?: _#defs."/$defs/Properties/definitions/ServiceReportConfiguration"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		ReportConfiguration?: #ServiceReportConfiguration
+		Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AssertionDefinition": close(
-	{Text!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#AssertionDefinition: close({Text!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssociatedSystem": close({
+#AssociatedSystem: close({
 	SystemArn!:      string | fn.#StringExpression
 	UserJourneyIds?: list.MaxItems(50) & [...=~"^\\S{1,255}$" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CrossAccountRoleConfiguration": close({
+#CrossAccountRoleConfiguration: close({
 	CrossAccountRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -66,28 +64,25 @@ _#defs: "/$defs/Properties/definitions/CrossAccountRoleConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DisasterRecoverySource": close({
+#DisasterRecoverySource: close({
 	PolicyName?: string | fn.#StringExpression
 	Value?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EffectivePolicyValues": close({
-	AvailabilitySlo?:       _#defs."/$defs/Properties/definitions/SloSource"
-	MultiAzDrApproach?:     _#defs."/$defs/Properties/definitions/DisasterRecoverySource"
-	MultiAzRpo?:            _#defs."/$defs/Properties/definitions/TargetSource"
-	MultiAzRto?:            _#defs."/$defs/Properties/definitions/TargetSource"
-	MultiRegionDrApproach?: _#defs."/$defs/Properties/definitions/DisasterRecoverySource"
-	MultiRegionRpo?:        _#defs."/$defs/Properties/definitions/TargetSource"
-	MultiRegionRto?:        _#defs."/$defs/Properties/definitions/TargetSource"
+#EffectivePolicyValues: close({
+	AvailabilitySlo?:       #SloSource
+	MultiAzDrApproach?:     #DisasterRecoverySource
+	MultiAzRpo?:            #TargetSource
+	MultiAzRto?:            #TargetSource
+	MultiRegionDrApproach?: #DisasterRecoverySource
+	MultiRegionRpo?:        #TargetSource
+	MultiRegionRto?:        #TargetSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksLabelSelector": close({
-	MatchExpressions?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EksLabelSelectorRequirement"
-	] |
-		fn.#ListExpression
+#EksLabelSelector: close({
+	MatchExpressions?: list.MaxItems(20) & list.MinItems(1) & [...#EksLabelSelectorRequirement] | fn.#ListExpression
 	MatchLabels?: struct.MaxFields(20) & struct.MinFields(1) & close({
 
 		{[=~"^([a-z0-9]([-a-z0-9.]{0,251}[a-z0-9])?/)?[a-zA-Z0-9]([-a-zA-Z0-9_.]{0,61}[a-zA-Z0-9])?$"]: strings.MaxRunes(63) & strings.MinRunes(0) |
@@ -96,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/EksLabelSelector": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksLabelSelectorRequirement": close({
+#EksLabelSelectorRequirement: close({
 	Key!: strings.MaxRunes(317) &
 	strings.MinRunes(1) &
 	=~"^([a-z0-9]([-a-z0-9.]{0,251}[a-z0-9])?/)?[a-zA-Z0-9]([-a-zA-Z0-9_.]{0,61}[a-zA-Z0-9])?$" |
@@ -109,78 +104,89 @@ _#defs: "/$defs/Properties/definitions/EksLabelSelectorRequirement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksSource": close({
+#EksSource: close({
 	ClusterArn!:    string | fn.#StringExpression
-	LabelSelector?: _#defs."/$defs/Properties/definitions/EksLabelSelector"
+	LabelSelector?: #EksLabelSelector
 	Namespaces!:    list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputSourceDefinition": close(
-	{ResourceConfiguration!: _#defs."/$defs/Properties/definitions/ResourceConfiguration"},
-) |
-	fn.#ObjectExpression
+#InputSourceDefinition: close({ResourceConfiguration!: #ResourceConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PermissionModel": close({
-	CrossAccountRoleArns?: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/CrossAccountRoleConfiguration"] |
-		fn.#ListExpression
-	InvokerRoleName!: =~"^(([A-Za-z0-9_+=,.@\\-]+/){1,511})?[A-Za-z0-9_+=,.@\\-]{1,64}$" | fn.#StringExpression
+#PermissionModel: close({
+	CrossAccountRoleArns?: list.MaxItems(10) & [...#CrossAccountRoleConfiguration] | fn.#ListExpression
+	InvokerRoleName!:      =~"^(([A-Za-z0-9_+=,.@\\-]+/){1,511})?[A-Za-z0-9_+=,.@\\-]{1,64}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReportOutputConfiguration": {
-	S3!: _
-	...
-} & close({S3?: _#defs."/$defs/Properties/definitions/S3ReportOutputConfiguration"}) |
-fn.#ObjectExpression
+#ReportOutputConfiguration: close({S3?: #S3ReportOutputConfiguration}) & matchN(>=1, [{S3!: _}]) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceConfiguration": matchN(1, [{
-	ResourceTags!: _
-	...
-}, {
-	CfnStackArn!: _
-	...
-}, {
-	TfStateFileUrl!: _
-	...
-}, {
-	Eks!: _
-	...
-}, {
-	DesignFileS3Url!: _
-	...
-}]) & close({
+#ResourceConfiguration: close({
 	CfnStackArn?:     string | fn.#StringExpression
 	DesignFileS3Url?: string | fn.#StringExpression
-	Eks?:             _#defs."/$defs/Properties/definitions/EksSource"
-	ResourceTags?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourceTag"] |
-		fn.#ListExpression
-	TfStateFileUrl?: string | fn.#StringExpression
-}) |
+	Eks?:             #EksSource
+	ResourceTags?:    list.MaxItems(10) & list.MinItems(1) & [...#ResourceTag] | fn.#ListExpression
+	TfStateFileUrl?:  string | fn.#StringExpression
+	if ResourceTags != _|_ if ResourceTags."Fn::If" == _|_ {
+		CfnStackArn?: close({"Fn::If": _}) | error(
+			"CfnStackArn cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		TfStateFileUrl?: close({"Fn::If": _}) | error(
+			"TfStateFileUrl cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		Eks?: close({"Fn::If": _}) | error(
+			"Eks cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
+			"DesignFileS3Url cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+	if CfnStackArn != _|_ if CfnStackArn."Fn::If" == _|_ {
+		TfStateFileUrl?: close({"Fn::If": _}) | error(
+			"TfStateFileUrl cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		Eks?: close({"Fn::If": _}) | error(
+			"Eks cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
+			"DesignFileS3Url cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+	if TfStateFileUrl != _|_ if TfStateFileUrl."Fn::If" == _|_ {
+		Eks?: close({"Fn::If": _}) | error(
+			"Eks cannot be used with TfStateFileUrl; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
+			"DesignFileS3Url cannot be used with TfStateFileUrl; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+	if Eks != _|_ if Eks."Fn::If" == _|_ {
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
+			"DesignFileS3Url cannot be used with Eks; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+}) & matchN(>=1, [{ResourceTags!: _}, {CfnStackArn!: _}, {TfStateFileUrl!: _}, {Eks!: _}, {DesignFileS3Url!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Values!: list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3ReportOutputConfiguration": close({
+#S3ReportOutputConfiguration: close({
 	BucketOwner!: =~"^\\d{12}$" | fn.#StringExpression
 	BucketPath!: strings.MaxRunes(512) & strings.MinRunes(3) & =~"^(s3://)?[a-z0-9][a-z0-9.-]{1,61}[a-z0-9](/.*)?$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceReportConfiguration": close({
-	ReportOutput!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReportOutputConfiguration"
-	] |
-		fn.#ListExpression
-}) |
+#ServiceReportConfiguration: close(
+	{ReportOutput!: list.MaxItems(1) & list.MinItems(1) & [...#ReportOutputConfiguration] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SloSource": close({
+#SloSource: close({
 	PolicyName?: string | fn.#StringExpression
 	Value?: number |
 		{
@@ -204,13 +210,13 @@ _#defs: "/$defs/Properties/definitions/SloSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetSource": close({
+#TargetSource: close({
 	PolicyName?: string | fn.#StringExpression
 	Value?: int |
 		{
@@ -228,7 +234,3 @@ _#defs: "/$defs/Properties/definitions/TargetSource": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResilienceHubV2::Service"
-	Properties!: #Properties
-}

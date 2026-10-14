@@ -3,15 +3,15 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // <p>Represents a resource policy that allows or denies access to an origin endpoint.</p>
 #Properties: close({
-	CdnAuthConfiguration?: _#defs."/$defs/Properties/definitions/CdnAuthConfiguration"
+	CdnAuthConfiguration?: #CdnAuthConfiguration
 	ChannelGroupName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	ChannelName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	OriginEndpointName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
@@ -19,7 +19,7 @@ import (
 })
 
 // <p>The settings to enable CDN authorization headers in MediaPackage.</p>
-_#defs: "/$defs/Properties/definitions/CdnAuthConfiguration": close({
+#CdnAuthConfiguration: close({
 	// <p>The ARN for the secret in Secrets Manager that your CDN uses for
 	// authorization to access the endpoint.</p>
 	CdnIdentifierSecretArns!: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(20)]

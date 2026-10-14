@@ -12,8 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to a service that is allowed to generate findings for your Security Hub
 // account. One product subscription resource is created for each product
 // enabled.
-#Properties: close({ProductArn!: =~"arn:aws\\S*:securityhub:\\S*" | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecurityHub::ProductSubscription"
-	Properties!: #Properties
+	Properties!: close({ProductArn!: =~"arn:aws\\S*:securityhub:\\S*" | fn.#StringExpression})
 }

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -18,59 +18,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::NetworkSecurityManager::Policy. Creates and
 // manages a Network Security Manager policy.
-#Properties: close({
-	AssociatedTemplateAndRuleList?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AssociatedTemplateAndRule"
-	] |
-		fn.#ListExpression
-	FirewallType!:        "WAF" | "SHIELD_ADVANCED" | fn.#StringExpression
-	PolicyConfiguration!: _#defs."/$defs/Properties/definitions/PolicyConfiguration" | fn.#ObjectExpression
-	PolicyDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
-	PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
-	fn.#StringExpression
-	Priority!: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkSecurityManager::Policy"
+	Properties!: close({
+		AssociatedTemplateAndRuleList?: list.MaxItems(100) & [...] & [...#AssociatedTemplateAndRule] |
+			fn.#ListExpression
+		FirewallType!: "WAF" | "SHIELD_ADVANCED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AssociatedTemplateAndRule": close({
+		// Configuration settings for policy behavior.
+		PolicyConfiguration!: #PolicyConfiguration
+		PolicyDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
+		PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
+		fn.#StringExpression
+		Priority!: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AssociatedTemplateAndRule: close({
 	RuleArn?:     string | fn.#StringExpression
 	TemplateArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyConfiguration": close({
+#PolicyConfiguration: close({
 	RemediationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ResourcesCleanUp?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	WafConfig?:          _#defs."/$defs/Properties/definitions/WafConfig"
+	WafConfig?:          #WafConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WafConfig": close({
+#WafConfig: close({
 	ConflictResolution!:               "MERGE_WHERE_APPLICABLE" | fn.#StringExpression
 	ExistingCustomerWebACLResolution!: "RETROFIT" | "OVERRIDE_ASSOCIATION" | "NO_REMEDIATION" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkSecurityManager::Policy"
-	Properties!: #Properties
-}

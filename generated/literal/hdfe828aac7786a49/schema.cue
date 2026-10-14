@@ -10,7 +10,7 @@ import "strings"
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the data source.
 	Arn?:            =~"^arn:aws[a-z\\-]*:es:[a-z0-9\\-]*:[0-9]{12}:domain/.+/datasource/.+$"
-	DataSourceType!: _#defs."/$defs/Properties/definitions/DataSourceType"
+	DataSourceType!: #DataSourceType
 
 	// A description of the data source.
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^([a-zA-Z0-9_])*[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]*$"
@@ -26,12 +26,10 @@ import "strings"
 })
 
 // The type of data source.
-_#defs: "/$defs/Properties/definitions/DataSourceType": close(
-	{S3GlueDataCatalog?: _#defs."/$defs/Properties/definitions/S3GlueDataCatalog"},
-)
+#DataSourceType: close({S3GlueDataCatalog?: #S3GlueDataCatalog})
 
 // Configuration for an S3 Glue Data Catalog data source.
-_#defs: "/$defs/Properties/definitions/S3GlueDataCatalog": close({
+#S3GlueDataCatalog: close({
 	// The ARN of the IAM role that grants OpenSearch Service permission to access
 	// the Glue Data Catalog.
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &

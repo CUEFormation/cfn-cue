@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,28 +17,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::InferenceExperiment
-#Properties: close({
-	DataStorageConfig?: _#defs."/$defs/Properties/definitions/DataStorageConfig"
-	Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	DesiredState?:      "Running" | "Completed" | "Cancelled" | fn.#StringExpression
-	EndpointName!:      _#defs."/$defs/Properties/definitions/EndpointName"
-	KmsKey?:            strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	ModelVariants!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ModelVariantConfig"] |
-		fn.#ListExpression
-	Name!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Schedule?:         _#defs."/$defs/Properties/definitions/InferenceExperimentSchedule"
-	ShadowModeConfig?: _#defs."/$defs/Properties/definitions/ShadowModeConfig"
-	StatusReason?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	Tags?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!:             "ShadowMode" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::InferenceExperiment"
+	Properties!: close({
+		DataStorageConfig?: #DataStorageConfig
+		Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+		DesiredState?:      "Running" | "Completed" | "Cancelled" | fn.#StringExpression
+		EndpointName!:      #EndpointName
+		KmsKey?:            strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+		ModelVariants!:     list.MaxItems(2) & list.MinItems(1) & [...#ModelVariantConfig] | fn.#ListExpression
+		Name!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Schedule?:         #InferenceExperimentSchedule
+		ShadowModeConfig?: #ShadowModeConfig
+		StatusReason?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+		Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:             "ShadowMode" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
+#CaptureContentTypeHeader: close({
 	CsvContentTypes?: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*/[a-zA-Z0-9](-*[a-zA-Z0-9.])*" |
 		fn.#StringExpression
@@ -52,16 +55,16 @@ _#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataStorageConfig": close({
-	ContentType?: _#defs."/$defs/Properties/definitions/CaptureContentTypeHeader"
+#DataStorageConfig: close({
+	ContentType?: #CaptureContentTypeHeader
 	Destination!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
 	KmsKey?:      strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointMetadata": close({
+#EndpointMetadata: close({
 	EndpointConfigName?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
-	EndpointName!:       _#defs."/$defs/Properties/definitions/EndpointName"
+	EndpointName!:       #EndpointName
 	EndpointStatus?: ("Creating" |
 		"Updating" |
 		"SystemUpdating" |
@@ -75,32 +78,29 @@ _#defs: "/$defs/Properties/definitions/EndpointMetadata": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointName": strings.MaxRunes(63) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" |
-fn.#StringExpression
+#EndpointName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceExperimentSchedule": close({
+#InferenceExperimentSchedule: close({
 	EndTime?:   string | fn.#StringExpression
 	StartTime?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelInfrastructureConfig": close({
+#ModelInfrastructureConfig: close({
 	InfrastructureType!:      "RealTimeInference" | fn.#StringExpression
-	RealTimeInferenceConfig!: _#defs."/$defs/Properties/definitions/RealTimeInferenceConfig"
+	RealTimeInferenceConfig!: #RealTimeInferenceConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelVariantConfig": close({
-	InfrastructureConfig!: _#defs."/$defs/Properties/definitions/ModelInfrastructureConfig"
+#ModelVariantConfig: close({
+	InfrastructureConfig!: #ModelInfrastructureConfig
 	ModelName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
 	VariantName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RealTimeInferenceConfig": close({
+#RealTimeInferenceConfig: close({
 	InstanceCount!: int & >=0 |
 		{
 			string &
@@ -120,17 +120,14 @@ _#defs: "/$defs/Properties/definitions/RealTimeInferenceConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ShadowModeConfig": close({
-	ShadowModelVariants!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ShadowModelVariantConfig"
-	] |
-		fn.#ListExpression
+#ShadowModeConfig: close({
+	ShadowModelVariants!: list.MaxItems(1) & list.MinItems(1) & [...#ShadowModelVariantConfig] | fn.#ListExpression
 	SourceModelVariantName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ShadowModelVariantConfig": close({
+#ShadowModelVariantConfig: close({
 	SamplingPercentage!: int & <=100 |
 		{
 			string &
@@ -151,12 +148,8 @@ _#defs: "/$defs/Properties/definitions/ShadowModelVariantConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::InferenceExperiment"
-	Properties!: #Properties
-}

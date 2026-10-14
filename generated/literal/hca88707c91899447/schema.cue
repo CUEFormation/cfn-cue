@@ -24,12 +24,12 @@ package schema
 	LastModifiedTime?: string
 
 	// The origin request policy configuration.
-	OriginRequestPolicyConfig!: _#defs."/$defs/Properties/definitions/OriginRequestPolicyConfig"
+	OriginRequestPolicyConfig!: #OriginRequestPolicyConfig
 })
 
 // An object that determines whether any cookies in viewer requests (and if so,
 // which cookies) are included in requests that CloudFront sends to the origin.
-_#defs: "/$defs/Properties/definitions/CookiesConfig": close({
+#CookiesConfig: close({
 	// Determines whether cookies in viewer requests are included in requests that
 	// CloudFront sends to the origin. Valid values are:
 	// + ``none`` – No cookies in viewer requests are included in requests that
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/CookiesConfig": close({
 
 // An object that determines whether any HTTP headers (and if so, which headers)
 // are included in requests that CloudFront sends to the origin.
-_#defs: "/$defs/Properties/definitions/HeadersConfig": close({
+#HeadersConfig: close({
 	// Determines whether any HTTP headers are included in requests that CloudFront
 	// sends to the origin. Valid values are:
 	// + ``none`` – No HTTP headers in viewer requests are included in requests that
@@ -91,29 +91,29 @@ _#defs: "/$defs/Properties/definitions/HeadersConfig": close({
 // CloudFront sends a request when it can't find an object in its cache that
 // matches the request. If you want to send values to the origin and also
 // include them in the cache key, use ``CachePolicy``.
-_#defs: "/$defs/Properties/definitions/OriginRequestPolicyConfig": close({
+#OriginRequestPolicyConfig: close({
 	// A comment to describe the origin request policy. The comment cannot be longer
 	// than 128 characters.
 	Comment?: string
 
 	// The cookies from viewer requests to include in origin requests.
-	CookiesConfig!: _#defs."/$defs/Properties/definitions/CookiesConfig"
+	CookiesConfig!: #CookiesConfig
 
 	// The HTTP headers to include in origin requests. These can include headers
 	// from viewer requests and additional headers added by CloudFront.
-	HeadersConfig!: _#defs."/$defs/Properties/definitions/HeadersConfig"
+	HeadersConfig!: #HeadersConfig
 
 	// A unique name to identify the origin request policy.
 	Name!: string
 
 	// The URL query strings from viewer requests to include in origin requests.
-	QueryStringsConfig!: _#defs."/$defs/Properties/definitions/QueryStringsConfig"
+	QueryStringsConfig!: #QueryStringsConfig
 })
 
 // An object that determines whether any URL query strings in viewer requests
 // (and if so, which query strings) are included in requests that CloudFront
 // sends to the origin.
-_#defs: "/$defs/Properties/definitions/QueryStringsConfig": close({
+#QueryStringsConfig: close({
 	// Determines whether any URL query strings in viewer requests are included in
 	// requests that CloudFront sends to the origin. Valid values are:
 	// + ``none`` – No query strings in viewer requests are included in requests

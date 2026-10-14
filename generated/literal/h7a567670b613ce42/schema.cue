@@ -17,7 +17,7 @@ package schema
 	Id?: string
 
 	// The origin access control.
-	OriginAccessControlConfig!: _#defs."/$defs/Properties/definitions/OriginAccessControlConfig"
+	OriginAccessControlConfig!: #OriginAccessControlConfig
 })
 
 // Creates a new origin access control in CloudFront. After you create an origin
@@ -29,7 +29,7 @@ package schema
 // [Restricting access to an
 // origin](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-origin.html)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/OriginAccessControlConfig": close({
+#OriginAccessControlConfig: close({
 	// A description of the origin access control.
 	Description?: string
 

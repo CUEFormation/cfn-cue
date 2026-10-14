@@ -12,10 +12,10 @@ import "strings"
 	Arn?:          string
 	AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 	DataSetId?:    string
-	Schedule?:     _#defs."/$defs/Properties/definitions/RefreshScheduleMap"
+	Schedule?:     #RefreshScheduleMap
 })
 
-_#defs: "/$defs/Properties/definitions/RefreshScheduleMap": close({
+#RefreshScheduleMap: close({
 	RefreshType?: "FULL_REFRESH" | "INCREMENTAL_REFRESH"
 
 	// <p>Information about the schedule frequency.</p>

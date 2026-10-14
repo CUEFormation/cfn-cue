@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,31 +14,31 @@ import (
 	Arn?:         strings.MaxRunes(2048) & strings.MinRunes(1)
 	ClientToken?: strings.MaxRunes(256) & strings.MinRunes(1)
 	CreatedAt?:   string
-	Description?: _#defs."/$defs/Properties/definitions/ResourceDescription"
+	Description?: #ResourceDescription
 	DomainCount?: int
 
 	// S3 URL to import domains from.
 	DomainFileUrl?:        strings.MaxRunes(1024) & strings.MinRunes(1)
-	Domains?:              _#defs."/$defs/Properties/definitions/Domains"
+	Domains?:              #Domains
 	FirewallDomainListId?: strings.MaxRunes(64) & strings.MinRunes(1)
 	GlobalResolverId!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$"
-	Name!:                 _#defs."/$defs/Properties/definitions/ResourceName"
-	Status?:               _#defs."/$defs/Properties/definitions/CRResourceStatus"
+	Name!:                 #ResourceName
+	Status?:               #CRResourceStatus
 	StatusMessage?:        string
-	Tags?:                 list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                 list.MaxItems(50) & [...#Tag]
 	UpdatedAt?:            string
 })
 
-_#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING"
+#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING"
 
 // An inline list of domains to use for this domain list.
-_#defs: "/$defs/Properties/definitions/Domains": list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1)]
+#Domains: list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 
-_#defs: "/$defs/Properties/definitions/ResourceDescription": strings.MaxRunes(256) & strings.MinRunes(1)
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1)
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

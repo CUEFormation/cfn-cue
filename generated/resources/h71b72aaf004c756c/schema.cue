@@ -17,59 +17,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::AmazonMQ::Broker
-#Properties: close({
-	AuthenticationStrategy?:  =~"(?i)^(?:config_managed|ldap|simple)$" | fn.#StringExpression
-	AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BrokerName!:              =~"^[0-9A-Za-z_-]{1,50}$" | fn.#StringExpression
-	Configuration?:           _#defs."/$defs/Properties/definitions/ConfigurationId" | fn.#ObjectExpression
-	DataReplicationMode?: =~"(?i)^(?:crdr|none)$" & ("NONE" | "CRDR" | =~"^[Nn][Oo][Nn][Ee]$" | =~"^[Cc][Rr][Dd][Rr]$") |
-		fn.#StringExpression
-	DataReplicationPrimaryBrokerArn?: =~"^arn:.*" | fn.#StringExpression
-	DeploymentMode!: =~"(?i)^(?:active_standby_multi_az|cluster_multi_az|single_instance)$" &
-		("SINGLE_INSTANCE" |
-			"ACTIVE_STANDBY_MULTI_AZ" |
-			"CLUSTER_MULTI_AZ" |
-			=~"^[Ss][Ii][Nn][Gg][Ll][Ee]_[Ii][Nn][Ss][Tt][Aa][Nn][Cc][Ee]$" |
-			=~"^[Aa][Cc][Tt][Ii][Vv][Ee]_[Ss][Tt][Aa][Nn][Dd][Bb][Yy][__][Mm][Uu][Ll][Tt][Ii]_[Aa][Zz]$" |
-			=~"^[Cc][Ll][Uu][Ss][Tt][Ee][Rr]_[Mm][Uu][Ll][Tt][Ii][__][Aa][Zz]$") |
-		fn.#StringExpression
-	EncryptionOptions?: _#defs."/$defs/Properties/definitions/EncryptionOptions"
-	EngineType!: =~"(?i)^(?:activemq|rabbitmq)$" &
-		("ACTIVEMQ" | "RABBITMQ" | =~"^[Aa][Cc][Tt][Ii][Vv][Ee][Mm][Qq]$" | =~"^[Rr][Aa][Bb][Bb][Ii][Tt][Mm][Qq]$") |
-		fn.#StringExpression
-	EngineVersion?:              string | fn.#StringExpression
-	HostInstanceType!:           string | fn.#StringExpression
-	LdapServerMetadata?:         _#defs."/$defs/Properties/definitions/LdapServerMetadata"
-	Logs?:                       _#defs."/$defs/Properties/definitions/LogList"
-	MaintenanceWindowStartTime?: _#defs."/$defs/Properties/definitions/MaintenanceWindow"
-	PubliclyAccessible!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourceShareArns?:          list.UniqueItems() & [...=~"^arn:.*" | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	StorageSize?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StorageType?: =~"(?i)^(?:EBS|EFS)$" & ("EBS" | "EFS" | =~"^[Ee]([Bb]|[Ff])[Ss]$") | fn.#StringExpression
-	SubnetIds?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
-	Users?:       [..._#defs."/$defs/Properties/definitions/User"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AmazonMQ::Broker"
+	Properties!: close({
+		AuthenticationStrategy?:  =~"(?i)^(?:config_managed|ldap|simple)$" | fn.#StringExpression
+		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		BrokerName!:              =~"^[0-9A-Za-z_-]{1,50}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationId": close({
+		// The intended configuration (ID and revision) to be set when creating or updating.
+		// This property is write-only so that applications of a
+		// ConfigurationAssociation do not cause drift.
+		Configuration?: #ConfigurationId
+		DataReplicationMode?: =~"(?i)^(?:crdr|none)$" &
+			("NONE" | "CRDR" | =~"^[Nn][Oo][Nn][Ee]$" | =~"^[Cc][Rr][Dd][Rr]$") |
+			fn.#StringExpression
+		DataReplicationPrimaryBrokerArn?: =~"^arn:.*" | fn.#StringExpression
+		DeploymentMode!: =~"(?i)^(?:active_standby_multi_az|cluster_multi_az|single_instance)$" &
+			("SINGLE_INSTANCE" |
+				"ACTIVE_STANDBY_MULTI_AZ" |
+				"CLUSTER_MULTI_AZ" |
+				=~"^[Ss][Ii][Nn][Gg][Ll][Ee]_[Ii][Nn][Ss][Tt][Aa][Nn][Cc][Ee]$" |
+				=~"^[Aa][Cc][Tt][Ii][Vv][Ee]_[Ss][Tt][Aa][Nn][Dd][Bb][Yy][__][Mm][Uu][Ll][Tt][Ii]_[Aa][Zz]$" |
+				=~"^[Cc][Ll][Uu][Ss][Tt][Ee][Rr]_[Mm][Uu][Ll][Tt][Ii][__][Aa][Zz]$") |
+			fn.#StringExpression
+		EncryptionOptions?: #EncryptionOptions
+		EngineType!: =~"(?i)^(?:activemq|rabbitmq)$" &
+			("ACTIVEMQ" | "RABBITMQ" | =~"^[Aa][Cc][Tt][Ii][Vv][Ee][Mm][Qq]$" | =~"^[Rr][Aa][Bb][Bb][Ii][Tt][Mm][Qq]$") |
+			fn.#StringExpression
+		EngineVersion?:              string | fn.#StringExpression
+		HostInstanceType!:           string | fn.#StringExpression
+		LdapServerMetadata?:         #LdapServerMetadata
+		Logs?:                       #LogList
+		MaintenanceWindowStartTime?: #MaintenanceWindow
+		PubliclyAccessible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ResourceShareArns?:  list.UniqueItems() & [...=~"^arn:.*" | fn.#StringExpression] | fn.#ListExpression
+		SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		StorageSize?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StorageType?: =~"(?i)^(?:EBS|EFS)$" & ("EBS" | "EFS" | =~"^[Ee]([Bb]|[Ff])[Ss]$") | fn.#StringExpression
+		SubnetIds?:   [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:        [...#TagsEntry] | fn.#ListExpression
+		Users?:       [...#User] | fn.#ListExpression
+	})
+}
+
+#ConfigurationId: close({
 	Id!: string | fn.#StringExpression
 	Revision!: int |
 		{
@@ -88,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/ConfigurationId": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionOptions": close({
+#EncryptionOptions: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -96,7 +106,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LdapServerMetadata": close({
+#LdapServerMetadata: close({
 	Hosts!:                  [...string | fn.#StringExpression] | fn.#ListExpression
 	RoleBase!:               string | fn.#StringExpression
 	RoleName?:               string | fn.#StringExpression
@@ -111,13 +121,13 @@ _#defs: "/$defs/Properties/definitions/LdapServerMetadata": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogList": close({
+#LogList: close({
 	Audit?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	General?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	DayOfWeek!: =~"(?i)^(?:friday|monday|saturday|sunday|thursday|tuesday|wednesday)$" &
 		("MONDAY" |
 			"TUESDAY" |
@@ -139,13 +149,13 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/User": close({
+#User: close({
 	ConsoleAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Groups?:          list.MaxItems(20) & [...=~"^[A-Za-z0-9._~-]{2,100}$" | fn.#StringExpression] | fn.#ListExpression
 	Password!:        strings.MinRunes(12) & =~"^[^,:=]+$" | fn.#StringExpression
@@ -153,7 +163,3 @@ _#defs: "/$defs/Properties/definitions/User": close({
 	Username!:        =~"^[A-Za-z0-9_.~-]{2,100}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AmazonMQ::Broker"
-	Properties!: #Properties
-}

@@ -13,25 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Profile
-#Properties: close({
-	As2Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\s]*$" | fn.#StringExpression
-	CertificateIds?: [..._#defs."/$defs/Properties/definitions/CertificateId"] | fn.#ListExpression
-	ProfileType!:    "LOCAL" | "PARTNER" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transfer::Profile"
+	Properties!: close({
+		As2Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\s]*$" | fn.#StringExpression
+		CertificateIds?: [...#CertificateId] | fn.#ListExpression
+		ProfileType!:    "LOCAL" | "PARTNER" | fn.#StringExpression
+		Tags?:           list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CertificateId": strings.MaxRunes(22) &
-strings.MinRunes(22) &
-=~"^cert-([0-9a-f]{17})$" |
-fn.#StringExpression
+#CertificateId: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^cert-([0-9a-f]{17})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transfer::Profile"
-	Properties!: #Properties
-}

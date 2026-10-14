@@ -12,29 +12,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IAM::ServerCertificate
-#Properties: close({
-	CertificateBody?: strings.MaxRunes(16384) &
-	strings.MinRunes(1) &
-	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
-	fn.#StringExpression
-	CertificateChain?: strings.MaxRunes(2097152) &
-	strings.MinRunes(1) &
-	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
-	fn.#StringExpression
-	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F})" |
-	fn.#StringExpression
-	PrivateKey?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
-	fn.#StringExpression
-	ServerCertificateName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IAM::ServerCertificate"
+	Properties?: close({
+		CertificateBody?: strings.MaxRunes(16384) &
+		strings.MinRunes(1) &
+		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+		fn.#StringExpression
+		CertificateChain?: strings.MaxRunes(2097152) &
+		strings.MinRunes(1) &
+		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+		fn.#StringExpression
+		Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F})" |
+		fn.#StringExpression
+		PrivateKey?: strings.MaxRunes(16384) &
+		strings.MinRunes(1) &
+		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+		fn.#StringExpression
+		ServerCertificateName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::ServerCertificate"
-	Properties?: #Properties
-}

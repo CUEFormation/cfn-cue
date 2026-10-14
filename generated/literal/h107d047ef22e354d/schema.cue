@@ -22,7 +22,7 @@ import (
 	CertificateExpiryTime?: time.Time
 
 	// The connection configuration for the Private Connection.
-	ConnectionConfiguration!: _#defs."/$defs/Properties/definitions/ConnectionConfiguration"
+	ConnectionConfiguration!: #ConnectionConfiguration
 
 	// Unique name for this Private Connection within the account.
 	Name!: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
@@ -31,18 +31,16 @@ import (
 	Status?: "ACTIVE" | "CREATE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_IN_PROGRESS" | "DELETE_FAILED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The connection configuration, either SelfManaged or ServiceManaged.
-_#defs: "/$defs/Properties/definitions/ConnectionConfiguration": matchN(1, [close(
-	{SelfManaged!: _#defs."/$defs/Properties/definitions/SelfManagedMode"},
-), close(
-	{ServiceManaged!: _#defs."/$defs/Properties/definitions/ServiceManagedMode"},
-)])
+#ConnectionConfiguration: matchN(1, [
+	close({SelfManaged!: #SelfManagedMode}), close({ServiceManaged!: #ServiceManagedMode}),
+])
 
 // Configuration for a self-managed Private Connection.
-_#defs: "/$defs/Properties/definitions/SelfManagedMode": close({
+#SelfManagedMode: close({
 	// The ARN of the Resource Configuration.
 	ResourceConfigurationId!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -50,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/SelfManagedMode": close({
 })
 
 // Configuration for a service-managed Private Connection.
-_#defs: "/$defs/Properties/definitions/ServiceManagedMode": close({
+#ServiceManagedMode: close({
 	// DNS resolution mode for the resource gateway. Defaults to PUBLIC when not set.
 	DnsResolution?: "PUBLIC" | "IN_VPC"
 
@@ -87,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedMode": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

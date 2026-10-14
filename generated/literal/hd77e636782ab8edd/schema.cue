@@ -10,11 +10,11 @@ import "strings"
 #Properties: close({
 	// Autoscaling configuration ARN
 	AutoScalingConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1)
-	EncryptionConfiguration?:     _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	HealthCheckConfiguration?:    _#defs."/$defs/Properties/definitions/HealthCheckConfiguration"
-	InstanceConfiguration?:       _#defs."/$defs/Properties/definitions/InstanceConfiguration"
-	NetworkConfiguration?:        _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	ObservabilityConfiguration?:  _#defs."/$defs/Properties/definitions/ServiceObservabilityConfiguration"
+	EncryptionConfiguration?:     #EncryptionConfiguration
+	HealthCheckConfiguration?:    #HealthCheckConfiguration
+	InstanceConfiguration?:       #InstanceConfiguration
+	NetworkConfiguration?:        #NetworkConfiguration
+	ObservabilityConfiguration?:  #ServiceObservabilityConfiguration
 
 	// The Amazon Resource Name (ARN) of the AppRunner Service.
 	ServiceArn?: strings.MaxRunes(1011) & strings.MinRunes(1)
@@ -27,32 +27,32 @@ import "strings"
 
 	// The Service Url of the AppRunner Service.
 	ServiceUrl?:          string
-	SourceConfiguration!: _#defs."/$defs/Properties/definitions/SourceConfiguration"
+	SourceConfiguration!: #SourceConfiguration
 
 	// AppRunner Service status.
 	Status?: string
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:   [...#Tag]
 })
 
 // Authentication Configuration
-_#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
+#AuthenticationConfiguration: close({
 	// Access Role Arn
-	AccessRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn"
+	AccessRoleArn?: #RoleArn
 
 	// Connection Arn
 	ConnectionArn?: strings.MaxRunes(1011) & strings.MinRunes(1)
 })
 
 // Code Configuration
-_#defs: "/$defs/Properties/definitions/CodeConfiguration": close({
-	CodeConfigurationValues?: _#defs."/$defs/Properties/definitions/CodeConfigurationValues"
+#CodeConfiguration: close({
+	CodeConfigurationValues?: #CodeConfigurationValues
 
 	// Configuration Source
 	ConfigurationSource!: "REPOSITORY" | "API"
 })
 
 // Code Configuration Values
-_#defs: "/$defs/Properties/definitions/CodeConfigurationValues": close({
+#CodeConfigurationValues: close({
 	// Build Command
 	BuildCommand?: =~"^[^\\x0a\\x0d]+$"
 
@@ -75,27 +75,27 @@ _#defs: "/$defs/Properties/definitions/CodeConfigurationValues": close({
 		"NODEJS_22"
 
 	// The secrets and parameters that get referenced by your service as environment variables
-	RuntimeEnvironmentSecrets?:   [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
-	RuntimeEnvironmentVariables?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
+	RuntimeEnvironmentSecrets?:   [...#KeyValuePair]
+	RuntimeEnvironmentVariables?: [...#KeyValuePair]
 
 	// Start Command
 	StartCommand?: =~"^[^\\x0a\\x0d]+$"
 })
 
 // Source Code Repository
-_#defs: "/$defs/Properties/definitions/CodeRepository": close({
-	CodeConfiguration?: _#defs."/$defs/Properties/definitions/CodeConfiguration"
+#CodeRepository: close({
+	CodeConfiguration?: #CodeConfiguration
 
 	// Repository Url
 	RepositoryUrl!:     strings.MaxRunes(51200) & strings.MinRunes(0)
-	SourceCodeVersion!: _#defs."/$defs/Properties/definitions/SourceCodeVersion"
+	SourceCodeVersion!: #SourceCodeVersion
 
 	// Source Directory
 	SourceDirectory?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[^\\x00]+"
 })
 
 // Network egress configuration
-_#defs: "/$defs/Properties/definitions/EgressConfiguration": close({
+#EgressConfiguration: close({
 	// Network egress type.
 	EgressType!: "DEFAULT" | "VPC"
 
@@ -104,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/EgressConfiguration": close({
 })
 
 // Encryption configuration (KMS key)
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// The KMS Key
 	KmsKey!: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
@@ -112,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 })
 
 // Health check configuration
-_#defs: "/$defs/Properties/definitions/HealthCheckConfiguration": close({
+#HealthCheckConfiguration: close({
 	// Health check Healthy Threshold
 	HealthyThreshold?: int & <=20 & >=1
 
@@ -133,21 +133,21 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfiguration": close({
 })
 
 // Image Configuration
-_#defs: "/$defs/Properties/definitions/ImageConfiguration": close({
+#ImageConfiguration: close({
 	// Port
 	Port?: strings.MaxRunes(51200) & strings.MinRunes(0)
 
 	// The secrets and parameters that get referenced by your service as environment variables
-	RuntimeEnvironmentSecrets?:   [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
-	RuntimeEnvironmentVariables?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
+	RuntimeEnvironmentSecrets?:   [...#KeyValuePair]
+	RuntimeEnvironmentVariables?: [...#KeyValuePair]
 
 	// Start Command
 	StartCommand?: =~"^[^\\x0a\\x0d]+$"
 })
 
 // Image Repository
-_#defs: "/$defs/Properties/definitions/ImageRepository": close({
-	ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfiguration"
+#ImageRepository: close({
+	ImageConfiguration?: #ImageConfiguration
 
 	// Image Identifier
 	ImageIdentifier!: strings.MaxRunes(1024) &
@@ -159,18 +159,18 @@ _#defs: "/$defs/Properties/definitions/ImageRepository": close({
 })
 
 // Network ingress configuration
-_#defs: "/$defs/Properties/definitions/IngressConfiguration": close({
+#IngressConfiguration: close({
 	// It's set to true if the Apprunner service is publicly accessible. It's set to false otherwise.
 	IsPubliclyAccessible!: bool
 })
 
 // Instance Configuration
-_#defs: "/$defs/Properties/definitions/InstanceConfiguration": close({
+#InstanceConfiguration: close({
 	// CPU
 	Cpu?: strings.MaxRunes(9) & strings.MinRunes(3) & =~"256|512|1024|2048|4096|(0.25|0.5|1|2|4) vCPU"
 
 	// Instance Role Arn
-	InstanceRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn"
+	InstanceRoleArn?: #RoleArn
 
 	// Memory
 	Memory?: strings.MaxRunes(6) &
@@ -178,27 +178,27 @@ _#defs: "/$defs/Properties/definitions/InstanceConfiguration": close({
 	=~"512|1024|2048|3072|4096|6144|8192|10240|12288|(0.5|1|2|3|4|6|8|10|12) GB"
 })
 
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	Name?:  string
 	Value?: string
 })
 
 // Network configuration
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	EgressConfiguration?:  _#defs."/$defs/Properties/definitions/EgressConfiguration"
-	IngressConfiguration?: _#defs."/$defs/Properties/definitions/IngressConfiguration"
+#NetworkConfiguration: close({
+	EgressConfiguration?:  #EgressConfiguration
+	IngressConfiguration?: #IngressConfiguration
 
 	// App Runner service endpoint IP address type
 	IpAddressType?: "IPV4" | "DUAL_STACK"
 })
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(1024) &
 strings.MinRunes(29) &
 =~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}"
 
 // Service observability configuration
-_#defs: "/$defs/Properties/definitions/ServiceObservabilityConfiguration": close({
+#ServiceObservabilityConfiguration: close({
 	// The Amazon Resource Name (ARN) of the App Runner ObservabilityConfiguration.
 	ObservabilityConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1)
 
@@ -207,7 +207,7 @@ _#defs: "/$defs/Properties/definitions/ServiceObservabilityConfiguration": close
 })
 
 // Source Code Version
-_#defs: "/$defs/Properties/definitions/SourceCodeVersion": close({
+#SourceCodeVersion: close({
 	// Source Code Version Type
 	Type!: "BRANCH"
 
@@ -216,16 +216,16 @@ _#defs: "/$defs/Properties/definitions/SourceCodeVersion": close({
 })
 
 // Source Code configuration
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration"
+#SourceConfiguration: close({
+	AuthenticationConfiguration?: #AuthenticationConfiguration
 
 	// Auto Deployment enabled
 	AutoDeploymentsEnabled?: bool
-	CodeRepository?:         _#defs."/$defs/Properties/definitions/CodeRepository"
-	ImageRepository?:        _#defs."/$defs/Properties/definitions/ImageRepository"
+	CodeRepository?:         #CodeRepository
+	ImageRepository?:        #ImageRepository
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

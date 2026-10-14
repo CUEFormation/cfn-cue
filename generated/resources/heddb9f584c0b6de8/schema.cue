@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 	"struct"
 )
 
@@ -18,71 +18,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::InferenceComponent
-#Properties: matchN(1, [{
-	Specification!: _
-	...
-}, {
-	Specifications!: _
-	...
-}]) & close({
-	DeploymentConfig?:       _#defs."/$defs/Properties/definitions/InferenceComponentDeploymentConfig"
-	EndpointArn?:            _#defs."/$defs/Properties/definitions/EndpointArn"
-	EndpointName!:           _#defs."/$defs/Properties/definitions/EndpointName"
-	InferenceComponentName?: _#defs."/$defs/Properties/definitions/InferenceComponentName"
-	RuntimeConfig?: close({CopyCount?: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"}) |
-		fn.#ObjectExpression
-	Specification?: close({
-		BaseInferenceComponentName?: _#defs."/$defs/Properties/definitions/BaseInferenceComponentName"
-		ComputeResourceRequirements?:
-			_#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements"
-		Container?: close({
-			ArtifactUrl?:            _#defs."/$defs/Properties/definitions/Url"
-			ContainerMetricsConfig?: _#defs."/$defs/Properties/definitions/ContainerMetricsConfig"
-			Environment?:            _#defs."/$defs/Properties/definitions/EnvironmentMap"
-			Image?:                  _#defs."/$defs/Properties/definitions/ContainerImage"
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::InferenceComponent"
+	Properties!: close({
+		DeploymentConfig?:       #InferenceComponentDeploymentConfig
+		EndpointArn?:            #EndpointArn
+		EndpointName!:           #EndpointName
+		InferenceComponentName?: #InferenceComponentName
+		RuntimeConfig?:          close({CopyCount?: #InferenceComponentCopyCount}) | fn.#ObjectExpression
+		Specification?: close({
+			BaseInferenceComponentName?:  #BaseInferenceComponentName
+			ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
+			Container?: close({
+				ArtifactUrl?:            #Url
+				ContainerMetricsConfig?: #ContainerMetricsConfig
+				Environment?:            #EnvironmentMap
+				Image?:                  #ContainerImage
+			}) |
+			fn.#ObjectExpression
+			DataCacheConfig?:   #InferenceComponentDataCacheConfig
+			ModelName?:         #ModelName
+			SchedulingConfig?:  #InferenceComponentSchedulingConfig
+			StartupParameters?: #InferenceComponentStartupParameters
 		}) |
 		fn.#ObjectExpression
-		DataCacheConfig?:   _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig"
-		ModelName?:         _#defs."/$defs/Properties/definitions/ModelName"
-		SchedulingConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig"
-		StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters"
-	}) |
-	fn.#ObjectExpression
-	Specifications?: list.MaxItems(5) & list.MinItems(2) & [...close({
-		ComputeResourceRequirements?:
-			_#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements"
-		Container?:         _#defs."/$defs/Properties/definitions/InferenceComponentContainerSpecificationForInstanceType"
-		DataCacheConfig?:   _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig"
-		InstanceType!:      _#defs."/$defs/Properties/definitions/InstanceType"
-		ModelName?:         _#defs."/$defs/Properties/definitions/ModelName"
-		SchedulingConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig"
-		StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters"
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/TagList"
-	VariantName?: _#defs."/$defs/Properties/definitions/VariantName"
-})
-
-_#defs: "/$defs/Properties/definitions/Alarm": close(
-	{AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": close({
-	Alarms!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Alarm"] |
+		Specifications?: list.MaxItems(5) & list.MinItems(2) & [...close({
+			ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
+			Container?:                   #InferenceComponentContainerSpecificationForInstanceType
+			DataCacheConfig?:             #InferenceComponentDataCacheConfig
+			InstanceType!:                #InstanceType
+			ModelName?:                   #ModelName
+			SchedulingConfig?:            #InferenceComponentSchedulingConfig
+			StartupParameters?:           #InferenceComponentStartupParameters
+		}) |
+		fn.#ObjectExpression] |
 		fn.#ListExpression
-}) |
+		Tags?:        #TagList
+		VariantName?: #VariantName
+		if Specification != _|_ if Specification."Fn::If" == _|_ {
+			Specifications?: close({"Fn::If": _}) | error(
+				"Specifications cannot be used with Specification; set exactly one of Specification, Specifications",
+			)
+		}
+	}) & matchN(>=1, [{Specification!: _}, {Specifications!: _}])
+}
+
+#Alarm: close({AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
+
+#AutoRollbackConfiguration: close({Alarms!: list.MaxItems(10) & list.MinItems(1) & [...#Alarm] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneBalanceEnforcementMode": "PERMISSIVE" | fn.#StringExpression
+#AvailabilityZoneBalanceEnforcementMode: "PERMISSIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BaseInferenceComponentName": strings.MaxRunes(63) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+#BaseInferenceComponentName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacitySizeValue": int |
+#CapacitySizeValue: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -96,38 +87,32 @@ _#defs: "/$defs/Properties/definitions/CapacitySizeValue": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerImage": strings.MaxRunes(255) & strings.MinRunes(0) & =~"[\\S]+" |
-fn.#StringExpression
+#ContainerImage: strings.MaxRunes(255) & strings.MinRunes(0) & =~"[\\S]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerMetricsConfig": close({
-	MetricsEndpoints!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MetricsEndpoint"] |
-		fn.#ListExpression
-}) |
+#ContainerMetricsConfig: close(
+	{MetricsEndpoints!: list.MaxItems(1) & list.MinItems(1) & [...#MetricsEndpoint] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeployedImage": close({
-	ResolutionTime?: _#defs."/$defs/Properties/definitions/Timestamp"
-	ResolvedImage?:  _#defs."/$defs/Properties/definitions/ContainerImage"
-	SpecifiedImage?: _#defs."/$defs/Properties/definitions/ContainerImage"
+#DeployedImage: close({
+	ResolutionTime?: #Timestamp
+	ResolvedImage?:  #ContainerImage
+	SpecifiedImage?: #ContainerImage
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointArn": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#EndpointArn: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointName": strings.MaxRunes(63) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
-fn.#StringExpression
+#EndpointName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentMap": struct.MaxFields(16) & {...} | fn.#ObjectExpression
+#EnvironmentMap: struct.MaxFields(16) & {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailureReason": strings.MaxRunes(63) | fn.#StringExpression
+#FailureReason: strings.MaxRunes(63) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentArn": strings.MaxRunes(256) & strings.MinRunes(1) |
-fn.#StringExpression
+#InferenceComponentArn: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentAvailabilityZoneBalance": close({
-	EnforcementMode!: _#defs."/$defs/Properties/definitions/AvailabilityZoneBalanceEnforcementMode"
+#InferenceComponentAvailabilityZoneBalance: close({
+	EnforcementMode!: #AvailabilityZoneBalanceEnforcementMode
 	MaxImbalance?: int & <=100 & >=0 |
 		{
 			string &
@@ -147,42 +132,40 @@ _#defs: "/$defs/Properties/definitions/InferenceComponentAvailabilityZoneBalance
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentCapacitySize": close({
-	Type!:  _#defs."/$defs/Properties/definitions/InferenceComponentCapacitySizeType"
-	Value!: _#defs."/$defs/Properties/definitions/CapacitySizeValue"
+#InferenceComponentCapacitySize: close({
+	Type!:  #InferenceComponentCapacitySizeType
+	Value!: #CapacitySizeValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentCapacitySizeType": "COPY_COUNT" |
-	"CAPACITY_PERCENT" |
-	fn.#StringExpression
+#InferenceComponentCapacitySizeType: "COPY_COUNT" | "CAPACITY_PERCENT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements": close({
-	MaxMemoryRequiredInMb?:              _#defs."/$defs/Properties/definitions/MemoryInMb"
-	MinMemoryRequiredInMb?:              _#defs."/$defs/Properties/definitions/MemoryInMb"
-	NumberOfAcceleratorDevicesRequired?: _#defs."/$defs/Properties/definitions/NumberOfAcceleratorDevices"
-	NumberOfCpuCoresRequired?:           _#defs."/$defs/Properties/definitions/NumberOfCpuCores"
+#InferenceComponentComputeResourceRequirements: close({
+	MaxMemoryRequiredInMb?:              #MemoryInMb
+	MinMemoryRequiredInMb?:              #MemoryInMb
+	NumberOfAcceleratorDevicesRequired?: #NumberOfAcceleratorDevices
+	NumberOfCpuCoresRequired?:           #NumberOfCpuCores
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentContainerSpecification": close({
-	ArtifactUrl?:            _#defs."/$defs/Properties/definitions/Url"
-	ContainerMetricsConfig?: _#defs."/$defs/Properties/definitions/ContainerMetricsConfig"
-	DeployedImage?:          _#defs."/$defs/Properties/definitions/DeployedImage"
-	Environment?:            _#defs."/$defs/Properties/definitions/EnvironmentMap"
-	Image?:                  _#defs."/$defs/Properties/definitions/ContainerImage"
+#InferenceComponentContainerSpecification: close({
+	ArtifactUrl?:            #Url
+	ContainerMetricsConfig?: #ContainerMetricsConfig
+	DeployedImage?:          #DeployedImage
+	Environment?:            #EnvironmentMap
+	Image?:                  #ContainerImage
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentContainerSpecificationForInstanceType": close({
-	ArtifactUrl?:            _#defs."/$defs/Properties/definitions/Url"
-	ContainerMetricsConfig?: _#defs."/$defs/Properties/definitions/ContainerMetricsConfig"
-	Environment?:            _#defs."/$defs/Properties/definitions/EnvironmentMap"
-	Image?:                  _#defs."/$defs/Properties/definitions/ContainerImage"
+#InferenceComponentContainerSpecificationForInstanceType: close({
+	ArtifactUrl?:            #Url
+	ContainerMetricsConfig?: #ContainerMetricsConfig
+	Environment?:            #EnvironmentMap
+	Image?:                  #ContainerImage
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentCopyCount": int & >=0 |
+#InferenceComponentCopyCount: int & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -198,100 +181,102 @@ _#defs: "/$defs/Properties/definitions/InferenceComponentCopyCount": int & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentDataCacheConfig": close(
+#InferenceComponentDataCacheConfig: close(
 	{EnableCaching!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentDeploymentConfig": close({
-	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfiguration"
-	RollingUpdatePolicy?:       _#defs."/$defs/Properties/definitions/InferenceComponentRollingUpdatePolicy"
+#InferenceComponentDeploymentConfig: close({
+	AutoRollbackConfiguration?: #AutoRollbackConfiguration
+	RollingUpdatePolicy?:       #InferenceComponentRollingUpdatePolicy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentName": strings.MaxRunes(63) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+#InferenceComponentName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentPlacementStatus": close({
-	CurrentCopyCount!: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"
-	InstanceType!:     _#defs."/$defs/Properties/definitions/InstanceType"
+#InferenceComponentPlacementStatus: close({
+	CurrentCopyCount!: #InferenceComponentCopyCount
+	InstanceType!:     #InstanceType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentPlacementStrategy": "SPREAD" | "BINPACK" | fn.#StringExpression
+#InferenceComponentPlacementStrategy: "SPREAD" | "BINPACK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentRollingUpdatePolicy": close({
-	MaximumBatchSize?:                 _#defs."/$defs/Properties/definitions/InferenceComponentCapacitySize"
-	MaximumExecutionTimeoutInSeconds?: _#defs."/$defs/Properties/definitions/MaximumExecutionTimeoutInSeconds"
-	RollbackMaximumBatchSize?:         _#defs."/$defs/Properties/definitions/InferenceComponentCapacitySize"
-	WaitIntervalInSeconds?:            _#defs."/$defs/Properties/definitions/WaitIntervalInSeconds"
+#InferenceComponentRollingUpdatePolicy: close({
+	MaximumBatchSize?:                 #InferenceComponentCapacitySize
+	MaximumExecutionTimeoutInSeconds?: #MaximumExecutionTimeoutInSeconds
+	RollbackMaximumBatchSize?:         #InferenceComponentCapacitySize
+	WaitIntervalInSeconds?:            #WaitIntervalInSeconds
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentRuntimeConfig": close({
-	CopyCount?:        _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"
-	CurrentCopyCount?: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"
-	DesiredCopyCount?: _#defs."/$defs/Properties/definitions/InferenceComponentCopyCount"
-	PlacementStatus?: [..._#defs."/$defs/Properties/definitions/InferenceComponentPlacementStatus"] | fn.#ListExpression
+#InferenceComponentRuntimeConfig: close({
+	CopyCount?:        #InferenceComponentCopyCount
+	CurrentCopyCount?: #InferenceComponentCopyCount
+	DesiredCopyCount?: #InferenceComponentCopyCount
+	PlacementStatus?:  [...#InferenceComponentPlacementStatus] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentSchedulingConfig": close({
-	AvailabilityZoneBalance!: _#defs."/$defs/Properties/definitions/InferenceComponentAvailabilityZoneBalance"
-	PlacementStrategy!:       _#defs."/$defs/Properties/definitions/InferenceComponentPlacementStrategy"
+#InferenceComponentSchedulingConfig: close({
+	AvailabilityZoneBalance!: #InferenceComponentAvailabilityZoneBalance
+	PlacementStrategy!:       #InferenceComponentPlacementStrategy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentSpecification": close({
-	BaseInferenceComponentName?:  _#defs."/$defs/Properties/definitions/BaseInferenceComponentName"
-	ComputeResourceRequirements?: _#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements"
-	Container?:                   _#defs."/$defs/Properties/definitions/InferenceComponentContainerSpecification"
-	CurrentDataCacheConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig" |
-		fn.#ObjectExpression
-	DataCacheConfig?:   _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig"
-	ModelName?:         _#defs."/$defs/Properties/definitions/ModelName"
-	SchedulingConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig"
-	StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters"
+#InferenceComponentSpecification: close({
+	BaseInferenceComponentName?:  #BaseInferenceComponentName
+	ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
+	Container?:                   #InferenceComponentContainerSpecification
+
+	// The data caching configuration actually in effect, including a value the
+	// service chose rather than the template: SageMaker enables caching
+	// automatically on instance types with more than 232 GiB of local NVMe
+	// storage, whether or not DataCacheConfig was set. Returned by Describe and
+	// not settable; set DataCacheConfig instead.
+	CurrentDataCacheConfig?: #InferenceComponentDataCacheConfig
+	DataCacheConfig?:        #InferenceComponentDataCacheConfig
+	ModelName?:              #ModelName
+	SchedulingConfig?:       #InferenceComponentSchedulingConfig
+	StartupParameters?:      #InferenceComponentStartupParameters
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentSpecificationForInstanceType": close({
-	ComputeResourceRequirements?: _#defs."/$defs/Properties/definitions/InferenceComponentComputeResourceRequirements"
-	Container?:                   _#defs."/$defs/Properties/definitions/InferenceComponentContainerSpecificationForInstanceType"
-	CurrentDataCacheConfig?: _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig" |
-		fn.#ObjectExpression
-	DataCacheConfig?:   _#defs."/$defs/Properties/definitions/InferenceComponentDataCacheConfig"
-	InstanceType!:      _#defs."/$defs/Properties/definitions/InstanceType"
-	ModelName?:         _#defs."/$defs/Properties/definitions/ModelName"
-	SchedulingConfig?:  _#defs."/$defs/Properties/definitions/InferenceComponentSchedulingConfig"
-	StartupParameters?: _#defs."/$defs/Properties/definitions/InferenceComponentStartupParameters"
+#InferenceComponentSpecificationForInstanceType: close({
+	ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
+	Container?:                   #InferenceComponentContainerSpecificationForInstanceType
+
+	// The data caching configuration actually in effect for this instance type,
+	// including a value the service chose rather than the template: SageMaker
+	// enables caching automatically on instance types with more than 232 GiB of
+	// local NVMe storage, whether or not DataCacheConfig was set. Returned by
+	// Describe and not settable; set DataCacheConfig instead.
+	CurrentDataCacheConfig?: #InferenceComponentDataCacheConfig
+	DataCacheConfig?:        #InferenceComponentDataCacheConfig
+	InstanceType!:           #InstanceType
+	ModelName?:              #ModelName
+	SchedulingConfig?:       #InferenceComponentSchedulingConfig
+	StartupParameters?:      #InferenceComponentStartupParameters
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentSpecificationList": list.MaxItems(5) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/InferenceComponentSpecificationForInstanceType"
+#InferenceComponentSpecificationList: list.MaxItems(5) & list.MinItems(2) & [
+	...#InferenceComponentSpecificationForInstanceType
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentStartupParameters": close({
-	ContainerStartupHealthCheckTimeoutInSeconds?:
-		_#defs."/$defs/Properties/definitions/StartupParameterTimeoutInSeconds"
-	ModelDataDownloadTimeoutInSeconds?: _#defs."/$defs/Properties/definitions/StartupParameterTimeoutInSeconds"
+#InferenceComponentStartupParameters: close({
+	ContainerStartupHealthCheckTimeoutInSeconds?: #StartupParameterTimeoutInSeconds
+	ModelDataDownloadTimeoutInSeconds?:           #StartupParameterTimeoutInSeconds
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceComponentStatus": "InService" |
-	"Creating" |
-	"Updating" |
-	"Failed" |
-	"Deleting" |
-	fn.#StringExpression
+#InferenceComponentStatus: "InService" | "Creating" | "Updating" | "Failed" | "Deleting" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceType": strings.MaxRunes(64) & =~"^ml\\..*" | fn.#StringExpression
+#InstanceType: strings.MaxRunes(64) & =~"^ml\\..*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaximumExecutionTimeoutInSeconds": int & <=28800 & >=600 |
+#MaximumExecutionTimeoutInSeconds: int & <=28800 & >=600 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -308,7 +293,7 @@ _#defs: "/$defs/Properties/definitions/MaximumExecutionTimeoutInSeconds": int & 
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryInMb": int & >=128 |
+#MemoryInMb: int & >=128 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -324,7 +309,7 @@ _#defs: "/$defs/Properties/definitions/MemoryInMb": int & >=128 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsEndpoint": close({
+#MetricsEndpoint: close({
 	MetricPublishFrequencyInSeconds?: int & <=300 & >=10 |
 		{
 			string &
@@ -345,12 +330,9 @@ _#defs: "/$defs/Properties/definitions/MetricsEndpoint": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelName": strings.MaxRunes(63) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
-fn.#StringExpression
+#ModelName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfAcceleratorDevices": >=1 |
+#NumberOfAcceleratorDevices: >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -370,7 +352,7 @@ _#defs: "/$defs/Properties/definitions/NumberOfAcceleratorDevices": >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfCpuCores": >=0.25 |
+#NumberOfCpuCores: >=0.25 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -390,7 +372,7 @@ _#defs: "/$defs/Properties/definitions/NumberOfCpuCores": >=0.25 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/StartupParameterTimeoutInSeconds": int & <=3600 & >=60 |
+#StartupParameterTimeoutInSeconds: int & <=3600 & >=60 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -407,30 +389,21 @@ _#defs: "/$defs/Properties/definitions/StartupParameterTimeoutInSeconds": int & 
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#TagList: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string | fn.#StringExpression
+#Timestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Url": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"^(https|s3)://([^/]+)/?(.*)$" |
-fn.#StringExpression
+#Url: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VariantName": strings.MaxRunes(63) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
-fn.#StringExpression
+#VariantName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WaitIntervalInSeconds": int & <=3600 & >=0 |
+#WaitIntervalInSeconds: int & <=3600 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -446,7 +419,3 @@ _#defs: "/$defs/Properties/definitions/WaitIntervalInSeconds": int & <=3600 & >=
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::InferenceComponent"
-	Properties!: #Properties
-}

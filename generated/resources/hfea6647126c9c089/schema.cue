@@ -12,19 +12,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::TopicRuleDestination
-#Properties: close({
-	HttpUrlProperties?:  _#defs."/$defs/Properties/definitions/HttpUrlDestinationSummary" | fn.#ObjectExpression
-	InfluxDBProperties?: _#defs."/$defs/Properties/definitions/InfluxDBDestinationProperties" | fn.#ObjectExpression
-	Status?:             _#defs."/$defs/Properties/definitions/TopicRuleDestinationStatus" | fn.#StringExpression
-	VpcProperties?:      _#defs."/$defs/Properties/definitions/VpcDestinationProperties" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::TopicRuleDestination"
+	Properties?: close({
+		// HTTP URL destination properties.
+		HttpUrlProperties?: #HttpUrlDestinationSummary
 
-_#defs: "/$defs/Properties/definitions/HttpUrlDestinationSummary": close(
-	{ConfirmationUrl?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+		// InfluxDB destination properties.
+		InfluxDBProperties?: #InfluxDBDestinationProperties
 
-_#defs: "/$defs/Properties/definitions/InfluxDBDestinationProperties": close({
+		// The status of the TopicRuleDestination.
+		Status?: #TopicRuleDestinationStatus
+
+		// VPC destination properties.
+		VpcProperties?: #VpcDestinationProperties
+	})
+}
+
+#HttpUrlDestinationSummary: close({ConfirmationUrl?: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#InfluxDBDestinationProperties: close({
 	Endpoint!:        string | fn.#StringExpression
 	InfluxDBVersion!: string | fn.#StringExpression
 	SecretId!:        string | fn.#StringExpression
@@ -33,12 +40,9 @@ _#defs: "/$defs/Properties/definitions/InfluxDBDestinationProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TopicRuleDestinationStatus": "ENABLED" |
-	"IN_PROGRESS" |
-	"DISABLED" |
-	fn.#StringExpression
+#TopicRuleDestinationStatus: "ENABLED" | "IN_PROGRESS" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcDestinationProperties": close({
+#VpcDestinationProperties: close({
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	SecurityGroups?: list.UniqueItems() & [
@@ -51,7 +55,3 @@ _#defs: "/$defs/Properties/definitions/VpcDestinationProperties": close({
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::TopicRuleDestination"
-	Properties?: #Properties
-}

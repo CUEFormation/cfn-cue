@@ -11,12 +11,12 @@ import (
 
 // An OpenSearch Ingestion Service Data Prepper pipeline running Data Prepper.
 #Properties: close({
-	BufferOptions?:           _#defs."/$defs/Properties/definitions/BufferOptions"
-	EncryptionAtRestOptions?: _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions"
+	BufferOptions?:           #BufferOptions
+	EncryptionAtRestOptions?: #EncryptionAtRestOptions
 
 	// A list of endpoints that can be used for ingesting data into a pipeline
 	IngestEndpointUrls?:   [...string]
-	LogPublishingOptions?: _#defs."/$defs/Properties/definitions/LogPublishingOptions"
+	LogPublishingOptions?: #LogPublishingOptions
 
 	// The maximum pipeline capacity, in Ingestion OpenSearch Compute Units (OCUs).
 	MaxUnits!: int & <=384 & >=1
@@ -41,34 +41,34 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws\\-cn|aws\\-us\\-gov|aws\\-iso|aws\\-iso\\-b|aws\\-iso\\-e|aws\\-iso\\-f):iam::[0-9]+:role\\/.*$"
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
+	ResourcePolicy?: #ResourcePolicy
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The VPC endpoint service name for the pipeline.
 	VpcEndpointService?: strings.MaxRunes(128) & strings.MinRunes(0)
 
 	// The VPC interface endpoints that have access to the pipeline.
-	VpcEndpoints?: [..._#defs."/$defs/Properties/definitions/VpcEndpoint"]
-	VpcOptions?:   _#defs."/$defs/Properties/definitions/VpcOptions"
+	VpcEndpoints?: [...#VpcEndpoint]
+	VpcOptions?:   #VpcOptions
 })
 
 // Key-value pairs to configure buffering.
-_#defs: "/$defs/Properties/definitions/BufferOptions": close({
+#BufferOptions: close({
 	// Whether persistent buffering should be enabled.
 	PersistentBufferEnabled!: bool
 })
 
 // Key-value pairs to configure encryption at rest.
-_#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
+#EncryptionAtRestOptions: close({
 	// The KMS key to use for encrypting data. By default an AWS owned key is used
 	KmsKeyArn!:
 		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(7))
 })
 
 // Key-value pairs to configure log publishing.
-_#defs: "/$defs/Properties/definitions/LogPublishingOptions": close({
+#LogPublishingOptions: close({
 	// The destination for OpenSearch Ingestion Service logs sent to Amazon CloudWatch.
 	CloudWatchLogDestination?: close(
 		{LogGroup!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\/aws\\/vendedlogs\\/[\\.\\-_/#A-Za-z0-9]+"},
@@ -78,10 +78,10 @@ _#defs: "/$defs/Properties/definitions/LogPublishingOptions": close({
 	IsLoggingEnabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({Policy!: {...}})
+#ResourcePolicy: close({Policy!: {...}})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -96,19 +96,19 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An OpenSearch Ingestion Service-managed VPC endpoint that will access one or more pipelines.
-_#defs: "/$defs/Properties/definitions/VpcEndpoint": close({
+#VpcEndpoint: close({
 	// The unique identifier of the endpoint.
 	VpcEndpointId?: string
 
 	// The ID for your VPC. AWS Privatelink generates this value when you create a VPC.
 	VpcId?:      =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
-	VpcOptions?: _#defs."/$defs/Properties/definitions/VpcOptions"
+	VpcOptions?: #VpcOptions
 })
 
 // Container for the values required to configure VPC access for the pipeline.
 // If you don't specify these values, OpenSearch Ingestion Service creates the
 // pipeline with a public endpoint.
-_#defs: "/$defs/Properties/definitions/VpcOptions": close({
+#VpcOptions: close({
 	// A list of security groups associated with the VPC endpoint.
 	SecurityGroupIds?: list.MaxItems(12) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &

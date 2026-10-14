@@ -12,7 +12,7 @@ import (
 // Creates a rule for the specified CON instance.
 #Properties: close({
 	// A list of actions to be run when the rule is triggered.
-	Actions!: _#defs."/$defs/Properties/definitions/Actions"
+	Actions!: #Actions
 
 	// The conditions of the rule.
 	Function!: string
@@ -30,43 +30,43 @@ import (
 
 	// The tags used to organize, track, or control access for this resource. For
 	// example, { "tags": {"key1":"value1", "key2":"value2"} }.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The event source to trigger the rule.
-	TriggerEventSource!: _#defs."/$defs/Properties/definitions/RuleTriggerEventSource"
+	TriggerEventSource!: #RuleTriggerEventSource
 })
 
 // A list of actions to be run when the rule is triggered.
-_#defs: "/$defs/Properties/definitions/Actions": close({
+#Actions: close({
 	// Information about the contact category action. The syntax can be empty, for example, ``{}``.
-	AssignContactCategoryActions?: _#defs."/$defs/Properties/definitions/AssignContactCategoryActions"
-	AssignSlaActions?:             _#defs."/$defs/Properties/definitions/AssignSlaActions"
-	CreateCaseActions?:            _#defs."/$defs/Properties/definitions/CreateCaseActions"
-	EndAssociatedTasksActions?:    _#defs."/$defs/Properties/definitions/EndAssociatedTasksActions"
+	AssignContactCategoryActions?: #AssignContactCategoryActions
+	AssignSlaActions?:             #AssignSlaActions
+	CreateCaseActions?:            #CreateCaseActions
+	EndAssociatedTasksActions?:    #EndAssociatedTasksActions
 
 	// Information about the EV action.
-	EventBridgeActions?: _#defs."/$defs/Properties/definitions/EventBridgeActions"
+	EventBridgeActions?: #EventBridgeActions
 
 	// Information about the send notification action.
-	SendNotificationActions?:     _#defs."/$defs/Properties/definitions/SendNotificationActions"
-	SubmitAutoEvaluationActions?: _#defs."/$defs/Properties/definitions/SubmitAutoEvaluationActions"
+	SendNotificationActions?:     #SendNotificationActions
+	SubmitAutoEvaluationActions?: #SubmitAutoEvaluationActions
 
 	// Information about the task action. This field is required if
 	// ``TriggerEventSource`` is one of the following values:
 	// ``OnZendeskTicketCreate`` | ``OnZendeskTicketStatusUpdate`` |
 	// ``OnSalesforceCaseCreate``
-	TaskActions?:       _#defs."/$defs/Properties/definitions/TaskActions"
-	UpdateCaseActions?: _#defs."/$defs/Properties/definitions/UpdateCaseActions"
+	TaskActions?:       #TaskActions
+	UpdateCaseActions?: #UpdateCaseActions
 })
 
-_#defs: "/$defs/Properties/definitions/AssignContactCategoryAction": string | {...}
+#AssignContactCategoryAction: string | {...}
 
 // This action will assign contact category when a rule is triggered.
-_#defs: "/$defs/Properties/definitions/AssignContactCategoryActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AssignContactCategoryAction"
+#AssignContactCategoryActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+	...#AssignContactCategoryAction
 ]
 
-_#defs: "/$defs/Properties/definitions/AssignSlaAction": close({
+#AssignSlaAction: close({
 	CaseSlaConfiguration!: close({
 		// The field Id for the SLA.
 		FieldId?: strings.MaxRunes(500) & strings.MinRunes(1)
@@ -75,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/AssignSlaAction": close({
 		Name!: strings.MaxRunes(500) & strings.MinRunes(1)
 
 		// The target field values for the SLA.
-		TargetFieldValues?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/SlaTargetFieldValue"]
+		TargetFieldValues?: list.MaxItems(1) & [...#SlaTargetFieldValue]
 
 		// The target SLA time in minutes.
 		TargetSlaMinutes!: <=1051200 & >=1
@@ -87,45 +87,37 @@ _#defs: "/$defs/Properties/definitions/AssignSlaAction": close({
 })
 
 // This action will assign an SLA when a rule is triggered.
-_#defs: "/$defs/Properties/definitions/AssignSlaActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AssignSlaAction"
-]
+#AssignSlaActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#AssignSlaAction]
 
-_#defs: "/$defs/Properties/definitions/CreateCaseAction": close({
-	Fields!:     _#defs."/$defs/Properties/definitions/Fields"
+#CreateCaseAction: close({
+	Fields!:     #Fields
 	TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1)
 })
 
 // This action will create a case when a rule is triggered.
-_#defs: "/$defs/Properties/definitions/CreateCaseActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CreateCaseAction"
-]
+#CreateCaseActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#CreateCaseAction]
 
-_#defs: "/$defs/Properties/definitions/EndAssociatedTasksAction": string | {...}
+#EndAssociatedTasksAction: string | {...}
 
 // This action will end associated tasks when a rule is triggered.
-_#defs: "/$defs/Properties/definitions/EndAssociatedTasksActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/EndAssociatedTasksAction"
-]
+#EndAssociatedTasksActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#EndAssociatedTasksAction]
 
 // The EV action definition.
-_#defs: "/$defs/Properties/definitions/EventBridgeAction": close({
+#EventBridgeAction: close({
 	// The name.
 	Name!: =~"^[a-zA-Z0-9._-]{1,100}$"
 })
 
 // This action will send event bridge notification when a rule is triggered.
-_#defs: "/$defs/Properties/definitions/EventBridgeActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/EventBridgeAction"
-]
+#EventBridgeActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#EventBridgeAction]
 
-_#defs: "/$defs/Properties/definitions/Field": close({
+#Field: close({
 	Id!:    strings.MaxRunes(500) & strings.MinRunes(1)
-	Value!: _#defs."/$defs/Properties/definitions/FieldValue"
+	Value!: #FieldValue
 })
 
 // Object for case field values.
-_#defs: "/$defs/Properties/definitions/FieldValue": close({
+#FieldValue: close({
 	BooleanValue?: bool
 	DoubleValue?:  number
 	EmptyValue?:   string | {...}
@@ -133,16 +125,12 @@ _#defs: "/$defs/Properties/definitions/FieldValue": close({
 })
 
 // An array of case fields
-_#defs: "/$defs/Properties/definitions/Fields": list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Field"
-]
+#Fields: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#Field]
 
 // The type of notification recipient.
-_#defs: "/$defs/Properties/definitions/NotificationRecipientType": close({
+#NotificationRecipientType: close({
 	// The Amazon Resource Name (ARN) of the user account.
-	UserArns?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/UserArn"
-	]
+	UserArns?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#UserArn]
 
 	// The tags used to organize, track, or control access for this resource. For
 	// example, { "tags": {"key1":"value1", "key2":"value2"} }. CON users with the
@@ -159,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/NotificationRecipientType": close({
 
 // Information about the reference when the ``referenceType`` is ``URL``.
 // Otherwise, null. (Supports variable injection in the ``Value`` field.)
-_#defs: "/$defs/Properties/definitions/Reference": close({
+#Reference: close({
 	// The type of the reference. ``DATE`` must be of type Epoch timestamp.
 	// *Allowed values*: ``URL`` | ``ATTACHMENT`` | ``NUMBER`` | ``STRING`` | ``DATE`` | ``EMAIL``
 	Type!: "URL" | "ATTACHMENT" | "NUMBER" | "STRING" | "DATE" | "EMAIL"
@@ -171,7 +159,7 @@ _#defs: "/$defs/Properties/definitions/Reference": close({
 })
 
 // The name of the event source.
-_#defs: "/$defs/Properties/definitions/RuleTriggerEventSource": close({
+#RuleTriggerEventSource: close({
 	// The name of the event source.
 	EventSourceName!: "OnEmailAnalysisAvailable" |
 		"OnContactEvaluationSubmit" |
@@ -199,7 +187,7 @@ _#defs: "/$defs/Properties/definitions/RuleTriggerEventSource": close({
 })
 
 // Information about the send notification action.
-_#defs: "/$defs/Properties/definitions/SendNotificationAction": close({
+#SendNotificationAction: close({
 	// Notification content. Supports variable injection. For more information, see
 	// [JSONPath
 	// reference](https://docs.aws.amazon.com/connect/latest/adminguide/contact-lens-variable-injection.html)
@@ -213,10 +201,10 @@ _#defs: "/$defs/Properties/definitions/SendNotificationAction": close({
 	// Notification delivery method.
 	// *Allowed value*: ``EMAIL``
 	DeliveryMethod!: "EMAIL"
-	Exclusion?:      _#defs."/$defs/Properties/definitions/NotificationRecipientType"
+	Exclusion?:      #NotificationRecipientType
 
 	// Notification recipient.
-	Recipient!: _#defs."/$defs/Properties/definitions/NotificationRecipientType"
+	Recipient!: #NotificationRecipientType
 
 	// The subject of the email if the delivery method is ``EMAIL``. Supports
 	// variable injection. For more information, see [JSONPath
@@ -226,24 +214,22 @@ _#defs: "/$defs/Properties/definitions/SendNotificationAction": close({
 })
 
 // The action will send notification when a rule is triggered.
-_#defs: "/$defs/Properties/definitions/SendNotificationActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SendNotificationAction"
-]
+#SendNotificationActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#SendNotificationAction]
 
-_#defs: "/$defs/Properties/definitions/SlaTargetFieldValue": close({StringValue?: string})
+#SlaTargetFieldValue: close({StringValue?: string})
 
-_#defs: "/$defs/Properties/definitions/SubmitAutoEvaluationAction": close({
+#SubmitAutoEvaluationAction: close({
 	EvaluationFormArn!:
 		=~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/evaluation-form/[-a-zA-Z0-9]*$"
 })
 
 // This action will submit an auto contact evaluation when a rule is triggered.
-_#defs: "/$defs/Properties/definitions/SubmitAutoEvaluationActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SubmitAutoEvaluationAction"
+#SubmitAutoEvaluationActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+	...#SubmitAutoEvaluationAction
 ]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -261,7 +247,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // ``TriggerEventSource`` is one of the following values:
 // ``OnZendeskTicketCreate`` | ``OnZendeskTicketStatusUpdate`` |
 // ``OnSalesforceCaseCreate``
-_#defs: "/$defs/Properties/definitions/TaskAction": close({
+#TaskAction: close({
 	// The Amazon Resource Name (ARN) of the flow.
 	ContactFlowArn!:
 		=~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*$"
@@ -287,22 +273,16 @@ _#defs: "/$defs/Properties/definitions/TaskAction": close({
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Reference"}})
+		{[=~"^.+$"]: #Reference}})
 })
 
 // This action will generate a task when a rule is triggered.
-_#defs: "/$defs/Properties/definitions/TaskActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/TaskAction"
-]
+#TaskActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#TaskAction]
 
-_#defs: "/$defs/Properties/definitions/UpdateCaseAction": close(
-	{Fields!: _#defs."/$defs/Properties/definitions/Fields"},
-)
+#UpdateCaseAction: close({Fields!: #Fields})
 
 // This action will update a case when a rule is triggered.
-_#defs: "/$defs/Properties/definitions/UpdateCaseActions": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/UpdateCaseAction"
-]
+#UpdateCaseActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#UpdateCaseAction]
 
 // The Amazon Resource Name (ARN) of the user or a dynamic recipient string starting with '$.'.
-_#defs: "/$defs/Properties/definitions/UserArn": =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$|^\\$\\..+$"
+#UserArn: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$|^\\$\\..+$"

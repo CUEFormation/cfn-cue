@@ -17,16 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // values of a StartJobRun API request in a reusable template, so they can be
 // used to start a job run or to enforce certain values in a StartJobRun API
 // request.
-#Properties: close({
-	JobTemplateData!: _#defs."/$defs/Properties/definitions/JobTemplateData"
-	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMRContainers::JobTemplate"
+	Properties!: close({
+		JobTemplateData!: #JobTemplateData
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Configuration": close({
+#Configuration: close({
 	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Configurations?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Configuration"] |
-		fn.#ListExpression
+	Configurations?: list.MaxItems(100) & [...] & [...#Configuration] | fn.#ListExpression
 	Properties?: struct.MaxFields(100) & close({
 
 		{[=~"^.+$"]: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression}}) |
@@ -34,63 +36,60 @@ _#defs: "/$defs/Properties/definitions/Configuration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobDriver": matchN(1, [{
-	SparkSubmitJobDriver!: _
-	...
-}, {
-	SparkSqlJobDriver!: _
-	...
-}]) & close({
-	SparkSqlJobDriver?:    _#defs."/$defs/Properties/definitions/SparkSqlJobDriver"
-	SparkSubmitJobDriver?: _#defs."/$defs/Properties/definitions/SparkSubmitJobDriver"
-}) |
+#JobDriver: close({
+	SparkSqlJobDriver?:    #SparkSqlJobDriver
+	SparkSubmitJobDriver?: #SparkSubmitJobDriver
+	if SparkSubmitJobDriver != _|_ if SparkSubmitJobDriver."Fn::If" == _|_ {
+		SparkSqlJobDriver?: close({"Fn::If": _}) | error(
+			"SparkSqlJobDriver cannot be used with SparkSubmitJobDriver; set exactly one of SparkSubmitJobDriver, SparkSqlJobDriver",
+		)
+	}
+}) & matchN(>=1, [{SparkSubmitJobDriver!: _}, {SparkSqlJobDriver!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobTemplateData": close({
-	ConfigurationOverrides?: _#defs."/$defs/Properties/definitions/ParametricConfigurationOverrides"
+#JobTemplateData: close({
+	ConfigurationOverrides?: #ParametricConfigurationOverrides
 	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(4) &
 	=~"^(^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$)|([\\.\\-_\\#A-Za-z0-9\\$\\{\\}]+)$" |
 	fn.#StringExpression
-	JobDriver!: _#defs."/$defs/Properties/definitions/JobDriver"
+	JobDriver!: #JobDriver
 	JobTags?: struct.MaxFields(50) & close({
 
 		{[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	ParameterConfiguration?: struct.MaxFields(100) & close({
 
-		{[=~"^[\\.\\-_#A-Za-z0-9]+$"]: _#defs."/$defs/Properties/definitions/TemplateParameterConfiguration"}}) |
+		{[=~"^[\\.\\-_#A-Za-z0-9]+$"]: #TemplateParameterConfiguration}}) |
 	fn.#ObjectExpression
 	ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([\\.\\-_/A-Za-z0-9]+|\\$\\{[a-zA-Z]\\w*\\})$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParametricCloudWatchMonitoringConfiguration": close({
+#ParametricCloudWatchMonitoringConfiguration: close({
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9\\$\\{\\}]+$" |
 	fn.#StringExpression
 	LogStreamNamePrefix?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParametricConfigurationOverrides": close({
-	ApplicationConfiguration?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Configuration"] |
-		fn.#ListExpression
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/ParametricMonitoringConfiguration"
+#ParametricConfigurationOverrides: close({
+	ApplicationConfiguration?: list.MaxItems(100) & [...] & [...#Configuration] | fn.#ListExpression
+	MonitoringConfiguration?:  #ParametricMonitoringConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParametricMonitoringConfiguration": close({
-	CloudWatchMonitoringConfiguration?:
-		_#defs."/$defs/Properties/definitions/ParametricCloudWatchMonitoringConfiguration"
+#ParametricMonitoringConfiguration: close({
+	CloudWatchMonitoringConfiguration?: #ParametricCloudWatchMonitoringConfiguration
 	PersistentAppUI?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9\\$\\{\\}]+$" |
 	fn.#StringExpression
-	S3MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/ParametricS3MonitoringConfiguration"
+	S3MonitoringConfiguration?: #ParametricS3MonitoringConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParametricS3MonitoringConfiguration": close({
+#ParametricS3MonitoringConfiguration: close({
 	LogUri?: strings.MaxRunes(10280) &
 	strings.MinRunes(1) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\r\\n\\t]*$" |
@@ -98,13 +97,13 @@ _#defs: "/$defs/Properties/definitions/ParametricS3MonitoringConfiguration": clo
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SparkSqlJobDriver": close({
+#SparkSqlJobDriver: close({
 	EntryPoint?:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 	SparkSqlParameters?: strings.MaxRunes(102400) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SparkSubmitJobDriver": close({
+#SparkSubmitJobDriver: close({
 	EntryPoint!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 	EntryPointArguments?: [...strings.MaxRunes(10280) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression] |
 	fn.#ListExpression
@@ -112,18 +111,14 @@ _#defs: "/$defs/Properties/definitions/SparkSubmitJobDriver": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TemplateParameterConfiguration": close({
+#TemplateParameterConfiguration: close({
 	DefaultValue?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 	Type?:         "NUMBER" | "STRING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMRContainers::JobTemplate"
-	Properties!: #Properties
-}

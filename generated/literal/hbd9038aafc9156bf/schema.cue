@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,18 +12,18 @@ import (
 // Resource Type definition for a Bot Alias, which enables you to change the
 // version of a bot without updating applications that use the bot
 #Properties: close({
-	Arn?:                    _#defs."/$defs/Properties/definitions/Arn"
-	BotAliasId?:             _#defs."/$defs/Properties/definitions/Id"
-	BotAliasLocaleSettings?: _#defs."/$defs/Properties/definitions/BotAliasLocaleSettingsList"
-	BotAliasName!:           _#defs."/$defs/Properties/definitions/Name"
-	BotAliasStatus?:         _#defs."/$defs/Properties/definitions/BotAliasStatus"
+	Arn?:                    #Arn
+	BotAliasId?:             #Id
+	BotAliasLocaleSettings?: #BotAliasLocaleSettingsList
+	BotAliasName!:           #Name
+	BotAliasStatus?:         #BotAliasStatus
 
 	// A list of tags to add to the bot alias.
-	BotAliasTags?:            list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	BotId!:                   _#defs."/$defs/Properties/definitions/Id"
-	BotVersion?:              _#defs."/$defs/Properties/definitions/BotVersion"
-	ConversationLogSettings?: _#defs."/$defs/Properties/definitions/ConversationLogSettings"
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
+	BotAliasTags?:            list.MaxItems(200) & list.UniqueItems() & [...#Tag]
+	BotId!:                   #Id
+	BotVersion?:              #BotVersion
+	ConversationLogSettings?: #ConversationLogSettings
+	Description?:             #Description
 
 	// Determines whether Amazon Lex will use Amazon Comprehend to detect the
 	// sentiment of user utterances.
@@ -34,54 +34,48 @@ import (
 })
 
 // The Amazon Resource Name (ARN) of the bot alias.
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000)
+#Arn: strings.MaxRunes(1000)
 
 // The location of audio log files collected when conversation logging is enabled for a bot.
-_#defs: "/$defs/Properties/definitions/AudioLogDestination": close(
-	{S3Bucket!: _#defs."/$defs/Properties/definitions/S3BucketLogDestination"},
-)
+#AudioLogDestination: close({S3Bucket!: #S3BucketLogDestination})
 
 // Settings for logging audio of conversations between Amazon Lex and a user.
 // You specify whether to log audio and the Amazon S3 bucket where the audio
 // file is stored.
-_#defs: "/$defs/Properties/definitions/AudioLogSetting": close({
-	Destination!: _#defs."/$defs/Properties/definitions/AudioLogDestination"
+#AudioLogSetting: close({
+	Destination!: #AudioLogDestination
 	Enabled!:     bool
 })
 
 // List of audio log settings
-_#defs: "/$defs/Properties/definitions/AudioLogSettings": list.MaxItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AudioLogSetting"
-]
+#AudioLogSettings: list.MaxItems(1) & list.UniqueItems() & [...#AudioLogSetting]
 
 // You can use this parameter to specify a specific Lambda function to run
 // different functions in different locales.
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettings": close({
-	CodeHookSpecification?: _#defs."/$defs/Properties/definitions/CodeHookSpecification"
+#BotAliasLocaleSettings: close({
+	CodeHookSpecification?: #CodeHookSpecification
 
 	// Whether the Lambda code hook is enabled
 	Enabled!: bool
 })
 
 // A locale setting in alias
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettingsItem": close({
-	BotAliasLocaleSetting!: _#defs."/$defs/Properties/definitions/BotAliasLocaleSettings"
+#BotAliasLocaleSettingsItem: close({
+	BotAliasLocaleSetting!: #BotAliasLocaleSettings
 
 	// A string used to identify the locale
 	LocaleId!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // A list of bot alias locale settings to add to the bot alias.
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettingsList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/BotAliasLocaleSettingsItem"
-]
+#BotAliasLocaleSettingsList: list.MaxItems(50) & list.UniqueItems() & [...#BotAliasLocaleSettingsItem]
 
-_#defs: "/$defs/Properties/definitions/BotAliasStatus": "Creating" | "Available" | "Deleting" | "Failed"
+#BotAliasStatus: "Creating" | "Available" | "Deleting" | "Failed"
 
 // The version of a bot.
-_#defs: "/$defs/Properties/definitions/BotVersion": strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$"
+#BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$"
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogGroupLogDestination": close({
+#CloudWatchLogGroupLogDestination: close({
 	// A string used to identify the groupArn for the Cloudwatch Log Group
 	CloudWatchLogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
 
@@ -90,24 +84,22 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogGroupLogDestination": close(
 })
 
 // Contains information about code hooks that Amazon Lex calls during a conversation.
-_#defs: "/$defs/Properties/definitions/CodeHookSpecification": close(
-	{LambdaCodeHook!: _#defs."/$defs/Properties/definitions/LambdaCodeHook"},
-)
+#CodeHookSpecification: close({LambdaCodeHook!: #LambdaCodeHook})
 
 // Contains information about code hooks that Amazon Lex calls during a conversation.
-_#defs: "/$defs/Properties/definitions/ConversationLogSettings": close({
-	AudioLogSettings?: _#defs."/$defs/Properties/definitions/AudioLogSettings"
-	TextLogSettings?:  _#defs."/$defs/Properties/definitions/TextLogSettings"
+#ConversationLogSettings: close({
+	AudioLogSettings?: #AudioLogSettings
+	TextLogSettings?:  #TextLogSettings
 })
 
 // A description of the bot alias. Use the description to help identify the bot alias in lists.
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(200)
+#Description: strings.MaxRunes(200)
 
 // Unique ID of resource
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$"
+#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$"
 
 // Contains information about code hooks that Amazon Lex calls during a conversation.
-_#defs: "/$defs/Properties/definitions/LambdaCodeHook": close({
+#LambdaCodeHook: close({
 	// The version of the request-response that you want Amazon Lex to use to invoke
 	// your Lambda function.
 	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1)
@@ -118,13 +110,13 @@ _#defs: "/$defs/Properties/definitions/LambdaCodeHook": close({
 })
 
 // The identifier of the language and locale that the bot alias will be configured in.
-_#defs: "/$defs/Properties/definitions/LocaleId": string
+#LocaleId: string
 
 // A unique identifier for a resource.
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$"
+#Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$"
 
 // Specifies an Amazon S3 bucket for logging audio conversations
-_#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
+#S3BucketLogDestination: close({
 	// The Amazon Resource Name (ARN) of an AWS Key Management Service (KMS) key for
 	// encrypting audio log files stored in an S3 bucket.
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
@@ -142,7 +134,7 @@ _#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
 })
 
 // A label for tagging Lex resources
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -151,17 +143,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Defines the Amazon CloudWatch Logs destination log group for conversation text logs.
-_#defs: "/$defs/Properties/definitions/TextLogDestination": close(
-	{CloudWatch!: _#defs."/$defs/Properties/definitions/CloudWatchLogGroupLogDestination"},
-)
+#TextLogDestination: close({CloudWatch!: #CloudWatchLogGroupLogDestination})
 
 // Contains information about code hooks that Amazon Lex calls during a conversation.
-_#defs: "/$defs/Properties/definitions/TextLogSetting": close({
-	Destination!: _#defs."/$defs/Properties/definitions/TextLogDestination"
+#TextLogSetting: close({
+	Destination!: #TextLogDestination
 	Enabled!:     bool
 })
 
 // List of text log settings
-_#defs: "/$defs/Properties/definitions/TextLogSettings": list.MaxItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/TextLogSetting"
-]
+#TextLogSettings: list.MaxItems(1) & list.UniqueItems() & [...#TextLogSetting]

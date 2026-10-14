@@ -13,28 +13,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::SageMaker::Hub
-#Properties: close({
-	HubDescription!: strings.MaxRunes(1023) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	HubDisplayName?: strings.MaxRunes(255) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	HubName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
-	HubSearchKeywords?: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[^A-Z]*$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	S3StorageConfig?: close({
-		S3OutputPath?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Hub"
+	Properties!: close({
+		HubDescription!: strings.MaxRunes(1023) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+		HubDisplayName?: strings.MaxRunes(255) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+		HubName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		HubSearchKeywords?: list.MaxItems(50) & [...] & [
+			...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[^A-Z]*$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		S3StorageConfig?: close({
+			S3OutputPath?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Hub"
-	Properties!: #Properties
-}

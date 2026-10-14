@@ -10,15 +10,15 @@ import "time"
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the prefetch schedule.
 	Arn?:         string
-	Consumption?: _#defs."/$defs/Properties/definitions/PrefetchConsumption"
+	Consumption?: #PrefetchConsumption
 
 	// The name to assign to the prefetch schedule.
 	Name!: string
 
 	// The name of the playback configuration.
 	PlaybackConfigurationName!:      string
-	RecurringPrefetchConfiguration?: _#defs."/$defs/Properties/definitions/RecurringPrefetchConfiguration"
-	Retrieval?:                      _#defs."/$defs/Properties/definitions/PrefetchRetrieval"
+	RecurringPrefetchConfiguration?: #RecurringPrefetchConfiguration
+	Retrieval?:                      #PrefetchRetrieval
 
 	// The frequency that MediaTailor creates prefetch schedules.
 	ScheduleType?: "SINGLE" | "RECURRING"
@@ -28,10 +28,10 @@ import "time"
 	StreamId?: string
 
 	// The tags assigned to the prefetch schedule.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AvailMatchingCriteria": close({
+#AvailMatchingCriteria: close({
 	// The dynamic variable(s) that MediaTailor should use as avail matching criteria.
 	DynamicVariable!: string
 
@@ -40,10 +40,10 @@ _#defs: "/$defs/Properties/definitions/AvailMatchingCriteria": close({
 	Operator!: "EQUALS"
 })
 
-_#defs: "/$defs/Properties/definitions/PrefetchConsumption": close({
+#PrefetchConsumption: close({
 	// If you only want MediaTailor to insert prefetched ads into avails that match
 	// specific dynamic variables, set the avail matching criteria.
-	AvailMatchingCriteria?: [..._#defs."/$defs/Properties/definitions/AvailMatchingCriteria"]
+	AvailMatchingCriteria?: [...#AvailMatchingCriteria]
 
 	// The time when MediaTailor no longer considers the prefetched ads for use in
 	// an ad break, as an ISO 8601 date-time.
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/PrefetchConsumption": close({
 	StartTime?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/PrefetchRetrieval": close({
+#PrefetchRetrieval: close({
 	// The dynamic variables to use for substitution during prefetch requests to the
 	// ad decision server (ADS).
 	DynamicVariables?: close({
@@ -65,36 +65,36 @@ _#defs: "/$defs/Properties/definitions/PrefetchRetrieval": close({
 
 	// The time when prefetch retrievals can start for this break, as an ISO 8601 date-time.
 	StartTime?:                      time.Time
-	TrafficShapingRetrievalWindow?:  _#defs."/$defs/Properties/definitions/TrafficShapingRetrievalWindow"
-	TrafficShapingTpsConfiguration?: _#defs."/$defs/Properties/definitions/TrafficShapingTpsConfiguration"
+	TrafficShapingRetrievalWindow?:  #TrafficShapingRetrievalWindow
+	TrafficShapingTpsConfiguration?: #TrafficShapingTpsConfiguration
 
 	// Indicates the type of traffic shaping used to limit the number of requests to
 	// the ADS at one time.
 	TrafficShapingType?: "RETRIEVAL_WINDOW" | "TPS"
 })
 
-_#defs: "/$defs/Properties/definitions/RecurringConsumption": close({
+#RecurringConsumption: close({
 	// The configuration for the dynamic variables that determine which ad breaks
 	// that MediaTailor inserts prefetched ads in.
-	AvailMatchingCriteria?: [..._#defs."/$defs/Properties/definitions/AvailMatchingCriteria"]
+	AvailMatchingCriteria?: [...#AvailMatchingCriteria]
 
 	// The number of seconds that an ad is available for insertion after it was prefetched.
 	RetrievedAdExpirationSeconds?: int
 })
 
-_#defs: "/$defs/Properties/definitions/RecurringPrefetchConfiguration": close({
+#RecurringPrefetchConfiguration: close({
 	// The end time for the window that MediaTailor prefetches and inserts ads in a
 	// live event, as an ISO 8601 date-time.
 	EndTime!:              time.Time
-	RecurringConsumption!: _#defs."/$defs/Properties/definitions/RecurringConsumption"
-	RecurringRetrieval!:   _#defs."/$defs/Properties/definitions/RecurringRetrieval"
+	RecurringConsumption!: #RecurringConsumption
+	RecurringRetrieval!:   #RecurringRetrieval
 
 	// The start time for the window that MediaTailor prefetches and inserts ads in
 	// a live event, as an ISO 8601 date-time.
 	StartTime?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/RecurringRetrieval": close({
+#RecurringRetrieval: close({
 	// The number of seconds that MediaTailor waits after an ad avail before
 	// prefetching ads for the next avail.
 	DelayAfterAvailEndSeconds?: int
@@ -103,25 +103,25 @@ _#defs: "/$defs/Properties/definitions/RecurringRetrieval": close({
 	DynamicVariables?: close({
 
 		{[=~".+"]: string}})
-	TrafficShapingRetrievalWindow?:  _#defs."/$defs/Properties/definitions/TrafficShapingRetrievalWindow"
-	TrafficShapingTpsConfiguration?: _#defs."/$defs/Properties/definitions/TrafficShapingTpsConfiguration"
+	TrafficShapingRetrievalWindow?:  #TrafficShapingRetrievalWindow
+	TrafficShapingTpsConfiguration?: #TrafficShapingTpsConfiguration
 
 	// Indicates the type of traffic shaping used to limit the number of requests to
 	// the ADS at one time.
 	TrafficShapingType?: "RETRIEVAL_WINDOW" | "TPS"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TrafficShapingRetrievalWindow": close({
+#TrafficShapingRetrievalWindow: close({
 	// The amount of time, in seconds, that MediaTailor spreads prefetch requests to the ADS.
 	RetrievalWindowDurationSeconds?: int
 })
 
-_#defs: "/$defs/Properties/definitions/TrafficShapingTpsConfiguration": close({
+#TrafficShapingTpsConfiguration: close({
 	// The expected peak number of concurrent viewers for your content.
 	PeakConcurrentUsers?: int
 

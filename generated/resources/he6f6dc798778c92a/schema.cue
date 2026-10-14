@@ -13,13 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::BridgeOutput
-#Properties: close({
-	BridgeArn!:     string | fn.#StringExpression
-	Name!:          string | fn.#StringExpression
-	NetworkOutput!: _#defs."/$defs/Properties/definitions/BridgeNetworkOutput" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::BridgeOutput"
+	Properties!: close({
+		BridgeArn!: string | fn.#StringExpression
+		Name!:      string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
+		// The output of the bridge.
+		NetworkOutput!: #BridgeNetworkOutput
+	})
+}
+
+#BridgeNetworkOutput: close({
 	IpAddress!:   string | fn.#StringExpression
 	NetworkName!: string | fn.#StringExpression
 	Port!: int |
@@ -53,7 +58,3 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::BridgeOutput"
-	Properties!: #Properties
-}

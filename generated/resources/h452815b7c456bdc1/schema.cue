@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -71,207 +71,253 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ``Snapshot``. For more information about how AWS CloudFormation deletes
 // resources, see [DeletionPolicy
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
-#Properties: matchN(2, [
-	{
-		MasterUsername?: matchN(0, ["rdsadmin"]) | fn.#ValueExpression
-		...
-	},
-	matchIf({
-		Engine!: "aurora-postgresql" | "postgresql" | fn.#ValueExpression
-		...
-	}, {
-		MasterUsername?: matchN(0, ["admin"]) | fn.#ValueExpression
-		...
-	}, _) & {...}
-]) & close({
-	MasterUserPassword?: _
-	if MasterUserPassword != _|_ {
-		MasterUsername!: _
-	}
-	{}
-	AllocatedStorage?: int |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::DBCluster"
+	Properties?: matchN(2, [
 		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AssociatedRoles?: list.MaxItems(15) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/DBClusterRole"
-	] |
-		fn.#ListExpression
-	AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AvailabilityZones?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	BacktrackWindow?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BackupRetentionPeriod?: int & <=35 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=35 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ClusterScalabilityType?: "limitless" | "standard" | fn.#StringExpression
-	CopyTagsToSnapshot?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DBClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	DBClusterInstanceClass?:       string | fn.#StringExpression
-	DBClusterParameterGroupName?:  string | fn.#StringExpression
-	DBInstanceParameterGroupName?: string | fn.#StringExpression
-	DBSubnetGroupName?:            string | fn.#StringExpression
-	DBSystemId?:                   string | fn.#StringExpression
-	DatabaseInsightsMode?:         "advanced" | "standard" | fn.#StringExpression
-	DatabaseName?:                 string | fn.#StringExpression
-	DeleteAutomatedBackups?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DeletionProtection?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Domain?:                       string | fn.#StringExpression
-	DomainIAMRoleName?:            string | fn.#StringExpression
-	EnableCloudwatchLogsExports?:  list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	EnableGlobalWriteForwarding?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableHttpEndpoint?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableIAMDatabaseAuthentication?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	EnableLocalWriteForwarding?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Engine?:                     string | fn.#StringExpression
-	EngineLifecycleSupport?:     string | fn.#StringExpression
-	EngineMode?:                 string | fn.#StringExpression
-	EngineVersion?:              string | fn.#StringExpression
-	GlobalClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^$|^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	Iops?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
+			MasterUsername?: matchN(0, ["rdsadmin"]) | fn.#ValueExpression
+			...
+		},
+		matchIf({
+			Engine!: "aurora-postgresql" | "postgresql" | fn.#ValueExpression
+			...
+		}, {
+			MasterUsername?: matchN(0, ["admin"]) | fn.#ValueExpression
+			...
+		}, _) & {...}
+	]) & close({
+		MasterUserPassword?: _
+		if MasterUserPassword != _|_ {
+			MasterUsername!: _
+		}
+		{}
+		AllocatedStorage?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AssociatedRoles?: list.MaxItems(15) & list.UniqueItems() & [...] & [...#DBClusterRole] | fn.#ListExpression
+		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AvailabilityZones?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		BacktrackWindow?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		BackupRetentionPeriod?: int & <=35 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=35 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ClusterScalabilityType?: "limitless" | "standard" | fn.#StringExpression
+		CopyTagsToSnapshot?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DBClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
 		fn.#StringExpression
-	ManageMasterUserPassword?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MasterUserAuthenticationType?: "iam-db-auth" | "password" | fn.#StringExpression
-	"MasterUserPassword"?:         string | fn.#StringExpression
-	MasterUserSecret?: close({
+		DBClusterInstanceClass?:       string | fn.#StringExpression
+		DBClusterParameterGroupName?:  string | fn.#StringExpression
+		DBInstanceParameterGroupName?: string | fn.#StringExpression
+		DBSubnetGroupName?:            string | fn.#StringExpression
+		DBSystemId?:                   string | fn.#StringExpression
+		DatabaseInsightsMode?:         "advanced" | "standard" | fn.#StringExpression
+		DatabaseName?:                 string | fn.#StringExpression
+		DeleteAutomatedBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DeletionProtection?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Domain?:                 string | fn.#StringExpression
+		DomainIAMRoleName?:      string | fn.#StringExpression
+		EnableCloudwatchLogsExports?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		EnableGlobalWriteForwarding?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		EnableHttpEndpoint?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableIAMDatabaseAuthentication?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		EnableLocalWriteForwarding?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Engine?:                 string | fn.#StringExpression
+		EngineLifecycleSupport?: string | fn.#StringExpression
+		EngineMode?:             string | fn.#StringExpression
+		EngineVersion?:          string | fn.#StringExpression
+		GlobalClusterIdentifier?: strings.MaxRunes(63) &
+		strings.MinRunes(0) &
+		=~"^$|^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		Iops?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string |
 			fn.#StringExpression
-	}) |
-		fn.#ObjectExpression
-	MasterUsername?: strings.MinRunes(1) & =~"^[a-zA-Z]{1}[a-zA-Z0-9_]*$" | fn.#StringExpression
-	MonitoringInterval?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MonitoringRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	NetworkType?:                 string | fn.#StringExpression
-	PerformanceInsightsEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PerformanceInsightsKmsKeyId?: string | fn.#StringExpression
-	PerformanceInsightsRetentionPeriod?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PreferredBackupWindow?:       string | fn.#StringExpression
-	PreferredMaintenanceWindow?:  string | fn.#StringExpression
-	PubliclyAccessible?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ReplicationSourceIdentifier?: string | fn.#StringExpression
-	RestoreToTime?:               string | fn.#StringExpression
-	RestoreType?:                 string | fn.#StringExpression
-	ScalingConfiguration?:        _#defs."/$defs/Properties/definitions/ScalingConfiguration" | fn.#ObjectExpression
-	ServerlessV2ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessV2ScalingConfiguration" |
-		fn.#ObjectExpression
-	SnapshotIdentifier?:        string | fn.#StringExpression
-	SourceDBClusterIdentifier?: string | fn.#StringExpression
-	SourceDbClusterResourceId?: string | fn.#StringExpression
-	SourceRegion?:              string | fn.#StringExpression
-	StorageEncrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	StorageType?:               string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VpcSecurityGroupIds?: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		ManageMasterUserPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		MasterUserAuthenticationType?: "iam-db-auth" | "password" | fn.#StringExpression
+		"MasterUserPassword"?:         string | fn.#StringExpression
+		MasterUserSecret?: close({
+			KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				string |
+				fn.#StringExpression
+		}) |
+			fn.#ObjectExpression
+		MasterUsername?: strings.MinRunes(1) & =~"^[a-zA-Z]{1}[a-zA-Z0-9_]*$" | fn.#StringExpression
+		MonitoringInterval?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MonitoringRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-})
+		NetworkType?: string | fn.#StringExpression
+		PerformanceInsightsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		PerformanceInsightsKmsKeyId?: string | fn.#StringExpression
+		PerformanceInsightsRetentionPeriod?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Port?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PreferredBackupWindow?:      string | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ReplicationSourceIdentifier?: string | fn.#StringExpression
+		RestoreToTime?:               string | fn.#StringExpression
+		RestoreType?:                 string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DBClusterRole": close({
+		// The scaling configuration of an Aurora Serverless v1 DB cluster.
+		// This property is only supported for Aurora Serverless v1. For Aurora
+		// Serverless v2, Use the ``ServerlessV2ScalingConfiguration`` property.
+		// Valid for: Aurora Serverless v1 DB clusters only
+		ScalingConfiguration?: #ScalingConfiguration
+
+		// The scaling configuration of an Aurora Serverless V2 DB cluster.
+		// This property is only supported for Aurora Serverless v2. For Aurora
+		// Serverless v1, Use the ``ScalingConfiguration`` property.
+		// Valid for: Aurora Serverless v2 DB clusters only
+		ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration
+		SnapshotIdentifier?:               string | fn.#StringExpression
+		SourceDBClusterIdentifier?:        string | fn.#StringExpression
+		SourceDbClusterResourceId?:        string | fn.#StringExpression
+		SourceRegion?:                     string | fn.#StringExpression
+		StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		StorageType?:             string | fn.#StringExpression
+		Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		VpcSecurityGroupIds?: list.UniqueItems() & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+	})
+}
+
+#DBClusterRole: close({
 	FeatureName?: string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
@@ -281,13 +327,13 @@ _#defs: "/$defs/Properties/definitions/DBClusterRole": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string | fn.#StringExpression
 	Port?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
+#MasterUserSecret: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -295,10 +341,9 @@ _#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReadEndpoint": close({Address?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ReadEndpoint: close({Address?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfiguration": close({
+#ScalingConfiguration: close({
 	AutoPause?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCapacity?: int |
 		{
@@ -360,7 +405,7 @@ _#defs: "/$defs/Properties/definitions/ScalingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close({
+#ServerlessV2ScalingConfiguration: close({
 	MaxCapacity?: number |
 		{
 			string &
@@ -416,12 +461,8 @@ _#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::DBCluster"
-	Properties?: #Properties
-}

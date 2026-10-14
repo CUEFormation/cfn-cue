@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -31,14 +31,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Launch an instance from a launch
 // template](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-templates.html)
 // in the *Amazon EC2 User Guide*.
-#Properties: close({
-	LaunchTemplateData!: _#defs."/$defs/Properties/definitions/LaunchTemplateData" | fn.#ObjectExpression
-	LaunchTemplateName?: string | fn.#StringExpression
-	TagSpecifications?:  [..._#defs."/$defs/Properties/definitions/LaunchTemplateTagSpecification"] | fn.#ListExpression
-	VersionDescription?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::LaunchTemplate"
+	Properties!: close({
+		// The information for the launch template.
+		LaunchTemplateData!: #LaunchTemplateData
+		LaunchTemplateName?: string | fn.#StringExpression
+		TagSpecifications?:  [...#LaunchTemplateTagSpecification] | fn.#ListExpression
+		VersionDescription?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AcceleratorCount": close({
+#AcceleratorCount: close({
 	Max?: int |
 		{
 			string &
@@ -70,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorCount": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiB": close({
+#AcceleratorTotalMemoryMiB: close({
 	Max?: int |
 		{
 			string &
@@ -102,7 +106,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiB": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbps": close({
+#BaselineEbsBandwidthMbps: close({
 	Max?: int |
 		{
 			string &
@@ -134,41 +138,50 @@ _#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbps": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaselinePerformanceFactors": close(
-	{Cpu?: _#defs."/$defs/Properties/definitions/Cpu" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#BaselinePerformanceFactors: close({
+	// The CPU performance to consider, using an instance family as the baseline reference.
+	Cpu?: #Cpu
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
-	DeviceName?:  string | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/Ebs" | fn.#ObjectExpression
+#BlockDeviceMapping: close({
+	DeviceName?: string | fn.#StringExpression
+
+	// Parameters used to automatically set up EBS volumes when the instance is launched.
+	Ebs?:         #Ebs
 	NoDevice?:    string | fn.#StringExpression
 	VirtualName?: string | fn.#StringExpression
-}) |
+	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
+		Ebs?: close({"Fn::If": _}) | error(
+			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+	}
+	if Ebs != _|_ if Ebs."Fn::If" == _|_ {
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	CapacityReservationPreference?: "capacity-reservations-only" | "none" | "open" | fn.#StringExpression
-	CapacityReservationTarget?: _#defs."/$defs/Properties/definitions/CapacityReservationTarget" | fn.#ObjectExpression
+
+	// Information about the target Capacity Reservation or Capacity Reservation group.
+	CapacityReservationTarget?: #CapacityReservationTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
+#CapacityReservationTarget: close({
 	CapacityReservationId?:               string | fn.#StringExpression
 	CapacityReservationResourceGroupArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
+#ConnectionTrackingSpecification: close({
 	TcpEstablishedTimeout?: int |
 		{
 			string &
@@ -214,12 +227,16 @@ _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Cpu": close(
-	{References?: _#defs."/$defs/Properties/definitions/References" | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#Cpu: close({
+	// The instance family to use as the baseline reference for CPU performance. All
+	// instance types that match your specified attributes are compared against the
+	// CPU performance of the referenced instance family, regardless of CPU
+	// manufacturer or architecture differences.
+	References?: #References
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CpuOptions": close({
+#CpuOptions: close({
 	AmdSevSnp?: "enabled" | "disabled" | fn.#StringExpression
 	CoreCount?: int |
 		{
@@ -253,10 +270,9 @@ _#defs: "/$defs/Properties/definitions/CpuOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreditSpecification": close({CpuCredits?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CreditSpecification: close({CpuCredits?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ebs": close({
+#Ebs: close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EbsCardIndex?: int |
 		{
@@ -337,41 +353,49 @@ _#defs: "/$defs/Properties/definitions/Ebs": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
-	EnaSrdEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnaSrdUdpSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdUdpSpecification" | fn.#ObjectExpression
+#EnaSrdSpecification: close({
+	EnaSrdEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// Configures ENA Express for UDP network traffic.
+	EnaSrdUdpSpecification?: #EnaSrdUdpSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdUdpSpecification": close(
+#EnaSrdUdpSpecification: close(
 	{EnaSrdUdpEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnclaveOptions": close(
+#EnclaveOptions: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HibernationOptions": close(
+#HibernationOptions: close(
 	{Configured?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IamInstanceProfile": close({
+#IamInstanceProfile: close({
 	Arn?:  string | fn.#StringExpression
 	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceMarketOptions": close({
-	MarketType?:  "capacity-block" | "interruptible-capacity-reservation" | "on-demand" | "spot" | fn.#StringExpression
-	SpotOptions?: _#defs."/$defs/Properties/definitions/SpotOptions" | fn.#ObjectExpression
+#InstanceMarketOptions: close({
+	MarketType?: "capacity-block" | "interruptible-capacity-reservation" | "on-demand" | "spot" | fn.#StringExpression
+
+	// The options for Spot Instances.
+	SpotOptions?: #SpotOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
-	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCount" | fn.#ObjectExpression
+#InstanceRequirements: close({
+	// The minimum and maximum number of accelerators (GPUs, FPGAs, or AWS
+	// Inferentia chips) on an instance.
+	// To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
+	// Default: No minimum or maximum limits
+	AcceleratorCount?: #AcceleratorCount
 	AcceleratorManufacturers?: [
 		..."amazon-web-services" | "amd" | "habana" | "nvidia" | "xilinx" | fn.#StringExpression
 	] |
@@ -399,17 +423,35 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiB" | fn.#ObjectExpression
+
+	// The minimum and maximum amount of total accelerator memory, in MiB.
+	// Default: No minimum or maximum limits
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiB
 	AcceleratorTypes?:          [..."fpga" | "gpu" | "inference" | "media" | fn.#StringExpression] | fn.#ListExpression
 	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BareMetal?:                "excluded" | "included" | "required" | fn.#StringExpression
-	BaselineEbsBandwidthMbps?: _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbps" | fn.#ObjectExpression
-	BaselinePerformanceFactors?: _#defs."/$defs/Properties/definitions/BaselinePerformanceFactors" |
-		fn.#ObjectExpression
-	BurstablePerformance?: "excluded" | "included" | "required" | fn.#StringExpression
+	BareMetal?: "excluded" | "included" | "required" | fn.#StringExpression
+
+	// The minimum and maximum baseline bandwidth to Amazon EBS, in Mbps. For more
+	// information, see [Amazon EBS–optimized
+	// instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html)
+	// in the *Amazon EC2 User Guide*.
+	// Default: No minimum or maximum limits
+	BaselineEbsBandwidthMbps?: #BaselineEbsBandwidthMbps
+
+	// The baseline performance to consider, using an instance family as a baseline
+	// reference. The instance family establishes the lowest acceptable level of
+	// performance. Amazon EC2 uses this baseline to guide instance type selection,
+	// but there is no guarantee that the selected instance types will always
+	// exceed the baseline for every application. Currently, this parameter only
+	// supports CPU performance as a baseline performance factor. For more
+	// information, see [Performance
+	// protection](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-instance-type-selection.html#ec2fleet-abis-performance-protection)
+	// in the *Amazon EC2 User Guide*.
+	BaselinePerformanceFactors?: #BaselinePerformanceFactors
+	BurstablePerformance?:       "excluded" | "included" | "required" | fn.#StringExpression
 	CpuManufacturers?: [..."amazon-web-services" | "amd" | "apple" | "intel" | fn.#StringExpression] |
 		fn.#ListExpression
 	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
@@ -433,10 +475,21 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 				)
 		} |
 		fn.#NumberExpression
-	MemoryGiBPerVCpu?:      _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpu" | fn.#ObjectExpression
-	MemoryMiB?:             _#defs."/$defs/Properties/definitions/MemoryMiB" | fn.#ObjectExpression
-	NetworkBandwidthGbps?:  _#defs."/$defs/Properties/definitions/NetworkBandwidthGbps" | fn.#ObjectExpression
-	NetworkInterfaceCount?: _#defs."/$defs/Properties/definitions/NetworkInterfaceCount" | fn.#ObjectExpression
+
+	// The minimum and maximum amount of memory per vCPU, in GiB.
+	// Default: No minimum or maximum limits
+	MemoryGiBPerVCpu?: #MemoryGiBPerVCpu
+
+	// The minimum and maximum amount of memory, in MiB.
+	MemoryMiB?: #MemoryMiB
+
+	// The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
+	// Default: No minimum or maximum limits
+	NetworkBandwidthGbps?: #NetworkBandwidthGbps
+
+	// The minimum and maximum number of network interfaces.
+	// Default: No minimum or maximum limits
+	NetworkInterfaceCount?: #NetworkInterfaceCount
 	OnDemandMaxPricePercentageOverLowestPrice?: int |
 		{
 			string &
@@ -466,49 +519,133 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 				)
 		} |
 		fn.#NumberExpression
-	TotalLocalStorageGB?: _#defs."/$defs/Properties/definitions/TotalLocalStorageGB" | fn.#ObjectExpression
-	VCpuCount?:           _#defs."/$defs/Properties/definitions/VCpuCount" | fn.#ObjectExpression
+
+	// The minimum and maximum amount of total local storage, in GB.
+	// Default: No minimum or maximum limits
+	TotalLocalStorageGB?: #TotalLocalStorageGB
+
+	// The minimum and maximum number of vCPUs.
+	VCpuCount?: #VCpuCount
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv4PrefixSpecification": close({Ipv4Prefix?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv4PrefixSpecification: close({Ipv4Prefix?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv6Add": close({Ipv6Address?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv6Add: close({Ipv6Address?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv6PrefixSpecification": close({Ipv6Prefix?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv6PrefixSpecification: close({Ipv6Prefix?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] | fn.#ListExpression
-	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification" |
-		fn.#ObjectExpression
-	CpuOptions?:            _#defs."/$defs/Properties/definitions/CpuOptions" | fn.#ObjectExpression
-	CreditSpecification?:   _#defs."/$defs/Properties/definitions/CreditSpecification" | fn.#ObjectExpression
+#LaunchTemplateData: close({
+	BlockDeviceMappings?: [...#BlockDeviceMapping] | fn.#ListExpression
+
+	// The Capacity Reservation targeting option. If you do not specify this
+	// parameter, the instance's Capacity Reservation preference defaults to
+	// ``open``, which enables it to run in any open Capacity Reservation that has
+	// matching attributes (instance type, platform, Availability Zone).
+	CapacityReservationSpecification?: #CapacityReservationSpecification
+
+	// The CPU options for the instance. For more information, see [CPU options for
+	// Amazon EC2
+	// instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html)
+	// in the *Amazon EC2 User Guide*.
+	CpuOptions?: #CpuOptions
+
+	// The credit option for CPU usage of the instance. Valid only for T instances.
+	CreditSpecification?:   #CreditSpecification
 	DisableApiStop?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DisableApiTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EbsOptimized?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnclaveOptions?:        _#defs."/$defs/Properties/definitions/EnclaveOptions" | fn.#ObjectExpression
-	HibernationOptions?:    _#defs."/$defs/Properties/definitions/HibernationOptions" | fn.#ObjectExpression
-	IamInstanceProfile?:    _#defs."/$defs/Properties/definitions/IamInstanceProfile" | fn.#ObjectExpression
+
+	// Indicates whether the instance is enabled for AWS Nitro Enclaves. For more
+	// information, see [What is Nitro
+	// Enclaves?](https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html)
+	// in the *Nitro Enclaves User Guide*.
+	// You can't enable AWS Nitro Enclaves and hibernation on the same instance.
+	EnclaveOptions?: #EnclaveOptions
+
+	// Indicates whether an instance is enabled for hibernation. This parameter is
+	// valid only if the instance meets the [hibernation
+	// prerequisites](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hibernating-prerequisites.html).
+	// For more information, see [Hibernate your Amazon EC2
+	// instance](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html)
+	// in the *Amazon EC2 User Guide*.
+	HibernationOptions?: #HibernationOptions
+
+	// The name or Amazon Resource Name (ARN) of an IAM instance profile.
+	IamInstanceProfile?: #IamInstanceProfile
 	ImageId?: =~"(?:(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|(?s:^resolve:ssm.*$))|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	InstanceInitiatedShutdownBehavior?: "stop" | "terminate" | fn.#StringExpression
-	InstanceMarketOptions?:     _#defs."/$defs/Properties/definitions/InstanceMarketOptions" | fn.#ObjectExpression
-	InstanceRequirements?:      _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
-	InstanceType?:              string | fn.#StringExpression
-	KernelId?:                  string | fn.#StringExpression
-	KeyName?:                   string | fn.#StringExpression
-	LicenseSpecifications?:     [..._#defs."/$defs/Properties/definitions/LicenseSpecification"] | fn.#ListExpression
-	MaintenanceOptions?:        _#defs."/$defs/Properties/definitions/MaintenanceOptions" | fn.#ObjectExpression
-	MetadataOptions?:           _#defs."/$defs/Properties/definitions/MetadataOptions" | fn.#ObjectExpression
-	Monitoring?:                _#defs."/$defs/Properties/definitions/Monitoring" | fn.#ObjectExpression
-	NetworkInterfaces?:         [..._#defs."/$defs/Properties/definitions/NetworkInterface"] | fn.#ListExpression
-	NetworkPerformanceOptions?: _#defs."/$defs/Properties/definitions/NetworkPerformanceOptions" | fn.#ObjectExpression
-	Placement?:                 _#defs."/$defs/Properties/definitions/Placement" | fn.#ObjectExpression
-	PrivateDnsNameOptions?:     _#defs."/$defs/Properties/definitions/PrivateDnsNameOptions" | fn.#ObjectExpression
-	RamDiskId?:                 string | fn.#StringExpression
+
+	// The market (purchasing) option for the instances.
+	InstanceMarketOptions?: #InstanceMarketOptions
+
+	// The attributes for the instance types. When you specify instance attributes,
+	// Amazon EC2 will identify instance types with these attributes.
+	// You must specify ``VCpuCount`` and ``MemoryMiB``. All other attributes are
+	// optional. Any unspecified optional attribute is set to its default.
+	// When you specify multiple attributes, you get instance types that satisfy all
+	// of the specified attributes. If you specify multiple values for an
+	// attribute, you get instance types that satisfy any of the specified values.
+	// To limit the list of instance types from which Amazon EC2 can identify
+	// matching instance types, you can use one of the following parameters, but
+	// not both in the same request:
+	// + ``AllowedInstanceTypes`` - The instance types to include in the list. All
+	// other instance types are ignored, even if they match your specified
+	// attributes.
+	// + ``ExcludedInstanceTypes`` - The instance types to exclude from the list,
+	// even if they match your specified attributes.
+	//
+	// If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
+	// Attribute-based instance type selection is only supported when using Auto
+	// Scaling groups, EC2 Fleet, and Spot Fleet to launch instances. If you plan
+	// to use the launch template in the [launch instance
+	// wizard](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html),
+	// or with the
+	// [RunInstances](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html)
+	// API or
+	// [AWS::EC2::Instance](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html)AWS
+	// CloudFormation resource, you can't specify ``InstanceRequirements``.
+	// For more information, see [Specify attributes for instance type selection for
+	// EC2 Fleet or Spot
+	// Fleet](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-instance-type-selection.html)
+	// and [Spot placement
+	// score](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-placement-score.html)
+	// in the *Amazon EC2 User Guide*.
+	InstanceRequirements?:  #InstanceRequirements
+	InstanceType?:          string | fn.#StringExpression
+	KernelId?:              string | fn.#StringExpression
+	KeyName?:               string | fn.#StringExpression
+	LicenseSpecifications?: [...#LicenseSpecification] | fn.#ListExpression
+
+	// The maintenance options of your instance.
+	MaintenanceOptions?: #MaintenanceOptions
+
+	// The metadata options for the instance. For more information, see [Configure
+	// the Instance Metadata Service
+	// options](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html)
+	// in the *Amazon EC2 User Guide*.
+	MetadataOptions?: #MetadataOptions
+
+	// The monitoring for the instance.
+	Monitoring?:        #Monitoring
+	NetworkInterfaces?: [...#NetworkInterface] | fn.#ListExpression
+
+	// The settings for the network performance options for the instance. For more
+	// information, see [EC2 instance bandwidth weighting
+	// configuration](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configure-bandwidth-weighting.html).
+	NetworkPerformanceOptions?: #NetworkPerformanceOptions
+
+	// The placement for the instance.
+	Placement?: #Placement
+
+	// The hostname type for EC2 instances launched into this subnet and how DNS A
+	// and AAAA record queries should be handled. For more information, see [Amazon
+	// EC2 instance hostname
+	// types](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-naming.html)
+	// in the *User Guide*.
+	PrivateDnsNameOptions?: #PrivateDnsNameOptions
+	RamDiskId?:             string | fn.#StringExpression
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -519,12 +656,12 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification"] | fn.#ListExpression
+	TagSpecifications?: [...#TagSpecification] | fn.#ListExpression
 	UserData?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateTagSpecification": close({
+#LaunchTemplateTagSpecification: close({
 	ResourceType?: "application-status-check" |
 		"capacity-block" |
 		"capacity-manager-data-export" |
@@ -638,21 +775,15 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateTagSpecification": close({
 		"vpn-connection-device-type" |
 		"vpn-gateway" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseSpecification": close(
-	{LicenseConfigurationArn?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#LicenseSpecification: close({LicenseConfigurationArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceOptions": close(
-	{AutoRecovery?: "default" | "disabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#MaintenanceOptions: close({AutoRecovery?: "default" | "disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpu": close({
+#MemoryGiBPerVCpu: close({
 	Max?: number |
 		{
 			string &
@@ -694,7 +825,7 @@ _#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpu": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryMiB": close({
+#MemoryMiB: close({
 	Max?: int |
 		{
 			string &
@@ -726,7 +857,7 @@ _#defs: "/$defs/Properties/definitions/MemoryMiB": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataOptions": close({
+#MetadataOptions: close({
 	HttpEndpoint?:     "disabled" | "enabled" | fn.#StringExpression
 	HttpProtocolIpv6?: "disabled" | "enabled" | fn.#StringExpression
 	HttpPutResponseHopLimit?: int |
@@ -748,12 +879,10 @@ _#defs: "/$defs/Properties/definitions/MetadataOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Monitoring": close(
-	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#Monitoring: close({Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkBandwidthGbps": close({
+#NetworkBandwidthGbps: close({
 	Max?: number |
 		{
 			string &
@@ -795,32 +924,12 @@ _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbps": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociateCarrierIpAddress!: _
-		NetworkInterfaceId!:        _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociatePublicIpAddress!: _
-		NetworkInterfaceId!:       _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:        _
-		AssociateCarrierIpAddress!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:       _
-		AssociatePublicIpAddress!: _
-		...
-	}]) & {...}
-]) & close({
+#NetworkInterface: close({
 	AssociateCarrierIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AssociatePublicIpAddress?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification" |
-		fn.#ObjectExpression
+
+	// A connection tracking specification for the network interface.
+	ConnectionTrackingSpecification?: #ConnectionTrackingSpecification
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:         string | fn.#StringExpression
 	DeviceIndex?: int |
@@ -851,7 +960,9 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 				)
 		} |
 		fn.#NumberExpression
-	EnaSrdSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdSpecification" | fn.#ObjectExpression
+
+	// The ENA Express configuration for the network interface.
+	EnaSrdSpecification?: #EnaSrdSpecification
 	Groups?:              [...string | fn.#StringExpression] | fn.#ListExpression
 	InterfaceType?:       string | fn.#StringExpression
 	Ipv4PrefixCount?: int |
@@ -868,7 +979,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 				)
 		} |
 		fn.#NumberExpression
-	Ipv4Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv4PrefixSpecification"] | fn.#ListExpression
+	Ipv4Prefixes?: [...#Ipv4PrefixSpecification] | fn.#ListExpression
 	Ipv6AddressCount?: int |
 		{
 			string &
@@ -883,7 +994,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/Ipv6Add"] | fn.#ListExpression
+	Ipv6Addresses?: [...#Ipv6Add] | fn.#ListExpression
 	Ipv6PrefixCount?: int |
 		{
 			string &
@@ -898,7 +1009,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv6PrefixSpecification"] | fn.#ListExpression
+	Ipv6Prefixes?: [...#Ipv6PrefixSpecification] | fn.#ListExpression
 	NetworkCardIndex?: int |
 		{
 			string &
@@ -916,7 +1027,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 	NetworkInterfaceId?: string | fn.#StringExpression
 	PrimaryIpv6?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress?:   string | fn.#StringExpression
-	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAdd"] | fn.#ListExpression
+	PrivateIpAddresses?: [...#PrivateIpAdd] | fn.#ListExpression
 	SecondaryPrivateIpAddressCount?: int |
 		{
 			string &
@@ -932,10 +1043,20 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 		} |
 		fn.#NumberExpression
 	SubnetId?: string | fn.#StringExpression
+	if AssociateCarrierIpAddress != _|_ if AssociateCarrierIpAddress."Fn::If" == _|_ {
+		NetworkInterfaceId?: close({"Fn::If": _}) | error(
+			"NetworkInterfaceId cannot be used with AssociateCarrierIpAddress",
+		)
+	}
+	if AssociatePublicIpAddress != _|_ if AssociatePublicIpAddress."Fn::If" == _|_ {
+		NetworkInterfaceId?: close({"Fn::If": _}) | error(
+			"NetworkInterfaceId cannot be used with AssociatePublicIpAddress",
+		)
+	}
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceCount": close({
+#NetworkInterfaceCount: close({
 	Max?: int |
 		{
 			string &
@@ -967,12 +1088,10 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceCount": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkPerformanceOptions": close(
-	{BandwidthWeighting?: "default" | "ebs-1" | "vpc-1" | fn.#StringExpression},
-) |
+#NetworkPerformanceOptions: close({BandwidthWeighting?: "default" | "ebs-1" | "vpc-1" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Placement": close({
+#Placement: close({
 	Affinity?:             string | fn.#StringExpression
 	AvailabilityZone?:     string | fn.#StringExpression
 	GroupId?:              string | fn.#StringExpression
@@ -998,7 +1117,7 @@ _#defs: "/$defs/Properties/definitions/Placement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
+#PrivateDnsNameOptions: close({
 	EnableResourceNameDnsAAAARecord?: bool |
 		"true" |
 		"True" |
@@ -1012,21 +1131,17 @@ _#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAdd": close({
+#PrivateIpAdd: close({
 	Primary?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Reference": close({InstanceFamily?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Reference: close({InstanceFamily?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/References": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Reference"
-] |
-	fn.#ListExpression
+#References: list.UniqueItems() & [...#Reference] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SpotOptions": close({
+#SpotOptions: close({
 	BlockDurationMinutes?: int |
 		{
 			string &
@@ -1048,13 +1163,13 @@ _#defs: "/$defs/Properties/definitions/SpotOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType?: "application-status-check" |
 		"capacity-block" |
 		"capacity-manager-data-export" |
@@ -1168,11 +1283,11 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-connection-device-type" |
 		"vpn-gateway" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TotalLocalStorageGB": close({
+#TotalLocalStorageGB: close({
 	Max?: number |
 		{
 			string &
@@ -1214,7 +1329,7 @@ _#defs: "/$defs/Properties/definitions/TotalLocalStorageGB": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VCpuCount": close({
+#VCpuCount: close({
 	Max?: int |
 		{
 			string &
@@ -1245,7 +1360,3 @@ _#defs: "/$defs/Properties/definitions/VCpuCount": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::LaunchTemplate"
-	Properties!: #Properties
-}

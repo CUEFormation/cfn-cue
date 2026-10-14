@@ -13,55 +13,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for for AWS::EC2::TrafficMirrorFilterRule
-#Properties: close({
-	Description?:          string | fn.#StringExpression
-	DestinationCidrBlock!: string | fn.#StringExpression
-	DestinationPortRange?: _#defs."/$defs/Properties/definitions/TrafficMirrorPortRange" | fn.#ObjectExpression
-	Protocol?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RuleAction!: _#defs."/$defs/Properties/definitions/TrafficMirrorRuleAction" | fn.#StringExpression
-	RuleNumber!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SourceCidrBlock!:       string | fn.#StringExpression
-	SourcePortRange?:       _#defs."/$defs/Properties/definitions/TrafficMirrorPortRange" | fn.#ObjectExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TrafficDirection!:      _#defs."/$defs/Properties/definitions/TrafficDirection" | fn.#StringExpression
-	TrafficMirrorFilterId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TrafficMirrorFilterRule"
+	Properties!: close({
+		Description?:          string | fn.#StringExpression
+		DestinationCidrBlock!: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+		// The destination port range.
+		DestinationPortRange?: #TrafficMirrorPortRange
+		Protocol?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+
+		// The action to take on the filtered traffic (accept/reject).
+		RuleAction!: #TrafficMirrorRuleAction
+		RuleNumber!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SourceCidrBlock!: string | fn.#StringExpression
+
+		// The source port range.
+		SourcePortRange?: #TrafficMirrorPortRange
+		Tags?:            [...#Tag] | fn.#ListExpression
+
+		// The direction of traffic (ingress/egress).
+		TrafficDirection!:      #TrafficDirection
+		TrafficMirrorFilterId!: string | fn.#StringExpression
+	})
+}
+
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficDirection": =~"(?i)^(?:egress|ingress)$" | fn.#StringExpression
+#TrafficDirection: =~"(?i)^(?:egress|ingress)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficMirrorPortRange": close({
+#TrafficMirrorPortRange: close({
 	FromPort!: int |
 		{
 			string &
@@ -93,8 +108,4 @@ _#defs: "/$defs/Properties/definitions/TrafficMirrorPortRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficMirrorRuleAction": =~"(?i)^(?:accept|reject)$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TrafficMirrorFilterRule"
-	Properties!: #Properties
-}
+#TrafficMirrorRuleAction: =~"(?i)^(?:accept|reject)$" | fn.#StringExpression

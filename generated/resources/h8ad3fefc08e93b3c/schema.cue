@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,36 +16,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::InfrastructureConfiguration
-#Properties: close({
-	Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceMetadataOptions?: _#defs."/$defs/Properties/definitions/InstanceMetadataOptions" | fn.#ObjectExpression
-	InstanceProfileName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	InstanceTypes?:           [...string | fn.#StringExpression] | fn.#ListExpression
-	KeyPair?:                 strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Logging?:                 _#defs."/$defs/Properties/definitions/Logging" | fn.#ObjectExpression
-	Name!:                    =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	Placement?:               _#defs."/$defs/Properties/definitions/Placement" | fn.#ObjectExpression
-	ResourceTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::InfrastructureConfiguration"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$" |
-		fn.#StringExpression
-	SubnetId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: close({
+		// The instance metadata option settings for the infrastructure configuration.
+		InstanceMetadataOptions?: #InstanceMetadataOptions
+		InstanceProfileName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		InstanceTypes?:       [...string | fn.#StringExpression] | fn.#ListExpression
+		KeyPair?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	TerminateInstanceOnFailure?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+		// The logging configuration of the infrastructure configuration.
+		Logging?: #Logging
+		Name!:    =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceMetadataOptions": close({
+		// The placement option settings for the infrastructure configuration.
+		Placement?: #Placement
+		ResourceTags?: close({
+
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		SecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$" |
+			fn.#StringExpression
+		SubnetId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: close({
+
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		TerminateInstanceOnFailure?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+	})
+}
+
+#InstanceMetadataOptions: close({
 	HttpPutResponseHopLimit?: int & <=64 & >=1 |
 		{
 			string &
@@ -66,10 +82,9 @@ _#defs: "/$defs/Properties/definitions/InstanceMetadataOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Logging": close({S3Logs?: _#defs."/$defs/Properties/definitions/S3Logs"}) |
-	fn.#ObjectExpression
+#Logging: close({S3Logs?: #S3Logs}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Placement": close({
+#Placement: close({
 	AvailabilityZone?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	HostId?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	HostResourceGroupArn?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
@@ -77,18 +92,14 @@ _#defs: "/$defs/Properties/definitions/Placement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Logs": close({
+#S3Logs: close({
 	S3BucketName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	S3KeyPrefix?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 	TagKey?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	TagValue?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::InfrastructureConfiguration"
-	Properties!: #Properties
-}

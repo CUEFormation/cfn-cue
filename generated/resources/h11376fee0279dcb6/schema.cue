@@ -12,15 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ARCZonalShift::AutoshiftObserverNotificationStatus Resource Type
-#Properties: close({Status!: _#defs."/$defs/Properties/definitions/AutoshiftObserverNotificationStatus"})
-
-_#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/AutoshiftObserverNotificationStatus": "ENABLED" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$" |
-fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ARCZonalShift::AutoshiftObserverNotificationStatus"
-	Properties!: #Properties
+	Properties!: close({Status!: #AutoshiftObserverNotificationStatus})
 }
+
+#AccountId: =~"^\\d{12}$" | fn.#StringExpression
+
+#AutoshiftObserverNotificationStatus: "ENABLED" | fn.#StringExpression
+
+#Region: strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$" | fn.#StringExpression

@@ -13,31 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationSignals::GroupingConfiguration
-#Properties: close({GroupingAttributeDefinitions!: _#defs."/$defs/Properties/definitions/GroupingAttributeDefinitions"})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::ApplicationSignals::GroupingConfiguration"
+	Properties!: close({GroupingAttributeDefinitions!: #GroupingAttributeDefinitions})
+}
 
-_#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-fn.#StringExpression
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GroupingAttributeDefinition": close({
-	DefaultGroupingValue?: _#defs."/$defs/Properties/definitions/GroupingString"
-	GroupingName!:         _#defs."/$defs/Properties/definitions/GroupingString"
-	GroupingSourceKeys!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GroupingString"] |
-		fn.#ListExpression
+#GroupingAttributeDefinition: close({
+	DefaultGroupingValue?: #GroupingString
+	GroupingName!:         #GroupingString
+	GroupingSourceKeys!:   list.MinItems(1) & [...#GroupingString] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GroupingAttributeDefinitions": [
-	..._#defs."/$defs/Properties/definitions/GroupingAttributeDefinition"
-] |
-	fn.#ListExpression
+#GroupingAttributeDefinitions: [...#GroupingAttributeDefinition] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/GroupingString": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$" |
-fn.#StringExpression
+#GroupingString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationSignals::GroupingConfiguration"
-	Properties!: #Properties
-}
+#Timestamp: string | fn.#StringExpression

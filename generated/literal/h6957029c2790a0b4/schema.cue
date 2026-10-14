@@ -18,25 +18,25 @@ import (
 
 	// Specifies the unique Amazon Resource Name (ARN) for the web app.
 	Arn?:                     strings.MaxRunes(1600) & strings.MinRunes(20) & =~"arn:.*"
-	EndpointDetails?:         _#defs."/$defs/Properties/definitions/EndpointDetails"
-	IdentityProviderDetails!: _#defs."/$defs/Properties/definitions/IdentityProviderDetails"
+	EndpointDetails?:         #EndpointDetails
+	IdentityProviderDetails!: #IdentityProviderDetails
 
 	// Key-value pairs that can be used to group and search for web apps.
-	Tags?:                 list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                 list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 	VpcEndpointId?:        strings.MaxRunes(22) & strings.MinRunes(13) & =~"^vpce-[0-9a-f]{8,17}$"
-	WebAppCustomization?:  _#defs."/$defs/Properties/definitions/WebAppCustomization"
-	WebAppEndpointPolicy?: _#defs."/$defs/Properties/definitions/WebAppEndpointPolicy"
+	WebAppCustomization?:  #WebAppCustomization
+	WebAppEndpointPolicy?: #WebAppEndpointPolicy
 
 	// A unique identifier for the web app.
 	WebAppId?:    strings.MaxRunes(24) & strings.MinRunes(24) & =~"^webapp-([0-9a-f]{17})$"
-	WebAppUnits?: _#defs."/$defs/Properties/definitions/WebAppUnits"
+	WebAppUnits?: #WebAppUnits
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": close({Vpc?: _#defs."/$defs/Properties/definitions/Vpc"})
+#EndpointDetails: close({Vpc?: #Vpc})
 
 // You can provide a structure that contains the details for the identity
 // provider to use with your web app.
-_#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({
+#IdentityProviderDetails: close({
 	ApplicationArn?: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"^arn:[\\w-]+:sso::\\d{12}:application/(sso)?ins-[a-zA-Z0-9-.]{16}/apl-[a-zA-Z0-9]{16}$"
@@ -51,14 +51,14 @@ _#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({
 })
 
 // Key-value pair that can be used to group and search for web apps.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(0)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // You can provide a structure that contains the details for the VPC endpoint to
 // use with your web app.
-_#defs: "/$defs/Properties/definitions/Vpc": close({
+#Vpc: close({
 	// The IP address type for the VPC endpoint used by the web app.
 	IpAddressType?: "IPV4" | "DUALSTACK"
 	SecurityGroupIds?: list.MaxItems(10) & [
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/Vpc": close({
 	=~"^vpc-[0-9a-f]{8,17}$"
 })
 
-_#defs: "/$defs/Properties/definitions/WebAppCustomization": close({
+#WebAppCustomization: close({
 	// Specifies a favicon to display in the browser tab.
 	FaviconFile?: strings.MaxRunes(20960) & strings.MinRunes(1)
 
@@ -85,6 +85,6 @@ _#defs: "/$defs/Properties/definitions/WebAppCustomization": close({
 	Title?: strings.MaxRunes(100) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/WebAppEndpointPolicy": "STANDARD" | "FIPS"
+#WebAppEndpointPolicy: "STANDARD" | "FIPS"
 
-_#defs: "/$defs/Properties/definitions/WebAppUnits": close({Provisioned!: int & >=1})
+#WebAppUnits: close({Provisioned!: int & >=1})

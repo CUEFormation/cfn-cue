@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,88 +17,102 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an evaluation form for the specified CON instance.
-#Properties: close({
-	AIVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	AutoEvaluationConfiguration?: _#defs."/$defs/Properties/definitions/AutoEvaluationConfiguration" |
-		fn.#ObjectExpression
-	Description?: strings.MaxRunes(1024) | fn.#StringExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Items!: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EvaluationFormBaseItem"] |
-		fn.#ListExpression
-	LanguageConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormLanguageConfiguration" |
-		fn.#ObjectExpression
-	ReviewConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationReviewConfiguration" | fn.#ObjectExpression
-	ScoringStrategy?:     _#defs."/$defs/Properties/definitions/ScoringStrategy" | fn.#ObjectExpression
-	Status!:              "DRAFT" | "ACTIVE" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormTargetConfiguration" |
-		fn.#ObjectExpression
-	Title!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::EvaluationForm"
+	Properties!: close({
+		AIVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoEvaluationConfiguration": close(
+		// The automatic evaluation configuration of an evaluation form.
+		AutoEvaluationConfiguration?: #AutoEvaluationConfiguration
+		Description?:                 strings.MaxRunes(1024) | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Items!:       list.MaxItems(200) & list.MinItems(1) & [...#EvaluationFormBaseItem] | fn.#ListExpression
+
+		// Configuration for language settings of this evaluation form.
+		LanguageConfiguration?: #EvaluationFormLanguageConfiguration
+
+		// Configuration for evaluation review settings of this evaluation form.
+		ReviewConfiguration?: #EvaluationReviewConfiguration
+
+		// A scoring strategy of the evaluation form.
+		ScoringStrategy?: #ScoringStrategy
+		Status!:          "DRAFT" | "ACTIVE" | fn.#StringExpression
+		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Configuration that specifies the target for this evaluation form.
+		TargetConfiguration?: #EvaluationFormTargetConfiguration
+		Title!:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
+
+#AutoEvaluationConfiguration: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutomaticFailConfiguration": close(
-	{TargetSection?: =~"^[a-zA-Z0-9._-]{1,40}$" | fn.#StringExpression},
-) |
+#AutomaticFailConfiguration: close({TargetSection?: =~"^[a-zA-Z0-9._-]{1,40}$" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormBaseItem": close(
-	{Section!: _#defs."/$defs/Properties/definitions/EvaluationFormSection" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/EvaluationFormItem": close({
-	Question?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestion" | fn.#ObjectExpression
-	Section?:  _#defs."/$defs/Properties/definitions/EvaluationFormSection" | fn.#ObjectExpression
+#EvaluationFormBaseItem: close({
+	// A subsection or inner section of an item.
+	Section!: #EvaluationFormSection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementCondition": close({
-	Operands!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementConditionOperand"
-	] |
-		fn.#ListExpression
+#EvaluationFormItem: close({
+	// The information of the question.
+	Question?: #EvaluationFormQuestion
+
+	// The information of the section.
+	Section?: #EvaluationFormSection
+}) |
+fn.#ObjectExpression
+
+#EvaluationFormItemEnablementCondition: close({
+	Operands!: list.MinItems(1) & [...#EvaluationFormItemEnablementConditionOperand] | fn.#ListExpression
 	Operator?: "OR" | "AND" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementConditionOperand": close(
-	{Expression?: _#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementExpression" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#EvaluationFormItemEnablementConditionOperand: close({
+	// An expression of the enablement condition.
+	Expression?: #EvaluationFormItemEnablementExpression
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementConfiguration": close({
-	Action!:        "DISABLE" | "ENABLE" | fn.#StringExpression
-	Condition!:     _#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementCondition" | fn.#ObjectExpression
+#EvaluationFormItemEnablementConfiguration: close({
+	Action!: "DISABLE" | "ENABLE" | fn.#StringExpression
+
+	// A condition for item enablement configuration.
+	Condition!:     #EvaluationFormItemEnablementCondition
 	DefaultAction?: "DISABLE" | "ENABLE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementExpression": close({
+#EvaluationFormItemEnablementExpression: close({
 	Comparator!: "IN" | "NOT_IN" | "ALL_IN" | "EXACT" | fn.#StringExpression
-	Source!:     _#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementSource" | fn.#ObjectExpression
-	Values!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementSourceValue"] |
-		fn.#ListExpression
+
+	// A source item of enablement expression.
+	Source!: #EvaluationFormItemEnablementSource
+	Values!: list.MinItems(1) & [...#EvaluationFormItemEnablementSourceValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementSource": close({
-	RefId?: _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
+#EvaluationFormItemEnablementSource: close({
+	// A referenceId of the source item.
+	RefId?: #RefId
 	Type!:  "QUESTION_REF_ID" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementSourceValue": close({
-	RefId?: _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
+#EvaluationFormItemEnablementSourceValue: close({
+	// A referenceId of the source value.
+	RefId?: #RefId
 	Type?:  "OPTION_REF_ID" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormLanguageConfiguration": close({
+#EvaluationFormLanguageConfiguration: close({
 	FormLanguage?: "de-DE" |
 		"en-US" |
 		"es-ES" |
@@ -113,63 +127,66 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormLanguageConfiguration": clo
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormMetricConfiguration": close({
+#EvaluationFormMetricConfiguration: close({
 	MetricName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\p{C}]*$" | fn.#StringExpression
 	MetricType!: "BUSINESS_OUTCOME" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomation": close({
-	AnswerSource?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource" |
-		fn.#ObjectExpression
-	DefaultOptionRefIds?: _#defs."/$defs/Properties/definitions/ReferenceIdList" | fn.#ListExpression
-	Options?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomationOption"
-	] |
+#EvaluationFormMultiSelectQuestionAutomation: close({
+	AnswerSource?: #EvaluationFormQuestionAutomationAnswerSource
+
+	// Reference IDs of default options.
+	DefaultOptionRefIds?: #ReferenceIdList
+	Options?: list.MaxItems(20) & list.MinItems(1) & [...#EvaluationFormMultiSelectQuestionAutomationOption] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomationOption": close({
-	RuleCategory!: _#defs."/$defs/Properties/definitions/MultiSelectQuestionRuleCategoryAutomation" |
-		fn.#ObjectExpression
+#EvaluationFormMultiSelectQuestionAutomationOption: close({
+	// Rule category configuration for this automation option.
+	RuleCategory!: #MultiSelectQuestionRuleCategoryAutomation
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionOption": close({
-	AutomaticFail?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutomaticFailConfiguration?: _#defs."/$defs/Properties/definitions/AutomaticFailConfiguration" |
-		fn.#ObjectExpression
-	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionOptionPointsConfiguration" |
-		fn.#ObjectExpression
-	RefId!: _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
-	Score?: _#defs."/$defs/Properties/definitions/Score" | fn.#NumberExpression
+#EvaluationFormMultiSelectQuestionOption: close({
+	AutomaticFail?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AutomaticFailConfiguration?: #AutomaticFailConfiguration
+
+	// The points configuration for point-based scoring.
+	PointsConfiguration?: #QuestionOptionPointsConfiguration
+
+	// Reference identifier for this option.
+	RefId!: #RefId
+
+	// The score assigned to the answer option.
+	Score?: #Score
 	Text!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionProperties": close({
-	Automation?: _#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomation" |
-		fn.#ObjectExpression
-	DisplayAs?: "DROPDOWN" | "CHECKBOX" | fn.#StringExpression
-	Options!: list.MaxItems(256) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionOption"
-	] |
-		fn.#ListExpression
+#EvaluationFormMultiSelectQuestionProperties: close({
+	// Automation configuration for this multi-select question.
+	Automation?: #EvaluationFormMultiSelectQuestionAutomation
+	DisplayAs?:  "DROPDOWN" | "CHECKBOX" | fn.#StringExpression
+	Options!: list.MaxItems(256) & list.MinItems(2) & [...#EvaluationFormMultiSelectQuestionOption] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionAutomation": close({
-	AnswerSource?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource" |
-		fn.#ObjectExpression
-	PropertyValue?: _#defs."/$defs/Properties/definitions/NumericQuestionPropertyValueAutomation" | fn.#ObjectExpression
+#EvaluationFormNumericQuestionAutomation: close({
+	// A source of automation answer for numeric question.
+	AnswerSource?: #EvaluationFormQuestionAutomationAnswerSource
+
+	// The property value of the automation.
+	PropertyValue?: #NumericQuestionPropertyValueAutomation
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionOption": close({
+#EvaluationFormNumericQuestionOption: close({
 	AutomaticFail?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutomaticFailConfiguration?: _#defs."/$defs/Properties/definitions/AutomaticFailConfiguration" |
-		fn.#ObjectExpression
+
+	// A configuration for automatic fail.
+	AutomaticFailConfiguration?: #AutomaticFailConfiguration
 	MaxValue!: int |
 		{
 			string &
@@ -198,14 +215,20 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionOption": clo
 				)
 		} |
 		fn.#NumberExpression
-	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionOptionPointsConfiguration" |
-		fn.#ObjectExpression
-	Score?: _#defs."/$defs/Properties/definitions/Score" | fn.#NumberExpression
+
+	// The points configuration for point-based scoring.
+	PointsConfiguration?: #QuestionOptionPointsConfiguration
+
+	// The score assigned to answer values within the range option.
+	// *Minimum*: 0
+	// *Maximum*: 10
+	Score?: #Score
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionProperties": close({
-	Automation?: _#defs."/$defs/Properties/definitions/EvaluationFormNumericQuestionAutomation" | fn.#ObjectExpression
+#EvaluationFormNumericQuestionProperties: close({
+	// The automation properties of the numeric question.
+	Automation?: #EvaluationFormNumericQuestionAutomation
 	MaxValue!: int |
 		{
 			string &
@@ -234,53 +257,70 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionProperties":
 				)
 		} |
 		fn.#NumberExpression
-	Options?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormNumericQuestionOption"
-	] |
-		fn.#ListExpression
+	Options?: list.MaxItems(10) & list.MinItems(1) & [...#EvaluationFormNumericQuestionOption] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormQuestion": close({
-	Enablement?: _#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementConfiguration" | fn.#ObjectExpression
+#EvaluationFormQuestion: close({
+	// A question conditional enablement.
+	Enablement?:   #EvaluationFormItemEnablementConfiguration
 	Instructions?: strings.MaxRunes(1024) | fn.#StringExpression
-	MetricConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormMetricConfiguration" |
-		fn.#ObjectExpression
+
+	// The metric configuration for the question. Use this to associate a business
+	// outcome metric with the question.
+	MetricConfiguration?:  #EvaluationFormMetricConfiguration
 	NotApplicableEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QuestionType!:         "NUMERIC" | "SINGLESELECT" | "TEXT" | "MULTISELECT" | "DATETIME" | fn.#StringExpression
-	QuestionTypeProperties?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionTypeProperties" |
-		fn.#ObjectExpression
-	RefId!: _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
-	ScoringConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionScoringConfiguration" |
-		fn.#ObjectExpression
-	Title!:  strings.MaxRunes(350) & strings.MinRunes(1) | fn.#StringExpression
-	Weight?: _#defs."/$defs/Properties/definitions/Weight" | fn.#NumberExpression
+
+	// The properties of the type of question. Text questions do not have to define
+	// question type properties.
+	QuestionTypeProperties?: #EvaluationFormQuestionTypeProperties
+
+	// The identifier of the question. An identifier must be unique within the evaluation form.
+	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
+	RefId!: #RefId
+
+	// The scoring configuration of the question.
+	ScoringConfiguration?: #EvaluationFormQuestionScoringConfiguration
+	Title!:                strings.MaxRunes(350) & strings.MinRunes(1) | fn.#StringExpression
+
+	// The scoring weight of the section.
+	// *Minimum*: 0
+	// *Maximum*: 100
+	Weight?: #Weight
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource": close(
+#EvaluationFormQuestionAutomationAnswerSource: close(
 	{SourceType!: "CONTACT_LENS_DATA" | "GEN_AI" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormQuestionScoringConfiguration": close({
+#EvaluationFormQuestionScoringConfiguration: close({
 	IsExcludedFromScoring?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PointsConfiguration?:   _#defs."/$defs/Properties/definitions/QuestionPointsConfiguration" | fn.#ObjectExpression
-	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold"] | fn.#ListExpression
+
+	// The points configuration for point-based scoring.
+	PointsConfiguration?: #QuestionPointsConfiguration
+	ScoreThresholds?:     [...#EvaluationFormScoreThreshold] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormQuestionTypeProperties": close({
-	MultiSelect?: _#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionProperties" |
-		fn.#ObjectExpression
-	Numeric?: _#defs."/$defs/Properties/definitions/EvaluationFormNumericQuestionProperties" | fn.#ObjectExpression
-	SingleSelect?: _#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionProperties" |
-		fn.#ObjectExpression
-	Text?: _#defs."/$defs/Properties/definitions/EvaluationFormTextQuestionProperties" | fn.#ObjectExpression
+#EvaluationFormQuestionTypeProperties: close({
+	// Properties for multi-select question types.
+	MultiSelect?: #EvaluationFormMultiSelectQuestionProperties
+
+	// The properties of the numeric question.
+	Numeric?: #EvaluationFormNumericQuestionProperties
+
+	// The properties of the numeric question.
+	SingleSelect?: #EvaluationFormSingleSelectQuestionProperties
+
+	// The properties of the text question.
+	Text?: #EvaluationFormTextQuestionProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormScoreThreshold": close({
+#EvaluationFormScoreThreshold: close({
 	MaxScorePercentage?: <=100 & >=0 |
 		{
 			string &
@@ -325,75 +365,91 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormScoreThreshold": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormSection": close({
+#EvaluationFormSection: close({
 	Instructions?:          strings.MaxRunes(1024) | fn.#StringExpression
 	IsExcludedFromScoring?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Items?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EvaluationFormItem"] |
-		fn.#ListExpression
-	RefId!:           _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
-	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold"] | fn.#ListExpression
+	Items?:                 list.MaxItems(200) & list.MinItems(1) & [...#EvaluationFormItem] | fn.#ListExpression
+
+	// The identifier of the section. An identifier must be unique within the evaluation form.
+	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
+	RefId!:           #RefId
+	ScoreThresholds?: [...#EvaluationFormScoreThreshold] | fn.#ListExpression
 	Title!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Weight?:          _#defs."/$defs/Properties/definitions/Weight" | fn.#NumberExpression
+
+	// The scoring weight of the section.
+	// *Minimum*: 0
+	// *Maximum*: 100
+	Weight?: #Weight
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomation": close({
-	AnswerSource?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource" |
-		fn.#ObjectExpression
-	DefaultOptionRefId?: _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
-	Options?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomationOption"
-	] |
+#EvaluationFormSingleSelectQuestionAutomation: close({
+	// Automation answer source.
+	AnswerSource?: #EvaluationFormQuestionAutomationAnswerSource
+
+	// The identifier of the default answer option, when none of the automation
+	// options match the criteria.
+	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
+	DefaultOptionRefId?: #RefId
+	Options?: list.MaxItems(20) & list.MinItems(1) & [...#EvaluationFormSingleSelectQuestionAutomationOption] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomationOption": close({
-	RuleCategory!: _#defs."/$defs/Properties/definitions/SingleSelectQuestionRuleCategoryAutomation" |
-		fn.#ObjectExpression
+#EvaluationFormSingleSelectQuestionAutomationOption: close({
+	// The automation option based on a rule category for the single select question.
+	RuleCategory!: #SingleSelectQuestionRuleCategoryAutomation
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionOption": close({
+#EvaluationFormSingleSelectQuestionOption: close({
 	AutomaticFail?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutomaticFailConfiguration?: _#defs."/$defs/Properties/definitions/AutomaticFailConfiguration" |
-		fn.#ObjectExpression
-	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionOptionPointsConfiguration" |
-		fn.#ObjectExpression
-	RefId!: _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
-	Score?: _#defs."/$defs/Properties/definitions/Score" | fn.#NumberExpression
+
+	// Whether automatic fail is configured on a single select question.
+	AutomaticFailConfiguration?: #AutomaticFailConfiguration
+
+	// The points configuration for point-based scoring.
+	PointsConfiguration?: #QuestionOptionPointsConfiguration
+
+	// The identifier of the answer option. An identifier must be unique within the question.
+	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
+	RefId!: #RefId
+
+	// The score assigned to the answer option.
+	// *Minimum*: 0
+	// *Maximum*: 10
+	Score?: #Score
 	Text!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionProperties": close({
-	Automation?: _#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomation" |
-		fn.#ObjectExpression
-	DisplayAs?: "DROPDOWN" | "RADIO" | fn.#StringExpression
-	Options!: list.MaxItems(256) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionOption"
-	] |
+#EvaluationFormSingleSelectQuestionProperties: close({
+	// The display mode of the single select question.
+	Automation?: #EvaluationFormSingleSelectQuestionAutomation
+	DisplayAs?:  "DROPDOWN" | "RADIO" | fn.#StringExpression
+	Options!: list.MaxItems(256) & list.MinItems(2) & [...#EvaluationFormSingleSelectQuestionOption] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormTargetConfiguration": close(
+#EvaluationFormTargetConfiguration: close(
 	{ContactInteractionType!: "AGENT" | "AUTOMATED" | "CUSTOMER" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormTextQuestionAutomation": close({
-	AnswerSource?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource" |
-		fn.#ObjectExpression
+#EvaluationFormTextQuestionAutomation: close({
+	// Automation answer source.
+	AnswerSource?: #EvaluationFormQuestionAutomationAnswerSource
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationFormTextQuestionProperties": close(
-	{Automation?: _#defs."/$defs/Properties/definitions/EvaluationFormTextQuestionAutomation" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#EvaluationFormTextQuestionProperties: close({
+	// The automation properties of the text question.
+	Automation?: #EvaluationFormTextQuestionAutomation
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationReviewConfiguration": close({
+#EvaluationReviewConfiguration: close({
 	EligibilityDays?: int & <=90 & >=1 |
 		{
 			string &
@@ -410,32 +466,33 @@ _#defs: "/$defs/Properties/definitions/EvaluationReviewConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	ReviewNotificationRecipients!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationReviewNotificationRecipient"
-	] |
-		fn.#ListExpression
+	ReviewNotificationRecipients!: list.MinItems(1) & [...#EvaluationReviewNotificationRecipient] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationReviewNotificationRecipient": close({
-	Type!:  "USER_ID" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/EvaluationReviewNotificationRecipientValue" | fn.#ObjectExpression
+#EvaluationReviewNotificationRecipient: close({
+	Type!: "USER_ID" | fn.#StringExpression
+
+	// The value associated with the notification recipient type.
+	Value!: #EvaluationReviewNotificationRecipientValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationReviewNotificationRecipientValue": close(
+#EvaluationReviewNotificationRecipientValue: close(
 	{UserId?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiSelectQuestionRuleCategoryAutomation": close({
-	Category!:     strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Condition!:    "PRESENT" | "NOT_PRESENT" | fn.#StringExpression
-	OptionRefIds!: _#defs."/$defs/Properties/definitions/ReferenceIdList" | fn.#ListExpression
+#MultiSelectQuestionRuleCategoryAutomation: close({
+	Category!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	Condition!: "PRESENT" | "NOT_PRESENT" | fn.#StringExpression
+
+	// Reference IDs of options for this automation rule.
+	OptionRefIds!: #ReferenceIdList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NumericQuestionPropertyValueAutomation": close({
+#NumericQuestionPropertyValueAutomation: close({
 	Label!: "OVERALL_CUSTOMER_SENTIMENT_SCORE" |
 		"OVERALL_AGENT_SENTIMENT_SCORE" |
 		"NON_TALK_TIME" |
@@ -453,7 +510,7 @@ _#defs: "/$defs/Properties/definitions/NumericQuestionPropertyValueAutomation": 
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PointValue": int & <=100 & >=0 |
+#PointValue: int & <=100 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -470,25 +527,30 @@ _#defs: "/$defs/Properties/definitions/PointValue": int & <=100 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/QuestionOptionPointsConfiguration": close({
-	IsBonus?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PointValue!: _#defs."/$defs/Properties/definitions/PointValue" | fn.#NumberExpression
+#QuestionOptionPointsConfiguration: close({
+	IsBonus?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The point value assigned to the answer option.
+	PointValue!: #PointValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuestionPointsConfiguration": close({
-	IsBonus?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MaxPointValue?: _#defs."/$defs/Properties/definitions/PointValue" | fn.#NumberExpression
-	MinPointValue?: _#defs."/$defs/Properties/definitions/PointValue" | fn.#NumberExpression
+#QuestionPointsConfiguration: close({
+	IsBonus?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The maximum point value.
+	MaxPointValue?: #PointValue
+
+	// The minimum point value.
+	MinPointValue?: #PointValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RefId": =~"^[a-zA-Z0-9._-]{1,40}$" | fn.#StringExpression
+#RefId: =~"^[a-zA-Z0-9._-]{1,40}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReferenceIdList": [..._#defs."/$defs/Properties/definitions/RefId"] |
-	fn.#ListExpression
+#ReferenceIdList: [...#RefId] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Score": int & <=10 & >=0 |
+#Score: int & <=10 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -505,27 +567,30 @@ _#defs: "/$defs/Properties/definitions/Score": int & <=10 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ScoringStrategy": close({
+#ScoringStrategy: close({
 	Mode!:            "QUESTION_ONLY" | "SECTION_ONLY" | "POINTS_BASED" | fn.#StringExpression
-	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold"] | fn.#ListExpression
+	ScoreThresholds?: [...#EvaluationFormScoreThreshold] | fn.#ListExpression
 	Status!:          "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SingleSelectQuestionRuleCategoryAutomation": close({
-	Category!:    strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Condition!:   "PRESENT" | "NOT_PRESENT" | fn.#StringExpression
-	OptionRefId!: _#defs."/$defs/Properties/definitions/RefId" | fn.#StringExpression
+#SingleSelectQuestionRuleCategoryAutomation: close({
+	Category!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	Condition!: "PRESENT" | "NOT_PRESENT" | fn.#StringExpression
+
+	// The identifier of the answer option. An identifier must be unique within the question.
+	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
+	OptionRefId!: #RefId
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Weight": <=100 & >=0 |
+#Weight: <=100 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -545,7 +610,3 @@ _#defs: "/$defs/Properties/definitions/Weight": <=100 & >=0 |
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::EvaluationForm"
-	Properties!: #Properties
-}

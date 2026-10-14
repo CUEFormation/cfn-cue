@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,56 +13,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a collaboration between AWS accounts that allows for secure data collaboration
-#Properties: close({
-	AllowedResultRegions?:        _#defs."/$defs/Properties/definitions/AllowedResultRegions"
-	AnalyticsEngine?:             _#defs."/$defs/Properties/definitions/AnalyticsEngine"
-	AutoApprovedChangeTypes?:     _#defs."/$defs/Properties/definitions/AutoApprovedChangeTypeList"
-	CreatorDisplayName!:          _#defs."/$defs/Properties/definitions/Name"
-	CreatorMLMemberAbilities?:    _#defs."/$defs/Properties/definitions/MLMemberAbilities"
-	CreatorMemberAbilities?:      _#defs."/$defs/Properties/definitions/MemberAbilities"
-	CreatorPaymentConfiguration?: _#defs."/$defs/Properties/definitions/PaymentConfiguration"
-	DataEncryptionMetadata?:      _#defs."/$defs/Properties/definitions/DataEncryptionMetadata"
-	Description!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	IsMetricsEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	JobLogStatus?:                _#defs."/$defs/Properties/definitions/CollaborationJobLogStatus"
-	Members?: list.MaxItems(9) & [...] & [..._#defs."/$defs/Properties/definitions/MemberSpecification"] |
-		fn.#ListExpression
-	Name!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	QueryLogStatus!: _#defs."/$defs/Properties/definitions/CollaborationQueryLogStatus"
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::Collaboration"
+	Properties!: close({
+		AllowedResultRegions?:        #AllowedResultRegions
+		AnalyticsEngine?:             #AnalyticsEngine
+		AutoApprovedChangeTypes?:     #AutoApprovedChangeTypeList
+		CreatorDisplayName!:          #Name
+		CreatorMLMemberAbilities?:    #MLMemberAbilities
+		CreatorMemberAbilities?:      #MemberAbilities
+		CreatorPaymentConfiguration?: #PaymentConfiguration
+		DataEncryptionMetadata?:      #DataEncryptionMetadata
+		Description!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		IsMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		JobLogStatus?:     #CollaborationJobLogStatus
+		Members?:          list.MaxItems(9) & [...] & [...#MemberSpecification] | fn.#ListExpression
+		Name!:             strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		QueryLogStatus!:   #CollaborationQueryLogStatus
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AllowedResultRegions": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SupportedS3Region"
-] |
-	fn.#ListExpression
+#AllowedResultRegions: list.UniqueItems() & [...#SupportedS3Region] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AnalyticsEngine": "CLEAN_ROOMS_SQL" | "SPARK" | fn.#StringExpression
+#AnalyticsEngine: "CLEAN_ROOMS_SQL" | "SPARK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoApprovedChangeType": "ADD_MEMBER" |
+#AutoApprovedChangeType: "ADD_MEMBER" |
 	"GRANT_RECEIVE_RESULTS_ABILITY" |
 	"REVOKE_RECEIVE_RESULTS_ABILITY" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoApprovedChangeTypeList": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AutoApprovedChangeType"
-] |
-	fn.#ListExpression
+#AutoApprovedChangeTypeList: list.UniqueItems() & [...#AutoApprovedChangeType] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CollaborationJobLogStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#CollaborationJobLogStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CollaborationQueryLogStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#CollaborationQueryLogStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomMLMemberAbilities": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CustomMLMemberAbility"
-] |
-	fn.#ListExpression
+#CustomMLMemberAbilities: list.UniqueItems() & [...#CustomMLMemberAbility] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CustomMLMemberAbility": "CAN_RECEIVE_MODEL_OUTPUT" |
-	"CAN_RECEIVE_INFERENCE_OUTPUT" |
-	fn.#StringExpression
+#CustomMLMemberAbility: "CAN_RECEIVE_MODEL_OUTPUT" | "CAN_RECEIVE_INFERENCE_OUTPUT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataEncryptionMetadata": close({
+#DataEncryptionMetadata: close({
 	AllowCleartext!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AllowDuplicates!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AllowJoinsOnColumnsWithDifferentNames!: bool |
@@ -77,69 +68,60 @@ _#defs: "/$defs/Properties/definitions/DataEncryptionMetadata": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobComputePaymentConfig": close(
+#JobComputePaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MLMemberAbilities": close(
-	{CustomMLMemberAbilities!: _#defs."/$defs/Properties/definitions/CustomMLMemberAbilities"},
-) |
-	fn.#ObjectExpression
+#MLMemberAbilities: close({CustomMLMemberAbilities!: #CustomMLMemberAbilities}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MLPaymentConfig": close({
-	ModelInference?:          _#defs."/$defs/Properties/definitions/ModelInferencePaymentConfig"
-	ModelTraining?:           _#defs."/$defs/Properties/definitions/ModelTrainingPaymentConfig"
-	SyntheticDataGeneration?: _#defs."/$defs/Properties/definitions/SyntheticDataGenerationPaymentConfig"
+#MLPaymentConfig: close({
+	ModelInference?:          #ModelInferencePaymentConfig
+	ModelTraining?:           #ModelTrainingPaymentConfig
+	SyntheticDataGeneration?: #SyntheticDataGenerationPaymentConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemberAbilities": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/MemberAbility"
-] |
-	fn.#ListExpression
+#MemberAbilities: list.UniqueItems() & [...#MemberAbility] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MemberAbility": "CAN_QUERY" |
-	"CAN_RUN_JOB" |
-	"CAN_RECEIVE_RESULTS" |
-	fn.#StringExpression
+#MemberAbility: "CAN_QUERY" | "CAN_RUN_JOB" | "CAN_RECEIVE_RESULTS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MemberSpecification": close({
+#MemberSpecification: close({
 	AccountId!:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" | fn.#StringExpression
-	DisplayName!:          _#defs."/$defs/Properties/definitions/Name"
-	MLMemberAbilities?:    _#defs."/$defs/Properties/definitions/MLMemberAbilities"
-	MemberAbilities?:      _#defs."/$defs/Properties/definitions/MemberAbilities"
-	PaymentConfiguration?: _#defs."/$defs/Properties/definitions/PaymentConfiguration"
+	DisplayName!:          #Name
+	MLMemberAbilities?:    #MLMemberAbilities
+	MemberAbilities?:      #MemberAbilities
+	PaymentConfiguration?: #PaymentConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemberStatus": "INVITED" | "ACTIVE" | "LEFT" | "REMOVED" | fn.#StringExpression
+#MemberStatus: "INVITED" | "ACTIVE" | "LEFT" | "REMOVED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModelInferencePaymentConfig": close(
+#ModelInferencePaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelTrainingPaymentConfig": close(
+#ModelTrainingPaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#Name: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PaymentConfiguration": close({
-	JobCompute?:      _#defs."/$defs/Properties/definitions/JobComputePaymentConfig"
-	MachineLearning?: _#defs."/$defs/Properties/definitions/MLPaymentConfig"
-	QueryCompute!:    _#defs."/$defs/Properties/definitions/QueryComputePaymentConfig"
+#PaymentConfiguration: close({
+	JobCompute?:      #JobComputePaymentConfig
+	MachineLearning?: #MLPaymentConfig
+	QueryCompute!:    #QueryComputePaymentConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryComputePaymentConfig": close(
+#QueryComputePaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SupportedS3Region": "us-west-1" |
+#SupportedS3Region: "us-west-1" |
 	"us-west-2" |
 	"us-east-1" |
 	"us-east-2" |
@@ -174,17 +156,13 @@ _#defs: "/$defs/Properties/definitions/SupportedS3Region": "us-west-1" |
 	"mx-central-1" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SyntheticDataGenerationPaymentConfig": close(
+#SyntheticDataGenerationPaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::Collaboration"
-	Properties!: #Properties
-}

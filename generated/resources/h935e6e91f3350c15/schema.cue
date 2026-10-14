@@ -13,18 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::Segment
-#Properties: close({
-	ApplicationId!: string | fn.#StringExpression
-	Dimensions?:    _#defs."/$defs/Properties/definitions/SegmentDimensions"
-	Name!:          string | fn.#StringExpression
-	SegmentGroups?: _#defs."/$defs/Properties/definitions/SegmentGroups"
-	Tags?:          fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pinpoint::Segment"
+	Properties!: close({
+		ApplicationId!: string | fn.#StringExpression
+		Dimensions?:    #SegmentDimensions
+		Name!:          string | fn.#StringExpression
+		SegmentGroups?: #SegmentGroups
+		Tags?:          fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Behavior": close({Recency?: _#defs."/$defs/Properties/definitions/Recency"}) |
-	fn.#ObjectExpression
+#Behavior: close({Recency?: #Recency}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Coordinates": close({
+#Coordinates: close({
 	Latitude!: number |
 		{
 			string &
@@ -66,18 +68,18 @@ _#defs: "/$defs/Properties/definitions/Coordinates": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Demographic": close({
-	AppVersion?: _#defs."/$defs/Properties/definitions/SetDimension"
-	Channel?:    _#defs."/$defs/Properties/definitions/SetDimension"
-	DeviceType?: _#defs."/$defs/Properties/definitions/SetDimension"
-	Make?:       _#defs."/$defs/Properties/definitions/SetDimension"
-	Model?:      _#defs."/$defs/Properties/definitions/SetDimension"
-	Platform?:   _#defs."/$defs/Properties/definitions/SetDimension"
+#Demographic: close({
+	AppVersion?: #SetDimension
+	Channel?:    #SetDimension
+	DeviceType?: #SetDimension
+	Make?:       #SetDimension
+	Model?:      #SetDimension
+	Platform?:   #SetDimension
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GPSPoint": close({
-	Coordinates!: _#defs."/$defs/Properties/definitions/Coordinates"
+#GPSPoint: close({
+	Coordinates!: #Coordinates
 	RangeInKilometers!: number |
 		{
 			string &
@@ -100,49 +102,49 @@ _#defs: "/$defs/Properties/definitions/GPSPoint": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Groups": close({
-	Dimensions?:     [..._#defs."/$defs/Properties/definitions/SegmentDimensions"] | fn.#ListExpression
-	SourceSegments?: [..._#defs."/$defs/Properties/definitions/SourceSegments"] | fn.#ListExpression
+#Groups: close({
+	Dimensions?:     [...#SegmentDimensions] | fn.#ListExpression
+	SourceSegments?: [...#SourceSegments] | fn.#ListExpression
 	SourceType?:     string | fn.#StringExpression
 	Type?:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Location": close({
-	Country?:  _#defs."/$defs/Properties/definitions/SetDimension"
-	GPSPoint?: _#defs."/$defs/Properties/definitions/GPSPoint"
+#Location: close({
+	Country?:  #SetDimension
+	GPSPoint?: #GPSPoint
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Recency": close({
+#Recency: close({
 	Duration!:    string | fn.#StringExpression
 	RecencyType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentDimensions": close({
+#SegmentDimensions: close({
 	Attributes?:     fn.#Object & {...} | string | fn.#StringObjectExpression
-	Behavior?:       _#defs."/$defs/Properties/definitions/Behavior"
-	Demographic?:    _#defs."/$defs/Properties/definitions/Demographic"
-	Location?:       _#defs."/$defs/Properties/definitions/Location"
+	Behavior?:       #Behavior
+	Demographic?:    #Demographic
+	Location?:       #Location
 	Metrics?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	UserAttributes?: fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentGroups": close({
-	Groups?:  [..._#defs."/$defs/Properties/definitions/Groups"] | fn.#ListExpression
+#SegmentGroups: close({
+	Groups?:  [...#Groups] | fn.#ListExpression
 	Include?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SetDimension": close({
+#SetDimension: close({
 	DimensionType?: string | fn.#StringExpression
 	Values?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceSegments": close({
+#SourceSegments: close({
 	Id!: string | fn.#StringExpression
 	Version?: int |
 		{
@@ -160,7 +162,3 @@ _#defs: "/$defs/Properties/definitions/SourceSegments": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::Segment"
-	Properties!: #Properties
-}

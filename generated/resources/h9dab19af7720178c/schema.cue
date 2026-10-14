@@ -12,11 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::RegexPatternSet
-#Properties: close({
-	Name!:                string | fn.#StringExpression
-	RegexPatternStrings!: [...strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFRegional::RegexPatternSet"
-	Properties!: #Properties
+	Type!: "AWS::WAFRegional::RegexPatternSet"
+	Properties!: close({
+		Name!: string | fn.#StringExpression
+		RegexPatternStrings!: [...strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression] |
+		fn.#ListExpression
+	})
 }

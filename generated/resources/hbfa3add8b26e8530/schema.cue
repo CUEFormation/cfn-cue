@@ -11,12 +11,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::ApiGateway::UsagePlanKey`` resource associates an API key with a
 // usage plan. This association determines which users the usage plan is
 // applied to.
-#Properties: close({
-	KeyId!:       string | fn.#StringExpression
-	KeyType!:     "API_KEY" | fn.#StringExpression
-	UsagePlanId!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::UsagePlanKey"
-	Properties!: #Properties
+	Type!: "AWS::ApiGateway::UsagePlanKey"
+	Properties!: close({
+		KeyId!:       string | fn.#StringExpression
+		KeyType!:     "API_KEY" | fn.#StringExpression
+		UsagePlanId!: string | fn.#StringExpression
+	})
 }

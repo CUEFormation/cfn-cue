@@ -14,53 +14,40 @@ import "strings"
 	MarkLatest?: bool
 
 	// An owner account.
-	OwnerAccount?: _#defs."/$defs/Properties/definitions/PackageOwnerAccount"
-	PackageArn?:   _#defs."/$defs/Properties/definitions/NodePackageArn"
+	OwnerAccount?: #PackageOwnerAccount
+	PackageArn?:   #NodePackageArn
 
 	// A package ID.
-	PackageId!:   _#defs."/$defs/Properties/definitions/NodePackageId"
-	PackageName?: _#defs."/$defs/Properties/definitions/NodePackageName"
+	PackageId!:   #NodePackageId
+	PackageName?: #NodePackageName
 
 	// A package version.
-	PackageVersion!: _#defs."/$defs/Properties/definitions/NodePackageVersion"
+	PackageVersion!: #NodePackageVersion
 
 	// A patch version.
-	PatchVersion!:      _#defs."/$defs/Properties/definitions/NodePackagePatchVersion"
-	RegisteredTime?:    _#defs."/$defs/Properties/definitions/TimeStamp"
-	Status?:            _#defs."/$defs/Properties/definitions/PackageVersionStatus"
-	StatusDescription?: _#defs."/$defs/Properties/definitions/PackageVersionStatusDescription"
+	PatchVersion!:      #NodePackagePatchVersion
+	RegisteredTime?:    #TimeStamp
+	Status?:            #PackageVersionStatus
+	StatusDescription?: #PackageVersionStatusDescription
 
 	// If the version was marked latest, the new version to maker as latest.
-	UpdatedLatestPatchVersion?: _#defs."/$defs/Properties/definitions/NodePackagePatchVersion"
+	UpdatedLatestPatchVersion?: #NodePackagePatchVersion
 })
 
-_#defs: "/$defs/Properties/definitions/NodePackageArn": strings.MaxRunes(255) & strings.MinRunes(1)
+#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/NodePackageId": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_\\/]+$"
+#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$"
 
-_#defs: "/$defs/Properties/definitions/NodePackageName": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$"
+#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
 
-_#defs: "/$defs/Properties/definitions/NodePackagePatchVersion": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-z0-9]+$"
+#NodePackagePatchVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9]+$"
 
-_#defs: "/$defs/Properties/definitions/NodePackageVersion": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^([0-9]+)\\.([0-9]+)$"
+#NodePackageVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([0-9]+)\\.([0-9]+)$"
 
-_#defs: "/$defs/Properties/definitions/PackageOwnerAccount": strings.MaxRunes(12) &
-strings.MinRunes(1) &
-=~"^[0-9a-z\\_]+$"
+#PackageOwnerAccount: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9a-z\\_]+$"
 
-_#defs: "/$defs/Properties/definitions/PackageVersionStatus": "REGISTER_PENDING" |
-	"REGISTER_COMPLETED" |
-	"FAILED" |
-	"DELETING"
+#PackageVersionStatus: "REGISTER_PENDING" | "REGISTER_COMPLETED" | "FAILED" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/PackageVersionStatusDescription": strings.MaxRunes(255) & strings.MinRunes(1)
+#PackageVersionStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/TimeStamp": int
+#TimeStamp: int

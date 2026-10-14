@@ -7,12 +7,12 @@ package schema
 // This schema provides construct and validation rules for AWS-XRay
 // TransactionSearchConfig resource parameters.
 #Properties: close({
-	AccountId?:          _#defs."/$defs/Properties/definitions/AccountId"
-	IndexingPercentage?: _#defs."/$defs/Properties/definitions/IndexingPercentage"
+	AccountId?:          #AccountId
+	IndexingPercentage?: #IndexingPercentage
 })
 
 // User account id, used as the primary identifier for the resource
-_#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$"
+#AccountId: =~"^\\d{12}$"
 
 // Determines the percentage of traces indexed from CloudWatch Logs to X-Ray
-_#defs: "/$defs/Properties/definitions/IndexingPercentage": <=100 & >=0
+#IndexingPercentage: <=100 & >=0

@@ -15,7 +15,7 @@ import "list"
 	Description!: string
 
 	// The type of encryption that will be used on the output that is associated with this entitlement.
-	Encryption?: _#defs."/$defs/Properties/definitions/Encryption"
+	Encryption?: #Encryption
 
 	// The ARN of the entitlement.
 	EntitlementArn?:
@@ -36,11 +36,11 @@ import "list"
 	Subscribers!: [...string]
 
 	// Key-value pairs that can be used to tag and organize this flow entitlement.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Information about the encryption of the flow.
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	// The type of algorithm that is used for the encryption (such as aes128, aes192, or aes256).
 	Algorithm!: "aes128" | "aes192" | "aes256"
 
@@ -85,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 	Url?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

@@ -21,7 +21,7 @@ import (
 	GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 
 	// The location of the site.
-	Location?: _#defs."/$defs/Properties/definitions/Location"
+	Location?: #Location
 
 	// The Amazon Resource Name (ARN) of the site.
 	SiteArn?: string
@@ -33,11 +33,11 @@ import (
 	State?: string
 
 	// The tags for the site.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The location of the site
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	// The physical address.
 	Address?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/Location": close({
 })
 
 // A key-value pair to associate with a site resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,7 +12,7 @@ import (
 // Resource type definition for AWS::CodeDeploy::DeploymentGroup
 #Properties: close({
 	// Information about the Amazon CloudWatch alarms that are associated with the deployment group.
-	AlarmConfiguration?: _#defs."/$defs/Properties/definitions/AlarmConfiguration"
+	AlarmConfiguration?: #AlarmConfiguration
 
 	// The name of an existing CodeDeploy application to associate this deployment group with.
 	ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$"
@@ -20,7 +20,7 @@ import (
 	// Information about the automatic rollback configuration that is associated
 	// with the deployment group. If you specify this property, don't specify the
 	// Deployment property.
-	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfiguration"
+	AutoRollbackConfiguration?: #AutoRollbackConfiguration
 
 	// A list of associated Auto Scaling groups that CodeDeploy automatically
 	// deploys revisions to when new instances are created. Duplicates are not
@@ -28,13 +28,13 @@ import (
 	AutoScalingGroups?: list.UniqueItems() & [...string]
 
 	// Information about blue/green deployment options for a deployment group.
-	BlueGreenDeploymentConfiguration?: _#defs."/$defs/Properties/definitions/BlueGreenDeploymentConfiguration"
+	BlueGreenDeploymentConfiguration?: #BlueGreenDeploymentConfiguration
 
 	// The application revision to deploy to this deployment group. If you specify
 	// this property, your target application revision is deployed as soon as the
 	// provisioning process is complete. If you specify this property, don't
 	// specify the AutoRollbackConfiguration property.
-	Deployment?: _#defs."/$defs/Properties/definitions/Deployment"
+	Deployment?: #Deployment
 
 	// A deployment configuration name or a predefined configuration name. With
 	// predefined configurations, you can deploy application revisions to one
@@ -52,41 +52,41 @@ import (
 	// deployment traffic behind a load balancer. If you specify this property with
 	// a blue/green deployment type, don't specify the AutoScalingGroups,
 	// LoadBalancerInfo, or Deployment properties.
-	DeploymentStyle?: _#defs."/$defs/Properties/definitions/DeploymentStyle"
+	DeploymentStyle?: #DeploymentStyle
 
 	// The target Amazon ECS services in the deployment group. This applies only to
 	// deployment groups that use the Amazon ECS compute platform. A target Amazon
 	// ECS service is specified as an Amazon ECS cluster and service name pair
 	// using the format <clustername>:<servicename>.
-	ECSServices?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ECSService"]
+	ECSServices?: list.UniqueItems() & [...#ECSService]
 
 	// The Amazon EC2 tags that are already applied to Amazon EC2 instances that you
 	// want to include in the deployment group. CodeDeploy includes all Amazon EC2
 	// instances identified by any of the tags you specify in this deployment
 	// group. Duplicates are not allowed. You can specify EC2TagFilters or
 	// Ec2TagSet, but not both.
-	Ec2TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagFilter"]
+	Ec2TagFilters?: list.UniqueItems() & [...#EC2TagFilter]
 
 	// Information about groups of tags applied to Amazon EC2 instances. Use when
 	// the deployment group includes only Amazon EC2 instances identified by all
 	// the tag groups. Cannot be used in the same call as ec2TagFilter.
-	Ec2TagSet?: _#defs."/$defs/Properties/definitions/EC2TagSet"
+	Ec2TagSet?: #EC2TagSet
 
 	// Information about the load balancer to use in a deployment.
-	LoadBalancerInfo?: _#defs."/$defs/Properties/definitions/LoadBalancerInfo"
+	LoadBalancerInfo?: #LoadBalancerInfo
 
 	// The on-premises instance tags already applied to on-premises instances that
 	// you want to include in the deployment group. CodeDeploy includes all
 	// on-premises instances identified by any of the tags you specify in this
 	// deployment group. Duplicates are not allowed. You can specify
 	// OnPremisesInstanceTagFilters or OnPremisesInstanceTagSet, but not both.
-	OnPremisesInstanceTagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"]
+	OnPremisesInstanceTagFilters?: list.UniqueItems() & [...#TagFilter]
 
 	// Information about groups of tags applied to on-premises instances. The
 	// deployment group includes only on-premises instances identified by all the
 	// tag groups. You can specify OnPremisesInstanceTagFilters or
 	// OnPremisesInstanceTagSet, but not both.
-	OnPremisesTagSet?: _#defs."/$defs/Properties/definitions/OnPremisesTagSet"
+	OnPremisesTagSet?: #OnPremisesTagSet
 
 	// Indicates what happens when new Amazon EC2 instances are launched
 	// mid-deployment and do not receive the deployed application revision. If this
@@ -106,28 +106,28 @@ import (
 	// The metadata that you apply to CodeDeploy deployment groups to help you
 	// organize and categorize them. Each tag consists of a key and an optional
 	// value, both of which you define.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Indicates whether the deployment group was configured to have CodeDeploy
 	// install a termination hook into an Auto Scaling group.
 	TerminationHookEnabled?: bool
 
 	// Information about triggers associated with the deployment group. Duplicates are not allowed.
-	TriggerConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TriggerConfig"]
+	TriggerConfigurations?: list.UniqueItems() & [...#TriggerConfig]
 })
 
 // Specifies a CloudWatch alarm to use for an AWS CodeDeploy deployment group.
-_#defs: "/$defs/Properties/definitions/Alarm": close({
+#Alarm: close({
 	// The name of the alarm. Maximum length is 255 characters. Each alarm name can
 	// be used only once in a list of alarms.
 	Name?: string
 })
 
 // Configures CloudWatch alarms for an AWS CodeDeploy deployment group.
-_#defs: "/$defs/Properties/definitions/AlarmConfiguration": close({
+#AlarmConfiguration: close({
 	// A list of alarms configured for the deployment or deployment group. A maximum
 	// of 10 alarms can be added.
-	Alarms?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Alarm"]
+	Alarms?: list.UniqueItems() & [...#Alarm]
 
 	// Indicates whether the alarm configuration is enabled.
 	Enabled?: bool
@@ -140,7 +140,7 @@ _#defs: "/$defs/Properties/definitions/AlarmConfiguration": close({
 
 // Configures automatic rollback for an AWS CodeDeploy deployment group when a
 // deployment is not completed successfully.
-_#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": close({
+#AutoRollbackConfiguration: close({
 	// Indicates whether a defined automatic rollback configuration is currently enabled.
 	Enabled?: bool
 
@@ -149,24 +149,24 @@ _#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": close({
 })
 
 // Information about blue/green deployment options for a deployment group.
-_#defs: "/$defs/Properties/definitions/BlueGreenDeploymentConfiguration": close({
+#BlueGreenDeploymentConfiguration: close({
 	// Information about the action to take when newly provisioned instances are
 	// ready to receive traffic in a blue/green deployment.
-	DeploymentReadyOption?: _#defs."/$defs/Properties/definitions/DeploymentReadyOption"
+	DeploymentReadyOption?: #DeploymentReadyOption
 
 	// Information about how instances are provisioned for a replacement environment
 	// in a blue/green deployment.
-	GreenFleetProvisioningOption?: _#defs."/$defs/Properties/definitions/GreenFleetProvisioningOption"
+	GreenFleetProvisioningOption?: #GreenFleetProvisioningOption
 
 	// Information about whether to terminate instances in the original fleet during
 	// a blue/green deployment.
-	TerminateBlueInstancesOnDeploymentSuccess?: _#defs."/$defs/Properties/definitions/BlueInstanceTerminationOption"
+	TerminateBlueInstancesOnDeploymentSuccess?: #BlueInstanceTerminationOption
 })
 
 // Information about whether instances in the original environment are
 // terminated when a blue/green deployment is successful.
 // BlueInstanceTerminationOption does not apply to Lambda deployments.
-_#defs: "/$defs/Properties/definitions/BlueInstanceTerminationOption": close({
+#BlueInstanceTerminationOption: close({
 	// The action to take on instances in the original environment after a
 	// successful blue/green deployment.
 	Action?: "KEEP_ALIVE" | "TERMINATE"
@@ -183,7 +183,7 @@ _#defs: "/$defs/Properties/definitions/BlueInstanceTerminationOption": close({
 // Specifies an AWS CodeDeploy application revision to be deployed to instances
 // in the deployment group. If you specify an application revision, your target
 // revision is deployed as soon as the provisioning process is complete.
-_#defs: "/$defs/Properties/definitions/Deployment": close({
+#Deployment: close({
 	// A description of the deployment.
 	Description?: string
 
@@ -199,12 +199,12 @@ _#defs: "/$defs/Properties/definitions/Deployment": close({
 
 	// Information about the location of stored application artifacts and the
 	// service from which to retrieve them.
-	Revision!: _#defs."/$defs/Properties/definitions/RevisionLocation"
+	Revision!: #RevisionLocation
 })
 
 // Information about when to reroute traffic from an original environment to a
 // replacement environment in a blue/green deployment.
-_#defs: "/$defs/Properties/definitions/DeploymentReadyOption": close({
+#DeploymentReadyOption: close({
 	// Information about when to reroute traffic from an original environment to a
 	// replacement environment in a blue/green deployment. CONTINUE_DEPLOYMENT:
 	// Register new instances with the load balancer immediately after the new
@@ -223,7 +223,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentReadyOption": close({
 
 // Information about the type of deployment, either in-place or blue/green, you
 // want to run and whether to route deployment traffic behind a load balancer.
-_#defs: "/$defs/Properties/definitions/DeploymentStyle": close({
+#DeploymentStyle: close({
 	// Indicates whether to route deployment traffic behind a load balancer.
 	DeploymentOption?: "WITHOUT_TRAFFIC_CONTROL" | "WITH_TRAFFIC_CONTROL"
 
@@ -232,7 +232,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentStyle": close({
 })
 
 // Information about an Amazon EC2 tag filter.
-_#defs: "/$defs/Properties/definitions/EC2TagFilter": close({
+#EC2TagFilter: close({
 	// The tag filter key.
 	Key?: string
 
@@ -246,27 +246,27 @@ _#defs: "/$defs/Properties/definitions/EC2TagFilter": close({
 // Specifies information about groups of tags applied to Amazon EC2 instances.
 // The deployment group includes only Amazon EC2 instances identified by all
 // the tag groups. Cannot be used in the same template as EC2TagFilters.
-_#defs: "/$defs/Properties/definitions/EC2TagSet": close({
+#EC2TagSet: close({
 	// The Amazon EC2 tags that are already applied to Amazon EC2 instances that you
 	// want to include in the deployment group. CodeDeploy includes all Amazon EC2
 	// instances identified by any of the tags you specify in this deployment
 	// group.
-	Ec2TagSetList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagSetListObject"]
+	Ec2TagSetList?: list.UniqueItems() & [...#EC2TagSetListObject]
 })
 
 // The EC2TagSet property type specifies information about groups of tags
 // applied to Amazon EC2 instances. The deployment group includes only Amazon
 // EC2 instances identified by all the tag groups. Cannot be used in the same
 // template as EC2TagFilters.
-_#defs: "/$defs/Properties/definitions/EC2TagSetListObject": close({
+#EC2TagSetListObject: close({
 	// A list that contains other lists of Amazon EC2 instance tag groups. For an
 	// instance to be included in the deployment group, it must be identified by
 	// all of the tag groups in the list.
-	Ec2TagGroup?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagFilter"]
+	Ec2TagGroup?: list.UniqueItems() & [...#EC2TagFilter]
 })
 
 // Contains the service and cluster names used to identify an Amazon ECS deployment's target.
-_#defs: "/$defs/Properties/definitions/ECSService": close({
+#ECSService: close({
 	// The name of the cluster that the Amazon ECS service is associated with.
 	ClusterName!: string
 
@@ -279,7 +279,7 @@ _#defs: "/$defs/Properties/definitions/ECSService": close({
 // specify the ELBInfo property, the DeploymentStyle.DeploymentOption property
 // must be set to WITH_TRAFFIC_CONTROL for AWS CodeDeploy to route your traffic
 // using the specified load balancers.
-_#defs: "/$defs/Properties/definitions/ELBInfo": close({
+#ELBInfo: close({
 	// For blue/green deployments, the name of the load balancer that is used to
 	// route traffic from original instances to replacement instances in a
 	// blue/green deployment. For in-place deployments, the name of the load
@@ -290,7 +290,7 @@ _#defs: "/$defs/Properties/definitions/ELBInfo": close({
 })
 
 // Specifies the location of an application revision that is stored in GitHub.
-_#defs: "/$defs/Properties/definitions/GitHubLocation": close({
+#GitHubLocation: close({
 	// The SHA1 commit ID of the GitHub commit that represents the bundled artifacts
 	// for the application revision.
 	CommitId!: string
@@ -301,7 +301,7 @@ _#defs: "/$defs/Properties/definitions/GitHubLocation": close({
 
 // Information about the instances that belong to the replacement environment in
 // a blue/green deployment.
-_#defs: "/$defs/Properties/definitions/GreenFleetProvisioningOption": close({
+#GreenFleetProvisioningOption: close({
 	// The method used to add instances to a replacement environment.
 	Action?: "COPY_AUTO_SCALING_GROUP" | "DISCOVER_EXISTING"
 })
@@ -310,52 +310,52 @@ _#defs: "/$defs/Properties/definitions/GreenFleetProvisioningOption": close({
 // CodeDeploy deployment group. For AWS CloudFormation to use the properties
 // specified in LoadBalancerInfo, the DeploymentStyle.DeploymentOption property
 // must be set to WITH_TRAFFIC_CONTROL.
-_#defs: "/$defs/Properties/definitions/LoadBalancerInfo": close({
+#LoadBalancerInfo: close({
 	// An array that contains information about the load balancers to use for load
 	// balancing in a deployment. If you're using Classic Load Balancers, specify
 	// those load balancers in this array.
-	ElbInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ELBInfo"]
+	ElbInfoList?: list.UniqueItems() & [...#ELBInfo]
 
 	// An array that contains information about the target groups to use for load
 	// balancing in a deployment. If you're using Application Load Balancers and
 	// Network Load Balancers, specify their associated target groups in this
 	// array.
-	TargetGroupInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupInfo"]
+	TargetGroupInfoList?: list.UniqueItems() & [...#TargetGroupInfo]
 
 	// The target group pair information. This is an array of TargeGroupPairInfo
 	// objects with a maximum size of one.
-	TargetGroupPairInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupPairInfo"]
+	TargetGroupPairInfoList?: list.UniqueItems() & [...#TargetGroupPairInfo]
 })
 
 // Specifies a list containing other lists of on-premises instance tag groups.
 // In order for an instance to be included in the deployment group, it must be
 // identified by all the tag groups in the list.
-_#defs: "/$defs/Properties/definitions/OnPremisesTagSet": close({
+#OnPremisesTagSet: close({
 	// A list that contains other lists of on-premises instance tag groups. For an
 	// instance to be included in the deployment group, it must be identified by
 	// all of the tag groups in the list.
-	OnPremisesTagSetList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OnPremisesTagSetListObject"]
+	OnPremisesTagSetList?: list.UniqueItems() & [...#OnPremisesTagSetListObject]
 })
 
 // Specifies lists of on-premises instance tag groups. In order for an instance
 // to be included in the deployment group, it must be identified by all the tag
 // groups in the list.
-_#defs: "/$defs/Properties/definitions/OnPremisesTagSetListObject": close({
+#OnPremisesTagSetListObject: close({
 	// Information about groups of on-premises instance tags.
-	OnPremisesTagGroup?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"]
+	OnPremisesTagGroup?: list.UniqueItems() & [...#TagFilter]
 })
 
 // Defines the location of the CodeDeploy application revision to deploy.
-_#defs: "/$defs/Properties/definitions/RevisionLocation": close({
-	GitHubLocation?: _#defs."/$defs/Properties/definitions/GitHubLocation"
+#RevisionLocation: close({
+	GitHubLocation?: #GitHubLocation
 
 	// The type of application revision.
 	RevisionType?: string
-	S3Location?:   _#defs."/$defs/Properties/definitions/S3Location"
+	S3Location?:   #S3Location
 })
 
 // Information about the location of application artifacts stored in Amazon S3.
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The name of the Amazon S3 bucket where the application revision is stored.
 	Bucket!: string
 
@@ -378,7 +378,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // Information about a tag.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: string
 
@@ -387,7 +387,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Specifies which on-premises instances to associate with the deployment group.
-_#defs: "/$defs/Properties/definitions/TagFilter": close({
+#TagFilter: close({
 	// The on-premises instance tag filter key.
 	Key?: string
 
@@ -403,7 +403,7 @@ _#defs: "/$defs/Properties/definitions/TagFilter": close({
 // traffic is routed to the target group. The DeploymentStyle.DeploymentOption
 // property must be set to WITH_TRAFFIC_CONTROL for CodeDeploy to route your
 // traffic using the specified target groups.
-_#defs: "/$defs/Properties/definitions/TargetGroupInfo": close({
+#TargetGroupInfo: close({
 	// For blue/green deployments, the name of the target group that instances in
 	// the original environment are deregistered from, and instances in the
 	// replacement environment registered with. For in-place deployments, the name
@@ -419,25 +419,25 @@ _#defs: "/$defs/Properties/definitions/TargetGroupInfo": close({
 // DeploymentStyle.DeploymentOption property must be set to
 // WITH_TRAFFIC_CONTROL for CodeDeploy to route your traffic using the
 // specified target groups.
-_#defs: "/$defs/Properties/definitions/TargetGroupPairInfo": close({
+#TargetGroupPairInfo: close({
 	// The path used by a load balancer to route production traffic when an Amazon
 	// ECS deployment is complete.
-	ProdTrafficRoute?: _#defs."/$defs/Properties/definitions/TrafficRoute"
+	ProdTrafficRoute?: #TrafficRoute
 
 	// One pair of target groups. One is associated with the original task set. The
 	// second is associated with the task set that serves traffic after the
 	// deployment is complete.
-	TargetGroups?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupInfo"]
+	TargetGroups?: list.UniqueItems() & [...#TargetGroupInfo]
 
 	// An optional path used by a load balancer to route test traffic after an
 	// Amazon ECS deployment. Validation can occur while test traffic is served
 	// during a deployment.
-	TestTrafficRoute?: _#defs."/$defs/Properties/definitions/TrafficRoute"
+	TestTrafficRoute?: #TrafficRoute
 })
 
 // Information about a listener. The listener contains the path used to route
 // traffic that is received from the load balancer to a target group.
-_#defs: "/$defs/Properties/definitions/TrafficRoute": close({
+#TrafficRoute: close({
 	// The Amazon Resource Name (ARN) of one listener. The listener identifies the
 	// route between a target group and a load balancer. This is an array of
 	// strings with a maximum size of one.
@@ -445,7 +445,7 @@ _#defs: "/$defs/Properties/definitions/TrafficRoute": close({
 })
 
 // Information about notification triggers for the deployment group.
-_#defs: "/$defs/Properties/definitions/TriggerConfig": close({
+#TriggerConfig: close({
 	// The event type or types that trigger notifications.
 	TriggerEvents?: list.UniqueItems() & [
 		..."DeploymentFailure" |

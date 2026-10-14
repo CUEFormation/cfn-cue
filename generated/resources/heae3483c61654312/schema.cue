@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,19 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::UserProfile
-#Properties: close({
-	DomainId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
-	SingleSignOnUserIdentifier?: =~"UserName" | fn.#StringExpression
-	SingleSignOnUserValue?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	UserSettings?: _#defs."/$defs/Properties/definitions/UserSettings" &
-	(null | bool | number | string | list.MaxItems(50) & [...] | {...}) |
-	fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::UserProfile"
+	Properties!: close({
+		DomainId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
+		SingleSignOnUserIdentifier?: =~"UserName" | fn.#StringExpression
+		SingleSignOnUserValue?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		UserProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		UserSettings?: #UserSettings & (null | bool | number | string | list.MaxItems(50) & [...] | {...}) |
+		fn.#ObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AppInstanceType": "system" |
+#AppInstanceType: "system" |
 	"ml.t3.micro" |
 	"ml.t3.small" |
 	"ml.t3.medium" |
@@ -208,12 +210,9 @@ _#defs: "/$defs/Properties/definitions/AppInstanceType": "system" |
 	"ml.g7e.48xlarge" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AppLifecycleManagement": close(
-	{IdleSettings?: _#defs."/$defs/Properties/definitions/IdleSettings"},
-) |
-	fn.#ObjectExpression
+#AppLifecycleManagement: close({IdleSettings?: #IdleSettings}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AppType": "JupyterServer" |
+#AppType: "JupyterServer" |
 	"TensorBoard" |
 	"RStudioServerPro" |
 	"JupyterLab" |
@@ -222,34 +221,30 @@ _#defs: "/$defs/Properties/definitions/AppType": "JupyterServer" |
 	"Canvas" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CodeEditorAppSettings": close({
+#CodeEditorAppSettings: close({
 	BuiltInLifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
 	fn.#StringExpression
-	CustomImages?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"] |
-		fn.#ListExpression
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	] |
-		fn.#ListExpression
+	CustomImages?: list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the CodeEditor app.
+	DefaultResourceSpec?: #ResourceSpec
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeRepository": close(
-	{RepositoryUrl!: strings.MaxRunes(256) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#CodeRepository: close({RepositoryUrl!: strings.MaxRunes(256) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomFileSystemConfig": close({
-	EFSFileSystemConfig?:       _#defs."/$defs/Properties/definitions/EFSFileSystemConfig"
-	FSxLustreFileSystemConfig?: _#defs."/$defs/Properties/definitions/FSxLustreFileSystemConfig"
-	S3FileSystemConfig?:        _#defs."/$defs/Properties/definitions/S3FileSystemConfig"
+#CustomFileSystemConfig: close({
+	EFSFileSystemConfig?:       #EFSFileSystemConfig
+	FSxLustreFileSystemConfig?: #FSxLustreFileSystemConfig
+	S3FileSystemConfig?:        #S3FileSystemConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomImage": close({
+#CustomImage: close({
 	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
 	ImageName!:          strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
 	ImageVersionNumber?: int & >=0 |
@@ -270,7 +265,7 @@ _#defs: "/$defs/Properties/definitions/CustomImage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPosixUserConfig": close({
+#CustomPosixUserConfig: close({
 	Gid!: int & <=4000000 & >=1001 |
 		{
 			string &
@@ -306,24 +301,25 @@ _#defs: "/$defs/Properties/definitions/CustomPosixUserConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultEbsStorageSettings": close({
-	DefaultEbsVolumeSizeInGb!: _#defs."/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb" | fn.#NumberExpression
-	MaximumEbsVolumeSizeInGb!: _#defs."/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb" | fn.#NumberExpression
+#DefaultEbsStorageSettings: close({
+	// Default size of the Amazon EBS volume in Gb
+	DefaultEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
+
+	// Maximum size of the Amazon EBS volume in Gb. Must be greater than or equal to
+	// the DefaultEbsVolumeSizeInGb.
+	MaximumEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultSpaceStorageSettings": close(
-	{DefaultEbsStorageSettings?: _#defs."/$defs/Properties/definitions/DefaultEbsStorageSettings"},
-) |
-	fn.#ObjectExpression
+#DefaultSpaceStorageSettings: close({DefaultEbsStorageSettings?: #DefaultEbsStorageSettings}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EFSFileSystemConfig": close({
+#EFSFileSystemConfig: close({
 	FileSystemId!:   strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression
 	FileSystemPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmrSettings": close({
+#EmrSettings: close({
 	AssumableRoleArns?: list.MaxItems(5) & [...] & [
 		...strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
@@ -341,13 +337,13 @@ _#defs: "/$defs/Properties/definitions/EmrSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FSxLustreFileSystemConfig": close({
+#FSxLustreFileSystemConfig: close({
 	FileSystemId!:   strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression
 	FileSystemPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HiddenSageMakerImage": close({
+#HiddenSageMakerImage: close({
 	SageMakerImageName?: "sagemaker_distribution" | fn.#StringExpression
 	VersionAliases?: list.MaxItems(20) & [...] & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" | fn.#StringExpression
@@ -356,15 +352,15 @@ _#defs: "/$defs/Properties/definitions/HiddenSageMakerImage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdleSettings": close({
-	IdleTimeoutInMinutes?:    _#defs."/$defs/Properties/definitions/IdleTimeoutInMinutes"
-	LifecycleManagement?:     _#defs."/$defs/Properties/definitions/LifecycleManagement"
-	MaxIdleTimeoutInMinutes?: _#defs."/$defs/Properties/definitions/MaxIdleTimeoutInMinutes"
-	MinIdleTimeoutInMinutes?: _#defs."/$defs/Properties/definitions/MinIdleTimeoutInMinutes"
+#IdleSettings: close({
+	IdleTimeoutInMinutes?:    #IdleTimeoutInMinutes
+	LifecycleManagement?:     #LifecycleManagement
+	MaxIdleTimeoutInMinutes?: #MaxIdleTimeoutInMinutes
+	MinIdleTimeoutInMinutes?: #MinIdleTimeoutInMinutes
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdleTimeoutInMinutes": int & <=525600 & >=60 |
+#IdleTimeoutInMinutes: int & <=525600 & >=60 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -381,47 +377,43 @@ _#defs: "/$defs/Properties/definitions/IdleTimeoutInMinutes": int & <=525600 & >
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/JupyterLabAppSettings": close({
+#JupyterLabAppSettings: close({
 	BuiltInLifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
 	fn.#StringExpression
-	CodeRepositories?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CodeRepository"] |
-		fn.#ListExpression
-	CustomImages?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"] |
-		fn.#ListExpression
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
-	EmrSettings?:         _#defs."/$defs/Properties/definitions/EmrSettings" | fn.#ObjectExpression
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	] |
-		fn.#ListExpression
+	CodeRepositories?: list.MaxItems(30) & [...] & [...#CodeRepository] | fn.#ListExpression
+	CustomImages?:     list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the JupyterLab app.
+	DefaultResourceSpec?: #ResourceSpec
+
+	// The configuration parameters for EMR settings.
+	EmrSettings?:         #EmrSettings
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JupyterServerAppSettings": close({
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	] |
-		fn.#ListExpression
+#JupyterServerAppSettings: close({
+	DefaultResourceSpec?: #ResourceSpec
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KernelGatewayAppSettings": close({
-	CustomImages?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"] |
-		fn.#ListExpression
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec" | fn.#ObjectExpression
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	] |
-		fn.#ListExpression
+#KernelGatewayAppSettings: close({
+	CustomImages?: list.MaxItems(30) & [...] & [...#CustomImage] | fn.#ListExpression
+
+	// The default instance type and the Amazon Resource Name (ARN) of the default
+	// SageMaker image used by the KernelGateway app.
+	DefaultResourceSpec?: #ResourceSpec
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleManagement": "ENABLED" | "DISABLED" | fn.#StringExpression
+#LifecycleManagement: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaxIdleTimeoutInMinutes": int & <=525600 & >=60 |
+#MaxIdleTimeoutInMinutes: int & <=525600 & >=60 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -438,7 +430,7 @@ _#defs: "/$defs/Properties/definitions/MaxIdleTimeoutInMinutes": int & <=525600 
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MinIdleTimeoutInMinutes": int & <=525600 & >=60 |
+#MinIdleTimeoutInMinutes: int & <=525600 & >=60 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -455,7 +447,7 @@ _#defs: "/$defs/Properties/definitions/MinIdleTimeoutInMinutes": int & <=525600 
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MlTools": "DataWrangler" |
+#MlTools: "DataWrangler" |
 	"FeatureStore" |
 	"EmrClusters" |
 	"AutoMl" |
@@ -477,14 +469,14 @@ _#defs: "/$defs/Properties/definitions/MlTools": "DataWrangler" |
 	"PerformanceEvaluation" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RStudioServerProAppSettings": close({
+#RStudioServerProAppSettings: close({
 	AccessStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	UserGroup?:    "R_STUDIO_ADMIN" | "R_STUDIO_USER" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceSpec": close({
-	InstanceType?: _#defs."/$defs/Properties/definitions/AppInstanceType"
+#ResourceSpec: close({
+	InstanceType?: #AppInstanceType
 	LifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
@@ -504,13 +496,13 @@ _#defs: "/$defs/Properties/definitions/ResourceSpec": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3FileSystemConfig": close({
+#S3FileSystemConfig: close({
 	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	S3Uri?:     strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SharingSettings": close({
+#SharingSettings: close({
 	NotebookOutputOption?: "Allowed" | "Disabled" | fn.#StringExpression
 	S3KmsKeyId?:           strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	S3OutputPath?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
@@ -518,7 +510,7 @@ _#defs: "/$defs/Properties/definitions/SharingSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & >=5 |
+#SpaceEbsVolumeSizeInGb: int & <=16384 & >=5 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -535,48 +527,45 @@ _#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & 
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/StudioLifecycleConfigArn": strings.MaxRunes(256) &
+#StudioLifecycleConfigArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StudioWebPortalSettings": close({
-	HiddenAppTypes?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/AppType"] |
-		fn.#ListExpression
-	HiddenInstanceTypes?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/AppInstanceType"] |
-		fn.#ListExpression
-	HiddenMlTools?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/MlTools"] |
-		fn.#ListExpression
-	HiddenSageMakerImageVersionAliases?: list.MaxItems(5) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/HiddenSageMakerImage"
-	] |
+#StudioWebPortalSettings: close({
+	HiddenAppTypes?:      list.UniqueItems() & [...] & [...#AppType] | fn.#ListExpression
+	HiddenInstanceTypes?: list.UniqueItems() & [...] & [...#AppInstanceType] | fn.#ListExpression
+	HiddenMlTools?:       list.UniqueItems() & [...] & [...#MlTools] | fn.#ListExpression
+	HiddenSageMakerImageVersionAliases?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#HiddenSageMakerImage] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserSettings": close({
+#UserSettings: close({
 	AutoMountHomeEFS?:      "Enabled" | "Disabled" | "DefaultAsDomain" | fn.#StringExpression
-	CodeEditorAppSettings?: _#defs."/$defs/Properties/definitions/CodeEditorAppSettings"
-	CustomFileSystemConfigs?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomFileSystemConfig"
-	] |
+	CodeEditorAppSettings?: #CodeEditorAppSettings
+	CustomFileSystemConfigs?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#CustomFileSystemConfig] |
 		fn.#ListExpression
-	CustomPosixUserConfig?: _#defs."/$defs/Properties/definitions/CustomPosixUserConfig"
+	CustomPosixUserConfig?: #CustomPosixUserConfig
 	DefaultLandingUri?:     strings.MaxRunes(1023) & strings.MinRunes(0) | fn.#StringExpression
 	ExecutionRole?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	JupyterLabAppSettings?:       _#defs."/$defs/Properties/definitions/JupyterLabAppSettings"
-	JupyterServerAppSettings?:    _#defs."/$defs/Properties/definitions/JupyterServerAppSettings" | fn.#ObjectExpression
-	KernelGatewayAppSettings?:    _#defs."/$defs/Properties/definitions/KernelGatewayAppSettings" | fn.#ObjectExpression
-	RStudioServerProAppSettings?: _#defs."/$defs/Properties/definitions/RStudioServerProAppSettings"
+	JupyterLabAppSettings?: #JupyterLabAppSettings
+
+	// The Jupyter server's app settings.
+	JupyterServerAppSettings?: #JupyterServerAppSettings
+
+	// The kernel gateway app settings.
+	KernelGatewayAppSettings?:    #KernelGatewayAppSettings
+	RStudioServerProAppSettings?: #RStudioServerProAppSettings
 	SecurityGroups?: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &
@@ -585,13 +574,11 @@ _#defs: "/$defs/Properties/definitions/UserSettings": close({
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	SharingSettings?:         _#defs."/$defs/Properties/definitions/SharingSettings" | fn.#ObjectExpression
-	SpaceStorageSettings?:    _#defs."/$defs/Properties/definitions/DefaultSpaceStorageSettings"
+
+	// The sharing settings.
+	SharingSettings?:         #SharingSettings
+	SpaceStorageSettings?:    #DefaultSpaceStorageSettings
 	StudioWebPortal?:         "ENABLED" | "DISABLED" | fn.#StringExpression
-	StudioWebPortalSettings?: _#defs."/$defs/Properties/definitions/StudioWebPortalSettings"
+	StudioWebPortalSettings?: #StudioWebPortalSettings
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::UserProfile"
-	Properties!: #Properties
-}

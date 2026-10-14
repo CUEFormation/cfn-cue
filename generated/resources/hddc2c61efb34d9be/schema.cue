@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -17,78 +17,84 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A domain defined for 3rd party data source in Profile Service
-#Properties: close({
-	DataStore?: close({Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::Domain"
+	Properties!: close({
+		DataStore?: close(
+			{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+		) |
+			fn.#ObjectExpression
+		DeadLetterQueueUrl?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		DefaultEncryptionKey?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		DefaultExpirationDays!: int & <=1098 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1098 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Matching?:   #Matching
+		RuleBasedMatching?: close({
+			AttributeTypesSelector?: #AttributeTypesSelector
+			ConflictResolution?:     #ConflictResolution
+			Enabled!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			ExportingConfig?: #ExportingConfig
+			MatchingRules?:   list.MaxItems(15) & list.MinItems(1) & [...#MatchingRule] | fn.#ListExpression
+			MaxAllowedRuleLevelForMatching?: int & <=15 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=15 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MaxAllowedRuleLevelForMerging?: int & <=15 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=15 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+		}) |
 		fn.#ObjectExpression
-	DeadLetterQueueUrl?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	DefaultEncryptionKey?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	DefaultExpirationDays!: int & <=1098 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1098 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Matching?:   _#defs."/$defs/Properties/definitions/Matching"
-	RuleBasedMatching?: close({
-		AttributeTypesSelector?: _#defs."/$defs/Properties/definitions/AttributeTypesSelector"
-		ConflictResolution?:     _#defs."/$defs/Properties/definitions/ConflictResolution"
-		Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ExportingConfig?:        _#defs."/$defs/Properties/definitions/ExportingConfig"
-		MatchingRules?: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MatchingRule"] |
-			fn.#ListExpression
-		MaxAllowedRuleLevelForMatching?: int & <=15 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=15 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MaxAllowedRuleLevelForMerging?: int & <=15 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=15 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AttributeTypesSelector": close({
+#AttributeTypesSelector: close({
 	Address?: list.MaxItems(4) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -105,9 +111,9 @@ _#defs: "/$defs/Properties/definitions/AttributeTypesSelector": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoMerging": close({
-	ConflictResolution?: _#defs."/$defs/Properties/definitions/ConflictResolution"
-	Consolidation?:      _#defs."/$defs/Properties/definitions/Consolidation"
+#AutoMerging: close({
+	ConflictResolution?: #ConflictResolution
+	Consolidation?:      #Consolidation
 	Enabled!:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MinAllowedConfidenceScoreForMerging?: <=1 & >=0 |
 		{
@@ -132,27 +138,24 @@ _#defs: "/$defs/Properties/definitions/AutoMerging": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConflictResolution": close({
+#ConflictResolution: close({
 	ConflictResolvingModel!: "RECENCY" | "SOURCE" | fn.#StringExpression
 	SourceName?:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Consolidation": close({
-	MatchingAttributesList!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MatchingAttributes"
-	] |
-		fn.#ListExpression
-}) |
+#Consolidation: close(
+	{MatchingAttributesList!: list.MaxItems(10) & list.MinItems(1) & [...#MatchingAttributes] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataStore": close({
+#DataStore: close({
 	Enabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Readiness?: _#defs."/$defs/Properties/definitions/Readiness"
+	Readiness?: #Readiness
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DomainStats": close({
+#DomainStats: close({
 	MeteringProfileCount?: number |
 		{
 			string &
@@ -232,12 +235,9 @@ _#defs: "/$defs/Properties/definitions/DomainStats": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExportingConfig": close(
-	{S3Exporting?: _#defs."/$defs/Properties/definitions/S3ExportingConfig"},
-) |
-	fn.#ObjectExpression
+#ExportingConfig: close({S3Exporting?: #S3ExportingConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobSchedule": close({
+#JobSchedule: close({
 	DayOfTheWeek!: "SUNDAY" |
 		"MONDAY" |
 		"TUESDAY" |
@@ -251,30 +251,27 @@ _#defs: "/$defs/Properties/definitions/JobSchedule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Matching": close({
-	AutoMerging?:     _#defs."/$defs/Properties/definitions/AutoMerging"
+#Matching: close({
+	AutoMerging?:     #AutoMerging
 	Enabled!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExportingConfig?: _#defs."/$defs/Properties/definitions/ExportingConfig"
-	JobSchedule?:     _#defs."/$defs/Properties/definitions/JobSchedule"
+	ExportingConfig?: #ExportingConfig
+	JobSchedule?:     #JobSchedule
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchingAttributes": list.MaxItems(20) & list.MinItems(1) & [
+#MatchingAttributes: list.MaxItems(20) & list.MinItems(1) & [
 	...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MatchingRule": close(
-	{Rule!: _#defs."/$defs/Properties/definitions/MatchingRuleAttributeList"},
-) |
-	fn.#ObjectExpression
+#MatchingRule: close({Rule!: #MatchingRuleAttributeList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchingRuleAttributeList": list.MaxItems(15) & list.MinItems(1) & [
+#MatchingRuleAttributeList: list.MaxItems(15) & list.MinItems(1) & [
 	...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Readiness": close({
+#Readiness: close({
 	Message?: string | fn.#StringExpression
 	ProgressPercentage?: int & <=100 & >=0 |
 		{
@@ -295,13 +292,12 @@ _#defs: "/$defs/Properties/definitions/Readiness": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleBasedMatching": close({
-	AttributeTypesSelector?: _#defs."/$defs/Properties/definitions/AttributeTypesSelector"
-	ConflictResolution?:     _#defs."/$defs/Properties/definitions/ConflictResolution"
+#RuleBasedMatching: close({
+	AttributeTypesSelector?: #AttributeTypesSelector
+	ConflictResolution?:     #ConflictResolution
 	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExportingConfig?:        _#defs."/$defs/Properties/definitions/ExportingConfig"
-	MatchingRules?: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MatchingRule"] |
-		fn.#ListExpression
+	ExportingConfig?:        #ExportingConfig
+	MatchingRules?:          list.MaxItems(15) & list.MinItems(1) & [...#MatchingRule] | fn.#ListExpression
 	MaxAllowedRuleLevelForMatching?: int & <=15 & >=1 |
 		{
 			string &
@@ -338,18 +334,14 @@ _#defs: "/$defs/Properties/definitions/RuleBasedMatching": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3ExportingConfig": close({
+#S3ExportingConfig: close({
 	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9.-]+$" | fn.#StringExpression
 	S3KeyName?:    strings.MaxRunes(800) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::Domain"
-	Properties!: #Properties
-}

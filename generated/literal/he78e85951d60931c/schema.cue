@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,7 +14,7 @@ import (
 	// A list of enumerable Strings representing the repository creation scenarios
 	// that this template will apply towards. The supported scenarios are
 	// PULL_THROUGH_CACHE, REPLICATION, and CREATE_ON_PUSH
-	AppliedFor!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AppliedForItem"]
+	AppliedFor!: list.UniqueItems() & [...#AppliedForItem]
 	CreatedAt?:  string
 
 	// The ARN of the role to be assumed by Amazon ECR. Amazon ECR will assume your
@@ -30,7 +30,7 @@ import (
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0)
 
 	// The encryption configuration associated with the repository creation template.
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration?: #EncryptionConfiguration
 
 	// The tag mutability setting for the repository. If this parameter is omitted,
 	// the default setting of ``MUTABLE`` will be used which will allow image tags
@@ -40,9 +40,7 @@ import (
 
 	// A list of filters that specify which image tags are excluded from the
 	// repository creation template's image tag mutability setting.
-	ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ImageTagMutabilityExclusionFilter"
-	]
+	ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [...#ImageTagMutabilityExclusionFilter]
 
 	// The lifecycle policy to use for repositories created using the template.
 	LifecyclePolicy?: strings.MaxRunes(30720) & strings.MinRunes(100)
@@ -61,13 +59,13 @@ import (
 	// Each tag consists of a key and an optional value, both of which you define.
 	// Tag keys can have a maximum character length of 128 characters, and tag
 	// values can have a maximum length of 256 characters.
-	ResourceTags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ResourceTags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 	UpdatedAt?:    string
 })
 
 // Enumerable Strings representing the repository creation scenarios that the
 // template will apply towards.
-_#defs: "/$defs/Properties/definitions/AppliedForItem": "REPLICATION" | "PULL_THROUGH_CACHE" | "CREATE_ON_PUSH"
+#AppliedForItem: "REPLICATION" | "PULL_THROUGH_CACHE" | "CREATE_ON_PUSH"
 
 // The encryption configuration for the repository. This determines how the
 // contents of your repository are encrypted at rest.
@@ -80,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/AppliedForItem": "REPLICATION" | "PULL_TH
 // encrypt your images. For more information, see [Amazon ECR encryption at
 // rest](https://docs.aws.amazon.com/AmazonECR/latest/userguide/encryption-at-rest.html)
 // in the *Amazon Elastic Container Registry User Guide*.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// The encryption type to use.
 	// If you use the ``KMS`` encryption type, the contents of the repository will
 	// be encrypted using server-side encryption with KMSlong key stored in KMS.
@@ -98,21 +96,21 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	// For more information, see [Amazon ECR encryption at
 	// rest](https://docs.aws.amazon.com/AmazonECR/latest/userguide/encryption-at-rest.html)
 	// in the *Amazon Elastic Container Registry User Guide*.
-	EncryptionType!: _#defs."/$defs/Properties/definitions/EncryptionType"
+	EncryptionType!: #EncryptionType
 
 	// If you use the ``KMS`` encryption type, specify the KMS key to use for
 	// encryption. The alias, key ID, or full ARN of the KMS key can be specified.
 	// The key must exist in the same Region as the repository. If no key is
 	// specified, the default AWS managed KMS key for Amazon ECR will be used.
-	KmsKey?: _#defs."/$defs/Properties/definitions/KmsKey"
+	KmsKey?: #KmsKey
 })
 
 // The encryption type to use.
-_#defs: "/$defs/Properties/definitions/EncryptionType": "AES256" | "KMS" | "KMS_DSSE"
+#EncryptionType: "AES256" | "KMS" | "KMS_DSSE"
 
 // A filter that specifies which image tags should be excluded from the
 // repository's image tag mutability setting.
-_#defs: "/$defs/Properties/definitions/ImageTagMutabilityExclusionFilter": close({
+#ImageTagMutabilityExclusionFilter: close({
 	ImageTagMutabilityExclusionFilterType!:  "WILDCARD"
 	ImageTagMutabilityExclusionFilterValue!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._*-]{1,128}"
 })
@@ -121,13 +119,13 @@ _#defs: "/$defs/Properties/definitions/ImageTagMutabilityExclusionFilter": close
 // encryption. The alias, key ID, or full ARN of the CMK can be specified. The
 // key must exist in the same Region as the repository. If no key is specified,
 // the default AWS managed CMK for Amazon ECR will be used.
-_#defs: "/$defs/Properties/definitions/KmsKey": strings.MaxRunes(2048) & strings.MinRunes(1)
+#KmsKey: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 // The metadata to apply to a resource to help you categorize and organize them.
 // Each tag consists of a key and a value, both of which you define. Tag keys
 // can have a maximum character length of 128 characters, and tag values can
 // have a maximum length of 256 characters.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// One part of a key-value pair that make up a tag. A ``key`` is a general label
 	// that acts like a category for more specific tag values.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

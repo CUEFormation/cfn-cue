@@ -13,64 +13,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::BrowserProfile
-#Properties: close({
-	Description?: _#defs."/$defs/Properties/definitions/BrowserProfileDescription"
-	Name!:        _#defs."/$defs/Properties/definitions/BrowserProfileName"
-	Tags?:        _#defs."/$defs/Properties/definitions/TagsMap" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::BrowserProfile"
+	Properties!: close({
+		Description?: #BrowserProfileDescription
+		Name!:        #BrowserProfileName
 
-_#defs: "/$defs/Properties/definitions/BrowserProfileArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:browser-profile/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" |
+		// A map of tag keys and values.
+		Tags?: #TagsMap
+	})
+}
+
+#BrowserProfileArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:browser-profile/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserProfileDescription": string | fn.#StringExpression
+#BrowserProfileDescription: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserProfileId": =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" |
-	fn.#StringExpression
+#BrowserProfileId: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserProfileName": =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+#BrowserProfileName: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserProfileStatus": "READY" |
-	"DELETING" |
-	"DELETED" |
-	"SAVING" |
-	fn.#StringExpression
+#BrowserProfileStatus: "READY" | "DELETING" | "DELETED" | "SAVING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserProfileSummaries": [
-	..._#defs."/$defs/Properties/definitions/BrowserProfileSummary"
-] |
-	fn.#ListExpression
+#BrowserProfileSummaries: [...#BrowserProfileSummary] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserProfileSummary": close({
-	CreatedAt!:                 _#defs."/$defs/Properties/definitions/CreatedAt"
-	Description?:               _#defs."/$defs/Properties/definitions/BrowserProfileDescription"
-	LastSavedAt?:               _#defs."/$defs/Properties/definitions/LastSavedAt"
-	LastSavedBrowserId?:        _#defs."/$defs/Properties/definitions/LastSavedBrowserId"
-	LastSavedBrowserSessionId?: _#defs."/$defs/Properties/definitions/LastSavedBrowserSessionId"
-	LastUpdatedAt!:             _#defs."/$defs/Properties/definitions/LastUpdatedAt"
-	Name!:                      _#defs."/$defs/Properties/definitions/BrowserProfileName"
-	ProfileArn!:                _#defs."/$defs/Properties/definitions/BrowserProfileArn"
-	ProfileId!:                 _#defs."/$defs/Properties/definitions/BrowserProfileId"
-	Status!:                    _#defs."/$defs/Properties/definitions/BrowserProfileStatus"
+#BrowserProfileSummary: close({
+	CreatedAt!:                 #CreatedAt
+	Description?:               #BrowserProfileDescription
+	LastSavedAt?:               #LastSavedAt
+	LastSavedBrowserId?:        #LastSavedBrowserId
+	LastSavedBrowserSessionId?: #LastSavedBrowserSessionId
+	LastUpdatedAt!:             #LastUpdatedAt
+	Name!:                      #BrowserProfileName
+	ProfileArn!:                #BrowserProfileArn
+	ProfileId!:                 #BrowserProfileId
+	Status!:                    #BrowserProfileStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedAt": time.Time | fn.#StringExpression
+#CreatedAt: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastSavedAt": time.Time | fn.#StringExpression
+#LastSavedAt: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastSavedBrowserId": =~"^((aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}))?$" |
-	fn.#StringExpression
+#LastSavedBrowserId: =~"^((aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}))?$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastSavedBrowserSessionId": =~"^([0-9a-zA-Z]{1,40})?$" | fn.#StringExpression
+#LastSavedBrowserSessionId: =~"^([0-9a-zA-Z]{1,40})?$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastUpdatedAt": time.Time | fn.#StringExpression
+#LastUpdatedAt: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::BrowserProfile"
-	Properties!: #Properties
-}

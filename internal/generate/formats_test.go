@@ -6,8 +6,6 @@ import (
 	"regexp"
 	"strings"
 	"testing"
-
-	"cuelang.org/go/cue"
 )
 
 func TestCloudFormationIdentifierFormats(t *testing.T) {
@@ -137,8 +135,8 @@ func TestGeneratedCloudFormationFormatConstraints(t *testing.T) {
 			t.Fatalf("supported formats still diagnosed: %v", d)
 		}
 	}
-	template := build(t, out, "./resources/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
-	literal := build(t, out, "./literal/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	template := propertiesSchema(t, out, "./resources/htest")
+	literal := propertiesSchema(t, out, "./literal/htest")
 	for _, data := range []string{
 		`{Name:"one",VpcId:"vpc-aaaaaaaa",SecurityGroupIds:["sg-1234abcd"],ImageId:"ami-1234abcd",RoleArn:"arn:aws:iam::123456789012:role/MyRole",Untyped:12}`,
 		`{Name:"one",Untyped:false}`,

@@ -12,17 +12,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::ConfigurationSetEventDestination
-#Properties: close({
-	ConfigurationSetName!: string | fn.#StringExpression
-	EventDestination!:     _#defs."/$defs/Properties/definitions/EventDestination" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::ConfigurationSetEventDestination"
+	Properties!: close({
+		ConfigurationSetName!: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchDestination": close(
-	{DimensionConfigurations?: [..._#defs."/$defs/Properties/definitions/DimensionConfiguration"] | fn.#ListExpression},
-) |
+		// The event destination object.
+		EventDestination!: #EventDestination
+	})
+}
+
+#CloudWatchDestination: close({DimensionConfigurations?: [...#DimensionConfiguration] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
+#DimensionConfiguration: close({
 	DefaultDimensionValue!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,256}$" |
 	fn.#StringExpression
 	DimensionName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
@@ -36,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeDestination": close({
+#EventBridgeDestination: close({
 	EventBusArn!: strings.MaxRunes(1024) &
 	strings.MinRunes(36) &
 	=~"^arn:aws[a-z0-9-]*:events:[a-z0-9-]+:\\d{12}:event-bus/[^:]+$" |
@@ -44,26 +47,34 @@ _#defs: "/$defs/Properties/definitions/EventBridgeDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventDestination": close({
-	CloudWatchDestination?:  _#defs."/$defs/Properties/definitions/CloudWatchDestination" | fn.#ObjectExpression
-	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventBridgeDestination?: _#defs."/$defs/Properties/definitions/EventBridgeDestination" | fn.#ObjectExpression
-	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination" |
-		fn.#ObjectExpression
-	MatchingEventTypes!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:               =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
-	SnsDestination?:     _#defs."/$defs/Properties/definitions/SnsDestination" | fn.#ObjectExpression
+#EventDestination: close({
+	// An object that contains the names, default values, and sources of the
+	// dimensions associated with an Amazon CloudWatch event destination.
+	CloudWatchDestination?: #CloudWatchDestination
+	Enabled?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// An object that contains Event bus ARN associated with the event bridge destination.
+	EventBridgeDestination?: #EventBridgeDestination
+
+	// An object that contains the delivery stream ARN and the IAM role ARN
+	// associated with an Amazon Kinesis Firehose event destination.
+	KinesisFirehoseDestination?: #KinesisFirehoseDestination
+	MatchingEventTypes!:         [...string | fn.#StringExpression] | fn.#ListExpression
+	Name?:                       =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
+
+	// An object that contains SNS topic ARN associated event destination.
+	SnsDestination?: #SnsDestination
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
+#KinesisFirehoseDestination: close({
 	DeliveryStreamARN!: string | fn.#StringExpression
 	IAMRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnsDestination": close({
+#SnsDestination: close({
 	TopicARN!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(36) &
@@ -71,7 +82,3 @@ _#defs: "/$defs/Properties/definitions/SnsDestination": close({
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::ConfigurationSetEventDestination"
-	Properties!: #Properties
-}

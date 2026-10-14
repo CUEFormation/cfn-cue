@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::MeteredProduct
-#Properties: close({
-	LicenseEndpointId?: =~"^le-[0-9a-f]{32}$" | fn.#StringExpression
-	ProductId?:         =~"^[0-9a-z]{1,32}-[.0-9a-z]{1,32}$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::MeteredProduct"
-	Properties?: #Properties
+	Type!: "AWS::Deadline::MeteredProduct"
+	Properties?: close({
+		LicenseEndpointId?: =~"^le-[0-9a-f]{32}$" | fn.#StringExpression
+		ProductId?:         =~"^[0-9a-z]{1,32}-[.0-9a-z]{1,32}$" | fn.#StringExpression
+	})
 }

@@ -14,21 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Scheduled audits can be used to specify the checks you want to perform during
 // an audit and how often the audit should be run.
-#Properties: close({
-	DayOfMonth?:         =~"^([1-9]|[12][0-9]|3[01])$|^LAST$|^UNSET_VALUE$" | fn.#StringExpression
-	DayOfWeek?:          "SUN" | "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "UNSET_VALUE" | fn.#StringExpression
-	Frequency!:          "DAILY" | "WEEKLY" | "BIWEEKLY" | "MONTHLY" | fn.#StringExpression
-	ScheduledAuditName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetCheckNames!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::ScheduledAudit"
+	Properties!: close({
+		DayOfMonth?: =~"^([1-9]|[12][0-9]|3[01])$|^LAST$|^UNSET_VALUE$" | fn.#StringExpression
+		DayOfWeek?:  "SUN" | "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "UNSET_VALUE" | fn.#StringExpression
+		Frequency!:  "DAILY" | "WEEKLY" | "BIWEEKLY" | "MONTHLY" | fn.#StringExpression
+		ScheduledAuditName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetCheckNames!:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::ScheduledAudit"
-	Properties!: #Properties
-}

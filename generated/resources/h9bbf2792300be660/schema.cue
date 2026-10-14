@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource adds Key-Value metadata to a Schema version of Glue Schema Registry.
-#Properties: close({
-	Key!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SchemaVersionId!: =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" | fn.#StringExpression
-	Value!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::SchemaVersionMetadata"
-	Properties!: #Properties
+	Type!: "AWS::Glue::SchemaVersionMetadata"
+	Properties!: close({
+		Key!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		SchemaVersionId!: =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" | fn.#StringExpression
+		Value!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

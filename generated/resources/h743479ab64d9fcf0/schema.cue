@@ -16,99 +16,101 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::NetworkInterface resource creates network interface
-#Properties: matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6AddressCount!: _
-		Ipv6Addresses!:    _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6Addresses!:    _
-		Ipv6AddressCount!: _
-		...
-	}]) & {...}
-]) & close({
-	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification"
-	Description?:                     string | fn.#StringExpression
-	EnablePrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GroupSet?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::NetworkInterface"
+	Properties!: close({
+		ConnectionTrackingSpecification?: #ConnectionTrackingSpecification
+		Description?:                     string | fn.#StringExpression
+		EnablePrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		GroupSet?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		InterfaceType?: string | fn.#StringExpression
+		Ipv4PrefixCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Ipv4Prefixes?: [...#Ipv4PrefixSpecification] | fn.#ListExpression
+		Ipv6AddressCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Ipv6Addresses?: list.UniqueItems() & [...#InstanceIpv6Address] | fn.#ListExpression
+		Ipv6PrefixCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Ipv6Prefixes?:       [...#Ipv6PrefixSpecification] | fn.#ListExpression
+		PrivateIpAddress?:   string | fn.#StringExpression
+		PrivateIpAddresses?: [...#PrivateIpAddressSpecification] | fn.#ListExpression
+		PublicIpDnsHostnameTypeSpecification?: "public-dual-stack-dns-name" |
+			"public-ipv4-dns-name" |
+			"public-ipv6-dns-name" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	InterfaceType?: string | fn.#StringExpression
-	Ipv4PrefixCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Ipv4Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv4PrefixSpecification"] | fn.#ListExpression
-	Ipv6AddressCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Ipv6Addresses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"] |
-		fn.#ListExpression
-	Ipv6PrefixCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Ipv6Prefixes?:       [..._#defs."/$defs/Properties/definitions/Ipv6PrefixSpecification"] | fn.#ListExpression
-	PrivateIpAddress?:   string | fn.#StringExpression
-	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification"] | fn.#ListExpression
-	PublicIpDnsHostnameTypeSpecification?: "public-dual-stack-dns-name" |
-		"public-ipv4-dns-name" |
-		"public-ipv6-dns-name" |
-		fn.#StringExpression
-	SecondaryPrivateIpAddressCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SubnetId!:        string | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		SecondaryPrivateIpAddressCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SubnetId!:        string | fn.#StringExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+		if Ipv6AddressCount != _|_ if Ipv6AddressCount."Fn::If" == _|_ {
+			Ipv6Addresses?: close({"Fn::If": _}) | error("Ipv6Addresses cannot be used with Ipv6AddressCount")
+		}
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
+#ConnectionTrackingSpecification: close({
 	TcpEstablishedTimeout?: int |
 		{
 			string &
@@ -154,22 +156,19 @@ _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceIpv6Address": close({Ipv6Address!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#InstanceIpv6Address: close({Ipv6Address!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv4PrefixSpecification": close({Ipv4Prefix!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv4PrefixSpecification: close({Ipv4Prefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv6PrefixSpecification": close({Ipv6Prefix!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv6PrefixSpecification: close({Ipv6Prefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
+#PrivateIpAddressSpecification: close({
 	Primary!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicIpDnsNameOptions": close({
+#PublicIpDnsNameOptions: close({
 	DnsHostnameType?:        string | fn.#StringExpression
 	PublicDualStackDnsName?: string | fn.#StringExpression
 	PublicIpv4DnsName?:      string | fn.#StringExpression
@@ -177,12 +176,8 @@ _#defs: "/$defs/Properties/definitions/PublicIpDnsNameOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::NetworkInterface"
-	Properties!: #Properties
-}

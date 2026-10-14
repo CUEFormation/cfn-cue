@@ -4,9 +4,9 @@ package schema
 
 import (
 	"strings"
-	"time"
-	"struct"
 	"list"
+	"struct"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,16 +22,16 @@ import (
 	Arn?: =~"^arn:([^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:harness/[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$"
 
 	// The inbound authorization configuration for authenticating incoming requests.
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"
+	AuthorizerConfiguration?: #AuthorizerConfiguration
 
 	// The timestamp when the harness was created.
 	CreatedAt?: time.Time
 
 	// The compute environment configuration for the harness, including underlying runtime information.
-	Environment?: _#defs."/$defs/Properties/definitions/HarnessEnvironmentProvider"
+	Environment?: #HarnessEnvironmentProvider
 
 	// The environment artifact for the harness, such as a custom container image.
-	EnvironmentArtifact?: _#defs."/$defs/Properties/definitions/HarnessEnvironmentArtifact"
+	EnvironmentArtifact?: #HarnessEnvironmentArtifact
 
 	// Environment variables to set in the harness runtime environment.
 	EnvironmentVariables?: struct.MaxFields(50) & close({
@@ -52,7 +52,7 @@ import (
 
 	// Lifecycle hooks that fire at well-defined points in the agent loop for policy
 	// enforcement, audit, and governance.
-	Hooks?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/HarnessHook"]
+	Hooks?: list.MaxItems(20) & list.UniqueItems() & [...#HarnessHook]
 
 	// The maximum number of iterations the agent loop can execute per invocation.
 	MaxIterations?: int
@@ -61,31 +61,31 @@ import (
 	MaxTokens?: int
 
 	// The AgentCore Memory configuration for persisting conversation context.
-	Memory?: _#defs."/$defs/Properties/definitions/HarnessMemoryConfiguration"
+	Memory?: #HarnessMemoryConfiguration
 
 	// The model configuration for the harness.
-	Model!: _#defs."/$defs/Properties/definitions/HarnessModelConfiguration"
+	Model!: #HarnessModelConfiguration
 
 	// The skills available to the agent.
-	Skills?: [..._#defs."/$defs/Properties/definitions/HarnessSkill"]
+	Skills?: [...#HarnessSkill]
 
 	// The current status of the harness.
-	Status?: _#defs."/$defs/Properties/definitions/HarnessStatus"
+	Status?: #HarnessStatus
 
 	// The system prompt that defines the agent's behavior.
-	SystemPrompt?: [..._#defs."/$defs/Properties/definitions/HarnessSystemContentBlock"]
+	SystemPrompt?: [...#HarnessSystemContentBlock]
 
 	// Tags to apply to the harness resource.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The maximum duration in seconds for the agent loop execution per invocation.
 	TimeoutSeconds?: int
 
 	// The tools available to the agent.
-	Tools?: [..._#defs."/$defs/Properties/definitions/HarnessTool"]
+	Tools?: [...#HarnessTool]
 
 	// The truncation configuration for managing conversation context.
-	Truncation?: _#defs."/$defs/Properties/definitions/HarnessTruncationConfiguration"
+	Truncation?: #HarnessTruncationConfiguration
 
 	// The timestamp when the harness was last updated.
 	UpdatedAt?: time.Time
@@ -94,40 +94,37 @@ import (
 	Version?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$"
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer?: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-)
+#AuthorizerConfiguration: close({CustomJWTAuthorizer?: #CustomJWTAuthorizerConfiguration})
 
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
+#AuthorizingClaimMatchValueType: close({
 	ClaimMatchOperator!: "EQUALS" | "CONTAINS" | "CONTAINS_ANY"
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+	ClaimMatchValue!:    #ClaimMatchValueType
 })
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [{
-	MatchValueString!: _
-	...
-}, {
-	MatchValueStringList!: _
-	...
-}]) & close({
+#ClaimMatchValueType: close({
 	MatchValueString?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$"
 	MatchValueStringList?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$"]
-})
+	if MatchValueString != _|_ if MatchValueString."Fn::If" == _|_ {
+		MatchValueStringList?: close({"Fn::If": _}) | error(
+			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
+		)
+	}
+}) & matchN(>=1, [{MatchValueString!: _}, {MatchValueStringList!: _}])
 
-_#defs: "/$defs/Properties/definitions/ContainerConfiguration": close({
+#ContainerConfiguration: close({
 	// The ECR URI of the container.
 	ContainerUri!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^(([0-9]{12})\\.dkr\\.ecr\\.([a-z0-9-]+)\\.amazonaws\\.com(\\.cn)?|public\\.ecr\\.aws)/((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)(?::([^:@]{1,300}))?(?:@(.+))?$"
 })
 
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
 	InboundTokenClaimName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-:]+$"
 	InboundTokenClaimValueType!: "STRING" | "STRING_ARRAY"
 })
 
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
+#CustomJWTAuthorizerConfiguration: close({
 	// A map that associates each scope in AllowedScopes with a corresponding
 	// advertised scope value. The advertised scope appears in OAuth protected
 	// resource metadata and WWW-Authenticate response headers.
@@ -141,66 +138,66 @@ _#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close(
 	AllowedScopes?: list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
 	]
-	CustomClaims?:             list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"]
+	CustomClaims?:             list.MinItems(1) & [...#CustomClaimValidationType]
 	DiscoveryUrl!:             =~"^.+/\\.well-known/openid-configuration$"
-	PrivateEndpoint?:          _#defs."/$defs/Properties/definitions/PrivateEndpoint"
-	PrivateEndpointOverrides?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"]
+	PrivateEndpoint?:          #PrivateEndpoint
+	PrivateEndpointOverrides?: list.MaxItems(5) & [...#PrivateEndpointOverride]
 })
 
 // Configuration for an Amazon EFS access point to mount into the AgentCore Runtime.
-_#defs: "/$defs/Properties/definitions/EfsAccessPointConfiguration": close({
+#EfsAccessPointConfiguration: close({
 	AccessPointArn!: strings.MaxRunes(128) &
 	=~"^arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:access-point/fsap-[0-9a-f]{8,40}$"
 	MountPath!: strings.MaxRunes(200) & strings.MinRunes(6) & =~"^/mnt/[a-zA-Z0-9._-]+/?$"
 })
 
-_#defs: "/$defs/Properties/definitions/FilesystemConfiguration": close({
-	EfsAccessPoint?:     _#defs."/$defs/Properties/definitions/EfsAccessPointConfiguration"
-	S3FilesAccessPoint?: _#defs."/$defs/Properties/definitions/S3FilesAccessPointConfiguration"
-	SessionStorage?:     _#defs."/$defs/Properties/definitions/SessionStorageConfiguration"
+#FilesystemConfiguration: close({
+	EfsAccessPoint?:     #EfsAccessPointConfiguration
+	S3FilesAccessPoint?: #S3FilesAccessPointConfiguration
+	SessionStorage?:     #SessionStorageConfiguration
 })
 
 // A hook that runs after an agent invocation.
-_#defs: "/$defs/Properties/definitions/HarnessAfterInvocationHook": close({
+#HarnessAfterInvocationHook: close({
 	// The unique name of the hook.
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
+	Target!: #HarnessHookTarget
 })
 
 // A hook that runs after each tool call.
-_#defs: "/$defs/Properties/definitions/HarnessAfterToolCallHook": close({
+#HarnessAfterToolCallHook: close({
 	// The unique name of the hook.
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
+	Target!: #HarnessHookTarget
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreBrowserConfig": close({
+#HarnessAgentCoreBrowserConfig: close({
 	BrowserArn?:
 		=~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreCodeInterpreterConfig": close({
+#HarnessAgentCoreCodeInterpreterConfig: close({
 	CodeInterpreterArn?:
 		=~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):code-interpreter(-custom)?/(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreGatewayConfig": close({
+#HarnessAgentCoreGatewayConfig: close({
 	GatewayArn!:
 		=~"^arn:aws(|-cn|-us-gov):bedrock-agentcore:[a-z0-9-]{1,20}:[0-9]{12}:gateway/([0-9a-z][-]?){1,48}-[a-z0-9]{10}$"
-	OutboundAuth?: _#defs."/$defs/Properties/definitions/HarnessGatewayOutboundAuth"
+	OutboundAuth?: #HarnessGatewayOutboundAuth
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration": close({
+#HarnessAgentCoreMemoryConfiguration: close({
 	ActorId?: string
 	Arn!:
 		=~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$"
 	MessagesCount?: int
 	RetrievalConfig?: close({
 
-		{[=~"^[\\s\\S]*$"]: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryRetrievalConfig"}})
+		{[=~"^[\\s\\S]*$"]: #HarnessAgentCoreMemoryRetrievalConfig}})
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreMemoryRetrievalConfig": close({
+#HarnessAgentCoreMemoryRetrievalConfig: close({
 	// Minimum relevance score for retrieved memories.
 	RelevanceScore?: number
 	StrategyId?:     string
@@ -209,7 +206,7 @@ _#defs: "/$defs/Properties/definitions/HarnessAgentCoreMemoryRetrievalConfig": c
 	TopK?: int
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment": close({
+#HarnessAgentCoreRuntimeEnvironment: close({
 	// The ARN of the underlying AgentCore Runtime.
 	AgentRuntimeArn?: strings.MaxRunes(1011) & strings.MinRunes(20)
 
@@ -217,15 +214,13 @@ _#defs: "/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment": clos
 	AgentRuntimeId?: string
 
 	// The name of the underlying AgentCore Runtime.
-	AgentRuntimeName?: string
-	FilesystemConfigurations?: list.MaxItems(5) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FilesystemConfiguration"
-	]
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
-	NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	AgentRuntimeName?:         string
+	FilesystemConfigurations?: list.MaxItems(5) & [...] & [...#FilesystemConfiguration]
+	LifecycleConfiguration?:   #LifecycleConfiguration
+	NetworkConfiguration?:     #NetworkConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessBedrockModelConfig": close({
+#HarnessBedrockModelConfig: close({
 	// Provider-specific parameters passed through to the model provider unchanged.
 	AdditionalParams?: {...}
 	ApiFormat?:        "converse_stream" | "responses" | "chat_completions"
@@ -236,46 +231,40 @@ _#defs: "/$defs/Properties/definitions/HarnessBedrockModelConfig": close({
 })
 
 // A hook that runs before an agent invocation.
-_#defs: "/$defs/Properties/definitions/HarnessBeforeInvocationHook": close({
+#HarnessBeforeInvocationHook: close({
 	// The unique name of the hook.
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
+	Target!: #HarnessHookTarget
 })
 
 // A hook that runs before each tool call.
-_#defs: "/$defs/Properties/definitions/HarnessBeforeToolCallHook": close({
+#HarnessBeforeToolCallHook: close({
 	// The unique name of the hook.
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
+	Target!: #HarnessHookTarget
 })
 
 // Explicitly opt out of memory.
-_#defs: "/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration": close({})
+#HarnessDisabledMemoryConfiguration: close({})
 
-_#defs: "/$defs/Properties/definitions/HarnessEnvironmentArtifact": close(
-	{ContainerConfiguration?: _#defs."/$defs/Properties/definitions/ContainerConfiguration"},
-)
+#HarnessEnvironmentArtifact: close({ContainerConfiguration?: #ContainerConfiguration})
 
-_#defs: "/$defs/Properties/definitions/HarnessEnvironmentProvider": close(
-	{AgentCoreRuntimeEnvironment?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment"},
-)
+#HarnessEnvironmentProvider: close({AgentCoreRuntimeEnvironment?: #HarnessAgentCoreRuntimeEnvironment})
 
-_#defs: "/$defs/Properties/definitions/HarnessGatewayOutboundAuth": matchN(1, [{
-	AwsIam!: _
-	...
-}, {
-	None!: _
-	...
-}, {
-	Oauth!: _
-	...
-}]) & close({
+#HarnessGatewayOutboundAuth: close({
 	AwsIam?: close({})
 	None?:   close({})
-	Oauth?:  _#defs."/$defs/Properties/definitions/OAuthCredentialProvider"
-})
+	Oauth?:  #OAuthCredentialProvider
+	if AwsIam != _|_ if AwsIam."Fn::If" == _|_ {
+		None?:  close({"Fn::If": _}) | error("None cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
+		Oauth?: close({"Fn::If": _}) | error("Oauth cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
+	}
+	if None != _|_ if None."Fn::If" == _|_ {
+		Oauth?: close({"Fn::If": _}) | error("Oauth cannot be used with None; set exactly one of AwsIam, None, Oauth")
+	}
+}) & matchN(>=1, [{AwsIam!: _}, {None!: _}, {Oauth!: _}])
 
-_#defs: "/$defs/Properties/definitions/HarnessGeminiModelConfig": close({
+#HarnessGeminiModelConfig: close({
 	// Provider-specific parameters passed through to the Gemini model provider unchanged.
 	AdditionalParams?: {...}
 	ApiKeyArn!:
@@ -288,27 +277,39 @@ _#defs: "/$defs/Properties/definitions/HarnessGeminiModelConfig": close({
 })
 
 // A lifecycle hook configured for one phase of the agent loop.
-_#defs: "/$defs/Properties/definitions/HarnessHook": matchN(1, [{
-	BeforeInvocation!: _
-	...
-}, {
-	AfterInvocation!: _
-	...
-}, {
-	BeforeToolCall!: _
-	...
-}, {
-	AfterToolCall!: _
-	...
-}]) & close({
-	AfterInvocation?:  _#defs."/$defs/Properties/definitions/HarnessAfterInvocationHook"
-	AfterToolCall?:    _#defs."/$defs/Properties/definitions/HarnessAfterToolCallHook"
-	BeforeInvocation?: _#defs."/$defs/Properties/definitions/HarnessBeforeInvocationHook"
-	BeforeToolCall?:   _#defs."/$defs/Properties/definitions/HarnessBeforeToolCallHook"
-})
+#HarnessHook: close({
+	AfterInvocation?:  #HarnessAfterInvocationHook
+	AfterToolCall?:    #HarnessAfterToolCallHook
+	BeforeInvocation?: #HarnessBeforeInvocationHook
+	BeforeToolCall?:   #HarnessBeforeToolCallHook
+	if BeforeInvocation != _|_ if BeforeInvocation."Fn::If" == _|_ {
+		AfterInvocation?: close({"Fn::If": _}) | error(
+			"AfterInvocation cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+		BeforeToolCall?: close({"Fn::If": _}) | error(
+			"BeforeToolCall cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+		AfterToolCall?: close({"Fn::If": _}) | error(
+			"AfterToolCall cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+	}
+	if AfterInvocation != _|_ if AfterInvocation."Fn::If" == _|_ {
+		BeforeToolCall?: close({"Fn::If": _}) | error(
+			"BeforeToolCall cannot be used with AfterInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+		AfterToolCall?: close({"Fn::If": _}) | error(
+			"AfterToolCall cannot be used with AfterInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+	}
+	if BeforeToolCall != _|_ if BeforeToolCall."Fn::If" == _|_ {
+		AfterToolCall?: close({"Fn::If": _}) | error(
+			"AfterToolCall cannot be used with BeforeToolCall; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+	}
+}) & matchN(>=1, [{BeforeInvocation!: _}, {AfterInvocation!: _}, {BeforeToolCall!: _}, {AfterToolCall!: _}])
 
 // An EventBridge event bus that receives lifecycle hook events asynchronously.
-_#defs: "/$defs/Properties/definitions/HarnessHookEventBridgeTarget": close({
+#HarnessHookEventBridgeTarget: close({
 	// The ARN of the EventBridge event bus.
 	Arn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -316,7 +317,7 @@ _#defs: "/$defs/Properties/definitions/HarnessHookEventBridgeTarget": close({
 })
 
 // A Lambda function invoked synchronously for a lifecycle hook.
-_#defs: "/$defs/Properties/definitions/HarnessHookLambdaTarget": close({
+#HarnessHookLambdaTarget: close({
 	// The ARN of the Lambda function.
 	Arn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws(-[^:]+)?:lambda:[a-z0-9-]+:[0-9]{12}:function:.+$"
 
@@ -328,35 +329,39 @@ _#defs: "/$defs/Properties/definitions/HarnessHookLambdaTarget": close({
 })
 
 // An SNS topic that receives lifecycle hook events asynchronously.
-_#defs: "/$defs/Properties/definitions/HarnessHookSnsTarget": close({
+#HarnessHookSnsTarget: close({
 	// The ARN of the SNS topic.
 	Arn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws(-[^:]+)?:sns:[a-z0-9-]+:[0-9]{12}:.+$"
 })
 
 // The destination that receives lifecycle hook events.
-_#defs: "/$defs/Properties/definitions/HarnessHookTarget": matchN(1, [{
-	Lambda!: _
-	...
-}, {
-	Sns!: _
-	...
-}, {
-	EventBridge!: _
-	...
-}]) & close({
-	EventBridge?: _#defs."/$defs/Properties/definitions/HarnessHookEventBridgeTarget"
-	Lambda?:      _#defs."/$defs/Properties/definitions/HarnessHookLambdaTarget"
-	Sns?:         _#defs."/$defs/Properties/definitions/HarnessHookSnsTarget"
-})
+#HarnessHookTarget: close({
+	EventBridge?: #HarnessHookEventBridgeTarget
+	Lambda?:      #HarnessHookLambdaTarget
+	Sns?:         #HarnessHookSnsTarget
+	if Lambda != _|_ if Lambda."Fn::If" == _|_ {
+		Sns?: close({"Fn::If": _}) | error(
+			"Sns cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge",
+		)
+		EventBridge?: close({"Fn::If": _}) | error(
+			"EventBridge cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge",
+		)
+	}
+	if Sns != _|_ if Sns."Fn::If" == _|_ {
+		EventBridge?: close({"Fn::If": _}) | error(
+			"EventBridge cannot be used with Sns; set exactly one of Lambda, Sns, EventBridge",
+		)
+	}
+}) & matchN(>=1, [{Lambda!: _}, {Sns!: _}, {EventBridge!: _}])
 
-_#defs: "/$defs/Properties/definitions/HarnessInlineFunctionConfig": close({
+#HarnessInlineFunctionConfig: close({
 	Description!: strings.MaxRunes(4096) & strings.MinRunes(1)
 
 	// JSON Schema describing the tool's input parameters.
 	InputSchema!: {...}
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessLiteLlmModelConfig": close({
+#HarnessLiteLlmModelConfig: close({
 	// Provider-specific parameters passed through to LiteLLM unchanged.
 	AdditionalParams?: {...}
 	ApiBase?:          strings.MaxRunes(16383) & strings.MinRunes(1)
@@ -370,7 +375,7 @@ _#defs: "/$defs/Properties/definitions/HarnessLiteLlmModelConfig": close({
 
 // Configuration for managed memory. The harness creates and manages a memory
 // resource in the customer's account.
-_#defs: "/$defs/Properties/definitions/HarnessManagedMemoryConfiguration": close({
+#HarnessManagedMemoryConfiguration: close({
 	// The ARN of the managed memory resource. Read-only, populated by the service.
 	Arn?:
 		=~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$"
@@ -387,32 +392,44 @@ _#defs: "/$defs/Properties/definitions/HarnessManagedMemoryConfiguration": close
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessMemoryConfiguration": close({
-	AgentCoreMemoryConfiguration?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration"
-	Disabled?:                     _#defs."/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration"
-	ManagedMemoryConfiguration?:   _#defs."/$defs/Properties/definitions/HarnessManagedMemoryConfiguration"
+#HarnessMemoryConfiguration: close({
+	AgentCoreMemoryConfiguration?: #HarnessAgentCoreMemoryConfiguration
+	Disabled?:                     #HarnessDisabledMemoryConfiguration
+	ManagedMemoryConfiguration?:   #HarnessManagedMemoryConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessModelConfiguration": matchN(1, [{
-	BedrockModelConfig!: _
-	...
-}, {
-	OpenAiModelConfig!: _
-	...
-}, {
-	GeminiModelConfig!: _
-	...
-}, {
-	LiteLlmModelConfig!: _
-	...
-}]) & close({
-	BedrockModelConfig?: _#defs."/$defs/Properties/definitions/HarnessBedrockModelConfig"
-	GeminiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessGeminiModelConfig"
-	LiteLlmModelConfig?: _#defs."/$defs/Properties/definitions/HarnessLiteLlmModelConfig"
-	OpenAiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessOpenAiModelConfig"
-})
+#HarnessModelConfiguration: close({
+	BedrockModelConfig?: #HarnessBedrockModelConfig
+	GeminiModelConfig?:  #HarnessGeminiModelConfig
+	LiteLlmModelConfig?: #HarnessLiteLlmModelConfig
+	OpenAiModelConfig?:  #HarnessOpenAiModelConfig
+	if BedrockModelConfig != _|_ if BedrockModelConfig."Fn::If" == _|_ {
+		OpenAiModelConfig?: close({"Fn::If": _}) | error(
+			"OpenAiModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+		GeminiModelConfig?: close({"Fn::If": _}) | error(
+			"GeminiModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+		LiteLlmModelConfig?: close({"Fn::If": _}) | error(
+			"LiteLlmModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+	}
+	if OpenAiModelConfig != _|_ if OpenAiModelConfig."Fn::If" == _|_ {
+		GeminiModelConfig?: close({"Fn::If": _}) | error(
+			"GeminiModelConfig cannot be used with OpenAiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+		LiteLlmModelConfig?: close({"Fn::If": _}) | error(
+			"LiteLlmModelConfig cannot be used with OpenAiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+	}
+	if GeminiModelConfig != _|_ if GeminiModelConfig."Fn::If" == _|_ {
+		LiteLlmModelConfig?: close({"Fn::If": _}) | error(
+			"LiteLlmModelConfig cannot be used with GeminiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+	}
+}) & matchN(>=1, [{BedrockModelConfig!: _}, {OpenAiModelConfig!: _}, {GeminiModelConfig!: _}, {LiteLlmModelConfig!: _}])
 
-_#defs: "/$defs/Properties/definitions/HarnessOpenAiModelConfig": close({
+#HarnessOpenAiModelConfig: close({
 	// Provider-specific parameters passed through to the model provider unchanged.
 	AdditionalParams?: {...}
 
@@ -427,30 +444,30 @@ _#defs: "/$defs/Properties/definitions/HarnessOpenAiModelConfig": close({
 	TopP?:        <=1 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessRemoteMcpConfig": close({
+#HarnessRemoteMcpConfig: close({
 	Headers?: close({
 
 		{[=~"^[\\s\\S]*$"]: strings.MaxRunes(16383) & strings.MinRunes(1)}})
 	Url!: strings.MaxRunes(16383) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessSkill": close({
-	AwsSkills?: _#defs."/$defs/Properties/definitions/HarnessSkillAwsSkillsSource"
-	Git?:       _#defs."/$defs/Properties/definitions/HarnessSkillGitSource"
+#HarnessSkill: close({
+	AwsSkills?: #HarnessSkillAwsSkillsSource
+	Git?:       #HarnessSkillGitSource
 
 	// The filesystem path to the skill definition.
 	Path?: strings.MinRunes(1)
-	S3?:   _#defs."/$defs/Properties/definitions/HarnessSkillS3Source"
+	S3?:   #HarnessSkillS3Source
 })
 
 // AWS Skills baked into the Harness's underlying Runtime.
-_#defs: "/$defs/Properties/definitions/HarnessSkillAwsSkillsSource": close({
+#HarnessSkillAwsSkillsSource: close({
 	// Optionally filter allowed skills with glob syntax, e.g., ['core-skills/*'].
 	Paths?: [...strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^([^*?\\[\\]]|\\*)+$"]
 })
 
 // Authentication configuration for accessing a private git repository.
-_#defs: "/$defs/Properties/definitions/HarnessSkillGitAuth": close({
+#HarnessSkillGitAuth: close({
 	// The ARN of the credential in AgentCore Identity containing the password or personal access token.
 	CredentialArn!:
 		=~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$"
@@ -460,8 +477,8 @@ _#defs: "/$defs/Properties/definitions/HarnessSkillGitAuth": close({
 })
 
 // A git repository containing the skill, cloned over HTTPS.
-_#defs: "/$defs/Properties/definitions/HarnessSkillGitSource": close({
-	Auth?: _#defs."/$defs/Properties/definitions/HarnessSkillGitAuth"
+#HarnessSkillGitSource: close({
+	Auth?: #HarnessSkillGitAuth
 
 	// Subdirectory within the repository containing the skill.
 	Path?: string
@@ -471,78 +488,108 @@ _#defs: "/$defs/Properties/definitions/HarnessSkillGitSource": close({
 })
 
 // An S3 source containing the skill.
-_#defs: "/$defs/Properties/definitions/HarnessSkillS3Source": close({
+#HarnessSkillS3Source: close({
 	// The S3 URI pointing to the skill directory (e.g., s3://bucket/skills/my-skill/).
 	Uri!: strings.MinRunes(5) & =~"^s3://"
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessSlidingWindowConfiguration": close({MessagesCount?: int})
+#HarnessSlidingWindowConfiguration: close({MessagesCount?: int})
 
-_#defs: "/$defs/Properties/definitions/HarnessStatus": "CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED"
+#HarnessStatus: "CREATING" | "CREATE_FAILED" | "UPDATING" | "UPDATE_FAILED" | "READY" | "DELETING" | "DELETE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/HarnessSummarizationConfiguration": close({
+#HarnessSummarizationConfiguration: close({
 	PreserveRecentMessages?:    int
 	SummarizationSystemPrompt?: string
 	SummaryRatio?:              number
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessSystemContentBlock": close({
+#HarnessSystemContentBlock: close({
 	// The text content of the system prompt block.
 	Text!: strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessTool": close({
-	Config?: _#defs."/$defs/Properties/definitions/HarnessToolConfiguration"
+#HarnessTool: close({
+	Config?: #HarnessToolConfiguration
 	Name?:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	Type!:   "remote_mcp" | "agentcore_browser" | "agentcore_gateway" | "inline_function" | "agentcore_code_interpreter"
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessToolConfiguration": matchN(1, [{
-	RemoteMcp!: _
-	...
-}, {
-	AgentCoreBrowser!: _
-	...
-}, {
-	AgentCoreGateway!: _
-	...
-}, {
-	InlineFunction!: _
-	...
-}, {
-	AgentCoreCodeInterpreter!: _
-	...
-}]) & close({
-	AgentCoreBrowser?:         _#defs."/$defs/Properties/definitions/HarnessAgentCoreBrowserConfig"
-	AgentCoreCodeInterpreter?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreCodeInterpreterConfig"
-	AgentCoreGateway?:         _#defs."/$defs/Properties/definitions/HarnessAgentCoreGatewayConfig"
-	InlineFunction?:           _#defs."/$defs/Properties/definitions/HarnessInlineFunctionConfig"
-	RemoteMcp?:                _#defs."/$defs/Properties/definitions/HarnessRemoteMcpConfig"
-})
+#HarnessToolConfiguration: close({
+	AgentCoreBrowser?:         #HarnessAgentCoreBrowserConfig
+	AgentCoreCodeInterpreter?: #HarnessAgentCoreCodeInterpreterConfig
+	AgentCoreGateway?:         #HarnessAgentCoreGatewayConfig
+	InlineFunction?:           #HarnessInlineFunctionConfig
+	RemoteMcp?:                #HarnessRemoteMcpConfig
+	if RemoteMcp != _|_ if RemoteMcp."Fn::If" == _|_ {
+		AgentCoreBrowser?: close({"Fn::If": _}) | error(
+			"AgentCoreBrowser cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreGateway?: close({"Fn::If": _}) | error(
+			"AgentCoreGateway cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		InlineFunction?: close({"Fn::If": _}) | error(
+			"InlineFunction cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
+			"AgentCoreCodeInterpreter cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+	if AgentCoreBrowser != _|_ if AgentCoreBrowser."Fn::If" == _|_ {
+		AgentCoreGateway?: close({"Fn::If": _}) | error(
+			"AgentCoreGateway cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		InlineFunction?: close({"Fn::If": _}) | error(
+			"InlineFunction cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
+			"AgentCoreCodeInterpreter cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+	if AgentCoreGateway != _|_ if AgentCoreGateway."Fn::If" == _|_ {
+		InlineFunction?: close({"Fn::If": _}) | error(
+			"InlineFunction cannot be used with AgentCoreGateway; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
+			"AgentCoreCodeInterpreter cannot be used with AgentCoreGateway; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+	if InlineFunction != _|_ if InlineFunction."Fn::If" == _|_ {
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
+			"AgentCoreCodeInterpreter cannot be used with InlineFunction; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{
+		RemoteMcp!: _
+	}, {
+		AgentCoreBrowser!: _
+	}, {
+		AgentCoreGateway!: _
+	}, {
+		InlineFunction!: _
+	}, {
+		AgentCoreCodeInterpreter!: _
+	}],
+)
 
-_#defs: "/$defs/Properties/definitions/HarnessTruncationConfiguration": close({
-	Config?:   _#defs."/$defs/Properties/definitions/HarnessTruncationStrategyConfiguration"
+#HarnessTruncationConfiguration: close({
+	Config?:   #HarnessTruncationStrategyConfiguration
 	Strategy!: "sliding_window" | "summarization" | "none"
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessTruncationStrategyConfiguration": close({
-	SlidingWindow?: _#defs."/$defs/Properties/definitions/HarnessSlidingWindowConfiguration"
-	Summarization?: _#defs."/$defs/Properties/definitions/HarnessSummarizationConfiguration"
+#HarnessTruncationStrategyConfiguration: close({
+	SlidingWindow?: #HarnessSlidingWindowConfiguration
+	Summarization?: #HarnessSummarizationConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
+#LifecycleConfiguration: close({
 	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60
 	MaxLifetime?:               int & <=1209600 & >=60
 })
 
 // Configuration for a service-managed VPC endpoint.
-_#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
+#ManagedVpcResource: close({
 	EndpointIpAddressType!: "IPV4" | "IPV6"
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3)
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
@@ -555,12 +602,12 @@ _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
+#NetworkConfiguration: close({
 	NetworkMode!:       "PUBLIC" | "VPC"
-	NetworkModeConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	NetworkModeConfig?: #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/OAuthCredentialProvider": close({
+#OAuthCredentialProvider: close({
 	CustomParameters?: struct.MaxFields(10) & struct.MinFields(1) & close({
 
 		{[=~"^[\\s\\S]*$"]: strings.MaxRunes(2048) & strings.MinRunes(1)}})
@@ -572,19 +619,19 @@ _#defs: "/$defs/Properties/definitions/OAuthCredentialProvider": close({
 
 // Private endpoint configuration for connecting to the OpenID Connect discovery
 // endpoint over a private network.
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": close({
-	ManagedVpcResource?:         _#defs."/$defs/Properties/definitions/ManagedVpcResource"
-	SelfManagedLatticeResource?: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"
+#PrivateEndpoint: close({
+	ManagedVpcResource?:         #ManagedVpcResource
+	SelfManagedLatticeResource?: #SelfManagedLatticeResource
 })
 
 // Maps a domain to a private endpoint for resolving that domain over a private network.
-_#defs: "/$defs/Properties/definitions/PrivateEndpointOverride": close({
+#PrivateEndpointOverride: close({
 	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1)
-	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpoint!: #PrivateEndpoint
 })
 
 // Configuration for an Amazon S3 Files access point to mount into the AgentCore Runtime.
-_#defs: "/$defs/Properties/definitions/S3FilesAccessPointConfiguration": close({
+#S3FilesAccessPointConfiguration: close({
 	AccessPointArn!: strings.MaxRunes(256) &
 	=~"^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$"
 	MountPath!: strings.MaxRunes(200) & strings.MinRunes(6) & =~"^/mnt/[a-zA-Z0-9._-]+/?$"
@@ -592,22 +639,22 @@ _#defs: "/$defs/Properties/definitions/S3FilesAccessPointConfiguration": close({
 
 // Configuration for connecting to a private resource using a self-managed VPC
 // Lattice resource configuration.
-_#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
+#SelfManagedLatticeResource: close({
 	ResourceConfigurationIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/SessionStorageConfiguration": close(
+#SessionStorageConfiguration: close(
 	{MountPath!: strings.MaxRunes(200) & strings.MinRunes(6) & =~"^/mnt/[a-zA-Z0-9._-]+/?$"},
 )
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$"
 	]

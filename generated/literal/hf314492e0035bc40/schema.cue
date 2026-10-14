@@ -33,7 +33,7 @@ import (
 	})
 
 	// An array of pod identities to apply to this add-on.
-	PodIdentityAssociations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PodIdentityAssociation"]
+	PodIdentityAssociations?: list.UniqueItems() & [...#PodIdentityAssociation]
 
 	// PreserveOnDelete parameter value
 	PreserveOnDelete?: bool
@@ -46,11 +46,11 @@ import (
 		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A pod identity to associate with an add-on.
-_#defs: "/$defs/Properties/definitions/PodIdentityAssociation": close({
+#PodIdentityAssociation: close({
 	// The IAM role ARN that the pod identity association is created for.
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:(role)\\/*"
 
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/PodIdentityAssociation": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

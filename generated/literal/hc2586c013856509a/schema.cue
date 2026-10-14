@@ -14,7 +14,7 @@ import (
 #Properties: close({
 	// The ARN of the campaign.
 	CampaignArn?:    strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+"
-	CampaignConfig?: _#defs."/$defs/Properties/definitions/CampaignConfig"
+	CampaignConfig?: #CampaignConfig
 
 	// The time at which the campaign was created.
 	CreationDateTime?: time.Time
@@ -35,11 +35,11 @@ import (
 	Status?: strings.MaxRunes(256)
 
 	// Tags to associate with the campaign.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // The configuration details of a campaign.
-_#defs: "/$defs/Properties/definitions/CampaignConfig": close({
+#CampaignConfig: close({
 	// Whether metadata with recommendations is enabled for the campaign.
 	EnableMetadataWithRecommendations?: bool
 
@@ -58,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/CampaignConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a case in the specified Cases domain.
-#Properties: close({
-	CustomerId!: strings.MaxRunes(4100) | fn.#StringExpression
-	DomainId!:   strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:       list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Title!:      strings.MaxRunes(4100) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cases::Case"
+	Properties!: close({
+		CustomerId!: strings.MaxRunes(4100) | fn.#StringExpression
+		DomainId!:   strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		Title!:      strings.MaxRunes(4100) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^([a-zA-Z0-9 _.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cases::Case"
-	Properties!: #Properties
-}

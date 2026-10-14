@@ -9,21 +9,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayConnect type
-#Properties: close({
-	Options!: _#defs."/$defs/Properties/definitions/TransitGatewayConnectOptions" | fn.#ObjectExpression
-	Tags?:    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TransportTransitGatewayAttachmentId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TransitGatewayConnect"
+	Properties!: close({
+		// The Connect attachment options.
+		Options!:                             #TransitGatewayConnectOptions
+		Tags?:                                [...#Tag] | fn.#ListExpression
+		TransportTransitGatewayAttachmentId!: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayConnectOptions": close({Protocol?: "gre" | fn.#StringExpression}) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayConnect"
-	Properties!: #Properties
-}
+#TransitGatewayConnectOptions: close({Protocol?: "gre" | fn.#StringExpression}) | fn.#ObjectExpression

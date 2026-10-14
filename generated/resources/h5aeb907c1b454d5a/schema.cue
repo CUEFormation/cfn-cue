@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,23 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a CloudWatch Observability Admin S3 Table Integration.
-#Properties: close({
-	Encryption!: _#defs."/$defs/Properties/definitions/EncryptionConfig"
-	LogSources?: list.UniqueItems() & [...close({
-		Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Type!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(1011) &
-	strings.MinRunes(1) &
-	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ObservabilityAdmin::S3TableIntegration"
+	Properties!: close({
+		Encryption!: #EncryptionConfig
+		LogSources?: list.UniqueItems() & [...close({
+			Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+			Type!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
+#EncryptionConfig: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
@@ -39,19 +42,15 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogSource": close({
+#LogSource: close({
 	Identifier?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Type!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ObservabilityAdmin::S3TableIntegration"
-	Properties!: #Properties
-}

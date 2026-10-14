@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"struct"
+	"strings"
 	"list"
 )
 
@@ -16,7 +16,7 @@ import (
 	// The Amazon Resource Name (ARN) of the configuration policy.
 	Arn?:
 		=~"^arn:aws\\S*:securityhub:[a-z0-9-]+:[0-9]{12}:configuration-policy/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-	ConfigurationPolicy!: _#defs."/$defs/Properties/definitions/Policy"
+	ConfigurationPolicy!: #Policy
 
 	// The date and time, in UTC and ISO 8601 format.
 	CreatedAt?: string
@@ -32,7 +32,7 @@ import (
 
 	// Indicates whether the service that the configuration policy applies to is enabled in the policy.
 	ServiceEnabled?: bool
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:           #Tags
 
 	// The date and time, in UTC and ISO 8601 format.
 	UpdatedAt?: string
@@ -40,8 +40,8 @@ import (
 
 // An object that provides the current value of a security control parameter and
 // identifies whether it has been customized.
-_#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
-	Value?: _#defs."/$defs/Properties/definitions/ParameterValue"
+#ParameterConfiguration: close({
+	Value?: #ParameterValue
 
 	// Identifies whether a control parameter uses a custom user-defined value or
 	// subscribes to the default AWS Security Hub behavior.
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
 })
 
 // An object that includes the data type of a security control parameter and its current value.
-_#defs: "/$defs/Properties/definitions/ParameterValue": struct.MaxFields(1) & struct.MinFields(1) & close({
+#ParameterValue: struct.MaxFields(1) & struct.MinFields(1) & close({
 	// A control parameter that is a boolean.
 	Boolean?: bool
 
@@ -76,17 +76,15 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": struct.MaxFields(1) & st
 })
 
 // An object that defines how Security Hub is configured.
-_#defs: "/$defs/Properties/definitions/Policy": close(
-	{SecurityHub?: _#defs."/$defs/Properties/definitions/SecurityHubPolicy"},
-)
+#Policy: close({SecurityHub?: #SecurityHubPolicy})
 
 // An object of security control and control parameter value that are included
 // in a configuration policy.
-_#defs: "/$defs/Properties/definitions/SecurityControlCustomParameter": close({
+#SecurityControlCustomParameter: close({
 	// An object that specifies parameter values for a control in a configuration policy.
 	Parameters?: struct.MinFields(1) & close({
 
-		{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration"}})
+		{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: #ParameterConfiguration}})
 
 	// The ID of the security control.
 	SecurityControlId?: strings.MaxRunes(2048)
@@ -94,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/SecurityControlCustomParameter": close({
 
 // An object that defines which security controls are enabled in an AWS Security
 // Hub configuration policy.
-_#defs: "/$defs/Properties/definitions/SecurityControlsConfiguration": close({
+#SecurityControlsConfiguration: close({
 	// A list of security controls that are disabled in the configuration policy
 	DisabledSecurityControlIdentifiers?: list.MaxItems(1000) & list.UniqueItems() & [...strings.MaxRunes(2048)]
 
@@ -103,20 +101,18 @@ _#defs: "/$defs/Properties/definitions/SecurityControlsConfiguration": close({
 
 	// A list of security controls and control parameter values that are included in
 	// a configuration policy.
-	SecurityControlCustomParameters?: list.MaxItems(1000) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SecurityControlCustomParameter"
-	]
+	SecurityControlCustomParameters?: list.MaxItems(1000) & list.UniqueItems() & [...#SecurityControlCustomParameter]
 })
 
 // An object that defines how AWS Security Hub is configured.
-_#defs: "/$defs/Properties/definitions/SecurityHubPolicy": close({
+#SecurityHubPolicy: close({
 	// A list that defines which security standards are enabled in the configuration policy.
 	EnabledStandardIdentifiers?:    list.MaxItems(1000) & list.UniqueItems() & [...strings.MaxRunes(2048)]
-	SecurityControlsConfiguration?: _#defs."/$defs/Properties/definitions/SecurityControlsConfiguration"
+	SecurityControlsConfiguration?: #SecurityControlsConfiguration
 
 	// Indicates whether Security Hub is enabled in the policy.
 	ServiceEnabled?: bool
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}

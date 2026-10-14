@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,34 +12,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::VpcConnection
-#Properties: close({
-	Authentication!:   _#defs."/$defs/Properties/definitions/Authentication"
-	ClientSubnets!:    _#defs."/$defs/Properties/definitions/ClientSubnets"
-	SecurityGroups!:   _#defs."/$defs/Properties/definitions/SecurityGroups"
-	Tags?:             _#defs."/$defs/Properties/definitions/Tags"
-	TargetClusterArn!: string | fn.#StringExpression
-	VpcId!:            _#defs."/$defs/Properties/definitions/VpcId"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::VpcConnection"
+	Properties!: close({
+		Authentication!:   #Authentication
+		ClientSubnets!:    #ClientSubnets
+		SecurityGroups!:   #SecurityGroups
+		Tags?:             #Tags
+		TargetClusterArn!: string | fn.#StringExpression
+		VpcId!:            #VpcId
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Authentication": ("SASL_IAM" | "SASL_SCRAM" | "TLS") & (strings.MaxRunes(10) & strings.MinRunes(3)) |
+#Authentication: ("SASL_IAM" | "SASL_SCRAM" | "TLS") & (strings.MaxRunes(10) & strings.MinRunes(3)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClientSubnets": [...string | fn.#StringExpression] | fn.#ListExpression
+#ClientSubnets: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroups": [
+#SecurityGroups: [
 	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#VpcId: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::VpcConnection"
-	Properties!: #Properties
-}

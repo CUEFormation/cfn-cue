@@ -32,7 +32,7 @@ import (
 
 	// Channel latency mode.
 	LatencyMode?:                  "NORMAL" | "LOW"
-	MultitrackInputConfiguration?: _#defs."/$defs/Properties/definitions/MultitrackInputConfiguration"
+	MultitrackInputConfiguration?: #MultitrackInputConfiguration
 
 	// Channel
 	Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$"
@@ -53,7 +53,7 @@ import (
 	=~"^$|arn:aws:ivs:[a-z0-9-]+:[0-9]+:recording-configuration/[a-zA-Z0-9-]+$"
 
 	// A list of key-value pairs that contain metadata for the asset model.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Channel type, which determines the allowable resolution and bitrate. If you
 	// exceed the allowable resolution or bitrate, the stream probably will
@@ -61,7 +61,7 @@ import (
 	Type?: "STANDARD" | "BASIC" | "ADVANCED_SD" | "ADVANCED_HD"
 })
 
-_#defs: "/$defs/Properties/definitions/MultitrackInputConfiguration": close({
+#MultitrackInputConfiguration: close({
 	// Indicates whether multitrack input is enabled. Can be set to true only if
 	// channel type is STANDARD. Setting enabled to true with any other channel
 	// type will cause an exception. If true, then policy, maximumResolution, and
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/MultitrackInputConfiguration": close({
 	Policy?: "ALLOW" | "REQUIRE"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

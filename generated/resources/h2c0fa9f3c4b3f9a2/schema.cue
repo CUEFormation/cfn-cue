@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -14,36 +14,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BcmPricingCalculator::BillScenario
-#Properties: close({
-	CostCategoryGroupSharingPreferenceArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z-]*:ce::[0-9]{12}:costcategory/[a-f0-9-]{36}$" |
-	fn.#StringExpression
-	ExpiresAt?:              time.Time | fn.#StringExpression
-	GroupSharingPreference?: _#defs."/$defs/Properties/definitions/GroupSharingPreference" | fn.#StringExpression
-	Name?:                   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Tags?:                   list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BcmPricingCalculator::BillScenario"
+	Properties?: close({
+		CostCategoryGroupSharingPreferenceArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z-]*:ce::[0-9]{12}:costcategory/[a-f0-9-]{36}$" |
+		fn.#StringExpression
+		ExpiresAt?: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BillInterval": close({
+		// The group sharing preference for the bill scenario
+		GroupSharingPreference?: #GroupSharingPreference
+		Name?:                   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		Tags?:                   list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#BillInterval: close({
 	End?:   time.Time | fn.#StringExpression
 	Start?: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BillScenarioStatus": "READY" | "LOCKED" | "FAILED" | fn.#StringExpression
+#BillScenarioStatus: "READY" | "LOCKED" | "FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GroupSharingPreference": "OPEN" |
-	"PRIORITIZED" |
-	"RESTRICTED" |
-	fn.#StringExpression
+#GroupSharingPreference: "OPEN" | "PRIORITIZED" | "RESTRICTED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BcmPricingCalculator::BillScenario"
-	Properties?: #Properties
-}

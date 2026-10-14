@@ -33,7 +33,7 @@ import "strings"
 	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// Specifies logging configuration information for a type.
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig"
+	LoggingConfig?: #LoggingConfig
 
 	// The Major Version of the type you want to enable
 	MajorVersion?: strings.MaxRunes(100000) & strings.MinRunes(1)
@@ -68,7 +68,7 @@ import "strings"
 	VersionBump?: "MAJOR" | "MINOR"
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	// The Amazon CloudWatch log group to which CloudFormation sends error logging
 	// information when invoking the type's handlers.
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"

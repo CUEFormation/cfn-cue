@@ -9,19 +9,19 @@ import "time"
 // Resource schema for AWS::MediaTailor::Program
 #Properties: close({
 	// The ad break configuration settings.
-	AdBreaks?: [..._#defs."/$defs/Properties/definitions/AdBreak"]
+	AdBreaks?: [...#AdBreak]
 
 	// The ARN of the program.
 	Arn?: string
 
 	// The list of AudienceMedia defined in program.
-	AudienceMedia?: [..._#defs."/$defs/Properties/definitions/AudienceMedia"]
+	AudienceMedia?: [...#AudienceMedia]
 
 	// The name of the channel for this Program.
 	ChannelName!: string
 
 	// The clip range configuration settings.
-	ClipRange?: _#defs."/$defs/Properties/definitions/ClipRange"
+	ClipRange?: #ClipRange
 
 	// The timestamp of when the program was created.
 	CreationTime?: time.Time
@@ -36,7 +36,7 @@ import "time"
 	ProgramName!: string
 
 	// The schedule configuration settings.
-	ScheduleConfiguration?: _#defs."/$defs/Properties/definitions/ScheduleConfiguration"
+	ScheduleConfiguration?: #ScheduleConfiguration
 
 	// The date and time that the program is scheduled to start.
 	ScheduledStartTime?: time.Time
@@ -49,26 +49,26 @@ import "time"
 })
 
 // Ad break configuration parameters.
-_#defs: "/$defs/Properties/definitions/AdBreak": close({
+#AdBreak: close({
 	// Defines a list of key/value pairs that MediaTailor generates within the
 	// EXT-X-ASSET tag for SCTE35_ENHANCED output.
-	AdBreakMetadata?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
+	AdBreakMetadata?: [...#KeyValuePair]
 
 	// The SCTE-35 ad insertion type.
 	MessageType?: "SPLICE_INSERT" | "TIME_SIGNAL"
 
 	// How long (in milliseconds) after the beginning of the program that an ad starts.
 	OffsetMillis!:        int
-	Slate?:               _#defs."/$defs/Properties/definitions/SlateSource"
-	SpliceInsertMessage?: _#defs."/$defs/Properties/definitions/SpliceInsertMessage"
-	TimeSignalMessage?:   _#defs."/$defs/Properties/definitions/TimeSignalMessage"
+	Slate?:               #SlateSource
+	SpliceInsertMessage?: #SpliceInsertMessage
+	TimeSignalMessage?:   #TimeSignalMessage
 })
 
 // A playlist of media to be played instead of the default media on a particular program.
-_#defs: "/$defs/Properties/definitions/AlternateMedia": close({
+#AlternateMedia: close({
 	// Ad break configuration parameters defined in AlternateMedia.
-	AdBreaks?:  [..._#defs."/$defs/Properties/definitions/AdBreak"]
-	ClipRange?: _#defs."/$defs/Properties/definitions/ClipRange"
+	AdBreaks?:  [...#AdBreak]
+	ClipRange?: #ClipRange
 
 	// The duration of the alternateMedia in milliseconds.
 	DurationMillis?: int
@@ -87,16 +87,16 @@ _#defs: "/$defs/Properties/definitions/AlternateMedia": close({
 })
 
 // An AudienceMedia object contains an Audience and a list of AlternateMedia.
-_#defs: "/$defs/Properties/definitions/AudienceMedia": close({
+#AudienceMedia: close({
 	// The list of AlternateMedia defined in AudienceMedia.
-	AlternateMedia?: [..._#defs."/$defs/Properties/definitions/AlternateMedia"]
+	AlternateMedia?: [...#AlternateMedia]
 
 	// The Audience defined in AudienceMedia.
 	Audience?: string
 })
 
 // Clip range configuration for the VOD source associated with the program.
-_#defs: "/$defs/Properties/definitions/ClipRange": close({
+#ClipRange: close({
 	// The end offset of the clip range, in milliseconds.
 	EndOffsetMillis?: int
 
@@ -105,7 +105,7 @@ _#defs: "/$defs/Properties/definitions/ClipRange": close({
 })
 
 // For SCTE35_ENHANCED output, defines a key and corresponding value.
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	// The key.
 	Key!: string
 
@@ -114,13 +114,13 @@ _#defs: "/$defs/Properties/definitions/KeyValuePair": close({
 })
 
 // Schedule configuration parameters.
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
-	ClipRange?:  _#defs."/$defs/Properties/definitions/ClipRange"
-	Transition!: _#defs."/$defs/Properties/definitions/Transition"
+#ScheduleConfiguration: close({
+	ClipRange?:  #ClipRange
+	Transition!: #Transition
 })
 
 // The segmentation_descriptor message configuration.
-_#defs: "/$defs/Properties/definitions/SegmentationDescriptor": close({
+#SegmentationDescriptor: close({
 	// The segment number to assign.
 	SegmentNum?: int
 
@@ -147,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/SegmentationDescriptor": close({
 })
 
 // Slate VOD source configuration.
-_#defs: "/$defs/Properties/definitions/SlateSource": close({
+#SlateSource: close({
 	// The name of the source location where the slate VOD source is stored.
 	SourceLocationName?: string
 
@@ -156,7 +156,7 @@ _#defs: "/$defs/Properties/definitions/SlateSource": close({
 })
 
 // Splice insert message configuration.
-_#defs: "/$defs/Properties/definitions/SpliceInsertMessage": close({
+#SpliceInsertMessage: close({
 	// This is written to splice_insert.avail_num.
 	AvailNum?: int
 
@@ -171,13 +171,13 @@ _#defs: "/$defs/Properties/definitions/SpliceInsertMessage": close({
 })
 
 // The SCTE-35 time_signal message configuration.
-_#defs: "/$defs/Properties/definitions/TimeSignalMessage": close({
+#TimeSignalMessage: close({
 	// The configurations for the SCTE-35 segmentation_descriptor message(s).
-	SegmentationDescriptors?: [..._#defs."/$defs/Properties/definitions/SegmentationDescriptor"]
+	SegmentationDescriptors?: [...#SegmentationDescriptor]
 })
 
 // Program transition configuration.
-_#defs: "/$defs/Properties/definitions/Transition": close({
+#Transition: close({
 	// The duration of the live program in seconds.
 	DurationMillis?: int
 

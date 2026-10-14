@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,44 +13,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema to create a CodeArtifact package group.
-#Properties: close({
-	ContactInfo?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
-	fn.#StringExpression
-	DomainOwner?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12}" | fn.#StringExpression
-	OriginConfiguration?: _#defs."/$defs/Properties/definitions/OriginConfiguration" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	Pattern!: strings.MaxRunes(520) & strings.MinRunes(2) | fn.#StringExpression
-	Tags?:    list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeArtifact::PackageGroup"
+	Properties!: close({
+		ContactInfo?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+		DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
+		fn.#StringExpression
+		DomainOwner?:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12}" | fn.#StringExpression
+		OriginConfiguration?: #OriginConfiguration & fn.#Object & {...} | fn.#ObjectExpression
+		Pattern!:             strings.MaxRunes(520) & strings.MinRunes(2) | fn.#StringExpression
+		Tags?:                list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/OriginConfiguration": close(
-	{Restrictions!: _#defs."/$defs/Properties/definitions/Restrictions" & fn.#Object & {...} | fn.#ObjectExpression},
-) |
+#OriginConfiguration: close({Restrictions!: #Restrictions & fn.#Object & {...} | fn.#ObjectExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RestrictionType": close({
+#RestrictionType: close({
 	Repositories?:    [...string | fn.#StringExpression] | fn.#ListExpression
 	RestrictionMode!: "ALLOW" | "BLOCK" | "ALLOW_SPECIFIC_REPOSITORIES" | "INHERIT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Restrictions": close({
-	ExternalUpstream?: _#defs."/$defs/Properties/definitions/RestrictionType" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	InternalUpstream?: _#defs."/$defs/Properties/definitions/RestrictionType" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	Publish?: _#defs."/$defs/Properties/definitions/RestrictionType" & fn.#Object & {...} | fn.#ObjectExpression
+#Restrictions: close({
+	ExternalUpstream?: #RestrictionType & fn.#Object & {...} | fn.#ObjectExpression
+	InternalUpstream?: #RestrictionType & fn.#Object & {...} | fn.#ObjectExpression
+	Publish?:          #RestrictionType & fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeArtifact::PackageGroup"
-	Properties!: #Properties
-}

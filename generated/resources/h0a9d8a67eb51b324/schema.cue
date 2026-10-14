@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,26 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Connection
-#Properties: close({
-	CatalogId!:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ConnectionInput!: _#defs."/$defs/Properties/definitions/ConnectionInput" | fn.#ObjectExpression
-	Tags?:            fn.#Object & {...} | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Connection"
+	Properties!: close({
+		CatalogId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
+		// The connection properties used for this connection.
+		ConnectionInput!: #ConnectionInput
+		Tags?:            fn.#Object & {...} | fn.#ObjectExpression
+	})
+}
+
+#AuthenticationConfiguration: close({
 	AuthenticationType!: "BASIC" | "CUSTOM" | "IAM" | "OAUTH2" | fn.#StringExpression
-	BasicAuthenticationCredentials?: _#defs."/$defs/Properties/definitions/BasicAuthenticationCredentials" |
-		fn.#ObjectExpression
+
+	// For supplying basic auth credentials when not providing a SecretArn value
+	BasicAuthenticationCredentials?:  #BasicAuthenticationCredentials
 	CustomAuthenticationCredentials?: fn.#Object & {...} | fn.#ObjectExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^$|arn:aws[a-z0-9-]*:kms:" |
 		fn.#StringExpression
-	OAuth2Properties?: _#defs."/$defs/Properties/definitions/OAuth2Properties" | fn.#ObjectExpression
+
+	// A structure containing properties for OAuth2 in the CreateConnection request.
+	OAuth2Properties?: #OAuth2Properties
 	SecretArn?:        =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticationConfigurationInput": null |
+#AuthenticationConfigurationInput: null |
 bool |
 number |
 string |
@@ -76,24 +84,25 @@ string |
 } |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizationCodeProperties": close({
+#AuthorizationCodeProperties: close({
 	AuthorizationCode?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
 	RedirectUri?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https?):\\/\\/[^\\s/$.?#].[^\\s]*$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BasicAuthenticationCredentials": close({
+#BasicAuthenticationCredentials: close({
 	Password?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	Username?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionInput": close({
+#ConnectionInput: close({
 	AthenaProperties?: fn.#Object & {...} | fn.#ObjectExpression
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration" |
-		fn.#ObjectExpression
-	ConnectionProperties?: fn.#Object & {...} | string | fn.#StringObjectExpression
+
+	// The authentication configuration used to connect to the connection.
+	AuthenticationConfiguration?: #AuthenticationConfiguration
+	ConnectionProperties?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	ConnectionType!: "ADOBEANALYTICS" |
 		"ASANA" |
 		"AZURECOSMOS" |
@@ -191,16 +200,17 @@ _#defs: "/$defs/Properties/definitions/ConnectionInput": close({
 	MatchCriteria?: list.MaxItems(10) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	PhysicalConnectionRequirements?: _#defs."/$defs/Properties/definitions/PhysicalConnectionRequirements" |
-		fn.#ObjectExpression
-	PythonProperties?:    fn.#Object & {...} | fn.#ObjectExpression
-	SparkProperties?:     fn.#Object & {...} | fn.#ObjectExpression
+
+	// The physical connection requirements.
+	PhysicalConnectionRequirements?: #PhysicalConnectionRequirements
+	PythonProperties?:               fn.#Object & {...} | fn.#ObjectExpression
+	SparkProperties?:                fn.#Object & {...} | fn.#ObjectExpression
 	ValidateCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ValidateForComputeEnvironments?: [..."ATHENA" | "PYTHON" | "SPARK" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OAuth2ClientApplication": close({
+#OAuth2ClientApplication: close({
 	AWSManagedClientApplicationReference?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\S+$" |
 	fn.#StringExpression
 	UserManagedClientApplicationClientId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\S+$" |
@@ -208,7 +218,7 @@ _#defs: "/$defs/Properties/definitions/OAuth2ClientApplication": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OAuth2Credentials": close({
+#OAuth2Credentials: close({
 	AccessToken?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x20-\\x7E]*$" | fn.#StringExpression
 	JwtToken?: strings.MaxRunes(8000) &
 	strings.MinRunes(0) &
@@ -220,11 +230,15 @@ _#defs: "/$defs/Properties/definitions/OAuth2Credentials": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
-	AuthorizationCodeProperties?: _#defs."/$defs/Properties/definitions/AuthorizationCodeProperties" |
-		fn.#ObjectExpression
-	OAuth2ClientApplication?: _#defs."/$defs/Properties/definitions/OAuth2ClientApplication" | fn.#ObjectExpression
-	OAuth2Credentials?:       _#defs."/$defs/Properties/definitions/OAuth2Credentials" | fn.#ObjectExpression
+#OAuth2Properties: close({
+	// The set of properties required for the the OAuth2 AUTHORIZATION_CODE grant type workflow.
+	AuthorizationCodeProperties?: #AuthorizationCodeProperties
+
+	// The OAuth2 client app used for the connection.
+	OAuth2ClientApplication?: #OAuth2ClientApplication
+
+	// A structure containing the OAuth2 credentials used in the authentication configuration.
+	OAuth2Credentials?: #OAuth2Credentials
 	OAuth2GrantType?: "AUTHORIZATION_CODE" |
 		"CLIENT_CREDENTIALS" |
 		"JWT_BEARER" |
@@ -238,7 +252,7 @@ _#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PhysicalConnectionRequirements": close({
+#PhysicalConnectionRequirements: close({
 	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	SecurityGroupIdList?: list.MaxItems(50) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
@@ -248,7 +262,3 @@ _#defs: "/$defs/Properties/definitions/PhysicalConnectionRequirements": close({
 	SubnetId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Connection"
-	Properties!: #Properties
-}

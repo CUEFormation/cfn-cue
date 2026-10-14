@@ -38,7 +38,7 @@ import (
 // stated.
 #Properties: close({
 	// Information that defines how a detector operates.
-	DetectorModelDefinition!: _#defs."/$defs/Properties/definitions/DetectorModelDefinition"
+	DetectorModelDefinition!: #DetectorModelDefinition
 
 	// A brief description of the detector model.
 	DetectorModelDescription?: strings.MaxRunes(1024)
@@ -67,13 +67,13 @@ import (
 	// An array of key-value pairs to apply to this resource.
 	// For more information, see
 	// [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // An action to be performed when the ``condition`` is TRUE.
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	// Information needed to clear the timer.
-	ClearTimer?: _#defs."/$defs/Properties/definitions/ClearTimer"
+	ClearTimer?: #ClearTimer
 
 	// Writes to the DynamoDB table that you created. The default action payload
 	// contains all attribute-value pairs that have the information about the
@@ -84,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 	// payload that you specify. For more information, see
 	// [Actions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-event-actions.html)
 	// in *Developer Guide*.
-	DynamoDB?: _#defs."/$defs/Properties/definitions/DynamoDB"
+	DynamoDB?: #DynamoDB
 
 	// Writes to the DynamoDB table that you created. The default action payload
 	// contains all attribute-value pairs that have the information about the
@@ -95,41 +95,41 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 	// the payload that you specify. For more information, see
 	// [Actions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-event-actions.html)
 	// in *Developer Guide*.
-	DynamoDBv2?: _#defs."/$defs/Properties/definitions/DynamoDBv2"
+	DynamoDBv2?: #DynamoDBv2
 
 	// Sends information about the detector model instance and the event that
 	// triggered the action to an Amazon Kinesis Data Firehose delivery stream.
-	Firehose?: _#defs."/$defs/Properties/definitions/Firehose"
+	Firehose?: #Firehose
 
 	// Sends ITE input, which passes information about the detector model instance
 	// and the event that triggered the action.
-	IotEvents?: _#defs."/$defs/Properties/definitions/IotEvents"
+	IotEvents?: #IotEvents
 
 	// Sends information about the detector model instance and the event that
 	// triggered the action to an asset property in ITSW .
-	IotSiteWise?: _#defs."/$defs/Properties/definitions/IotSiteWise"
+	IotSiteWise?: #IotSiteWise
 
 	// Publishes an MQTT message with the given topic to the IoT message broker.
-	IotTopicPublish?: _#defs."/$defs/Properties/definitions/IotTopicPublish"
+	IotTopicPublish?: #IotTopicPublish
 
 	// Calls a Lambda function, passing in information about the detector model
 	// instance and the event that triggered the action.
-	Lambda?: _#defs."/$defs/Properties/definitions/Lambda"
+	Lambda?: #Lambda
 
 	// Information needed to reset the timer.
-	ResetTimer?: _#defs."/$defs/Properties/definitions/ResetTimer"
+	ResetTimer?: #ResetTimer
 
 	// Information needed to set the timer.
-	SetTimer?: _#defs."/$defs/Properties/definitions/SetTimer"
+	SetTimer?: #SetTimer
 
 	// Sets a variable to a specified value.
-	SetVariable?: _#defs."/$defs/Properties/definitions/SetVariable"
+	SetVariable?: #SetVariable
 
 	// Sends an Amazon SNS message.
-	Sns?: _#defs."/$defs/Properties/definitions/Sns"
+	Sns?: #Sns
 
 	// Sends an Amazon SNS message.
-	Sqs?: _#defs."/$defs/Properties/definitions/Sqs"
+	Sqs?: #Sqs
 })
 
 // A structure that contains timestamp information. For more information, see
@@ -155,7 +155,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 // For more information, see
 // [Expressions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-expressions.html)
 // in the *Developer Guide*.
-_#defs: "/$defs/Properties/definitions/AssetPropertyTimestamp": close({
+#AssetPropertyTimestamp: close({
 	// The nanosecond offset converted from ``timeInSeconds``. The valid range is between 0-999999999.
 	OffsetInNanos?: string
 
@@ -180,16 +180,16 @@ _#defs: "/$defs/Properties/definitions/AssetPropertyTimestamp": close({
 // For more information, see
 // [Expressions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-expressions.html)
 // in the *Developer Guide*.
-_#defs: "/$defs/Properties/definitions/AssetPropertyValue": close({
+#AssetPropertyValue: close({
 	// The quality of the asset property value. The value must be ``'GOOD'``,
 	// ``'BAD'``, or ``'UNCERTAIN'``.
 	Quality?: string
 
 	// The timestamp associated with the asset property value. The default is the current event time.
-	Timestamp?: _#defs."/$defs/Properties/definitions/AssetPropertyTimestamp"
+	Timestamp?: #AssetPropertyTimestamp
 
 	// The value to send to an asset property.
-	Value!: _#defs."/$defs/Properties/definitions/AssetPropertyVariant"
+	Value!: #AssetPropertyVariant
 })
 
 // A structure that contains an asset property value. For more information, see
@@ -218,7 +218,7 @@ _#defs: "/$defs/Properties/definitions/AssetPropertyValue": close({
 // ``dataType`` of the specified asset property. For more information, see
 // [AssetProperty](https://docs.aws.amazon.com/iot-sitewise/latest/APIReference/API_AssetProperty.html)
 // in the *API Reference*.
-_#defs: "/$defs/Properties/definitions/AssetPropertyVariant": close({
+#AssetPropertyVariant: close({
 	// The asset property value is a Boolean value that must be ``'TRUE'`` or
 	// ``'FALSE'``. You must use an expression, and the evaluated result should be
 	// a Boolean value.
@@ -238,18 +238,18 @@ _#defs: "/$defs/Properties/definitions/AssetPropertyVariant": close({
 })
 
 // Information needed to clear the timer.
-_#defs: "/$defs/Properties/definitions/ClearTimer": close({
+#ClearTimer: close({
 	// The name of the timer to clear.
 	TimerName!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // Information that defines how a detector operates.
-_#defs: "/$defs/Properties/definitions/DetectorModelDefinition": close({
+#DetectorModelDefinition: close({
 	// The state that is entered at the creation of each detector (instance).
 	InitialStateName!: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// Information about the states of the detector.
-	States!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/State"]
+	States!: list.MinItems(1) & [...#State]
 })
 
 // Defines an action to write to the Amazon DynamoDB table that you created. The
@@ -287,7 +287,7 @@ _#defs: "/$defs/Properties/definitions/DetectorModelDefinition": close({
 // data to the DynamoDB table as binary data. The DynamoDB console displays the
 // data as Base64-encoded text. The value for the ``payloadField`` parameter is
 // ``<payload-field>_raw``.
-_#defs: "/$defs/Properties/definitions/DynamoDB": close({
+#DynamoDB: close({
 	// The name of the hash key (also called the partition key). The
 	// ``hashKeyField`` value must match the partition key of the target DynamoDB
 	// table.
@@ -323,7 +323,7 @@ _#defs: "/$defs/Properties/definitions/DynamoDB": close({
 	// action payload contains all attribute-value pairs that have the information
 	// about the detector model instance and the event triggered the action. To
 	// configure the action payload, you can use ``contentExpression``.
-	Payload?: _#defs."/$defs/Properties/definitions/Payload"
+	Payload?: #Payload
 
 	// The name of the DynamoDB column that receives the action payload.
 	// If you don't specify this parameter, the name of the DynamoDB column is ``payload``.
@@ -381,22 +381,22 @@ _#defs: "/$defs/Properties/definitions/DynamoDB": close({
 // [Expressions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-expressions.html)
 // in the *Developer Guide*.
 // The value for the ``type`` parameter in ``Payload`` must be ``JSON``.
-_#defs: "/$defs/Properties/definitions/DynamoDBv2": close({
+#DynamoDBv2: close({
 	// Information needed to configure the payload.
 	// By default, ITE generates a standard payload in JSON for any action. This
 	// action payload contains all attribute-value pairs that have the information
 	// about the detector model instance and the event triggered the action. To
 	// configure the action payload, you can use ``contentExpression``.
-	Payload?: _#defs."/$defs/Properties/definitions/Payload"
+	Payload?: #Payload
 
 	// The name of the DynamoDB table.
 	TableName!: string
 })
 
 // Specifies the ``actions`` to be performed when the ``condition`` evaluates to TRUE.
-_#defs: "/$defs/Properties/definitions/Event": close({
+#Event: close({
 	// The actions to be performed.
-	Actions?: [..._#defs."/$defs/Properties/definitions/Action"]
+	Actions?: [...#Action]
 
 	// Optional. The Boolean expression that, when TRUE, causes the ``actions`` to
 	// be performed. If not present, the actions are performed (=TRUE). If the
@@ -410,13 +410,13 @@ _#defs: "/$defs/Properties/definitions/Event": close({
 
 // Sends information about the detector model instance and the event that
 // triggered the action to an Amazon Kinesis Data Firehose delivery stream.
-_#defs: "/$defs/Properties/definitions/Firehose": close({
+#Firehose: close({
 	// The name of the Kinesis Data Firehose delivery stream where the data is written.
 	DeliveryStreamName!: string
 
 	// You can configure the action payload when you send a message to an Amazon
 	// Data Firehose delivery stream.
-	Payload?: _#defs."/$defs/Properties/definitions/Payload"
+	Payload?: #Payload
 
 	// A character separator that is used to separate records written to the Kinesis
 	// Data Firehose delivery stream. Valid values are: '\n' (newline), '\t' (tab),
@@ -426,12 +426,12 @@ _#defs: "/$defs/Properties/definitions/Firehose": close({
 
 // Sends an ITE input, passing in information about the detector model instance
 // and the event that triggered the action.
-_#defs: "/$defs/Properties/definitions/IotEvents": close({
+#IotEvents: close({
 	// The name of the ITE input where the data is sent.
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$"
 
 	// You can configure the action payload when you send a message to an ITE input.
-	Payload?: _#defs."/$defs/Properties/definitions/Payload"
+	Payload?: #Payload
 })
 
 // Sends information about the detector model instance and the event that
@@ -459,7 +459,7 @@ _#defs: "/$defs/Properties/definitions/IotEvents": close({
 // For more information, see
 // [Expressions](https://docs.aws.amazon.com/iotevents/latest/developerguide/iotevents-expressions.html)
 // in the *Developer Guide*.
-_#defs: "/$defs/Properties/definitions/IotSiteWise": close({
+#IotSiteWise: close({
 	// The ID of the asset that has the specified property.
 	AssetId?: string
 
@@ -476,53 +476,53 @@ _#defs: "/$defs/Properties/definitions/IotSiteWise": close({
 
 	// The value to send to the asset property. This value contains timestamp,
 	// quality, and value (TQV) information.
-	PropertyValue!: _#defs."/$defs/Properties/definitions/AssetPropertyValue"
+	PropertyValue!: #AssetPropertyValue
 })
 
 // Information required to publish the MQTT message through the IoT message broker.
-_#defs: "/$defs/Properties/definitions/IotTopicPublish": close({
+#IotTopicPublish: close({
 	// The MQTT topic of the message. You can use a string expression that includes
 	// variables (``$variable.<variable-name>``) and input values
 	// (``$input.<input-name>.<path-to-datum>``) as the topic string.
 	MqttTopic!: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// You can configure the action payload when you publish a message to an IoTCore topic.
-	Payload?: _#defs."/$defs/Properties/definitions/Payload"
+	Payload?: #Payload
 })
 
 // Calls a Lambda function, passing in information about the detector model
 // instance and the event that triggered the action.
-_#defs: "/$defs/Properties/definitions/Lambda": close({
+#Lambda: close({
 	// The ARN of the Lambda function that is executed.
 	FunctionArn!:
 		=~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// You can configure the action payload when you send a message to a Lambda function.
-	Payload?: _#defs."/$defs/Properties/definitions/Payload"
+	Payload?: #Payload
 })
 
 // When entering this state, perform these ``actions`` if the ``condition`` is TRUE.
-_#defs: "/$defs/Properties/definitions/OnEnter": close({
+#OnEnter: close({
 	// Specifies the actions that are performed when the state is entered and the
 	// ``condition`` is ``TRUE``.
-	Events?: [..._#defs."/$defs/Properties/definitions/Event"]
+	Events?: [...#Event]
 })
 
 // When exiting this state, perform these ``actions`` if the specified ``condition`` is ``TRUE``.
-_#defs: "/$defs/Properties/definitions/OnExit": close({
+#OnExit: close({
 	// Specifies the ``actions`` that are performed when the state is exited and the
 	// ``condition`` is ``TRUE``.
-	Events?: [..._#defs."/$defs/Properties/definitions/Event"]
+	Events?: [...#Event]
 })
 
 // Specifies the actions performed when the ``condition`` evaluates to TRUE.
-_#defs: "/$defs/Properties/definitions/OnInput": close({
+#OnInput: close({
 	// Specifies the actions performed when the ``condition`` evaluates to TRUE.
-	Events?: [..._#defs."/$defs/Properties/definitions/Event"]
+	Events?: [...#Event]
 
 	// Specifies the actions performed, and the next state entered, when a
 	// ``condition`` evaluates to TRUE.
-	TransitionEvents?: [..._#defs."/$defs/Properties/definitions/TransitionEvent"]
+	TransitionEvents?: [...#TransitionEvent]
 })
 
 // Information needed to configure the payload.
@@ -530,7 +530,7 @@ _#defs: "/$defs/Properties/definitions/OnInput": close({
 // action payload contains all attribute-value pairs that have the information
 // about the detector model instance and the event triggered the action. To
 // configure the action payload, you can use ``contentExpression``.
-_#defs: "/$defs/Properties/definitions/Payload": close({
+#Payload: close({
 	// The content of the payload. You can use a string expression that includes
 	// quoted strings (``'<string>'``), variables (``$variable.<variable-name>``),
 	// input values (``$input.<input-name>.<path-to-datum>``), string
@@ -545,13 +545,13 @@ _#defs: "/$defs/Properties/definitions/Payload": close({
 // Information required to reset the timer. The timer is reset to the previously
 // evaluated result of the duration. The duration expression isn't reevaluated
 // when you reset the timer.
-_#defs: "/$defs/Properties/definitions/ResetTimer": close({
+#ResetTimer: close({
 	// The name of the timer to reset.
 	TimerName!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // Information needed to set the timer.
-_#defs: "/$defs/Properties/definitions/SetTimer": close({
+#SetTimer: close({
 	// The duration of the timer, in seconds. You can use a string expression that
 	// includes numbers, variables (``$variable.<variable-name>``), and input
 	// values (``$input.<input-name>.<path-to-datum>``) as the duration. The range
@@ -569,7 +569,7 @@ _#defs: "/$defs/Properties/definitions/SetTimer": close({
 })
 
 // Information about the variable and its new value.
-_#defs: "/$defs/Properties/definitions/SetVariable": close({
+#SetVariable: close({
 	// The new value of the variable.
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1)
 
@@ -578,9 +578,9 @@ _#defs: "/$defs/Properties/definitions/SetVariable": close({
 })
 
 // Information required to publish the Amazon SNS message.
-_#defs: "/$defs/Properties/definitions/Sns": close({
+#Sns: close({
 	// You can configure the action payload when you send a message as an Amazon SNS push notification.
-	Payload?: _#defs."/$defs/Properties/definitions/Payload"
+	Payload?: #Payload
 
 	// The ARN of the Amazon SNS target where the message is sent.
 	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
@@ -588,9 +588,9 @@ _#defs: "/$defs/Properties/definitions/Sns": close({
 
 // Sends information about the detector model instance and the event that
 // triggered the action to an Amazon SQS queue.
-_#defs: "/$defs/Properties/definitions/Sqs": close({
+#Sqs: close({
 	// You can configure the action payload when you send a message to an Amazon SQS queue.
-	Payload?: _#defs."/$defs/Properties/definitions/Payload"
+	Payload?: #Payload
 
 	// The URL of the SQS queue where the data is written.
 	QueueUrl!: string
@@ -601,22 +601,22 @@ _#defs: "/$defs/Properties/definitions/Sqs": close({
 })
 
 // Information that defines a state of a detector.
-_#defs: "/$defs/Properties/definitions/State": close({
+#State: close({
 	// When entering this state, perform these ``actions`` if the ``condition`` is TRUE.
-	OnEnter?: _#defs."/$defs/Properties/definitions/OnEnter"
+	OnEnter?: #OnEnter
 
 	// When exiting this state, perform these ``actions`` if the specified ``condition`` is ``TRUE``.
-	OnExit?: _#defs."/$defs/Properties/definitions/OnExit"
+	OnExit?: #OnExit
 
 	// When an input is received and the ``condition`` is TRUE, perform the specified ``actions``.
-	OnInput?: _#defs."/$defs/Properties/definitions/OnInput"
+	OnInput?: #OnInput
 
 	// The name of the state.
 	StateName!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // Metadata that can be used to manage the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: string
 
@@ -626,9 +626,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 // Specifies the actions performed and the next state entered when a
 // ``condition`` evaluates to TRUE.
-_#defs: "/$defs/Properties/definitions/TransitionEvent": close({
+#TransitionEvent: close({
 	// The actions to be performed.
-	Actions?: [..._#defs."/$defs/Properties/definitions/Action"]
+	Actions?: [...#Action]
 
 	// Required. A Boolean expression that when TRUE causes the actions to be
 	// performed and the ``nextState`` to be entered.

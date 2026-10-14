@@ -6,18 +6,16 @@ package schema
 
 // Definition of AWS::DataZone::ProjectMembership Resource Type
 #Properties: close({
-	Designation!:          _#defs."/$defs/Properties/definitions/UserDesignation"
+	Designation!:          #UserDesignation
 	DomainIdentifier!:     =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$"
-	Member!:               _#defs."/$defs/Properties/definitions/Member"
+	Member!:               #Member
 	MemberIdentifier?:     string
-	MemberIdentifierType?: _#defs."/$defs/Properties/definitions/MemberIdentifierType"
+	MemberIdentifierType?: #MemberIdentifierType
 	ProjectIdentifier!:    =~"^[a-zA-Z0-9_-]{1,36}$"
 })
 
-_#defs: "/$defs/Properties/definitions/Member": matchN(1, [
-	close({UserIdentifier!: string}), close({GroupIdentifier!: string}),
-])
+#Member: matchN(1, [close({UserIdentifier!: string}), close({GroupIdentifier!: string})])
 
-_#defs: "/$defs/Properties/definitions/MemberIdentifierType": "USER_IDENTIFIER" | "GROUP_IDENTIFIER"
+#MemberIdentifierType: "USER_IDENTIFIER" | "GROUP_IDENTIFIER"
 
-_#defs: "/$defs/Properties/definitions/UserDesignation": =~"^[a-zA-Z0-9_-]{1,36}$"
+#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$"

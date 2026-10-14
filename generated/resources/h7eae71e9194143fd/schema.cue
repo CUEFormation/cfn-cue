@@ -13,48 +13,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualNode
-#Properties: close({
-	MeshName!:        string | fn.#StringExpression
-	MeshOwner?:       string | fn.#StringExpression
-	Spec!:            _#defs."/$defs/Properties/definitions/VirtualNodeSpec"
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VirtualNodeName?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::VirtualNode"
+	Properties!: close({
+		MeshName!:        string | fn.#StringExpression
+		MeshOwner?:       string | fn.#StringExpression
+		Spec!:            #VirtualNodeSpec
+		Tags?:            [...#Tag] | fn.#ListExpression
+		VirtualNodeName?: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccessLog": close({File?: _#defs."/$defs/Properties/definitions/FileAccessLog"}) |
-	fn.#ObjectExpression
+#AccessLog: close({File?: #FileAccessLog}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AwsCloudMapInstanceAttribute": close({
+#AwsCloudMapInstanceAttribute: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AwsCloudMapServiceDiscovery": close({
-	Attributes?:    [..._#defs."/$defs/Properties/definitions/AwsCloudMapInstanceAttribute"] | fn.#ListExpression
+#AwsCloudMapServiceDiscovery: close({
+	Attributes?:    [...#AwsCloudMapInstanceAttribute] | fn.#ListExpression
 	IpPreference?:  string | fn.#StringExpression
 	NamespaceName!: string | fn.#StringExpression
 	ServiceName!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Backend": close(
-	{VirtualService?: _#defs."/$defs/Properties/definitions/VirtualServiceBackend"},
-) |
-	fn.#ObjectExpression
+#Backend: close({VirtualService?: #VirtualServiceBackend}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BackendDefaults": close(
-	{ClientPolicy?: _#defs."/$defs/Properties/definitions/ClientPolicy"},
-) |
-	fn.#ObjectExpression
+#BackendDefaults: close({ClientPolicy?: #ClientPolicy}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientPolicy": close(
-	{TLS?: _#defs."/$defs/Properties/definitions/ClientPolicyTls"},
-) |
-	fn.#ObjectExpression
+#ClientPolicy: close({TLS?: #ClientPolicyTls}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientPolicyTls": close({
-	Certificate?: _#defs."/$defs/Properties/definitions/ClientTlsCertificate"
+#ClientPolicyTls: close({
+	Certificate?: #ClientTlsCertificate
 	Enforce?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Ports?: [
 		...int |
@@ -75,24 +68,24 @@ _#defs: "/$defs/Properties/definitions/ClientPolicyTls": close({
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	Validation!: _#defs."/$defs/Properties/definitions/TlsValidationContext"
+	Validation!: #TlsValidationContext
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientTlsCertificate": close({
-	File?: _#defs."/$defs/Properties/definitions/ListenerTlsFileCertificate"
-	SDS?:  _#defs."/$defs/Properties/definitions/ListenerTlsSdsCertificate"
+#ClientTlsCertificate: close({
+	File?: #ListenerTlsFileCertificate
+	SDS?:  #ListenerTlsSdsCertificate
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DnsServiceDiscovery": close({
+#DnsServiceDiscovery: close({
 	Hostname!:     string | fn.#StringExpression
 	IpPreference?: string | fn.#StringExpression
 	ResponseType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Duration": close({
+#Duration: close({
 	Unit!: string | fn.#StringExpression
 	Value!: int |
 		{
@@ -111,19 +104,19 @@ _#defs: "/$defs/Properties/definitions/Duration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileAccessLog": close({
-	Format?: _#defs."/$defs/Properties/definitions/LoggingFormat"
+#FileAccessLog: close({
+	Format?: #LoggingFormat
 	Path!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
+#GrpcTimeout: close({
+	Idle?:       #Duration
+	PerRequest?: #Duration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheck": close({
+#HealthCheck: close({
 	HealthyThreshold!: int |
 		{
 			string &
@@ -199,89 +192,87 @@ _#defs: "/$defs/Properties/definitions/HealthCheck": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
+#HttpTimeout: close({
+	Idle?:       #Duration
+	PerRequest?: #Duration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonFormatRef": close({
+#JsonFormatRef: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Listener": close({
-	ConnectionPool?:   _#defs."/$defs/Properties/definitions/VirtualNodeConnectionPool"
-	HealthCheck?:      _#defs."/$defs/Properties/definitions/HealthCheck"
-	OutlierDetection?: _#defs."/$defs/Properties/definitions/OutlierDetection"
-	PortMapping!:      _#defs."/$defs/Properties/definitions/PortMapping"
-	TLS?:              _#defs."/$defs/Properties/definitions/ListenerTls"
-	Timeout?:          _#defs."/$defs/Properties/definitions/ListenerTimeout"
+#Listener: close({
+	ConnectionPool?:   #VirtualNodeConnectionPool
+	HealthCheck?:      #HealthCheck
+	OutlierDetection?: #OutlierDetection
+	PortMapping!:      #PortMapping
+	TLS?:              #ListenerTls
+	Timeout?:          #ListenerTimeout
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerTimeout": close({
-	GRPC?:  _#defs."/$defs/Properties/definitions/GrpcTimeout"
-	HTTP?:  _#defs."/$defs/Properties/definitions/HttpTimeout"
-	HTTP2?: _#defs."/$defs/Properties/definitions/HttpTimeout"
-	TCP?:   _#defs."/$defs/Properties/definitions/TcpTimeout"
+#ListenerTimeout: close({
+	GRPC?:  #GrpcTimeout
+	HTTP?:  #HttpTimeout
+	HTTP2?: #HttpTimeout
+	TCP?:   #TcpTimeout
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerTls": close({
-	Certificate!: _#defs."/$defs/Properties/definitions/ListenerTlsCertificate"
+#ListenerTls: close({
+	Certificate!: #ListenerTlsCertificate
 	Mode!:        string | fn.#StringExpression
-	Validation?:  _#defs."/$defs/Properties/definitions/ListenerTlsValidationContext"
+	Validation?:  #ListenerTlsValidationContext
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsAcmCertificate": close({
+#ListenerTlsAcmCertificate: close({
 	CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsCertificate": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/ListenerTlsAcmCertificate"
-	File?: _#defs."/$defs/Properties/definitions/ListenerTlsFileCertificate"
-	SDS?:  _#defs."/$defs/Properties/definitions/ListenerTlsSdsCertificate"
+#ListenerTlsCertificate: close({
+	ACM?:  #ListenerTlsAcmCertificate
+	File?: #ListenerTlsFileCertificate
+	SDS?:  #ListenerTlsSdsCertificate
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsFileCertificate": close({
+#ListenerTlsFileCertificate: close({
 	CertificateChain!: string | fn.#StringExpression
 	PrivateKey!:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsSdsCertificate": close({SecretName!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ListenerTlsSdsCertificate: close({SecretName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
-	Trust!:                   _#defs."/$defs/Properties/definitions/ListenerTlsValidationContextTrust"
+#ListenerTlsValidationContext: close({
+	SubjectAlternativeNames?: #SubjectAlternativeNames
+	Trust!:                   #ListenerTlsValidationContextTrust
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsValidationContextTrust": close({
-	File?: _#defs."/$defs/Properties/definitions/TlsValidationContextFileTrust"
-	SDS?:  _#defs."/$defs/Properties/definitions/TlsValidationContextSdsTrust"
+#ListenerTlsValidationContextTrust: close({
+	File?: #TlsValidationContextFileTrust
+	SDS?:  #TlsValidationContextSdsTrust
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Logging": close({AccessLog?: _#defs."/$defs/Properties/definitions/AccessLog"}) |
-	fn.#ObjectExpression
+#Logging: close({AccessLog?: #AccessLog}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingFormat": close({
-	Json?: [..._#defs."/$defs/Properties/definitions/JsonFormatRef"] | fn.#ListExpression
+#LoggingFormat: close({
+	Json?: [...#JsonFormatRef] | fn.#ListExpression
 	Text?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutlierDetection": close({
-	BaseEjectionDuration!: _#defs."/$defs/Properties/definitions/Duration"
-	Interval!:             _#defs."/$defs/Properties/definitions/Duration"
+#OutlierDetection: close({
+	BaseEjectionDuration!: #Duration
+	Interval!:             #Duration
 	MaxEjectionPercent!: int |
 		{
 			string &
@@ -313,7 +304,7 @@ _#defs: "/$defs/Properties/definitions/OutlierDetection": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortMapping": close({
+#PortMapping: close({
 	Port!: int |
 		{
 			string &
@@ -332,68 +323,56 @@ _#defs: "/$defs/Properties/definitions/PortMapping": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceDiscovery": close({
-	AWSCloudMap?: _#defs."/$defs/Properties/definitions/AwsCloudMapServiceDiscovery"
-	DNS?:         _#defs."/$defs/Properties/definitions/DnsServiceDiscovery"
+#ServiceDiscovery: close({
+	AWSCloudMap?: #AwsCloudMapServiceDiscovery
+	DNS?:         #DnsServiceDiscovery
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubjectAlternativeNameMatchers": close(
-	{Exact?: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#SubjectAlternativeNameMatchers: close({Exact?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubjectAlternativeNames": close(
-	{Match!: _#defs."/$defs/Properties/definitions/SubjectAlternativeNameMatchers"},
-) |
-	fn.#ObjectExpression
+#SubjectAlternativeNames: close({Match!: #SubjectAlternativeNameMatchers}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TcpTimeout": close({Idle?: _#defs."/$defs/Properties/definitions/Duration"}) |
-	fn.#ObjectExpression
+#TcpTimeout: close({Idle?: #Duration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
-	Trust!:                   _#defs."/$defs/Properties/definitions/TlsValidationContextTrust"
+#TlsValidationContext: close({
+	SubjectAlternativeNames?: #SubjectAlternativeNames
+	Trust!:                   #TlsValidationContextTrust
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContextAcmTrust": close(
+#TlsValidationContextAcmTrust: close(
 	{CertificateAuthorityArns!: [...string | fn.#StringExpression] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContextFileTrust": close(
-	{CertificateChain!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#TlsValidationContextFileTrust: close({CertificateChain!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContextSdsTrust": close(
-	{SecretName!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#TlsValidationContextSdsTrust: close({SecretName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContextTrust": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/TlsValidationContextAcmTrust"
-	File?: _#defs."/$defs/Properties/definitions/TlsValidationContextFileTrust"
-	SDS?:  _#defs."/$defs/Properties/definitions/TlsValidationContextSdsTrust"
+#TlsValidationContextTrust: close({
+	ACM?:  #TlsValidationContextAcmTrust
+	File?: #TlsValidationContextFileTrust
+	SDS?:  #TlsValidationContextSdsTrust
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeConnectionPool": close({
-	GRPC?:  _#defs."/$defs/Properties/definitions/VirtualNodeGrpcConnectionPool"
-	HTTP?:  _#defs."/$defs/Properties/definitions/VirtualNodeHttpConnectionPool"
-	HTTP2?: _#defs."/$defs/Properties/definitions/VirtualNodeHttp2ConnectionPool"
-	TCP?:   _#defs."/$defs/Properties/definitions/VirtualNodeTcpConnectionPool"
+#VirtualNodeConnectionPool: close({
+	GRPC?:  #VirtualNodeGrpcConnectionPool
+	HTTP?:  #VirtualNodeHttpConnectionPool
+	HTTP2?: #VirtualNodeHttp2ConnectionPool
+	TCP?:   #VirtualNodeTcpConnectionPool
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeGrpcConnectionPool": close({
+#VirtualNodeGrpcConnectionPool: close({
 	MaxRequests!: int |
 		{
 			string &
@@ -411,7 +390,7 @@ _#defs: "/$defs/Properties/definitions/VirtualNodeGrpcConnectionPool": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeHttp2ConnectionPool": close({
+#VirtualNodeHttp2ConnectionPool: close({
 	MaxRequests!: int |
 		{
 			string &
@@ -429,7 +408,7 @@ _#defs: "/$defs/Properties/definitions/VirtualNodeHttp2ConnectionPool": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeHttpConnectionPool": close({
+#VirtualNodeHttpConnectionPool: close({
 	MaxConnections!: int |
 		{
 			string &
@@ -461,16 +440,16 @@ _#defs: "/$defs/Properties/definitions/VirtualNodeHttpConnectionPool": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeSpec": close({
-	BackendDefaults?:  _#defs."/$defs/Properties/definitions/BackendDefaults"
-	Backends?:         [..._#defs."/$defs/Properties/definitions/Backend"] | fn.#ListExpression
-	Listeners?:        [..._#defs."/$defs/Properties/definitions/Listener"] | fn.#ListExpression
-	Logging?:          _#defs."/$defs/Properties/definitions/Logging"
-	ServiceDiscovery?: _#defs."/$defs/Properties/definitions/ServiceDiscovery"
+#VirtualNodeSpec: close({
+	BackendDefaults?:  #BackendDefaults
+	Backends?:         [...#Backend] | fn.#ListExpression
+	Listeners?:        [...#Listener] | fn.#ListExpression
+	Logging?:          #Logging
+	ServiceDiscovery?: #ServiceDiscovery
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeTcpConnectionPool": close({
+#VirtualNodeTcpConnectionPool: close({
 	MaxConnections!: int |
 		{
 			string &
@@ -488,12 +467,8 @@ _#defs: "/$defs/Properties/definitions/VirtualNodeTcpConnectionPool": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualServiceBackend": close({
-	ClientPolicy?:       _#defs."/$defs/Properties/definitions/ClientPolicy"
+#VirtualServiceBackend: close({
+	ClientPolicy?:       #ClientPolicy
 	VirtualServiceName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::VirtualNode"
-	Properties!: #Properties
-}

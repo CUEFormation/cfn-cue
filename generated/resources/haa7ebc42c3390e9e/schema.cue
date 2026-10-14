@@ -13,18 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // This resource represents an individual schema version of a schema defined in
 // Glue Schema Registry.
-#Properties: close({
-	Schema!:           _#defs."/$defs/Properties/definitions/Schema"
-	SchemaDefinition!: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::SchemaVersion"
+	Properties!: close({
+		Schema!:           #Schema
+		SchemaDefinition!: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Schema": close({
+#Schema: close({
 	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	SchemaArn?:    =~"arn:(aws|aws-us-gov|aws-cn):glue:.*" | fn.#StringExpression
 	SchemaName?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::SchemaVersion"
-	Properties!: #Properties
-}

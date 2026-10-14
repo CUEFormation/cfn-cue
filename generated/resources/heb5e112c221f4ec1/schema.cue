@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
+	"strings"
 	"struct"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,17 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Bedrock::DataAutomationLibrary
-#Properties: close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	LibraryDescription?:      strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
-	LibraryName!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::DataAutomationLibrary"
+	Properties!: close({
+		EncryptionConfiguration?: #EncryptionConfiguration
+		LibraryDescription?:      strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
+		LibraryName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DataAutomationLibraryStatus": "ACTIVE" | "DELETING" | fn.#StringExpression
+#DataAutomationLibraryStatus: "ACTIVE" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KmsEncryptionContext?: _#defs."/$defs/Properties/definitions/KmsEncryptionContext"
+#EncryptionConfiguration: close({
+	KmsEncryptionContext?: #KmsEncryptionContext
 	KmsKeyId!: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) &
 	strings.MaxRunes(2048) &
@@ -34,25 +37,21 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityType": "VOCABULARY" | fn.#StringExpression
+#EntityType: "VOCABULARY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EntityTypeInfo": close({
+#EntityTypeInfo: close({
 	EntityMetadata?: string | fn.#StringExpression
-	EntityType!:     _#defs."/$defs/Properties/definitions/EntityType"
+	EntityType!:     #EntityType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsEncryptionContext": struct.MinFields(1) & close({
+#KmsEncryptionContext: struct.MinFields(1) & close({
 
 	{[=~"^.*\\S.*$"]: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^.*\\S.*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::DataAutomationLibrary"
-	Properties!: #Properties
-}

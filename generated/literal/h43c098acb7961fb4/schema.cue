@@ -20,10 +20,10 @@ package schema
 	NetworkLoadBalancerArn?: string
 
 	// The tags to assign to the Traffic Mirror target.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

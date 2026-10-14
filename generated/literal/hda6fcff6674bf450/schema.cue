@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RDS::GlobalCluster
-#Properties: matchN(1, [{
-	SourceDBClusterIdentifier!: _
-	...
-}, {
-	Engine!: _
-	...
-}]) & close({
+#Properties: close({
 	// The deletion protection setting for the new global database. The global
 	// database can't be deleted when deletion protection is enabled.
 	DeletionProtection?: bool
@@ -40,7 +34,7 @@ import (
 	// The cluster identifier of the new global database cluster. This parameter is
 	// stored as a lowercase string.
 	GlobalClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$"
-	GlobalEndpoint?:          _#defs."/$defs/Properties/definitions/GlobalEndpoint"
+	GlobalEndpoint?:          #GlobalEndpoint
 
 	// The Amazon Resource Name (ARN) to use as the primary cluster of the global
 	// database. This parameter is optional. This parameter is stored as a
@@ -53,17 +47,22 @@ import (
 	StorageEncrypted?: bool
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-})
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
+	if SourceDBClusterIdentifier != _|_ if SourceDBClusterIdentifier."Fn::If" == _|_ {
+		Engine?: close({"Fn::If": _}) | error(
+			"Engine cannot be used with SourceDBClusterIdentifier; set exactly one of SourceDBClusterIdentifier, Engine",
+		)
+	}
+}) & matchN(>=1, [{SourceDBClusterIdentifier!: _}, {Engine!: _}])
 
-_#defs: "/$defs/Properties/definitions/GlobalEndpoint": close({
+#GlobalEndpoint: close({
 	// The writer endpoint for the global database cluster. This endpoint always
 	// points to the writer DB instance in the current primary cluster.
 	Address?: string
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

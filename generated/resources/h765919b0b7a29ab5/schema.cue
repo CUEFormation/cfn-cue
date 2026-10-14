@@ -12,24 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::SqlInjectionMatchSet
-#Properties: close({
-	Name!: string | fn.#StringExpression
-	SqlInjectionMatchTuples?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SqlInjectionMatchTuple"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAF::SqlInjectionMatchSet"
+	Properties!: close({
+		Name!:                    string | fn.#StringExpression
+		SqlInjectionMatchTuples?: list.UniqueItems() & [...#SqlInjectionMatchTuple] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string | fn.#StringExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqlInjectionMatchTuple": close({
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
+#SqlInjectionMatchTuple: close({
+	FieldToMatch!:       #FieldToMatch
 	TextTransformation!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAF::SqlInjectionMatchSet"
-	Properties!: #Properties
-}

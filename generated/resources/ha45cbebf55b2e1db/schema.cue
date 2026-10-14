@@ -13,9 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the ResourceCollection resource in the Amazon DevOps Guru.
-#Properties: close({ResourceCollectionFilter!: _#defs."/$defs/Properties/definitions/ResourceCollectionFilter"})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::DevOpsGuru::ResourceCollection"
+	Properties!: close({ResourceCollectionFilter!: #ResourceCollectionFilter})
+}
 
-_#defs: "/$defs/Properties/definitions/CloudFormationCollectionFilter": close({
+#CloudFormationCollectionFilter: close({
 	StackNames?: list.MaxItems(1000) & list.MinItems(1) & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z*]+[a-zA-Z0-9-]*$" | fn.#StringExpression
 	] |
@@ -23,13 +26,13 @@ _#defs: "/$defs/Properties/definitions/CloudFormationCollectionFilter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceCollectionFilter": close({
-	CloudFormation?: _#defs."/$defs/Properties/definitions/CloudFormationCollectionFilter"
-	Tags?:           _#defs."/$defs/Properties/definitions/TagCollections"
+#ResourceCollectionFilter: close({
+	CloudFormation?: #CloudFormationCollectionFilter
+	Tags?:           #TagCollections
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagCollection": close({
+#TagCollection: close({
 	AppBoundaryKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	TagValues?: list.MaxItems(1000) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -38,9 +41,4 @@ _#defs: "/$defs/Properties/definitions/TagCollection": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagCollections": [..._#defs."/$defs/Properties/definitions/TagCollection"] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsGuru::ResourceCollection"
-	Properties!: #Properties
-}
+#TagCollections: [...#TagCollection] | fn.#ListExpression

@@ -16,7 +16,7 @@ import (
 	Arn?: string
 
 	// The configuration of the cluster from which the snapshot was taken.
-	ClusterConfiguration?: _#defs."/$defs/Properties/definitions/ClusterConfiguration"
+	ClusterConfiguration?: #ClusterConfiguration
 
 	// The name of the cluster from which the snapshot was taken.
 	ClusterName!: string
@@ -38,10 +38,10 @@ import (
 	Status?: string
 
 	// A list of tags to be added to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ClusterConfiguration": close({
+#ClusterConfiguration: close({
 	// The description of the cluster configuration.
 	Description?: string
 
@@ -85,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/ClusterConfiguration": close({
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

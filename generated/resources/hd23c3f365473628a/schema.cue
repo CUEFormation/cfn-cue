@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
 )
@@ -19,48 +19,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::S3::StorageLensGroup resource is an Amazon S3 resource type that you
 // can use to create Storage Lens Group.
-#Properties: close({
-	Filter!: _#defs."/$defs/Properties/definitions/Filter"
-	Name!:   _#defs."/$defs/Properties/definitions/Name"
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::StorageLensGroup"
+	Properties!: close({
+		Filter!: #Filter
+		Name!:   #Name
+		Tags?:   [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/And": struct.MinFields(2) & close({
-	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix"
-	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix"
-	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag"
-	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge"
-	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize"
+#And: struct.MinFields(2) & close({
+	MatchAnyPrefix?:  #MatchAnyPrefix
+	MatchAnySuffix?:  #MatchAnySuffix
+	MatchAnyTag?:     #MatchAnyTag
+	MatchObjectAge?:  #MatchObjectAge
+	MatchObjectSize?: #MatchObjectSize
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
-	And?:             _#defs."/$defs/Properties/definitions/And"
-	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix"
-	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix"
-	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag"
-	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge"
-	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize"
-	Or?:              _#defs."/$defs/Properties/definitions/Or"
+#Filter: close({
+	And?:             #And
+	MatchAnyPrefix?:  #MatchAnyPrefix
+	MatchAnySuffix?:  #MatchAnySuffix
+	MatchAnyTag?:     #MatchAnyTag
+	MatchObjectAge?:  #MatchObjectAge
+	MatchObjectSize?: #MatchObjectSize
+	Or?:              #Or
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchAnyPrefix": list.UniqueItems() & [
-	...strings.MaxRunes(1024) | fn.#StringExpression
-] |
-fn.#ListExpression
+#MatchAnyPrefix: list.UniqueItems() & [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MatchAnySuffix": list.UniqueItems() & [
-	...strings.MaxRunes(1024) | fn.#StringExpression
-] |
-fn.#ListExpression
+#MatchAnySuffix: list.UniqueItems() & [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MatchAnyTag": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#MatchAnyTag: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MatchObjectAge": close({
+#MatchObjectAge: close({
 	DaysGreaterThan?: int & >=1 |
 		{
 			string &
@@ -94,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/MatchObjectAge": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchObjectSize": close({
+#MatchObjectSize: close({
 	BytesGreaterThan?: int & >=1 |
 		{
 			string &
@@ -128,24 +122,19 @@ _#defs: "/$defs/Properties/definitions/MatchObjectSize": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" |
-fn.#StringExpression
+#Name: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Or": struct.MinFields(2) & close({
-	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix"
-	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix"
-	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag"
-	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge"
-	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize"
+#Or: struct.MinFields(2) & close({
+	MatchAnyPrefix?:  #MatchAnyPrefix
+	MatchAnySuffix?:  #MatchAnySuffix
+	MatchAnyTag?:     #MatchAnyTag
+	MatchObjectAge?:  #MatchObjectAge
+	MatchObjectSize?: #MatchObjectSize
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::StorageLensGroup"
-	Properties!: #Properties
-}

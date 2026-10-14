@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +16,7 @@ import (
 	Arn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}/listener/listener-[0-9a-z]{17}$"
-	DefaultAction!: _#defs."/$defs/Properties/definitions/DefaultAction"
+	DefaultAction!: #DefaultAction
 	Id?:            strings.MaxRunes(26) & strings.MinRunes(26) & =~"^listener-[0-9a-z]{17}$"
 	Name?:          strings.MaxRunes(63) & strings.MinRunes(3)
 	Port?:          int & <=65535 & >=1
@@ -28,28 +28,24 @@ import (
 	ServiceIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(21) &
 	=~"^((svc-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}))$"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultAction": close({
-	FixedResponse?: _#defs."/$defs/Properties/definitions/FixedResponse"
-	Forward?:       _#defs."/$defs/Properties/definitions/Forward"
+#DefaultAction: close({
+	FixedResponse?: #FixedResponse
+	Forward?:       #Forward
 })
 
-_#defs: "/$defs/Properties/definitions/FixedResponse": close({StatusCode!: int & <=599 & >=100})
+#FixedResponse: close({StatusCode!: int & <=599 & >=100})
 
-_#defs: "/$defs/Properties/definitions/Forward": close({
-	TargetGroups!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/WeightedTargetGroup"
-	]
-})
+#Forward: close({TargetGroups!: list.MaxItems(10) & list.MinItems(1) & [...#WeightedTargetGroup]})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/WeightedTargetGroup": close({
+#WeightedTargetGroup: close({
 	TargetGroupIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((tg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}))$"

@@ -19,7 +19,7 @@ import "strings"
 	// Configurations for event-based logging that specifies which event types to
 	// log and their logging settings. Overrides account-level logging for the
 	// specified event
-	EventConfigurations?: [..._#defs."/$defs/Properties/definitions/EventConfiguration"]
+	EventConfigurations?: [...#EventConfiguration]
 
 	// The ARN of the role that allows IoT to write to Cloudwatch logs.
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
@@ -27,7 +27,7 @@ import "strings"
 
 // Configuration for event-based logging that specifies which event types to log
 // and their logging settings. Used for account-level logging overrides.
-_#defs: "/$defs/Properties/definitions/EventConfiguration": close({
+#EventConfiguration: close({
 	// The type of event to log. These include event types like Connect, Publish, and Disconnect.
 	EventType!: strings.MaxRunes(512) & strings.MinRunes(1)
 

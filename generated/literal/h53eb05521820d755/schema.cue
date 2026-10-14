@@ -27,12 +27,12 @@ import "strings"
 	ProjectId?: strings.MaxRunes(36) & strings.MinRunes(36)
 
 	// A list of key-value pairs that contain metadata for the dashboard.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // To add or update tag, provide both key and value. To delete tag, provide only
 // tag key to be deleted
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

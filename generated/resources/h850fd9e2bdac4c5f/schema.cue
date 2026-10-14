@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,84 +17,133 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::RecordSet.
-#Properties: matchN(1, [{
-	HostedZoneId!: _
-	...
-}, {
-	HostedZoneName!: _
-	...
-}]) & matchN(1, [{
-	HostedZoneId!: _
-	...
-}, {
-	HostedZoneName!: _
-	...
-}]) & close({
-	AliasTarget?:          _#defs."/$defs/Properties/definitions/AliasTarget" | fn.#ObjectExpression
-	CidrRoutingConfig?:    _#defs."/$defs/Properties/definitions/CidrRoutingConfig" | fn.#ObjectExpression
-	Comment?:              _#defs."/$defs/Properties/definitions/Comment" | fn.#StringExpression
-	Failover?:             _#defs."/$defs/Properties/definitions/Failover" | fn.#StringExpression
-	GeoLocation?:          _#defs."/$defs/Properties/definitions/GeoLocation" | fn.#ObjectExpression
-	GeoProximityLocation?: _#defs."/$defs/Properties/definitions/GeoProximityLocation" | fn.#ObjectExpression
-	HealthCheckId?:        _#defs."/$defs/Properties/definitions/HealthCheckId" | fn.#StringExpression
-	HostedZoneId?:         _#defs."/$defs/Properties/definitions/HostedZoneId" | fn.#StringExpression
-	HostedZoneName?:       _#defs."/$defs/Properties/definitions/HostedZoneName" | fn.#StringExpression
-	MultiValueAnswer?:     _#defs."/$defs/Properties/definitions/MultiValueAnswer" | fn.#BooleanExpression
-	Name!:                 _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	Region?:               _#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression
-	ResourceRecords?:      _#defs."/$defs/Properties/definitions/ResourceRecords" | fn.#ListExpression
-	SetIdentifier?:        _#defs."/$defs/Properties/definitions/SetIdentifier" | fn.#StringExpression
-	TTL?:                  _#defs."/$defs/Properties/definitions/TTL" | fn.#StringExpression
-	Type!:                 _#defs."/$defs/Properties/definitions/Type" | fn.#StringExpression
-	Weight?:               _#defs."/$defs/Properties/definitions/Weight" | fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53::RecordSet"
+	Properties!: close({
+		// Alias resource record sets only: Information about the AWS resource, such as
+		// a CloudFront distribution or an Amazon S3 bucket, that you want to route
+		// traffic to.
+		AliasTarget?: #AliasTarget
 
-_#defs: "/$defs/Properties/definitions/AliasTarget": close({
+		// The object that is specified in resource record set object when you are
+		// linking a resource record set to a CIDR location.
+		CidrRoutingConfig?: #CidrRoutingConfig
+
+		// Optional: Any comments you want to include about a change batch request.
+		Comment?: #Comment
+
+		// To configure failover, you add the Failover element to two resource record
+		// sets. For one resource record set, you specify PRIMARY as the value for
+		// Failover; for the other resource record set, you specify SECONDARY. In
+		// addition, you include the HealthCheckId element and specify the health check
+		// that you want Amazon Route 53 to perform for each resource record set.
+		Failover?: #Failover
+
+		// A complex type that lets you control how Amazon Route 53 responds to DNS
+		// queries based on the geographic origin of the query.
+		GeoLocation?: #GeoLocation
+
+		// Geoproximity resource record sets only: A complex type that lets you specify
+		// where your resources are located. Only one of LocalZoneGroup, Coordinates,
+		// or AWSRegion is allowed per request at a time.
+		GeoProximityLocation?: #GeoProximityLocation
+
+		// If you want Amazon Route 53 to return this resource record set in response to
+		// a DNS query only when the status of a health check is healthy, include the
+		// HealthCheckId element and specify the ID of the applicable health check.
+		HealthCheckId?: #HealthCheckId
+
+		// The ID of the hosted zone that you want to create records in.
+		HostedZoneId?: #HostedZoneId
+
+		// The name of the hosted zone that you want to create records in. You must
+		// include a trailing dot (for example, www.example.com.) as part of the
+		// HostedZoneName.
+		HostedZoneName?: #HostedZoneName
+
+		// To route traffic approximately randomly to multiple resources, such as web
+		// servers, create one multivalue answer record for each resource and specify
+		// true for MultiValueAnswer.
+		MultiValueAnswer?: #MultiValueAnswer
+
+		// The name of the record that you want to create, update, or delete.
+		Name!: #Name
+
+		// The Amazon EC2 Region where you created the resource that this resource record set refers to.
+		Region?: #Region
+
+		// One or more values that correspond with the value that you specified for the Type property.
+		ResourceRecords?: #ResourceRecords
+
+		// An identifier that differentiates among multiple resource record sets that
+		// have the same combination of name and type.
+		SetIdentifier?: #SetIdentifier
+
+		// The resource record cache time to live (TTL), in seconds.
+		TTL?: #TTL
+
+		// The DNS record type.
+		Type!: #Type
+
+		// Among resource record sets that have the same combination of DNS name and
+		// type, a value that determines the proportion of DNS queries that Amazon
+		// Route 53 responds to using the current resource record set. Route 53
+		// calculates the sum of the weights for the resource record sets that have the
+		// same combination of DNS name and type. Route 53 then responds to queries
+		// based on the ratio of a resource's weight to the total.
+		Weight?: #Weight
+		if HostedZoneId != _|_ if HostedZoneId."Fn::If" == _|_ {
+			HostedZoneName?: close({"Fn::If": _}) | error(
+				"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
+			)
+			HostedZoneName?: close({"Fn::If": _}) | error(
+				"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
+			)
+		}
+	}) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(
+		>=1,
+		[{HostedZoneId!: _}, {HostedZoneName!: _}],
+	))
+}
+
+#AliasTarget: close({
 	DNSName!:              strings.MaxRunes(1024) | fn.#StringExpression
 	EvaluateTargetHealth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HostedZoneId!:         _#defs."/$defs/Properties/definitions/HostedZoneId" | fn.#StringExpression
+
+	// The value used depends on where you want to route traffic.
+	HostedZoneId!: #HostedZoneId
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CidrRoutingConfig": close({
+#CidrRoutingConfig: close({
 	CollectionId!: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" | fn.#StringExpression
 	LocationName!: strings.MaxRunes(16) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\*]+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Comment": strings.MaxRunes(256) | fn.#StringExpression
+#Comment: strings.MaxRunes(256) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Coordinates": close({
+#Coordinates: close({
 	Latitude!:  =~"[-+]?[0-9]{1,2}(\\.[0-9]{0,2})?" | fn.#StringExpression
 	Longitude!: =~"[-+]?[0-9]{1,3}(\\.[0-9]{0,2})?" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Failover": "PRIMARY" | "SECONDARY" | fn.#StringExpression
+#Failover: "PRIMARY" | "SECONDARY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GeoLocation": matchN(1, [{
-	ContinentCode!: _
-	...
-}, {
-	CountryCode!: _
-	...
-}]) & close({
+#GeoLocation: close({
 	ContinentCode?:   strings.MaxRunes(2) & strings.MinRunes(2) | fn.#StringExpression
 	CountryCode?:     strings.MaxRunes(2) & strings.MinRunes(1) | fn.#StringExpression
 	SubdivisionCode?: strings.MaxRunes(3) & strings.MinRunes(1) | fn.#StringExpression
-}) |
+	if ContinentCode != _|_ if ContinentCode."Fn::If" == _|_ {
+		CountryCode?: close({"Fn::If": _}) | error(
+			"CountryCode cannot be used with ContinentCode; set exactly one of ContinentCode, CountryCode",
+		)
+	}
+}) & matchN(>=1, [{ContinentCode!: _}, {CountryCode!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeoProximityLocation": matchN(1, [{
-	AWSRegion!: _
-	...
-}, {
-	LocalZoneGroup!: _
-	...
-}, {
-	Coordinates!: _
-	...
-}]) & close({
+#GeoProximityLocation: close({
 	AWSRegion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Bias?: int & <=99 & >=-99 |
 		{
@@ -112,43 +161,47 @@ _#defs: "/$defs/Properties/definitions/GeoProximityLocation": matchN(1, [{
 				)
 		} |
 		fn.#NumberExpression
-	Coordinates?:    _#defs."/$defs/Properties/definitions/Coordinates" | fn.#ObjectExpression
+
+	// Contains the longitude and latitude for a geographic region.
+	Coordinates?:    #Coordinates
 	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-}) |
+	if AWSRegion != _|_ if AWSRegion."Fn::If" == _|_ {
+		LocalZoneGroup?: close({"Fn::If": _}) | error(
+			"LocalZoneGroup cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
+		)
+		Coordinates?: close({"Fn::If": _}) | error(
+			"Coordinates cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
+		)
+	}
+	if LocalZoneGroup != _|_ if LocalZoneGroup."Fn::If" == _|_ {
+		Coordinates?: close({"Fn::If": _}) | error(
+			"Coordinates cannot be used with LocalZoneGroup; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
+		)
+	}
+}) & matchN(>=1, [{AWSRegion!: _}, {LocalZoneGroup!: _}, {Coordinates!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckId": strings.MaxRunes(64) | fn.#StringExpression
+#HealthCheckId: strings.MaxRunes(64) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HostedZoneId": strings.MaxRunes(44) | fn.#StringExpression
+#HostedZoneId: strings.MaxRunes(44) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HostedZoneName": strings.MaxRunes(256) | fn.#StringExpression
+#HostedZoneName: strings.MaxRunes(256) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MultiValueAnswer": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#MultiValueAnswer: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1024) | fn.#StringExpression
+#Name: strings.MaxRunes(1024) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Region": string | fn.#StringExpression
+#Region: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceRecords": list.UniqueItems() & [
-	...strings.MaxRunes(4000) | fn.#StringExpression
-] |
-fn.#ListExpression
+#ResourceRecords: list.UniqueItems() & [...strings.MaxRunes(4000) | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SetIdentifier": strings.MaxRunes(128) & strings.MinRunes(0) |
-fn.#StringExpression
+#SetIdentifier: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TTL": string | fn.#StringExpression
+#TTL: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Type": string | fn.#StringExpression
+#Type: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Weight": int |
+#Weight: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -161,7 +214,3 @@ _#defs: "/$defs/Properties/definitions/Weight": int |
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::RecordSet"
-	Properties!: #Properties
-}

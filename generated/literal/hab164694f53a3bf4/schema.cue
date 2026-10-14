@@ -8,13 +8,13 @@ package schema
 // endpoint access to a cluster across AWS accounts.
 #Properties: close({
 	// The target AWS account ID to grant or revoke access for.
-	Account!: _#defs."/$defs/Properties/definitions/AwsAccount"
+	Account!: #AwsAccount
 
 	// Indicates whether all VPCs in the grantee account are allowed access to the cluster.
 	AllowedAllVPCs?: bool
 
 	// The VPCs allowed access to the cluster.
-	AllowedVPCs?: [..._#defs."/$defs/Properties/definitions/VpcId"]
+	AllowedVPCs?: [...#VpcId]
 
 	// The time (UTC) when the authorization was created.
 	AuthorizeTime?: string
@@ -33,18 +33,18 @@ package schema
 	Force?: bool
 
 	// The AWS account ID of the grantee of the cluster.
-	Grantee?: _#defs."/$defs/Properties/definitions/AwsAccount"
+	Grantee?: #AwsAccount
 
 	// The AWS account ID of the cluster owner.
-	Grantor?: _#defs."/$defs/Properties/definitions/AwsAccount"
+	Grantor?: #AwsAccount
 
 	// The status of the authorization action.
 	Status?: string
 
 	// The virtual private cloud (VPC) identifiers to grant or revoke access to.
-	VpcIds?: [..._#defs."/$defs/Properties/definitions/VpcId"]
+	VpcIds?: [...#VpcId]
 })
 
-_#defs: "/$defs/Properties/definitions/AwsAccount": =~"^\\d{12}$"
+#AwsAccount: =~"^\\d{12}$"
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-[A-Za-z0-9]{1,17}$"
+#VpcId: =~"^vpc-[A-Za-z0-9]{1,17}$"

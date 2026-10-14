@@ -12,45 +12,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Database
-#Properties: close({
-	CatalogId!:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseInput!: _#defs."/$defs/Properties/definitions/DatabaseInput" | fn.#ObjectExpression
-	DatabaseName?:  string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Database"
+	Properties!: close({
+		CatalogId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close(
+		// The metadata for the database.
+		DatabaseInput!: #DatabaseInput
+		DatabaseName?:  string | fn.#StringExpression
+	})
+}
+
+#DataLakePrincipal: close(
 	{DataLakePrincipalIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseIdentifier": close({
+#DatabaseIdentifier: close({
 	CatalogId?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Region?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseInput": close({
-	CreateTableDefaultPermissions?: [
-		..._#defs."/$defs/Properties/definitions/PrincipalPrivileges" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-	Description?:       strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	FederatedDatabase?: _#defs."/$defs/Properties/definitions/FederatedDatabase" | fn.#ObjectExpression
+#DatabaseInput: close({
+	CreateTableDefaultPermissions?: [...#PrincipalPrivileges] | fn.#ListExpression
+	Description?:                   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+
+	// A FederatedDatabase structure that references an entity outside the AWS Glue Data Catalog.
+	FederatedDatabase?: #FederatedDatabase
 	LocationUri?:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Parameters?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-	TargetDatabase?:    _#defs."/$defs/Properties/definitions/DatabaseIdentifier" | fn.#ObjectExpression
+
+	// A DatabaseIdentifier structure that describes a target database for resource linking.
+	TargetDatabase?: #DatabaseIdentifier
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FederatedDatabase": close({
+#FederatedDatabase: close({
 	ConnectionName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Identifier?:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalPrivileges": close({
+#PrincipalPrivileges: close({
 	Permissions?: [
 		..."ALL" |
 			"ALTER" |
@@ -64,10 +70,8 @@ _#defs: "/$defs/Properties/definitions/PrincipalPrivileges": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Principal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal" | fn.#ObjectExpression
+
+	// The principal who is granted permissions.
+	Principal?: #DataLakePrincipal
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Database"
-	Properties!: #Properties
-}

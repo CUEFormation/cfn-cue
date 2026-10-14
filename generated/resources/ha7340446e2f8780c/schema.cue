@@ -13,27 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Proton::EnvironmentTemplate Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	EncryptionKey?: strings.MaxRunes(200) &
-	strings.MinRunes(1) &
-	=~"^arn:(aws|aws-cn|aws-us-gov):[a-zA-Z0-9-]+:[a-zA-Z0-9-]*:\\d{12}:([\\w+=,.@-]+[/:])*[\\w+=,.@-]+$" |
-	fn.#StringExpression
-	Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+[0-9A-Za-z_\\-]*$" | fn.#StringExpression
-	Provisioning?: _#defs."/$defs/Properties/definitions/Provisioning"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Proton::EnvironmentTemplate"
+	Properties?: close({
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		EncryptionKey?: strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws|aws-cn|aws-us-gov):[a-zA-Z0-9-]+:[a-zA-Z0-9-]*:\\d{12}:([\\w+=,.@-]+[/:])*[\\w+=,.@-]+$" |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+[0-9A-Za-z_\\-]*$" | fn.#StringExpression
+		Provisioning?: #Provisioning
+		Tags?:         list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Provisioning": "CUSTOMER_MANAGED" | fn.#StringExpression
+#Provisioning: "CUSTOMER_MANAGED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Proton::EnvironmentTemplate"
-	Properties?: #Properties
-}

@@ -13,18 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Registers a CA Certificate in IoT.
-#Properties: close({
-	AutoRegistrationStatus?: "ENABLE" | "DISABLE" | fn.#StringExpression
-	CACertificatePem!:       strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	CertificateMode?:        "DEFAULT" | "SNI_ONLY" | fn.#StringExpression
-	RegistrationConfig?:     _#defs."/$defs/Properties/definitions/RegistrationConfig"
-	RemoveAutoRegistration?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Status!:                 "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VerificationCertificatePem?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::CACertificate"
+	Properties!: close({
+		AutoRegistrationStatus?: "ENABLE" | "DISABLE" | fn.#StringExpression
+		CACertificatePem!:       strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
+		CertificateMode?:        "DEFAULT" | "SNI_ONLY" | fn.#StringExpression
+		RegistrationConfig?:     #RegistrationConfig
+		RemoveAutoRegistration?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Status!:                 "ACTIVE" | "INACTIVE" | fn.#StringExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VerificationCertificatePem?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/RegistrationConfig": close({
+#RegistrationConfig: close({
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -35,12 +39,8 @@ _#defs: "/$defs/Properties/definitions/RegistrationConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::CACertificate"
-	Properties!: #Properties
-}

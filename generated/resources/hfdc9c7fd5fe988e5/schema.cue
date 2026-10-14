@@ -14,47 +14,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicyVersion Resource Type
-#Properties: close({
-	LastUpdatedDefinitionHash?: _#defs."/$defs/Properties/definitions/DefinitionHash"
-	PolicyArn!:                 _#defs."/$defs/Properties/definitions/PolicyArn"
-	Tags?:                      _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::AutomatedReasoningPolicyVersion"
+	Properties!: close({
+		LastUpdatedDefinitionHash?: #DefinitionHash
+		PolicyArn!:                 #PolicyArn
+		Tags?:                      #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CreatedAt": time.Time | fn.#StringExpression
+#CreatedAt: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DefinitionHash": strings.MaxRunes(128) &
-strings.MinRunes(128) &
-=~"^[0-9a-z]{128}$" |
-fn.#StringExpression
+#DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
+#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" |
-fn.#StringExpression
+#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyArn": strings.MaxRunes(2048) &
+#PolicyArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyId": strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" |
-fn.#StringExpression
+#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatedAt": time.Time | fn.#StringExpression
+#UpdatedAt: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Version": strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::AutomatedReasoningPolicyVersion"
-	Properties!: #Properties
-}
+#Version: strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$" | fn.#StringExpression

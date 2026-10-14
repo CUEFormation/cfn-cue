@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a GraphQL type in an AWS AppSync GraphQL API.
-#Properties: close({
-	ApiId!:      string | fn.#StringExpression
-	Definition!: string | fn.#StringExpression
-	Format!:     "SDL" | "JSON" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::Type"
-	Properties!: #Properties
+	Type!: "AWS::AppSync::Type"
+	Properties!: close({
+		ApiId!:      string | fn.#StringExpression
+		Definition!: string | fn.#StringExpression
+		Format!:     "SDL" | "JSON" | fn.#StringExpression
+	})
 }

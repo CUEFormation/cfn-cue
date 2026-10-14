@@ -51,7 +51,7 @@ import (
 	TLSEnabled?: bool
 
 	// An array of key-value pairs to apply to this multi region cluster.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
 	// An enum string value that determines the update strategy for scaling.
 	// Possible values are 'COORDINATED' and 'UNCOORDINATED'. Default is
@@ -60,7 +60,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for the tag. May not be null.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

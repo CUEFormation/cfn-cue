@@ -9,26 +9,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::PinpointEmail::Identity
-#Properties: close({
-	DkimSigningEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FeedbackForwardingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MailFromAttributes?:        _#defs."/$defs/Properties/definitions/MailFromAttributes"
-	Name!:                      string | fn.#StringExpression
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PinpointEmail::Identity"
+	Properties!: close({
+		DkimSigningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FeedbackForwardingEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		MailFromAttributes?: #MailFromAttributes
+		Name!:               string | fn.#StringExpression
+		Tags?:               [...#Tags] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/MailFromAttributes": close({
+#MailFromAttributes: close({
 	BehaviorOnMxFailure?: string | fn.#StringExpression
 	MailFromDomain?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PinpointEmail::Identity"
-	Properties!: #Properties
-}

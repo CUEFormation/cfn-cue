@@ -15,40 +15,40 @@ import (
 #Properties: close({
 	// A unique identifier for the adapter resource.
 	AdapterId?:   strings.MaxRunes(1011) & strings.MinRunes(12)
-	AdapterName!: _#defs."/$defs/Properties/definitions/AdapterName"
+	AdapterName!: #AdapterName
 
 	// The Amazon Resource Name (ARN) of the adapter.
 	Arn?:        string
-	AutoUpdate?: _#defs."/$defs/Properties/definitions/AutoUpdate"
+	AutoUpdate?: #AutoUpdate
 
 	// The date and time that the adapter was created.
 	CreationTime?: time.Time
-	Description?:  _#defs."/$defs/Properties/definitions/AdapterDescription"
+	Description?:  #AdapterDescription
 
 	// The type of feature that the adapter is being trained on. Currently,
 	// supported feature types are: QUERIES
-	FeatureTypes!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FeatureType"]
+	FeatureTypes!: list.MinItems(1) & [...#FeatureType]
 
 	// A list of tags to be added to the adapter.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // The description to be assigned to the adapter being created.
-_#defs: "/$defs/Properties/definitions/AdapterDescription": strings.MaxRunes(256) &
+#AdapterDescription: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^[a-zA-Z0-9\\s!\"\\#\\$%'&\\(\\)\\*\\+\\,\\-\\./:;=\\?@\\[\\\\\\]\\^_`\\{\\|\\}~><]+$"
 
 // The name to be assigned to the adapter being created.
-_#defs: "/$defs/Properties/definitions/AdapterName": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$"
+#AdapterName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$"
 
 // Controls whether or not the adapter should automatically update.
-_#defs: "/$defs/Properties/definitions/AutoUpdate": "ENABLED" | "DISABLED"
+#AutoUpdate: "ENABLED" | "DISABLED"
 
 // The type of feature that the adapter is being trained on.
-_#defs: "/$defs/Properties/definitions/FeatureType": "QUERIES"
+#FeatureType: "QUERIES"
 
 // A key-value pair to associate with the adapter.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

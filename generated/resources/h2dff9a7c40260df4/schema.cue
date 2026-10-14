@@ -17,31 +17,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancing::LoadBalancer
-#Properties: close({
-	AccessLoggingPolicy?: _#defs."/$defs/Properties/definitions/AccessLoggingPolicy" | fn.#ObjectExpression
-	AppCookieStickinessPolicy?: [..._#defs."/$defs/Properties/definitions/AppCookieStickinessPolicy"] |
-		fn.#ListExpression
-	AvailabilityZones?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	ConnectionDrainingPolicy?: _#defs."/$defs/Properties/definitions/ConnectionDrainingPolicy" | fn.#ObjectExpression
-	ConnectionSettings?:       _#defs."/$defs/Properties/definitions/ConnectionSettings" | fn.#ObjectExpression
-	CrossZone?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HealthCheck?:              _#defs."/$defs/Properties/definitions/HealthCheck" | fn.#ObjectExpression
-	Instances?:                [...string | fn.#StringExpression] | fn.#ListExpression
-	LBCookieStickinessPolicy?: [..._#defs."/$defs/Properties/definitions/LBCookieStickinessPolicy"] | fn.#ListExpression
-	Listeners!:                [..._#defs."/$defs/Properties/definitions/Listeners"] | fn.#ListExpression
-	LoadBalancerName?:         string | fn.#StringExpression
-	Policies?:                 [..._#defs."/$defs/Properties/definitions/Policies"] | fn.#ListExpression
-	Scheme?:                   string | fn.#StringExpression
-	SecurityGroups?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancing::LoadBalancer"
+	Properties!: close({
+		// Information about where and how access logs are stored for the load balancer.
+		AccessLoggingPolicy?:       #AccessLoggingPolicy
+		AppCookieStickinessPolicy?: [...#AppCookieStickinessPolicy] | fn.#ListExpression
+		AvailabilityZones?:         [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AccessLoggingPolicy": close({
+		// If enabled, the load balancer allows existing requests to complete before the
+		// load balancer shifts traffic away from a deregistered or unhealthy instance.
+		ConnectionDrainingPolicy?: #ConnectionDrainingPolicy
+
+		// If enabled, the load balancer allows the connections to remain idle (no data
+		// is sent over the connection) for the specified duration.
+		ConnectionSettings?: #ConnectionSettings
+		CrossZone?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The health check settings to use when evaluating the health of your EC2 instances.
+		HealthCheck?:              #HealthCheck
+		Instances?:                [...string | fn.#StringExpression] | fn.#ListExpression
+		LBCookieStickinessPolicy?: [...#LBCookieStickinessPolicy] | fn.#ListExpression
+		Listeners!:                [...#Listeners] | fn.#ListExpression
+		LoadBalancerName?:         string | fn.#StringExpression
+		Policies?:                 [...#Policies] | fn.#ListExpression
+		Scheme?:                   string | fn.#StringExpression
+		SecurityGroups?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:    list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AccessLoggingPolicy: close({
 	EmitInterval?: int |
 		{
 			string &
@@ -62,13 +73,13 @@ _#defs: "/$defs/Properties/definitions/AccessLoggingPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AppCookieStickinessPolicy": close({
+#AppCookieStickinessPolicy: close({
 	CookieName!: string | fn.#StringExpression
 	PolicyName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionDrainingPolicy": close({
+#ConnectionDrainingPolicy: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Timeout?: int |
 		{
@@ -87,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionDrainingPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionSettings": close({
+#ConnectionSettings: close({
 	IdleTimeout!: int |
 		{
 			string &
@@ -105,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionSettings": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheck": close({
+#HealthCheck: close({
 	HealthyThreshold!:   string | fn.#StringExpression
 	Interval!:           string | fn.#StringExpression
 	Target!:             string | fn.#StringExpression
@@ -114,13 +125,13 @@ _#defs: "/$defs/Properties/definitions/HealthCheck": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LBCookieStickinessPolicy": close({
+#LBCookieStickinessPolicy: close({
 	CookieExpirationPeriod?: string | fn.#StringExpression
 	PolicyName?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Listeners": close({
+#Listeners: close({
 	InstancePort!:     string | fn.#StringExpression
 	InstanceProtocol?: =~"(?i)^(?:http|https|tcp|ssl)$" | fn.#StringExpression
 	LoadBalancerPort!: string | fn.#StringExpression
@@ -130,8 +141,8 @@ _#defs: "/$defs/Properties/definitions/Listeners": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Policies": close({
-	Attributes!:        [..._#defs."/$defs/Properties/definitions/PolicyItem"] | fn.#ListExpression
+#Policies: close({
+	Attributes!:        [...#PolicyItem] | fn.#ListExpression
 	InstancePorts?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	LoadBalancerPorts?: [...string | fn.#StringExpression] | fn.#ListExpression
 	PolicyName!:        string | fn.#StringExpression
@@ -139,24 +150,20 @@ _#defs: "/$defs/Properties/definitions/Policies": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyItem": close({
+#PolicyItem: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceSecurityGroup": close({
+#SourceSecurityGroup: close({
 	GroupName?:  string | fn.#StringExpression
 	OwnerAlias?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancing::LoadBalancer"
-	Properties!: #Properties
-}

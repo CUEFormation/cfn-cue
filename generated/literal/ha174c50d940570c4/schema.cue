@@ -29,27 +29,25 @@ import (
 	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 	Status?:                       "creating" | "available" | "updating" | "deleting" | "deleted" | "error"
 	StatusMessage?:                string
-	SynchronizationConfiguration?: _#defs."/$defs/Properties/definitions/SynchronizationConfiguration"
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	SynchronizationConfiguration?: #SynchronizationConfiguration
+	Tags?:                         list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ExpirationDataRule": close({DaysAfterLastAccess!: int & <=365 & >=1})
+#ExpirationDataRule: close({DaysAfterLastAccess!: int & <=365 & >=1})
 
-_#defs: "/$defs/Properties/definitions/ImportDataRule": close({
+#ImportDataRule: close({
 	Prefix!:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|.*/)$"
 	SizeLessThan!: int & <=52673613135872 & >=0
 	Trigger!:      "ON_DIRECTORY_FIRST_ACCESS" | "ON_FILE_ACCESS"
 })
 
-_#defs: "/$defs/Properties/definitions/SynchronizationConfiguration": close({
-	ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ExpirationDataRule"
-	]
-	ImportDataRules!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ImportDataRule"]
+#SynchronizationConfiguration: close({
+	ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [...#ExpirationDataRule]
+	ImportDataRules!:     list.MaxItems(10) & list.MinItems(1) & [...#ImportDataRule]
 	LatestVersionNumber?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$"
 	Value!: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

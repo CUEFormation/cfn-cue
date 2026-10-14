@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,91 +13,92 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Workspace
-#Properties: close({
-	Associations?: list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
-	Description?: strings.MaxRunes(500) &
-	strings.MinRunes(0) &
-	=~"""
-		^[\\P{C}\r
-		\t]*$
-		""" |
-	fn.#StringExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Media?: list.MaxItems(4) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MediaItem"] |
-		fn.#ListExpression
-	Name!:  strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Pages?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/WorkspacePage"] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Theme?:      _#defs."/$defs/Properties/definitions/WorkspaceTheme" | fn.#ObjectExpression
-	Title?:      strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$" | fn.#StringExpression
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::Workspace"
+	Properties!: close({
+		Associations?: list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
+		Description?: strings.MaxRunes(500) &
+		strings.MinRunes(0) &
+		=~"""
+			^[\\P{C}\r
+			\t]*$
+			""" |
+		fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Media?:       list.MaxItems(4) & list.UniqueItems() & [...#MediaItem] | fn.#ListExpression
+		Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Pages?:       list.UniqueItems() & [...#WorkspacePage] | fn.#ListExpression
+		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/FontFamily": close(
-	{Default?: _#defs."/$defs/Properties/definitions/WorkspaceFontFamily"},
-) |
-	fn.#ObjectExpression
+		// The theme configuration for the workspace
+		Theme?: #WorkspaceTheme
+		Title?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MediaItem": close({
+		// The visibility of the workspace. Will always be set to ASSIGNED oninitial creation.
+		Visibility?: #Visibility
+	})
+}
+
+#FontFamily: close({Default?: #WorkspaceFontFamily}) | fn.#ObjectExpression
+
+#MediaItem: close({
 	Source?: strings.MaxRunes(533333) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Type!:   _#defs."/$defs/Properties/definitions/MediaType"
+	Type!:   #MediaType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaType": "IMAGE_LOGO_LIGHT_FAVICON" |
+#MediaType: "IMAGE_LOGO_LIGHT_FAVICON" |
 	"IMAGE_LOGO_DARK_FAVICON" |
 	"IMAGE_LOGO_LIGHT_HORIZONTAL" |
 	"IMAGE_LOGO_DARK_HORIZONTAL" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PaletteCanvas": close({
-	ActiveBackground?:    _#defs."/$defs/Properties/definitions/ThemeString"
-	ContainerBackground?: _#defs."/$defs/Properties/definitions/ThemeString"
-	PageBackground?:      _#defs."/$defs/Properties/definitions/ThemeString"
+#PaletteCanvas: close({
+	ActiveBackground?:    #ThemeString
+	ContainerBackground?: #ThemeString
+	PageBackground?:      #ThemeString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PaletteHeader": close({
-	Background?:          _#defs."/$defs/Properties/definitions/ThemeString"
+#PaletteHeader: close({
+	Background?:          #ThemeString
 	InvertActionsColors?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Text?:                _#defs."/$defs/Properties/definitions/ThemeString"
-	TextHover?:           _#defs."/$defs/Properties/definitions/ThemeString"
+	Text?:                #ThemeString
+	TextHover?:           #ThemeString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PaletteNavigation": close({
-	Background?:           _#defs."/$defs/Properties/definitions/ThemeString"
+#PaletteNavigation: close({
+	Background?:           #ThemeString
 	InvertActionsColors?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Text?:                 _#defs."/$defs/Properties/definitions/ThemeString"
-	TextActive?:           _#defs."/$defs/Properties/definitions/ThemeString"
-	TextBackgroundActive?: _#defs."/$defs/Properties/definitions/ThemeString"
-	TextBackgroundHover?:  _#defs."/$defs/Properties/definitions/ThemeString"
-	TextHover?:            _#defs."/$defs/Properties/definitions/ThemeString"
+	Text?:                 #ThemeString
+	TextActive?:           #ThemeString
+	TextBackgroundActive?: #ThemeString
+	TextBackgroundHover?:  #ThemeString
+	TextHover?:            #ThemeString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PalettePrimary": close({
-	Active?:       _#defs."/$defs/Properties/definitions/ThemeString"
-	ContrastText?: _#defs."/$defs/Properties/definitions/ThemeString"
-	Default?:      _#defs."/$defs/Properties/definitions/ThemeString"
+#PalettePrimary: close({
+	Active?:       #ThemeString
+	ContrastText?: #ThemeString
+	Default?:      #ThemeString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThemeImageLink": strings.MaxRunes(254) & strings.MinRunes(1) & =~".*\\S.*" |
-fn.#StringExpression
+#ThemeImageLink: strings.MaxRunes(254) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ThemeString": strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" |
-fn.#StringExpression
+#ThemeString: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Visibility": "ALL" | "ASSIGNED" | "NONE" | fn.#StringExpression
+#Visibility: "ALL" | "ASSIGNED" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspaceFontFamily": "ARIAL" |
+#WorkspaceFontFamily: "ARIAL" |
 	"COURIER_NEW" |
 	"GEORGIA" |
 	"TIMES_NEW_ROMAN" |
@@ -105,7 +106,7 @@ _#defs: "/$defs/Properties/definitions/WorkspaceFontFamily": "ARIAL" |
 	"VERDANA" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspacePage": close({
+#WorkspacePage: close({
 	InputData?:   strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
 	Page!:        strings.MaxRunes(25) & strings.MinRunes(1) | fn.#StringExpression
 	ResourceArn!: strings.MaxRunes(2048) | fn.#StringExpression
@@ -114,31 +115,24 @@ _#defs: "/$defs/Properties/definitions/WorkspacePage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspaceTheme": close({
-	Dark?:  _#defs."/$defs/Properties/definitions/WorkspaceThemeConfig"
-	Light?: _#defs."/$defs/Properties/definitions/WorkspaceThemeConfig"
+#WorkspaceTheme: close({
+	Dark?:  #WorkspaceThemeConfig
+	Light?: #WorkspaceThemeConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspaceThemeConfig": close({
-	Palette?:    _#defs."/$defs/Properties/definitions/WorkspaceThemePalette"
-	Typography?: _#defs."/$defs/Properties/definitions/WorkspaceThemeTypography"
+#WorkspaceThemeConfig: close({
+	Palette?:    #WorkspaceThemePalette
+	Typography?: #WorkspaceThemeTypography
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspaceThemePalette": close({
-	Canvas?:     _#defs."/$defs/Properties/definitions/PaletteCanvas"
-	Header?:     _#defs."/$defs/Properties/definitions/PaletteHeader"
-	Navigation?: _#defs."/$defs/Properties/definitions/PaletteNavigation"
-	Primary?:    _#defs."/$defs/Properties/definitions/PalettePrimary"
+#WorkspaceThemePalette: close({
+	Canvas?:     #PaletteCanvas
+	Header?:     #PaletteHeader
+	Navigation?: #PaletteNavigation
+	Primary?:    #PalettePrimary
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspaceThemeTypography": close(
-	{FontFamily?: _#defs."/$defs/Properties/definitions/FontFamily"},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::Workspace"
-	Properties!: #Properties
-}
+#WorkspaceThemeTypography: close({FontFamily?: #FontFamily}) | fn.#ObjectExpression

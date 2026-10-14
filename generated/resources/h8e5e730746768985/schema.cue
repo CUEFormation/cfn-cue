@@ -13,37 +13,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An object representing an Amazon EKS IdentityProviderConfig.
-#Properties: close({
-	ClusterName!:                string | fn.#StringExpression
-	IdentityProviderConfigName?: string | fn.#StringExpression
-	Oidc?:                       _#defs."/$defs/Properties/definitions/OidcIdentityProviderConfig"
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: "oidc" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::IdentityProviderConfig"
+	Properties!: close({
+		ClusterName!:                string | fn.#StringExpression
+		IdentityProviderConfigName?: string | fn.#StringExpression
+		Oidc?:                       #OidcIdentityProviderConfig
+		Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!:                       "oidc" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/OidcIdentityProviderConfig": close({
+#OidcIdentityProviderConfig: close({
 	ClientId!:       string | fn.#StringExpression
 	GroupsClaim?:    string | fn.#StringExpression
 	GroupsPrefix?:   string | fn.#StringExpression
 	IssuerUrl!:      string | fn.#StringExpression
-	RequiredClaims?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RequiredClaim"] | fn.#ListExpression
+	RequiredClaims?: list.UniqueItems() & [...#RequiredClaim] | fn.#ListExpression
 	UsernameClaim?:  string | fn.#StringExpression
 	UsernamePrefix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequiredClaim": close({
+#RequiredClaim: close({
 	Key!:   strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::IdentityProviderConfig"
-	Properties!: #Properties
-}

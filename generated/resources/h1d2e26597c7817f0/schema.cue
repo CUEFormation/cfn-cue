@@ -18,27 +18,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Personalize::Solution.
-#Properties: close({
-	DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
-	fn.#StringExpression
-	EventType?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:          strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
-	PerformAutoML?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PerformHPO?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RecipeArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
-	fn.#StringExpression
-	SolutionConfig?: _#defs."/$defs/Properties/definitions/SolutionConfig"
-	Tags?:           list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Personalize::Solution"
+	Properties!: close({
+		DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		fn.#StringExpression
+		EventType?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:      strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
+		PerformAutoML?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PerformHPO?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RecipeArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		fn.#StringExpression
+		SolutionConfig?: #SolutionConfig
+		Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CategoricalHyperParameterRange": close({
+#CategoricalHyperParameterRange: close({
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Values?: list.MaxItems(100) & [...] & [...strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContinuousHyperParameterRange": close({
+#ContinuousHyperParameterRange: close({
 	MaxValue?: >=-1000000 |
 		{
 			string &
@@ -81,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/ContinuousHyperParameterRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegerHyperParameterRange": close({
+#IntegerHyperParameterRange: close({
 	MaxValue?: int & <=1000000 |
 		{
 			string &
@@ -116,10 +119,9 @@ _#defs: "/$defs/Properties/definitions/IntegerHyperParameterRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SolutionArn": strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
-fn.#StringExpression
+#SolutionArn: strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SolutionConfig": close({
+#SolutionConfig: close({
 	AlgorithmHyperParameters?: struct.MaxFields(100) & close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -140,17 +142,11 @@ _#defs: "/$defs/Properties/definitions/SolutionConfig": close({
 	fn.#ObjectExpression
 	HpoConfig?: close({
 		AlgorithmHyperParameterRanges?: close({
-			CategoricalHyperParameterRanges?: list.MaxItems(100) & [...] & [
-				..._#defs."/$defs/Properties/definitions/CategoricalHyperParameterRange"
-			] |
+			CategoricalHyperParameterRanges?: list.MaxItems(100) & [...] & [...#CategoricalHyperParameterRange] |
 				fn.#ListExpression
-			ContinuousHyperParameterRanges?: list.MaxItems(100) & [...] & [
-				..._#defs."/$defs/Properties/definitions/ContinuousHyperParameterRange"
-			] |
+			ContinuousHyperParameterRanges?: list.MaxItems(100) & [...] & [...#ContinuousHyperParameterRange] |
 				fn.#ListExpression
-			IntegerHyperParameterRanges?: list.MaxItems(100) & [...] & [
-				..._#defs."/$defs/Properties/definitions/IntegerHyperParameterRange"
-			] |
+			IntegerHyperParameterRanges?: list.MaxItems(100) & [...] & [...#IntegerHyperParameterRange] |
 				fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
@@ -170,12 +166,8 @@ _#defs: "/$defs/Properties/definitions/SolutionConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Personalize::Solution"
-	Properties!: #Properties
-}

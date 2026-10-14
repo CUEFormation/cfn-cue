@@ -11,9 +11,9 @@ import (
 
 // Resource schema for AWS::Cassandra::Table
 #Properties: close({
-	AutoScalingSpecifications?: _#defs."/$defs/Properties/definitions/AutoScalingSpecification"
-	BillingMode?:               _#defs."/$defs/Properties/definitions/BillingMode"
-	CdcSpecification?:          _#defs."/$defs/Properties/definitions/CdcSpecification"
+	AutoScalingSpecifications?: #AutoScalingSpecification
+	BillingMode?:               #BillingMode
+	CdcSpecification?:          #CdcSpecification
 
 	// Indicates whether client side timestamps are enabled (true) or disabled
 	// (false) on the table. False by default, once it is enabled it cannot be
@@ -21,126 +21,121 @@ import (
 	ClientSideTimestampsEnabled?: bool
 
 	// Clustering key columns of the table
-	ClusteringKeyColumns?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ClusteringKeyColumn"]
+	ClusteringKeyColumns?: list.UniqueItems() & [...#ClusteringKeyColumn]
 
 	// Default TTL (Time To Live) in seconds, where zero is disabled. If the value
 	// is greater than zero, TTL is enabled for the entire table and an expiration
 	// timestamp is added to each column.
 	DefaultTimeToLive?:       int & >=0
-	EncryptionSpecification?: _#defs."/$defs/Properties/definitions/EncryptionSpecification"
+	EncryptionSpecification?: #EncryptionSpecification
 
 	// Name for Cassandra keyspace
 	KeyspaceName!: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$"
 
 	// Partition key columns of the table
-	PartitionKeyColumns!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Column"]
+	PartitionKeyColumns!: list.MinItems(1) & list.UniqueItems() & [...#Column]
 
 	// Indicates whether point in time recovery is enabled (true) or disabled (false) on the table
 	PointInTimeRecoveryEnabled?: bool
 
 	// Non-key columns of the table
-	RegularColumns?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Column"]
-	ReplicaSpecifications?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicaSpecification"
-	]
+	RegularColumns?:        list.UniqueItems() & [...#Column]
+	ReplicaSpecifications?: list.MinItems(1) & list.UniqueItems() & [...#ReplicaSpecification]
 
 	// Name for Cassandra table
 	TableName?: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$"
 
 	// An array of key-value pairs to apply to this resource
-	Tags?:           list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput"
+	Tags?:           list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
+	WarmThroughput?: #WarmThroughput
 })
 
 // Represents configuration for auto scaling.
-_#defs: "/$defs/Properties/definitions/AutoScalingSetting": close({
+#AutoScalingSetting: close({
 	AutoScalingDisabled?: bool
 	MaximumUnits?:        int & >=1
 	MinimumUnits?:        int & >=1
-	ScalingPolicy?:       _#defs."/$defs/Properties/definitions/ScalingPolicy"
+	ScalingPolicy?:       #ScalingPolicy
 })
 
 // Represents the read and write settings used for AutoScaling.
-_#defs: "/$defs/Properties/definitions/AutoScalingSpecification": close({
-	ReadCapacityAutoScaling?:  _#defs."/$defs/Properties/definitions/AutoScalingSetting"
-	WriteCapacityAutoScaling?: _#defs."/$defs/Properties/definitions/AutoScalingSetting"
+#AutoScalingSpecification: close({
+	ReadCapacityAutoScaling?:  #AutoScalingSetting
+	WriteCapacityAutoScaling?: #AutoScalingSetting
 })
 
-_#defs: "/$defs/Properties/definitions/BillingMode": close({
-	Mode!:                  _#defs."/$defs/Properties/definitions/Mode"
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput"
+#BillingMode: close({
+	Mode!:                  #Mode
+	ProvisionedThroughput?: #ProvisionedThroughput
 })
 
 // Represents the CDC configuration for the table
-_#defs: "/$defs/Properties/definitions/CdcSpecification": close({
-	Status!: _#defs."/$defs/Properties/definitions/CdcStatus"
+#CdcSpecification: close({
+	Status!: #CdcStatus
 
 	// An array of key-value pairs to apply to the CDC stream resource
-	Tags?:     list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	ViewType?: _#defs."/$defs/Properties/definitions/CdcViewType"
+	Tags?:     list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
+	ViewType?: #CdcViewType
 })
 
 // Indicates whether CDC is enabled or disabled for the table
-_#defs: "/$defs/Properties/definitions/CdcStatus": "ENABLED" | "DISABLED"
+#CdcStatus: "ENABLED" | "DISABLED"
 
 // Specifies what data should be captured in the change data stream
-_#defs: "/$defs/Properties/definitions/CdcViewType": "NEW_IMAGE" | "OLD_IMAGE" | "KEYS_ONLY" | "NEW_AND_OLD_IMAGES"
+#CdcViewType: "NEW_IMAGE" | "OLD_IMAGE" | "KEYS_ONLY" | "NEW_AND_OLD_IMAGES"
 
-_#defs: "/$defs/Properties/definitions/ClusteringKeyColumn": close({
-	Column!:  _#defs."/$defs/Properties/definitions/Column"
+#ClusteringKeyColumn: close({
+	Column!:  #Column
 	OrderBy?: "ASC" | "DESC"
 })
 
-_#defs: "/$defs/Properties/definitions/Column": close({
+#Column: close({
 	ColumnName!: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$"
 	ColumnType!: string
 })
 
 // Represents the settings used to enable server-side encryption
-_#defs: "/$defs/Properties/definitions/EncryptionSpecification": close({
-	EncryptionType!:   _#defs."/$defs/Properties/definitions/EncryptionType"
-	KmsKeyIdentifier?: _#defs."/$defs/Properties/definitions/KmsKeyIdentifier"
+#EncryptionSpecification: close({
+	EncryptionType!:   #EncryptionType
+	KmsKeyIdentifier?: #KmsKeyIdentifier
 })
 
 // Server-side encryption type
-_#defs: "/$defs/Properties/definitions/EncryptionType": "AWS_OWNED_KMS_KEY" | "CUSTOMER_MANAGED_KMS_KEY"
+#EncryptionType: "AWS_OWNED_KMS_KEY" | "CUSTOMER_MANAGED_KMS_KEY"
 
 // The AWS KMS customer master key (CMK) that should be used for the AWS KMS
 // encryption. To specify a CMK, use its key ID, Amazon Resource Name (ARN),
 // alias name, or alias ARN.
-_#defs: "/$defs/Properties/definitions/KmsKeyIdentifier": string
+#KmsKeyIdentifier: string
 
 // Capacity mode for the specified table
-_#defs: "/$defs/Properties/definitions/Mode": "PROVISIONED" | "ON_DEMAND"
+#Mode: "PROVISIONED" | "ON_DEMAND"
 
 // Throughput for the specified table, which consists of values for
 // ReadCapacityUnits and WriteCapacityUnits
-_#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
+#ProvisionedThroughput: close({
 	ReadCapacityUnits!:  int & >=1
 	WriteCapacityUnits!: int & >=1
 })
 
 // Represents replica specifications.
-_#defs: "/$defs/Properties/definitions/ReplicaSpecification": close({
-	ReadCapacityAutoScaling?: _#defs."/$defs/Properties/definitions/AutoScalingSetting"
+#ReplicaSpecification: close({
+	ReadCapacityAutoScaling?: #AutoScalingSetting
 	ReadCapacityUnits?:       int
 	Region!:                  strings.MaxRunes(25) & strings.MinRunes(2)
 })
 
 // Represents scaling policy.
-_#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
-	TargetTrackingScalingPolicyConfiguration?:
-		_#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
-})
+#ScalingPolicy: close({TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration})
 
 // A key-value pair to apply to the resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
 // Represents configuration for target tracking scaling policy.
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration": close({
+#TargetTrackingScalingPolicyConfiguration: close({
 	DisableScaleIn?:   bool
 	ScaleInCooldown?:  int
 	ScaleOutCooldown?: int
@@ -148,7 +143,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
 })
 
 // Warm throughput configuration for the table
-_#defs: "/$defs/Properties/definitions/WarmThroughput": close({
+#WarmThroughput: close({
 	ReadUnitsPerSecond?:  int & >=1
 	WriteUnitsPerSecond?: int & >=1
 })

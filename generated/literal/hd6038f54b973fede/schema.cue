@@ -11,28 +11,28 @@ import (
 
 // Resource schema for AWS::QLDB::Stream.
 #Properties: close({
-	Arn?:                  _#defs."/$defs/Properties/definitions/Arn"
+	Arn?:                  #Arn
 	ExclusiveEndTime?:     string
 	Id?:                   string
 	InclusiveStartTime!:   string
-	KinesisConfiguration!: _#defs."/$defs/Properties/definitions/KinesisConfiguration"
+	KinesisConfiguration!: #KinesisConfiguration
 	LedgerName!:           string
-	RoleArn!:    _#defs."/$defs/Properties/definitions/Arn" & =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	StreamName!: string
+	RoleArn!:              #Arn & =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
+	StreamName!:           string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"
 
-_#defs: "/$defs/Properties/definitions/KinesisConfiguration": close({
+#KinesisConfiguration: close({
 	AggregationEnabled?: bool
 	StreamArn?:          error("disallowed")
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

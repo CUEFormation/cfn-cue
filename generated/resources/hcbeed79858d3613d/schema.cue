@@ -16,24 +16,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::Workspace
-#Properties: close({
-	BundleId!:                    string | fn.#StringExpression
-	DirectoryId!:                 string | fn.#StringExpression
-	RootVolumeEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserName!:                    string | fn.#StringExpression
-	UserVolumeEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VolumeEncryptionKey?:         string | fn.#StringExpression
-	WorkspaceProperties?:         _#defs."/$defs/Properties/definitions/WorkspaceProperties"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpaces::Workspace"
+	Properties!: close({
+		BundleId!:    string | fn.#StringExpression
+		DirectoryId!: string | fn.#StringExpression
+		RootVolumeEncryptionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Tags?:     [...#Tag] | fn.#ListExpression
+		UserName!: string | fn.#StringExpression
+		UserVolumeEncryptionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		VolumeEncryptionKey?: string | fn.#StringExpression
+		WorkspaceProperties?: #WorkspaceProperties
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspaceProperties": close({
+#WorkspaceProperties: close({
 	ComputeTypeName?: string | fn.#StringExpression
 	RootVolumeSizeGib?: int |
 		{
@@ -80,7 +97,3 @@ _#defs: "/$defs/Properties/definitions/WorkspaceProperties": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpaces::Workspace"
-	Properties!: #Properties
-}

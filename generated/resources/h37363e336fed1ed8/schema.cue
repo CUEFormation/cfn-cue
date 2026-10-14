@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,96 +17,76 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::PromptVersion Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	PromptArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:prompt/[0-9a-zA-Z]{10})$" |
-	fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::PromptVersion"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		PromptArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:prompt/[0-9a-zA-Z]{10})$" |
+		fn.#StringExpression
+		Tags?: #TagsMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": fn.#Object & {...} | fn.#ObjectExpression
+#AdditionalModelRequestFields: fn.#Object & {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnyToolChoice": close({}) | fn.#ObjectExpression
+#AnyToolChoice: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoToolChoice": close({}) | fn.#ObjectExpression
+#AutoToolChoice: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CachePointBlock": close(
-	{Type!: _#defs."/$defs/Properties/definitions/CachePointType"},
-) |
-	fn.#ObjectExpression
+#CachePointBlock: close({Type!: #CachePointType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CachePointType": "default" | fn.#StringExpression
+#CachePointType: "default" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ChatPromptTemplateConfiguration": close({
-	InputVariables?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PromptInputVariable"] |
-		fn.#ListExpression
-	Messages!:          [...] & [..._#defs."/$defs/Properties/definitions/Message"] | fn.#ListExpression
-	System?:            [...] & [..._#defs."/$defs/Properties/definitions/SystemContentBlock"] | fn.#ListExpression
-	ToolConfiguration?: _#defs."/$defs/Properties/definitions/ToolConfiguration"
+#ChatPromptTemplateConfiguration: close({
+	InputVariables?:    list.MaxItems(20) & [...] & [...#PromptInputVariable] | fn.#ListExpression
+	Messages!:          [...] & [...#Message] | fn.#ListExpression
+	System?:            [...] & [...#SystemContentBlock] | fn.#ListExpression
+	ToolConfiguration?: #ToolConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentBlock": matchN(1, [close(
-	{Text!: strings.MinRunes(1) | fn.#StringExpression},
-), close(
-	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock"},
-)]) |
+#ContentBlock: matchN(1, [
+	close({Text!: strings.MinRunes(1) | fn.#StringExpression}), close({CachePoint!: #CachePointBlock}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ConversationRole": "user" | "assistant" | fn.#StringExpression
+#ConversationRole: "user" | "assistant" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Message": close({
-	Content!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ContentBlock"] | fn.#ListExpression
-	Role!:    _#defs."/$defs/Properties/definitions/ConversationRole"
+#Message: close({
+	Content!: list.MinItems(1) & [...#ContentBlock] | fn.#ListExpression
+	Role!:    #ConversationRole
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PromptAgentResource": close({
+#PromptAgentResource: close({
 	AgentIdentifier!: strings.MaxRunes(2048) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PromptGenAiResource": close(
-	{Agent!: _#defs."/$defs/Properties/definitions/PromptAgentResource"},
-) |
-	fn.#ValueExpression
+#PromptGenAiResource: close({Agent!: #PromptAgentResource}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/PromptInferenceConfiguration": close(
-	{Text!: _#defs."/$defs/Properties/definitions/PromptModelInferenceConfiguration"},
-) |
-	fn.#ValueExpression
+#PromptInferenceConfiguration: close({Text!: #PromptModelInferenceConfiguration}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/PromptInputVariable": close(
-	{Name?: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#PromptInputVariable: close({Name?: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PromptMetadataEntry": close({
-	Key!:   _#defs."/$defs/Properties/definitions/PromptMetadataKey"
-	Value!: _#defs."/$defs/Properties/definitions/PromptMetadataValue"
+#PromptMetadataEntry: close({
+	Key!:   #PromptMetadataKey
+	Value!: #PromptMetadataValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PromptMetadataKey": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+#PromptMetadataKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+
+#PromptMetadataList: list.MaxItems(50) & [...] & [...#PromptMetadataEntry] | fn.#ListExpression
+
+#PromptMetadataValue: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PromptMetadataList": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PromptMetadataEntry"
-] |
-	fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/PromptMetadataValue": strings.MaxRunes(1024) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/PromptModelInferenceConfiguration": close({
+#PromptModelInferenceConfiguration: close({
 	MaxTokens?: <=4096 & >=0 |
 		{
 			string &
@@ -171,88 +151,69 @@ _#defs: "/$defs/Properties/definitions/PromptModelInferenceConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PromptTemplateConfiguration": matchN(1, [close(
-	{Text!: _#defs."/$defs/Properties/definitions/TextPromptTemplateConfiguration"},
-), close(
-	{Chat!: _#defs."/$defs/Properties/definitions/ChatPromptTemplateConfiguration"},
-)]) |
+#PromptTemplateConfiguration: matchN(1, [
+	close({Text!: #TextPromptTemplateConfiguration}), close({Chat!: #ChatPromptTemplateConfiguration}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/PromptTemplateType": "TEXT" | "CHAT" | fn.#StringExpression
+#PromptTemplateType: "TEXT" | "CHAT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PromptVariant": close({
-	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields"
-	GenAiResource?:                _#defs."/$defs/Properties/definitions/PromptGenAiResource"
-	InferenceConfiguration?:       _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration"
-	Metadata?:                     _#defs."/$defs/Properties/definitions/PromptMetadataList"
+#PromptVariant: close({
+	AdditionalModelRequestFields?: #AdditionalModelRequestFields
+	GenAiResource?:                #PromptGenAiResource
+	InferenceConfiguration?:       #PromptInferenceConfiguration
+	Metadata?:                     #PromptMetadataList
 	ModelId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" |
 	fn.#StringExpression
 	Name!:                  =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	TemplateConfiguration!: _#defs."/$defs/Properties/definitions/PromptTemplateConfiguration"
-	TemplateType!:          _#defs."/$defs/Properties/definitions/PromptTemplateType"
+	TemplateConfiguration!: #PromptTemplateConfiguration
+	TemplateType!:          #PromptTemplateType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpecificToolChoice": close(
+#SpecificToolChoice: close(
 	{Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SystemContentBlock": matchN(1, [close(
-	{Text!: strings.MinRunes(1) | fn.#StringExpression},
-), close(
-	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock"},
-)]) |
+#SystemContentBlock: matchN(1, [
+	close({Text!: strings.MinRunes(1) | fn.#StringExpression}), close({CachePoint!: #CachePointBlock}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextPromptTemplateConfiguration": close({
-	CachePoint?: _#defs."/$defs/Properties/definitions/CachePointBlock"
-	InputVariables?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PromptInputVariable"] |
-		fn.#ListExpression
-	Text!: strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringExpression
+#TextPromptTemplateConfiguration: close({
+	CachePoint?:     #CachePointBlock
+	InputVariables?: list.MaxItems(20) & [...] & [...#PromptInputVariable] | fn.#ListExpression
+	Text!:           strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tool": matchN(1, [close(
-	{ToolSpec!: _#defs."/$defs/Properties/definitions/ToolSpecification"},
-), close(
-	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock"},
-)]) |
+#Tool: matchN(1, [close({ToolSpec!: #ToolSpecification}), close({CachePoint!: #CachePointBlock})]) | fn.#ValueExpression
+
+#ToolChoice: matchN(1, [
+	close({Auto!: #AutoToolChoice}), close({Any!: #AnyToolChoice}), close({Tool!: #SpecificToolChoice}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ToolChoice": matchN(1, [close(
-	{Auto!: _#defs."/$defs/Properties/definitions/AutoToolChoice"},
-), close(
-	{Any!: _#defs."/$defs/Properties/definitions/AnyToolChoice"},
-), close(
-	{Tool!: _#defs."/$defs/Properties/definitions/SpecificToolChoice"},
-)]) |
-fn.#ValueExpression
-
-_#defs: "/$defs/Properties/definitions/ToolConfiguration": close({
-	ToolChoice?: _#defs."/$defs/Properties/definitions/ToolChoice"
-	Tools!:      list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tool"] | fn.#ListExpression
+#ToolConfiguration: close({
+	ToolChoice?: #ToolChoice
+	Tools!:      list.MinItems(1) & [...#Tool] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolInputSchema": close({Json!: fn.#Object & {...} | fn.#ObjectExpression}) |
-fn.#ValueExpression
+#ToolInputSchema: close({Json!: fn.#Object & {...} | fn.#ObjectExpression}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ToolSpecification": close({
+#ToolSpecification: close({
 	Description?: strings.MinRunes(1) | fn.#StringExpression
-	InputSchema!: _#defs."/$defs/Properties/definitions/ToolInputSchema"
+	InputSchema!: #ToolInputSchema
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::PromptVersion"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,65 +22,63 @@ import (
 
 	// Specifies the user who created the policy grant member.
 	CreatedBy?:        string
-	Detail!:           _#defs."/$defs/Properties/definitions/PolicyGrantDetail" & {...}
+	Detail!:           #PolicyGrantDetail & {...}
 	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$"
 	EntityIdentifier!: string
-	EntityType!:       _#defs."/$defs/Properties/definitions/TargetEntityType"
+	EntityType!:       #TargetEntityType
 
 	// The unique identifier of the policy grant returned by the AddPolicyGrant API
 	GrantId?:    =~"^[A-Za-z0-9+/]{10}$"
-	PolicyType!: _#defs."/$defs/Properties/definitions/ManagedPolicyType"
-	Principal!:  _#defs."/$defs/Properties/definitions/PolicyGrantPrincipal" & {...}
+	PolicyType!: #ManagedPolicyType
+	Principal!:  #PolicyGrantPrincipal & {...}
 })
 
-_#defs: "/$defs/Properties/definitions/AddToProjectMemberPoolPolicyGrantDetail": close({IncludeChildDomainUnits?: bool})
+#AddToProjectMemberPoolPolicyGrantDetail: close({IncludeChildDomainUnits?: bool})
 
-_#defs: "/$defs/Properties/definitions/AllDomainUnitsGrantFilter": close({})
+#AllDomainUnitsGrantFilter: close({})
 
-_#defs: "/$defs/Properties/definitions/AllUsersGrantFilter": close({})
+#AllUsersGrantFilter: close({})
 
-_#defs: "/$defs/Properties/definitions/CreateAssetTypePolicyGrantDetail": close({IncludeChildDomainUnits?: bool})
+#CreateAssetTypePolicyGrantDetail: close({IncludeChildDomainUnits?: bool})
 
-_#defs: "/$defs/Properties/definitions/CreateDomainUnitPolicyGrantDetail": close({IncludeChildDomainUnits?: bool})
+#CreateDomainUnitPolicyGrantDetail: close({IncludeChildDomainUnits?: bool})
 
-_#defs: "/$defs/Properties/definitions/CreateEnvironmentProfilePolicyGrantDetail": close(
+#CreateEnvironmentProfilePolicyGrantDetail: close(
 	{DomainUnitId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$"},
 )
 
-_#defs: "/$defs/Properties/definitions/CreateFormTypePolicyGrantDetail": close({IncludeChildDomainUnits?: bool})
+#CreateFormTypePolicyGrantDetail: close({IncludeChildDomainUnits?: bool})
 
-_#defs: "/$defs/Properties/definitions/CreateGlossaryPolicyGrantDetail": close({IncludeChildDomainUnits?: bool})
+#CreateGlossaryPolicyGrantDetail: close({IncludeChildDomainUnits?: bool})
 
-_#defs: "/$defs/Properties/definitions/CreateProjectFromProjectProfilePolicyGrantDetail": close({
+#CreateProjectFromProjectProfilePolicyGrantDetail: close({
 	IncludeChildDomainUnits?: bool
 	ProjectProfiles?:         [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/CreateProjectPolicyGrantDetail": close({IncludeChildDomainUnits?: bool})
+#CreateProjectPolicyGrantDetail: close({IncludeChildDomainUnits?: bool})
 
-_#defs: "/$defs/Properties/definitions/DomainUnitDesignation": "OWNER"
+#DomainUnitDesignation: "OWNER"
 
-_#defs: "/$defs/Properties/definitions/DomainUnitFilterForProject": close({
+#DomainUnitFilterForProject: close({
 	DomainUnit!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$"
 	IncludeChildDomainUnits?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/DomainUnitGrantFilter": close(
-	{AllDomainUnitsGrantFilter!: _#defs."/$defs/Properties/definitions/AllDomainUnitsGrantFilter"},
-)
+#DomainUnitGrantFilter: close({AllDomainUnitsGrantFilter!: #AllDomainUnitsGrantFilter})
 
-_#defs: "/$defs/Properties/definitions/DomainUnitPolicyGrantPrincipal": close({
-	DomainUnitDesignation?: _#defs."/$defs/Properties/definitions/DomainUnitDesignation"
-	DomainUnitGrantFilter?: _#defs."/$defs/Properties/definitions/DomainUnitGrantFilter"
+#DomainUnitPolicyGrantPrincipal: close({
+	DomainUnitDesignation?: #DomainUnitDesignation
+	DomainUnitGrantFilter?: #DomainUnitGrantFilter
 	DomainUnitIdentifier?:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/GroupPolicyGrantPrincipal": close({
+#GroupPolicyGrantPrincipal: close({
 	GroupIdentifier!:
 		=~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+)"
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedPolicyType": "CREATE_DOMAIN_UNIT" |
+#ManagedPolicyType: "CREATE_DOMAIN_UNIT" |
 	"OVERRIDE_DOMAIN_UNIT_OWNERS" |
 	"ADD_TO_PROJECT_MEMBER_POOL" |
 	"OVERRIDE_PROJECT_OWNERS" |
@@ -94,73 +92,65 @@ _#defs: "/$defs/Properties/definitions/ManagedPolicyType": "CREATE_DOMAIN_UNIT" 
 	"CREATE_ENVIRONMENT_FROM_BLUEPRINT" |
 	"CREATE_PROJECT_FROM_PROJECT_PROFILE"
 
-_#defs: "/$defs/Properties/definitions/OverrideDomainUnitOwnersPolicyGrantDetail": close(
-	{IncludeChildDomainUnits?: bool},
-)
+#OverrideDomainUnitOwnersPolicyGrantDetail: close({IncludeChildDomainUnits?: bool})
 
-_#defs: "/$defs/Properties/definitions/OverrideProjectOwnersPolicyGrantDetail": close({IncludeChildDomainUnits?: bool})
+#OverrideProjectOwnersPolicyGrantDetail: close({IncludeChildDomainUnits?: bool})
 
-_#defs: "/$defs/Properties/definitions/PolicyGrantDetail": matchN(1, [close(
-	{CreateDomainUnit!: _#defs."/$defs/Properties/definitions/CreateDomainUnitPolicyGrantDetail"},
+#PolicyGrantDetail: matchN(1, [close(
+	{CreateDomainUnit!: #CreateDomainUnitPolicyGrantDetail},
 ), close(
-	{OverrideDomainUnitOwners!: _#defs."/$defs/Properties/definitions/OverrideDomainUnitOwnersPolicyGrantDetail"},
+	{OverrideDomainUnitOwners!: #OverrideDomainUnitOwnersPolicyGrantDetail},
 ), close(
-	{AddToProjectMemberPool!: _#defs."/$defs/Properties/definitions/AddToProjectMemberPoolPolicyGrantDetail"},
+	{AddToProjectMemberPool!: #AddToProjectMemberPoolPolicyGrantDetail},
 ), close(
-	{OverrideProjectOwners!: _#defs."/$defs/Properties/definitions/OverrideProjectOwnersPolicyGrantDetail"},
+	{OverrideProjectOwners!: #OverrideProjectOwnersPolicyGrantDetail},
 ), close(
-	{CreateGlossary!: _#defs."/$defs/Properties/definitions/CreateGlossaryPolicyGrantDetail"},
+	{CreateGlossary!: #CreateGlossaryPolicyGrantDetail},
 ), close(
-	{CreateFormType!: _#defs."/$defs/Properties/definitions/CreateFormTypePolicyGrantDetail"},
+	{CreateFormType!: #CreateFormTypePolicyGrantDetail},
 ), close(
-	{CreateAssetType!: _#defs."/$defs/Properties/definitions/CreateAssetTypePolicyGrantDetail"},
+	{CreateAssetType!: #CreateAssetTypePolicyGrantDetail},
 ), close(
-	{CreateProject!: _#defs."/$defs/Properties/definitions/CreateProjectPolicyGrantDetail"},
+	{CreateProject!: #CreateProjectPolicyGrantDetail},
 ), close(
-	{CreateEnvironmentProfile!: _#defs."/$defs/Properties/definitions/CreateEnvironmentProfilePolicyGrantDetail"},
+	{CreateEnvironmentProfile!: #CreateEnvironmentProfilePolicyGrantDetail},
 ), close(
-	{DelegateCreateEnvironmentProfile!: _#defs."/$defs/Properties/definitions/Unit"},
+	{DelegateCreateEnvironmentProfile!: #Unit},
 ), close(
-	{CreateEnvironment!: _#defs."/$defs/Properties/definitions/Unit"},
+	{CreateEnvironment!: #Unit},
 ), close(
-	{CreateEnvironmentFromBlueprint!: _#defs."/$defs/Properties/definitions/Unit"},
-), close({
-	CreateProjectFromProjectProfile!:
-		_#defs."/$defs/Properties/definitions/CreateProjectFromProjectProfilePolicyGrantDetail"
-})])
-
-_#defs: "/$defs/Properties/definitions/PolicyGrantPrincipal": matchN(1, [close(
-	{User!: _#defs."/$defs/Properties/definitions/UserPolicyGrantPrincipal"},
+	{CreateEnvironmentFromBlueprint!: #Unit},
 ), close(
-	{Group!: _#defs."/$defs/Properties/definitions/GroupPolicyGrantPrincipal"},
-), close(
-	{Project!: _#defs."/$defs/Properties/definitions/ProjectPolicyGrantPrincipal"},
-), close(
-	{DomainUnit!: _#defs."/$defs/Properties/definitions/DomainUnitPolicyGrantPrincipal"},
+	{CreateProjectFromProjectProfile!: #CreateProjectFromProjectProfilePolicyGrantDetail},
 )])
 
-_#defs: "/$defs/Properties/definitions/ProjectDesignation": =~"^[a-zA-Z0-9_-]{1,36}$"
+#PolicyGrantPrincipal: matchN(1, [close(
+	{User!: #UserPolicyGrantPrincipal},
+), close(
+	{Group!: #GroupPolicyGrantPrincipal},
+), close(
+	{Project!: #ProjectPolicyGrantPrincipal},
+), close(
+	{DomainUnit!: #DomainUnitPolicyGrantPrincipal},
+)])
 
-_#defs: "/$defs/Properties/definitions/ProjectGrantFilter": close(
-	{DomainUnitFilter!: _#defs."/$defs/Properties/definitions/DomainUnitFilterForProject"},
-)
+#ProjectDesignation: =~"^[a-zA-Z0-9_-]{1,36}$"
 
-_#defs: "/$defs/Properties/definitions/ProjectPolicyGrantPrincipal": close({
-	ProjectDesignation?: _#defs."/$defs/Properties/definitions/ProjectDesignation"
-	ProjectGrantFilter?: _#defs."/$defs/Properties/definitions/ProjectGrantFilter"
+#ProjectGrantFilter: close({DomainUnitFilter!: #DomainUnitFilterForProject})
+
+#ProjectPolicyGrantPrincipal: close({
+	ProjectDesignation?: #ProjectDesignation
+	ProjectGrantFilter?: #ProjectGrantFilter
 	ProjectIdentifier?:  =~"^[a-zA-Z0-9_-]{1,36}$"
 })
 
-_#defs: "/$defs/Properties/definitions/TargetEntityType": "DOMAIN_UNIT" |
-	"ENVIRONMENT_BLUEPRINT_CONFIGURATION" |
-	"ENVIRONMENT_PROFILE" |
-	"ASSET_TYPE"
+#TargetEntityType: "DOMAIN_UNIT" | "ENVIRONMENT_BLUEPRINT_CONFIGURATION" | "ENVIRONMENT_PROFILE" | "ASSET_TYPE"
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})
 
-_#defs: "/$defs/Properties/definitions/UserPolicyGrantPrincipal": matchN(1, [close({
+#UserPolicyGrantPrincipal: matchN(1, [close({
 	UserIdentifier!:
 		=~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws[^:]*:iam::\\d{12}:.+$)"
 }), close(
-	{AllUsersGrantFilter!: _#defs."/$defs/Properties/definitions/AllUsersGrantFilter"},
+	{AllUsersGrantFilter!: #AllUsersGrantFilter},
 )])

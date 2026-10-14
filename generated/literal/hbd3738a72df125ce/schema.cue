@@ -27,10 +27,10 @@ import "time"
 	FpgaImageId?: string
 
 	// The location of the encrypted design checkpoint in Amazon S3. The input must be a tarball.
-	InputStorageLocation?: _#defs."/$defs/Properties/definitions/StorageLocation"
+	InputStorageLocation?: #StorageLocation
 
 	// The location in Amazon S3 for the output logs.
-	LogsStorageLocation?: _#defs."/$defs/Properties/definitions/StorageLocation"
+	LogsStorageLocation?: #StorageLocation
 
 	// A name for the AFI.
 	Name?: string
@@ -45,14 +45,14 @@ import "time"
 	State?: string
 
 	// The tags assigned to the FPGA image.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The time of the most recent update to the AFI.
 	UpdateTime?: time.Time
 })
 
 // Describes a storage location in Amazon S3.
-_#defs: "/$defs/Properties/definitions/StorageLocation": close({
+#StorageLocation: close({
 	// The name of the S3 bucket.
 	Bucket?: string
 
@@ -61,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/StorageLocation": close({
 })
 
 // A tag consisting of a key-value pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 

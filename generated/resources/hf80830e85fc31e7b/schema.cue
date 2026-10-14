@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,18 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Cassandra::Type
-#Properties: close({
-	Fields!:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Field"] | fn.#ListExpression
-	KeyspaceName!: string | fn.#StringExpression
-	TypeName!:     string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cassandra::Type"
+	Properties!: close({
+		Fields!:       list.UniqueItems() & [...#Field] | fn.#ListExpression
+		KeyspaceName!: string | fn.#StringExpression
+		TypeName!:     string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Field": close({
+#Field: close({
 	FieldName!: string | fn.#StringExpression
 	FieldType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cassandra::Type"
-	Properties!: #Properties
-}

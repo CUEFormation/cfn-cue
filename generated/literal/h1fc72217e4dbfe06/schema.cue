@@ -72,7 +72,7 @@ import (
 
 	// The modes the CC rule can be evaluated in. The valid values are distinct
 	// objects. By default, the value is Detective evaluation mode only.
-	EvaluationModes?: [..._#defs."/$defs/Properties/definitions/EvaluationModeConfiguration"]
+	EvaluationModes?: [...#EvaluationModeConfiguration]
 
 	// A string, in JSON format, that is passed to the CC rule Lambda function.
 	InputParameters?: string | {...}
@@ -95,20 +95,20 @@ import (
 	// constrain the resources that can trigger an evaluation for the rule. If you
 	// do not specify a scope, evaluations are triggered when any resource in the
 	// recording group changes.
-	Scope?: _#defs."/$defs/Properties/definitions/Scope"
+	Scope?: #Scope
 
 	// Provides the rule owner (```` for managed rules, ``CUSTOM_POLICY`` for Custom
 	// Policy rules, and ``CUSTOM_LAMBDA`` for Custom Lambda rules), the rule
 	// identifier, and the notifications that cause the function to evaluate your
 	// AWS resources.
-	Source!: _#defs."/$defs/Properties/definitions/Source"
+	Source!: #Source
 })
 
 // Provides the CustomPolicyDetails, the rule owner (```` for managed rules,
 // ``CUSTOM_POLICY`` for Custom Policy rules, and ``CUSTOM_LAMBDA`` for Custom
 // Lambda rules), the rule identifier, and the events that cause the evaluation
 // of your AWS resources.
-_#defs: "/$defs/Properties/definitions/CustomPolicyDetails": close({
+#CustomPolicyDetails: close({
 	// The boolean expression for enabling debug logging for your CC Custom Policy
 	// rule. The default value is ``false``.
 	EnableDebugLogDelivery?: bool
@@ -125,7 +125,7 @@ _#defs: "/$defs/Properties/definitions/CustomPolicyDetails": close({
 
 // The configuration object for CC rule evaluation mode. The supported valid
 // values are Detective or Proactive.
-_#defs: "/$defs/Properties/definitions/EvaluationModeConfiguration": close({
+#EvaluationModeConfiguration: close({
 	// The mode of an evaluation. The valid values are Detective or Proactive.
 	Mode?: string
 })
@@ -136,7 +136,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationModeConfiguration": close({
 // constrain which resources trigger an evaluation for a rule. Otherwise,
 // evaluations for the rule are triggered when any resource in your recording
 // group changes in configuration.
-_#defs: "/$defs/Properties/definitions/Scope": close({
+#Scope: close({
 	// The ID of the only AWS resource that you want to trigger an evaluation for
 	// the rule. If you specify a resource ID, you must specify one resource type
 	// for ``ComplianceResourceTypes``.
@@ -161,10 +161,10 @@ _#defs: "/$defs/Properties/definitions/Scope": close({
 // ``CUSTOM_POLICY`` for Custom Policy rules, and ``CUSTOM_LAMBDA`` for Custom
 // Lambda rules), the rule identifier, and the events that cause the evaluation
 // of your AWS resources.
-_#defs: "/$defs/Properties/definitions/Source": close({
+#Source: close({
 	// Provides the runtime system, policy definition, and whether debug logging is
 	// enabled. Required when owner is set to ``CUSTOM_POLICY``.
-	CustomPolicyDetails?: _#defs."/$defs/Properties/definitions/CustomPolicyDetails"
+	CustomPolicyDetails?: #CustomPolicyDetails
 
 	// Indicates whether AWS or the customer owns and manages the CC rule.
 	// CC Managed Rules are predefined rules owned by AWS. For more information, see
@@ -184,7 +184,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 	// If the owner is set to ``CUSTOM_POLICY``, the only acceptable values for the
 	// CC rule trigger message type are ``ConfigurationItemChangeNotification`` and
 	// ``OversizedConfigurationItemChangeNotification``.
-	SourceDetails?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SourceDetail"]
+	SourceDetails?: list.UniqueItems() & [...#SourceDetail]
 
 	// For CC Managed rules, a predefined identifier from a list. For example,
 	// ``IAM_PASSWORD_POLICY`` is a managed rule. To reference a managed rule, see
@@ -201,7 +201,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 // AWS resources against a rule. It also provides the frequency with which you
 // want CC to run evaluations for the rule if the trigger type is periodic. You
 // can specify the parameter values for ``SourceDetail`` only for custom rules.
-_#defs: "/$defs/Properties/definitions/SourceDetail": close({
+#SourceDetail: close({
 	// The source of the event, such as an AWS service, that triggers CC to evaluate your AWS resources.
 	EventSource!: string
 

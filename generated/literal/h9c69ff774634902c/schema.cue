@@ -12,7 +12,7 @@ import (
 // A replication configuration that you later provide to configure and start a
 // AWS DMS Serverless replication
 #Properties: close({
-	ComputeConfig!: _#defs."/$defs/Properties/definitions/ComputeConfig"
+	ComputeConfig!: #ComputeConfig
 
 	// The Amazon Resource Name (ARN) of the Replication Config
 	ReplicationConfigArn?: string
@@ -36,7 +36,7 @@ import (
 
 	// <p>Contains a map of the key-value pairs for the resource tag or tags
 	// assigned to the dataset.</p>
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the target endpoint for this AWS DMS
 	// Serverless replication configuration
@@ -44,7 +44,7 @@ import (
 })
 
 // Configuration parameters for provisioning a AWS DMS Serverless replication
-_#defs: "/$defs/Properties/definitions/ComputeConfig": close({
+#ComputeConfig: close({
 	AvailabilityZone?:           string
 	DnsNameServers?:             string
 	KmsKeyId?:                   =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
@@ -58,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/ComputeConfig": close({
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

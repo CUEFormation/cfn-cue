@@ -12,52 +12,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::AccessPolicy
-#Properties: close({
-	AccessPolicyIdentity!:   _#defs."/$defs/Properties/definitions/AccessPolicyIdentity" | fn.#ObjectExpression
-	AccessPolicyPermission!: "ADMINISTRATOR" | "VIEWER" | fn.#StringExpression
-	AccessPolicyResource!:   _#defs."/$defs/Properties/definitions/AccessPolicyResource" | fn.#ObjectExpression
-})
-
-_#defs: "/$defs/Properties/definitions/AccessPolicyIdentity": close({
-	IamRole?: _#defs."/$defs/Properties/definitions/IamRole"
-	IamUser?: _#defs."/$defs/Properties/definitions/IamUser"
-	User?:    _#defs."/$defs/Properties/definitions/User"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/AccessPolicyResource": close({
-	Portal?:  _#defs."/$defs/Properties/definitions/Portal"
-	Project?: _#defs."/$defs/Properties/definitions/Project"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/IamRole": close({
-	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/IamUser": close({
-	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/Portal": close(
-	{id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/Project": close(
-	{id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/User": close(
-	{id?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression},
-) |
-fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::AccessPolicy"
-	Properties!: #Properties
+	Type!: "AWS::IoTSiteWise::AccessPolicy"
+	Properties!: close({
+		// The identity for this access policy. Choose either a user or a group but not both.
+		AccessPolicyIdentity!:   #AccessPolicyIdentity
+		AccessPolicyPermission!: "ADMINISTRATOR" | "VIEWER" | fn.#StringExpression
+
+		// The AWS IoT SiteWise Monitor resource for this access policy. Choose either
+		// portal or project but not both.
+		AccessPolicyResource!: #AccessPolicyResource
+	})
 }
+
+#AccessPolicyIdentity: close({
+	IamRole?: #IamRole
+	IamUser?: #IamUser
+	User?:    #User
+}) |
+fn.#ObjectExpression
+
+#AccessPolicyResource: close({
+	Portal?:  #Portal
+	Project?: #Project
+}) |
+fn.#ObjectExpression
+
+#IamRole: close({
+	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#IamUser: close({
+	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#Portal: close({id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression}) | fn.#ObjectExpression
+
+#Project: close({id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression}) | fn.#ObjectExpression
+
+#User: close({id?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression}) |
+fn.#ObjectExpression

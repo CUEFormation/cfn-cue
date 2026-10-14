@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,20 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a Connector that allows certificate issuance through Simple
 // Certificate Enrollment Protocol (SCEP)
-#Properties: close({
-	CertificateAuthorityArn!: strings.MaxRunes(200) &
-	strings.MinRunes(5) &
-	=~"^arn:aws(-[a-z]+)*:acm-pca:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	MobileDeviceManagement?: _#defs."/$defs/Properties/definitions/MobileDeviceManagement"
-	Tags?:                   _#defs."/$defs/Properties/definitions/Tags"
-	VpcEndpointId?: strings.MaxRunes(200) & strings.MinRunes(5) & =~"^vpce-[0-9a-f]{8}([0-9a-f]{9})?$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCAConnectorSCEP::Connector"
+	Properties!: close({
+		CertificateAuthorityArn!: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^arn:aws(-[a-z]+)*:acm-pca:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
+		fn.#StringExpression
+		MobileDeviceManagement?: #MobileDeviceManagement
+		Tags?:                   #Tags
+		VpcEndpointId?: strings.MaxRunes(200) & strings.MinRunes(5) & =~"^vpce-[0-9a-f]{8}([0-9a-f]{9})?$" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ConnectorType": "GENERAL_PURPOSE" | "INTUNE" | fn.#StringExpression
+#ConnectorType: "GENERAL_PURPOSE" | "INTUNE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IntuneConfiguration": close({
+#IntuneConfiguration: close({
 	AzureApplicationId!: strings.MaxRunes(100) &
 	strings.MinRunes(15) &
 	=~"^[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}$" |
@@ -35,25 +38,18 @@ _#defs: "/$defs/Properties/definitions/IntuneConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MobileDeviceManagement": fn.#Object & {...} & close(
-	{Intune!: _#defs."/$defs/Properties/definitions/IntuneConfiguration"},
-) |
-fn.#ObjectExpression
+#MobileDeviceManagement: fn.#Object & {...} & close({Intune!: #IntuneConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIdConfiguration": close({
+#OpenIdConfiguration: close({
 	Audience?: string | fn.#StringExpression
 	Issuer?:   string | fn.#StringExpression
 	Subject?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCAConnectorSCEP::Connector"
-	Properties!: #Properties
-}
+#Unit: close({}) | fn.#ObjectExpression

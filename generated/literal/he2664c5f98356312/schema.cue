@@ -3,29 +3,29 @@
 package schema
 
 import (
-	"list"
 	"time"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::VectorBucket
 #Properties: close({
-	CreationTime?:            _#defs."/$defs/Properties/definitions/CreationTime"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	CreationTime?:            #CreationTime
+	EncryptionConfiguration?: #EncryptionConfiguration
 
 	// User tags (key-value pairs) to associate with the vector bucket.
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VectorBucketArn?:  _#defs."/$defs/Properties/definitions/VectorBucketArn"
-	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName"
+	Tags?:             list.UniqueItems() & [...#Tag]
+	VectorBucketArn?:  #VectorBucketArn
+	VectorBucketName?: #VectorBucketName
 })
 
 // Date and time when the vector bucket was created.
-_#defs: "/$defs/Properties/definitions/CreationTime": time.Time
+#CreationTime: time.Time
 
 // The encryption configuration for the vector bucket.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// AWS Key Management Service (KMS) customer managed key ID to use for the
 	// encryption configuration. This parameter is allowed if and only if sseType
 	// is set to aws:kms
@@ -41,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 	SseType?: "AES256" | "aws:kms"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key must be between 1 to 128 characters in length. Tag key cannot start
 	// with 'aws:' and can only contain alphanumeric characters, spaces, _, ., /,
 	// =, +, -, and @.
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The Amazon Resource Name (ARN) of the vector bucket.
-_#defs: "/$defs/Properties/definitions/VectorBucketArn": string
+#VectorBucketArn: string
 
 // The name of the vector bucket.
-_#defs: "/$defs/Properties/definitions/VectorBucketName": strings.MaxRunes(63) & strings.MinRunes(3)
+#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3)

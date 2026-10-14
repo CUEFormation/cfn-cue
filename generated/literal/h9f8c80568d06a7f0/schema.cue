@@ -24,7 +24,7 @@ import (
 	DataMigrationName?: strings.MaxRunes(300) & strings.MinRunes(1)
 
 	// The property describes the settings for the data migration.
-	DataMigrationSettings?: _#defs."/$defs/Properties/definitions/DataMigrationSettings"
+	DataMigrationSettings?: #DataMigrationSettings
 
 	// The property describes the type of migration.
 	DataMigrationType!: "full-load" | "cdc" | "full-load-and-cdc"
@@ -38,13 +38,13 @@ import (
 		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(300) & strings.MinRunes(1))
 
 	// The property describes the settings for the data migration.
-	SourceDataSettings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SourceDataSettings"]
+	SourceDataSettings?: list.UniqueItems() & [...#SourceDataSettings]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/DataMigrationSettings": close({
+#DataMigrationSettings: close({
 	// The property specifies whether to enable the CloudWatch log.
 	CloudwatchLogsEnabled?: bool
 
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/DataMigrationSettings": close({
 	SelectionRules?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SourceDataSettings": close({
+#SourceDataSettings: close({
 	// The property is a point in the database engine's log that defines a time where you can begin CDC.
 	CDCStartPosition?: strings.MaxRunes(40)
 
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/SourceDataSettings": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

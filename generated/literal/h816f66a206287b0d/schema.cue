@@ -14,42 +14,38 @@ import (
 	Arn?:                 strings.MaxRunes(2048) & strings.MinRunes(1)
 	ClientToken?:         strings.MaxRunes(256) & strings.MinRunes(1)
 	CreatedAt?:           string
-	Description?:         _#defs."/$defs/Properties/definitions/ResourceDescription"
+	Description?:         #ResourceDescription
 	DnsName?:             strings.MaxRunes(128) & strings.MinRunes(1)
 	GlobalResolverId?:    strings.MaxRunes(64) & strings.MinRunes(1)
-	IPv4Addresses?:       [..._#defs."/$defs/Properties/definitions/IPv4Address"]
-	IPv6Addresses?:       [..._#defs."/$defs/Properties/definitions/IPv6Address"]
-	IpAddressType?:       _#defs."/$defs/Properties/definitions/GlobalResolverIpAddressType"
-	Name!:                _#defs."/$defs/Properties/definitions/ResourceName"
-	ObservabilityRegion?: _#defs."/$defs/Properties/definitions/Region"
+	IPv4Addresses?:       [...#IPv4Address]
+	IPv6Addresses?:       [...#IPv6Address]
+	IpAddressType?:       #GlobalResolverIpAddressType
+	Name!:                #ResourceName
+	ObservabilityRegion?: #Region
 
 	// The list of regions the Global Resolver exists in. Regions can be added or
 	// removed on update; the order of this list is not significant.
-	Regions!:   [..._#defs."/$defs/Properties/definitions/Region"]
-	Status?:    _#defs."/$defs/Properties/definitions/CRResourceStatus"
-	Tags?:      list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Regions!:   [...#Region]
+	Status?:    #CRResourceStatus
+	Tags?:      list.MaxItems(50) & [...#Tag]
 	UpdatedAt?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING"
+#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/GlobalResolverIpAddressType": "IPV4" | "DUAL_STACK"
+#GlobalResolverIpAddressType: "IPV4" | "DUAL_STACK"
 
-_#defs: "/$defs/Properties/definitions/IPv4Address": strings.MaxRunes(15) &
-strings.MinRunes(1) &
-=~"((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}"
+#IPv4Address: strings.MaxRunes(15) & strings.MinRunes(1) & =~"((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}"
 
-_#defs: "/$defs/Properties/definitions/IPv6Address": strings.MaxRunes(39) &
-strings.MinRunes(1) &
-=~"(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}"
+#IPv6Address: strings.MaxRunes(39) & strings.MinRunes(1) & =~"(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}"
 
-_#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(32) & strings.MinRunes(1)
+#Region: strings.MaxRunes(32) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ResourceDescription": strings.MaxRunes(256) & strings.MinRunes(1)
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1)
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

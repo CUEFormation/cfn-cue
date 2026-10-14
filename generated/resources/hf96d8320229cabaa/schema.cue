@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,27 +16,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ElasticBeanstalk::Application resource specifies an Elastic Beanstalk application.
-#Properties: close({
-	ApplicationName?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:     strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	ResourceLifecycleConfig?: _#defs."/$defs/Properties/definitions/ApplicationResourceLifecycleConfig" |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticBeanstalk::Application"
+	Properties?: close({
+		ApplicationName?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:     strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationResourceLifecycleConfig": close({
+		// Specifies an application resource lifecycle configuration to prevent your
+		// application from accumulating too many versions.
+		ResourceLifecycleConfig?: #ApplicationResourceLifecycleConfig
+	})
+}
+
+#ApplicationResourceLifecycleConfig: close({
 	ServiceRole?: string | fn.#StringExpression
-	VersionLifecycleConfig?: _#defs."/$defs/Properties/definitions/ApplicationVersionLifecycleConfig" |
-		fn.#ObjectExpression
+
+	// Defines lifecycle settings for application versions.
+	VersionLifecycleConfig?: #ApplicationVersionLifecycleConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationVersionLifecycleConfig": close({
-	MaxAgeRule?:   _#defs."/$defs/Properties/definitions/MaxAgeRule" | fn.#ObjectExpression
-	MaxCountRule?: _#defs."/$defs/Properties/definitions/MaxCountRule" | fn.#ObjectExpression
+#ApplicationVersionLifecycleConfig: close({
+	// Specify a max age rule to restrict the length of time that application
+	// versions are retained for an application.
+	MaxAgeRule?: #MaxAgeRule
+
+	// Specify a max count rule to restrict the number of application versions that
+	// are retained for an application.
+	MaxCountRule?: #MaxCountRule
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaxAgeRule": close({
+#MaxAgeRule: close({
 	DeleteSourceFromS3?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxAgeInDays?: int |
@@ -56,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/MaxAgeRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaxCountRule": close({
+#MaxCountRule: close({
 	DeleteSourceFromS3?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCount?: int |
@@ -75,7 +86,3 @@ _#defs: "/$defs/Properties/definitions/MaxCountRule": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticBeanstalk::Application"
-	Properties?: #Properties
-}

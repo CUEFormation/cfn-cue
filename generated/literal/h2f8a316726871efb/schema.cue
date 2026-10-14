@@ -15,211 +15,206 @@ import (
 #Properties: close({
 	Arn?:
 		=~"^arn:aws[a-zA-Z-]*:arc-region-switch::[0-9]{12}:plan/([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?):([a-z0-9]{6})$"
-	AssociatedAlarms?: _#defs."/$defs/Properties/definitions/AssociatedAlarmMap"
+	AssociatedAlarms?: #AssociatedAlarmMap
 	Description?:      string
 	ExecutionRole!:    =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	HealthChecksForPlan?: close({
 
-		{[=~".+"]: _#defs."/$defs/Properties/definitions/HealthChecks"}})
+		{[=~".+"]: #HealthChecks}})
 	Name!:             strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?$"
 	Owner?:            =~"^\\d{12}$"
 	PlanHealthChecks?: [...string]
 	PrimaryRegion?:    =~"^[a-z]{2}-[a-z-]+-\\d+$"
-	RecoveryApproach!: _#defs."/$defs/Properties/definitions/RecoveryApproach"
+	RecoveryApproach!: #RecoveryApproach
 	RecoveryTimeObjectiveMinutes?: <=10080 & >=1
 	Regions!:                      list.MaxItems(2) & list.MinItems(2) & [...=~"^[a-z]{2}-[a-z-]+-\\d+$"]
-	ReportConfiguration?:          _#defs."/$defs/Properties/definitions/ReportConfiguration"
+	ReportConfiguration?:          #ReportConfiguration
 	Route53HealthChecks?: close({
-		HealthCheckIds?: _#defs."/$defs/Properties/definitions/HealthCheckIds"
-		HostedZoneIds?:  _#defs."/$defs/Properties/definitions/HostedZoneIds"
-		RecordNames?:    _#defs."/$defs/Properties/definitions/HealthCheckRecordNames"
-		Regions?:        _#defs."/$defs/Properties/definitions/HealthCheckRegions"
+		HealthCheckIds?: #HealthCheckIds
+		HostedZoneIds?:  #HostedZoneIds
+		RecordNames?:    #HealthCheckRecordNames
+		Regions?:        #HealthCheckRegions
 	})
 	ServiceQuotaChecksEnabled?: bool
-	Tags?:                      _#defs."/$defs/Properties/definitions/Tags"
-	Triggers?:                  [..._#defs."/$defs/Properties/definitions/Trigger"]
+	Tags?:                      #Tags
+	Triggers?:                  [...#Trigger]
 	Version?:                   string
-	Workflows!:                 [..._#defs."/$defs/Properties/definitions/Workflow"]
+	Workflows!:                 [...#Workflow]
 })
 
-_#defs: "/$defs/Properties/definitions/AlarmCondition": "red" | "green"
+#AlarmCondition: "red" | "green"
 
-_#defs: "/$defs/Properties/definitions/AlarmType": "applicationHealth" | "trigger"
+#AlarmType: "applicationHealth" | "trigger"
 
-_#defs: "/$defs/Properties/definitions/ArcRoutingControlConfiguration": close({
+#ArcRoutingControlConfiguration: close({
 	CrossAccountRole?:         =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:               string
-	RegionAndRoutingControls!: _#defs."/$defs/Properties/definitions/RegionAndRoutingControls"
+	RegionAndRoutingControls!: #RegionAndRoutingControls
 	TimeoutMinutes?:           >=1
 })
 
-_#defs: "/$defs/Properties/definitions/ArcRoutingControlState": close({
+#ArcRoutingControlState: close({
 	RoutingControlArn!: string
-	State!:             _#defs."/$defs/Properties/definitions/RoutingControlStateChange"
+	State!:             #RoutingControlStateChange
 })
 
-_#defs: "/$defs/Properties/definitions/Asg": close({
+#Asg: close({
 	Arn?:
 		=~"^arn:aws[a-zA-Z-]*:autoscaling:[a-z0-9-]+:\\d{12}:autoScalingGroup:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:autoScalingGroupName/[\\S\\s]{1,255}$"
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/AssociatedAlarm": close({
-	AlarmType!:          _#defs."/$defs/Properties/definitions/AlarmType"
+#AssociatedAlarm: close({
+	AlarmType!:          #AlarmType
 	CrossAccountRole?:   =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:         string
 	ResourceIdentifier!: string
 })
 
-_#defs: "/$defs/Properties/definitions/AssociatedAlarmMap": close({
+#AssociatedAlarmMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/AssociatedAlarm"}})
+	{[=~".+"]: #AssociatedAlarm}})
 
-_#defs: "/$defs/Properties/definitions/AuroraProvisionedScalingConfiguration": close({
+#AuroraProvisionedScalingConfiguration: close({
 	CrossAccountRole?:          =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:                string
 	GlobalClusterIdentifier!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$"
-	InstanceArns!:              _#defs."/$defs/Properties/definitions/RegionAuroraInstanceArnMap"
-	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionAuroraClusterMap"
+	InstanceArns!:              #RegionAuroraInstanceArnMap
+	RegionDatabaseClusterArns!: #RegionAuroraClusterMap
 	TimeoutMinutes?:            >=1
 })
 
-_#defs: "/$defs/Properties/definitions/AuroraServerlessScalingConfiguration": close({
+#AuroraServerlessScalingConfiguration: close({
 	CrossAccountRole?:          =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:                string
 	GlobalClusterIdentifier!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$"
-	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionAuroraClusterMap"
+	RegionDatabaseClusterArns!: #RegionAuroraClusterMap
 	TargetPercent?:             number
 	TimeoutMinutes?:            >=1
 })
 
-_#defs: "/$defs/Properties/definitions/CustomActionLambdaConfiguration": close({
-	Lambdas!:              list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Lambdas"]
-	RegionToRun!:          _#defs."/$defs/Properties/definitions/RegionToRunIn"
+#CustomActionLambdaConfiguration: close({
+	Lambdas!:              list.MaxItems(2) & list.MinItems(1) & [...#Lambdas]
+	RegionToRun!:          #RegionToRunIn
 	RetryIntervalMinutes!: number
 	TimeoutMinutes?:       >=1
-	Ungraceful?:           _#defs."/$defs/Properties/definitions/LambdaUngraceful"
+	Ungraceful?:           #LambdaUngraceful
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentDbConfiguration": close({
-	Behavior!:                _#defs."/$defs/Properties/definitions/DocumentDbDefaultBehavior"
+#DocumentDbConfiguration: close({
+	Behavior!:                #DocumentDbDefaultBehavior
 	CrossAccountRole?:        =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	DatabaseClusterArns!:     [...=~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[a-zA-Z0-9][a-zA-Z0-9-_]{0,99}$"]
 	ExternalId?:              string
 	GlobalClusterIdentifier!: =~"^[A-Za-z][0-9A-Za-z-:._]*$"
 	TimeoutMinutes?:          >=1
-	Ungraceful?:              _#defs."/$defs/Properties/definitions/DocumentDbUngraceful"
+	Ungraceful?:              #DocumentDbUngraceful
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentDbDefaultBehavior": "switchoverOnly" | "failover"
+#DocumentDbDefaultBehavior: "switchoverOnly" | "failover"
 
-_#defs: "/$defs/Properties/definitions/DocumentDbUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/DocumentDbUngracefulBehavior"},
-)
+#DocumentDbUngraceful: close({Ungraceful?: #DocumentDbUngracefulBehavior})
 
-_#defs: "/$defs/Properties/definitions/DocumentDbUngracefulBehavior": "failover"
+#DocumentDbUngracefulBehavior: "failover"
 
-_#defs: "/$defs/Properties/definitions/Ec2AsgCapacityIncreaseConfiguration": close({
-	Asgs!:                       list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Asg"]
-	CapacityMonitoringApproach?: _#defs."/$defs/Properties/definitions/Ec2AsgCapacityMonitoringApproach"
+#Ec2AsgCapacityIncreaseConfiguration: close({
+	Asgs!:                       list.MaxItems(2) & list.MinItems(2) & [...#Asg]
+	CapacityMonitoringApproach?: #Ec2AsgCapacityMonitoringApproach
 	TargetPercent?:              number
 	TimeoutMinutes?:             >=1
-	Ungraceful?:                 _#defs."/$defs/Properties/definitions/Ec2Ungraceful"
-	WaitELBTargetGroupHealthy?:  _#defs."/$defs/Properties/definitions/WaitELBTargetGroupHealthy"
+	Ungraceful?:                 #Ec2Ungraceful
+	WaitELBTargetGroupHealthy?:  #WaitELBTargetGroupHealthy
 })
 
-_#defs: "/$defs/Properties/definitions/Ec2AsgCapacityMonitoringApproach": "sampledMaxInLast24Hours" |
-	"autoscalingMaxInLast24Hours"
+#Ec2AsgCapacityMonitoringApproach: "sampledMaxInLast24Hours" | "autoscalingMaxInLast24Hours"
 
-_#defs: "/$defs/Properties/definitions/Ec2Ungraceful": close({MinimumSuccessPercentage!: <=99 & >=0})
+#Ec2Ungraceful: close({MinimumSuccessPercentage!: <=99 & >=0})
 
-_#defs: "/$defs/Properties/definitions/EcsCapacityIncreaseConfiguration": close({
-	CapacityMonitoringApproach?: _#defs."/$defs/Properties/definitions/EcsCapacityMonitoringApproach"
-	Services!:       list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Service"]
-	TargetPercent?:  number
-	TimeoutMinutes?: >=1
-	Ungraceful?:     _#defs."/$defs/Properties/definitions/EcsUngraceful"
-	WaitELBTargetGroupHealthy?: _#defs."/$defs/Properties/definitions/WaitELBTargetGroupHealthy"
+#EcsCapacityIncreaseConfiguration: close({
+	CapacityMonitoringApproach?: #EcsCapacityMonitoringApproach
+	Services!:                   list.MaxItems(2) & list.MinItems(2) & [...#Service]
+	TargetPercent?:              number
+	TimeoutMinutes?:             >=1
+	Ungraceful?:                 #EcsUngraceful
+	WaitELBTargetGroupHealthy?:  #WaitELBTargetGroupHealthy
 })
 
-_#defs: "/$defs/Properties/definitions/EcsCapacityMonitoringApproach": "sampledMaxInLast24Hours" |
-	"containerInsightsMaxInLast24Hours"
+#EcsCapacityMonitoringApproach: "sampledMaxInLast24Hours" | "containerInsightsMaxInLast24Hours"
 
-_#defs: "/$defs/Properties/definitions/EcsUngraceful": close({MinimumSuccessPercentage!: <=99 & >=0})
+#EcsUngraceful: close({MinimumSuccessPercentage!: <=99 & >=0})
 
-_#defs: "/$defs/Properties/definitions/EksCapacityMonitoringApproach": "sampledMaxInLast24Hours"
+#EksCapacityMonitoringApproach: "sampledMaxInLast24Hours"
 
-_#defs: "/$defs/Properties/definitions/EksCluster": close({
+#EksCluster: close({
 	ClusterArn!:       =~"^arn:aws[a-zA-Z-]*:eks:[a-z0-9-]+:\\d{12}:cluster/[a-zA-Z0-9][a-zA-Z0-9-_]{0,99}$"
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/EksResourceScalingConfiguration": close({
-	CapacityMonitoringApproach?: _#defs."/$defs/Properties/definitions/EksCapacityMonitoringApproach"
-	EksClusters?:                list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/EksCluster"]
-	KubernetesResourceType!:     _#defs."/$defs/Properties/definitions/KubernetesResourceType"
-	ScalingResources?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/KubernetesScalingApplication"]
-	TargetPercent?:    >=1
-	TimeoutMinutes?:   >=1
-	Ungraceful?:       _#defs."/$defs/Properties/definitions/EksResourceScalingUngraceful"
+#EksResourceScalingConfiguration: close({
+	CapacityMonitoringApproach?: #EksCapacityMonitoringApproach
+	EksClusters?:                list.MinItems(2) & [...#EksCluster]
+	KubernetesResourceType!:     #KubernetesResourceType
+	ScalingResources?:           list.MinItems(1) & [...#KubernetesScalingApplication]
+	TargetPercent?:              >=1
+	TimeoutMinutes?:             >=1
+	Ungraceful?:                 #EksResourceScalingUngraceful
 })
 
-_#defs: "/$defs/Properties/definitions/EksResourceScalingUngraceful": close({MinimumSuccessPercentage!: <=99 & >=0})
+#EksResourceScalingUngraceful: close({MinimumSuccessPercentage!: <=99 & >=0})
 
-_#defs: "/$defs/Properties/definitions/EventSourceMapping": close({
+#EventSourceMapping: close({
 	Arn!:
 		=~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\d{12}:event-source-mapping:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/ExecutionApprovalConfiguration": close({
+#ExecutionApprovalConfiguration: close({
 	ApprovalRole!:   string
 	TimeoutMinutes?: >=1
 })
 
-_#defs: "/$defs/Properties/definitions/ExecutionBlockConfiguration": matchN(1, [close(
-	{CustomActionLambdaConfig!: _#defs."/$defs/Properties/definitions/CustomActionLambdaConfiguration"},
+#ExecutionBlockConfiguration: matchN(1, [close(
+	{CustomActionLambdaConfig!: #CustomActionLambdaConfiguration},
 ), close(
-	{Ec2AsgCapacityIncreaseConfig!: _#defs."/$defs/Properties/definitions/Ec2AsgCapacityIncreaseConfiguration"},
+	{Ec2AsgCapacityIncreaseConfig!: #Ec2AsgCapacityIncreaseConfiguration},
 ), close(
-	{ExecutionApprovalConfig!: _#defs."/$defs/Properties/definitions/ExecutionApprovalConfiguration"},
+	{ExecutionApprovalConfig!: #ExecutionApprovalConfiguration},
 ), close(
-	{ArcRoutingControlConfig!: _#defs."/$defs/Properties/definitions/ArcRoutingControlConfiguration"},
+	{ArcRoutingControlConfig!: #ArcRoutingControlConfiguration},
 ), close(
-	{AuroraProvisionedScalingConfig!: _#defs."/$defs/Properties/definitions/AuroraProvisionedScalingConfiguration"},
+	{AuroraProvisionedScalingConfig!: #AuroraProvisionedScalingConfiguration},
 ), close(
-	{AuroraServerlessScalingConfig!: _#defs."/$defs/Properties/definitions/AuroraServerlessScalingConfiguration"},
+	{AuroraServerlessScalingConfig!: #AuroraServerlessScalingConfiguration},
 ), close(
-	{GlobalAuroraConfig!: _#defs."/$defs/Properties/definitions/GlobalAuroraConfiguration"},
+	{GlobalAuroraConfig!: #GlobalAuroraConfiguration},
 ), close(
-	{ParallelConfig!: _#defs."/$defs/Properties/definitions/ParallelExecutionBlockConfiguration"},
+	{ParallelConfig!: #ParallelExecutionBlockConfiguration},
 ), close(
-	{RegionSwitchPlanConfig!: _#defs."/$defs/Properties/definitions/RegionSwitchPlanConfiguration"},
+	{RegionSwitchPlanConfig!: #RegionSwitchPlanConfiguration},
 ), close(
-	{EcsCapacityIncreaseConfig!: _#defs."/$defs/Properties/definitions/EcsCapacityIncreaseConfiguration"},
+	{EcsCapacityIncreaseConfig!: #EcsCapacityIncreaseConfiguration},
 ), close(
-	{EksResourceScalingConfig!: _#defs."/$defs/Properties/definitions/EksResourceScalingConfiguration"},
+	{EksResourceScalingConfig!: #EksResourceScalingConfiguration},
 ), close(
-	{Route53HealthCheckConfig!: _#defs."/$defs/Properties/definitions/Route53HealthCheckConfiguration"},
+	{Route53HealthCheckConfig!: #Route53HealthCheckConfiguration},
 ), close(
-	{DocumentDbConfig!: _#defs."/$defs/Properties/definitions/DocumentDbConfiguration"},
+	{DocumentDbConfig!: #DocumentDbConfiguration},
 ), close(
-	{RdsPromoteReadReplicaConfig!: _#defs."/$defs/Properties/definitions/RdsPromoteReadReplicaConfiguration"},
-), close({
-	RdsCreateCrossRegionReadReplicaConfig!:
-		_#defs."/$defs/Properties/definitions/RdsCreateCrossRegionReplicaConfiguration"
-}), close(
-	{LambdaEventSourceMappingConfig!: _#defs."/$defs/Properties/definitions/LambdaEventSourceMappingConfiguration"},
+	{RdsPromoteReadReplicaConfig!: #RdsPromoteReadReplicaConfiguration},
 ), close(
-	{NeptuneGlobalDatabaseConfig!: _#defs."/$defs/Properties/definitions/NeptuneGlobalDatabaseConfiguration"},
+	{RdsCreateCrossRegionReadReplicaConfig!: #RdsCreateCrossRegionReplicaConfiguration},
 ), close(
-	{RdsSwitchoverReadReplicaConfig!: _#defs."/$defs/Properties/definitions/RdsSwitchoverReadReplicaConfiguration"},
+	{LambdaEventSourceMappingConfig!: #LambdaEventSourceMappingConfiguration},
+), close(
+	{NeptuneGlobalDatabaseConfig!: #NeptuneGlobalDatabaseConfiguration},
+), close(
+	{RdsSwitchoverReadReplicaConfig!: #RdsSwitchoverReadReplicaConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/ExecutionBlockType": "ARCRegionSwitchPlan" |
+#ExecutionBlockType: "ARCRegionSwitchPlan" |
 	"ARCRoutingControl" |
 	"AuroraGlobalDatabase" |
 	"AuroraProvisionedScaling" |
@@ -238,240 +233,219 @@ _#defs: "/$defs/Properties/definitions/ExecutionBlockType": "ARCRegionSwitchPlan
 	"RdsSwitchoverReadReplica" |
 	"Route53HealthCheck"
 
-_#defs: "/$defs/Properties/definitions/GlobalAuroraConfiguration": close({
-	Behavior!:                _#defs."/$defs/Properties/definitions/GlobalAuroraDefaultBehavior"
+#GlobalAuroraConfiguration: close({
+	Behavior!:                #GlobalAuroraDefaultBehavior
 	CrossAccountRole?:        =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	DatabaseClusterArns!:     [...string]
 	ExternalId?:              string
 	GlobalClusterIdentifier!: string
 	TimeoutMinutes?:          >=1
-	Ungraceful?:              _#defs."/$defs/Properties/definitions/GlobalAuroraUngraceful"
+	Ungraceful?:              #GlobalAuroraUngraceful
 })
 
-_#defs: "/$defs/Properties/definitions/GlobalAuroraDefaultBehavior": "switchoverOnly" | "failover"
+#GlobalAuroraDefaultBehavior: "switchoverOnly" | "failover"
 
-_#defs: "/$defs/Properties/definitions/GlobalAuroraUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/GlobalAuroraUngracefulBehavior"},
-)
+#GlobalAuroraUngraceful: close({Ungraceful?: #GlobalAuroraUngracefulBehavior})
 
-_#defs: "/$defs/Properties/definitions/GlobalAuroraUngracefulBehavior": "failover"
+#GlobalAuroraUngracefulBehavior: "failover"
 
-_#defs: "/$defs/Properties/definitions/HealthCheckIds": [...string]
+#HealthCheckIds: [...string]
 
-_#defs: "/$defs/Properties/definitions/HealthCheckRecordNames": [...string]
+#HealthCheckRecordNames: [...string]
 
-_#defs: "/$defs/Properties/definitions/HealthCheckRegions": [...string]
+#HealthCheckRegions: [...string]
 
-_#defs: "/$defs/Properties/definitions/HealthCheckState": close({
+#HealthCheckState: close({
 	HealthCheckId?: string
 	Region?:        string
 })
 
-_#defs: "/$defs/Properties/definitions/HealthChecks": list.MaxItems(2) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/HealthCheckState"
-]
+#HealthChecks: list.MaxItems(2) & list.MinItems(2) & [...#HealthCheckState]
 
-_#defs: "/$defs/Properties/definitions/HostedZoneIds": [...string]
+#HostedZoneIds: [...string]
 
-_#defs: "/$defs/Properties/definitions/KubernetesResourceType": close({
+#KubernetesResourceType: close({
 	ApiVersion!: string
 	Kind!:       string
 })
 
-_#defs: "/$defs/Properties/definitions/KubernetesScalingApplication": close({
+#KubernetesScalingApplication: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/RegionalScalingResource"}})
+	{[=~".+"]: #RegionalScalingResource}})
 
-_#defs: "/$defs/Properties/definitions/KubernetesScalingResource": close({
+#KubernetesScalingResource: close({
 	HpaName?:   string
 	Name!:      string
 	Namespace!: =~"^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$"
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaEventSourceMappingConfiguration": close({
+#LambdaEventSourceMappingConfiguration: close({
 	Action!:                    "enable" | "disable"
-	RegionEventSourceMappings!: _#defs."/$defs/Properties/definitions/RegionEventSourceMappingMap"
+	RegionEventSourceMappings!: #RegionEventSourceMappingMap
 	TimeoutMinutes?:            >=1
-	Ungraceful?:                _#defs."/$defs/Properties/definitions/LambdaEventSourceMappingUngraceful"
+	Ungraceful?:                #LambdaEventSourceMappingUngraceful
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaEventSourceMappingUngraceful": close({Behavior?: "skip"})
+#LambdaEventSourceMappingUngraceful: close({Behavior?: "skip"})
 
-_#defs: "/$defs/Properties/definitions/LambdaUngraceful": close(
-	{Behavior?: _#defs."/$defs/Properties/definitions/LambdaUngracefulBehavior"},
-)
+#LambdaUngraceful: close({Behavior?: #LambdaUngracefulBehavior})
 
-_#defs: "/$defs/Properties/definitions/LambdaUngracefulBehavior": "skip"
+#LambdaUngracefulBehavior: "skip"
 
-_#defs: "/$defs/Properties/definitions/Lambdas": close({
+#Lambdas: close({
 	Arn?:              string
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/NeptuneDefaultBehavior": "failover" | "switchoverOnly"
+#NeptuneDefaultBehavior: "failover" | "switchoverOnly"
 
-_#defs: "/$defs/Properties/definitions/NeptuneGlobalDatabaseConfiguration": close({
-	Behavior!:                  _#defs."/$defs/Properties/definitions/NeptuneDefaultBehavior"
+#NeptuneGlobalDatabaseConfiguration: close({
+	Behavior!:                  #NeptuneDefaultBehavior
 	CrossAccountRole?:          =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:                string
 	GlobalClusterIdentifier!:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-]*$"
-	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionNeptuneClusterArnMap"
+	RegionDatabaseClusterArns!: #RegionNeptuneClusterArnMap
 	TimeoutMinutes?:            >=1
-	Ungraceful?:                _#defs."/$defs/Properties/definitions/NeptuneUngraceful"
+	Ungraceful?:                #NeptuneUngraceful
 })
 
-_#defs: "/$defs/Properties/definitions/NeptuneUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/NeptuneUngracefulBehavior"},
-)
+#NeptuneUngraceful: close({Ungraceful?: #NeptuneUngracefulBehavior})
 
-_#defs: "/$defs/Properties/definitions/NeptuneUngracefulBehavior": "failover"
+#NeptuneUngracefulBehavior: "failover"
 
-_#defs: "/$defs/Properties/definitions/ParallelExecutionBlockConfiguration": close(
-	{Steps!: [..._#defs."/$defs/Properties/definitions/Step"]},
-)
+#ParallelExecutionBlockConfiguration: close({Steps!: [...#Step]})
 
-_#defs: "/$defs/Properties/definitions/RdsCreateCrossRegionReplicaConfiguration": close({
+#RdsCreateCrossRegionReplicaConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
-	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap"
+	DbInstanceArnMap!: #RdsDbInstanceArnMap
 	ExternalId?:       string
 	TimeoutMinutes?:   >=1
 })
 
-_#defs: "/$defs/Properties/definitions/RdsDbInstanceArnMap": close({
+#RdsDbInstanceArnMap: close({
 
 	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$"}})
 
-_#defs: "/$defs/Properties/definitions/RdsPromoteReadReplicaConfiguration": close({
+#RdsPromoteReadReplicaConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
-	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap"
+	DbInstanceArnMap!: #RdsDbInstanceArnMap
 	ExternalId?:       string
 	TimeoutMinutes?:   >=1
 })
 
-_#defs: "/$defs/Properties/definitions/RdsSwitchoverReadReplicaConfiguration": close({
+#RdsSwitchoverReadReplicaConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
-	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap"
+	DbInstanceArnMap!: #RdsDbInstanceArnMap
 	ExternalId?:       string
 	TimeoutMinutes?:   >=1
-	Ungraceful?:       _#defs."/$defs/Properties/definitions/RdsUngraceful"
+	Ungraceful?:       #RdsUngraceful
 })
 
-_#defs: "/$defs/Properties/definitions/RdsUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/RdsUngracefulBehavior"},
-)
+#RdsUngraceful: close({Ungraceful?: #RdsUngracefulBehavior})
 
-_#defs: "/$defs/Properties/definitions/RdsUngracefulBehavior": "promoteReadReplica"
+#RdsUngracefulBehavior: "promoteReadReplica"
 
-_#defs: "/$defs/Properties/definitions/RecoveryApproach": "activeActive" | "activePassive"
+#RecoveryApproach: "activeActive" | "activePassive"
 
-_#defs: "/$defs/Properties/definitions/RegionAndRoutingControls": close({
+#RegionAndRoutingControls: close({
 
-	{[=~".+"]: [..._#defs."/$defs/Properties/definitions/ArcRoutingControlState"]}})
+	{[=~".+"]: [...#ArcRoutingControlState]}})
 
-_#defs: "/$defs/Properties/definitions/RegionAuroraClusterMap": struct.MaxFields(2) & struct.MinFields(2) & close({
+#RegionAuroraClusterMap: struct.MaxFields(2) & struct.MinFields(2) & close({
 
 	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-:._]*$"}})
 
-_#defs: "/$defs/Properties/definitions/RegionAuroraInstanceArnMap": struct.MaxFields(2) & struct.MinFields(1) & close({
+#RegionAuroraInstanceArnMap: struct.MaxFields(2) & struct.MinFields(1) & close({
 
 	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[A-Za-z][0-9A-Za-z-]*$"}})
 
-_#defs: "/$defs/Properties/definitions/RegionEventSourceMappingMap": close({
+#RegionEventSourceMappingMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/EventSourceMapping"}})
+	{[=~".+"]: #EventSourceMapping}})
 
-_#defs: "/$defs/Properties/definitions/RegionNeptuneClusterArnMap": struct.MaxFields(2) & struct.MinFields(2) & close({
+#RegionNeptuneClusterArnMap: struct.MaxFields(2) & struct.MinFields(2) & close({
 
 	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-]*$"}})
 
-_#defs: "/$defs/Properties/definitions/RegionSwitchPlanConfiguration": close({
+#RegionSwitchPlanConfiguration: close({
 	Arn!:
 		=~"^arn:aws[a-zA-Z-]*:arc-region-switch::[0-9]{12}:plan/([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?):([a-z0-9]{6})$"
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/RegionToRunIn": "activatingRegion" |
-	"deactivatingRegion" |
-	"activeRegion" |
-	"inactiveRegion"
+#RegionToRunIn: "activatingRegion" | "deactivatingRegion" | "activeRegion" | "inactiveRegion"
 
-_#defs: "/$defs/Properties/definitions/RegionalScalingResource": close({
+#RegionalScalingResource: close({
 
-	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: _#defs."/$defs/Properties/definitions/KubernetesScalingResource"}})
+	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: #KubernetesScalingResource}})
 
-_#defs: "/$defs/Properties/definitions/ReportConfiguration": close({
-	ReportOutput?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReportOutputConfiguration"
-	]
-})
+#ReportConfiguration: close({ReportOutput?: list.MaxItems(1) & list.MinItems(1) & [...#ReportOutputConfiguration]})
 
-_#defs: "/$defs/Properties/definitions/ReportOutputConfiguration": close(
-	{S3Configuration!: _#defs."/$defs/Properties/definitions/S3ReportOutputConfiguration"},
-)
+#ReportOutputConfiguration: close({S3Configuration!: #S3ReportOutputConfiguration})
 
-_#defs: "/$defs/Properties/definitions/Route53HealthCheckConfiguration": close({
+#Route53HealthCheckConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:       string
 	HostedZoneId!:     strings.MaxRunes(32) & strings.MinRunes(1)
 	RecordName!:       strings.MaxRunes(1024) & strings.MinRunes(1)
-	RecordSets?:       [..._#defs."/$defs/Properties/definitions/Route53ResourceRecordSet"]
+	RecordSets?:       [...#Route53ResourceRecordSet]
 	TimeoutMinutes?:   >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Route53ResourceRecordSet": close({
+#Route53ResourceRecordSet: close({
 	RecordSetIdentifier?: strings.MaxRunes(1024) & strings.MinRunes(1)
 	Region?:              =~"^[a-z]{2}-[a-z-]+-\\d+$"
 })
 
-_#defs: "/$defs/Properties/definitions/RoutingControlStateChange": "On" | "Off"
+#RoutingControlStateChange: "On" | "Off"
 
-_#defs: "/$defs/Properties/definitions/S3ReportOutputConfiguration": close({
+#S3ReportOutputConfiguration: close({
 	BucketOwner?: =~"^\\d{12}$"
 	BucketPath?: strings.MaxRunes(512) &
 	strings.MinRunes(3) &
 	=~"^(?:s3://)?[a-z0-9][a-z0-9-]{1,61}[a-z0-9](?:/[^/ ][^/]*)*/?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Service": close({
+#Service: close({
 	ClusterArn?:       =~"^arn:aws[a-zA-Z-]*:ecs:[a-z0-9-]+:\\d{12}:cluster/[a-zA-Z0-9_-]{1,255}$"
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
 	ExternalId?:       string
 	ServiceArn?:       =~"^arn:aws[a-zA-Z-]*:ecs:[a-z0-9-]+:\\d{12}:service/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]{1,255}$"
 })
 
-_#defs: "/$defs/Properties/definitions/Step": close({
+#Step: close({
 	Description?:                 string
-	ExecutionBlockConfiguration!: _#defs."/$defs/Properties/definitions/ExecutionBlockConfiguration"
-	ExecutionBlockType!:          _#defs."/$defs/Properties/definitions/ExecutionBlockType"
+	ExecutionBlockConfiguration!: #ExecutionBlockConfiguration
+	ExecutionBlockType!:          #ExecutionBlockType
 	Name!:                        string
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(200) & struct.MinFields(0) & close({
+#Tags: struct.MaxFields(200) & struct.MinFields(0) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/Trigger": close({
-	Action!:      _#defs."/$defs/Properties/definitions/WorkflowTargetAction"
-	Conditions!:  list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TriggerCondition"]
-	Description?: string
+#Trigger: close({
+	Action!:                           #WorkflowTargetAction
+	Conditions!:                       list.MaxItems(10) & list.MinItems(1) & [...#TriggerCondition]
+	Description?:                      string
 	MinDelayMinutesBetweenExecutions!: number
 	TargetRegion!:                     =~"^[a-z]{2}-[a-z-]+-\\d+$"
 })
 
-_#defs: "/$defs/Properties/definitions/TriggerCondition": close({
+#TriggerCondition: close({
 	AssociatedAlarmName!: string
-	Condition!:           _#defs."/$defs/Properties/definitions/AlarmCondition"
+	Condition!:           #AlarmCondition
 })
 
-_#defs: "/$defs/Properties/definitions/WaitELBTargetGroupHealthy": "enabled" | "disabled"
+#WaitELBTargetGroupHealthy: "enabled" | "disabled"
 
-_#defs: "/$defs/Properties/definitions/Workflow": close({
-	Steps?:                [..._#defs."/$defs/Properties/definitions/Step"]
+#Workflow: close({
+	Steps?:                [...#Step]
 	WorkflowDescription?:  string
-	WorkflowTargetAction!: _#defs."/$defs/Properties/definitions/WorkflowTargetAction"
+	WorkflowTargetAction!: #WorkflowTargetAction
 	WorkflowTargetRegion?: =~"^[a-z]{2}-[a-z-]+-\\d+$"
 })
 
-_#defs: "/$defs/Properties/definitions/WorkflowTargetAction": "activate" | "deactivate" | "postRecovery"
+#WorkflowTargetAction: "activate" | "deactivate" | "postRecovery"

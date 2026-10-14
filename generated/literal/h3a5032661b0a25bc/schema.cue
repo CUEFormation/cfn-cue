@@ -16,7 +16,7 @@ import (
 	Arn?: =~"^arn:aws[-a-z]*:bcm-pricing-calculator::[0-9]{12}:workload-estimate/[a-f0-9-]+$"
 
 	// The currency of the estimated cost.
-	CostCurrency?: _#defs."/$defs/Properties/definitions/CurrencyCode"
+	CostCurrency?: #CurrencyCode
 
 	// The timestamp when the workload estimate was created.
 	CreatedAt?: time.Time
@@ -39,27 +39,25 @@ import (
 	RateTimestamp?: time.Time
 
 	// The type of pricing rates used for the estimate.
-	RateType?: _#defs."/$defs/Properties/definitions/WorkloadEstimateRateType"
+	RateType?: #WorkloadEstimateRateType
 
 	// The current status of the workload estimate.
-	Status?: _#defs."/$defs/Properties/definitions/WorkloadEstimateStatus"
+	Status?: #WorkloadEstimateStatus
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 
 	// The total estimated cost for the workload.
 	TotalCost?: number
 })
 
-_#defs: "/$defs/Properties/definitions/CurrencyCode": "USD"
+#CurrencyCode: "USD"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/WorkloadEstimateRateType": "BEFORE_DISCOUNTS" |
-	"AFTER_DISCOUNTS" |
-	"AFTER_DISCOUNTS_AND_COMMITMENTS"
+#WorkloadEstimateRateType: "BEFORE_DISCOUNTS" | "AFTER_DISCOUNTS" | "AFTER_DISCOUNTS_AND_COMMITMENTS"
 
-_#defs: "/$defs/Properties/definitions/WorkloadEstimateStatus": "UPDATING" | "VALID" | "INVALID" | "ACTION_NEEDED"
+#WorkloadEstimateStatus: "UPDATING" | "VALID" | "INVALID" | "ACTION_NEEDED"

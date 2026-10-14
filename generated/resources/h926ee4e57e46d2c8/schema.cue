@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/iam:iam"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
@@ -15,39 +16,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Policies in AWS Organizations enable you to manage different features of the
 // AWS accounts in your organization. You can use policies when all features
 // are enabled in your organization.
-#Properties: close({
-	Content!: fn.#Object & {...} |
-	strings.MaxRunes(1000000) & strings.MinRunes(1) & =~"[\\s\\S]*" |
-	fn.#StringObjectExpression
-	Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetIds?: list.UniqueItems() & [
-		...=~"^(r-[0-9a-z]{4,32})|(\\d{12})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Type!: "AISERVICES_OPT_OUT_POLICY" |
-		"BACKUP_POLICY" |
-		"BEDROCK_POLICY" |
-		"CHATBOT_POLICY" |
-		"DECLARATIVE_POLICY_EC2" |
-		"INSPECTOR_POLICY" |
-		"NETWORK_SECURITY_DIRECTOR_POLICY" |
-		"RESOURCE_CONTROL_POLICY" |
-		"S3_POLICY" |
-		"SECURITYHUB_POLICY" |
-		"SERVICE_CONTROL_POLICY" |
-		"TAG_POLICY" |
-		"UPGRADE_ROLLOUT_POLICY" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Organizations::Policy"
+	Properties!: matchIf({
+		Type!: "SERVICE_CONTROL_POLICY"
+		...
+	}, {
+		Content?: iam.#ServiceControlPolicyValue
+		...
+	}, matchIf({
+		Type!: "RESOURCE_CONTROL_POLICY"
+		...
+	}, {
+		Content?: iam.#ResourceControlPolicyValue
+		...
+	}, {
+		Content?: fn.#Object & {...} |
+		strings.MaxRunes(1000000) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+		fn.#StringObjectExpression
+		...
+	}) & {...}) & {...} & close({
+		Content!:     _
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
+		Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
+		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetIds?: list.UniqueItems() & [
+			...=~"^(r-[0-9a-z]{4,32})|(\\d{12})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		Type!: "AISERVICES_OPT_OUT_POLICY" |
+			"BACKUP_POLICY" |
+			"BEDROCK_POLICY" |
+			"CHATBOT_POLICY" |
+			"DECLARATIVE_POLICY_EC2" |
+			"INSPECTOR_POLICY" |
+			"NETWORK_SECURITY_DIRECTOR_POLICY" |
+			"RESOURCE_CONTROL_POLICY" |
+			"S3_POLICY" |
+			"SECURITYHUB_POLICY" |
+			"SERVICE_CONTROL_POLICY" |
+			"TAG_POLICY" |
+			"UPGRADE_ROLLOUT_POLICY" |
+			fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Organizations::Policy"
-	Properties!: #Properties
-}

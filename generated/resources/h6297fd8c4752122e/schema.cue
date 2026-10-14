@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,19 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for a Redshift-managed VPC endpoint.
-#Properties: close({
-	ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	EndpointName!:      string | fn.#StringExpression
-	ResourceOwner?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" | fn.#StringExpression
-	SubnetGroupName!:   string | fn.#StringExpression
-	VpcSecurityGroupIds!: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::EndpointAccess"
+	Properties!: close({
+		ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		EndpointName!:      string | fn.#StringExpression
+		ResourceOwner?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" | fn.#StringExpression
+		SubnetGroupName!:   string | fn.#StringExpression
+		VpcSecurityGroupIds!: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
+#NetworkInterface: close({
 	AvailabilityZone?:   string | fn.#StringExpression
 	NetworkInterfaceId?: string | fn.#StringExpression
 	PrivateIpAddress?:   string | fn.#StringExpression
@@ -32,13 +35,9 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcSecurityGroup": close({
+#VpcSecurityGroup: close({
 	Status?: string | fn.#StringExpression
 	VpcSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::EndpointAccess"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::DistributionConfiguration
-#Properties: close({
-	Description?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Distributions!: [..._#defs."/$defs/Properties/definitions/Distribution"] | fn.#ListExpression
-	Name!:          =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::DistributionConfiguration"
+	Properties!: close({
+		Description?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Distributions!: [...#Distribution] | fn.#ListExpression
+		Name!:          =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AmiDistributionConfiguration": close({
+#AmiDistributionConfiguration: close({
 	AmiTags?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -36,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/AmiDistributionConfiguration": close({
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	LaunchPermissionConfiguration?: _#defs."/$defs/Properties/definitions/LaunchPermissionConfiguration"
+	LaunchPermissionConfiguration?: #LaunchPermissionConfiguration
 	Name?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[-_A-Za-z0-9{][-_A-Za-z0-9\\s:{}\\.]+[-_A-Za-z0-9}]$" |
 	fn.#StringExpression
 	TargetAccountIds?: list.MaxItems(1536) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] |
@@ -44,38 +47,35 @@ _#defs: "/$defs/Properties/definitions/AmiDistributionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerDistributionConfiguration": close({
-	ContainerTags?:    [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Description?:      strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	TargetRepository?: _#defs."/$defs/Properties/definitions/TargetContainerRepository" | fn.#ObjectExpression
+#ContainerDistributionConfiguration: close({
+	ContainerTags?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	Description?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+
+	// The destination repository for the container distribution configuration.
+	TargetRepository?: #TargetContainerRepository
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Distribution": close({
-	AmiDistributionConfiguration?:       _#defs."/$defs/Properties/definitions/AmiDistributionConfiguration"
-	ContainerDistributionConfiguration?: _#defs."/$defs/Properties/definitions/ContainerDistributionConfiguration"
-	FastLaunchConfigurations?: list.MaxItems(1000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FastLaunchConfiguration"
-	] |
+#Distribution: close({
+	AmiDistributionConfiguration?:       #AmiDistributionConfiguration
+	ContainerDistributionConfiguration?: #ContainerDistributionConfiguration
+	FastLaunchConfigurations?: list.MaxItems(1000) & list.MinItems(1) & [...#FastLaunchConfiguration] |
 		fn.#ListExpression
-	LaunchTemplateConfigurations?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LaunchTemplateConfiguration"
-	] |
+	LaunchTemplateConfigurations?: list.MaxItems(100) & list.MinItems(1) & [...#LaunchTemplateConfiguration] |
 		fn.#ListExpression
-	LicenseConfigurationArns?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LicenseConfigurationArn"
-	] |
-		fn.#ListExpression
-	Region!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	SsmParameterConfigurations?: [..._#defs."/$defs/Properties/definitions/SsmParameterConfiguration"] |
-		fn.#ListExpression
+	LicenseConfigurationArns?: list.MaxItems(50) & list.MinItems(1) & [...#LicenseConfigurationArn] | fn.#ListExpression
+	Region!:                   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	SsmParameterConfigurations?: [...#SsmParameterConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FastLaunchConfiguration": close({
-	AccountId?:      =~"^[0-9]{12}$" | fn.#StringExpression
-	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/FastLaunchLaunchTemplateSpecification" | fn.#ObjectExpression
+#FastLaunchConfiguration: close({
+	AccountId?: =~"^[0-9]{12}$" | fn.#StringExpression
+	Enabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The launch template that the fast-launch enabled Windows AMI uses when it
+	// launches Windows instances to create pre-provisioned snapshots.
+	LaunchTemplate?: #FastLaunchLaunchTemplateSpecification
 	MaxParallelLaunches?: int & >=1 |
 		{
 			string &
@@ -91,19 +91,22 @@ _#defs: "/$defs/Properties/definitions/FastLaunchConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	SnapshotConfiguration?: _#defs."/$defs/Properties/definitions/FastLaunchSnapshotConfiguration" |
-		fn.#ObjectExpression
+
+	// Configuration settings for managing the number of snapshots that are created
+	// from pre-provisioned instances for the Windows AMI when faster launching is
+	// enabled.
+	SnapshotConfiguration?: #FastLaunchSnapshotConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FastLaunchLaunchTemplateSpecification": close({
+#FastLaunchLaunchTemplateSpecification: close({
 	LaunchTemplateId?:      =~"^lt-[a-z0-9-_]{17}$" | fn.#StringExpression
 	LaunchTemplateName?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	LaunchTemplateVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FastLaunchSnapshotConfiguration": close({
+#FastLaunchSnapshotConfiguration: close({
 	TargetResourceCount?: int & <=10000 & >=1 |
 		{
 			string &
@@ -123,7 +126,7 @@ _#defs: "/$defs/Properties/definitions/FastLaunchSnapshotConfiguration": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchPermissionConfiguration": close({
+#LaunchPermissionConfiguration: close({
 	OrganizationArns?:       [...string | fn.#StringExpression] | fn.#ListExpression
 	OrganizationalUnitArns?: [...string | fn.#StringExpression] | fn.#ListExpression
 	UserGroups?:             [...string | fn.#StringExpression] | fn.#ListExpression
@@ -131,29 +134,25 @@ _#defs: "/$defs/Properties/definitions/LaunchPermissionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateConfiguration": close({
+#LaunchTemplateConfiguration: close({
 	AccountId?:         =~"^[0-9]{12}$" | fn.#StringExpression
 	LaunchTemplateId?:  =~"^lt-[a-z0-9-_]{17}$" | fn.#StringExpression
 	SetDefaultVersion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseConfigurationArn": =~"^arn:aws[^:]*:license-manager:[^:]+:[0-9]{12}:license-configuration:lic-[a-z0-9-_]{32}$" |
+#LicenseConfigurationArn: =~"^arn:aws[^:]*:license-manager:[^:]+:[0-9]{12}:license-configuration:lic-[a-z0-9-_]{32}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SsmParameterConfiguration": close({
+#SsmParameterConfiguration: close({
 	AmiAccountId?:  =~"^[0-9]{12}$" | fn.#StringExpression
 	DataType?:      "text" | "aws:ec2:image" | fn.#StringExpression
 	ParameterName!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.\\-\\/]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetContainerRepository": close({
+#TargetContainerRepository: close({
 	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Service?:        "ECR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::DistributionConfiguration"
-	Properties!: #Properties
-}

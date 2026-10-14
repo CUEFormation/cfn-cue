@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// An array of Amazon Resource Names (ARNs) of the datasets that you want to
 	// include in the dataset group.
-	DatasetArns?: [..._#defs."/$defs/Properties/definitions/Arn"]
+	DatasetArns?: [...#Arn]
 
 	// The Amazon Resource Name (ARN) of the dataset group to delete.
 	DatasetGroupArn?: strings.MaxRunes(256) & =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$"
@@ -27,23 +27,21 @@ import (
 	Domain!: "RETAIL" | "CUSTOM" | "INVENTORY_PLANNING" | "EC2_CAPACITY" | "WORK_FORCE" | "WEB_TRAFFIC" | "METRICS"
 
 	// The tags of Application Insights application.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$"
+#Arn: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$"
 
 // The number of items to return in the response.
-_#defs: "/$defs/Properties/definitions/MaxResults": int & <=100 & >=1
+#MaxResults: int & <=100 & >=1
 
 // If the result of the previous request was truncated, the response includes a
 // NextToken. To retrieve the next set of results, use the token in the next
 // request. Tokens expire after 24 hours.
-_#defs: "/$defs/Properties/definitions/NextToken": strings.MaxRunes(3000) & strings.MinRunes(1)
+#NextToken: strings.MaxRunes(3000) & strings.MinRunes(1)
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

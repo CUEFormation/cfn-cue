@@ -13,24 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WorkSpacesWeb::IdentityProvider Resource Type
-#Properties: close({
-	IdentityProviderDetails!: _#defs."/$defs/Properties/definitions/IdentityProviderDetails"
-	IdentityProviderName!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^_][\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}][^_]+$" |
-	fn.#StringExpression
-	IdentityProviderType!: _#defs."/$defs/Properties/definitions/IdentityProviderType"
-	PortalArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpacesWeb::IdentityProvider"
+	Properties!: close({
+		IdentityProviderDetails!: #IdentityProviderDetails
+		IdentityProviderName!: strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"^[^_][\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}][^_]+$" |
+		fn.#StringExpression
+		IdentityProviderType!: #IdentityProviderType
+		PortalArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({
+#IdentityProviderDetails: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderType": "SAML" |
+#IdentityProviderType: "SAML" |
 	"Facebook" |
 	"Google" |
 	"LoginWithAmazon" |
@@ -38,12 +43,8 @@ _#defs: "/$defs/Properties/definitions/IdentityProviderType": "SAML" |
 	"OIDC" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpacesWeb::IdentityProvider"
-	Properties!: #Properties
-}

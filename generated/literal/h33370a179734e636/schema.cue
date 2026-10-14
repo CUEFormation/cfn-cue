@@ -8,15 +8,15 @@ import "strings"
 
 // Applies an IAM resource policy to a table bucket.
 #Properties: close({
-	ResourcePolicy!: _#defs."/$defs/Properties/definitions/ResourcePolicy"
-	TableBucketARN!: _#defs."/$defs/Properties/definitions/TableBucketARN"
+	ResourcePolicy!: #ResourcePolicy
+	TableBucketARN!: #TableBucketARN
 })
 
 // A policy document containing permissions to add to the specified table
 // bucket. In IAM, you must provide policy documents in JSON format. However,
 // in CloudFormation you can provide the policy in JSON or YAML format because
 // CloudFormation converts YAML to JSON before submitting it to IAM.
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": strings.MaxRunes(20480) & strings.MinRunes(1) | {...}
+#ResourcePolicy: strings.MaxRunes(20480) & strings.MinRunes(1) | {...}
 
 // The Amazon Resource Name (ARN) of the table bucket to which the policy applies.
-_#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"

@@ -69,7 +69,7 @@ import (
 	})
 
 	// The maintenance schedule for the InfluxDB instance.
-	MaintenanceSchedule?: _#defs."/$defs/Properties/definitions/MaintenanceSchedule"
+	MaintenanceSchedule?: #MaintenanceSchedule
 
 	// The unique name that is associated with the InfluxDB instance.
 	Name?: strings.MaxRunes(40) & strings.MinRunes(3) & =~"^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$"
@@ -111,7 +111,7 @@ import (
 		"FAILED"
 
 	// An arbitrary set of tags (key-value pairs) for this DB instance.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 
 	// The username for the InfluxDB instance.
 	Username?: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -124,7 +124,7 @@ import (
 })
 
 // The maintenance schedule for the InfluxDB instance.
-_#defs: "/$defs/Properties/definitions/MaintenanceSchedule": close({
+#MaintenanceSchedule: close({
 	// The preferred maintenance window in format ddd:HH:MM-ddd:HH:MM.
 	PreferredMaintenanceWindow!: strings.MaxRunes(19) &
 	strings.MinRunes(0) &
@@ -135,7 +135,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceSchedule": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

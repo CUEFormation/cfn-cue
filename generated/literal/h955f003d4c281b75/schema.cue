@@ -55,13 +55,13 @@ import (
 
 	// The region of the S3 bucket that AWS delivers the report into.
 	S3Region!: string
-	Tags?:     list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:     list.MaxItems(100) & [...] & [...#Tag]
 
 	// The granularity of the line items in the report.
 	TimeUnit!: "HOURLY" | "DAILY" | "MONTHLY"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

@@ -3,8 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"github.com/cueformation/cfn-cue/iam:iam"
+	"list"
 	"strings"
 )
 
@@ -17,39 +18,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [IAM and
 // quotas](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html)
 // in the *IAM User Guide*.
-#Properties: close({
-	Groups?:       list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	LoginProfile?: _#defs."/$defs/Properties/definitions/LoginProfile" | fn.#ObjectExpression
-	ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
-	fn.#StringExpression
-	PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Policies?:            [..._#defs."/$defs/Properties/definitions/Policy"] | fn.#ListExpression
-	Tags?:     list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IAM::User"
+	Properties?: close({
+		Groups?: list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/LoginProfile": close({
+		// Creates a password for the specified IAM user. A password allows an IAM user
+		// to access AWS services through the console.
+		// You can use the CLI, the AWS API, or the *Users* page in the IAM console to
+		// create a password for any IAM user. Use
+		// [ChangePassword](https://docs.aws.amazon.com/IAM/latest/APIReference/API_ChangePassword.html)
+		// to update your own existing password in the *My Security Credentials* page
+		// in the console.
+		// For more information about managing passwords, see [Managing
+		// passwords](https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingLogins.html)
+		// in the *User Guide*.
+		LoginProfile?: #LoginProfile
+		ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [
+			...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		Path?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
+		fn.#StringExpression
+		PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		Policies?:            [...#Policy] | fn.#ListExpression
+		Tags?:                list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		UserName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+	})
+}
+
+#LoginProfile: close({
 	Password!:              string | fn.#StringExpression
 	PasswordResetRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Policy": close({
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+#Policy: close({
+	PolicyDocument!: iam.#IdentityPolicyValue
 	PolicyName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::User"
-	Properties?: #Properties
-}

@@ -31,7 +31,7 @@ import (
 	MajorEngineVersion!: string
 
 	// A list of all available options for an option group.
-	OptionConfigurations?: [..._#defs."/$defs/Properties/definitions/OptionConfiguration"]
+	OptionConfigurations?: [...#OptionConfiguration]
 
 	// The description of the option group.
 	OptionGroupDescription!: string
@@ -49,12 +49,12 @@ import (
 	OptionGroupName?: string
 
 	// Tags to assign to the option group.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The ``OptionConfiguration`` property type specifies an individual option, and
 // its settings, within an ``AWS::RDS::OptionGroup`` resource.
-_#defs: "/$defs/Properties/definitions/OptionConfiguration": close({
+#OptionConfiguration: close({
 	// A list of DB security groups used for this option.
 	DBSecurityGroupMemberships?: list.UniqueItems() & [...string]
 
@@ -62,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/OptionConfiguration": close({
 	OptionName!: string
 
 	// The option settings to include in an option group.
-	OptionSettings?: [..._#defs."/$defs/Properties/definitions/OptionSetting"]
+	OptionSettings?: [...#OptionSetting]
 
 	// The version for the option.
 	OptionVersion?: string
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/OptionConfiguration": close({
 
 // The ``OptionSetting`` property type specifies the value for an option within
 // an ``OptionSetting`` property.
-_#defs: "/$defs/Properties/definitions/OptionSetting": close({
+#OptionSetting: close({
 	// The name of the option that has settings that you can set.
 	Name?: string
 
@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/OptionSetting": close({
 // in the *Amazon RDS User Guide* or [Tagging Amazon Aurora and Amazon RDS
 // resources](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_Tagging.html)
 // in the *Amazon Aurora User Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key is the required name of the tag. The string value can be from 1 to 128
 	// Unicode characters in length and can't be prefixed with ``aws:`` or
 	// ``rds:``. The string can only contain only the set of Unicode letters,

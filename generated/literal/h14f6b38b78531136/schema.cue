@@ -16,15 +16,15 @@ import (
 
 	// A description for the Amazon Web Services Verified Access trust provider.
 	Description?:   string
-	DeviceOptions?: _#defs."/$defs/Properties/definitions/DeviceOptions"
+	DeviceOptions?: #DeviceOptions
 
 	// The type of device-based trust provider. Possible values: jamf|crowdstrike
 	DeviceTrustProviderType?: "crowdstrike" | "jamf" | "jumpcloud"
 
 	// The last updated time.
 	LastUpdatedTime?:              string
-	NativeApplicationOidcOptions?: _#defs."/$defs/Properties/definitions/NativeApplicationOidcOptions"
-	OidcOptions?:                  _#defs."/$defs/Properties/definitions/OidcOptions"
+	NativeApplicationOidcOptions?: #NativeApplicationOidcOptions
+	OidcOptions?:                  #OidcOptions
 
 	// The identifier to be used when working with policy rules.
 	PolicyReferenceName!: string
@@ -39,7 +39,7 @@ import (
 	})
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Type of trust provider. Possible values: user|device
 	TrustProviderType!: "device" | "user"
@@ -52,7 +52,7 @@ import (
 })
 
 // The options for device identity based trust providers.
-_#defs: "/$defs/Properties/definitions/DeviceOptions": close({
+#DeviceOptions: close({
 	// URL Verified Access will use to verify authenticity of the device tokens.
 	PublicSigningKeyUrl?: string
 
@@ -61,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/DeviceOptions": close({
 })
 
 // The OpenID Connect details for an oidc -type, user-identity based trust provider for L4.
-_#defs: "/$defs/Properties/definitions/NativeApplicationOidcOptions": close({
+#NativeApplicationOidcOptions: close({
 	// The OIDC authorization endpoint.
 	AuthorizationEndpoint?: string
 
@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/NativeApplicationOidcOptions": close({
 })
 
 // The OpenID Connect details for an oidc -type, user-identity based trust provider.
-_#defs: "/$defs/Properties/definitions/OidcOptions": close({
+#OidcOptions: close({
 	// The OIDC authorization endpoint.
 	AuthorizationEndpoint?: string
 
@@ -116,10 +116,10 @@ _#defs: "/$defs/Properties/definitions/OidcOptions": close({
 })
 
 // The configuration options for customer provided KMS encryption.
-_#defs: "/$defs/Properties/definitions/SseSpecification": _#defs."/$defs/Properties/definitions/SseSpecification"
+#SseSpecification: #SseSpecification
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

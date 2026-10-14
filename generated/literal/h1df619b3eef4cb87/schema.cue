@@ -8,7 +8,7 @@ package schema
 #Properties: close({
 	// Accelerated transcoding can significantly speed up jobs with long, visually
 	// complex content. Outputs that use this feature incur pro-tier pricing.
-	AccelerationSettings?: _#defs."/$defs/Properties/definitions/AccelerationSettings"
+	AccelerationSettings?: #AccelerationSettings
 
 	// The Amazon Resource Name (ARN) of the job template, such as
 	// arn:aws:mediaconvert:us-west-2:123456789012:jobTemplates/my-job-template.
@@ -22,7 +22,7 @@ package schema
 
 	// Optional. Configuration for a destination queue to which the job can hop once
 	// a customer-defined minimum wait time has passed.
-	HopDestinations?: [..._#defs."/$defs/Properties/definitions/HopDestination"]
+	HopDestinations?: [...#HopDestination]
 
 	// The name of the job template you are creating.
 	Name?: string
@@ -58,12 +58,12 @@ package schema
 	Tags?: string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/AccelerationSettings": close({
+#AccelerationSettings: close({
 	// Specify the conditions when the service will run your job with accelerated transcoding.
 	Mode!: "DISABLED" | "ENABLED" | "PREFERRED"
 })
 
-_#defs: "/$defs/Properties/definitions/HopDestination": close({
+#HopDestination: close({
 	// Optional. A different relative priority for the job in the destination queue.
 	Priority?: int & <=50 & >=-50
 

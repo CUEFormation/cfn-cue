@@ -20,13 +20,13 @@ import "strings"
 	RuleConfig!:      _
 	...
 }]) & close({
-	AssertionRule?: _#defs."/$defs/Properties/definitions/AssertionRule"
+	AssertionRule?: #AssertionRule
 
 	// The Amazon Resource Name (ARN) of the control panel.
 	ControlPanelArn?: string
-	GatingRule?:      _#defs."/$defs/Properties/definitions/GatingRule"
-	Name?:            _#defs."/$defs/Properties/definitions/SafetyRuleName"
-	RuleConfig?:      _#defs."/$defs/Properties/definitions/RuleConfig"
+	GatingRule?:      #GatingRule
+	Name?:            #SafetyRuleName
+	RuleConfig?:      #RuleConfig
 
 	// The Amazon Resource Name (ARN) of the safety rule.
 	SafetyRuleArn?: string
@@ -36,13 +36,13 @@ import "strings"
 	Status?: "PENDING" | "DEPLOYED" | "PENDING_DELETION"
 
 	// A collection of tags associated with a resource
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // An assertion rule enforces that, when a routing control state is changed,
 // that the criteria set by the rule configuration is met. Otherwise, the
 // change to the routing control is not accepted.
-_#defs: "/$defs/Properties/definitions/AssertionRule": close({
+#AssertionRule: close({
 	// The routing controls that are part of transactions that are evaluated to
 	// determine if a request to change a routing control state is allowed. For
 	// example, you might include three routing controls, one for each of three AWS
@@ -61,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/AssertionRule": close({
 // true, Amazon Route 53 Application Recovery Controller allows a set of
 // routing control state changes to run and complete against the set of target
 // controls.
-_#defs: "/$defs/Properties/definitions/GatingRule": close({
+#GatingRule: close({
 	// The gating controls for the gating rule. That is, routing controls that are
 	// evaluated by the rule configuration that you specify.
 	GatingControls!: [...string]
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/GatingRule": close({
 // criteria that you set for specific assertion controls (routing controls) or
 // gating controls. This configuration specifies how many controls must be
 // enabled after a transaction completes.
-_#defs: "/$defs/Properties/definitions/RuleConfig": close({
+#RuleConfig: close({
 	// Logical negation of the rule. If the rule would usually evaluate true, it's
 	// evaluated as false, and vice versa.
 	Inverted!: bool
@@ -96,16 +96,16 @@ _#defs: "/$defs/Properties/definitions/RuleConfig": close({
 	// The value of N, when you specify an ATLEAST rule type. That is, Threshold is
 	// the number of controls that must be set when you specify an ATLEAST type.
 	Threshold!: int
-	Type!:      _#defs."/$defs/Properties/definitions/RuleType"
+	Type!:      #RuleType
 })
 
 // A rule can be one of the following: ATLEAST, AND, or OR.
-_#defs: "/$defs/Properties/definitions/RuleType": "AND" | "OR" | "ATLEAST"
+#RuleType: "AND" | "OR" | "ATLEAST"
 
 // The name for the safety rule.
-_#defs: "/$defs/Properties/definitions/SafetyRuleName": string
+#SafetyRuleName: string
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256)
 })

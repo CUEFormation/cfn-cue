@@ -18,50 +18,50 @@ import (
 	CreatedAt?:   time.Time
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
 	Name!:        strings.MaxRunes(50) & strings.MinRunes(2)
-	Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type?:        _#defs."/$defs/Properties/definitions/DashboardType"
+	Tags?:        list.MaxItems(200) & [...#Tag]
+	Type?:        #DashboardType
 	UpdatedAt?:   time.Time
-	Widgets!:     list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Widget"]
+	Widgets!:     list.MaxItems(20) & [...] & [...#Widget]
 })
 
-_#defs: "/$defs/Properties/definitions/CostAndUsageExpression": close({
-	And?:            [..._#defs."/$defs/Properties/definitions/CostAndUsageExpression"]
-	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues"
-	Dimensions?:     _#defs."/$defs/Properties/definitions/DimensionValues"
-	Not?:            _#defs."/$defs/Properties/definitions/CostAndUsageExpression"
-	Or?:             [..._#defs."/$defs/Properties/definitions/CostAndUsageExpression"]
-	Tags?:           _#defs."/$defs/Properties/definitions/TagValues"
+#CostAndUsageExpression: close({
+	And?:            [...#CostAndUsageExpression]
+	CostCategories?: #CostCategoryValues
+	Dimensions?:     #DimensionValues
+	Not?:            #CostAndUsageExpression
+	Or?:             [...#CostAndUsageExpression]
+	Tags?:           #TagValues
 })
 
-_#defs: "/$defs/Properties/definitions/CostAndUsageQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/CostAndUsageExpression"
-	Granularity!: _#defs."/$defs/Properties/definitions/Granularity"
-	GroupBy?:     [..._#defs."/$defs/Properties/definitions/GroupDefinition"]
-	Metrics!:     [..._#defs."/$defs/Properties/definitions/MetricName"]
-	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
+#CostAndUsageQuery: close({
+	Filter?:      #CostAndUsageExpression
+	Granularity!: #Granularity
+	GroupBy?:     [...#GroupDefinition]
+	Metrics!:     [...#MetricName]
+	TimeRange!:   #DateTimeRange
 })
 
-_#defs: "/$defs/Properties/definitions/CostCategoryValues": close({
+#CostCategoryValues: close({
 	Key!:          string
-	MatchOptions?: [..._#defs."/$defs/Properties/definitions/MatchOption"]
+	MatchOptions?: [...#MatchOption]
 	Values!:       [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/DashboardType": "CUSTOM"
+#DashboardType: "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/DateTimeRange": close({
-	EndTime!:   _#defs."/$defs/Properties/definitions/DateTimeValue"
-	StartTime!: _#defs."/$defs/Properties/definitions/DateTimeValue"
+#DateTimeRange: close({
+	EndTime!:   #DateTimeValue
+	StartTime!: #DateTimeValue
 })
 
-_#defs: "/$defs/Properties/definitions/DateTimeType": "ABSOLUTE" | "RELATIVE"
+#DateTimeType: "ABSOLUTE" | "RELATIVE"
 
-_#defs: "/$defs/Properties/definitions/DateTimeValue": close({
-	Type!:  _#defs."/$defs/Properties/definitions/DateTimeType"
+#DateTimeValue: close({
+	Type!:  #DateTimeType
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Dimension": "AZ" |
+#Dimension: "AZ" |
 	"INSTANCE_TYPE" |
 	"LINKED_ACCOUNT" |
 	"OPERATION" |
@@ -88,43 +88,41 @@ _#defs: "/$defs/Properties/definitions/Dimension": "AZ" |
 	"TAG_KEY" |
 	"COST_CATEGORY_NAME"
 
-_#defs: "/$defs/Properties/definitions/DimensionValues": close({
-	Key!:          _#defs."/$defs/Properties/definitions/Dimension"
-	MatchOptions?: [..._#defs."/$defs/Properties/definitions/MatchOption"]
+#DimensionValues: close({
+	Key!:          #Dimension
+	MatchOptions?: [...#MatchOption]
 	Values!:       [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/DisplayConfig": close({
-	Graph?: _#defs."/$defs/Properties/definitions/GraphDisplayConfigMap"
-	Table?: _#defs."/$defs/Properties/definitions/TableDisplayConfigStruct"
+#DisplayConfig: close({
+	Graph?: #GraphDisplayConfigMap
+	Table?: #TableDisplayConfigStruct
 })
 
-_#defs: "/$defs/Properties/definitions/Expression": close({
-	And?:            [..._#defs."/$defs/Properties/definitions/Expression"]
-	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues"
-	Dimensions?:     _#defs."/$defs/Properties/definitions/DimensionValues"
-	Not?:            _#defs."/$defs/Properties/definitions/Expression"
-	Tags?:           _#defs."/$defs/Properties/definitions/TagValues"
+#Expression: close({
+	And?:            [...#Expression]
+	CostCategories?: #CostCategoryValues
+	Dimensions?:     #DimensionValues
+	Not?:            #Expression
+	Tags?:           #TagValues
 })
 
-_#defs: "/$defs/Properties/definitions/Granularity": "HOURLY" | "DAILY" | "MONTHLY"
+#Granularity: "HOURLY" | "DAILY" | "MONTHLY"
 
-_#defs: "/$defs/Properties/definitions/GraphDisplayConfig": close(
-	{VisualType!: _#defs."/$defs/Properties/definitions/VisualType"},
-)
+#GraphDisplayConfig: close({VisualType!: #VisualType})
 
-_#defs: "/$defs/Properties/definitions/GraphDisplayConfigMap": close({
+#GraphDisplayConfigMap: close({
 
-	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/GraphDisplayConfig"}})
+	{[=~"^.+$"]: #GraphDisplayConfig}})
 
-_#defs: "/$defs/Properties/definitions/GroupDefinition": close({
+#GroupDefinition: close({
 	Key!:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S\\s]*$"
-	Type?: _#defs."/$defs/Properties/definitions/GroupDefinitionType"
+	Type?: #GroupDefinitionType
 })
 
-_#defs: "/$defs/Properties/definitions/GroupDefinitionType": "DIMENSION" | "TAG" | "COST_CATEGORY"
+#GroupDefinitionType: "DIMENSION" | "TAG" | "COST_CATEGORY"
 
-_#defs: "/$defs/Properties/definitions/MatchOption": "EQUALS" |
+#MatchOption: "EQUALS" |
 	"ABSENT" |
 	"STARTS_WITH" |
 	"ENDS_WITH" |
@@ -133,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/MatchOption": "EQUALS" |
 	"CASE_SENSITIVE" |
 	"CASE_INSENSITIVE"
 
-_#defs: "/$defs/Properties/definitions/MetricName": "AmortizedCost" |
+#MetricName: "AmortizedCost" |
 	"BlendedCost" |
 	"NetAmortizedCost" |
 	"NetUnblendedCost" |
@@ -145,60 +143,60 @@ _#defs: "/$defs/Properties/definitions/MetricName": "AmortizedCost" |
 	"Unit" |
 	"Cost"
 
-_#defs: "/$defs/Properties/definitions/QueryParameters": close({
-	CostAndUsage?:            _#defs."/$defs/Properties/definitions/CostAndUsageQuery"
-	ReservationCoverage?:     _#defs."/$defs/Properties/definitions/ReservationCoverageQuery"
-	ReservationUtilization?:  _#defs."/$defs/Properties/definitions/ReservationUtilizationQuery"
-	SavingsPlansCoverage?:    _#defs."/$defs/Properties/definitions/SavingsPlansCoverageQuery"
-	SavingsPlansUtilization?: _#defs."/$defs/Properties/definitions/SavingsPlansUtilizationQuery"
+#QueryParameters: close({
+	CostAndUsage?:            #CostAndUsageQuery
+	ReservationCoverage?:     #ReservationCoverageQuery
+	ReservationUtilization?:  #ReservationUtilizationQuery
+	SavingsPlansCoverage?:    #SavingsPlansCoverageQuery
+	SavingsPlansUtilization?: #SavingsPlansUtilizationQuery
 })
 
-_#defs: "/$defs/Properties/definitions/ReservationCoverageQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/Expression"
-	Granularity?: _#defs."/$defs/Properties/definitions/Granularity"
-	GroupBy?:     [..._#defs."/$defs/Properties/definitions/GroupDefinition"]
-	Metrics?:     [..._#defs."/$defs/Properties/definitions/MetricName"]
-	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
+#ReservationCoverageQuery: close({
+	Filter?:      #Expression
+	Granularity?: #Granularity
+	GroupBy?:     [...#GroupDefinition]
+	Metrics?:     [...#MetricName]
+	TimeRange!:   #DateTimeRange
 })
 
-_#defs: "/$defs/Properties/definitions/ReservationUtilizationQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/Expression"
-	Granularity?: _#defs."/$defs/Properties/definitions/Granularity"
-	GroupBy?:     [..._#defs."/$defs/Properties/definitions/GroupDefinition"]
-	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
+#ReservationUtilizationQuery: close({
+	Filter?:      #Expression
+	Granularity?: #Granularity
+	GroupBy?:     [...#GroupDefinition]
+	TimeRange!:   #DateTimeRange
 })
 
-_#defs: "/$defs/Properties/definitions/SavingsPlansCoverageQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/Expression"
-	Granularity?: _#defs."/$defs/Properties/definitions/Granularity"
-	GroupBy?:     [..._#defs."/$defs/Properties/definitions/GroupDefinition"]
-	Metrics?:     [..._#defs."/$defs/Properties/definitions/MetricName"]
-	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
+#SavingsPlansCoverageQuery: close({
+	Filter?:      #Expression
+	Granularity?: #Granularity
+	GroupBy?:     [...#GroupDefinition]
+	Metrics?:     [...#MetricName]
+	TimeRange!:   #DateTimeRange
 })
 
-_#defs: "/$defs/Properties/definitions/SavingsPlansUtilizationQuery": close({
-	Filter?:      _#defs."/$defs/Properties/definitions/Expression"
-	Granularity?: _#defs."/$defs/Properties/definitions/Granularity"
-	TimeRange!:   _#defs."/$defs/Properties/definitions/DateTimeRange"
+#SavingsPlansUtilizationQuery: close({
+	Filter?:      #Expression
+	Granularity?: #Granularity
+	TimeRange!:   #DateTimeRange
 })
 
-_#defs: "/$defs/Properties/definitions/TableDisplayConfigStruct": close({})
+#TableDisplayConfigStruct: close({})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TagValues": close({
+#TagValues: close({
 	Key!:          string
-	MatchOptions?: [..._#defs."/$defs/Properties/definitions/MatchOption"]
+	MatchOptions?: [...#MatchOption]
 	Values!:       [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/VisualType": "LINE" | "BAR" | "STACK"
+#VisualType: "LINE" | "BAR" | "STACK"
 
-_#defs: "/$defs/Properties/definitions/Widget": close({
-	Configs!:          list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WidgetConfig"]
+#Widget: close({
+	Configs!:          list.MaxItems(2) & list.MinItems(1) & [...#WidgetConfig]
 	Description?:      strings.MaxRunes(200) & strings.MinRunes(1)
 	Height?:           int & <=10 & >=4
 	HorizontalOffset?: int
@@ -206,7 +204,7 @@ _#defs: "/$defs/Properties/definitions/Widget": close({
 	Width?:            int & <=6 & >=2
 })
 
-_#defs: "/$defs/Properties/definitions/WidgetConfig": close({
-	DisplayConfig!:   _#defs."/$defs/Properties/definitions/DisplayConfig"
-	QueryParameters!: _#defs."/$defs/Properties/definitions/QueryParameters"
+#WidgetConfig: close({
+	DisplayConfig!:   #DisplayConfig
+	QueryParameters!: #QueryParameters
 })

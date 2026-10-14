@@ -15,17 +15,17 @@ import (
 	// The agent permissions attached to this profiling group.
 	AgentPermissions?: close({
 		// The principals for the agent permissions.
-		Principals!: [..._#defs."/$defs/Properties/definitions/IamArn"]
+		Principals!: [...#IamArn]
 	})
 
 	// Configuration for Notification Channels for Anomaly Detection feature in
 	// CodeGuru Profiler which enables customers to detect anomalies in the
 	// application profile for those methods that represent the highest proportion
 	// of CPU time or latency
-	AnomalyDetectionNotificationConfiguration?: [..._#defs."/$defs/Properties/definitions/Channel"]
+	AnomalyDetectionNotificationConfiguration?: [...#Channel]
 
 	// The Amazon Resource Name (ARN) of the specified profiling group.
-	Arn?: _#defs."/$defs/Properties/definitions/ProfilingGroupArn"
+	Arn?: #ProfilingGroupArn
 
 	// The compute platform of the profiling group.
 	ComputePlatform?: "Default" | "AWSLambda"
@@ -34,30 +34,30 @@ import (
 	ProfilingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-]+$"
 
 	// The tags associated with a profiling group.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Notification medium for users to get alerted for events that occur in
 // application profile. We support SNS topic as a notification channel.
-_#defs: "/$defs/Properties/definitions/Channel": {
-	channelId?:  _#defs."/$defs/Properties/definitions/ChannelId"
-	channelUri!: _#defs."/$defs/Properties/definitions/ChannelUri"
+#Channel: {
+	channelId?:  #ChannelId
+	channelUri!: #ChannelUri
 	...
 }
 
 // Unique identifier for each Channel in the notification configuration of a Profiling Group
-_#defs: "/$defs/Properties/definitions/ChannelId": =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
+#ChannelId: =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
 
 // Unique arn of the resource to be used for notifications. We support a valid
 // SNS topic arn as a channel uri.
-_#defs: "/$defs/Properties/definitions/ChannelUri": =~"^arn:aws([-\\w]*):[a-z-]+:(([a-z]+-)+[0-9]+)?:([0-9]{12}):[^.]+$"
+#ChannelUri: =~"^arn:aws([-\\w]*):[a-z-]+:(([a-z]+-)+[0-9]+)?:([0-9]{12}):[^.]+$"
 
-_#defs: "/$defs/Properties/definitions/IamArn": =~"^arn:aws([-\\w]*):iam::([0-9]{12}):[\\S]+$"
+#IamArn: =~"^arn:aws([-\\w]*):iam::([0-9]{12}):[\\S]+$"
 
-_#defs: "/$defs/Properties/definitions/ProfilingGroupArn": =~"^arn:aws([-\\w]*):codeguru-profiler:(([a-z]+-)+[0-9]+):([0-9]{12}):profilingGroup/[^.]+$"
+#ProfilingGroupArn: =~"^arn:aws([-\\w]*):codeguru-profiler:(([a-z]+-)+[0-9]+):([0-9]{12}):profilingGroup/[^.]+$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. The allowed
 	// characters across services are: letters, numbers, and spaces representable

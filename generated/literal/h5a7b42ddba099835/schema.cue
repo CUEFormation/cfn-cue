@@ -11,13 +11,13 @@ import (
 
 // Definition of AWS::Wisdom::MessageTemplate Resource Type
 #Properties: close({
-	ChannelSubtype!:    _#defs."/$defs/Properties/definitions/ChannelSubtype"
-	Content!:           _#defs."/$defs/Properties/definitions/Content"
-	DefaultAttributes?: _#defs."/$defs/Properties/definitions/MessageTemplateAttributes"
+	ChannelSubtype!:    #ChannelSubtype
+	Content!:           #Content
+	DefaultAttributes?: #MessageTemplateAttributes
 
 	// The description of the message template.
 	Description?:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+"
-	GroupingConfiguration?: _#defs."/$defs/Properties/definitions/GroupingConfiguration"
+	GroupingConfiguration?: #GroupingConfiguration
 
 	// The Amazon Resource Name (ARN) of the knowledge base to which the message template belongs.
 	KnowledgeBaseArn!:
@@ -33,7 +33,7 @@ import (
 		=~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?$"
 
 	// List of message template attachments
-	MessageTemplateAttachments?: [..._#defs."/$defs/Properties/definitions/MessageTemplateAttachment"]
+	MessageTemplateAttachments?: [...#MessageTemplateAttachment]
 
 	// The content SHA256 of the message template.
 	MessageTemplateContentSha256?: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -46,11 +46,11 @@ import (
 
 	// The tags used to organize, track, or control access for this resource. For
 	// example, { "tags": {"key1":"value1", "key2":"value2"} }.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The agent attributes that are used with the message template.
-_#defs: "/$defs/Properties/definitions/AgentAttributes": close({
+#AgentAttributes: close({
 	// The agent’s first name as entered in their Amazon Connect user account.
 	FirstName?: strings.MaxRunes(32767) & strings.MinRunes(1)
 
@@ -59,36 +59,35 @@ _#defs: "/$defs/Properties/definitions/AgentAttributes": close({
 })
 
 // The name of the attachment file being uploaded. The name should include the file extension.
-_#defs: "/$defs/Properties/definitions/AttachmentName": strings.MaxRunes(255) & strings.MinRunes(1)
+#AttachmentName: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // The S3 Presigned URL for the attachment file. When generating the
 // PreSignedUrl, please ensure that the expires-in time is set to 30 minutes.
 // The URL can be generated through the AWS Console or through the AWS CLI
 // (https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html).
-_#defs: "/$defs/Properties/definitions/AttachmentUrl": strings.MinRunes(1)
+#AttachmentUrl: strings.MinRunes(1)
 
 // The channel subtype this message template applies to.
-_#defs: "/$defs/Properties/definitions/ChannelSubtype": "EMAIL" | "SMS"
+#ChannelSubtype: "EMAIL" | "SMS"
 
 // The content of the message template.
-_#defs: "/$defs/Properties/definitions/Content": matchN(1, [{
-	EmailMessageTemplateContent!: _
-	...
-}, {
-	SmsMessageTemplateContent!: _
-	...
-}]) & close({
-	EmailMessageTemplateContent?: _#defs."/$defs/Properties/definitions/EmailMessageTemplateContent"
-	SmsMessageTemplateContent?:   _#defs."/$defs/Properties/definitions/SmsMessageTemplateContent"
-})
+#Content: close({
+	EmailMessageTemplateContent?: #EmailMessageTemplateContent
+	SmsMessageTemplateContent?:   #SmsMessageTemplateContent
+	if EmailMessageTemplateContent != _|_ if EmailMessageTemplateContent."Fn::If" == _|_ {
+		SmsMessageTemplateContent?: close({"Fn::If": _}) | error(
+			"SmsMessageTemplateContent cannot be used with EmailMessageTemplateContent; set exactly one of EmailMessageTemplateContent, SmsMessageTemplateContent",
+		)
+	}
+}) & matchN(>=1, [{EmailMessageTemplateContent!: _}, {SmsMessageTemplateContent!: _}])
 
 // The custom attributes that are used with the message template.
-_#defs: "/$defs/Properties/definitions/CustomAttributes": close({
+#CustomAttributes: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(32767) & strings.MinRunes(1)}})
 
 // The customer profile attributes that are used with the message template.
-_#defs: "/$defs/Properties/definitions/CustomerProfileAttributes": close({
+#CustomerProfileAttributes: close({
 	// A unique account number that you have given to the customer.
 	AccountNumber?: strings.MaxRunes(32767) & strings.MinRunes(1)
 
@@ -157,7 +156,7 @@ _#defs: "/$defs/Properties/definitions/CustomerProfileAttributes": close({
 
 	// The county in which a customer lives.
 	County?: strings.MaxRunes(32767) & strings.MinRunes(1)
-	Custom?: _#defs."/$defs/Properties/definitions/CustomAttributes"
+	Custom?: #CustomAttributes
 
 	// The customer's email address, which has not been specified as a personal or business address.
 	EmailAddress?: strings.MaxRunes(32767) & strings.MinRunes(1)
@@ -263,35 +262,33 @@ _#defs: "/$defs/Properties/definitions/CustomerProfileAttributes": close({
 })
 
 // The content of message template that applies to email channel subtype.
-_#defs: "/$defs/Properties/definitions/EmailMessageTemplateContent": close({
-	Body!: _#defs."/$defs/Properties/definitions/EmailMessageTemplateContentBody"
+#EmailMessageTemplateContent: close({
+	Body!: #EmailMessageTemplateContentBody
 
 	// The email headers to include in email messages.
-	Headers!: list.MaxItems(15) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/EmailMessageTemplateHeader"
-	]
+	Headers!: list.MaxItems(15) & list.UniqueItems() & [...] & [...#EmailMessageTemplateHeader]
 
 	// The subject line, or title, to use in email messages.
 	Subject!: strings.MinRunes(1)
 })
 
 // The body to use in email messages.
-_#defs: "/$defs/Properties/definitions/EmailMessageTemplateContentBody": close({
+#EmailMessageTemplateContentBody: close({
 	// The message body, in HTML format, to use in email messages that are based on
 	// the message template. We recommend using HTML format for email clients that
 	// render HTML content. You can include links, formatted text, and more in an
 	// HTML message.
-	Html?: _#defs."/$defs/Properties/definitions/MessageTemplateBodyContentProvider"
+	Html?: #MessageTemplateBodyContentProvider
 
 	// The message body, in plain text format, to use in email messages that are
 	// based on the message template. We recommend using plain text format for
 	// email clients that don't render HTML content and clients that are connected
 	// to high-latency networks, such as mobile devices.
-	PlainText?: _#defs."/$defs/Properties/definitions/MessageTemplateBodyContentProvider"
+	PlainText?: #MessageTemplateBodyContentProvider
 })
 
 // The email header to include in email messages.
-_#defs: "/$defs/Properties/definitions/EmailMessageTemplateHeader": close({
+#EmailMessageTemplateHeader: close({
 	// The name of the email header.
 	Name?: strings.MaxRunes(126) & strings.MinRunes(1) & =~"^[!-9;-@A-~]+$"
 
@@ -300,68 +297,64 @@ _#defs: "/$defs/Properties/definitions/EmailMessageTemplateHeader": close({
 })
 
 // The configuration information of the user groups that the message template is accessible to.
-_#defs: "/$defs/Properties/definitions/GroupingConfiguration": close({
+#GroupingConfiguration: close({
 	// The criteria used for grouping Amazon Q in Connect users.
 	Criteria!: strings.MaxRunes(100) & strings.MinRunes(1)
 
 	// The list of values that define different groups of Amazon Q in Connect users.
-	Values!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupingValue"]
+	Values!: list.UniqueItems() & [...#GroupingValue]
 })
 
 // The value that define the group of Amazon Q in Connect users.
-_#defs: "/$defs/Properties/definitions/GroupingValue": strings.MaxRunes(2048) & strings.MinRunes(1)
+#GroupingValue: strings.MaxRunes(2048) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/MessageTemplateAttachment": close({
+#MessageTemplateAttachment: close({
 	AttachmentId?:   strings.MinRunes(1)
-	AttachmentName!: _#defs."/$defs/Properties/definitions/AttachmentName"
-	S3PresignedUrl!: _#defs."/$defs/Properties/definitions/AttachmentUrl"
+	AttachmentName!: #AttachmentName
+	S3PresignedUrl!: #AttachmentUrl
 })
 
 // An object that specifies the default values to use for variables in the
 // message template. This object contains different categories of key-value
 // pairs. Each key defines a variable or placeholder in the message template.
 // The corresponding value defines the default value for that variable.
-_#defs: "/$defs/Properties/definitions/MessageTemplateAttributes": close({
-	AgentAttributes?:           _#defs."/$defs/Properties/definitions/AgentAttributes"
-	CustomAttributes?:          _#defs."/$defs/Properties/definitions/CustomAttributes"
-	CustomerProfileAttributes?: _#defs."/$defs/Properties/definitions/CustomerProfileAttributes"
-	SystemAttributes?:          _#defs."/$defs/Properties/definitions/SystemAttributes"
+#MessageTemplateAttributes: close({
+	AgentAttributes?:           #AgentAttributes
+	CustomAttributes?:          #CustomAttributes
+	CustomerProfileAttributes?: #CustomerProfileAttributes
+	SystemAttributes?:          #SystemAttributes
 })
 
 // The container of message template body.
-_#defs: "/$defs/Properties/definitions/MessageTemplateBodyContentProvider": close({Content?: strings.MinRunes(1)})
+#MessageTemplateBodyContentProvider: close({Content?: strings.MinRunes(1)})
 
 // The content of message template that applies to SMS channel subtype.
-_#defs: "/$defs/Properties/definitions/SmsMessageTemplateContent": close(
-	{Body!: _#defs."/$defs/Properties/definitions/SmsMessageTemplateContentBody"},
-)
+#SmsMessageTemplateContent: close({Body!: #SmsMessageTemplateContentBody})
 
 // The body to use in SMS messages.
-_#defs: "/$defs/Properties/definitions/SmsMessageTemplateContentBody": close(
-	{PlainText?: _#defs."/$defs/Properties/definitions/MessageTemplateBodyContentProvider"},
-)
+#SmsMessageTemplateContentBody: close({PlainText?: #MessageTemplateBodyContentProvider})
 
 // The system attributes that are used with the message template.
-_#defs: "/$defs/Properties/definitions/SystemAttributes": close({
+#SystemAttributes: close({
 	// The CustomerEndpoint attribute.
-	CustomerEndpoint?: _#defs."/$defs/Properties/definitions/SystemEndpointAttributes"
+	CustomerEndpoint?: #SystemEndpointAttributes
 
 	// The name of the task.
 	Name?: strings.MaxRunes(32767) & strings.MinRunes(1)
 
 	// The SystemEndpoint attribute.
-	SystemEndpoint?: _#defs."/$defs/Properties/definitions/SystemEndpointAttributes"
+	SystemEndpoint?: #SystemEndpointAttributes
 })
 
 // The system endpoint attributes that are used with the message template.
-_#defs: "/$defs/Properties/definitions/SystemEndpointAttributes": close({
+#SystemEndpointAttributes: close({
 	// The customer's phone number if used with customerEndpoint, or the number the
 	// customer dialed to call your contact center if used with systemEndpoint.
 	Address?: strings.MaxRunes(32767) & strings.MinRunes(1)
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

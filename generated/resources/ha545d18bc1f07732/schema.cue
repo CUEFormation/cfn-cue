@@ -12,20 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm VPCE Configuration
-#Properties: close({
-	ServiceDnsName!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpceConfigurationDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	VpceConfigurationName!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VpceServiceName!:              strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DeviceFarm::VPCEConfiguration"
+	Properties!: close({
+		ServiceDnsName!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                         [...#Tag] | fn.#ListExpression
+		VpceConfigurationDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		VpceConfigurationName!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		VpceServiceName!:              strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DeviceFarm::VPCEConfiguration"
-	Properties!: #Properties
-}

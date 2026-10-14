@@ -27,26 +27,26 @@ import (
 
 	// A description of the crawler.
 	Description?:                strings.MaxRunes(2048) & strings.MinRunes(0)
-	LakeFormationConfiguration?: _#defs."/$defs/Properties/definitions/LakeFormationConfiguration"
+	LakeFormationConfiguration?: #LakeFormationConfiguration
 
 	// The name of the crawler.
 	Name?:          strings.MaxRunes(255) & strings.MinRunes(1)
-	RecrawlPolicy?: _#defs."/$defs/Properties/definitions/RecrawlPolicy"
+	RecrawlPolicy?: #RecrawlPolicy
 
 	// The Amazon Resource Name (ARN) of an IAM role that's used to access customer
 	// resources, such as Amazon Simple Storage Service (Amazon S3) data.
 	Role!:               string
-	Schedule?:           _#defs."/$defs/Properties/definitions/Schedule"
-	SchemaChangePolicy?: _#defs."/$defs/Properties/definitions/SchemaChangePolicy"
+	Schedule?:           #Schedule
+	SchemaChangePolicy?: #SchemaChangePolicy
 
 	// The prefix added to the names of tables that are created.
 	TablePrefix?: strings.MaxRunes(128) & strings.MinRunes(0)
 	Tags?:        string | {...}
-	Targets!:     _#defs."/$defs/Properties/definitions/Targets"
+	Targets!:     #Targets
 })
 
 // Specifies an AWS Glue Data Catalog target.
-_#defs: "/$defs/Properties/definitions/CatalogTarget": close({
+#CatalogTarget: close({
 	// The name of the connection for an Amazon S3-backed Data Catalog table to be a
 	// target of the crawl when using a Catalog connection type paired with a
 	// NETWORK Connection type.
@@ -66,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/CatalogTarget": close({
 })
 
 // Specifies a Delta data store to crawl one or more Delta tables.
-_#defs: "/$defs/Properties/definitions/DeltaTarget": close({
+#DeltaTarget: close({
 	// The name of the connection to use to connect to the Delta table target.
 	ConnectionName?: string
 
@@ -81,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/DeltaTarget": close({
 })
 
 // Specifies an Amazon DynamoDB table to crawl.
-_#defs: "/$defs/Properties/definitions/DynamoDBTarget": close({
+#DynamoDBTarget: close({
 	// The name of the DynamoDB table to crawl.
 	Path?: string
 
@@ -105,7 +105,7 @@ _#defs: "/$defs/Properties/definitions/DynamoDBTarget": close({
 })
 
 // Specifies Apache Hudi data store targets.
-_#defs: "/$defs/Properties/definitions/HudiTarget": close({
+#HudiTarget: close({
 	// The name of the connection to use to connect to the Hudi target.
 	ConnectionName?: string
 
@@ -122,7 +122,7 @@ _#defs: "/$defs/Properties/definitions/HudiTarget": close({
 })
 
 // Specifies Apache Iceberg data store targets.
-_#defs: "/$defs/Properties/definitions/IcebergTarget": close({
+#IcebergTarget: close({
 	// The name of the connection to use to connect to the Iceberg target.
 	ConnectionName?: string
 
@@ -139,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/IcebergTarget": close({
 })
 
 // Specifies a JDBC data store to crawl.
-_#defs: "/$defs/Properties/definitions/JdbcTarget": close({
+#JdbcTarget: close({
 	// The name of the connection to use to connect to the JDBC target.
 	ConnectionName?: string
 
@@ -159,7 +159,7 @@ _#defs: "/$defs/Properties/definitions/JdbcTarget": close({
 })
 
 // Specifies AWS Lake Formation configuration settings for the crawler
-_#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
+#LakeFormationConfiguration: close({
 	// Required for cross account crawls. For same account crawls as the target
 	// data, this can be left as null.
 	AccountId?: strings.MaxRunes(12) & strings.MinRunes(0)
@@ -170,7 +170,7 @@ _#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
 })
 
 // Specifies an Amazon DocumentDB or MongoDB data store to crawl.
-_#defs: "/$defs/Properties/definitions/MongoDBTarget": close({
+#MongoDBTarget: close({
 	// The name of the connection to use to connect to the Amazon DocumentDB or MongoDB target.
 	ConnectionName?: string
 
@@ -182,7 +182,7 @@ _#defs: "/$defs/Properties/definitions/MongoDBTarget": close({
 // specifies whether to crawl the entire dataset again or to crawl only folders
 // that were added since the last crawler run. For more information, see
 // Incremental Crawls in AWS Glue in the developer guide.
-_#defs: "/$defs/Properties/definitions/RecrawlPolicy": close({
+#RecrawlPolicy: close({
 	// Specifies whether to crawl the entire dataset again or to crawl only folders
 	// that were added since the last crawler run. A value of CRAWL_EVERYTHING
 	// specifies crawling the entire dataset again. A value of
@@ -193,7 +193,7 @@ _#defs: "/$defs/Properties/definitions/RecrawlPolicy": close({
 })
 
 // Specifies a data store in Amazon Simple Storage Service (Amazon S3).
-_#defs: "/$defs/Properties/definitions/S3Target": close({
+#S3Target: close({
 	// The name of a connection which allows a job or crawler to access data in
 	// Amazon S3 within an Amazon Virtual Private Cloud environment (Amazon VPC).
 	ConnectionName?: string
@@ -217,7 +217,7 @@ _#defs: "/$defs/Properties/definitions/S3Target": close({
 })
 
 // A scheduling object using a cron statement to schedule an event.
-_#defs: "/$defs/Properties/definitions/Schedule": close({
+#Schedule: close({
 	// A cron expression used to specify the schedule. For more information, see
 	// Time-Based Schedules for Jobs and Crawlers. For example, to run something
 	// every day at 12:15 UTC, specify cron(15 12 * * ? *).
@@ -231,7 +231,7 @@ _#defs: "/$defs/Properties/definitions/Schedule": close({
 // partitions are added. New tables and partitions are always created
 // regardless of the SchemaChangePolicy on a crawler. The SchemaChangePolicy
 // consists of two components, UpdateBehavior and DeleteBehavior.
-_#defs: "/$defs/Properties/definitions/SchemaChangePolicy": close({
+#SchemaChangePolicy: close({
 	// The deletion behavior when the crawler finds a deleted object. A value of LOG
 	// specifies that if a table or partition is found to no longer exist, do not
 	// delete it, only log that it was found to no longer exist. A value of
@@ -252,28 +252,28 @@ _#defs: "/$defs/Properties/definitions/SchemaChangePolicy": close({
 })
 
 // Specifies data stores to crawl.
-_#defs: "/$defs/Properties/definitions/Targets": close({
+#Targets: close({
 	// Specifies AWS Glue Data Catalog targets.
-	CatalogTargets?: [..._#defs."/$defs/Properties/definitions/CatalogTarget"]
+	CatalogTargets?: [...#CatalogTarget]
 
 	// Specifies an array of Delta data store targets.
-	DeltaTargets?: [..._#defs."/$defs/Properties/definitions/DeltaTarget"]
+	DeltaTargets?: [...#DeltaTarget]
 
 	// Specifies Amazon DynamoDB targets.
-	DynamoDBTargets?: [..._#defs."/$defs/Properties/definitions/DynamoDBTarget"]
+	DynamoDBTargets?: [...#DynamoDBTarget]
 
 	// Specifies Apache Hudi data store targets.
-	HudiTargets?: [..._#defs."/$defs/Properties/definitions/HudiTarget"]
+	HudiTargets?: [...#HudiTarget]
 
 	// Specifies Apache Iceberg data store targets.
-	IcebergTargets?: [..._#defs."/$defs/Properties/definitions/IcebergTarget"]
+	IcebergTargets?: [...#IcebergTarget]
 
 	// Specifies JDBC targets.
-	JdbcTargets?: [..._#defs."/$defs/Properties/definitions/JdbcTarget"]
+	JdbcTargets?: [...#JdbcTarget]
 
 	// A list of Mongo DB targets.
-	MongoDBTargets?: [..._#defs."/$defs/Properties/definitions/MongoDBTarget"]
+	MongoDBTargets?: [...#MongoDBTarget]
 
 	// Specifies Amazon Simple Storage Service (Amazon S3) targets.
-	S3Targets?: [..._#defs."/$defs/Properties/definitions/S3Target"]
+	S3Targets?: [...#S3Target]
 })

@@ -11,29 +11,25 @@ import (
 
 // Resource Type definition for AWS::SES::MultiRegionEndpoint
 #Properties: close({
-	Details!: _#defs."/$defs/Properties/definitions/Details"
+	Details!: #Details
 
 	// The name of the multi-region endpoint (global-endpoint).
 	EndpointName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$"
-	Tags?:         _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:         #Tags
 })
 
 // Contains details of a multi-region endpoint (global-endpoint) being created.
-_#defs: "/$defs/Properties/definitions/Details": close(
-	{RouteDetails!: _#defs."/$defs/Properties/definitions/RouteDetails"},
-)
+#Details: close({RouteDetails!: #RouteDetails})
 
 // The name of an AWS-Region to be a secondary region for the multi-region
 // endpoint (global-endpoint)
-_#defs: "/$defs/Properties/definitions/Region": string
+#Region: string
 
 // A list of route configuration details. Must contain exactly one route configuration
-_#defs: "/$defs/Properties/definitions/RouteDetails": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	...close({Region!: _#defs."/$defs/Properties/definitions/Region"})
-]
+#RouteDetails: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...close({Region!: #Region})]
 
 // An object that defines the tags that are associated with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// One part of a key-value pair that defines a tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -43,6 +39,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 // An Array of objects that define the tags (keys and values) to associate with
 // the multi-region endpoint (global-endpoint).
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]

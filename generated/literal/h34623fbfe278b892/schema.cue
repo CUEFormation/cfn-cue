@@ -11,30 +11,30 @@ import (
 
 // Definition of AWS::ManagedBlockchain::com.amazonaws.taiga.webservice.api#Accessor Resource Type
 #Properties: close({
-	AccessorType!: _#defs."/$defs/Properties/definitions/AccessorType"
+	AccessorType!: #AccessorType
 	Arn?:          strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+:.+:.+:.+:.+$"
 	BillingToken?: strings.MaxRunes(42) & strings.MinRunes(42)
 	CreationDate?: string
 	Id?:           strings.MaxRunes(32) & strings.MinRunes(1)
-	NetworkType?:  _#defs."/$defs/Properties/definitions/NetworkAccessorType"
-	Status?:       _#defs."/$defs/Properties/definitions/AccessorStatus"
+	NetworkType?:  #NetworkAccessorType
+	Status?:       #AccessorStatus
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AccessorStatus": "AVAILABLE" | "PENDING_DELETION" | "DELETED"
+#AccessorStatus: "AVAILABLE" | "PENDING_DELETION" | "DELETED"
 
-_#defs: "/$defs/Properties/definitions/AccessorType": "BILLING_TOKEN"
+#AccessorType: "BILLING_TOKEN"
 
-_#defs: "/$defs/Properties/definitions/NetworkAccessorType": "ETHEREUM_GOERLI" |
+#NetworkAccessorType: "ETHEREUM_GOERLI" |
 	"ETHEREUM_MAINNET" |
 	"ETHEREUM_MAINNET_AND_GOERLI" |
 	"POLYGON_MAINNET" |
 	"POLYGON_MUMBAI"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

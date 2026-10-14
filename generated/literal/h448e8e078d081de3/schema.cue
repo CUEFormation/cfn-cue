@@ -23,7 +23,7 @@ import "strings"
 	PoolId?: string
 
 	// Any tags assigned to the public IPv4 pool.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The total number of addresses in the pool.
 	TotalAddressCount?: int
@@ -32,7 +32,7 @@ import "strings"
 	TotalAvailableAddressCount?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -13,25 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::ConfigurationAggregator
-#Properties: close({
-	AccountAggregationSources?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AccountAggregationSource"
-	] |
-		fn.#ListExpression
-	ConfigurationAggregatorName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
-	OrganizationAggregationSource?: _#defs."/$defs/Properties/definitions/OrganizationAggregationSource"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::ConfigurationAggregator"
+	Properties?: close({
+		AccountAggregationSources?:   list.MaxItems(1) & [...] & [...#AccountAggregationSource] | fn.#ListExpression
+		ConfigurationAggregatorName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
+		OrganizationAggregationSource?: #OrganizationAggregationSource
+		Tags?:                          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccountAggregationSource": close({
+#AccountAggregationSource: close({
 	AccountIds!:    list.MinItems(1) & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
 	AllAwsRegions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AwsRegions?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrganizationAggregationSource": close({
+#OrganizationAggregationSource: close({
 	AllAwsRegions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AwsRegions?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -39,12 +38,8 @@ _#defs: "/$defs/Properties/definitions/OrganizationAggregationSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::ConfigurationAggregator"
-	Properties?: #Properties
-}

@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Notifications::OrganizationalUnitAssociation
-#Properties: close({
-	NotificationConfigurationArn!: =~"^arn:[a-z-]{3,10}:notifications::[0-9]{12}:configuration/[a-z0-9]{27}$" |
-		fn.#StringExpression
-	OrganizationalUnitId!: =~"^(r-[0-9a-z]{4,32})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Notifications::OrganizationalUnitAssociation"
-	Properties!: #Properties
+	Type!: "AWS::Notifications::OrganizationalUnitAssociation"
+	Properties!: close({
+		NotificationConfigurationArn!: =~"^arn:[a-z-]{3,10}:notifications::[0-9]{12}:configuration/[a-z0-9]{27}$" |
+			fn.#StringExpression
+		OrganizationalUnitId!: =~"^(r-[0-9a-z]{4,32})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" | fn.#StringExpression
+	})
 }

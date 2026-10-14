@@ -12,34 +12,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::AIPrompt Resource Type
-#Properties: close({
-	ApiFormat!: _#defs."/$defs/Properties/definitions/AIPromptAPIFormat"
-	AssistantId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
-		fn.#StringExpression
-	Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	ModelId!:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags"
-	TemplateConfiguration!: _#defs."/$defs/Properties/definitions/AIPromptTemplateConfiguration"
-	TemplateType!:          _#defs."/$defs/Properties/definitions/AIPromptTemplateType"
-	Type!:                  _#defs."/$defs/Properties/definitions/AIPromptType"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::AIPrompt"
+	Properties!: close({
+		ApiFormat!: #AIPromptAPIFormat
+		AssistantId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
+			fn.#StringExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		ModelId!:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		Tags?:        #Tags
+		TemplateConfiguration!: #AIPromptTemplateConfiguration
+		TemplateType!:          #AIPromptTemplateType
+		Type!:                  #AIPromptType
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AIPromptAPIFormat": "ANTHROPIC_CLAUDE_MESSAGES" |
+#AIPromptAPIFormat: "ANTHROPIC_CLAUDE_MESSAGES" |
 	"ANTHROPIC_CLAUDE_TEXT_COMPLETIONS" |
 	"MESSAGES" |
 	"TEXT_COMPLETIONS" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AIPromptTemplateConfiguration": fn.#Object & {...} & close({
-	TextFullAIPromptEditTemplateConfiguration!:
-		_#defs."/$defs/Properties/definitions/TextFullAIPromptEditTemplateConfiguration"
-}) |
+#AIPromptTemplateConfiguration: fn.#Object & {...} & close(
+	{TextFullAIPromptEditTemplateConfiguration!: #TextFullAIPromptEditTemplateConfiguration},
+) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIPromptTemplateType": "TEXT" | fn.#StringExpression
+#AIPromptTemplateType: "TEXT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AIPromptType": "ANSWER_GENERATION" |
+#AIPromptType: "ANSWER_GENERATION" |
 	"INTENT_LABELING_GENERATION" |
 	"QUERY_REFORMULATION" |
 	"SELF_SERVICE_PRE_PROCESSING" |
@@ -53,13 +55,9 @@ _#defs: "/$defs/Properties/definitions/AIPromptType": "ANSWER_GENERATION" |
 	"CASE_SUMMARIZATION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
+#Tags: {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextFullAIPromptEditTemplateConfiguration": close(
+#TextFullAIPromptEditTemplateConfiguration: close(
 	{Text!: strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::AIPrompt"
-	Properties!: #Properties
-}

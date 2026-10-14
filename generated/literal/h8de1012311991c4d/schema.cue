@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -43,7 +43,7 @@ import (
 	// You can add an ``AttributeDefinition`` without interruption. Changing the
 	// type of an existing ``AttributeDefinition`` requires replacement of the
 	// table.
-	AttributeDefinitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AttributeDefinition"]
+	AttributeDefinitions?: list.UniqueItems() & [...#AttributeDefinition]
 
 	// Specify how you are charged for read and write throughput and how you manage capacity.
 	// Valid values include:
@@ -61,7 +61,7 @@ import (
 
 	// The settings used to specify whether to enable CloudWatch Contributor
 	// Insights for the table and define which events to monitor.
-	ContributorInsightsSpecification?: _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification"
+	ContributorInsightsSpecification?: #ContributorInsightsSpecification
 
 	// Determines if a table is protected from deletion. When enabled, the table
 	// cannot be deleted by any user or process. This setting is disabled by
@@ -90,39 +90,36 @@ import (
 	// + You can delete or add one global secondary index without interruption. If
 	// you do both in the same update (for example, by changing the index's logical
 	// ID), the update fails.
-	GlobalSecondaryIndexes?: [..._#defs."/$defs/Properties/definitions/GlobalSecondaryIndex"]
+	GlobalSecondaryIndexes?: [...#GlobalSecondaryIndex]
 
 	// Specifies the properties of data being imported from the S3 bucket source to the" table.
 	// If you specify the ``ImportSourceSpecification`` property, and also specify
 	// either the ``StreamSpecification``, the ``TableClass`` property, the
 	// ``DeletionProtectionEnabled`` property, or the ``WarmThroughput`` property,
 	// the IAM entity creating/updating stack must have ``UpdateTable`` permission.
-	ImportSourceSpecification?: _#defs."/$defs/Properties/definitions/ImportSourceSpecification"
+	ImportSourceSpecification?: #ImportSourceSpecification
 
 	// Specifies the attributes that make up the primary key for the table. The
 	// attributes in the ``KeySchema`` property must also be defined in the
 	// ``AttributeDefinitions`` property.
-	KeySchema!: matchN(1, [
-		_#defs."/$defs/Properties/definitions/KeySchema" & (list.MaxItems(2) & list.MinItems(1)),
-		string | {...}
-	]) &
+	KeySchema!: matchN(1, [#KeySchema & (list.MaxItems(2) & list.MinItems(1)), string | {...}]) &
 	(string | list.MinItems(1) | {...})
 
 	// The Kinesis Data Streams configuration for the specified table.
-	KinesisStreamSpecification?: _#defs."/$defs/Properties/definitions/KinesisStreamSpecification"
+	KinesisStreamSpecification?: #KinesisStreamSpecification
 
 	// Local secondary indexes to be created on the table. You can create up to 5
 	// local secondary indexes. Each index is scoped to a given hash key value. The
 	// size of each hash key can be up to 10 gigabytes.
-	LocalSecondaryIndexes?: [..._#defs."/$defs/Properties/definitions/LocalSecondaryIndex"]
+	LocalSecondaryIndexes?: [...#LocalSecondaryIndex]
 
 	// Sets the maximum number of read and write units for the specified on-demand
 	// table. If you use this property, you must specify ``MaxReadRequestUnits``,
 	// ``MaxWriteRequestUnits``, or both.
-	OnDemandThroughput?: _#defs."/$defs/Properties/definitions/OnDemandThroughput"
+	OnDemandThroughput?: #OnDemandThroughput
 
 	// The settings used to enable point in time recovery.
-	PointInTimeRecoverySpecification?: _#defs."/$defs/Properties/definitions/PointInTimeRecoverySpecification"
+	PointInTimeRecoverySpecification?: #PointInTimeRecoverySpecification
 
 	// Throughput for the specified table, which consists of values for
 	// ``ReadCapacityUnits`` and ``WriteCapacityUnits``. For more information about
@@ -132,7 +129,7 @@ import (
 	// If you set ``BillingMode`` as ``PROVISIONED``, you must specify this
 	// property. If you set ``BillingMode`` as ``PAY_PER_REQUEST``, you cannot
 	// specify this property.
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput"
+	ProvisionedThroughput?: #ProvisionedThroughput
 
 	// An AWS resource-based policy document in JSON format that will be attached to the table.
 	// When you attach a resource-based policy while creating a table, the policy
@@ -144,16 +141,16 @@ import (
 	// considerations](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/rbac-considerations.html).
 	// You need to specify the ``CreateTable`` and ``PutResourcePolicy`` IAM actions
 	// for authorizing a user to create a table with a resource-based policy.
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
+	ResourcePolicy?: #ResourcePolicy
 
 	// Specifies the settings to enable server-side encryption.
-	SSESpecification?: _#defs."/$defs/Properties/definitions/SSESpecification"
+	SSESpecification?: #SSESpecification
 	StreamArn?:        string
 
 	// The settings for the DDB table stream, which captures changes to items stored
 	// in the table. Including this property in your CFNlong template automatically
 	// enables streaming.
-	StreamSpecification?: _#defs."/$defs/Properties/definitions/StreamSpecification"
+	StreamSpecification?: #StreamSpecification
 
 	// The table class of the new table. Valid values are ``STANDARD`` and
 	// ``STANDARD_INFREQUENT_ACCESS``.
@@ -171,22 +168,22 @@ import (
 	// An array of key-value pairs to apply to this resource.
 	// For more information, see
 	// [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Specifies the Time to Live (TTL) settings for the table.
 	// For detailed information about the limits in DynamoDB, see [Limits in Amazon
 	// DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
 	// in the Amazon DynamoDB Developer Guide.
-	TimeToLiveSpecification?: _#defs."/$defs/Properties/definitions/TimeToLiveSpecification"
-	VectorIndexes?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VectorIndex"]
+	TimeToLiveSpecification?: #TimeToLiveSpecification
+	VectorIndexes?:           list.MinItems(1) & list.UniqueItems() & [...#VectorIndex]
 
 	// Represents the warm throughput (in read units per second and write units per
 	// second) for creating a table.
-	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput"
+	WarmThroughput?: #WarmThroughput
 })
 
 // Represents an attribute for describing the schema for the table and indexes.
-_#defs: "/$defs/Properties/definitions/AttributeDefinition": close({
+#AttributeDefinition: close({
 	// A name for the attribute.
 	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -198,7 +195,7 @@ _#defs: "/$defs/Properties/definitions/AttributeDefinition": close({
 })
 
 // Configures contributor insights settings for a table or one of its indexes.
-_#defs: "/$defs/Properties/definitions/ContributorInsightsSpecification": close({
+#ContributorInsightsSpecification: close({
 	// Indicates whether CloudWatch Contributor Insights are to be enabled (true) or disabled (false).
 	Enabled!: bool
 
@@ -211,7 +208,7 @@ _#defs: "/$defs/Properties/definitions/ContributorInsightsSpecification": close(
 })
 
 // The options for imported source files in CSV format. The values are Delimiter and HeaderList.
-_#defs: "/$defs/Properties/definitions/Csv": close({
+#Csv: close({
 	// The delimiter used for separating items in the CSV file being imported.
 	Delimiter?: string
 
@@ -222,20 +219,18 @@ _#defs: "/$defs/Properties/definitions/Csv": close({
 	HeaderList?: list.UniqueItems() & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/DeprecatedHashKeyElement": close({
+#DeprecatedHashKeyElement: close({
 	AttributeName!: string
 	AttributeType!: string
 })
 
-_#defs: "/$defs/Properties/definitions/DeprecatedKeySchema": close(
-	{HashKeyElement!: _#defs."/$defs/Properties/definitions/DeprecatedHashKeyElement"},
-)
+#DeprecatedKeySchema: close({HashKeyElement!: #DeprecatedHashKeyElement})
 
 // Represents the properties of a global secondary index.
-_#defs: "/$defs/Properties/definitions/GlobalSecondaryIndex": close({
+#GlobalSecondaryIndex: close({
 	// The settings used to specify whether to enable CloudWatch Contributor
 	// Insights for the global table and define which events to monitor.
-	ContributorInsightsSpecification?: _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification"
+	ContributorInsightsSpecification?: #ContributorInsightsSpecification
 
 	// The name of the global secondary index. The name must be unique among all
 	// other indexes on this table.
@@ -250,12 +245,12 @@ _#defs: "/$defs/Properties/definitions/GlobalSecondaryIndex": close({
 	// ``MaxWriteRequestUnits``, or both. You must use either
 	// ``OnDemandThroughput`` or ``ProvisionedThroughput`` based on your table's
 	// capacity mode.
-	OnDemandThroughput?: _#defs."/$defs/Properties/definitions/OnDemandThroughput"
+	OnDemandThroughput?: #OnDemandThroughput
 
 	// Represents attributes that are copied (projected) from the table into the
 	// global secondary index. These are in addition to the primary key attributes
 	// and index key attributes, which are automatically projected.
-	Projection!: _#defs."/$defs/Properties/definitions/Projection"
+	Projection!: #Projection
 
 	// Represents the provisioned throughput settings for the specified global
 	// secondary index. You must use either ``OnDemandThroughput`` or
@@ -264,17 +259,17 @@ _#defs: "/$defs/Properties/definitions/GlobalSecondaryIndex": close({
 	// Account, and Table
 	// Quotas](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
 	// in the *Amazon DynamoDB Developer Guide*.
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput"
+	ProvisionedThroughput?: #ProvisionedThroughput
 
 	// Represents the warm throughput value (in read units per second and write
 	// units per second) for the specified secondary index. If you use this
 	// parameter, you must specify ``ReadUnitsPerSecond``, ``WriteUnitsPerSecond``,
 	// or both.
-	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput"
+	WarmThroughput?: #WarmThroughput
 })
 
 // Specifies the properties of data being imported from the S3 bucket source to the table.
-_#defs: "/$defs/Properties/definitions/ImportSourceSpecification": close({
+#ImportSourceSpecification: close({
 	// Type of compression to be used on the input coming from the imported table.
 	InputCompressionType?: string
 
@@ -283,20 +278,20 @@ _#defs: "/$defs/Properties/definitions/ImportSourceSpecification": close({
 	InputFormat!: string
 
 	// Additional properties that specify how the input is formatted,
-	InputFormatOptions?: _#defs."/$defs/Properties/definitions/InputFormatOptions"
+	InputFormatOptions?: #InputFormatOptions
 
 	// The S3 bucket that provides the source for the import.
-	S3BucketSource!: _#defs."/$defs/Properties/definitions/S3BucketSource"
+	S3BucketSource!: #S3BucketSource
 })
 
 // The format options for the data that was imported into the target table.
 // There is one value, CsvOption.
-_#defs: "/$defs/Properties/definitions/InputFormatOptions": close({
+#InputFormatOptions: close({
 	// The options for imported source files in CSV format. The values are Delimiter and HeaderList.
-	Csv?: _#defs."/$defs/Properties/definitions/Csv"
+	Csv?: #Csv
 })
 
-_#defs: "/$defs/Properties/definitions/KeySchema": list.UniqueItems() & {
+#KeySchema: list.UniqueItems() & {
 	[...]
 	[0]: {
 		KeyType!: "HASH"
@@ -313,7 +308,7 @@ _#defs: "/$defs/Properties/definitions/KeySchema": list.UniqueItems() & {
 }
 
 // The Kinesis Data Streams configuration for the specified table.
-_#defs: "/$defs/Properties/definitions/KinesisStreamSpecification": close({
+#KinesisStreamSpecification: close({
 	// The precision for the time and date that the stream was created.
 	ApproximateCreationDateTimePrecision?: "MICROSECOND" | "MILLISECOND"
 
@@ -324,22 +319,22 @@ _#defs: "/$defs/Properties/definitions/KinesisStreamSpecification": close({
 
 // Represents the properties of a local secondary index. A local secondary index
 // can only be created when its parent table is created.
-_#defs: "/$defs/Properties/definitions/LocalSecondaryIndex": close({
+#LocalSecondaryIndex: close({
 	// The name of the local secondary index. The name must be unique among all
 	// other indexes on this table.
 	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$"
-	KeySchema!: _#defs."/$defs/Properties/definitions/KeySchema" & (list.MaxItems(2) & list.MinItems(2))
+	KeySchema!: #KeySchema & (list.MaxItems(2) & list.MinItems(2))
 
 	// Represents attributes that are copied (projected) from the table into the
 	// local secondary index. These are in addition to the primary key attributes
 	// and index key attributes, which are automatically projected.
-	Projection!: _#defs."/$defs/Properties/definitions/Projection"
+	Projection!: #Projection
 })
 
 // Sets the maximum number of read and write units for the specified on-demand
 // table. If you use this property, you must specify ``MaxReadRequestUnits``,
 // ``MaxWriteRequestUnits``, or both.
-_#defs: "/$defs/Properties/definitions/OnDemandThroughput": close({
+#OnDemandThroughput: close({
 	// Maximum number of read request units for the specified table.
 	// To specify a maximum ``OnDemandThroughput`` on your table, set the value of
 	// ``MaxReadRequestUnits`` as greater than or equal to 1. To remove the maximum
@@ -356,7 +351,7 @@ _#defs: "/$defs/Properties/definitions/OnDemandThroughput": close({
 })
 
 // The settings used to enable point in time recovery.
-_#defs: "/$defs/Properties/definitions/PointInTimeRecoverySpecification": close({
+#PointInTimeRecoverySpecification: close({
 	RecoveryPeriodInDays?: _
 	if RecoveryPeriodInDays != _|_ {
 		PointInTimeRecoveryEnabled!: _
@@ -376,7 +371,7 @@ _#defs: "/$defs/Properties/definitions/PointInTimeRecoverySpecification": close(
 // Represents attributes that are copied (projected) from the table into an
 // index. These are in addition to the primary key attributes and index key
 // attributes, which are automatically projected.
-_#defs: "/$defs/Properties/definitions/Projection": close({
+#Projection: close({
 	// Represents the non-key attribute names which will be projected into the index.
 	// For global and local secondary indexes, the total count of
 	// ``NonKeyAttributes`` summed across all of the secondary indexes, must not
@@ -404,7 +399,7 @@ _#defs: "/$defs/Properties/definitions/Projection": close({
 // ``ReadCapacityUnits`` and ``WriteCapacityUnits``. For more information about
 // the contents of a provisioned throughput structure, see [Table
 // ProvisionedThroughput](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_ProvisionedThroughput.html).
-_#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
+#ProvisionedThroughput: close({
 	// The maximum number of strongly consistent reads consumed per second before
 	// DynamoDB returns a ``ThrottlingException``. For more information, see
 	// [Specifying Read and Write
@@ -459,10 +454,10 @@ _#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
 //
 // For a full list of all considerations, see [Resource-based policy
 // considerations](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/rbac-considerations.html).
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({PolicyDocument!: string | {...}})
+#ResourcePolicy: close({PolicyDocument!: string | {...}})
 
 // The S3 bucket that is being imported from.
-_#defs: "/$defs/Properties/definitions/S3BucketSource": close({
+#S3BucketSource: close({
 	// The S3 bucket that is being imported from.
 	S3Bucket!: string
 
@@ -475,7 +470,7 @@ _#defs: "/$defs/Properties/definitions/S3BucketSource": close({
 })
 
 // Represents the settings used to enable server-side encryption.
-_#defs: "/$defs/Properties/definitions/SSESpecification": close({
+#SSESpecification: close({
 	KMSMasterKeyId?: _
 	if KMSMasterKeyId != _|_ {
 		SSEType!: _
@@ -500,13 +495,13 @@ _#defs: "/$defs/Properties/definitions/SSESpecification": close({
 	SSEType?: "KMS"
 })
 
-_#defs: "/$defs/Properties/definitions/SearchSchemaElement": close({
+#SearchSchemaElement: close({
 	AttributeName!:           strings.MaxRunes(65535) & strings.MinRunes(0)
 	SearchSchemaElementType!: "HASH" | "INLINE_FILTER"
 })
 
 // Represents the DynamoDB Streams configuration for a table in DynamoDB.
-_#defs: "/$defs/Properties/definitions/StreamSpecification": close({
+#StreamSpecification: close({
 	// Creates or updates a resource-based policy document that contains the
 	// permissions for DDB resources, such as a table's streams. Resource-based
 	// policies let you define access permissions by specifying who has access to
@@ -524,7 +519,7 @@ _#defs: "/$defs/Properties/definitions/StreamSpecification": close({
 	// for](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/access-control-resource-based.html)
 	// and [Resource-based policy
 	// examples](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/rbac-examples.html).
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
+	ResourcePolicy?: #ResourcePolicy
 
 	// When an item in the table is modified, ``StreamViewType`` determines what
 	// information is written to the stream for this table. Valid values for
@@ -541,7 +536,7 @@ _#defs: "/$defs/Properties/definitions/StreamSpecification": close({
 	// For an overview on tagging DynamoDB resources, see [Tagging for
 	// DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tagging.html)
 	// in the *Amazon DynamoDB Developer Guide*.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Describes a tag. A tag is a key-value pair. You can add up to 50 tags to a single DynamoDB table.
@@ -553,7 +548,7 @@ _#defs: "/$defs/Properties/definitions/StreamSpecification": close({
 // For an overview on tagging DynamoDB resources, see [Tagging for
 // DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tagging.html)
 // in the *Amazon DynamoDB Developer Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag. Tag keys are case sensitive. Each DynamoDB table can only
 	// have up to one tag with the same key. If you try to add an existing tag
 	// (same key), the existing tag value will be updated to the new value.
@@ -564,7 +559,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Represents the settings used to enable or disable Time to Live (TTL) for the specified table.
-_#defs: "/$defs/Properties/definitions/TimeToLiveSpecification": close({
+#TimeToLiveSpecification: close({
 	// The name of the TTL attribute used to store the expiration time for items in the table.
 	// + The ``AttributeName`` property is required when enabling the TTL, or when
 	// TTL is already enabled.
@@ -576,35 +571,25 @@ _#defs: "/$defs/Properties/definitions/TimeToLiveSpecification": close({
 	Enabled!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/VectorAttribute": close(
-	{AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1)},
-)
+#VectorAttribute: close({AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/VectorIndex": close({
+#VectorIndex: close({
 	Dimensions!:       int & <=4096 & >=1
 	DistanceFunction!: "COSINE" | "DOT_PRODUCT" | "EUCLIDEAN"
 	IndexName!:        strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$"
-	Projection!:       _#defs."/$defs/Properties/definitions/Projection"
-	SearchSchema?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SearchSchemaElement"
-	]
-	VectorAttribute!: _#defs."/$defs/Properties/definitions/VectorAttribute"
+	Projection!:       #Projection
+	SearchSchema?:     list.MinItems(1) & list.UniqueItems() & [...#SearchSchemaElement]
+	VectorAttribute!:  #VectorAttribute
 })
 
 // Provides visibility into the number of read and write operations your table
 // or secondary index can instantaneously support. The settings can be modified
 // using the ``UpdateTable`` operation to meet the throughput requirements of
 // an upcoming peak event.
-_#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
-	ReadUnitsPerSecond!: _
-	...
-}, {
-	WriteUnitsPerSecond!: _
-	...
-}]) & close({
+#WarmThroughput: close({
 	// Represents the number of read operations your base table can instantaneously support.
 	ReadUnitsPerSecond?: int & >=1
 
 	// Represents the number of write operations your base table can instantaneously support.
 	WriteUnitsPerSecond?: int & >=1
-})
+}) & matchN(>=1, [{ReadUnitsPerSecond!: _}, {WriteUnitsPerSecond!: _}])

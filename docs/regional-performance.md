@@ -9,7 +9,7 @@ type-name package does not load the full resource union or registry.
 | --- | --- | --- |
 | `#Template` | Template sections, regional availability, resource properties and intrinsics | Template sections and regional availability |
 | `#Resource` | Union of complete resource schemas | Common resource attributes with a regional `Type` name |
-| `#Resources` | Logical ID map with full resource validation | Logical ID map with resource envelopes |
+| `#Resources` | Logical ID map; each resource is checked against `#ResourceTypes[Type]` | Logical ID map with resource envelopes |
 | `#ResourceTypes` | Map from type names to full resource definitions | Absent |
 | `#ResourceType` | Absent | Disjunction of available resource type names |
 

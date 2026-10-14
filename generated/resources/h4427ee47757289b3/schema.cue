@@ -13,22 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Engagement Plan for a SSM Incident Manager Contact.
-#Properties: matchN(1, [{
-	ContactId!: _
-	Stages!:    _
-	...
-}, {
-	ContactId!:   _
-	RotationIds!: _
-	...
-}]) & close({
-	ContactId?: =~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" |
-		fn.#StringExpression
-	RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Stages?:      [..._#defs."/$defs/Properties/definitions/Stage"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSMContacts::Plan"
+	Properties?: matchN(1, [{
+		ContactId!: _
+		Stages!:    _
+		...
+	}, {
+		ContactId!:   _
+		RotationIds!: _
+		...
+	}]) & close({
+		ContactId?: =~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" |
+			fn.#StringExpression
+		RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Stages?:      [...#Stage] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ChannelTargetInfo": close({
+#ChannelTargetInfo: close({
 	ChannelId!: string | fn.#StringExpression
 	RetryIntervalInMinutes!: int |
 		{
@@ -47,13 +50,13 @@ _#defs: "/$defs/Properties/definitions/ChannelTargetInfo": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContactTargetInfo": close({
+#ContactTargetInfo: close({
 	ContactId!:   string | fn.#StringExpression
 	IsEssential!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Stage": close({
+#Stage: close({
 	DurationInMinutes!: int |
 		{
 			string &
@@ -68,22 +71,17 @@ _#defs: "/$defs/Properties/definitions/Stage": close({
 				)
 		} |
 		fn.#NumberExpression
-	Targets?: [..._#defs."/$defs/Properties/definitions/Targets"] | fn.#ListExpression
+	Targets?: [...#Targets] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Targets": matchN(1, [{
-	ChannelTargetInfo!: _
-	...
-}, {
-	ContactTargetInfo!: _
-	...
-}]) & close({
-	ChannelTargetInfo?: _#defs."/$defs/Properties/definitions/ChannelTargetInfo"
-	ContactTargetInfo?: _#defs."/$defs/Properties/definitions/ContactTargetInfo"
-}) |
+#Targets: close({
+	ChannelTargetInfo?: #ChannelTargetInfo
+	ContactTargetInfo?: #ContactTargetInfo
+	if ChannelTargetInfo != _|_ if ChannelTargetInfo."Fn::If" == _|_ {
+		ContactTargetInfo?: close({"Fn::If": _}) | error(
+			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",
+		)
+	}
+}) & matchN(>=1, [{ChannelTargetInfo!: _}, {ContactTargetInfo!: _}]) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMContacts::Plan"
-	Properties?: #Properties
-}

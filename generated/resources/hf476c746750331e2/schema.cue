@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,58 +13,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for ResourceGroups::Group
-#Properties: close({
-	Configuration?: _#defs."/$defs/Properties/definitions/Configuration"
-	Description?:   strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\sa-zA-Z0-9_\\.-]*$" | fn.#StringExpression
-	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\.-]+$" | fn.#StringExpression
-	ResourceQuery?: _#defs."/$defs/Properties/definitions/ResourceQuery"
-	Resources?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ResourceGroups::Group"
+	Properties!: close({
+		Configuration?: #Configuration
+		Description?:   strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\sa-zA-Z0-9_\\.-]*$" | fn.#StringExpression
+		Name!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\.-]+$" | fn.#StringExpression
+		ResourceQuery?: #ResourceQuery
+		Resources?:     [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:          [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Configuration": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ConfigurationItem"
-] |
-	fn.#ListExpression
+#Configuration: list.MaxItems(2) & [...] & [...#ConfigurationItem] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationItem": close({
-	Parameters?: [..._#defs."/$defs/Properties/definitions/ConfigurationParameter"] | fn.#ListExpression
+#ConfigurationItem: close({
+	Parameters?: [...#ConfigurationParameter] | fn.#ListExpression
 	Type?: strings.MaxRunes(40) & strings.MinRunes(0) & =~"^AWS::[a-zA-Z0-9]+::[a-zA-Z0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationParameter": close({
+#ConfigurationParameter: close({
 	Name?: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-z-]+$" | fn.#StringExpression
 	Values?: [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:\\/\\._-]+$" | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Query": close({
+#Query: close({
 	ResourceTypeFilters?: [...string | fn.#StringExpression] | fn.#ListExpression
 	StackIdentifier?:     string | fn.#StringExpression
-	TagFilters?:          [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+	TagFilters?:          [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceQuery": close({
-	Query?: _#defs."/$defs/Properties/definitions/Query"
+#ResourceQuery: close({
+	Query?: #Query
 	Type?:  "TAG_FILTERS_1_0" | "CLOUDFORMATION_STACK_1_0" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagFilter": close({
+#TagFilter: close({
 	Key?:    string | fn.#StringExpression
 	Values?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResourceGroups::Group"
-	Properties!: #Properties
-}

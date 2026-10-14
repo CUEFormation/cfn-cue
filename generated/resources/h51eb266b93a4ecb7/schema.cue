@@ -14,22 +14,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::NetworkSecurityManager::Rule. Creates and
 // manages a Network Security Manager rule.
-#Properties: close({
-	Configuration?:   string | fn.#StringExpression
-	FirewallType?:    "WAF" | fn.#StringExpression
-	RuleDescription?: strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
-	RuleName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
-	fn.#StringExpression
-	RuleType?: "CONFIGURATION" | "INSPECTION" | fn.#StringExpression
-	Tags?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkSecurityManager::Rule"
+	Properties!: close({
+		Configuration?:   string | fn.#StringExpression
+		FirewallType?:    "WAF" | fn.#StringExpression
+		RuleDescription?: strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
+		RuleName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
+		fn.#StringExpression
+		RuleType?: "CONFIGURATION" | "INSPECTION" | fn.#StringExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkSecurityManager::Rule"
-	Properties!: #Properties
-}

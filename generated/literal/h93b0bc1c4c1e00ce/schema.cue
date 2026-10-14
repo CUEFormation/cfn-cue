@@ -12,7 +12,7 @@ import (
 // The AWS::S3ObjectLambda::AccessPoint resource is an Amazon S3ObjectLambda
 // resource type that you can use to add computation to S3 actions
 #Properties: close({
-	Alias?: _#defs."/$defs/Properties/definitions/Alias"
+	Alias?: #Alias
 	Arn?:   =~"arn:[^:]+:s3-object-lambda:[^:]*:\\d{12}:accesspoint/.*"
 
 	// The date and time when the Object lambda Access Point was created.
@@ -23,8 +23,8 @@ import (
 
 	// The Object lambda Access Point Configuration that configures transformations
 	// to be applied on the objects on specified S3 Actions
-	ObjectLambdaConfiguration!: _#defs."/$defs/Properties/definitions/ObjectLambdaConfiguration"
-	PolicyStatus?:              _#defs."/$defs/Properties/definitions/PolicyStatus"
+	ObjectLambdaConfiguration!: #ObjectLambdaConfiguration
+	PolicyStatus?:              #PolicyStatus
 
 	// The PublicAccessBlock configuration that you want to apply to this Access
 	// Point. You can enable the configuration options in any combination. For more
@@ -32,12 +32,12 @@ import (
 	// https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html#access-control-block-public-access-policy-status
 	// 'The Meaning of Public' in the Amazon Simple Storage Service Developer
 	// Guide.
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration"
+	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Action": string
+#Action: string
 
-_#defs: "/$defs/Properties/definitions/Alias": close({
+#Alias: close({
 	// The status of the Object Lambda alias.
 	Status?: =~"^[A-Z]*$"
 
@@ -45,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/Alias": close({
 	Value!: =~"^[a-z0-9\\-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/AwsLambda": close({
+#AwsLambda: close({
 	FunctionArn!:
 		=~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 	FunctionPayload?: string
@@ -55,16 +55,14 @@ _#defs: "/$defs/Properties/definitions/AwsLambda": close({
 // Supporting Access Point, Transformation Configurations. Customers can also
 // set if they like to enable Cloudwatch metrics for accesses to this Object
 // lambda Access Point. Default setting for Cloudwatch metrics is disable.
-_#defs: "/$defs/Properties/definitions/ObjectLambdaConfiguration": close({
-	AllowedFeatures?:          list.UniqueItems() & [...string]
-	CloudWatchMetricsEnabled?: bool
-	SupportingAccessPoint!:    strings.MaxRunes(2048) & strings.MinRunes(1)
-	TransformationConfigurations!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TransformationConfiguration"
-	]
+#ObjectLambdaConfiguration: close({
+	AllowedFeatures?:              list.UniqueItems() & [...string]
+	CloudWatchMetricsEnabled?:     bool
+	SupportingAccessPoint!:        strings.MaxRunes(2048) & strings.MinRunes(1)
+	TransformationConfigurations!: list.UniqueItems() & [...#TransformationConfiguration]
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyStatus": close({
+#PolicyStatus: close({
 	// Specifies whether the Object lambda Access Point Policy is Public or not.
 	// Object lambda Access Points are private by default.
 	IsPublic?: bool
@@ -75,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/PolicyStatus": close({
 // Object lambda Access Points are blocked by default, and any policy that
 // would give public access to them will be also blocked. This behavior cannot
 // be changed for Object lambda Access Points.
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
+#PublicAccessBlockConfiguration: close({
 	// Specifies whether Amazon S3 should block public access control lists (ACLs)
 	// to this object lambda access point. Setting this element to TRUE causes the
 	// following behavior:
@@ -109,7 +107,7 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
 })
 
 // Configuration to define what content transformation will be applied on which S3 Action.
-_#defs: "/$defs/Properties/definitions/TransformationConfiguration": close({
-	Actions!:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"]
-	ContentTransformation!: close({AwsLambda!: _#defs."/$defs/Properties/definitions/AwsLambda"})
+#TransformationConfiguration: close({
+	Actions!:               list.UniqueItems() & [...#Action]
+	ContentTransformation!: close({AwsLambda!: #AwsLambda})
 })

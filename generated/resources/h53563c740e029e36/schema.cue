@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,42 +13,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The scanning configuration for a private registry.
-#Properties: close({
-	Rules!:    _#defs."/$defs/Properties/definitions/ScanningRules" | fn.#ListExpression
-	ScanType!: _#defs."/$defs/Properties/definitions/ScanType" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECR::RegistryScanningConfiguration"
+	Properties!: close({
+		// The scanning rules associated with the registry.
+		Rules!: #ScanningRules
 
-_#defs: "/$defs/Properties/definitions/Filter": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-z0-9*](?:[._\\-/a-z0-9*]?[a-z0-9*]+)*$" |
+		// The type of scanning configured for the registry.
+		ScanType!: #ScanType
+	})
+}
+
+#Filter: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9*](?:[._\\-/a-z0-9*]?[a-z0-9*]+)*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FilterType": "WILDCARD" | fn.#StringExpression
+#FilterType: "WILDCARD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RegistryId": =~"^[0-9]{12}$" | fn.#StringExpression
+#RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RepositoryFilter": close({
-	Filter!:     _#defs."/$defs/Properties/definitions/Filter" | fn.#StringExpression
-	FilterType!: _#defs."/$defs/Properties/definitions/FilterType" | fn.#StringExpression
+#RepositoryFilter: close({
+	// The filter to use when scanning.
+	Filter!: #Filter
+
+	// The type associated with the filter.
+	FilterType!: #FilterType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScanFrequency": "SCAN_ON_PUSH" | "CONTINUOUS_SCAN" | fn.#StringExpression
+#ScanFrequency: "SCAN_ON_PUSH" | "CONTINUOUS_SCAN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScanType": "BASIC" | "ENHANCED" | fn.#StringExpression
+#ScanType: "BASIC" | "ENHANCED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScanningRule": close({
-	RepositoryFilters!: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RepositoryFilter"] |
-		fn.#ListExpression
-	ScanFrequency!: _#defs."/$defs/Properties/definitions/ScanFrequency" | fn.#StringExpression
+#ScanningRule: close({
+	RepositoryFilters!: list.MaxItems(100) & [...] & [...#RepositoryFilter] | fn.#ListExpression
+
+	// The frequency that scans are performed at for a private registry. When the
+	// ``ENHANCED`` scan type is specified, the supported scan frequencies are
+	// ``CONTINUOUS_SCAN`` and ``SCAN_ON_PUSH``. When the ``BASIC`` scan type is
+	// specified, the ``SCAN_ON_PUSH`` scan frequency is supported. If scan on push
+	// is not specified, then the ``MANUAL`` scan frequency is set by default.
+	ScanFrequency!: #ScanFrequency
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScanningRules": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ScanningRule"
-] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::RegistryScanningConfiguration"
-	Properties!: #Properties
-}
+#ScanningRules: list.MaxItems(2) & [...] & [...#ScanningRule] | fn.#ListExpression

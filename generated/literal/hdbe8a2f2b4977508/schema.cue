@@ -3,10 +3,10 @@
 package schema
 
 import (
+	"list"
+	"strings"
 	"time"
 	"struct"
-	"strings"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,8 +17,8 @@ import (
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the session.
 	Arn?:         string
-	Command!:     _#defs."/$defs/Properties/definitions/SessionCommand"
-	Connections?: _#defs."/$defs/Properties/definitions/ConnectionsList"
+	Command!:     #SessionCommand
+	Connections?: #ConnectionsList
 
 	// The time and date when the session was created.
 	CreatedOn?: time.Time
@@ -63,7 +63,7 @@ import (
 	Status?: "PROVISIONING" | "READY" | "FAILED" | "TIMEOUT" | "STOPPING" | "STOPPED"
 
 	// The tags belonging to the session.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The number of minutes before session times out.
 	Timeout?: int & >=1
@@ -73,13 +73,13 @@ import (
 })
 
 // Specifies the connections used by the session.
-_#defs: "/$defs/Properties/definitions/ConnectionsList": close({
+#ConnectionsList: close({
 	// A list of connection names used by the session.
 	Connections?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(0)]
 })
 
 // The SessionCommand that runs the job.
-_#defs: "/$defs/Properties/definitions/SessionCommand": close({
+#SessionCommand: close({
 	// Specifies the name of the SessionCommand. Can be 'glueetl' or 'gluestreaming'.
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -89,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/SessionCommand": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

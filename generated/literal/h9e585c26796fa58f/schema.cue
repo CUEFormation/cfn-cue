@@ -8,13 +8,13 @@ package schema
 #Properties: close({
 	// ID of the Broker that the configuration should be applied to
 	Broker!:        string
-	Configuration!: _#defs."/$defs/Properties/definitions/ConfigurationId"
+	Configuration!: #ConfigurationId
 
 	// The ID of the ConfigurationAssociation Resource
 	Id?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationId": close({
+#ConfigurationId: close({
 	// ID of the Configuration to apply to a Broker
 	Id!: string
 

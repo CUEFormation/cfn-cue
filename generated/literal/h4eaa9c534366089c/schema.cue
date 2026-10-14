@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -53,7 +53,7 @@ import (
 	ClusterMode?: =~"(?i)^(?:compatible|disabled|enabled)$"
 
 	// The configuration details of the replication group.
-	ConfigurationEndPoint?: _#defs."/$defs/Properties/definitions/Endpoint"
+	ConfigurationEndPoint?: #Endpoint
 
 	// Enables data tiering. Data tiering is only supported for replication groups
 	// using the r6gd node type. This parameter must be set to true when using r6gd
@@ -93,7 +93,7 @@ import (
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// Specifies the destination, format and type of the logs.
-	LogDeliveryConfigurations?: [..._#defs."/$defs/Properties/definitions/LogDeliveryConfigurationRequest"]
+	LogDeliveryConfigurations?: [...#LogDeliveryConfigurationRequest]
 
 	// A flag indicating if you have Multi-AZ enabled to enhance fault tolerance.
 	// For more information, see Minimizing Downtime: Multi-AZ.
@@ -107,7 +107,7 @@ import (
 	// NodeGroupConfiguration is a property of the
 	// AWS::ElastiCache::ReplicationGroup resource that configures an Amazon
 	// ElastiCache (ElastiCache) Redis cluster node group.
-	NodeGroupConfiguration?: [..._#defs."/$defs/Properties/definitions/NodeGroupConfiguration"]
+	NodeGroupConfiguration?: [...#NodeGroupConfiguration]
 
 	// The Amazon Resource Name (ARN) of the Amazon Simple Notification Service
 	// (SNS) topic to which notifications are sent.
@@ -143,7 +143,7 @@ import (
 	PrimaryClusterId?: string
 
 	// The primary endpoint configuration
-	PrimaryEndPoint?: _#defs."/$defs/Properties/definitions/Endpoint"
+	PrimaryEndPoint?: #Endpoint
 	ReadEndPoint?: close({
 		// A string containing a comma-separated list of endpoints for the primary and
 		// read-only replicas, formatted as [address1, address2, ...]. The order of the
@@ -166,7 +166,7 @@ import (
 	})
 
 	// The endpoint of the reader node in the replication group.
-	ReaderEndPoint?: _#defs."/$defs/Properties/definitions/Endpoint"
+	ReaderEndPoint?: #Endpoint
 
 	// An optional parameter that specifies the number of replica nodes in each node
 	// group (shard). Valid values are 0 to 5.
@@ -211,7 +211,7 @@ import (
 	// comma-separated key,value pairs (e.g. Key=myKey, Value=myKeyValue. You can
 	// include multiple tags as shown following: Key=myKey, Value=myKeyValue
 	// Key=mySecondKey, Value=mySecondKeyValue.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// A flag that enables in-transit encryption when set to true.
 	TransitEncryptionEnabled?: bool
@@ -235,19 +235,19 @@ import (
 // The configuration details of the CloudWatch Logs destination. Note that this
 // field is marked as required but only if CloudWatch Logs was chosen as the
 // destination.
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationDetails": close({
+#CloudWatchLogsDestinationDetails: close({
 	// The name of the CloudWatch Logs log group.
 	LogGroup!: string
 })
 
 // Configuration details of either a CloudWatch Logs destination or Kinesis Data
 // Firehose destination.
-_#defs: "/$defs/Properties/definitions/DestinationDetails": close({
-	CloudWatchLogsDetails?:  _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationDetails"
-	KinesisFirehoseDetails?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestinationDetails"
+#DestinationDetails: close({
+	CloudWatchLogsDetails?:  #CloudWatchLogsDestinationDetails
+	KinesisFirehoseDetails?: #KinesisFirehoseDestinationDetails
 })
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	// The DNS hostname of the cache node.
 	Address?: string
 
@@ -258,13 +258,13 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 // The configuration details of the Kinesis Data Firehose destination. Note that
 // this field is marked as required but only if Kinesis Data Firehose was
 // chosen as the destination.
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestinationDetails": close({
+#KinesisFirehoseDestinationDetails: close({
 	// The name of the Kinesis Data Firehose delivery stream.
 	DeliveryStream!: string
 })
 
-_#defs: "/$defs/Properties/definitions/LogDeliveryConfigurationRequest": close({
-	DestinationDetails!: _#defs."/$defs/Properties/definitions/DestinationDetails"
+#LogDeliveryConfigurationRequest: close({
+	DestinationDetails!: #DestinationDetails
 
 	// Specify either CloudWatch Logs or Kinesis Data Firehose as the destination
 	// type. Valid values are either cloudwatch-logs or kinesis-firehose.
@@ -277,7 +277,7 @@ _#defs: "/$defs/Properties/definitions/LogDeliveryConfigurationRequest": close({
 	LogType!: =~"(?i)^(?:engine-log|slow-log)$"
 })
 
-_#defs: "/$defs/Properties/definitions/NodeGroupConfiguration": close({
+#NodeGroupConfiguration: close({
 	// Either the ElastiCache for Redis supplied 4-digit id or a user supplied id
 	// for the node group these configuration values apply to.
 	NodeGroupId?: strings.MaxRunes(4) & strings.MinRunes(1) & =~"^\\d+$"
@@ -300,7 +300,7 @@ _#defs: "/$defs/Properties/definitions/NodeGroupConfiguration": close({
 	Slots?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -26,10 +26,10 @@ import (
 
 	// A resource's name. Names must be unique within the scope of a resource type in a specific region.
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$"
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?: #TagMap
 })
 
 // Represents the tags associated with a resource.
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string}})

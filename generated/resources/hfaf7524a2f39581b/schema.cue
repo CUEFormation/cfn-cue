@@ -9,26 +9,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayPeeringAttachment type
-#Properties: close({
-	PeerAccountId!:        string | fn.#StringExpression
-	PeerRegion!:           string | fn.#StringExpression
-	PeerTransitGatewayId!: string | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TransitGatewayId!:     string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TransitGatewayPeeringAttachment"
+	Properties!: close({
+		PeerAccountId!:        string | fn.#StringExpression
+		PeerRegion!:           string | fn.#StringExpression
+		PeerTransitGatewayId!: string | fn.#StringExpression
+		Tags?:                 [...#Tag] | fn.#ListExpression
+		TransitGatewayId!:     string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PeeringAttachmentStatus": close({
+#PeeringAttachmentStatus: close({
 	Code?:    string | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayPeeringAttachment"
-	Properties!: #Properties
-}

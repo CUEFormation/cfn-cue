@@ -12,29 +12,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::VodSource Resource Type
-#Properties: close({
-	HttpPackageConfigurations!: [..._#defs."/$defs/Properties/definitions/HttpPackageConfiguration"] |
-		fn.#ListExpression
-	SourceLocationName!: string | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VodSourceName!:      string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::VodSource"
+	Properties!: close({
+		HttpPackageConfigurations!: [...#HttpPackageConfiguration] | fn.#ListExpression
+		SourceLocationName!:        string | fn.#StringExpression
+		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VodSourceName!:             string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/HttpPackageConfiguration": close({
+#HttpPackageConfiguration: close({
 	Path!:        string | fn.#StringExpression
 	SourceGroup!: string | fn.#StringExpression
-	Type!:        _#defs."/$defs/Properties/definitions/Type"
+	Type!:        #Type
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Type": "DASH" | "HLS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::VodSource"
-	Properties!: #Properties
-}
+#Type: "DASH" | "HLS" | fn.#StringExpression

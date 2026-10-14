@@ -19,76 +19,62 @@ import (
 	DataEndpoints?: [...string]
 	Id?:            =~"^[a-z0-9]{19}$"
 	Name!:          =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$"
-	Outputs!:       [..._#defs."/$defs/Properties/definitions/GetOutput"]
-	Tags?:          _#defs."/$defs/Properties/definitions/TagMap"
+	Outputs!:       [...#GetOutput]
+	Tags?:          #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/AspectRatio": close({
+#AspectRatio: close({
 	Height!: int
 	Width!:  int
 })
 
-_#defs: "/$defs/Properties/definitions/ClippingConfig": close({
+#ClippingConfig: close({
 	CallbackMetadata?:        strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$"
-	DataSourceConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceConfiguration"
+	DataSourceConfiguration?: #DataSourceConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/CroppingConfig": close(
-	{TemplateGroups?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TemplateGroup"]},
-)
+#CroppingConfig: close({TemplateGroups?: list.MaxItems(4) & list.MinItems(1) & [...#TemplateGroup]})
 
 // Identifies the fixture whose event data Elemental Inference maps onto the
 // clipping metadata for an output.
-_#defs: "/$defs/Properties/definitions/DataSourceConfiguration": close({
+#DataSourceConfiguration: close({
 	// The ID of the fixture whose event data you want Elemental Inference to map
 	// onto this clipping output. To obtain this ID, use the SearchFixtures
 	// operation.
 	FixtureId!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/GetOutput": close({
+#GetOutput: close({
 	Description?:  strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$"
 	Name!:         =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$"
-	OutputConfig!: _#defs."/$defs/Properties/definitions/OutputConfig"
-	Status!:       _#defs."/$defs/Properties/definitions/OutputStatus"
+	OutputConfig!: #OutputConfig
+	Status!:       #OutputStatus
 })
 
-_#defs: "/$defs/Properties/definitions/OutputConfig": matchN(1, [close(
-	{Cropping!: _#defs."/$defs/Properties/definitions/CroppingConfig"},
-), close(
-	{Clipping!: _#defs."/$defs/Properties/definitions/ClippingConfig"},
-), close(
-	{Subtitling!: _#defs."/$defs/Properties/definitions/SubtitlingConfig"},
-)])
+#OutputConfig: matchN(1, [
+	close({Cropping!: #CroppingConfig}), close({Clipping!: #ClippingConfig}), close({Subtitling!: #SubtitlingConfig}),
+])
 
-_#defs: "/$defs/Properties/definitions/OutputStatus": "ENABLED" | "DISABLED"
+#OutputStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/ProfanityFilterMode": "DISABLED" | "CENSOR" | "DROP"
+#ProfanityFilterMode: "DISABLED" | "CENSOR" | "DROP"
 
-_#defs: "/$defs/Properties/definitions/SubtitlingConfig": close({
-	AspectRatio?:     _#defs."/$defs/Properties/definitions/AspectRatio"
+#SubtitlingConfig: close({
+	AspectRatio?:     #AspectRatio
 	Dictionary?:      strings.MaxRunes(19) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
-	Language!:        _#defs."/$defs/Properties/definitions/TranscriptionLanguage"
-	ProfanityFilter?: _#defs."/$defs/Properties/definitions/ProfanityFilterMode"
+	Language!:        #TranscriptionLanguage
+	ProfanityFilter?: #ProfanityFilterMode
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256)}})
 
-_#defs: "/$defs/Properties/definitions/TemplateGroup": close({
+#TemplateGroup: close({
 	Name!: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$"
 	TemplateUris!: list.MaxItems(2) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(10) & =~"^s3://[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]/.+$"
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/TranscriptionLanguage": "eng" |
-	"eng-au" |
-	"eng-gb" |
-	"eng-us" |
-	"fra" |
-	"ita" |
-	"deu" |
-	"spa" |
-	"por"
+#TranscriptionLanguage: "eng" | "eng-au" | "eng-gb" | "eng-us" | "fra" | "ita" | "deu" | "spa" | "por"

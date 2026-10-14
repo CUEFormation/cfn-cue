@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -19,71 +19,80 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::AutoScaling::ScalingPolicy resource specifies an Amazon EC2 Auto
 // Scaling scaling policy so that the Auto Scaling group can scale the number
 // of instances available for your application.
-#Properties: close({
-	AdjustmentType?: ("ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Cooldown?:             string | fn.#StringExpression
-	EstimatedInstanceWarmup?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MetricAggregationType?: ("Average" | "Maximum" | "Minimum") & (strings.MaxRunes(32) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	MinAdjustmentMagnitude?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PolicyType?: ("PredictiveScaling" | "SimpleScaling" | "StepScaling" | "TargetTrackingScaling") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	PredictiveScalingConfiguration?: _#defs."/$defs/Properties/definitions/PredictiveScalingConfiguration" |
-		fn.#ObjectExpression
-	ScalingAdjustment?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StepAdjustments?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StepAdjustment"] |
-		fn.#ListExpression
-	TargetTrackingConfiguration?: _#defs."/$defs/Properties/definitions/TargetTrackingConfiguration" |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AutoScaling::ScalingPolicy"
+	Properties!: close({
+		AdjustmentType?: ("ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Cooldown?:             string | fn.#StringExpression
+		EstimatedInstanceWarmup?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MetricAggregationType?: ("Average" | "Maximum" | "Minimum") & (strings.MaxRunes(32) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		MinAdjustmentMagnitude?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PolicyType?: ("PredictiveScaling" | "SimpleScaling" | "StepScaling" | "TargetTrackingScaling") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomizedMetricSpecification": close({
-	Dimensions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
+		// A predictive scaling policy. Includes support for predefined metrics only.
+		PredictiveScalingConfiguration?: #PredictiveScalingConfiguration
+		ScalingAdjustment?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StepAdjustments?: list.UniqueItems() & [...#StepAdjustment] | fn.#ListExpression
+
+		// A target tracking scaling policy. Includes support for predefined or customized metrics.
+		TargetTrackingConfiguration?: #TargetTrackingConfiguration
+	})
+}
+
+#CustomizedMetricSpecification: close({
+	Dimensions?: list.UniqueItems() & [...#MetricDimension] | fn.#ListExpression
 	MetricName?: string | fn.#StringExpression
-	Metrics?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetTrackingMetricDataQuery"] |
-		fn.#ListExpression
-	Namespace?: string | fn.#StringExpression
+	Metrics?:    list.UniqueItems() & [...#TargetTrackingMetricDataQuery] | fn.#ListExpression
+	Namespace?:  string | fn.#StringExpression
 	Period?: int & >=1 |
 		{
 			string &
@@ -104,36 +113,36 @@ _#defs: "/$defs/Properties/definitions/CustomizedMetricSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Metric": close({
-	Dimensions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
+#Metric: close({
+	Dimensions?: list.UniqueItems() & [...#MetricDimension] | fn.#ListExpression
 	MetricName!: string | fn.#StringExpression
 	Namespace!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
+#MetricDataQuery: close({
 	Expression?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
 	Id!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Label?:      strings.MaxRunes(2047) & strings.MinRunes(0) | fn.#StringExpression
-	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat"
+	MetricStat?: #MetricStat
 	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Name!:  string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric"
+#MetricStat: close({
+	Metric!: #Metric
 	Stat!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Unit?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredefinedMetricSpecification": close({
+#PredefinedMetricSpecification: close({
 	PredefinedMetricType!: "ALBRequestCountPerTarget" |
 		"ASGAverageCPUUtilization" |
 		"ASGAverageNetworkIn" |
@@ -143,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/PredefinedMetricSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingConfiguration": close({
+#PredictiveScalingConfiguration: close({
 	MaxCapacityBreachBehavior?: "HonorMaxCapacity" | "IncreaseMaxCapacity" | fn.#StringExpression
 	MaxCapacityBuffer?: int & <=100 & >=0 |
 		{
@@ -161,11 +170,8 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	MetricSpecifications!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricSpecification"
-	] |
-		fn.#ListExpression
-	Mode?: "ForecastAndScale" | "ForecastOnly" | fn.#StringExpression
+	MetricSpecifications!: list.UniqueItems() & [...#PredictiveScalingMetricSpecification] | fn.#ListExpression
+	Mode?:                 "ForecastAndScale" | "ForecastOnly" | fn.#StringExpression
 	SchedulingBufferTime?: int & >=0 |
 		{
 			string &
@@ -184,34 +190,28 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedCapacityMetric": close({
-	MetricDataQueries!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"] |
-		fn.#ListExpression
-}) |
+#PredictiveScalingCustomizedCapacityMetric: close(
+	{MetricDataQueries!: list.UniqueItems() & [...#MetricDataQuery] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedLoadMetric": close({
-	MetricDataQueries!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"] |
-		fn.#ListExpression
-}) |
+#PredictiveScalingCustomizedLoadMetric: close(
+	{MetricDataQueries!: list.UniqueItems() & [...#MetricDataQuery] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedScalingMetric": close({
-	MetricDataQueries!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"] |
-		fn.#ListExpression
-}) |
+#PredictiveScalingCustomizedScalingMetric: close(
+	{MetricDataQueries!: list.UniqueItems() & [...#MetricDataQuery] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricSpecification": close({
-	CustomizedCapacityMetricSpecification?:
-		_#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedCapacityMetric"
-	CustomizedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedLoadMetric"
-	CustomizedScalingMetricSpecification?:
-		_#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedScalingMetric"
-	PredefinedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric"
-	PredefinedMetricPairSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair"
-	PredefinedScalingMetricSpecification?:
-		_#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric"
+#PredictiveScalingMetricSpecification: close({
+	CustomizedCapacityMetricSpecification?: #PredictiveScalingCustomizedCapacityMetric
+	CustomizedLoadMetricSpecification?:     #PredictiveScalingCustomizedLoadMetric
+	CustomizedScalingMetricSpecification?:  #PredictiveScalingCustomizedScalingMetric
+	PredefinedLoadMetricSpecification?:     #PredictiveScalingPredefinedLoadMetric
+	PredefinedMetricPairSpecification?:     #PredictiveScalingPredefinedMetricPair
+	PredefinedScalingMetricSpecification?:  #PredictiveScalingPredefinedScalingMetric
 	TargetValue!: number |
 		{
 			string &
@@ -234,7 +234,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingMetricSpecification": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric": close({
+#PredictiveScalingPredefinedLoadMetric: close({
 	PredefinedMetricType!: "ALBTargetGroupRequestCount" |
 		"ASGTotalCPUUtilization" |
 		"ASGTotalNetworkIn" |
@@ -244,7 +244,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair": close({
+#PredictiveScalingPredefinedMetricPair: close({
 	PredefinedMetricType!: "ALBRequestCount" |
 		"ASGCPUUtilization" |
 		"ASGNetworkIn" |
@@ -254,7 +254,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric": close({
+#PredictiveScalingPredefinedScalingMetric: close({
 	PredefinedMetricType!: "ALBRequestCountPerTarget" |
 		"ASGAverageCPUUtilization" |
 		"ASGAverageNetworkIn" |
@@ -264,7 +264,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StepAdjustment": close({
+#StepAdjustment: close({
 	MetricIntervalLowerBound?: number |
 		{
 			string &
@@ -320,10 +320,10 @@ _#defs: "/$defs/Properties/definitions/StepAdjustment": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close({
-	CustomizedMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedMetricSpecification"
+#TargetTrackingConfiguration: close({
+	CustomizedMetricSpecification?: #CustomizedMetricSpecification
 	DisableScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PredefinedMetricSpecification?: _#defs."/$defs/Properties/definitions/PredefinedMetricSpecification"
+	PredefinedMetricSpecification?: #PredefinedMetricSpecification
 	TargetValue!: number |
 		{
 			string &
@@ -346,11 +346,11 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricDataQuery": close({
+#TargetTrackingMetricDataQuery: close({
 	Expression?: strings.MaxRunes(2047) & strings.MinRunes(1) | fn.#StringExpression
 	Id!:         strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Label?:      strings.MaxRunes(2047) & strings.MinRunes(0) | fn.#StringExpression
-	MetricStat?: _#defs."/$defs/Properties/definitions/TargetTrackingMetricStat"
+	MetricStat?: #TargetTrackingMetricStat
 	Period?: int & >=1 |
 		{
 			string &
@@ -370,8 +370,8 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingMetricDataQuery": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric"
+#TargetTrackingMetricStat: close({
+	Metric!: #Metric
 	Period?: int & >=1 |
 		{
 			string &
@@ -391,7 +391,3 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingMetricStat": close({
 	Unit?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AutoScaling::ScalingPolicy"
-	Properties!: #Properties
-}

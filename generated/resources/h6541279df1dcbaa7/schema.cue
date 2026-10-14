@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -19,54 +19,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::IoT::JobTemplate. Job templates enable you
 // to preconfigure jobs so that you can deploy them to multiple sets of target
 // devices.
-#Properties: close({
-	AbortConfig?: close({
-		CriteriaList!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AbortCriteria"] | fn.#ListExpression
-	}) |
-		fn.#ObjectExpression
-	Description!: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"[^\\p{C}]+" | fn.#StringExpression
-	DestinationPackageVersions?: [..._#defs."/$defs/Properties/definitions/DestinationPackageVersion"] |
-		fn.#ListExpression
-	Document?:       strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
-	DocumentSource?: strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
-	JobArn?:         string | fn.#StringExpression
-	JobExecutionsRetryConfig?: close({
-		RetryCriteriaList?: list.MaxItems(2) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/RetryCriteria"
-		] |
-			fn.#ListExpression
-	}) |
-		fn.#ObjectExpression
-	JobExecutionsRolloutConfig?: close({
-		ExponentialRolloutRate?: _#defs."/$defs/Properties/definitions/ExponentialRolloutRate" | fn.#ObjectExpression
-		MaximumPerMinute?:       _#defs."/$defs/Properties/definitions/MaximumPerMinute" | fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	JobTemplateId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
-	MaintenanceWindows?: [..._#defs."/$defs/Properties/definitions/MaintenanceWindow"] | fn.#ListExpression
-	PresignedUrlConfig?: close({
-		ExpiresInSec?: _#defs."/$defs/Properties/definitions/ExpiresInSec"
-		RoleArn!:      _#defs."/$defs/Properties/definitions/RoleArn"
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeoutConfig?: close(
-		{InProgressTimeoutInMinutes!: _#defs."/$defs/Properties/definitions/InProgressTimeoutInMinutes"},
-	) |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::JobTemplate"
+	Properties!: close({
+		AbortConfig?: close({CriteriaList!: list.MinItems(1) & [...#AbortCriteria] | fn.#ListExpression}) |
+			fn.#ObjectExpression
+		Description!: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"[^\\p{C}]+" | fn.#StringExpression
+		DestinationPackageVersions?: [...#DestinationPackageVersion] | fn.#ListExpression
+		Document?:                   strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
+		DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
+		JobArn?:                     string | fn.#StringExpression
+		JobExecutionsRetryConfig?: close(
+			{RetryCriteriaList?: list.MaxItems(2) & list.MinItems(1) & [...#RetryCriteria] | fn.#ListExpression},
+		) |
+			fn.#ObjectExpression
+		JobExecutionsRolloutConfig?: close({
+			// The rate of increase for a job rollout. This parameter allows you to define
+			// an exponential rate for a job rollout.
+			ExponentialRolloutRate?: #ExponentialRolloutRate
 
-_#defs: "/$defs/Properties/definitions/AbortCriteria": close({
-	Action!:                    _#defs."/$defs/Properties/definitions/Action" | fn.#StringExpression
-	FailureType!:               _#defs."/$defs/Properties/definitions/FailureType" | fn.#StringExpression
-	MinNumberOfExecutedThings!: _#defs."/$defs/Properties/definitions/MinNumberOfExecutedThings" | fn.#NumberExpression
-	ThresholdPercentage!:       _#defs."/$defs/Properties/definitions/ThresholdPercentage" | fn.#NumberExpression
+			// The maximum number of things that will be notified of a pending job, per
+			// minute. This parameter allows you to create a staged rollout.
+			MaximumPerMinute?: #MaximumPerMinute
+		}) |
+		fn.#ObjectExpression
+		JobTemplateId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
+		MaintenanceWindows?: [...#MaintenanceWindow] | fn.#ListExpression
+		PresignedUrlConfig?: close({
+			ExpiresInSec?: #ExpiresInSec
+			RoleArn!:      #RoleArn
+		}) |
+		fn.#ObjectExpression
+		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TimeoutConfig?: close({InProgressTimeoutInMinutes!: #InProgressTimeoutInMinutes}) | fn.#ObjectExpression
+	})
+}
+
+#AbortCriteria: close({
+	// The type of job action to take to initiate the job abort.
+	Action!: #Action
+
+	// The type of job execution failures that can initiate a job abort.
+	FailureType!: #FailureType
+
+	// The minimum number of things which must receive job execution notifications
+	// before the job can be aborted.
+	MinNumberOfExecutedThings!: #MinNumberOfExecutedThings
+
+	// The minimum percentage of job execution failures that must occur to initiate the job abort.
+	ThresholdPercentage!: #ThresholdPercentage
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Action": "CANCEL" | fn.#StringExpression
+#Action: "CANCEL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BaseRatePerMinute": int & >=1 |
+#BaseRatePerMinute: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -82,12 +89,9 @@ _#defs: "/$defs/Properties/definitions/BaseRatePerMinute": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationPackageVersion": strings.MaxRunes(1600) &
-strings.MinRunes(1) &
-=~"^arn:[!-~]+$" |
-fn.#StringExpression
+#DestinationPackageVersion: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExpiresInSec": int & <=3600 & >=60 |
+#ExpiresInSec: int & <=3600 & >=60 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -104,17 +108,21 @@ _#defs: "/$defs/Properties/definitions/ExpiresInSec": int & <=3600 & >=60 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ExponentialRolloutRate": close({
-	BaseRatePerMinute!: _#defs."/$defs/Properties/definitions/BaseRatePerMinute" | fn.#NumberExpression
-	IncrementFactor!:   _#defs."/$defs/Properties/definitions/IncrementFactor" | fn.#NumberExpression
-	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/RateIncreaseCriteria" & fn.#Object & {...} |
-	fn.#ObjectExpression
+#ExponentialRolloutRate: close({
+	// The minimum number of things that will be notified of a pending job, per
+	// minute at the start of job rollout. This parameter allows you to define the
+	// initial rate of rollout.
+	BaseRatePerMinute!: #BaseRatePerMinute
+
+	// The exponential factor to increase the rate of rollout for a job.
+	IncrementFactor!:      #IncrementFactor
+	RateIncreaseCriteria!: #RateIncreaseCriteria & fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailureType": "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
+#FailureType: "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InProgressTimeoutInMinutes": int & <=10080 & >=1 |
+#InProgressTimeoutInMinutes: int & <=10080 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -131,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/InProgressTimeoutInMinutes": int & <=1008
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/IncrementFactor": <=5 & >=1 |
+#IncrementFactor: <=5 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -152,9 +160,9 @@ _#defs: "/$defs/Properties/definitions/IncrementFactor": <=5 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/JobRetryFailureType": "FAILED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
+#JobRetryFailureType: "FAILED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	DurationInMinutes?: int & <=1430 & >=1 |
 		{
 			string &
@@ -175,7 +183,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaximumPerMinute": int & >=1 |
+#MaximumPerMinute: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -191,7 +199,7 @@ _#defs: "/$defs/Properties/definitions/MaximumPerMinute": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MinNumberOfExecutedThings": int & >=1 |
+#MinNumberOfExecutedThings: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -207,7 +215,7 @@ _#defs: "/$defs/Properties/definitions/MinNumberOfExecutedThings": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfNotifiedThings": int & >=1 |
+#NumberOfNotifiedThings: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -223,7 +231,7 @@ _#defs: "/$defs/Properties/definitions/NumberOfNotifiedThings": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/NumberOfSucceededThings": int & >=1 |
+#NumberOfSucceededThings: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -239,14 +247,14 @@ _#defs: "/$defs/Properties/definitions/NumberOfSucceededThings": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/RateIncreaseCriteria": close({
-	NumberOfNotifiedThings?:  _#defs."/$defs/Properties/definitions/NumberOfNotifiedThings"
-	NumberOfSucceededThings?: _#defs."/$defs/Properties/definitions/NumberOfSucceededThings"
+#RateIncreaseCriteria: close({
+	NumberOfNotifiedThings?:  #NumberOfNotifiedThings
+	NumberOfSucceededThings?: #NumberOfSucceededThings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetryCriteria": close({
-	FailureType?: _#defs."/$defs/Properties/definitions/JobRetryFailureType"
+#RetryCriteria: close({
+	FailureType?: #JobRetryFailureType
 	NumberOfRetries?: int & <=10 & >=0 |
 		{
 			string &
@@ -266,16 +274,16 @@ _#defs: "/$defs/Properties/definitions/RetryCriteria": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdPercentage": <=100 |
+#ThresholdPercentage: <=100 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -294,7 +302,3 @@ _#defs: "/$defs/Properties/definitions/ThresholdPercentage": <=100 |
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::JobTemplate"
-	Properties!: #Properties
-}

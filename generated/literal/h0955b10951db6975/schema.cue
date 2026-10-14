@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"list"
+	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,7 +14,7 @@ import (
 #Properties: close({
 	// Time Stamp
 	CreationTime?:              time.Time
-	CustomOutputConfiguration?: _#defs."/$defs/Properties/definitions/CustomOutputConfiguration"
+	CustomOutputConfiguration?: #CustomOutputConfiguration
 
 	// KMS encryption context
 	KmsEncryptionContext?: close({
@@ -32,7 +32,7 @@ import (
 
 	// Time Stamp
 	LastModifiedTime?:      time.Time
-	OverrideConfiguration?: _#defs."/$defs/Properties/definitions/OverrideConfiguration"
+	OverrideConfiguration?: #OverrideConfiguration
 
 	// ARN of a DataAutomationProject
 	ProjectArn?: strings.MaxRunes(128) &
@@ -43,211 +43,175 @@ import (
 
 	// Name of the DataAutomationProject
 	ProjectName!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$"
-	ProjectStage?: _#defs."/$defs/Properties/definitions/DataAutomationProjectStage"
+	ProjectStage?: #DataAutomationProjectStage
 
 	// Type of the DataAutomationProject - Sync or Async
 	ProjectType?:                 "ASYNC" | "SYNC"
-	StandardOutputConfiguration?: _#defs."/$defs/Properties/definitions/StandardOutputConfiguration"
-	Status?:                      _#defs."/$defs/Properties/definitions/DataAutomationProjectStatus"
+	StandardOutputConfiguration?: #StandardOutputConfiguration
+	Status?:                      #DataAutomationProjectStatus
 
 	// List of Tags
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionCategory": close({
-	State!:             _#defs."/$defs/Properties/definitions/State"
-	TypeConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionCategoryTypeConfiguration"
-	Types?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AudioExtractionCategoryType"]
+#AudioExtractionCategory: close({
+	State!:             #State
+	TypeConfiguration?: #AudioExtractionCategoryTypeConfiguration
+	Types?:             list.UniqueItems() & [...#AudioExtractionCategoryType]
 })
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionCategoryType": "AUDIO_CONTENT_MODERATION" |
-	"TRANSCRIPT" |
-	"TOPIC_CONTENT_MODERATION"
+#AudioExtractionCategoryType: "AUDIO_CONTENT_MODERATION" | "TRANSCRIPT" | "TOPIC_CONTENT_MODERATION"
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionCategoryTypeConfiguration": close(
-	{Transcript?: _#defs."/$defs/Properties/definitions/TranscriptConfiguration"},
-)
+#AudioExtractionCategoryTypeConfiguration: close({Transcript?: #TranscriptConfiguration})
 
-_#defs: "/$defs/Properties/definitions/AudioGenerativeOutputLanguage": "DEFAULT" | "EN"
+#AudioGenerativeOutputLanguage: "DEFAULT" | "EN"
 
-_#defs: "/$defs/Properties/definitions/AudioLanguageConfiguration": close({
-	GenerativeOutputLanguage?:  _#defs."/$defs/Properties/definitions/AudioGenerativeOutputLanguage"
+#AudioLanguageConfiguration: close({
+	GenerativeOutputLanguage?:  #AudioGenerativeOutputLanguage
 	IdentifyMultipleLanguages?: bool
-	InputLanguages?:            [..._#defs."/$defs/Properties/definitions/Language"]
+	InputLanguages?:            [...#Language]
 })
 
-_#defs: "/$defs/Properties/definitions/AudioOverrideConfiguration": close({
-	LanguageConfiguration?:      _#defs."/$defs/Properties/definitions/AudioLanguageConfiguration"
-	ModalityProcessing?:         _#defs."/$defs/Properties/definitions/ModalityProcessingConfiguration"
-	SensitiveDataConfiguration?: _#defs."/$defs/Properties/definitions/SensitiveDataConfiguration"
+#AudioOverrideConfiguration: close({
+	LanguageConfiguration?:      #AudioLanguageConfiguration
+	ModalityProcessing?:         #ModalityProcessingConfiguration
+	SensitiveDataConfiguration?: #SensitiveDataConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AudioStandardExtraction": close(
-	{Category!: _#defs."/$defs/Properties/definitions/AudioExtractionCategory"},
-)
+#AudioStandardExtraction: close({Category!: #AudioExtractionCategory})
 
-_#defs: "/$defs/Properties/definitions/AudioStandardGenerativeField": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AudioStandardGenerativeFieldType"]
+#AudioStandardGenerativeField: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#AudioStandardGenerativeFieldType]
 })
 
-_#defs: "/$defs/Properties/definitions/AudioStandardGenerativeFieldType": "AUDIO_SUMMARY" | "IAB" | "TOPIC_SUMMARY"
+#AudioStandardGenerativeFieldType: "AUDIO_SUMMARY" | "IAB" | "TOPIC_SUMMARY"
 
-_#defs: "/$defs/Properties/definitions/AudioStandardOutputConfiguration": close({
-	Extraction?:      _#defs."/$defs/Properties/definitions/AudioStandardExtraction"
-	GenerativeField?: _#defs."/$defs/Properties/definitions/AudioStandardGenerativeField"
+#AudioStandardOutputConfiguration: close({
+	Extraction?:      #AudioStandardExtraction
+	GenerativeField?: #AudioStandardGenerativeField
 })
 
-_#defs: "/$defs/Properties/definitions/BlueprintItem": close({
+#BlueprintItem: close({
 	// ARN of a Blueprint
 	BlueprintArn!: strings.MaxRunes(128) &
 	=~"^arn:aws(|-cn|-us-gov|-iso|-iso-[a-z]):bedrock:[a-zA-Z0-9-]*:(aws|[0-9]{12}):blueprint/(bedrock-data-automation-public-[a-zA-Z0-9-_]{1,30}|[a-zA-Z0-9-]{12,36})$"
-	BlueprintStage?: _#defs."/$defs/Properties/definitions/BlueprintStage"
+	BlueprintStage?: #BlueprintStage
 
 	// Blueprint Version
 	BlueprintVersion?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9]*$"
 })
 
 // Stage of the Blueprint
-_#defs: "/$defs/Properties/definitions/BlueprintStage": "DEVELOPMENT" | "LIVE"
+#BlueprintStage: "DEVELOPMENT" | "LIVE"
 
-_#defs: "/$defs/Properties/definitions/ChannelLabelingConfiguration": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
-)
+#ChannelLabelingConfiguration: close({State!: #State})
 
 // Custom output configuration
-_#defs: "/$defs/Properties/definitions/CustomOutputConfiguration": close(
-	{Blueprints?: [..._#defs."/$defs/Properties/definitions/BlueprintItem"]},
-)
+#CustomOutputConfiguration: close({Blueprints?: [...#BlueprintItem]})
 
 // Stage of the Project
-_#defs: "/$defs/Properties/definitions/DataAutomationProjectStage": "DEVELOPMENT" | "LIVE"
+#DataAutomationProjectStage: "DEVELOPMENT" | "LIVE"
 
-_#defs: "/$defs/Properties/definitions/DataAutomationProjectStatus": "COMPLETED" | "IN_PROGRESS" | "FAILED"
+#DataAutomationProjectStatus: "COMPLETED" | "IN_PROGRESS" | "FAILED"
 
-_#defs: "/$defs/Properties/definitions/DesiredModality": "DOCUMENT" | "IMAGE" | "VIDEO" | "AUDIO"
+#DesiredModality: "DOCUMENT" | "IMAGE" | "VIDEO" | "AUDIO"
 
-_#defs: "/$defs/Properties/definitions/DocumentBoundingBox": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
-)
+#DocumentBoundingBox: close({State!: #State})
 
-_#defs: "/$defs/Properties/definitions/DocumentExtractionGranularity": close(
-	{Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DocumentExtractionGranularityType"]},
-)
+#DocumentExtractionGranularity: close({Types?: list.UniqueItems() & [...#DocumentExtractionGranularityType]})
 
-_#defs: "/$defs/Properties/definitions/DocumentExtractionGranularityType": "DOCUMENT" |
-	"PAGE" |
-	"ELEMENT" |
-	"WORD" |
-	"LINE"
+#DocumentExtractionGranularityType: "DOCUMENT" | "PAGE" | "ELEMENT" | "WORD" | "LINE"
 
-_#defs: "/$defs/Properties/definitions/DocumentOutputAdditionalFileFormat": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
-)
+#DocumentOutputAdditionalFileFormat: close({State!: #State})
 
-_#defs: "/$defs/Properties/definitions/DocumentOutputFormat": close({
-	AdditionalFileFormat!: _#defs."/$defs/Properties/definitions/DocumentOutputAdditionalFileFormat"
-	TextFormat!:           _#defs."/$defs/Properties/definitions/DocumentOutputTextFormat"
+#DocumentOutputFormat: close({
+	AdditionalFileFormat!: #DocumentOutputAdditionalFileFormat
+	TextFormat!:           #DocumentOutputTextFormat
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentOutputTextFormat": close(
-	{Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DocumentOutputTextFormatType"]},
-)
+#DocumentOutputTextFormat: close({Types?: list.UniqueItems() & [...#DocumentOutputTextFormatType]})
 
-_#defs: "/$defs/Properties/definitions/DocumentOutputTextFormatType": "PLAIN_TEXT" | "MARKDOWN" | "HTML" | "CSV"
+#DocumentOutputTextFormatType: "PLAIN_TEXT" | "MARKDOWN" | "HTML" | "CSV"
 
-_#defs: "/$defs/Properties/definitions/DocumentOverrideConfiguration": close({
-	ModalityProcessing?:         _#defs."/$defs/Properties/definitions/ModalityProcessingConfiguration"
-	SensitiveDataConfiguration?: _#defs."/$defs/Properties/definitions/SensitiveDataConfiguration"
-	Splitter?:                   _#defs."/$defs/Properties/definitions/SplitterConfiguration"
+#DocumentOverrideConfiguration: close({
+	ModalityProcessing?:         #ModalityProcessingConfiguration
+	SensitiveDataConfiguration?: #SensitiveDataConfiguration
+	Splitter?:                   #SplitterConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentStandardExtraction": close({
-	BoundingBox!: _#defs."/$defs/Properties/definitions/DocumentBoundingBox"
-	Granularity!: _#defs."/$defs/Properties/definitions/DocumentExtractionGranularity"
+#DocumentStandardExtraction: close({
+	BoundingBox!: #DocumentBoundingBox
+	Granularity!: #DocumentExtractionGranularity
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentStandardGenerativeField": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
-)
+#DocumentStandardGenerativeField: close({State!: #State})
 
-_#defs: "/$defs/Properties/definitions/DocumentStandardOutputConfiguration": close({
-	Extraction?:      _#defs."/$defs/Properties/definitions/DocumentStandardExtraction"
-	GenerativeField?: _#defs."/$defs/Properties/definitions/DocumentStandardGenerativeField"
-	OutputFormat?:    _#defs."/$defs/Properties/definitions/DocumentOutputFormat"
+#DocumentStandardOutputConfiguration: close({
+	Extraction?:      #DocumentStandardExtraction
+	GenerativeField?: #DocumentStandardGenerativeField
+	OutputFormat?:    #DocumentOutputFormat
 })
 
-_#defs: "/$defs/Properties/definitions/ImageBoundingBox": close({State!: _#defs."/$defs/Properties/definitions/State"})
+#ImageBoundingBox: close({State!: #State})
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionCategory": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ImageExtractionCategoryType"]
+#ImageExtractionCategory: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#ImageExtractionCategoryType]
 })
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionCategoryType": "CONTENT_MODERATION" | "TEXT_DETECTION" | "LOGOS"
+#ImageExtractionCategoryType: "CONTENT_MODERATION" | "TEXT_DETECTION" | "LOGOS"
 
-_#defs: "/$defs/Properties/definitions/ImageOverrideConfiguration": close({
-	ModalityProcessing?:         _#defs."/$defs/Properties/definitions/ModalityProcessingConfiguration"
-	SensitiveDataConfiguration?: _#defs."/$defs/Properties/definitions/SensitiveDataConfiguration"
+#ImageOverrideConfiguration: close({
+	ModalityProcessing?:         #ModalityProcessingConfiguration
+	SensitiveDataConfiguration?: #SensitiveDataConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ImageStandardExtraction": close({
-	BoundingBox!: _#defs."/$defs/Properties/definitions/ImageBoundingBox"
-	Category!:    _#defs."/$defs/Properties/definitions/ImageExtractionCategory"
+#ImageStandardExtraction: close({
+	BoundingBox!: #ImageBoundingBox
+	Category!:    #ImageExtractionCategory
 })
 
-_#defs: "/$defs/Properties/definitions/ImageStandardGenerativeField": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ImageStandardGenerativeFieldType"]
+#ImageStandardGenerativeField: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#ImageStandardGenerativeFieldType]
 })
 
-_#defs: "/$defs/Properties/definitions/ImageStandardGenerativeFieldType": "IMAGE_SUMMARY" | "IAB"
+#ImageStandardGenerativeFieldType: "IMAGE_SUMMARY" | "IAB"
 
-_#defs: "/$defs/Properties/definitions/ImageStandardOutputConfiguration": close({
-	Extraction?:      _#defs."/$defs/Properties/definitions/ImageStandardExtraction"
-	GenerativeField?: _#defs."/$defs/Properties/definitions/ImageStandardGenerativeField"
+#ImageStandardOutputConfiguration: close({
+	Extraction?:      #ImageStandardExtraction
+	GenerativeField?: #ImageStandardGenerativeField
 })
 
-_#defs: "/$defs/Properties/definitions/Language": "EN" |
-	"DE" |
-	"ES" |
-	"FR" |
-	"IT" |
-	"PT" |
-	"JA" |
-	"KO" |
-	"CN" |
-	"TW" |
-	"HK"
+#Language: "EN" | "DE" | "ES" | "FR" | "IT" | "PT" | "JA" | "KO" | "CN" | "TW" | "HK"
 
-_#defs: "/$defs/Properties/definitions/ModalityProcessingConfiguration": close(
-	{State?: _#defs."/$defs/Properties/definitions/State"},
-)
+#ModalityProcessingConfiguration: close({State?: #State})
 
 // Modality routing configuration
-_#defs: "/$defs/Properties/definitions/ModalityRoutingConfiguration": close({
-	jpeg?: _#defs."/$defs/Properties/definitions/DesiredModality"
-	mov?:  _#defs."/$defs/Properties/definitions/DesiredModality"
-	mp4?:  _#defs."/$defs/Properties/definitions/DesiredModality"
-	png?:  _#defs."/$defs/Properties/definitions/DesiredModality"
+#ModalityRoutingConfiguration: close({
+	jpeg?: #DesiredModality
+	mov?:  #DesiredModality
+	mp4?:  #DesiredModality
+	png?:  #DesiredModality
 })
 
 // Override configuration
-_#defs: "/$defs/Properties/definitions/OverrideConfiguration": close({
-	Audio?:           _#defs."/$defs/Properties/definitions/AudioOverrideConfiguration"
-	Document?:        _#defs."/$defs/Properties/definitions/DocumentOverrideConfiguration"
-	Image?:           _#defs."/$defs/Properties/definitions/ImageOverrideConfiguration"
-	ModalityRouting?: _#defs."/$defs/Properties/definitions/ModalityRoutingConfiguration"
-	Video?:           _#defs."/$defs/Properties/definitions/VideoOverrideConfiguration"
+#OverrideConfiguration: close({
+	Audio?:           #AudioOverrideConfiguration
+	Document?:        #DocumentOverrideConfiguration
+	Image?:           #ImageOverrideConfiguration
+	ModalityRouting?: #ModalityRoutingConfiguration
+	Video?:           #VideoOverrideConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/PIIEntitiesConfiguration": {
-	PiiEntityTypes?:    [..._#defs."/$defs/Properties/definitions/PIIEntityTypes"]
-	RedactionMaskMode?: _#defs."/$defs/Properties/definitions/PIIRedactionMaskMode"
+#PIIEntitiesConfiguration: {
+	PiiEntityTypes?:    [...#PIIEntityTypes]
+	RedactionMaskMode?: #PIIRedactionMaskMode
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/PIIEntityTypes": "ALL" |
+#PIIEntityTypes: "ALL" |
 	"ADDRESS" |
 	"AGE" |
 	"NAME" |
@@ -280,39 +244,35 @@ _#defs: "/$defs/Properties/definitions/PIIEntityTypes": "ALL" |
 	"UK_NATIONAL_INSURANCE_NUMBER" |
 	"UK_UNIQUE_TAXPAYER_REFERENCE_NUMBER"
 
-_#defs: "/$defs/Properties/definitions/PIIRedactionMaskMode": "PII" | "ENTITY_TYPE"
+#PIIRedactionMaskMode: "PII" | "ENTITY_TYPE"
 
-_#defs: "/$defs/Properties/definitions/SensitiveDataConfiguration": {
-	DetectionMode?:            _#defs."/$defs/Properties/definitions/SensitiveDataDetectionMode"
-	DetectionScope?:           [..._#defs."/$defs/Properties/definitions/SensitiveDataDetectionScope"]
-	PiiEntitiesConfiguration?: _#defs."/$defs/Properties/definitions/PIIEntitiesConfiguration"
+#SensitiveDataConfiguration: {
+	DetectionMode?:            #SensitiveDataDetectionMode
+	DetectionScope?:           [...#SensitiveDataDetectionScope]
+	PiiEntitiesConfiguration?: #PIIEntitiesConfiguration
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SensitiveDataDetectionMode": "DETECTION" | "DETECTION_AND_REDACTION"
+#SensitiveDataDetectionMode: "DETECTION" | "DETECTION_AND_REDACTION"
 
-_#defs: "/$defs/Properties/definitions/SensitiveDataDetectionScope": "STANDARD" | "CUSTOM"
+#SensitiveDataDetectionScope: "STANDARD" | "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/SpeakerLabelingConfiguration": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
-)
+#SpeakerLabelingConfiguration: close({State!: #State})
 
-_#defs: "/$defs/Properties/definitions/SplitterConfiguration": close(
-	{State?: _#defs."/$defs/Properties/definitions/State"},
-)
+#SplitterConfiguration: close({State?: #State})
 
 // Standard output configuration
-_#defs: "/$defs/Properties/definitions/StandardOutputConfiguration": close({
-	Audio?:    _#defs."/$defs/Properties/definitions/AudioStandardOutputConfiguration"
-	Document?: _#defs."/$defs/Properties/definitions/DocumentStandardOutputConfiguration"
-	Image?:    _#defs."/$defs/Properties/definitions/ImageStandardOutputConfiguration"
-	Video?:    _#defs."/$defs/Properties/definitions/VideoStandardOutputConfiguration"
+#StandardOutputConfiguration: close({
+	Audio?:    #AudioStandardOutputConfiguration
+	Document?: #DocumentStandardOutputConfiguration
+	Image?:    #ImageStandardOutputConfiguration
+	Video?:    #VideoStandardOutputConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/State": "ENABLED" | "DISABLED"
+#State: "ENABLED" | "DISABLED"
 
 // Definition of the key/value pair for a tag
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Key for the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 
@@ -320,43 +280,40 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/TranscriptConfiguration": close({
-	ChannelLabeling?: _#defs."/$defs/Properties/definitions/ChannelLabelingConfiguration"
-	SpeakerLabeling?: _#defs."/$defs/Properties/definitions/SpeakerLabelingConfiguration"
+#TranscriptConfiguration: close({
+	ChannelLabeling?: #ChannelLabelingConfiguration
+	SpeakerLabeling?: #SpeakerLabelingConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})
 
-_#defs: "/$defs/Properties/definitions/VideoBoundingBox": close({State!: _#defs."/$defs/Properties/definitions/State"})
+#VideoBoundingBox: close({State!: #State})
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionCategory": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VideoExtractionCategoryType"]
+#VideoExtractionCategory: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#VideoExtractionCategoryType]
 })
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionCategoryType": "CONTENT_MODERATION" |
-	"TEXT_DETECTION" |
-	"TRANSCRIPT" |
-	"LOGOS"
+#VideoExtractionCategoryType: "CONTENT_MODERATION" | "TEXT_DETECTION" | "TRANSCRIPT" | "LOGOS"
 
-_#defs: "/$defs/Properties/definitions/VideoOverrideConfiguration": close({
-	ModalityProcessing?:         _#defs."/$defs/Properties/definitions/ModalityProcessingConfiguration"
-	SensitiveDataConfiguration?: _#defs."/$defs/Properties/definitions/SensitiveDataConfiguration"
+#VideoOverrideConfiguration: close({
+	ModalityProcessing?:         #ModalityProcessingConfiguration
+	SensitiveDataConfiguration?: #SensitiveDataConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/VideoStandardExtraction": close({
-	BoundingBox!: _#defs."/$defs/Properties/definitions/VideoBoundingBox"
-	Category!:    _#defs."/$defs/Properties/definitions/VideoExtractionCategory"
+#VideoStandardExtraction: close({
+	BoundingBox!: #VideoBoundingBox
+	Category!:    #VideoExtractionCategory
 })
 
-_#defs: "/$defs/Properties/definitions/VideoStandardGenerativeField": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VideoStandardGenerativeFieldType"]
+#VideoStandardGenerativeField: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#VideoStandardGenerativeFieldType]
 })
 
-_#defs: "/$defs/Properties/definitions/VideoStandardGenerativeFieldType": "VIDEO_SUMMARY" | "IAB" | "CHAPTER_SUMMARY"
+#VideoStandardGenerativeFieldType: "VIDEO_SUMMARY" | "IAB" | "CHAPTER_SUMMARY"
 
-_#defs: "/$defs/Properties/definitions/VideoStandardOutputConfiguration": close({
-	Extraction?:      _#defs."/$defs/Properties/definitions/VideoStandardExtraction"
-	GenerativeField?: _#defs."/$defs/Properties/definitions/VideoStandardGenerativeField"
+#VideoStandardOutputConfiguration: close({
+	Extraction?:      #VideoStandardExtraction
+	GenerativeField?: #VideoStandardGenerativeField
 })

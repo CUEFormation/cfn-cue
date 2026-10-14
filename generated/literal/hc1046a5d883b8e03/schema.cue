@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,10 +22,8 @@ import (
 
 	// A set of organizational unit (OU) exclusions for the default resource
 	// discovery, created with this IPAM.
-	DefaultResourceDiscoveryOrganizationalUnitExclusions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpamOrganizationalUnitExclusion"
-	]
-	Description?: string
+	DefaultResourceDiscoveryOrganizationalUnitExclusions?: list.UniqueItems() & [...#IpamOrganizationalUnitExclusion]
+	Description?:                                          string
 
 	// Enable provisioning of GUA space in private pools.
 	EnablePrivateGua?: bool
@@ -38,9 +36,7 @@ import (
 
 	// The regions IPAM is enabled for. Allows pools to be created in these regions,
 	// as well as enabling monitoring
-	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/IpamOperatingRegion"
-	]
+	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion]
 
 	// The Id of the default scope for publicly routable IP space, created with this IPAM.
 	PrivateDefaultScopeId?: string
@@ -55,7 +51,7 @@ import (
 	ScopeCount?: int
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The tier of the IPAM.
 	Tier?: "free" | "advanced"
@@ -63,7 +59,7 @@ import (
 
 // The regions IPAM is enabled for. Allows pools to be created in these regions,
 // as well as enabling monitoring
-_#defs: "/$defs/Properties/definitions/IpamOperatingRegion": close({
+#IpamOperatingRegion: close({
 	// The name of the region.
 	RegionName!: string
 })
@@ -71,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/IpamOperatingRegion": close({
 // If your IPAM is integrated with AWS Organizations and you add an
 // organizational unit (OU) exclusion, IPAM will not manage the IP addresses in
 // accounts in that OU exclusion.
-_#defs: "/$defs/Properties/definitions/IpamOrganizationalUnitExclusion": close({
+#IpamOrganizationalUnitExclusion: close({
 	// An AWS Organizations entity path. Build the path for the OU(s) using AWS
 	// Organizations IDs separated by a '/'. Include all child OUs by ending the
 	// path with '/*'.
@@ -79,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/IpamOrganizationalUnitExclusion": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,22 +21,22 @@ import (
 	// listener, update requires no interruption.
 	// To create a certificate list for a secure listener, use
 	// [AWS::ElasticLoadBalancingV2::ListenerCertificate](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticloadbalancingv2-listenercertificate.html).
-	Certificates?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Certificate"]
+	Certificates?: list.UniqueItems() & [...#Certificate]
 
 	// The actions for the default rule. You cannot define a condition for a default rule.
 	// To create additional rules for an Application Load Balancer, use
 	// [AWS::ElasticLoadBalancingV2::ListenerRule](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticloadbalancingv2-listenerrule.html).
-	DefaultActions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"]
+	DefaultActions!: list.UniqueItems() & [...#Action]
 	ListenerArn?:    string
 
 	// The listener attributes. Attributes that you do not modify retain their current values.
-	ListenerAttributes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ListenerAttribute"]
+	ListenerAttributes?: list.UniqueItems() & [...#ListenerAttribute]
 
 	// The Amazon Resource Name (ARN) of the load balancer.
 	LoadBalancerArn!: string
 
 	// The mutual authentication configuration information.
-	MutualAuthentication?: _#defs."/$defs/Properties/definitions/MutualAuthentication"
+	MutualAuthentication?: #MutualAuthentication
 
 	// The port on which the load balancer is listening. You can't specify a port
 	// for a Gateway Load Balancer.
@@ -62,34 +62,34 @@ import (
 	// volume of traffic, create an additional load balancer or request an LCU
 	// reservation.
 	SslPolicy?: string
-	Tags?:      list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:      list.MinItems(1) & [...#Tag]
 })
 
 // Specifies an action for a listener rule.
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	// [HTTPS listeners] Information for using Amazon Cognito to authenticate users.
 	// Specify only when ``Type`` is ``authenticate-cognito``.
-	AuthenticateCognitoConfig?: _#defs."/$defs/Properties/definitions/AuthenticateCognitoConfig"
+	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig
 
 	// [HTTPS listeners] Information about an identity provider that is compliant
 	// with OpenID Connect (OIDC). Specify only when ``Type`` is
 	// ``authenticate-oidc``.
-	AuthenticateOidcConfig?: _#defs."/$defs/Properties/definitions/AuthenticateOidcConfig"
+	AuthenticateOidcConfig?: #AuthenticateOidcConfig
 
 	// [Application Load Balancer] Information for creating an action that returns a
 	// custom HTTP response. Specify only when ``Type`` is ``fixed-response``.
-	FixedResponseConfig?: _#defs."/$defs/Properties/definitions/FixedResponseConfig"
+	FixedResponseConfig?: #FixedResponseConfig
 
 	// Information for creating an action that distributes requests among multiple
 	// target groups. Specify only when ``Type`` is ``forward``.
 	// If you specify both ``ForwardConfig`` and ``TargetGroupArn``, you can specify
 	// only one target group using ``ForwardConfig`` and it must be the same target
 	// group specified in ``TargetGroupArn``.
-	ForwardConfig?: _#defs."/$defs/Properties/definitions/ForwardConfig"
+	ForwardConfig?: #ForwardConfig
 
 	// [HTTPS listeners] Information for validating JWT access tokens in client
 	// requests. Specify only when ``Type`` is ``jwt-validation``.
-	JwtValidationConfig?: _#defs."/$defs/Properties/definitions/JwtValidationConfig"
+	JwtValidationConfig?: #JwtValidationConfig
 
 	// The order for the action. This value is required for rules with multiple
 	// actions. The action with the lowest value for order is performed first.
@@ -97,7 +97,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 
 	// [Application Load Balancer] Information for creating a redirect action.
 	// Specify only when ``Type`` is ``redirect``.
-	RedirectConfig?: _#defs."/$defs/Properties/definitions/RedirectConfig"
+	RedirectConfig?: #RedirectConfig
 
 	// The Amazon Resource Name (ARN) of the target group. Specify only when
 	// ``Type`` is ``forward`` and you want to route to a single target group. To
@@ -109,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 })
 
 // Specifies information required when integrating with Amazon Cognito to authenticate users.
-_#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
+#AuthenticateCognitoConfig: close({
 	// The query parameters (up to 10) to include in the redirect request to the authorization endpoint.
 	AuthenticationRequestExtraParams?: {
 		{[=~"[a-zA-Z0-9]+"]: string}
@@ -148,13 +148,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 
 // Specifies information required using an identity provide (IdP) that is
 // compliant with OpenID Connect (OIDC) to authenticate users.
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
-	ClientSecret!: _
-	...
-}, {
-	UseExistingClientSecret!: _
-	...
-}]) & close({
+#AuthenticateOidcConfig: close({
 	// The query parameters (up to 10) to include in the redirect request to the authorization endpoint.
 	AuthenticationRequestExtraParams?: {
 		{[=~"[a-zA-Z0-9]+"]: string}
@@ -208,16 +202,16 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
 	// The user info endpoint of the IdP. This must be a full URL, including the
 	// HTTPS protocol, the domain, and the path.
 	UserInfoEndpoint!: string
-})
+}) & matchN(>=1, [{ClientSecret!: _}, {UseExistingClientSecret!: _}])
 
 // Specifies an SSL server certificate to use as the default certificate for a secure listener.
-_#defs: "/$defs/Properties/definitions/Certificate": close({
+#Certificate: close({
 	// The Amazon Resource Name (ARN) of the certificate.
 	CertificateArn?: string & string
 })
 
 // Specifies information required when returning a custom HTTP response.
-_#defs: "/$defs/Properties/definitions/FixedResponseConfig": close({
+#FixedResponseConfig: close({
 	// The content type.
 	// Valid Values: text/plain | text/css | text/html | application/javascript | application/json
 	ContentType?: strings.MaxRunes(32) & strings.MinRunes(0)
@@ -234,17 +228,17 @@ _#defs: "/$defs/Properties/definitions/FixedResponseConfig": close({
 // If you specify both ``ForwardConfig`` and ``TargetGroupArn``, you can specify
 // only one target group using ``ForwardConfig`` and it must be the same target
 // group specified in ``TargetGroupArn``.
-_#defs: "/$defs/Properties/definitions/ForwardConfig": close({
+#ForwardConfig: close({
 	// Information about the target group stickiness for a rule.
-	TargetGroupStickinessConfig?: _#defs."/$defs/Properties/definitions/TargetGroupStickinessConfig"
+	TargetGroupStickinessConfig?: #TargetGroupStickinessConfig
 
 	// Information about how traffic will be distributed between multiple target
 	// groups in a forward rule.
-	TargetGroups?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupTuple"]
+	TargetGroups?: list.UniqueItems() & [...#TargetGroupTuple]
 })
 
 // Information about an additional claim to validate.
-_#defs: "/$defs/Properties/definitions/JwtValidationActionAdditionalClaim": close({
+#JwtValidationActionAdditionalClaim: close({
 	// The format of the claim value.
 	Format!: "single-string" | "space-separated-values" | "string-array"
 
@@ -258,16 +252,14 @@ _#defs: "/$defs/Properties/definitions/JwtValidationActionAdditionalClaim": clos
 	Values!: list.UniqueItems() & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/JwtValidationConfig": close({
-	AdditionalClaims?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/JwtValidationActionAdditionalClaim"
-	]
-	Issuer!:       string
-	JwksEndpoint!: string
+#JwtValidationConfig: close({
+	AdditionalClaims?: list.UniqueItems() & [...#JwtValidationActionAdditionalClaim]
+	Issuer!:           string
+	JwksEndpoint!:     string
 })
 
 // Information about a listener attribute.
-_#defs: "/$defs/Properties/definitions/ListenerAttribute": close({
+#ListenerAttribute: close({
 	// The name of the attribute.
 	// The following attribute is supported by Network Load Balancers, and Gateway Load Balancers.
 	// + ``tcp.idle_timeout.seconds`` - The tcp idle timeout value, in seconds. The
@@ -340,7 +332,7 @@ _#defs: "/$defs/Properties/definitions/ListenerAttribute": close({
 })
 
 // The mutual authentication configuration information.
-_#defs: "/$defs/Properties/definitions/MutualAuthentication": close({
+#MutualAuthentication: close({
 	// Indicates whether trust store CA certificate names are advertised.
 	AdvertiseTrustStoreCaNames?: "off" | "on"
 
@@ -372,7 +364,7 @@ _#defs: "/$defs/Properties/definitions/MutualAuthentication": close({
 //
 // For example, you can change the path to "/new/#{path}", the hostname to
 // "example.#{host}", or the query to "#{query}&value=xyz".
-_#defs: "/$defs/Properties/definitions/RedirectConfig": close({
+#RedirectConfig: close({
 	// The hostname. This component is not percent-encoded. The hostname can contain #{host}.
 	Host?: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -398,7 +390,7 @@ _#defs: "/$defs/Properties/definitions/RedirectConfig": close({
 })
 
 // Information about a tag.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -407,7 +399,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Information about the target group stickiness for a rule.
-_#defs: "/$defs/Properties/definitions/TargetGroupStickinessConfig": close({
+#TargetGroupStickinessConfig: close({
 	// [Application Load Balancers] The time period, in seconds, during which
 	// requests from a client should be routed to the same target group. The range
 	// is 1-604800 seconds (7 days). You must specify this value when enabling
@@ -420,7 +412,7 @@ _#defs: "/$defs/Properties/definitions/TargetGroupStickinessConfig": close({
 
 // Information about how traffic will be distributed between multiple target
 // groups in a forward rule.
-_#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
+#TargetGroupTuple: close({
 	// The Amazon Resource Name (ARN) of the target group.
 	TargetGroupArn?: string
 

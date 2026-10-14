@@ -27,7 +27,7 @@ import "strings"
 	NatGatewayExclusionInput?: "enable" | "disable"
 
 	// Enumerates the states of all the VPC encryption control resource exclusions
-	ResourceExclusions?: _#defs."/$defs/Properties/definitions/ResourceExclusions"
+	ResourceExclusions?: #ResourceExclusions
 
 	// The current state of the VPC encryption control.
 	State?: "creating" |
@@ -44,7 +44,7 @@ import "strings"
 	StateMessage?: string
 
 	// The tags to assign to the VPC encryption control.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Used to enable or disable VGW exclusion
 	VirtualPrivateGatewayExclusionInput?: "enable" | "disable"
@@ -62,19 +62,19 @@ import "strings"
 	VpcPeeringExclusionInput?: "enable" | "disable"
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceExclusions": close({
-	EgressOnlyInternetGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
-	ElasticFileSystem?:         _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
-	InternetGateway?:           _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
-	Lambda?:                    _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
-	NatGateway?:                _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
-	VirtualPrivateGateway?:     _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
-	VpcLattice?:                _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
-	VpcPeering?:                _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+#ResourceExclusions: close({
+	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion
+	ElasticFileSystem?:         #VpcEncryptionControlExclusion
+	InternetGateway?:           #VpcEncryptionControlExclusion
+	Lambda?:                    #VpcEncryptionControlExclusion
+	NatGateway?:                #VpcEncryptionControlExclusion
+	VirtualPrivateGateway?:     #VpcEncryptionControlExclusion
+	VpcLattice?:                #VpcEncryptionControlExclusion
+	VpcPeering?:                #VpcEncryptionControlExclusion
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControlExclusion": close({
+#VpcEncryptionControlExclusion: close({
 	State?:        string
 	StateMessage?: string
 })

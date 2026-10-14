@@ -9,14 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::ThingPrincipalAttachment
-#Properties: close({
-	Principal!:          string | fn.#StringExpression
-	ThingName!:          string | fn.#StringExpression
-	ThingPrincipalType?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::ThingPrincipalAttachment"
+	Properties!: close({
+		Principal!:          string | fn.#StringExpression
+		ThingName!:          string | fn.#StringExpression
+		ThingPrincipalType?: string | fn.#StringExpression
+	})
+}
 
 _#defs: "/$defs/Properties/definitions/_PropertyRef0fa0f63af5e72a77": string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::ThingPrincipalAttachment"
-	Properties!: #Properties
-}

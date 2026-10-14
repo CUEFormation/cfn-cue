@@ -22,7 +22,7 @@ import (
 	Arn?: string
 
 	// The data mapping sources for the control.
-	ControlMappingSources!: [..._#defs."/$defs/Properties/definitions/ControlMappingSource"]
+	ControlMappingSources!: [...#ControlMappingSource]
 
 	// The data source types that determine where Audit Manager collects evidence from for the control.
 	ControlSources?: string
@@ -49,7 +49,7 @@ import (
 	Name!: string
 
 	// The tags associated with the control.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The steps to follow to determine if the control is satisfied.
 	TestingInformation?: string
@@ -58,11 +58,11 @@ import (
 	Type?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ControlMappingSource": close({
+#ControlMappingSource: close({
 	SourceDescription?: string
 	SourceFrequency?:   "DAILY" | "WEEKLY" | "MONTHLY"
 	SourceId?:          string
-	SourceKeyword?:     _#defs."/$defs/Properties/definitions/SourceKeyword"
+	SourceKeyword?:     #SourceKeyword
 	SourceName?:        string
 	SourceSetUpOption?: "System_Controls_Mapping" | "Procedural_Controls_Mapping"
 	SourceType?: "AWS_Cloudtrail" |
@@ -75,13 +75,13 @@ _#defs: "/$defs/Properties/definitions/ControlMappingSource": close({
 	TroubleshootingText?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SourceKeyword": close({
+#SourceKeyword: close({
 	KeywordInputType?: "SELECT_FROM_LIST" | "UPLOAD_FILE" | "INPUT_TEXT"
 	KeywordValue?:     string
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

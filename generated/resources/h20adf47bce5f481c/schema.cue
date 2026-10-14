@@ -9,8 +9,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SDB::Domain
-#Properties: close({Description?: string | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SDB::Domain"
-	Properties?: #Properties
+	Properties?: close({Description?: string | fn.#StringExpression})
 }

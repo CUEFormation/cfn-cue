@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
+	"time"
 	"struct"
 )
 
@@ -13,29 +13,29 @@ import (
 
 // Definition of AWS::Omics::WorkflowVersion Resource Type.
 #Properties: close({
-	Accelerators?:         _#defs."/$defs/Properties/definitions/Accelerators"
+	Accelerators?:         #Accelerators
 	Arn?:                  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^arn:.+$"
-	ContainerRegistryMap?: _#defs."/$defs/Properties/definitions/ContainerRegistryMap"
+	ContainerRegistryMap?: #ContainerRegistryMap
 	ContainerRegistryMapUri?: strings.MaxRunes(750) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
 	CreationTime?:         time.Time
-	DefinitionRepository?: _#defs."/$defs/Properties/definitions/DefinitionRepository"
+	DefinitionRepository?: #DefinitionRepository
 	DefinitionUri?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
-	Engine?:      _#defs."/$defs/Properties/definitions/WorkflowEngine"
+	Engine?:      #WorkflowEngine
 	Main?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
-	ParameterTemplate?: _#defs."/$defs/Properties/definitions/WorkflowParameterTemplate"
+	ParameterTemplate?: #WorkflowParameterTemplate
 
 	// Path to the primary workflow parameter template JSON file inside the repository
 	ParameterTemplatePath?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S]+$"
-	Status?:                _#defs."/$defs/Properties/definitions/WorkflowStatus"
+	Status?:                #WorkflowStatus
 	StorageCapacity?:       <=100000 & >=0
-	StorageType?:           _#defs."/$defs/Properties/definitions/StorageType"
-	Tags?:                  _#defs."/$defs/Properties/definitions/TagMap"
-	Type?:                  _#defs."/$defs/Properties/definitions/WorkflowType"
+	StorageType?:           #StorageType
+	Tags?:                  #TagMap
+	Type?:                  #WorkflowType
 	Uuid?: strings.MaxRunes(36) &
 	strings.MinRunes(1) &
 	=~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
@@ -60,29 +60,29 @@ import (
 	readmeUri?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Accelerators": "GPU" & (strings.MaxRunes(64) & strings.MinRunes(1))
+#Accelerators: "GPU" & (strings.MaxRunes(64) & strings.MinRunes(1))
 
-_#defs: "/$defs/Properties/definitions/ContainerRegistryMap": close({
-	ImageMappings?:    [..._#defs."/$defs/Properties/definitions/ImageMapping"]
-	RegistryMappings?: [..._#defs."/$defs/Properties/definitions/RegistryMapping"]
+#ContainerRegistryMap: close({
+	ImageMappings?:    [...#ImageMapping]
+	RegistryMappings?: [...#RegistryMapping]
 })
 
-_#defs: "/$defs/Properties/definitions/DefinitionRepository": {
+#DefinitionRepository: {
 	connectionArn?:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws(-[\\\\w]+)*:.+:.+:[0-9]{12}:.+$"
 	excludeFilePatterns?: list.MaxItems(50) & list.MinItems(1) & [...string]
 	fullRepositoryId?:    =~".+/.+"
-	sourceReference?:     _#defs."/$defs/Properties/definitions/SourceReference"
+	sourceReference?:     #SourceReference
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/ImageMapping": close({
+#ImageMapping: close({
 	DestinationImage?: strings.MaxRunes(750) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
 	SourceImage?: strings.MaxRunes(750) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/RegistryMapping": close({
+#RegistryMapping: close({
 	EcrAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$"
 	EcrRepositoryPrefix?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
@@ -95,35 +95,30 @@ _#defs: "/$defs/Properties/definitions/RegistryMapping": close({
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/SourceReference": {
+#SourceReference: {
 	type?:  "BRANCH" | "TAG" | "COMMIT"
 	value?: string
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/StorageType": ("STATIC" | "DYNAMIC") & (strings.MaxRunes(64) & strings.MinRunes(1))
+#StorageType: ("STATIC" | "DYNAMIC") & (strings.MaxRunes(64) & strings.MinRunes(1))
 
 // A map of resource tags
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/WorkflowEngine": ("WDL" | "NEXTFLOW" | "CWL") & (strings.MaxRunes(64) & strings.MinRunes(1))
+#WorkflowEngine: ("WDL" | "NEXTFLOW" | "CWL") & (strings.MaxRunes(64) & strings.MinRunes(1))
 
-_#defs: "/$defs/Properties/definitions/WorkflowParameter": close({
+#WorkflowParameter: close({
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
 	Optional?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/WorkflowParameterTemplate": struct.MaxFields(1000) & struct.MinFields(1) & close({
+#WorkflowParameterTemplate: struct.MaxFields(1000) & struct.MinFields(1) & close({
 
-	{[=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"]: _#defs."/$defs/Properties/definitions/WorkflowParameter"}})
+	{[=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"]: #WorkflowParameter}})
 
-_#defs: "/$defs/Properties/definitions/WorkflowStatus": ("CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETED" |
-	"FAILED" |
-	"INACTIVE") & (strings.MaxRunes(64) & strings.MinRunes(1))
+#WorkflowStatus: ("CREATING" | "ACTIVE" | "UPDATING" | "DELETED" | "FAILED" | "INACTIVE") & (strings.MaxRunes(64) & strings.MinRunes(1))
 
-_#defs: "/$defs/Properties/definitions/WorkflowType": ("PRIVATE" | "READY2RUN") & (strings.MaxRunes(64) & strings.MinRunes(1))
+#WorkflowType: ("PRIVATE" | "READY2RUN") & (strings.MaxRunes(64) & strings.MinRunes(1))

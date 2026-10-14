@@ -11,22 +11,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A monitoring subscription. This structure contains information about whether
 // additional CloudWatch metrics are enabled for a given CloudFront
 // distribution.
-#Properties: close({
-	DistributionId!:         string | fn.#StringExpression
-	MonitoringSubscription!: _#defs."/$defs/Properties/definitions/MonitoringSubscription" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::MonitoringSubscription"
+	Properties!: close({
+		DistributionId!: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MonitoringSubscription": close({
-	RealtimeMetricsSubscriptionConfig?: _#defs."/$defs/Properties/definitions/RealtimeMetricsSubscriptionConfig" |
-		fn.#ObjectExpression
+		// A subscription configuration for additional CloudWatch metrics.
+		MonitoringSubscription!: #MonitoringSubscription
+	})
+}
+
+#MonitoringSubscription: close({
+	// A subscription configuration for additional CloudWatch metrics.
+	RealtimeMetricsSubscriptionConfig?: #RealtimeMetricsSubscriptionConfig
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RealtimeMetricsSubscriptionConfig": close(
+#RealtimeMetricsSubscriptionConfig: close(
 	{RealtimeMetricsSubscriptionStatus!: "Enabled" | "Disabled" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::MonitoringSubscription"
-	Properties!: #Properties
-}

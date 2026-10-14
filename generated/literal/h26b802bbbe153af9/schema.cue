@@ -43,7 +43,7 @@ import "strings"
 		"DELETE_FAILED"
 
 	// A list of comma separated tags to add to the data catalog that is created.
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 
 	// The type of data catalog to create: LAMBDA for a federated catalog, GLUE for
 	// AWS Glue Catalog, or HIVE for an external hive metastore. FEDERATED is a
@@ -52,9 +52,9 @@ import "strings"
 	Type!: "LAMBDA" | "GLUE" | "HIVE" | "FEDERATED"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: [...#Tag]

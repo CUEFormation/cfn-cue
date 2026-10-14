@@ -13,102 +13,114 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::ClientVpnEndpoint
-#Properties: close({
-	AuthenticationOptions!: [..._#defs."/$defs/Properties/definitions/ClientAuthenticationRequest"] | fn.#ListExpression
-	AuthorizationPolicy?:   _#defs."/$defs/Properties/definitions/AuthorizationPolicy"
-	ClientCidrBlock?:       string | fn.#StringExpression
-	ClientConnectOptions?:  _#defs."/$defs/Properties/definitions/ClientConnectOptions"
-	ClientLoginBannerOptions?:      _#defs."/$defs/Properties/definitions/ClientLoginBannerOptions"
-	ClientRouteEnforcementOptions?: _#defs."/$defs/Properties/definitions/ClientRouteEnforcementOptions"
-	ConnectionLogOptions!:          _#defs."/$defs/Properties/definitions/ConnectionLogOptions"
-	Description?:                   string | fn.#StringExpression
-	DevicePostureOptions?:          _#defs."/$defs/Properties/definitions/DevicePostureOptions"
-	DisconnectOnSessionTimeout?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DnsServers?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-	EndpointIpAddressType?:      string | fn.#StringExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::ClientVpnEndpoint"
+	Properties!: close({
+		AuthenticationOptions!:         [...#ClientAuthenticationRequest] | fn.#ListExpression
+		AuthorizationPolicy?:           #AuthorizationPolicy
+		ClientCidrBlock?:               string | fn.#StringExpression
+		ClientConnectOptions?:          #ClientConnectOptions
+		ClientLoginBannerOptions?:      #ClientLoginBannerOptions
+		ClientRouteEnforcementOptions?: #ClientRouteEnforcementOptions
+		ConnectionLogOptions!:          #ConnectionLogOptions
+		Description?:                   string | fn.#StringExpression
+		DevicePostureOptions?:          #DevicePostureOptions
+		DisconnectOnSessionTimeout?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DnsServers?:            [...string | fn.#StringExpression] | fn.#ListExpression
+		EndpointIpAddressType?: string | fn.#StringExpression
+		SecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SelfServicePortal?:    string | fn.#StringExpression
+		ServerCertificateArn!: string | fn.#StringExpression
+		SessionTimeoutHours?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SplitTunnel?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		TagSpecifications?:    [...#TagSpecification] | fn.#ListExpression
+		TrafficIpAddressType?: string | fn.#StringExpression
+		TransitGatewayConfiguration?: #TransitGatewayConfiguration
+		TransportProtocol?:           string | fn.#StringExpression
+		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SelfServicePortal?:    string | fn.#StringExpression
-	ServerCertificateArn!: string | fn.#StringExpression
-	SessionTimeoutHours?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SplitTunnel?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TagSpecifications?:           [..._#defs."/$defs/Properties/definitions/TagSpecification"] | fn.#ListExpression
-	TrafficIpAddressType?:        string | fn.#StringExpression
-	TransitGatewayConfiguration?: _#defs."/$defs/Properties/definitions/TransitGatewayConfiguration"
-	TransportProtocol?:           string | fn.#StringExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	VpnPort?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+		VpnPort?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuthorizationPolicy": close({
+#AuthorizationPolicy: close({
 	Description?:    string | fn.#StringExpression
 	PolicyDocument!: string | fn.#StringExpression
 	ShadowMode?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateAuthenticationRequest": close(
-	{ClientRootCertificateChainArn!: string | fn.#StringExpression},
-) |
+#CertificateAuthenticationRequest: close({ClientRootCertificateChainArn!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientAuthenticationRequest": close({
-	ActiveDirectory?:         _#defs."/$defs/Properties/definitions/DirectoryServiceAuthenticationRequest"
-	FederatedAuthentication?: _#defs."/$defs/Properties/definitions/FederatedAuthenticationRequest"
-	MutualAuthentication?:    _#defs."/$defs/Properties/definitions/CertificateAuthenticationRequest"
+#ClientAuthenticationRequest: close({
+	ActiveDirectory?:         #DirectoryServiceAuthenticationRequest
+	FederatedAuthentication?: #FederatedAuthenticationRequest
+	MutualAuthentication?:    #CertificateAuthenticationRequest
 	Type!:                    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientConnectOptions": close({
+#ClientConnectOptions: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LambdaFunctionArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientLoginBannerOptions": close({
+#ClientLoginBannerOptions: close({
 	BannerText?: string | fn.#StringExpression
 	Enabled!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientRouteEnforcementOptions": close(
+#ClientRouteEnforcementOptions: close(
 	{Enforced?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionLogOptions": close({
+#ConnectionLogOptions: close({
 	CloudwatchLogGroup?:  string | fn.#StringExpression
 	CloudwatchLogStream?: string | fn.#StringExpression
 	Enabled!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -123,49 +135,42 @@ _#defs: "/$defs/Properties/definitions/ConnectionLogOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DevicePostureOptions": close({
+#DevicePostureOptions: close({
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TrustProviders!: [..._#defs."/$defs/Properties/definitions/DevicePostureTrustProvider"] | fn.#ListExpression
+	TrustProviders!: [...#DevicePostureTrustProvider] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DevicePostureTrustProvider": close({
+#DevicePostureTrustProvider: close({
 	PublicSigningKeyUrl?: string | fn.#StringExpression
 	TenantId!:            string | fn.#StringExpression
 	TrustProviderType!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DirectoryServiceAuthenticationRequest": close(
-	{DirectoryId!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DirectoryServiceAuthenticationRequest: close({DirectoryId!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FederatedAuthenticationRequest": close({
+#FederatedAuthenticationRequest: close({
 	SAMLProviderArn!:            string | fn.#StringExpression
 	SelfServiceSAMLProviderArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType!: string | fn.#StringExpression
-	Tags!:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags!:         [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayConfiguration": close({
+#TransitGatewayConfiguration: close({
 	AvailabilityZoneIds?: [...string | fn.#StringExpression] | fn.#ListExpression
 	AvailabilityZones?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	TransitGatewayId!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::ClientVpnEndpoint"
-	Properties!: #Properties
-}

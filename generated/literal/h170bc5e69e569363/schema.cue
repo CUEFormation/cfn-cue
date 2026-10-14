@@ -18,7 +18,7 @@ import (
 
 	// The Amazon Resource Name (ARN) of the external account binding.
 	AcmeExternalAccountBindingArn?: string
-	Expiration?:                    _#defs."/$defs/Properties/definitions/Expiration"
+	Expiration?:                    #Expiration
 
 	// The IAM role ARN for cross-account access.
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -37,7 +37,7 @@ import (
 })
 
 // The expiration configuration for the external account binding.
-_#defs: "/$defs/Properties/definitions/Expiration": close({
+#Expiration: close({
 	// The time unit for the expiration value.
 	Type!: "DAYS" | "HOURS" | "MINUTES"
 
@@ -46,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/Expiration": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

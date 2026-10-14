@@ -13,14 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::CodeRepository
-#Properties: close({
-	CodeRepositoryName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	GitConfig!: _#defs."/$defs/Properties/definitions/GitConfig" | fn.#ObjectExpression
-	Tags?:      list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::CodeRepository"
+	Properties!: close({
+		CodeRepositoryName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GitConfig": close({
+		// Configuration details for the Git repository, including the URL where it is
+		// located and the ARN of the AWS Secrets Manager secret that contains the
+		// credentials used to access the repository.
+		GitConfig!: #GitConfig
+		Tags?:      list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#GitConfig: close({
 	Branch?:        strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^ ~^:?*\\[]+$" | fn.#StringExpression
 	RepositoryUrl!: strings.MaxRunes(1024) & strings.MinRunes(11) | fn.#StringExpression
 	SecretArn?: strings.MaxRunes(2048) &
@@ -30,12 +37,8 @@ _#defs: "/$defs/Properties/definitions/GitConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::CodeRepository"
-	Properties!: #Properties
-}

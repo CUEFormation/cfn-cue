@@ -8,19 +8,17 @@ package schema
 #Properties: close({
 	Arn?:              string
 	Id?:               string
-	InitialVersion?:   _#defs."/$defs/Properties/definitions/SubscriptionDefinitionVersion"
+	InitialVersion?:   #SubscriptionDefinitionVersion
 	LatestVersionArn?: string
 	Name!:             string
 	Tags?:             string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/Subscription": close({
+#Subscription: close({
 	Id!:      string
 	Source!:  string
 	Subject!: string
 	Target!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/SubscriptionDefinitionVersion": close(
-	{Subscriptions!: [..._#defs."/$defs/Properties/definitions/Subscription"]},
-)
+#SubscriptionDefinitionVersion: close({Subscriptions!: [...#Subscription]})

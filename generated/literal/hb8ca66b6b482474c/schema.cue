@@ -19,9 +19,7 @@ import (
 	DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	Fields!: struct.MaxFields(2) & struct.MinFields(1) & close({
 
-		{[=~"^.+$"]: list.MaxItems(9) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/RecommenderSchemaField"
-		]}})
+		{[=~"^.+$"]: list.MaxItems(9) & list.MinItems(1) & [...#RecommenderSchemaField]}})
 	RecommenderSchemaName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	Status?:                "ACTIVE" | "DELETING"
 	Tags?: list.MaxItems(50) & [...close({
@@ -30,7 +28,7 @@ import (
 	})]
 })
 
-_#defs: "/$defs/Properties/definitions/RecommenderSchemaField": close({
+#RecommenderSchemaField: close({
 	ContentType?:     "STRING" | "NUMBER"
 	FeatureType?:     "TEXTUAL" | "CATEGORICAL"
 	TargetFieldName!: strings.MaxRunes(1000) & strings.MinRunes(1)

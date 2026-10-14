@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,17 +12,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticBeanstalk::ConfigurationTemplate
-#Properties: close({
-	ApplicationName!:     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:         strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	EnvironmentId?:       string | fn.#StringExpression
-	OptionSettings?:      [..._#defs."/$defs/Properties/definitions/ConfigurationOptionSetting"] | fn.#ListExpression
-	PlatformArn?:         string | fn.#StringExpression
-	SolutionStackName?:   string | fn.#StringExpression
-	SourceConfiguration?: _#defs."/$defs/Properties/definitions/SourceConfiguration" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticBeanstalk::ConfigurationTemplate"
+	Properties!: close({
+		ApplicationName!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:       strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		EnvironmentId?:     string | fn.#StringExpression
+		OptionSettings?:    [...#ConfigurationOptionSetting] | fn.#ListExpression
+		PlatformArn?:       string | fn.#StringExpression
+		SolutionStackName?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationOptionSetting": close({
+		// An Elastic Beanstalk configuration template to base this one on. If
+		// specified, Elastic Beanstalk uses the configuration values from the
+		// specified configuration template to create a new configuration.
+		//
+		// Values specified in OptionSettings override any values obtained from the SourceConfiguration.
+		//
+		// You must specify SourceConfiguration if you don't specify PlatformArn,
+		// EnvironmentId, or SolutionStackName.
+		//
+		// Constraint: If both solution stack name and source configuration are
+		// specified, the solution stack of the source configuration template must
+		// match the specified solution stack name.
+		SourceConfiguration?: #SourceConfiguration
+	})
+}
+
+#ConfigurationOptionSetting: close({
 	Namespace!:    string | fn.#StringExpression
 	OptionName!:   string | fn.#StringExpression
 	ResourceName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -30,12 +46,8 @@ _#defs: "/$defs/Properties/definitions/ConfigurationOptionSetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
+#SourceConfiguration: close({
 	ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	TemplateName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticBeanstalk::ConfigurationTemplate"
-	Properties!: #Properties
-}

@@ -9,19 +9,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::CoreDefinitionVersion
-#Properties: close({
-	CoreDefinitionId!: string | fn.#StringExpression
-	Cores!:            [..._#defs."/$defs/Properties/definitions/Core"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::CoreDefinitionVersion"
+	Properties!: close({
+		CoreDefinitionId!: string | fn.#StringExpression
+		Cores!:            [...#Core] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Core": close({
+#Core: close({
 	CertificateArn!: string | fn.#StringExpression
 	Id!:             string | fn.#StringExpression
 	SyncShadow?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ThingArn!:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::CoreDefinitionVersion"
-	Properties!: #Properties
-}

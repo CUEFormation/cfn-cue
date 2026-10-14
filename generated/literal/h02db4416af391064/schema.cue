@@ -16,19 +16,19 @@ import (
 	BucketRegion?: strings.MaxRunes(64) & strings.MinRunes(1)
 	KMSKeyArn?:
 		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(512) & strings.MinRunes(0))
-	S3Destination?: _#defs."/$defs/Properties/definitions/S3Destination"
+	S3Destination?: #S3Destination
 	SyncFormat?:    strings.MaxRunes(1024) & strings.MinRunes(0)
 	SyncName!:      strings.MaxRunes(64) & strings.MinRunes(1)
-	SyncSource?:    _#defs."/$defs/Properties/definitions/SyncSource"
+	SyncSource?:    #SyncSource
 	SyncType?:      strings.MaxRunes(64) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/AwsOrganizationsSource": close({
+#AwsOrganizationsSource: close({
 	OrganizationSourceType!: strings.MaxRunes(64) & strings.MinRunes(1)
 	OrganizationalUnits?:    list.MaxItems(1000) & list.MinItems(1) & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/S3Destination": close({
+#S3Destination: close({
 	BucketName!:   strings.MaxRunes(2048) & strings.MinRunes(1)
 	BucketPrefix?: strings.MaxRunes(256) & strings.MinRunes(1)
 	BucketRegion!: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -37,8 +37,8 @@ _#defs: "/$defs/Properties/definitions/S3Destination": close({
 	SyncFormat!: "JsonSerDe" & (strings.MaxRunes(1024) & strings.MinRunes(1))
 })
 
-_#defs: "/$defs/Properties/definitions/SyncSource": close({
-	AwsOrganizationsSource?: _#defs."/$defs/Properties/definitions/AwsOrganizationsSource"
+#SyncSource: close({
+	AwsOrganizationsSource?: #AwsOrganizationsSource
 	IncludeFutureRegions?:   bool
 	SourceRegions!:          [...strings.MaxRunes(64) & strings.MinRunes(1)]
 	SourceType!:             strings.MaxRunes(64) & strings.MinRunes(1)

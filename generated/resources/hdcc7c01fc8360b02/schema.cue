@@ -17,38 +17,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a router input in AWS Elemental MediaConnect that is used to
 // ingest content to be transmitted to router outputs
-#Properties: close({
-	AvailabilityZone?: string | fn.#StringExpression
-	Configuration!:    _#defs."/$defs/Properties/definitions/RouterInputConfiguration"
-	ContentQualityAnalysisConfiguration?:
-		_#defs."/$defs/Properties/definitions/RouterContentQualityAnalysisConfiguration"
-	MaintenanceConfiguration?: _#defs."/$defs/Properties/definitions/MaintenanceConfiguration"
-	MaximumBitrate!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RegionName?:        string | fn.#StringExpression
-	RoutingScope!:      _#defs."/$defs/Properties/definitions/RoutingScope"
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Tier!:              _#defs."/$defs/Properties/definitions/RouterInputTier"
-	TransitEncryption?: _#defs."/$defs/Properties/definitions/RouterInputTransitEncryption"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::RouterInput"
+	Properties!: close({
+		AvailabilityZone?:                    string | fn.#StringExpression
+		Configuration!:                       #RouterInputConfiguration
+		ContentQualityAnalysisConfiguration?: #RouterContentQualityAnalysisConfiguration
+		MaintenanceConfiguration?:            #MaintenanceConfiguration
+		MaximumBitrate!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		RegionName?:        string | fn.#StringExpression
+		RoutingScope!:      #RoutingScope
+		Tags?:              [...#Tag] | fn.#ListExpression
+		Tier!:              #RouterInputTier
+		TransitEncryption?: #RouterInputTransitEncryption
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({}) | fn.#ObjectExpression
+#AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlackFramesConfiguration": close({
-	State!: _#defs."/$defs/Properties/definitions/ContentQualityAnalysisState"
+#BlackFramesConfiguration: close({
+	State!: #ContentQualityAnalysisState
 	ThresholdSeconds!: int & <=60 & >=10 |
 		{
 			string &
@@ -68,31 +72,22 @@ _#defs: "/$defs/Properties/definitions/BlackFramesConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentQualityAnalysisFeatureConfiguration": close({
-	BlackFrames?:  _#defs."/$defs/Properties/definitions/BlackFramesConfiguration"
-	FrozenFrames?: _#defs."/$defs/Properties/definitions/FrozenFramesConfiguration"
-	SilentAudio?:  _#defs."/$defs/Properties/definitions/SilentAudioConfiguration"
+#ContentQualityAnalysisFeatureConfiguration: close({
+	BlackFrames?:  #BlackFramesConfiguration
+	FrozenFrames?: #FrozenFramesConfiguration
+	SilentAudio?:  #SilentAudioConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentQualityAnalysisState": "ENABLED" | "DISABLED" | fn.#StringExpression
+#ContentQualityAnalysisState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Day": "MONDAY" |
-	"TUESDAY" |
-	"WEDNESDAY" |
-	"THURSDAY" |
-	"FRIDAY" |
-	"SATURDAY" |
-	"SUNDAY" |
-	fn.#StringExpression
+#Day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultMaintenanceConfiguration": close({}) | fn.#ObjectExpression
+#DefaultMaintenanceConfiguration: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverInputSourcePriorityMode": "NO_PRIORITY" |
-	"PRIMARY_SECONDARY" |
-	fn.#StringExpression
+#FailoverInputSourcePriorityMode: "NO_PRIORITY" | "PRIMARY_SECONDARY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverRouterInputConfiguration": close({
+#FailoverRouterInputConfiguration: close({
 	NetworkInterfaceArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" |
 		fn.#StringExpression
 	PrimarySourceIndex?: int & <=1 & >=0 |
@@ -111,44 +106,41 @@ _#defs: "/$defs/Properties/definitions/FailoverRouterInputConfiguration": close(
 				)
 		} |
 		fn.#NumberExpression
-	ProtocolConfigurations!: [..._#defs."/$defs/Properties/definitions/FailoverRouterInputProtocolConfiguration"] |
-		fn.#ListExpression
-	SourcePriorityMode!: _#defs."/$defs/Properties/definitions/FailoverInputSourcePriorityMode"
+	ProtocolConfigurations!: [...#FailoverRouterInputProtocolConfiguration] | fn.#ListExpression
+	SourcePriorityMode!:     #FailoverInputSourcePriorityMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverRouterInputProtocolConfiguration": matchN(1, [close(
-	{Rtp!: _#defs."/$defs/Properties/definitions/RtpRouterInputConfiguration"},
+#FailoverRouterInputProtocolConfiguration: matchN(1, [close(
+	{Rtp!: #RtpRouterInputConfiguration},
 ), close(
-	{Rist!: _#defs."/$defs/Properties/definitions/RistRouterInputConfiguration"},
+	{Rist!: #RistRouterInputConfiguration},
 ), close(
-	{SrtListener!: _#defs."/$defs/Properties/definitions/SrtListenerRouterInputConfiguration"},
+	{SrtListener!: #SrtListenerRouterInputConfiguration},
 ), close(
-	{SrtCaller!: _#defs."/$defs/Properties/definitions/SrtCallerRouterInputConfiguration"},
+	{SrtCaller!: #SrtCallerRouterInputConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
+#FlowTransitEncryption: close({
+	EncryptionKeyConfiguration!: #FlowTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #FlowTransitEncryptionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#FlowTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyType": "SECRETS_MANAGER" |
-	"AUTOMATIC" |
-	fn.#StringExpression
+#FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ForwardErrorCorrectionState": "ENABLED" | "DISABLED" | fn.#StringExpression
+#ForwardErrorCorrectionState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FrozenFramesConfiguration": close({
-	State!: _#defs."/$defs/Properties/definitions/ContentQualityAnalysisState"
+#FrozenFramesConfiguration: close({
+	State!: #ContentQualityAnalysisState
 	ThresholdSeconds!: int & <=60 & >=10 |
 		{
 			string &
@@ -168,53 +160,51 @@ _#defs: "/$defs/Properties/definitions/FrozenFramesConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceConfiguration": matchN(1, [close(
-	{PreferredDayTime!: _#defs."/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration"},
+#MaintenanceConfiguration: matchN(1, [close(
+	{PreferredDayTime!: #PreferredDayTimeMaintenanceConfiguration},
 ), close(
-	{Default!: _#defs."/$defs/Properties/definitions/DefaultMaintenanceConfiguration"},
+	{Default!: #DefaultMaintenanceConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceType": "PREFERRED_DAY_TIME" | "DEFAULT" | fn.#StringExpression
+#MaintenanceType: "PREFERRED_DAY_TIME" | "DEFAULT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MediaConnectFlowRouterInputConfiguration": close({
+#MediaConnectFlowRouterInputConfiguration: close({
 	FlowArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
 	FlowOutputArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:output:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
-	SourceTransitDecryption!: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
+	SourceTransitDecryption!: #FlowTransitEncryption
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveChannelPipelineId": "PIPELINE_0" | "PIPELINE_1" | fn.#StringExpression
+#MediaLiveChannelPipelineId: "PIPELINE_0" | "PIPELINE_1" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveChannelRouterInputConfiguration": close({
+#MediaLiveChannelRouterInputConfiguration: close({
 	MediaLiveChannelArn?: =~"^arn:(aws[a-zA-Z-]*):medialive:[a-z0-9-]+:[0-9]{12}:channel:[a-zA-Z0-9]+$" |
 		fn.#StringExpression
 	MediaLiveChannelOutputName?: string | fn.#StringExpression
-	MediaLivePipelineId?:        _#defs."/$defs/Properties/definitions/MediaLiveChannelPipelineId"
-	SourceTransitDecryption!:    _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryption"
+	MediaLivePipelineId?:        #MediaLiveChannelPipelineId
+	SourceTransitDecryption!:    #MediaLiveTransitEncryption
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyType"
+#MediaLiveTransitEncryption: close({
+	EncryptionKeyConfiguration!: #MediaLiveTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #MediaLiveTransitEncryptionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#MediaLiveTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyType": "SECRETS_MANAGER" |
-	"AUTOMATIC" |
-	fn.#StringExpression
+#MediaLiveTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MergeRouterInputConfiguration": close({
+#MergeRouterInputConfiguration: close({
 	MergeRecoveryWindowMilliseconds!: int |
 		{
 			string &
@@ -231,25 +221,22 @@ _#defs: "/$defs/Properties/definitions/MergeRouterInputConfiguration": close({
 		fn.#NumberExpression
 	NetworkInterfaceArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" |
 		fn.#StringExpression
-	ProtocolConfigurations!: [..._#defs."/$defs/Properties/definitions/MergeRouterInputProtocolConfiguration"] |
-		fn.#ListExpression
+	ProtocolConfigurations!: [...#MergeRouterInputProtocolConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MergeRouterInputProtocolConfiguration": matchN(1, [close(
-	{Rtp!: _#defs."/$defs/Properties/definitions/RtpRouterInputConfiguration"},
-), close(
-	{Rist!: _#defs."/$defs/Properties/definitions/RistRouterInputConfiguration"},
-)]) |
+#MergeRouterInputProtocolConfiguration: matchN(1, [
+	close({Rtp!: #RtpRouterInputConfiguration}), close({Rist!: #RistRouterInputConfiguration}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration": close({
-	Day!:  _#defs."/$defs/Properties/definitions/Day"
+#PreferredDayTimeMaintenanceConfiguration: close({
+	Day!:  #Day
 	Time!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RistRouterInputConfiguration": close({
+#RistRouterInputConfiguration: close({
 	Port!: int & <=30000 & >=3000 |
 		{
 			string &
@@ -285,44 +272,38 @@ _#defs: "/$defs/Properties/definitions/RistRouterInputConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouterContentQualityAnalysisConfiguration": close(
-	{ContentLevel!: _#defs."/$defs/Properties/definitions/ContentQualityAnalysisFeatureConfiguration"},
-) |
+#RouterContentQualityAnalysisConfiguration: close({ContentLevel!: #ContentQualityAnalysisFeatureConfiguration}) |
 	fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RouterContentQualityAnalysisType": "CONTENT_LEVEL" | fn.#StringExpression
+#RouterContentQualityAnalysisType: "CONTENT_LEVEL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterInputConfiguration": matchN(1, [close(
-	{Standard!: _#defs."/$defs/Properties/definitions/StandardRouterInputConfiguration"},
+#RouterInputConfiguration: matchN(1, [close(
+	{Standard!: #StandardRouterInputConfiguration},
 ), close(
-	{Failover!: _#defs."/$defs/Properties/definitions/FailoverRouterInputConfiguration"},
+	{Failover!: #FailoverRouterInputConfiguration},
 ), close(
-	{Merge!: _#defs."/$defs/Properties/definitions/MergeRouterInputConfiguration"},
+	{Merge!: #MergeRouterInputConfiguration},
 ), close(
-	{MediaConnectFlow!: _#defs."/$defs/Properties/definitions/MediaConnectFlowRouterInputConfiguration"},
+	{MediaConnectFlow!: #MediaConnectFlowRouterInputConfiguration},
 ), close(
-	{MediaLiveChannel!: _#defs."/$defs/Properties/definitions/MediaLiveChannelRouterInputConfiguration"},
+	{MediaLiveChannel!: #MediaLiveChannelRouterInputConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RouterInputProtocol": "RTP" |
-	"RIST" |
-	"SRT_CALLER" |
-	"SRT_LISTENER" |
-	fn.#StringExpression
+#RouterInputProtocol: "RTP" | "RIST" | "SRT_CALLER" | "SRT_LISTENER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterInputProtocolConfiguration": matchN(1, [close(
-	{Rtp!: _#defs."/$defs/Properties/definitions/RtpRouterInputConfiguration"},
+#RouterInputProtocolConfiguration: matchN(1, [close(
+	{Rtp!: #RtpRouterInputConfiguration},
 ), close(
-	{Rist!: _#defs."/$defs/Properties/definitions/RistRouterInputConfiguration"},
+	{Rist!: #RistRouterInputConfiguration},
 ), close(
-	{SrtListener!: _#defs."/$defs/Properties/definitions/SrtListenerRouterInputConfiguration"},
+	{SrtListener!: #SrtListenerRouterInputConfiguration},
 ), close(
-	{SrtCaller!: _#defs."/$defs/Properties/definitions/SrtCallerRouterInputConfiguration"},
+	{SrtCaller!: #SrtCallerRouterInputConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RouterInputState": "CREATING" |
+#RouterInputState: "CREATING" |
 	"STANDBY" |
 	"STARTING" |
 	"ACTIVE" |
@@ -334,36 +315,29 @@ _#defs: "/$defs/Properties/definitions/RouterInputState": "CREATING" |
 	"MIGRATING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterInputTier": "INPUT_100" | "INPUT_50" | "INPUT_20" | fn.#StringExpression
+#RouterInputTier: "INPUT_100" | "INPUT_50" | "INPUT_20" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterInputTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/RouterInputTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/RouterInputTransitEncryptionKeyType"
+#RouterInputTransitEncryption: close({
+	EncryptionKeyConfiguration!: #RouterInputTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #RouterInputTransitEncryptionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouterInputTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#RouterInputTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RouterInputTransitEncryptionKeyType": "SECRETS_MANAGER" |
-	"AUTOMATIC" |
-	fn.#StringExpression
+#RouterInputTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterInputType": "STANDARD" |
-	"FAILOVER" |
-	"MERGE" |
-	"MEDIACONNECT_FLOW" |
-	"MEDIALIVE_CHANNEL" |
-	fn.#StringExpression
+#RouterInputType: "STANDARD" | "FAILOVER" | "MERGE" | "MEDIACONNECT_FLOW" | "MEDIALIVE_CHANNEL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingScope": "REGIONAL" | "GLOBAL" | fn.#StringExpression
+#RoutingScope: "REGIONAL" | "GLOBAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RtpRouterInputConfiguration": close({
-	ForwardErrorCorrection?: _#defs."/$defs/Properties/definitions/ForwardErrorCorrectionState"
+#RtpRouterInputConfiguration: close({
+	ForwardErrorCorrection?: #ForwardErrorCorrectionState
 	Port!: int & <=30000 & >=3000 |
 		{
 			string &
@@ -383,7 +357,7 @@ _#defs: "/$defs/Properties/definitions/RtpRouterInputConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
+#SecretsManagerEncryptionKeyConfiguration: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
 		fn.#StringExpression
@@ -392,8 +366,8 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SilentAudioConfiguration": close({
-	State!: _#defs."/$defs/Properties/definitions/ContentQualityAnalysisState"
+#SilentAudioConfiguration: close({
+	State!: #ContentQualityAnalysisState
 	ThresholdSeconds!: int & <=60 & >=10 |
 		{
 			string &
@@ -413,8 +387,8 @@ _#defs: "/$defs/Properties/definitions/SilentAudioConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SrtCallerRouterInputConfiguration": close({
-	DecryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtDecryptionConfiguration"
+#SrtCallerRouterInputConfiguration: close({
+	DecryptionConfiguration?: #SrtDecryptionConfiguration
 	MinimumLatencyMilliseconds!: int & <=10000 & >=10 |
 		{
 			string &
@@ -452,13 +426,10 @@ _#defs: "/$defs/Properties/definitions/SrtCallerRouterInputConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SrtDecryptionConfiguration": close(
-	{EncryptionKey!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
-) |
-	fn.#ObjectExpression
+#SrtDecryptionConfiguration: close({EncryptionKey!: #SecretsManagerEncryptionKeyConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SrtListenerRouterInputConfiguration": close({
-	DecryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtDecryptionConfiguration"
+#SrtListenerRouterInputConfiguration: close({
+	DecryptionConfiguration?: #SrtDecryptionConfiguration
 	MinimumLatencyMilliseconds!: int & <=10000 & >=10 |
 		{
 			string &
@@ -494,20 +465,16 @@ _#defs: "/$defs/Properties/definitions/SrtListenerRouterInputConfiguration": clo
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StandardRouterInputConfiguration": close({
+#StandardRouterInputConfiguration: close({
 	NetworkInterfaceArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" |
 		fn.#StringExpression
-	Protocol?:              _#defs."/$defs/Properties/definitions/RouterInputProtocol"
-	ProtocolConfiguration!: _#defs."/$defs/Properties/definitions/RouterInputProtocolConfiguration"
+	Protocol?:              #RouterInputProtocol
+	ProtocolConfiguration!: #RouterInputProtocolConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::RouterInput"
-	Properties!: #Properties
-}

@@ -19,97 +19,111 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::CloudWatch::LogAlarm. A LogAlarm evaluates
 // scheduled query results from CloudWatch Logs and triggers actions when
 // thresholds are breached.
-#Properties: close({
-	ActionLogLineCount?: int & <=50 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=50 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ActionLogLineRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	ActionsEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AlarmActions?:     [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ComparisonOperator!: "GreaterThanOrEqualToThreshold" |
-		"GreaterThanThreshold" |
-		"GreaterThanUpperThreshold" |
-		"LessThanLowerOrGreaterThanUpperThreshold" |
-		"LessThanLowerThreshold" |
-		"LessThanOrEqualToThreshold" |
-		"LessThanThreshold" |
-		fn.#StringExpression
-	InsufficientDataActions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	OKActions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	QueryResultsToAlarm!: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	QueryResultsToEvaluate!: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ScheduledQueryConfiguration!: _#defs."/$defs/Properties/definitions/ScheduledQueryConfiguration" |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Threshold!: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TreatMissingData?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	WarmUpConfiguration?: _#defs."/$defs/Properties/definitions/WarmUpConfiguration" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::LogAlarm"
+	Properties!: close({
+		ActionLogLineCount?: int & <=50 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=50 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ActionLogLineRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		ActionsEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AlarmActions?:     [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ComparisonOperator!: "GreaterThanOrEqualToThreshold" |
+			"GreaterThanThreshold" |
+			"GreaterThanUpperThreshold" |
+			"LessThanLowerOrGreaterThanUpperThreshold" |
+			"LessThanLowerThreshold" |
+			"LessThanOrEqualToThreshold" |
+			"LessThanThreshold" |
+			fn.#StringExpression
+		InsufficientDataActions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		OKActions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		QueryResultsToAlarm!: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		QueryResultsToEvaluate!: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
+		// The scheduled query configuration for the log alarm.
+		ScheduledQueryConfiguration!: #ScheduledQueryConfiguration
+		Tags?:                        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Threshold!: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TreatMissingData?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The warm-up configuration for the alarm. During the warm-up period, the alarm
+		// stays in INSUFFICIENT_DATA and doesn't perform alarm actions. For more
+		// information, see Alarm warm-up periods in the Amazon CloudWatch User Guide.
+		WarmUpConfiguration?: #WarmUpConfiguration
+	})
+}
+
+#ScheduleConfiguration: close({
 	EndTimeOffset?: int & <=2592000 & >=0 |
 		{
 			string &
@@ -146,27 +160,29 @@ _#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledQueryConfiguration": close({
+#ScheduledQueryConfiguration: close({
 	AggregationExpression!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	LogGroupIdentifiers?: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	QueryString!:           strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduleConfiguration!: _#defs."/$defs/Properties/definitions/ScheduleConfiguration" | fn.#ObjectExpression
+	QueryString!: strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
+
+	// The schedule configuration.
+	ScheduleConfiguration!: #ScheduleConfiguration
 	ScheduledQueryRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmUpConfiguration": close({
+#WarmUpConfiguration: close({
 	OnlyStartEvaluatingAfterWarmUpPeriodEnds?: bool |
 		"true" |
 		"True" |
@@ -193,7 +209,3 @@ _#defs: "/$defs/Properties/definitions/WarmUpConfiguration": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::LogAlarm"
-	Properties!: #Properties
-}

@@ -15,7 +15,7 @@ import (
 	Arn?: string
 
 	// An array of CountryRule containing the rules for the NumberCapability.
-	CountryRuleSet?: _#defs."/$defs/Properties/definitions/CountryRuleSet"
+	CountryRuleSet?: #CountryRuleSet
 
 	// When set to true deletion protection is enabled and protect configuration
 	// cannot be deleted. By default this is set to false.
@@ -25,10 +25,10 @@ import (
 	ProtectConfigurationId?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CountryRule": close({
+#CountryRule: close({
 	// The two-letter ISO country code
 	CountryCode!: =~"^[A-Z]{2}$"
 
@@ -36,23 +36,14 @@ _#defs: "/$defs/Properties/definitions/CountryRule": close({
 	ProtectStatus!: "ALLOW" | "BLOCK" | "MONITOR" | "FILTER"
 })
 
-_#defs: "/$defs/Properties/definitions/CountryRuleSet": matchN(>=1, [{
-	SMS!: _
-	...
-}, {
-	VOICE!: _
-	...
-}, {
-	MMS!: _
-	...
-}]) & close({
-	MMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"]
-	SMS?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"]
-	VOICE?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CountryRule"]
-})
+#CountryRuleSet: close({
+	MMS?:   list.UniqueItems() & [...#CountryRule]
+	SMS?:   list.UniqueItems() & [...#CountryRule]
+	VOICE?: list.UniqueItems() & [...#CountryRule]
+}) & matchN(>=1, [{SMS!: _}, {VOICE!: _}, {MMS!: _}])
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 	"struct"
 )
 
@@ -15,13 +15,13 @@ import (
 // definition and can declare dependencies on other nodes.
 #Properties: close({
 	// The list of compute nodes that form the pipeline DAG.
-	Computations!: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComputeNode"]
+	Computations!: list.MaxItems(50) & list.MinItems(1) & [...#ComputeNode]
 
 	// A description of the pipeline.
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 
 	// Environment variables shared across all compute nodes in the pipeline.
-	EnvironmentVariables?: _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap"
+	EnvironmentVariables?: #EnvironmentVariablesMap
 
 	// The ARN of the pipeline.
 	PipelineArn?: strings.MaxRunes(2048) &
@@ -35,32 +35,32 @@ import (
 	Status?: "ACTIVE" | "CREATING" | "UPDATING" | "DELETING" | "FAILED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The name of the workspace.
 	WorkspaceName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 })
 
 // A single compute node in a pipeline DAG.
-_#defs: "/$defs/Properties/definitions/ComputeNode": close({
+#ComputeNode: close({
 	// The unique name for this compute node within the pipeline.
 	ComputeNodeName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
 	// A list of compute node names that must complete successfully before this node can start.
 	DependsOn?: list.MaxItems(50) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"]
-	EnvironmentVariables?: _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap"
+	EnvironmentVariables?: #EnvironmentVariablesMap
 
 	// The name of the task to execute for this compute node.
 	TaskName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 })
 
 // A map of environment variable key-value pairs.
-_#defs: "/$defs/Properties/definitions/EnvironmentVariablesMap": struct.MaxFields(100) & close({
+#EnvironmentVariablesMap: struct.MaxFields(100) & close({
 
 	{[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: strings.MaxRunes(2048)}})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

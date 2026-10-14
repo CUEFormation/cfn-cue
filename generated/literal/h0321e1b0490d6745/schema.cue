@@ -11,18 +11,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceDiscovery::Service
-#Properties: matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		HealthCheckConfig!:       _
-		HealthCheckCustomConfig!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		HealthCheckCustomConfig!: _
-		HealthCheckConfig!:       _
-		...
-	}]) & {...}
-]) & close({
+#Properties: close({
 	// The Amazon Resource Name (ARN) of the service.
 	Arn?:
 		=~"^arn:[a-zA-Z0-9-]+:servicediscovery:[a-zA-Z0-9-]+:[0-9]{12}:(service|service/[a-zA-Z0-9-_]+|service:[a-zA-Z0-9-_]+)$"
@@ -31,13 +20,13 @@ import (
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// DNS-related configurations for the service.
-	DnsConfig?: _#defs."/$defs/Properties/definitions/DnsConfig"
+	DnsConfig?: #DnsConfig
 
 	// Settings for health checks. Used when routing is DNS-based.
-	HealthCheckConfig?: _#defs."/$defs/Properties/definitions/HealthCheckConfig"
+	HealthCheckConfig?: #HealthCheckConfig
 
 	// Settings for custom health checks.
-	HealthCheckCustomConfig?: _#defs."/$defs/Properties/definitions/HealthCheckCustomConfig"
+	HealthCheckCustomConfig?: #HealthCheckCustomConfig
 
 	// The unique identifier for the service.
 	Id?: string
@@ -55,16 +44,21 @@ import (
 		{[=~"^[A-Za-z0-9_]{1,64}$"]: string}})
 
 	// An array of key-value pairs to associate with the service.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 
 	// The type of service. Supported values are HTTP or DNS.
 	Type?: "HTTP"
+	if HealthCheckConfig != _|_ if HealthCheckConfig."Fn::If" == _|_ {
+		HealthCheckCustomConfig?: close({"Fn::If": _}) | error(
+			"HealthCheckCustomConfig cannot be used with HealthCheckConfig",
+		)
+	}
 })
 
 // DNS configuration settings for the service.
-_#defs: "/$defs/Properties/definitions/DnsConfig": close({
+#DnsConfig: close({
 	// A list of DNS records associated with the service.
-	DnsRecords!: [..._#defs."/$defs/Properties/definitions/DnsRecord"]
+	DnsRecords!: [...#DnsRecord]
 
 	// The ID of the namespace for the DNS configuration.
 	NamespaceId?: strings.MaxRunes(64) & strings.MinRunes(0)
@@ -74,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/DnsConfig": close({
 })
 
 // A DNS record associated with the service.
-_#defs: "/$defs/Properties/definitions/DnsRecord": close({
+#DnsRecord: close({
 	// The time-to-live (TTL) for the DNS record.
 	TTL!: <=2147483647 & >=0
 
@@ -83,7 +77,7 @@ _#defs: "/$defs/Properties/definitions/DnsRecord": close({
 })
 
 // Configuration for health checks for the service.
-_#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
+#HealthCheckConfig: close({
 	// The number of consecutive health check failures that must occur before
 	// declaring the service unhealthy.
 	FailureThreshold?: <=10 & >=1
@@ -96,14 +90,14 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
 })
 
 // Configurations for custom health checks for the service.
-_#defs: "/$defs/Properties/definitions/HealthCheckCustomConfig": close({
+#HealthCheckCustomConfig: close({
 	// The number of consecutive health check failures required before the service
 	// is considered unhealthy.
 	FailureThreshold?: <=10 & >=1
 })
 
 // A key-value pair to associate with the service.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

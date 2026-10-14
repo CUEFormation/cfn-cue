@@ -9,17 +9,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ExperimentTrialComponent
-#Properties: close({
-	DisplayName?:        string | fn.#StringExpression
-	EndTime?:            string | fn.#StringExpression
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties"
-	StartTime?:          string | fn.#StringExpression
-	Status?:             _#defs."/$defs/Properties/definitions/Status"
-	Tags?:               [..._#defs."/$defs/Properties/definitions/TagsItems"] | fn.#ListExpression
-	TrialComponentName!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::ExperimentTrialComponent"
+	Properties!: close({
+		DisplayName?:        string | fn.#StringExpression
+		EndTime?:            string | fn.#StringExpression
+		MetadataProperties?: #MetadataProperties
+		StartTime?:          string | fn.#StringExpression
+		Status?:             #Status
+		Tags?:               [...#TagsItems] | fn.#ListExpression
+		TrialComponentName!: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	CommitId?:    string | fn.#StringExpression
 	GeneratedBy?: string | fn.#StringExpression
 	ProjectId?:   string | fn.#StringExpression
@@ -27,18 +30,14 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Status": close({
+#Status: close({
 	Message?:       string | fn.#StringExpression
 	PrimaryStatus?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagsItems": close({
+#TagsItems: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::ExperimentTrialComponent"
-	Properties!: #Properties
-}

@@ -17,82 +17,119 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaTailor::PlaybackConfiguration
-#Properties: close({
-	AdConditioningConfiguration?:   _#defs."/$defs/Properties/definitions/AdConditioningConfiguration"
-	AdDecisionServerConfiguration?: _#defs."/$defs/Properties/definitions/AdDecisionServerConfiguration"
-	AdDecisionServerUrl!:           string | fn.#StringExpression
-	AdsPersonalizationConcurrency?: _#defs."/$defs/Properties/definitions/AdsPersonalizationConcurrency" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::PlaybackConfiguration"
+	Properties!: close({
+		AdConditioningConfiguration?:   #AdConditioningConfiguration
+		AdDecisionServerConfiguration?: #AdDecisionServerConfiguration
+		AdDecisionServerUrl!:           string | fn.#StringExpression
+
+		// The settings that control how many concurrent requests MediaTailor makes to
+		// the ad decision server (ADS).
+		AdsPersonalizationConcurrency?: #AdsPersonalizationConcurrency
+
+		// The ad decision server (ADS) request timeouts and personalization time
+		// budgets for live, VOD, and prefetch workflows.
+		AdsPersonalizationTimeouts?: #AdsPersonalizationTimeouts
+
+		// The configuration for avail suppression, also known as ad suppression. For
+		// more information about ad suppression, see Ad Suppression
+		// (https://docs.aws.amazon.com/mediatailor/latest/ug/ad-behavior.html).
+		AvailSuppression?: #AvailSuppression
+
+		// The configuration for bumpers. Bumpers are short audio or video clips that
+		// play at the start or before the end of an ad break. To learn more about
+		// bumpers, see Bumpers
+		// (https://docs.aws.amazon.com/mediatailor/latest/ug/bumpers.html).
+		Bumper?: #Bumper
+
+		// The configuration for using a content delivery network (CDN), like Amazon
+		// CloudFront, for content and ad segment management.
+		CdnConfiguration?: #CdnConfiguration
+
+		// The player parameters and aliases used as dynamic variables during session
+		// initialization. For more information, see Domain Variables.
+		ConfigurationAliases?: #ConfigurationAliases
+		DashConfiguration?: close({
+			MpdLocation?:        string | fn.#StringExpression
+			OriginManifestType?: "SINGLE_PERIOD" | "MULTI_PERIOD" | fn.#StringExpression
+		}) |
 		fn.#ObjectExpression
-	AdsPersonalizationTimeouts?: _#defs."/$defs/Properties/definitions/AdsPersonalizationTimeouts" |
+		FunctionMapping?: close({
+
+			{[=~".*"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-	AvailSuppression?:     _#defs."/$defs/Properties/definitions/AvailSuppression" | fn.#ObjectExpression
-	Bumper?:               _#defs."/$defs/Properties/definitions/Bumper" | fn.#ObjectExpression
-	CdnConfiguration?:     _#defs."/$defs/Properties/definitions/CdnConfiguration" | fn.#ObjectExpression
-	ConfigurationAliases?: _#defs."/$defs/Properties/definitions/ConfigurationAliases" | fn.#ValueExpression
-	DashConfiguration?: close({
-		MpdLocation?:        string | fn.#StringExpression
-		OriginManifestType?: "SINGLE_PERIOD" | "MULTI_PERIOD" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	FunctionMapping?: close({
+		HlsConfiguration?: close({}) | fn.#ObjectExpression
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	HlsConfiguration?:         close({}) | fn.#ObjectExpression
-	InsertionMode?:            _#defs."/$defs/Properties/definitions/InsertionMode" | fn.#StringExpression
-	LivePreRollConfiguration?: _#defs."/$defs/Properties/definitions/LivePreRollConfiguration" | fn.#ObjectExpression
-	LogConfiguration?:         _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	ManifestProcessingRules?:  _#defs."/$defs/Properties/definitions/ManifestProcessingRules" | fn.#ObjectExpression
-	Name!:                     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	PersonalizationThresholdSeconds?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SlateAdUrl?:            string | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TranscodeProfileName?:  string | fn.#StringExpression
-	VideoContentSourceUrl!: string | fn.#StringExpression
-})
+		// The setting that controls whether players can use stitched or guided ad
+		// insertion. The default, STITCHED_ONLY, forces all player sessions to use
+		// stitched (server-side) ad insertion. Choosing PLAYER_SELECT allows players
+		// to select either stitched or guided ad insertion at session-initialization
+		// time. The default for players that do not specify an insertion mode is
+		// stitched.
+		InsertionMode?: #InsertionMode
 
-_#defs: "/$defs/Properties/definitions/AdConditioningConfiguration": close(
-	{StreamingMediaFileConditioning!: _#defs."/$defs/Properties/definitions/StreamingMediaFileConditioning"},
-) |
+		// The configuration for pre-roll ad insertion.
+		LivePreRollConfiguration?: #LivePreRollConfiguration
+
+		// The configuration that defines where AWS Elemental MediaTailor sends logs for
+		// the playback configuration.
+		LogConfiguration?: #LogConfiguration
+
+		// The configuration for manifest processing rules. Manifest processing rules
+		// enable customization of the personalized manifests created by MediaTailor.
+		ManifestProcessingRules?: #ManifestProcessingRules
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		PersonalizationThresholdSeconds?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SlateAdUrl?:            string | fn.#StringExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TranscodeProfileName?:  string | fn.#StringExpression
+		VideoContentSourceUrl!: string | fn.#StringExpression
+	})
+}
+
+#AdConditioningConfiguration: close({StreamingMediaFileConditioning!: #StreamingMediaFileConditioning}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdDecisionServerConfiguration": close({
-	HttpRequest?:  _#defs."/$defs/Properties/definitions/HttpRequest"
-	VastResponse?: _#defs."/$defs/Properties/definitions/VastResponse"
+#AdDecisionServerConfiguration: close({
+	HttpRequest?:  #HttpRequest
+	VastResponse?: #VastResponse
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdDecisionServerConfigurationHttpHeaders": close({
+#AdDecisionServerConfigurationHttpHeaders: close({
 
 	{[=~".*"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdMarkerPassthrough": close(
+#AdMarkerPassthrough: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdsInteractionLog": close({
+#AdsInteractionLog: close({
 	ExcludeEventTypes?:      [...string | fn.#StringExpression] | fn.#ListExpression
 	PublishOptInEventTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdsPersonalizationConcurrency": close({
+#AdsPersonalizationConcurrency: close({
 	EnableVodVastParallelization?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxConcurrentAdsRequests?: int |
 		{
@@ -111,7 +148,7 @@ _#defs: "/$defs/Properties/definitions/AdsPersonalizationConcurrency": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdsPersonalizationTimeouts": close({
+#AdsPersonalizationTimeouts: close({
 	AdsRequestTimeoutMilliseconds?: int |
 		{
 			string &
@@ -185,57 +222,48 @@ _#defs: "/$defs/Properties/definitions/AdsPersonalizationTimeouts": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AvailSuppression": close({
+#AvailSuppression: close({
 	FillPolicy?: "PARTIAL_AVAIL" | "FULL_AVAIL_ONLY" | fn.#StringExpression
 	Mode?:       "OFF" | "BEHIND_LIVE_EDGE" | "AFTER_LIVE_EDGE" | fn.#StringExpression
 	Value?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Bumper": close({
+#Bumper: close({
 	EndUrl?:   string | fn.#StringExpression
 	StartUrl?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CdnConfiguration": close({
+#CdnConfiguration: close({
 	AdSegmentUrlPrefix?:      string | fn.#StringExpression
 	ContentSegmentUrlPrefix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationAliases": null |
-	bool |
-	number |
-	string |
-	[...] |
-	{...} |
-	fn.#ValueExpression
+#ConfigurationAliases: null | bool | number | string | [...] | {...} | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/DashConfiguration": close({
+#DashConfiguration: close({
 	ManifestEndpointPrefix?: string | fn.#StringExpression
 	MpdLocation?:            string | fn.#StringExpression
 	OriginManifestType?:     "SINGLE_PERIOD" | "MULTI_PERIOD" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsConfiguration": close(
-	{ManifestEndpointPrefix?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#HlsConfiguration: close({ManifestEndpointPrefix?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpRequest": close({
+#HttpRequest: close({
 	Body?:            string | fn.#StringExpression
 	CompressRequest?: "NONE" | "GZIP" | fn.#StringExpression
-	Headers?:         _#defs."/$defs/Properties/definitions/AdDecisionServerConfigurationHttpHeaders"
+	Headers?:         #AdDecisionServerConfigurationHttpHeaders
 	HttpMethod?:      "GET" | "POST" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InsertionMode": "STITCHED_ONLY" | "PLAYER_SELECT" | fn.#StringExpression
+#InsertionMode: "STITCHED_ONLY" | "PLAYER_SELECT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LivePreRollConfiguration": close({
-	AdDecisionServerConfiguration?: _#defs."/$defs/Properties/definitions/PreRollAdDecisionServerConfiguration"
+#LivePreRollConfiguration: close({
+	AdDecisionServerConfiguration?: #PreRollAdDecisionServerConfiguration
 	AdDecisionServerUrl?:           string | fn.#StringExpression
 	MaxDurationSeconds?: int |
 		{
@@ -254,11 +282,13 @@ _#defs: "/$defs/Properties/definitions/LivePreRollConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
-	AdsInteractionLog?:        _#defs."/$defs/Properties/definitions/AdsInteractionLog" | fn.#ObjectExpression
+#LogConfiguration: close({
+	// The event types that MediaTailor emits in logs for interactions with the ADS.
+	AdsInteractionLog?:        #AdsInteractionLog
 	EnabledLoggingStrategies?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ManifestServiceInteractionLog?: _#defs."/$defs/Properties/definitions/ManifestServiceInteractionLog" |
-		fn.#ObjectExpression
+
+	// The event types that MediaTailor emits in logs for interactions with the origin server.
+	ManifestServiceInteractionLog?: #ManifestServiceInteractionLog
 	PercentEnabled!: int & <=100 & >=0 |
 		{
 			string &
@@ -278,35 +308,33 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestProcessingRules": close(
-	{AdMarkerPassthrough?: _#defs."/$defs/Properties/definitions/AdMarkerPassthrough" | fn.#ObjectExpression},
-) |
+#ManifestProcessingRules: close({
+	// For HLS, when set to true, MediaTailor passes through EXT-X-CUE-IN,
+	// EXT-X-CUE-OUT, and EXT-X-SPLICEPOINT-SCTE35 ad markers from the origin
+	// manifest to the MediaTailor personalized manifest. No logic is applied to
+	// these ad markers. For example, if EXT-X-CUE-OUT has a value of 60, but no
+	// ads are filled for that ad break, MediaTailor will not set the value to 0.
+	AdMarkerPassthrough?: #AdMarkerPassthrough
+}) |
+fn.#ObjectExpression
+
+#ManifestServiceInteractionLog: close({ExcludeEventTypes?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestServiceInteractionLog": close(
-	{ExcludeEventTypes?: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#PreRollAdDecisionServerConfiguration: close({VastResponse?: #PreRollVastResponse}) | fn.#ObjectExpression
+
+#PreRollVastResponse: close({AdSequencingMode?: "FOLLOW_AD_SEQUENCE" | "IGNORE_AD_SEQUENCE" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PreRollAdDecisionServerConfiguration": close(
-	{VastResponse?: _#defs."/$defs/Properties/definitions/PreRollVastResponse"},
-) |
-	fn.#ObjectExpression
+#StreamingMediaFileConditioning: "TRANSCODE" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PreRollVastResponse": close(
-	{AdSequencingMode?: "FOLLOW_AD_SEQUENCE" | "IGNORE_AD_SEQUENCE" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/StreamingMediaFileConditioning": "TRANSCODE" | "NONE" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VastResponse": close({
+#VastResponse: close({
 	AdSequencingMode?: "FOLLOW_AD_SEQUENCE" |
 		"IGNORE_AD_SEQUENCE" |
 		"FOLLOW_AD_SEQUENCE_ONLY_LIVE" |
@@ -314,7 +342,3 @@ _#defs: "/$defs/Properties/definitions/VastResponse": close({
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::PlaybackConfiguration"
-	Properties!: #Properties
-}

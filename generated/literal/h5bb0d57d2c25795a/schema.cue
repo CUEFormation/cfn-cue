@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
 	"strings"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,17 +17,15 @@ import (
 	Description?:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 	LastModificationTime?: time.Time
 	Name?:                 strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$"
-	NodeCounts?:           _#defs."/$defs/Properties/definitions/NodeCounts"
-	Nodes?: list.MaxItems(5000) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Node"
-	]
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	NodeCounts?:           #NodeCounts
+	Nodes?:                list.MaxItems(5000) & list.MinItems(1) & list.UniqueItems() & [...#Node]
+	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Actuator": close({
-	AllowedValues?:      _#defs."/$defs/Properties/definitions/AllowedValues"
+#Actuator: close({
+	AllowedValues?:      #AllowedValues
 	AssignedValue?:      string
-	DataType!:           _#defs."/$defs/Properties/definitions/NodeDataType"
+	DataType!:           #NodeDataType
 	Description?:        strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 	FullyQualifiedName!: string
 	Max?:                number
@@ -35,12 +33,12 @@ _#defs: "/$defs/Properties/definitions/Actuator": close({
 	Unit?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/AllowedValues": list.MinItems(1) & [...string]
+#AllowedValues: list.MinItems(1) & [...string]
 
-_#defs: "/$defs/Properties/definitions/Attribute": close({
-	AllowedValues?:      _#defs."/$defs/Properties/definitions/AllowedValues"
+#Attribute: close({
+	AllowedValues?:      #AllowedValues
 	AssignedValue?:      string
-	DataType!:           _#defs."/$defs/Properties/definitions/NodeDataType"
+	DataType!:           #NodeDataType
 	DefaultValue?:       string
 	Description?:        strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 	FullyQualifiedName!: string
@@ -49,22 +47,16 @@ _#defs: "/$defs/Properties/definitions/Attribute": close({
 	Unit?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/Branch": close({
+#Branch: close({
 	Description?:        strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 	FullyQualifiedName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Node": matchN(1, [close(
-	{Branch?: _#defs."/$defs/Properties/definitions/Branch"},
-), close(
-	{Sensor?: _#defs."/$defs/Properties/definitions/Sensor"},
-), close(
-	{Actuator?: _#defs."/$defs/Properties/definitions/Actuator"},
-), close(
-	{Attribute?: _#defs."/$defs/Properties/definitions/Attribute"},
-)])
+#Node: matchN(1, [
+	close({Branch?: #Branch}), close({Sensor?: #Sensor}), close({Actuator?: #Actuator}), close({Attribute?: #Attribute}),
+])
 
-_#defs: "/$defs/Properties/definitions/NodeCounts": close({
+#NodeCounts: close({
 	TotalActuators?:  number
 	TotalAttributes?: number
 	TotalBranches?:   number
@@ -72,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/NodeCounts": close({
 	TotalSensors?:    number
 })
 
-_#defs: "/$defs/Properties/definitions/NodeDataType": "INT8" |
+#NodeDataType: "INT8" |
 	"UINT8" |
 	"INT16" |
 	"UINT16" |
@@ -100,9 +92,9 @@ _#defs: "/$defs/Properties/definitions/NodeDataType": "INT8" |
 	"UNIX_TIMESTAMP_ARRAY" |
 	"UNKNOWN"
 
-_#defs: "/$defs/Properties/definitions/Sensor": close({
-	AllowedValues?:      _#defs."/$defs/Properties/definitions/AllowedValues"
-	DataType!:           _#defs."/$defs/Properties/definitions/NodeDataType"
+#Sensor: close({
+	AllowedValues?:      #AllowedValues
+	DataType!:           #NodeDataType
 	Description?:        strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 	FullyQualifiedName!: string
 	Max?:                number
@@ -110,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/Sensor": close({
 	Unit?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

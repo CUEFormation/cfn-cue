@@ -13,40 +13,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::IVSChat::LoggingConfiguration.
-#Properties: close({
-	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
-	Name?:                     strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IVSChat::LoggingConfiguration"
+	Properties!: close({
+		DestinationConfiguration!: #DestinationConfiguration
+		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationConfiguration": close(
+#CloudWatchLogsDestinationConfiguration: close(
 	{LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationConfiguration"
-	Firehose?:       _#defs."/$defs/Properties/definitions/FirehoseDestinationConfiguration"
-	S3?:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+#DestinationConfiguration: close({
+	CloudWatchLogs?: #CloudWatchLogsDestinationConfiguration
+	Firehose?:       #FirehoseDestinationConfiguration
+	S3?:             #S3DestinationConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirehoseDestinationConfiguration": close(
+#FirehoseDestinationConfiguration: close(
 	{DeliveryStreamName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close(
+#S3DestinationConfiguration: close(
 	{BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IVSChat::LoggingConfiguration"
-	Properties!: #Properties
-}

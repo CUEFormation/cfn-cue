@@ -16,20 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for Logs Integration Resource
-#Properties: close({
-	IntegrationName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
-	IntegrationType!: "OPENSEARCH" | fn.#StringExpression
-	ResourceConfig!: close({OpenSearchResourceConfig?: _#defs."/$defs/Properties/definitions/OpenSearchResourceConfig"}) |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::Integration"
+	Properties!: close({
+		IntegrationName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
+		IntegrationType!: "OPENSEARCH" | fn.#StringExpression
+		ResourceConfig!:  close({OpenSearchResourceConfig?: #OpenSearchResourceConfig}) | fn.#ObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"[\\w#+=/:,.@-]*\\*?" |
-fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OpenSearchResourceConfig": close({
-	ApplicationARN?:            _#defs."/$defs/Properties/definitions/Arn"
-	DashboardViewerPrincipals!: [..._#defs."/$defs/Properties/definitions/Arn"] | fn.#ListExpression
-	DataSourceRoleArn!: _#defs."/$defs/Properties/definitions/Arn" &
+#OpenSearchResourceConfig: close({
+	ApplicationARN?:            #Arn
+	DashboardViewerPrincipals!: [...#Arn] | fn.#ListExpression
+	DataSourceRoleArn!: #Arn &
 	(null |
 	bool |
 	number |
@@ -37,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/OpenSearchResourceConfig": close({
 	[...] |
 	{...}) |
 	fn.#StringExpression
-	KmsKeyArn?: _#defs."/$defs/Properties/definitions/Arn" &
+	KmsKeyArn?: #Arn &
 	(null |
 	bool |
 	number |
@@ -63,7 +64,3 @@ _#defs: "/$defs/Properties/definitions/OpenSearchResourceConfig": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::Integration"
-	Properties!: #Properties
-}

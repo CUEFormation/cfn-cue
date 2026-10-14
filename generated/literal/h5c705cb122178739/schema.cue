@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,9 +12,7 @@ import (
 // Resource Type definition for AWS::Config::OrganizationConformancePack.
 #Properties: close({
 	// A list of ConformancePackInputParameter objects.
-	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConformancePackInputParameter"
-	]
+	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter]
 
 	// AWS Config stores intermediate files while processing conformance pack template.
 	DeliveryS3Bucket?: strings.MaxRunes(63) & strings.MinRunes(0)
@@ -24,7 +22,7 @@ import (
 
 	// A list of AWS accounts to be excluded from an organization conformance pack
 	// while deploying a conformance pack.
-	ExcludedAccounts?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/AccountId"]
+	ExcludedAccounts?: list.MaxItems(1000) & [...] & [...#AccountId]
 
 	// Amazon Resource Name (ARN) of the organization conformance pack.
 	OrganizationConformancePackArn?: string
@@ -33,7 +31,7 @@ import (
 	OrganizationConformancePackName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*"
 
 	// The tags for the organization conformance pack.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
 	// A string containing full conformance pack template body.
 	TemplateBody?: strings.MaxRunes(51200) & strings.MinRunes(1)
@@ -42,21 +40,21 @@ import (
 	TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*"
 })
 
-_#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$"
+#AccountId: =~"^\\d{12}$"
 
 // Input parameters in the form of key-value pairs for the conformance pack.
-_#defs: "/$defs/Properties/definitions/ConformancePackInputParameter": {
-	ParameterName!:  _#defs."/$defs/Properties/definitions/ParameterName"
-	ParameterValue!: _#defs."/$defs/Properties/definitions/ParameterValue"
+#ConformancePackInputParameter: {
+	ParameterName!:  #ParameterName
+	ParameterValue!: #ParameterValue
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/ParameterName": strings.MaxRunes(255) & strings.MinRunes(0)
+#ParameterName: strings.MaxRunes(255) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": strings.MaxRunes(4096) & strings.MinRunes(0)
+#ParameterValue: strings.MaxRunes(4096) & strings.MinRunes(0)
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

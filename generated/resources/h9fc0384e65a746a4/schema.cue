@@ -16,30 +16,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for ContactFlowModuleAlias
-#Properties: close({
-	ContactFlowModuleId!: strings.MaxRunes(500) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]+:[0-9]{12}:instance/[-a-zA-Z0-9]+/flow-module/[-a-zA-Z0-9]+$" |
-	fn.#StringExpression
-	ContactFlowModuleVersion!: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([$0-9a-zA-Z][_-]?)+$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::ContactFlowModuleAlias"
-	Properties!: #Properties
+	Type!: "AWS::Connect::ContactFlowModuleAlias"
+	Properties!: close({
+		ContactFlowModuleId!: strings.MaxRunes(500) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]+:[0-9]{12}:instance/[-a-zA-Z0-9]+/flow-module/[-a-zA-Z0-9]+$" |
+		fn.#StringExpression
+		ContactFlowModuleVersion!: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([$0-9a-zA-Z][_-]?)+$" | fn.#StringExpression
+	})
 }

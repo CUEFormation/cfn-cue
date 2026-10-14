@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,31 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A delivery destination is an AWS resource that represents an AWS service that
 // logs can be sent to CloudWatch Logs, Amazon S3, are supported as Kinesis
 // Data Firehose delivery destinations.
-#Properties: close({
-	DeliveryDestinationPolicy?: _#defs."/$defs/Properties/definitions/DestinationPolicy" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	DeliveryDestinationType?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
-	DestinationResourceArn?:  _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	Name!:                    strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-	OutputFormat?:            strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::DeliveryDestination"
+	Properties!: close({
+		DeliveryDestinationPolicy?: #DestinationPolicy & fn.#Object & {...} | fn.#ObjectExpression
+		DeliveryDestinationType?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" |
-fn.#StringExpression
+		// The ARN of the Amazon Web Services destination that this delivery destination
+		// represents. That Amazon Web Services destination can be a log group in
+		// CloudWatch Logs, an Amazon S3 bucket, or a delivery stream in Firehose.
+		DestinationResourceArn?: #Arn
+		Name!:                   strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+		OutputFormat?:           strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DestinationPolicy": close({
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
+
+#DestinationPolicy: close({
 	DeliveryDestinationName?:   strings.MaxRunes(60) & strings.MinRunes(1) | fn.#StringExpression
 	DeliveryDestinationPolicy?: fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::DeliveryDestination"
-	Properties!: #Properties
-}

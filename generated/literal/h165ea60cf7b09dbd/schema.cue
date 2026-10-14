@@ -14,22 +14,20 @@ import (
 // account in non opt-in region in which you configure region linking mode.
 #Properties: close({
 	// The aggregation Region of the AggregatorV2
-	AggregationRegion?: _#defs."/$defs/Properties/definitions/Region"
+	AggregationRegion?: #Region
 
 	// The ARN of the AggregatorV2 being created and assigned as the unique identifier
 	AggregatorV2Arn?: =~"arn:aws\\S*:securityhub:\\S*"
 
 	// The list of included Regions
-	LinkedRegions!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Region"
-	]
+	LinkedRegions!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Region]
 
 	// Indicates to link a list of included Regions
 	RegionLinkingMode!: "SPECIFIED_REGIONS"
-	Tags?:              _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:              #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Region": =~"^[a-zA-Z0-9-]{1,32}$"
+#Region: =~"^[a-zA-Z0-9-]{1,32}$"
 
 // A key-value pair to associate with the Security Hub V2 resource.
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & {...}
+#Tags: struct.MaxFields(50) & {...}

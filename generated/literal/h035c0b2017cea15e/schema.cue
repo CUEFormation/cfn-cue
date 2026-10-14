@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,18 +18,14 @@ import (
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// Specifies a list of Kafka clusters which are targets of the replicator.
-	KafkaClusters!: list.MaxItems(2) & list.MinItems(2) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KafkaCluster"
-	]
+	KafkaClusters!: list.MaxItems(2) & list.MinItems(2) & list.UniqueItems() & [...#KafkaCluster]
 
 	// Configuration for log delivery for the replicator.
-	LogDelivery?: _#defs."/$defs/Properties/definitions/LogDelivery"
+	LogDelivery?: #LogDelivery
 
 	// A list of replication configurations, where each configuration targets a
 	// given source cluster to target cluster replication flow.
-	ReplicationInfoList!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicationInfo"
-	]
+	ReplicationInfoList!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationInfo]
 
 	// Amazon Resource Name for the created replicator.
 	ReplicatorArn?: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*"
@@ -43,17 +39,17 @@ import (
 		=~"arn:(aws|aws-us-gov|aws-cn):iam:.*"
 
 	// A collection of tags associated with a resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Details of an Amazon MSK cluster.
-_#defs: "/$defs/Properties/definitions/AmazonMskCluster": close({
+#AmazonMskCluster: close({
 	// The ARN of an Amazon MSK cluster.
 	MskClusterArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*"
 })
 
 // Details of an Apache Kafka cluster.
-_#defs: "/$defs/Properties/definitions/ApacheKafkaCluster": close({
+#ApacheKafkaCluster: close({
 	// The ID of the Apache Kafka cluster.
 	ApacheKafkaClusterId!: string
 
@@ -62,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/ApacheKafkaCluster": close({
 })
 
 // Details about delivering logs to CloudWatch Logs.
-_#defs: "/$defs/Properties/definitions/CloudWatchLogs": close({
+#CloudWatchLogs: close({
 	// Whether log delivery to CloudWatch Logs is enabled.
 	Enabled!: bool
 
@@ -71,12 +67,12 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogs": close({
 })
 
 // The consumer group offset synchronization mode.
-_#defs: "/$defs/Properties/definitions/ConsumerGroupOffsetSyncMode": "LEGACY" | "ENHANCED"
+#ConsumerGroupOffsetSyncMode: "LEGACY" | "ENHANCED"
 
 // Configuration relating to consumer group replication.
-_#defs: "/$defs/Properties/definitions/ConsumerGroupReplication": close({
+#ConsumerGroupReplication: close({
 	// The consumer group offset synchronization mode.
-	ConsumerGroupOffsetSyncMode?: _#defs."/$defs/Properties/definitions/ConsumerGroupOffsetSyncMode"
+	ConsumerGroupOffsetSyncMode?: #ConsumerGroupOffsetSyncMode
 
 	// List of regular expression patterns indicating the consumer groups that should not be replicated.
 	ConsumerGroupsToExclude?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
@@ -97,7 +93,7 @@ _#defs: "/$defs/Properties/definitions/ConsumerGroupReplication": close({
 })
 
 // Details about delivering logs to Firehose.
-_#defs: "/$defs/Properties/definitions/Firehose": close({
+#Firehose: close({
 	// The Firehose delivery stream that is the destination for log delivery.
 	DeliveryStream?: string
 
@@ -106,40 +102,40 @@ _#defs: "/$defs/Properties/definitions/Firehose": close({
 })
 
 // The algorithm used to sign the STS JWT assertion.
-_#defs: "/$defs/Properties/definitions/JwtSigningAlgorithm": "RS256" | "ES384"
+#JwtSigningAlgorithm: "RS256" | "ES384"
 
 // Details of a Kafka cluster for replication.
-_#defs: "/$defs/Properties/definitions/KafkaCluster": close({
+#KafkaCluster: close({
 	// Details of an Amazon MSK cluster.
-	AmazonMskCluster?: _#defs."/$defs/Properties/definitions/AmazonMskCluster"
+	AmazonMskCluster?: #AmazonMskCluster
 
 	// Details of an Apache Kafka cluster.
-	ApacheKafkaCluster?: _#defs."/$defs/Properties/definitions/ApacheKafkaCluster"
+	ApacheKafkaCluster?: #ApacheKafkaCluster
 
 	// Details of the client authentication used by the Apache Kafka cluster.
-	ClientAuthentication?: _#defs."/$defs/Properties/definitions/KafkaClusterClientAuthentication"
+	ClientAuthentication?: #KafkaClusterClientAuthentication
 
 	// Details of encryption in transit to the Apache Kafka cluster.
-	EncryptionInTransit?: _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransit"
+	EncryptionInTransit?: #KafkaClusterEncryptionInTransit
 
 	// Details of an Amazon VPC which has network connectivity to the Apache Kafka cluster.
-	VpcConfig?: _#defs."/$defs/Properties/definitions/KafkaClusterClientVpcConfig"
+	VpcConfig?: #KafkaClusterClientVpcConfig
 })
 
 // Details of the client authentication used by the Apache Kafka cluster.
-_#defs: "/$defs/Properties/definitions/KafkaClusterClientAuthentication": close({
+#KafkaClusterClientAuthentication: close({
 	// Details for mTLS client authentication.
-	MTLS?: _#defs."/$defs/Properties/definitions/KafkaClusterMtlsAuthentication"
+	MTLS?: #KafkaClusterMtlsAuthentication
 
 	// Details for client authentication using SASL/OAUTHBEARER.
-	SaslOAuthBearer?: _#defs."/$defs/Properties/definitions/KafkaClusterSaslOAuthBearerAuthentication"
+	SaslOAuthBearer?: #KafkaClusterSaslOAuthBearerAuthentication
 
 	// Details for SASL/SCRAM client authentication.
-	SaslScram?: _#defs."/$defs/Properties/definitions/KafkaClusterSaslScramAuthentication"
+	SaslScram?: #KafkaClusterSaslScramAuthentication
 })
 
 // Details of an Amazon VPC which has network connectivity to the Kafka cluster.
-_#defs: "/$defs/Properties/definitions/KafkaClusterClientVpcConfig": close({
+#KafkaClusterClientVpcConfig: close({
 	// The AWS security groups to associate with the elastic network interfaces in
 	// order to specify what the replicator has access to. If a security group is
 	// not specified, the default security group associated with the VPC is used.
@@ -153,26 +149,26 @@ _#defs: "/$defs/Properties/definitions/KafkaClusterClientVpcConfig": close({
 })
 
 // Details of encryption in transit to the Apache Kafka cluster.
-_#defs: "/$defs/Properties/definitions/KafkaClusterEncryptionInTransit": close({
+#KafkaClusterEncryptionInTransit: close({
 	// The type of encryption in transit to the Apache Kafka cluster.
-	EncryptionType!: _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransitType"
+	EncryptionType!: #KafkaClusterEncryptionInTransitType
 
 	// The root CA certificate.
 	RootCaCertificate?: string
 })
 
 // The type of encryption in transit to the Apache Kafka cluster.
-_#defs: "/$defs/Properties/definitions/KafkaClusterEncryptionInTransitType": "TLS"
+#KafkaClusterEncryptionInTransitType: "TLS"
 
 // Details for mTLS client authentication.
-_#defs: "/$defs/Properties/definitions/KafkaClusterMtlsAuthentication": close({
+#KafkaClusterMtlsAuthentication: close({
 	// The Amazon Resource Name (ARN) of the Secrets Manager secret.
 	SecretArn!: string
 })
 
 // Details for SASL/OAUTHBEARER using the standard client_credentials grant. The
 // referenced secret must contain client_id and client_secret.
-_#defs: "/$defs/Properties/definitions/KafkaClusterOAuthClientCredentials": close({
+#KafkaClusterOAuthClientCredentials: close({
 	// Secrets Manager ARN of the secret containing the client_id and client_secret
 	// used to obtain an OAuth Bearer token via the client_credentials grant.
 	TokenRequestSecretArn!: string
@@ -181,12 +177,12 @@ _#defs: "/$defs/Properties/definitions/KafkaClusterOAuthClientCredentials": clos
 // Details for SASL/OAUTHBEARER using the client credentials grant with a JWT
 // client assertion (RFC 7521/7523 Section 2.2). An STS-vended JWT is used as
 // the client_assertion.
-_#defs: "/$defs/Properties/definitions/KafkaClusterOAuthClientCredentialsAssertion": close({
+#KafkaClusterOAuthClientCredentialsAssertion: close({
 	// The audience (aud claim) set in the STS JWT client assertion.
 	Audience!: string
 
 	// The algorithm used to sign the JWT client assertion.
-	SigningAlgorithm!: _#defs."/$defs/Properties/definitions/JwtSigningAlgorithm"
+	SigningAlgorithm!: #JwtSigningAlgorithm
 
 	// Optional Secrets Manager ARN for identity providers that require client_id as
 	// a form parameter alongside the JWT client assertion.
@@ -195,12 +191,12 @@ _#defs: "/$defs/Properties/definitions/KafkaClusterOAuthClientCredentialsAsserti
 
 // Details for SASL/OAUTHBEARER using the JWT Bearer assertion grant (RFC 7523).
 // An STS-vended JWT is used as the assertion.
-_#defs: "/$defs/Properties/definitions/KafkaClusterOAuthIamJwtBearer": close({
+#KafkaClusterOAuthIamJwtBearer: close({
 	// The audience (aud claim) set in the STS JWT assertion.
 	Audience!: string
 
 	// The algorithm used to sign the JWT assertion.
-	SigningAlgorithm!: _#defs."/$defs/Properties/definitions/JwtSigningAlgorithm"
+	SigningAlgorithm!: #JwtSigningAlgorithm
 
 	// Optional Secrets Manager ARN for identity providers that require client
 	// authentication alongside the JWT Bearer assertion.
@@ -208,25 +204,25 @@ _#defs: "/$defs/Properties/definitions/KafkaClusterOAuthIamJwtBearer": close({
 })
 
 // Details for client authentication using SASL/OAUTHBEARER.
-_#defs: "/$defs/Properties/definitions/KafkaClusterSaslOAuthBearerAuthentication": close({
+#KafkaClusterSaslOAuthBearerAuthentication: close({
 	// Details for SASL/OAUTHBEARER using standard client_credentials grant.
 	// Mutually exclusive with iamJwtBearer and clientCredentialsAssertion.
-	ClientCredentials?: _#defs."/$defs/Properties/definitions/KafkaClusterOAuthClientCredentials"
+	ClientCredentials?: #KafkaClusterOAuthClientCredentials
 
 	// Details for SASL/OAUTHBEARER using client credentials grant with JWT client
 	// assertion (RFC 7521/7523). Mutually exclusive with clientCredentials and
 	// iamJwtBearer.
-	ClientCredentialsAssertion?: _#defs."/$defs/Properties/definitions/KafkaClusterOAuthClientCredentialsAssertion"
+	ClientCredentialsAssertion?: #KafkaClusterOAuthClientCredentialsAssertion
 
 	// Details for SASL/OAUTHBEARER using JWT Bearer assertion grant (RFC 7523).
 	// Mutually exclusive with clientCredentials and clientCredentialsAssertion.
-	IamJwtBearer?: _#defs."/$defs/Properties/definitions/KafkaClusterOAuthIamJwtBearer"
+	IamJwtBearer?: #KafkaClusterOAuthIamJwtBearer
 
 	// OAuth scope to request. Included in the token request if provided.
 	Scope?: string
 
 	// How client credentials are sent to the identity provider (POST, BASIC, or NONE).
-	TokenEndpointAuthenticationMethod!: _#defs."/$defs/Properties/definitions/TokenEndpointAuthenticationMethod"
+	TokenEndpointAuthenticationMethod!: #TokenEndpointAuthenticationMethod
 
 	// Secrets Manager ARN containing a custom CA certificate for the identity
 	// provider. Required only if the identity provider uses a private CA.
@@ -237,27 +233,27 @@ _#defs: "/$defs/Properties/definitions/KafkaClusterSaslOAuthBearerAuthentication
 })
 
 // Details for SASL/SCRAM client authentication.
-_#defs: "/$defs/Properties/definitions/KafkaClusterSaslScramAuthentication": close({
+#KafkaClusterSaslScramAuthentication: close({
 	// The SASL/SCRAM authentication mechanism.
-	Mechanism!: _#defs."/$defs/Properties/definitions/KafkaClusterSaslScramMechanism"
+	Mechanism!: #KafkaClusterSaslScramMechanism
 
 	// The Amazon Resource Name (ARN) of the Secrets Manager secret.
 	SecretArn!: string
 })
 
 // The SASL/SCRAM authentication mechanism.
-_#defs: "/$defs/Properties/definitions/KafkaClusterSaslScramMechanism": "SHA256" | "SHA512"
+#KafkaClusterSaslScramMechanism: "SHA256" | "SHA512"
 
 // Configuration for log delivery for the replicator.
-_#defs: "/$defs/Properties/definitions/LogDelivery": close({
+#LogDelivery: close({
 	// The replicator logs configuration.
-	ReplicatorLogDelivery?: _#defs."/$defs/Properties/definitions/ReplicatorLogDelivery"
+	ReplicatorLogDelivery?: #ReplicatorLogDelivery
 })
 
 // Specifies configuration for replication between a source and target Kafka cluster.
-_#defs: "/$defs/Properties/definitions/ReplicationInfo": close({
+#ReplicationInfo: close({
 	// Configuration relating to consumer group replication.
-	ConsumerGroupReplication!: _#defs."/$defs/Properties/definitions/ConsumerGroupReplication"
+	ConsumerGroupReplication!: #ConsumerGroupReplication
 
 	// Amazon Resource Name of the source Kafka cluster.
 	SourceKafkaClusterArn?: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*"
@@ -275,41 +271,36 @@ _#defs: "/$defs/Properties/definitions/ReplicationInfo": close({
 	TargetKafkaClusterId?: string
 
 	// Configuration relating to topic replication.
-	TopicReplication!: _#defs."/$defs/Properties/definitions/TopicReplication"
+	TopicReplication!: #TopicReplication
 })
 
 // Configuration for specifying the position in the topics to start replicating from.
-_#defs: "/$defs/Properties/definitions/ReplicationStartingPosition": close(
-	{Type?: _#defs."/$defs/Properties/definitions/ReplicationStartingPositionType"},
-)
+#ReplicationStartingPosition: close({Type?: #ReplicationStartingPositionType})
 
 // The type of replication starting position.
-_#defs: "/$defs/Properties/definitions/ReplicationStartingPositionType": "LATEST" | "EARLIEST"
+#ReplicationStartingPositionType: "LATEST" | "EARLIEST"
 
 // Configuration for specifying replicated topic names should be the same as
 // their corresponding upstream topics or prefixed with source cluster alias.
-_#defs: "/$defs/Properties/definitions/ReplicationTopicNameConfiguration": close(
-	{Type?: _#defs."/$defs/Properties/definitions/ReplicationTopicNameConfigurationType"},
-)
+#ReplicationTopicNameConfiguration: close({Type?: #ReplicationTopicNameConfigurationType})
 
 // The type of replicated topic name.
-_#defs: "/$defs/Properties/definitions/ReplicationTopicNameConfigurationType": "PREFIXED_WITH_SOURCE_CLUSTER_ALIAS" |
-	"IDENTICAL"
+#ReplicationTopicNameConfigurationType: "PREFIXED_WITH_SOURCE_CLUSTER_ALIAS" | "IDENTICAL"
 
 // Details of the log delivery for the replicator.
-_#defs: "/$defs/Properties/definitions/ReplicatorLogDelivery": close({
+#ReplicatorLogDelivery: close({
 	// Details of the CloudWatch Logs destination for replicator logs.
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogs"
+	CloudWatchLogs?: #CloudWatchLogs
 
 	// Details of the Kinesis Data Firehose delivery stream that is the destination for replicator logs.
-	Firehose?: _#defs."/$defs/Properties/definitions/Firehose"
+	Firehose?: #Firehose
 
 	// Details of the Amazon S3 destination for replicator logs.
-	S3?: _#defs."/$defs/Properties/definitions/S3"
+	S3?: #S3
 })
 
 // Details about delivering logs to S3.
-_#defs: "/$defs/Properties/definitions/S3": close({
+#S3: close({
 	// The S3 bucket that is the destination for log delivery.
 	Bucket?: string
 
@@ -320,15 +311,15 @@ _#defs: "/$defs/Properties/definitions/S3": close({
 	Prefix?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256)
 })
 
 // How client credentials are sent to the identity provider's token endpoint.
-_#defs: "/$defs/Properties/definitions/TokenEndpointAuthenticationMethod": "POST" | "BASIC" | "NONE"
+#TokenEndpointAuthenticationMethod: "POST" | "BASIC" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/TopicReplication": close({
+#TopicReplication: close({
 	// Whether to periodically configure remote topic ACLs to match their corresponding upstream topics.
 	CopyAccessControlListsForTopics?: bool
 
@@ -339,11 +330,11 @@ _#defs: "/$defs/Properties/definitions/TopicReplication": close({
 	DetectAndCopyNewTopics?: bool
 
 	// Configuration for specifying the position in the topics to start replicating from.
-	StartingPosition?: _#defs."/$defs/Properties/definitions/ReplicationStartingPosition"
+	StartingPosition?: #ReplicationStartingPosition
 
 	// Configuration for specifying replicated topic names should be the same as
 	// their corresponding upstream topics or prefixed with source cluster alias.
-	TopicNameConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationTopicNameConfiguration"
+	TopicNameConfiguration?: #ReplicationTopicNameConfiguration
 
 	// List of regular expression patterns indicating the topics that should not be replicated.
 	TopicsToExclude?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [

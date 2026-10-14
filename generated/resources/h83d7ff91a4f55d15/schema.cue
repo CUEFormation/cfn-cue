@@ -13,37 +13,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::EC2::TransitGatewayMeteringPolicyEntry Resource Definition
-#Properties: close({
-	DestinationCidrBlock?:                  string | fn.#StringExpression
-	DestinationPortRange?:                  string | fn.#StringExpression
-	DestinationTransitGatewayAttachmentId?: string | fn.#StringExpression
-	DestinationTransitGatewayAttachmentType?: _#defs."/$defs/Properties/definitions/TransitGatewayAttachmentResourceType" |
-		fn.#StringExpression
-	MeteredAccount!: _#defs."/$defs/Properties/definitions/TransitGatewayMeteringPayerType" | fn.#StringExpression
-	PolicyRuleNumber!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Protocol?:                         string | fn.#StringExpression
-	SourceCidrBlock?:                  string | fn.#StringExpression
-	SourcePortRange?:                  string | fn.#StringExpression
-	SourceTransitGatewayAttachmentId?: string | fn.#StringExpression
-	SourceTransitGatewayAttachmentType?: _#defs."/$defs/Properties/definitions/TransitGatewayAttachmentResourceType" |
-		fn.#StringExpression
-	TransitGatewayMeteringPolicyId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TransitGatewayMeteringPolicyEntry"
+	Properties!: close({
+		DestinationCidrBlock?:                  string | fn.#StringExpression
+		DestinationPortRange?:                  string | fn.#StringExpression
+		DestinationTransitGatewayAttachmentId?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentResourceType": "vpc" |
+		// The type of the attachment through which traffic leaves a transit gateway
+		DestinationTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType
+
+		// The resource owner information responsible for paying default billable
+		// charges for the traffic flow
+		MeteredAccount!: #TransitGatewayMeteringPayerType
+		PolicyRuleNumber!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Protocol?:                         string | fn.#StringExpression
+		SourceCidrBlock?:                  string | fn.#StringExpression
+		SourcePortRange?:                  string | fn.#StringExpression
+		SourceTransitGatewayAttachmentId?: string | fn.#StringExpression
+
+		// The type of the attachment through which traffic enters a transit gateway
+		SourceTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType
+		TransitGatewayMeteringPolicyId!:     string | fn.#StringExpression
+	})
+}
+
+#TransitGatewayAttachmentResourceType: "vpc" |
 	"vpn" |
 	"direct-connect-gateway" |
 	"peering" |
@@ -52,11 +62,7 @@ _#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentResourceType": "v
 	"client-vpn" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayMeteringPayerType": "source-attachment-owner" |
+#TransitGatewayMeteringPayerType: "source-attachment-owner" |
 	"destination-attachment-owner" |
 	"transit-gateway-owner" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayMeteringPolicyEntry"
-	Properties!: #Properties
-}

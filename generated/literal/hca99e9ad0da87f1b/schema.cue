@@ -9,7 +9,7 @@ import "strings"
 // The AWS::Lambda::EventInvokeConfig resource configures options for
 // asynchronous invocation on a version or an alias.
 #Properties: close({
-	DestinationConfig?: _#defs."/$defs/Properties/definitions/DestinationConfig"
+	DestinationConfig?: #DestinationConfig
 
 	// The name of the Lambda function.
 	FunctionName!:
@@ -26,13 +26,13 @@ import "strings"
 })
 
 // A destination for events after they have been sent to a function for processing.
-_#defs: "/$defs/Properties/definitions/DestinationConfig": close({
-	OnFailure?: _#defs."/$defs/Properties/definitions/OnFailure"
-	OnSuccess?: _#defs."/$defs/Properties/definitions/OnSuccess"
+#DestinationConfig: close({
+	OnFailure?: #OnFailure
+	OnSuccess?: #OnSuccess
 })
 
 // The destination configuration for failed invocations.
-_#defs: "/$defs/Properties/definitions/OnFailure": close({
+#OnFailure: close({
 	// The Amazon Resource Name (ARN) of the destination resource.
 	Destination!: strings.MaxRunes(350) &
 	strings.MinRunes(0) &
@@ -40,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/OnFailure": close({
 })
 
 // The destination configuration for successful invocations.
-_#defs: "/$defs/Properties/definitions/OnSuccess": close({
+#OnSuccess: close({
 	// The Amazon Resource Name (ARN) of the destination resource.
 	Destination!: strings.MaxRunes(350) &
 	strings.MinRunes(0) &

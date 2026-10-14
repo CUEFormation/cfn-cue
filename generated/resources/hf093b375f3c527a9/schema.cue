@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,25 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::ComputationModel.
-#Properties: close({
-	ComputationModelConfiguration!: _#defs."/$defs/Properties/definitions/ComputationModelConfiguration" |
-		fn.#ObjectExpression
-	ComputationModelDataBinding!: _#defs."/$defs/Properties/definitions/ComputationModelDataBinding" |
-		fn.#ObjectExpression
-	ComputationModelDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
-	fn.#StringExpression
-	ComputationModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::ComputationModel"
+	Properties!: close({
+		// The configuration for the computation model.
+		ComputationModelConfiguration!: #ComputationModelConfiguration
 
-_#defs: "/$defs/Properties/definitions/AnomalyDetectionComputationModelConfiguration": close({
+		// The data binding for the computation model.
+		ComputationModelDataBinding!: #ComputationModelDataBinding
+		ComputationModelDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
+		fn.#StringExpression
+		ComputationModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AnomalyDetectionComputationModelConfiguration: close({
 	InputProperties!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$" | fn.#StringExpression
 	ResultProperty!:  strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssetModelPropertyBindingValue": close({
+#AssetModelPropertyBindingValue: close({
 	AssetModelId!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
@@ -43,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/AssetModelPropertyBindingValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyBindingValue": close({
+#AssetPropertyBindingValue: close({
 	AssetId!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
@@ -55,30 +59,29 @@ _#defs: "/$defs/Properties/definitions/AssetPropertyBindingValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComputationModelConfiguration": close({
-	AnomalyDetection?: _#defs."/$defs/Properties/definitions/AnomalyDetectionComputationModelConfiguration" |
-		fn.#ObjectExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ComputationModelDataBinding": close({
-
-	{[=~"^[a-z][a-z0-9_]{0,63}$"]: _#defs."/$defs/Properties/definitions/ComputationModelDataBindingValue"}}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ComputationModelDataBindingValue": close({
-	AssetModelProperty?: _#defs."/$defs/Properties/definitions/AssetModelPropertyBindingValue" | fn.#ObjectExpression
-	AssetProperty?:      _#defs."/$defs/Properties/definitions/AssetPropertyBindingValue" | fn.#ObjectExpression
-	List?: [..._#defs."/$defs/Properties/definitions/ComputationModelDataBindingValue"] | fn.#ListExpression
+#ComputationModelConfiguration: close({
+	// Contains configuration for anomaly detection computation model.
+	AnomalyDetection?: #AnomalyDetectionComputationModelConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#ComputationModelDataBinding: close({
+
+	{[=~"^[a-z][a-z0-9_]{0,63}$"]: #ComputationModelDataBindingValue}}) |
+fn.#ObjectExpression
+
+#ComputationModelDataBindingValue: close({
+	// Defines an asset model property binding.
+	AssetModelProperty?: #AssetModelPropertyBindingValue
+
+	// Defines an asset property binding.
+	AssetProperty?: #AssetPropertyBindingValue
+	List?:          [...#ComputationModelDataBindingValue] | fn.#ListExpression
+}) |
+fn.#ObjectExpression
+
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::ComputationModel"
-	Properties!: #Properties
-}

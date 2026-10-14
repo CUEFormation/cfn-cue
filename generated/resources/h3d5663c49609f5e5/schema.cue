@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,14 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::CodeSigningConfig.
-#Properties: close({
-	AllowedPublishers!:   _#defs."/$defs/Properties/definitions/AllowedPublishers" | fn.#ObjectExpression
-	CodeSigningPolicies?: _#defs."/$defs/Properties/definitions/CodeSigningPolicies" | fn.#ObjectExpression
-	Description?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::CodeSigningConfig"
+	Properties!: close({
+		// When the CodeSigningConfig is later on attached to a function, the function
+		// code will be expected to be signed by profiles from this list
+		AllowedPublishers!: #AllowedPublishers
 
-_#defs: "/$defs/Properties/definitions/AllowedPublishers": close({
+		// Policies to control how to act if a signature is invalid
+		CodeSigningPolicies?: #CodeSigningPolicies
+		Description?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AllowedPublishers: close({
 	SigningProfileVersionArns!: list.MaxItems(20) & list.MinItems(1) & [
 		...strings.MaxRunes(1024) &
 		strings.MinRunes(12) &
@@ -31,17 +38,11 @@ _#defs: "/$defs/Properties/definitions/AllowedPublishers": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeSigningPolicies": close(
-	{UntrustedArtifactOnDeployment!: "Warn" | "Enforce" | fn.#StringExpression},
-) |
+#CodeSigningPolicies: close({UntrustedArtifactOnDeployment!: "Warn" | "Enforce" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::CodeSigningConfig"
-	Properties!: #Properties
-}

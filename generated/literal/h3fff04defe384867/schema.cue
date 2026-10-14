@@ -27,7 +27,7 @@ import (
 	Id?: strings.MaxRunes(256)
 
 	// Multicast group LoRaWAN
-	LoRaWAN!: _#defs."/$defs/Properties/definitions/LoRaWAN"
+	LoRaWAN!: #LoRaWAN
 
 	// Name of Multicast group
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0)
@@ -36,10 +36,10 @@ import (
 	Status?: string
 
 	// A list of key-value pairs that contain metadata for the Multicast group.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWAN": close({
+#LoRaWAN: close({
 	// Multicast group LoRaWAN DL Class
 	DlClass!: ("ClassB" | "ClassC") & (strings.MaxRunes(64) & strings.MinRunes(1))
 
@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/LoRaWAN": close({
 		"US915") & (strings.MaxRunes(64) & strings.MinRunes(1))
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

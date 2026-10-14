@@ -13,88 +13,76 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // IdNamespace defined in AWS Entity Resolution service
-#Properties: close({
-	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	IdMappingWorkflowProperties?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IdNamespaceIdMappingWorkflowProperties"
-	] |
-		fn.#ListExpression
-	IdNamespaceName!: _#defs."/$defs/Properties/definitions/EntityName"
-	InputSourceConfig?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/IdNamespaceInputSource"] |
-		fn.#ListExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(512) &
-	strings.MinRunes(32) &
-	=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Type!: "SOURCE" | "TARGET" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EntityResolution::IdNamespace"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		IdMappingWorkflowProperties?: list.MaxItems(1) & list.MinItems(1) & [...#IdNamespaceIdMappingWorkflowProperties] |
+			fn.#ListExpression
+		IdNamespaceName!:   #EntityName
+		InputSourceConfig?: list.MaxItems(20) & [...] & [...#IdNamespaceInputSource] | fn.#ListExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(32) &
+		=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Type!: "SOURCE" | "TARGET" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(255) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z_0-9- \\t]*$" |
-fn.#StringExpression
+#AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9-]*$" |
-fn.#StringExpression
+#EntityName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9-]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IdNamespaceIdMappingWorkflowProperties": close({
+#IdNamespaceIdMappingWorkflowProperties: close({
 	IdMappingType!:       "PROVIDER" | "RULE_BASED" | fn.#StringExpression
-	ProviderProperties?:  _#defs."/$defs/Properties/definitions/NamespaceProviderProperties"
-	RuleBasedProperties?: _#defs."/$defs/Properties/definitions/NamespaceRuleBasedProperties"
+	ProviderProperties?:  #NamespaceProviderProperties
+	RuleBasedProperties?: #NamespaceRuleBasedProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdNamespaceInputSource": close({
+#IdNamespaceInputSource: close({
 	InputSourceARN!: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$" |
 		fn.#StringExpression
-	SchemaName?: _#defs."/$defs/Properties/definitions/EntityName"
+	SchemaName?: #EntityName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NamespaceProviderProperties": close({
+#NamespaceProviderProperties: close({
 	ProviderConfiguration?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	ProviderServiceArn!: _#defs."/$defs/Properties/definitions/ProviderServiceArn"
+	ProviderServiceArn!: #ProviderServiceArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NamespaceRuleBasedProperties": close({
+#NamespaceRuleBasedProperties: close({
 	AttributeMatchingModel?: "ONE_TO_ONE" | "MANY_TO_MANY" | fn.#StringExpression
-	RecordMatchingModels?:   [..._#defs."/$defs/Properties/definitions/RecordMatchingModel"] | fn.#ListExpression
-	RuleDefinitionTypes?:    [..._#defs."/$defs/Properties/definitions/RuleDefinitionType"] | fn.#ListExpression
-	Rules?: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+	RecordMatchingModels?:   [...#RecordMatchingModel] | fn.#ListExpression
+	RuleDefinitionTypes?:    [...#RuleDefinitionType] | fn.#ListExpression
+	Rules?:                  list.MaxItems(25) & list.MinItems(1) & [...#Rule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProviderServiceArn": strings.MaxRunes(255) &
+#ProviderServiceArn: strings.MaxRunes(255) &
 strings.MinRunes(20) &
 =~"^arn:(aws|aws-us-gov|aws-cn):(entityresolution):([a-z]{2}-[a-z]{1,10}-[0-9])::providerservice/([a-zA-Z0-9_-]{1,255})/([a-zA-Z0-9_-]{1,255})$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RecordMatchingModel": "ONE_SOURCE_TO_ONE_TARGET" |
-	"MANY_SOURCE_TO_ONE_TARGET" |
-	fn.#StringExpression
+#RecordMatchingModel: "ONE_SOURCE_TO_ONE_TARGET" | "MANY_SOURCE_TO_ONE_TARGET" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	MatchingKeys!: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AttributeName"] |
-		fn.#ListExpression
-	RuleName!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
+#Rule: close({
+	MatchingKeys!: list.MaxItems(25) & list.MinItems(1) & [...#AttributeName] | fn.#ListExpression
+	RuleName!:     strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleDefinitionType": "SOURCE" | "TARGET" | fn.#StringExpression
+#RuleDefinitionType: "SOURCE" | "TARGET" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EntityResolution::IdNamespace"
-	Properties!: #Properties
-}

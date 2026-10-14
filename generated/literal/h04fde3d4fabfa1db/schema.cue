@@ -12,7 +12,7 @@ import (
 // Resource schema for AWS::IoTSiteWise::Project
 #Properties: close({
 	// The IDs of the assets to be associated to the project.
-	AssetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AssetId"]
+	AssetIds?: list.UniqueItems() & [...#AssetId]
 
 	// The ID of the portal in which to create the project.
 	PortalId!: strings.MaxRunes(36) & strings.MinRunes(36)
@@ -30,15 +30,15 @@ import (
 	ProjectName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 
 	// A list of key-value pairs that contain metadata for the project.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The ID of the asset
-_#defs: "/$defs/Properties/definitions/AssetId": string
+#AssetId: string
 
 // To add or update tag, provide both key and value. To delete tag, provide only
 // tag key to be deleted
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

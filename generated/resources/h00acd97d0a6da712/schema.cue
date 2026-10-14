@@ -12,18 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpenSearchServerless::SecurityPolicy
-#Properties: close({
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
-	Policy!: strings.MaxRunes(20480) &
-	strings.MinRunes(1) &
-	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+" |
-	fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/SecurityPolicyType"
-})
-
-_#defs: "/$defs/Properties/definitions/SecurityPolicyType": "encryption" | "network" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearchServerless::SecurityPolicy"
-	Properties!: #Properties
+	Type!: "AWS::OpenSearchServerless::SecurityPolicy"
+	Properties!: close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
+		Policy!: strings.MaxRunes(20480) &
+		strings.MinRunes(1) &
+		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+" |
+		fn.#StringExpression
+		Type!: #SecurityPolicyType
+	})
 }
+
+#SecurityPolicyType: "encryption" | "network" | fn.#StringExpression

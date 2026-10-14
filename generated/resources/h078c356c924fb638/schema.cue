@@ -12,14 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::S3Outposts::BucketPolicy
-#Properties: close({
-	Bucket!: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" |
-	fn.#StringExpression
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Outposts::BucketPolicy"
-	Properties!: #Properties
+	Type!: "AWS::S3Outposts::BucketPolicy"
+	Properties!: close({
+		Bucket!: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" |
+		fn.#StringExpression
+		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

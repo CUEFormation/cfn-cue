@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,59 +13,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Gateway
-#Properties: close({
-	GatewayCapabilitySummaries?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/GatewayCapabilitySummary"
-	] |
-		fn.#ListExpression
-	GatewayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	GatewayPlatform!: _#defs."/$defs/Properties/definitions/GatewayPlatform" | fn.#ObjectExpression
-	GatewayVersion?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::Gateway"
+	Properties!: close({
+		GatewayCapabilitySummaries?: list.UniqueItems() & [...#GatewayCapabilitySummary] | fn.#ListExpression
+		GatewayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapabilityConfiguration": string | fn.#StringExpression
+		// The gateway's platform. You can only specify one platform in a gateway.
+		GatewayPlatform!: #GatewayPlatform
+		GatewayVersion?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CapabilityNamespace": string | fn.#StringExpression
+#CapabilityConfiguration: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayCapabilitySummary": close({
-	CapabilityConfiguration?: _#defs."/$defs/Properties/definitions/CapabilityConfiguration"
-	CapabilityNamespace!:     _#defs."/$defs/Properties/definitions/CapabilityNamespace"
+#CapabilityNamespace: string | fn.#StringExpression
+
+#GatewayCapabilitySummary: close({
+	CapabilityConfiguration?: #CapabilityConfiguration
+	CapabilityNamespace!:     #CapabilityNamespace
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayPlatform": matchN(1, [{
-	GreengrassV2!: _
-	...
-}, {
-	SiemensIE!: _
-	...
-}]) & close({
-	GreengrassV2?: _#defs."/$defs/Properties/definitions/GreengrassV2" | fn.#ObjectExpression
-	SiemensIE?:    _#defs."/$defs/Properties/definitions/SiemensIE" | fn.#ObjectExpression
-}) |
+#GatewayPlatform: close({
+	// A gateway that runs on AWS IoT Greengrass V2.
+	GreengrassV2?: #GreengrassV2
+
+	// A gateway that runs on Siemens Industrial Edge.
+	SiemensIE?: #SiemensIE
+	if GreengrassV2 != _|_ if GreengrassV2."Fn::If" == _|_ {
+		SiemensIE?: close({"Fn::If": _}) | error(
+			"SiemensIE cannot be used with GreengrassV2; set exactly one of GreengrassV2, SiemensIE",
+		)
+	}
+}) & matchN(>=1, [{GreengrassV2!: _}, {SiemensIE!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayVersion": string | fn.#StringExpression
+#GatewayVersion: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GreengrassV2": close({
+#GreengrassV2: close({
 	CoreDeviceOperatingSystem?: "LINUX_AARCH64" | "LINUX_AMD64" | "WINDOWS_AMD64" | fn.#StringExpression
 	CoreDeviceThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SiemensIE": close(
+#SiemensIE: close(
 	{IotCoreThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::Gateway"
-	Properties!: #Properties
-}

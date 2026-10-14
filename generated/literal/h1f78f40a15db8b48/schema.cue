@@ -41,17 +41,17 @@ import (
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):(iam|sts)::\\d+:(root|(user\\/[\\w+=/:,.@-]{1,64}|federated-user\\/[\\w+=/:,.@-]{2,32}|assumed-role\\/[\\w+=:,.@-]{1,64}\\/[\\w+=,.@-]{1,64}))$"
 
 	// Any AWS CodeCommit source code repositories to be cloned into the development environment.
-	Repositories?: [..._#defs."/$defs/Properties/definitions/Repository"]
+	Repositories?: [...#Repository]
 
 	// The ID of the subnet in Amazon VPC that AWS Cloud9 will use.
 	SubnetId?: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$"
 
 	// An array of key-value pairs that will be associated with the new AWS Cloud9
 	// development environment.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Repository": close({
+#Repository: close({
 	// The path within the development environment's default file system location to
 	// clone the AWS CodeCommit repository into.
 	PathComponent!: strings.MaxRunes(1000)
@@ -60,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/Repository": close({
 	RepositoryUrl!: strings.MaxRunes(1000)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

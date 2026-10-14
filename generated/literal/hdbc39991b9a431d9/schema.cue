@@ -28,7 +28,7 @@ import "strings"
 
 	// The group-name of the Group Profile.
 	GroupName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@-]+$"
-	GroupType?: _#defs."/$defs/Properties/definitions/GroupType"
+	GroupType?: #GroupType
 
 	// The ID of the Amazon DataZone group profile.
 	Id?: =~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$"
@@ -38,11 +38,11 @@ import "strings"
 
 	// The ID of the role principal for the group profile.
 	RolePrincipalId?: string
-	Status?:          _#defs."/$defs/Properties/definitions/GroupProfileStatus"
+	Status?:          #GroupProfileStatus
 })
 
 // The status of the group profile.
-_#defs: "/$defs/Properties/definitions/GroupProfileStatus": "ASSIGNED" | "NOT_ASSIGNED"
+#GroupProfileStatus: "ASSIGNED" | "NOT_ASSIGNED"
 
 // The type of the group.
-_#defs: "/$defs/Properties/definitions/GroupType": "DATAZONE_SSO_GROUP" | "IAM_ROLE_SESSION_GROUP"
+#GroupType: "DATAZONE_SSO_GROUP" | "IAM_ROLE_SESSION_GROUP"

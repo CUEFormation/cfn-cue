@@ -17,17 +17,17 @@ package schema
 		// Defines the fields within the mapping, including their types and configurations
 		Properties?: close({
 
-			{[=~"^[A-Za-z0-9_.-]{1,64}$"]: _#defs."/$defs/Properties/definitions/PropertyMapping"}})
+			{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping}})
 	})
 
 	// Index settings
-	Settings?: _#defs."/$defs/Properties/definitions/IndexSettings"
+	Settings?: #IndexSettings
 
 	// The unique identifier for the index.
 	Uuid?: string
 })
 
-_#defs: "/$defs/Properties/definitions/IndexSettings": close({
+#IndexSettings: close({
 	// Custom analysis configuration including analyzers, tokenizers, and filters
 	Analysis?: close({
 		// Custom analyzer definitions
@@ -61,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/IndexSettings": close({
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/PropertyMapping": close({
+#PropertyMapping: close({
 	// The analyzer to use for this field (for text and keyword fields)
 	Analyzer?: string
 
@@ -101,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/PropertyMapping": close({
 	// Nested fields within an object or nested field type
 	Properties?: close({
 
-		{[=~"^[A-Za-z0-9_.-]{1,64}$"]: _#defs."/$defs/Properties/definitions/PropertyMapping"}})
+		{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping}})
 
 	// The distance function used for k-NN search (field-level, outside Method)
 	SpaceType?: "l2" | "l1" | "linf" | "cosinesimil" | "innerproduct" | "hamming"

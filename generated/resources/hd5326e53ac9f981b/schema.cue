@@ -16,26 +16,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::Bridge
-#Properties: close({
-	EgressGatewayBridge?: _#defs."/$defs/Properties/definitions/EgressGatewayBridge" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	IngressGatewayBridge?: _#defs."/$defs/Properties/definitions/IngressGatewayBridge" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	Name!:    string | fn.#StringExpression
-	Outputs?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/BridgeOutput"] | fn.#ListExpression
-	PlacementArn!:         string | fn.#StringExpression
-	SourceFailoverConfig?: _#defs."/$defs/Properties/definitions/FailoverConfig"
-	Sources!: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/BridgeSource"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::Bridge"
+	Properties!: close({
+		EgressGatewayBridge?:  #EgressGatewayBridge & fn.#Object & {...} | fn.#ObjectExpression
+		IngressGatewayBridge?: #IngressGatewayBridge & fn.#Object & {...} | fn.#ObjectExpression
+		Name!:                 string | fn.#StringExpression
+		Outputs?:              list.MaxItems(2) & [...] & [...#BridgeOutput] | fn.#ListExpression
+		PlacementArn!:         string | fn.#StringExpression
+		SourceFailoverConfig?: #FailoverConfig
+		Sources!:              list.MaxItems(2) & [...] & [...#BridgeSource] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BridgeFlowSource": close({
-	FlowArn!:                    string | fn.#StringExpression
-	FlowVpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment" | fn.#ObjectExpression
+#BridgeFlowSource: close({
+	FlowArn!: string | fn.#StringExpression
+
+	// The name of the VPC interface attachment to use for this source.
+	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment
 	Name!:                       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
+#BridgeNetworkOutput: close({
 	IpAddress!:   string | fn.#StringExpression
 	Name!:        string | fn.#StringExpression
 	NetworkName!: string | fn.#StringExpression
@@ -53,7 +56,9 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
+
+	// The network output protocol.
+	Protocol!: #ProtocolEnum
 	Ttl!: int |
 		{
 			string &
@@ -71,9 +76,11 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
-	MulticastIp!:             string | fn.#StringExpression
-	MulticastSourceSettings?: _#defs."/$defs/Properties/definitions/MulticastSourceSettings" | fn.#ObjectExpression
+#BridgeNetworkSource: close({
+	MulticastIp!: string | fn.#StringExpression
+
+	// The settings related to the multicast source.
+	MulticastSourceSettings?: #MulticastSourceSettings
 	Name!:                    string | fn.#StringExpression
 	NetworkName!:             string | fn.#StringExpression
 	Port!: int |
@@ -90,22 +97,21 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
+
+	// The network source protocol.
+	Protocol!: #ProtocolEnum
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BridgeOutput": close(
-	{NetworkOutput?: _#defs."/$defs/Properties/definitions/BridgeNetworkOutput"},
-) |
-	fn.#ObjectExpression
+#BridgeOutput: close({NetworkOutput?: #BridgeNetworkOutput}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BridgeSource": close({
-	FlowSource?:    _#defs."/$defs/Properties/definitions/BridgeFlowSource"
-	NetworkSource?: _#defs."/$defs/Properties/definitions/BridgeNetworkSource"
+#BridgeSource: close({
+	FlowSource?:    #BridgeFlowSource
+	NetworkSource?: #BridgeNetworkSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BridgeStateEnum": "CREATING" |
+#BridgeStateEnum: "CREATING" |
 	"STANDBY" |
 	"STARTING" |
 	"DEPLOYING" |
@@ -118,7 +124,7 @@ _#defs: "/$defs/Properties/definitions/BridgeStateEnum": "CREATING" |
 	"UPDATING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EgressGatewayBridge": close({
+#EgressGatewayBridge: close({
 	MaxBitrate!: int |
 		{
 			string &
@@ -136,18 +142,23 @@ _#defs: "/$defs/Properties/definitions/EgressGatewayBridge": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverConfig": close({
-	FailoverMode!:   _#defs."/$defs/Properties/definitions/FailoverModeEnum" | fn.#StringExpression
-	SourcePriority?: _#defs."/$defs/Properties/definitions/SourcePriority" | fn.#ObjectExpression
-	State?:          _#defs."/$defs/Properties/definitions/FailoverConfigStateEnum"
+#FailoverConfig: close({
+	// The type of failover you choose for this flow. FAILOVER allows switching
+	// between different streams.
+	FailoverMode!: #FailoverModeEnum
+
+	// The priority you want to assign to a source. You can have a primary stream
+	// and a backup stream or two equally prioritized streams.
+	SourcePriority?: #SourcePriority
+	State?:          #FailoverConfigStateEnum
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverConfigStateEnum": "ENABLED" | "DISABLED" | fn.#StringExpression
+#FailoverConfigStateEnum: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverModeEnum": "FAILOVER" | fn.#StringExpression
+#FailoverModeEnum: "FAILOVER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressGatewayBridge": close({
+#IngressGatewayBridge: close({
 	MaxBitrate!: int |
 		{
 			string &
@@ -179,21 +190,10 @@ _#defs: "/$defs/Properties/definitions/IngressGatewayBridge": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MulticastSourceSettings": close(
-	{MulticastSourceIp?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#MulticastSourceSettings: close({MulticastSourceIp?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProtocolEnum": "rtp-fec" | "rtp" | "udp" | fn.#StringExpression
+#ProtocolEnum: "rtp-fec" | "rtp" | "udp" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourcePriority": close({PrimarySource?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SourcePriority: close({PrimarySource?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close(
-	{VpcInterfaceName?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::Bridge"
-	Properties!: #Properties
-}
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression

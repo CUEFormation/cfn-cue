@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -15,90 +15,76 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A resource schema representing a Lake Formation Tag Association. While tag
 // associations are not explicit Lake Formation resources, this CloudFormation
 // resource can be used to associate tags with Lake Formation entities.
-#Properties: close({
-	LFTags!:   _#defs."/$defs/Properties/definitions/LFTagsList" | fn.#ListExpression
-	Resource!: _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::TagAssociation"
+	Properties!: close({
+		// List of Lake Formation Tags to associate with the Lake Formation Resource
+		LFTags!: #LFTagsList
 
-_#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(12) & strings.MinRunes(12) |
-fn.#StringExpression
+		// Resource to tag with the Lake Formation Tags
+		Resource!: _#defs."/$defs/Properties/definitions/Resource"
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CatalogResource": string | fn.#StringExpression
+#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"] |
-	fn.#ListExpression
+#CatalogResource: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close(
-	{DataLakePrincipalIdentifier?: _#defs."/$defs/Properties/definitions/DataLakePrincipalString"},
-) |
-	fn.#ObjectExpression
+#ColumnNames: [...#NameString] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipalString": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#DataLakePrincipal: close({DataLakePrincipalIdentifier?: #DataLakePrincipalString}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseResource": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
-	Name!:      _#defs."/$defs/Properties/definitions/NameString"
+#DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+#DatabaseResource: close({
+	CatalogId!: #CatalogIdString
+	Name!:      #NameString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagKey": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*)$" |
+#LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagPair": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
-	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey"
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList"
+#LFTagPair: close({
+	CatalogId!: #CatalogIdString
+	TagKey!:    #LFTagKey
+	TagValues!: #TagValueList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagValue": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:\\*\\/=+\\-@%]*)$" |
+#LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:\\*\\/=+\\-@%]*)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagsList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagPair"
-] |
-	fn.#ListExpression
+#LFTagsList: list.MaxItems(50) & list.MinItems(1) & [...#LFTagPair] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NameString": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+#ResourceType: "DATABASE" | "TABLE" | fn.#StringExpression
+
+#TableResource: close({
+	CatalogId!:     #CatalogIdString
+	DatabaseName!:  #NameString
+	Name?:          #NameString
+	TableWildcard?: #TableWildcard
+}) |
+fn.#ObjectExpression
+
+#TableWildcard: fn.#Object & {...} | string | fn.#StringObjectExpression
+
+#TableWithColumnsResource: close({
+	CatalogId!:    #CatalogIdString
+	ColumnNames!:  #ColumnNames
+	DatabaseName!: #NameString
+	Name!:         #NameString
+}) |
+fn.#ObjectExpression
+
+#TagValueList: list.MaxItems(50) & list.MinItems(1) & [...#LFTagValue] | fn.#ListExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": close({
-	Catalog?:          _#defs."/$defs/Properties/definitions/CatalogResource"
-	Database?:         _#defs."/$defs/Properties/definitions/DatabaseResource"
-	Table?:            _#defs."/$defs/Properties/definitions/TableResource"
-	TableWithColumns?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource"
+	Catalog?:          #CatalogResource
+	Database?:         #DatabaseResource
+	Table?:            #TableResource
+	TableWithColumns?: #TableWithColumnsResource
 }) |
 fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ResourceType": "DATABASE" | "TABLE" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/TableResource": close({
-	CatalogId!:     _#defs."/$defs/Properties/definitions/CatalogIdString"
-	DatabaseName!:  _#defs."/$defs/Properties/definitions/NameString"
-	Name?:          _#defs."/$defs/Properties/definitions/NameString"
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TableWildcard": fn.#Object & {...} | string | fn.#StringObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
-	CatalogId!:    _#defs."/$defs/Properties/definitions/CatalogIdString"
-	ColumnNames!:  _#defs."/$defs/Properties/definitions/ColumnNames"
-	DatabaseName!: _#defs."/$defs/Properties/definitions/NameString"
-	Name!:         _#defs."/$defs/Properties/definitions/NameString"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue"
-] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::TagAssociation"
-	Properties!: #Properties
-}

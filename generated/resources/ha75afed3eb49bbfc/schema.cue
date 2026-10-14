@@ -13,34 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::EKS::FargateProfile
-#Properties: close({
-	ClusterName!:        strings.MinRunes(1) | fn.#StringExpression
-	FargateProfileName?: strings.MinRunes(1) | fn.#StringExpression
-	PodExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
-	fn.#StringExpression
-	Selectors!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Selector"] | fn.#ListExpression
-	Subnets?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::FargateProfile"
+	Properties!: close({
+		ClusterName!:        strings.MinRunes(1) | fn.#StringExpression
+		FargateProfileName?: strings.MinRunes(1) | fn.#StringExpression
+		PodExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+		fn.#StringExpression
+		Selectors!: list.MinItems(1) & [...#Selector] | fn.#ListExpression
+		Subnets?:   [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Selector": close({
-	Labels?:    [..._#defs."/$defs/Properties/definitions/Label"] | fn.#ListExpression
+#Selector: close({
+	Labels?:    [...#Label] | fn.#ListExpression
 	Namespace!: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::FargateProfile"
-	Properties!: #Properties
-}

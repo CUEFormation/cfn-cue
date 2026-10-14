@@ -15,40 +15,38 @@ import (
 	Arn?: strings.MinRunes(1)
 
 	// The reputation configuration for the tenant. Sending status remains managed by SES.
-	ReputationEntity?: _#defs."/$defs/Properties/definitions/ReputationEntity"
+	ReputationEntity?: #ReputationEntity
 
 	// The list of resources to associate with the tenant.
-	ResourceAssociations?: [...] & [..._#defs."/$defs/Properties/definitions/ResourceAssociation"]
+	ResourceAssociations?: [...] & [...#ResourceAssociation]
 
 	// The suppression attributes for the tenant.
-	SuppressionAttributes?: _#defs."/$defs/Properties/definitions/TenantSuppressionAttributes"
+	SuppressionAttributes?: #TenantSuppressionAttributes
 
 	// The tags (keys and values) associated with the tenant.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The name of the tenant.
 	TenantName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$"
 })
 
 // The reputation configuration for the tenant.
-_#defs: "/$defs/Properties/definitions/ReputationEntity": close(
-	{Policy!: _#defs."/$defs/Properties/definitions/ReputationPolicy"},
-)
+#ReputationEntity: close({Policy!: #ReputationPolicy})
 
 // The reputation policy for the tenant.
-_#defs: "/$defs/Properties/definitions/ReputationPolicy": close({
+#ReputationPolicy: close({
 	// The ARN of an SES-managed reputation policy.
 	ReputationEntityPolicy!: =~"^arn:[a-z0-9-]+:ses:[a-z0-9-]+:aws:reputation-policy/(none|standard|strict)$"
 })
 
 // The resource to associate with the tenant
-_#defs: "/$defs/Properties/definitions/ResourceAssociation": close({
+#ResourceAssociation: close({
 	// The ARN of the resource to associate with the tenant
 	ResourceArn!: strings.MinRunes(1)
 })
 
 // An object that defines the tags (keys and values) that you want to associate with the tenant.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the key-value tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -57,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The suppression attributes for the tenant.
-_#defs: "/$defs/Properties/definitions/TenantSuppressionAttributes": close({
+#TenantSuppressionAttributes: close({
 	// The reasons that cause messages to be added to the suppression list.
 	SuppressedReasons!: list.UniqueItems() & [..."BOUNCE" | "COMPLAINT"]
 

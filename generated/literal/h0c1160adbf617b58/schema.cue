@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"strings"
 	"time"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,7 +13,7 @@ import (
 // Creates a budget to set spending thresholds for your rendering activity.
 #Properties: close({
 	// The budget actions to specify what happens when the budget runs out.
-	Actions!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/BudgetActionToAdd"]
+	Actions!: list.MaxItems(10) & [...] & [...#BudgetActionToAdd]
 
 	// The dollar limit based on consumed usage.
 	ApproximateDollarLimit!: >=0.01
@@ -32,18 +32,18 @@ import (
 
 	// The farm ID.
 	FarmId!:   =~"^farm-[0-9a-f]{32}$"
-	Schedule!: _#defs."/$defs/Properties/definitions/BudgetSchedule"
+	Schedule!: #BudgetSchedule
 
 	// The status of the budget.
 	Status?: "ACTIVE" | "INACTIVE"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	UsageTrackingResource!: _#defs."/$defs/Properties/definitions/UsageTrackingResource"
+	Tags?:                  list.MaxItems(50) & [...#Tag]
+	UsageTrackingResource!: #UsageTrackingResource
 })
 
 // The budget action to add.
-_#defs: "/$defs/Properties/definitions/BudgetActionToAdd": close({
+#BudgetActionToAdd: close({
 	// A description for the budget action.
 	Description?: strings.MaxRunes(100) & strings.MinRunes(0)
 
@@ -55,12 +55,10 @@ _#defs: "/$defs/Properties/definitions/BudgetActionToAdd": close({
 })
 
 // The start and end time of the budget.
-_#defs: "/$defs/Properties/definitions/BudgetSchedule": close(
-	{Fixed!: _#defs."/$defs/Properties/definitions/FixedBudgetSchedule"},
-)
+#BudgetSchedule: close({Fixed!: #FixedBudgetSchedule})
 
 // The details of a fixed budget schedule.
-_#defs: "/$defs/Properties/definitions/FixedBudgetSchedule": close({
+#FixedBudgetSchedule: close({
 	// When the budget ends.
 	EndTime!: time.Time
 
@@ -69,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/FixedBudgetSchedule": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -78,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The usage details of the allotted budget.
-_#defs: "/$defs/Properties/definitions/UsageTrackingResource": close({
+#UsageTrackingResource: close({
 	// The queue ID.
 	QueueId!: =~"^queue-[0-9a-f]{32}$"
 })

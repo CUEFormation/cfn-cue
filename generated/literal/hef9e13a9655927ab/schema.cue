@@ -13,36 +13,36 @@ import (
 #Properties: close({
 	// The timestamp of when the recommender was created.
 	CreatedAt?:   string
-	Description?: _#defs."/$defs/Properties/definitions/Description"
-	DomainName!:  _#defs."/$defs/Properties/definitions/DomainName"
+	Description?: #Description
+	DomainName!:  #DomainName
 
 	// The reason for recommender failure.
 	FailureReason?: string
 
 	// The timestamp of when the recommender was last updated.
 	LastUpdatedAt?:           string
-	LatestRecommenderUpdate?: _#defs."/$defs/Properties/definitions/RecommenderUpdate"
+	LatestRecommenderUpdate?: #RecommenderUpdate
 
 	// The Amazon Resource Name (ARN) of the recommender.
 	RecommenderArn?:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^arn:([a-z\\d-]+):profile:.*:.*:.+$"
-	RecommenderConfig?:     _#defs."/$defs/Properties/definitions/RecommenderConfig"
-	RecommenderName!:       _#defs."/$defs/Properties/definitions/RecommenderName"
-	RecommenderRecipeName!: _#defs."/$defs/Properties/definitions/RecommenderRecipeName"
-	Status?:                _#defs."/$defs/Properties/definitions/RecommenderStatus"
+	RecommenderConfig?:     #RecommenderConfig
+	RecommenderName!:       #RecommenderName
+	RecommenderRecipeName!: #RecommenderRecipeName
+	Status?:                #RecommenderStatus
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TrainingMetrics?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/TrainingMetrics"]
+	Tags?:            list.MaxItems(50) & [...] & [...#Tag]
+	TrainingMetrics?: list.MaxItems(5) & [...#TrainingMetrics]
 })
 
 // The description of the recommender.
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1)
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1)
 
 // The name of the domain for which the recommender will be created
-_#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
 // Event parameters with type and value threshold
-_#defs: "/$defs/Properties/definitions/EventParameters": close({
+#EventParameters: close({
 	// The type of event
 	EventType!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -52,25 +52,19 @@ _#defs: "/$defs/Properties/definitions/EventParameters": close({
 })
 
 // Configuration for events used in the recommender
-_#defs: "/$defs/Properties/definitions/EventsConfig": close({
+#EventsConfig: close({
 	// List of event parameters with their value thresholds
-	EventParametersList!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EventParameters"
-	]
+	EventParametersList!: list.MaxItems(10) & list.MinItems(1) & [...#EventParameters]
 })
 
 // Configuration for the recommender
-_#defs: "/$defs/Properties/definitions/RecommenderConfig": close(
-	{EventsConfig?: _#defs."/$defs/Properties/definitions/EventsConfig"},
-)
+#RecommenderConfig: close({EventsConfig?: #EventsConfig})
 
 // The name of the recommender
-_#defs: "/$defs/Properties/definitions/RecommenderName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9_-]+$"
+#RecommenderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
 // The name of the recommender recipe.
-_#defs: "/$defs/Properties/definitions/RecommenderRecipeName": ("frequently-paired-items" |
+#RecommenderRecipeName: ("frequently-paired-items" |
 	"personalized-ranking" |
 	"popular-items" |
 	"recommended-for-you" |
@@ -78,17 +72,10 @@ _#defs: "/$defs/Properties/definitions/RecommenderRecipeName": ("frequently-pair
 	"trending-now") & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 // The status of the recommender
-_#defs: "/$defs/Properties/definitions/RecommenderStatus": "PENDING" |
-	"IN_PROGRESS" |
-	"STOPPING" |
-	"STARTING" |
-	"ACTIVE" |
-	"INACTIVE" |
-	"FAILED" |
-	"DELETING"
+#RecommenderStatus: "PENDING" | "IN_PROGRESS" | "STOPPING" | "STARTING" | "ACTIVE" | "INACTIVE" | "FAILED" | "DELETING"
 
 // Information about the latest recommender update
-_#defs: "/$defs/Properties/definitions/RecommenderUpdate": close({
+#RecommenderUpdate: close({
 	// The timestamp of when the update was created
 	CreationDateTime?: string
 
@@ -97,16 +84,16 @@ _#defs: "/$defs/Properties/definitions/RecommenderUpdate": close({
 
 	// The timestamp of when the update was last modified
 	LastUpdatedDateTime?: string
-	RecommenderConfig?:   _#defs."/$defs/Properties/definitions/RecommenderConfig"
-	Status?:              _#defs."/$defs/Properties/definitions/RecommenderStatus"
+	RecommenderConfig?:   #RecommenderConfig
+	Status?:              #RecommenderStatus
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TrainingMetrics": close({
+#TrainingMetrics: close({
 	// Training metrics by type
 	Metrics?: close({
 		coverage?:   number

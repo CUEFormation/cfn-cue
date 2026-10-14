@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,18 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Algorithm
-#Properties: close({
-	AlgorithmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
-	fn.#StringExpression
-	AlgorithmName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	CertifyForMarketplace?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InferenceSpecification?: _#defs."/$defs/Properties/definitions/InferenceSpecification"
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TrainingSpecification!: _#defs."/$defs/Properties/definitions/TrainingSpecification"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Algorithm"
+	Properties!: close({
+		AlgorithmDescription?: strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
+		fn.#StringExpression
+		AlgorithmName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		CertifyForMarketplace?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InferenceSpecification?: #InferenceSpecification
+		Tags?:                   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TrainingSpecification!:  #TrainingSpecification
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CategoricalParameterRangeSpecification": close({
+#CategoricalParameterRangeSpecification: close({
 	Values!: list.MaxItems(30) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	] |
@@ -32,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/CategoricalParameterRangeSpecification": 
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelSpecification": close({
+#ChannelSpecification: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
 	fn.#StringExpression
 	IsRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -44,13 +49,13 @@ _#defs: "/$defs/Properties/definitions/ChannelSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContinuousParameterRangeSpecification": close({
+#ContinuousParameterRangeSpecification: close({
 	MaxValue!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	MinValue!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HyperParameterSpecification": close({
+#HyperParameterSpecification: close({
 	DefaultValue?: strings.MaxRunes(2500) & strings.MinRunes(0) | fn.#StringExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
 	fn.#StringExpression
@@ -58,22 +63,19 @@ _#defs: "/$defs/Properties/definitions/HyperParameterSpecification": close({
 	IsTunable?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
 	fn.#StringExpression
-	Range?: _#defs."/$defs/Properties/definitions/ParameterRange"
+	Range?: #ParameterRange
 	Type!:  "Integer" | "Continuous" | "Categorical" | "FreeText" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HyperParameterTuningJobObjective": close({
+#HyperParameterTuningJobObjective: close({
 	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	Type!:       "Maximize" | "Minimize" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceSpecification": close({
-	Containers!: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ModelPackageContainerDefinition"
-	] |
-		fn.#ListExpression
+#InferenceSpecification: close({
+	Containers!: list.MaxItems(15) & list.MinItems(1) & [...#ModelPackageContainerDefinition] | fn.#ListExpression
 	SupportedContentTypes?: [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
 	SupportedRealtimeInferenceInstanceTypes?: [
 		..."ml.c4.2xlarge" |
@@ -483,24 +485,24 @@ _#defs: "/$defs/Properties/definitions/InferenceSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegerParameterRangeSpecification": close({
+#IntegerParameterRangeSpecification: close({
 	MaxValue!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	MinValue!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDefinition": close({
+#MetricDefinition: close({
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	Regex!: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelInput": close(
+#ModelInput: close(
 	{DataInputConfig!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
+#ModelPackageContainerDefinition: close({
 	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
 	Environment?: close({
 
@@ -512,32 +514,27 @@ _#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
 	ImageDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
 	fn.#StringExpression
 	IsCheckpoint?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ModelInput?:       _#defs."/$defs/Properties/definitions/ModelInput"
+	ModelInput?:       #ModelInput
 	NearestModelName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterRange": close({
-	CategoricalParameterRangeSpecification?:
-		_#defs."/$defs/Properties/definitions/CategoricalParameterRangeSpecification"
-	ContinuousParameterRangeSpecification?: _#defs."/$defs/Properties/definitions/ContinuousParameterRangeSpecification"
-	IntegerParameterRangeSpecification?:    _#defs."/$defs/Properties/definitions/IntegerParameterRangeSpecification"
+#ParameterRange: close({
+	CategoricalParameterRangeSpecification?: #CategoricalParameterRangeSpecification
+	ContinuousParameterRangeSpecification?:  #ContinuousParameterRangeSpecification
+	IntegerParameterRangeSpecification?:     #IntegerParameterRangeSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrainingSpecification": close({
-	MetricDefinitions?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/MetricDefinition"] |
-		fn.#ListExpression
-	SupportedHyperParameters?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/HyperParameterSpecification"
-	] |
-		fn.#ListExpression
+#TrainingSpecification: close({
+	MetricDefinitions?:        list.MaxItems(40) & [...] & [...#MetricDefinition] | fn.#ListExpression
+	SupportedHyperParameters?: list.MaxItems(100) & [...] & [...#HyperParameterSpecification] | fn.#ListExpression
 	SupportedTrainingInstanceTypes!: [
 		..."ml.c4.2xlarge" |
 			"ml.c4.4xlarge" |
@@ -767,19 +764,11 @@ _#defs: "/$defs/Properties/definitions/TrainingSpecification": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	SupportedTuningJobObjectiveMetrics?: [..._#defs."/$defs/Properties/definitions/HyperParameterTuningJobObjective"] |
-		fn.#ListExpression
+	SupportedTuningJobObjectiveMetrics?: [...#HyperParameterTuningJobObjective] | fn.#ListExpression
 	SupportsDistributedTraining?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TrainingChannels!: list.MaxItems(8) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ChannelSpecification"
-	] |
-		fn.#ListExpression
-	TrainingImage!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
+	TrainingChannels!:            list.MaxItems(8) & list.MinItems(1) & [...#ChannelSpecification] | fn.#ListExpression
+	TrainingImage!:               strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
 	TrainingImageDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Algorithm"
-	Properties!: #Properties
-}

@@ -9,7 +9,7 @@ package schema
 	AvailabilityZone?:           string
 	AvailabilityZoneId?:         string
 	AvailableInstanceCount?:     int
-	CapacityAllocationSet?:      [..._#defs."/$defs/Properties/definitions/CapacityAllocation"]
+	CapacityAllocationSet?:      [...#CapacityAllocation]
 	CapacityReservationArn?:     string
 	CapacityReservationFleetId?: string
 	CommitmentInfo?: close({
@@ -50,23 +50,23 @@ package schema
 	ReservationType?:                 string
 	StartDate?:                       string
 	State?:                           string
-	TagSpecifications?:               [..._#defs."/$defs/Properties/definitions/TagSpecification"]
+	TagSpecifications?:               [...#TagSpecification]
 	Tenancy?:                         "dedicated" | "default"
 	TotalInstanceCount?:              int
 	UnusedReservationBillingOwnerId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityAllocation": close({
+#CapacityAllocation: close({
 	AllocationType?: string
 	Count?:          int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType?: "application-status-check" |
 		"capacity-block" |
 		"capacity-manager-data-export" |
@@ -179,5 +179,5 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-connection" |
 		"vpn-connection-device-type" |
 		"vpn-gateway"
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })

@@ -8,40 +8,40 @@ import "strings"
 
 // Resource Type definition for AWS::Glue::SecurityConfiguration
 #Properties: close({
-	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration!: #EncryptionConfiguration
 
 	// The name for the security configuration.
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // The encryption configuration for Amazon CloudWatch.
-_#defs: "/$defs/Properties/definitions/CloudWatchEncryption": close({
+#CloudWatchEncryption: close({
 	CloudWatchEncryptionMode?: "DISABLED" | "SSE-KMS"
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & =~"^$|arn:aws[a-z0-9-]*:kms:"
 })
 
 // The encryption configuration for the security configuration.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	CloudWatchEncryption?:   _#defs."/$defs/Properties/definitions/CloudWatchEncryption"
-	JobBookmarksEncryption?: _#defs."/$defs/Properties/definitions/JobBookmarksEncryption"
+#EncryptionConfiguration: close({
+	CloudWatchEncryption?:   #CloudWatchEncryption
+	JobBookmarksEncryption?: #JobBookmarksEncryption
 
 	// The encryption configuration for Amazon Simple Storage Service (Amazon S3) data.
-	S3Encryptions?: [..._#defs."/$defs/Properties/definitions/S3Encryption"]
+	S3Encryptions?: [...#S3Encryption]
 })
 
 // The encryption configuration for job bookmarks.
-_#defs: "/$defs/Properties/definitions/JobBookmarksEncryption": close({
+#JobBookmarksEncryption: close({
 	JobBookmarksEncryptionMode?: "CSE-KMS" | "DISABLED"
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & =~"^$|arn:aws[a-z0-9-]*:kms:"
 })
 
 // Specifies how Amazon Simple Storage Service (Amazon S3) data should be encrypted.
-_#defs: "/$defs/Properties/definitions/S3Encryption": close({
+#S3Encryption: close({
 	KmsKeyArn?:        =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 	S3EncryptionMode?: string
 })
 
-_#defs: "/$defs/Properties/definitions/S3Encryptions": null |
+#S3Encryptions: null |
 bool |
 number |
 string |

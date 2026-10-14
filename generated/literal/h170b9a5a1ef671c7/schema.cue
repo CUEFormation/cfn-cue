@@ -36,14 +36,14 @@ import (
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// Information about the processor Lambda functions.
-	Processors!: list.MaxItems(3) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Processor"]
+	Processors!: list.MaxItems(3) & list.MinItems(1) & [...#Processor]
 
 	// The tags for the channel flow.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 })
 
 // Stores metadata about a Lambda processor.
-_#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
+#LambdaConfiguration: close({
 	// Controls how the Lambda function is invoked.
 	InvocationType!: "ASYNC"
 
@@ -54,8 +54,8 @@ _#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
 })
 
 // Information about a processor in a channel flow.
-_#defs: "/$defs/Properties/definitions/Processor": close({
-	Configuration!: _#defs."/$defs/Properties/definitions/ProcessorConfiguration"
+#Processor: close({
+	Configuration!: #ProcessorConfiguration
 
 	// The sequence in which processors run.
 	ExecutionOrder!: int & <=3 & >=1
@@ -68,11 +68,9 @@ _#defs: "/$defs/Properties/definitions/Processor": close({
 })
 
 // A processor's metadata.
-_#defs: "/$defs/Properties/definitions/ProcessorConfiguration": close(
-	{Lambda!: _#defs."/$defs/Properties/definitions/LambdaConfiguration"},
-)
+#ProcessorConfiguration: close({Lambda!: #LambdaConfiguration})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key in a tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

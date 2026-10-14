@@ -3,52 +3,48 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // SchemaMapping defined in AWS Entity Resolution service
 #Properties: close({
-	CreatedAt?: _#defs."/$defs/Properties/definitions/CreatedAt"
+	CreatedAt?: #CreatedAt
 
 	// The description of the SchemaMapping
-	Description?:  _#defs."/$defs/Properties/definitions/Description"
-	HasWorkflows?: _#defs."/$defs/Properties/definitions/HasWorkflows"
+	Description?:  #Description
+	HasWorkflows?: #HasWorkflows
 
 	// The SchemaMapping attributes input
-	MappedInputFields!: _#defs."/$defs/Properties/definitions/MappedInputFields"
-	SchemaArn?:         _#defs."/$defs/Properties/definitions/SchemaMappingArn"
+	MappedInputFields!: #MappedInputFields
+	SchemaArn?:         #SchemaMappingArn
 
 	// The name of the SchemaMapping
-	SchemaName!: _#defs."/$defs/Properties/definitions/EntityName"
-	Tags?:       list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	UpdatedAt?:  _#defs."/$defs/Properties/definitions/UpdatedAt"
+	SchemaName!: #EntityName
+	Tags?:       list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
+	UpdatedAt?:  #UpdatedAt
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(255) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z_0-9- \\t]*$"
+#AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$"
 
 // The time of this SchemaMapping got created
-_#defs: "/$defs/Properties/definitions/CreatedAt": string
+#CreatedAt: string
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(255) & strings.MinRunes(0)
+#Description: strings.MaxRunes(255) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$"
+#EntityName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$"
 
 // The boolean value that indicates whether or not a SchemaMapping has
 // MatchingWorkflows that are associated with
-_#defs: "/$defs/Properties/definitions/HasWorkflows": bool
+#HasWorkflows: bool
 
-_#defs: "/$defs/Properties/definitions/Hashed": bool
+#Hashed: bool
 
-_#defs: "/$defs/Properties/definitions/MappedInputFields": list.MaxItems(35) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/SchemaInputAttribute"
-]
+#MappedInputFields: list.MaxItems(35) & list.MinItems(2) & [...#SchemaInputAttribute]
 
-_#defs: "/$defs/Properties/definitions/SchemaAttributeType": "NAME" |
+#SchemaAttributeType: "NAME" |
 	"NAME_FIRST" |
 	"NAME_MIDDLE" |
 	"NAME_LAST" |
@@ -69,22 +65,22 @@ _#defs: "/$defs/Properties/definitions/SchemaAttributeType": "NAME" |
 	"STRING" |
 	"PROVIDER_ID"
 
-_#defs: "/$defs/Properties/definitions/SchemaInputAttribute": close({
-	FieldName!: _#defs."/$defs/Properties/definitions/AttributeName"
-	GroupName?: _#defs."/$defs/Properties/definitions/AttributeName"
-	Hashed?:    _#defs."/$defs/Properties/definitions/Hashed"
-	MatchKey?:  _#defs."/$defs/Properties/definitions/AttributeName"
+#SchemaInputAttribute: close({
+	FieldName!: #AttributeName
+	GroupName?: #AttributeName
+	Hashed?:    #Hashed
+	MatchKey?:  #AttributeName
 
 	// The subtype of the Attribute. Would be required only when type is PROVIDER_ID
 	SubType?: strings.MaxRunes(255) & =~"^[a-zA-Z_0-9- ]*$"
-	Type!:    _#defs."/$defs/Properties/definitions/SchemaAttributeType"
+	Type!:    #SchemaAttributeType
 })
 
 // The SchemaMapping arn associated with the Schema
-_#defs: "/$defs/Properties/definitions/SchemaMappingArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$"
+#SchemaMappingArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$"
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -99,4 +95,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The time of this SchemaMapping got last updated at
-_#defs: "/$defs/Properties/definitions/UpdatedAt": string
+#UpdatedAt: string

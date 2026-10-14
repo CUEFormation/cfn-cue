@@ -4,6 +4,7 @@ import (
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/token"
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -146,11 +147,24 @@ func Intrinsics(extensions bool) *ast.File {
 		all = append(all, "Length", "ToJsonString")
 	}
 	add("ValueExpression", refs(all...))
-	functionFields := []*ast.Field{}
 	names := map[string]string{}
 	for name := range signatures {
 		names[name] = name
 	}
+	// Keys are pattern constraints, which apply only to keys that are
+	// present. As optional fields, every argument schema was evaluated each
+	// time a function struct appeared in a disjunction, which is once per
+	// property: about 25 ms per unset property in CUE v0.18. Regex labels
+	// keep format.Simplify from turning ["Ref"] back into Ref?.
+	keyed := func(fields []ast.Decl) ast.Expr {
+		return and(ast.NewCall(id("close"), &ast.StructLit{Elts: fields}),
+			ast.NewCall(ast.NewSel(ast.NewIdent("structs"), "MinFields"), ast.NewLit(token.INT, "1")),
+			ast.NewCall(ast.NewSel(ast.NewIdent("structs"), "MaxFields"), ast.NewLit(token.INT, "1")))
+	}
+	key := func(k string, args ast.Expr) ast.Decl {
+		return &ast.Field{Label: ast.NewList(&ast.UnaryExpr{Op: token.MAT, X: str("^" + regexp.QuoteMeta(k) + "$")}), Value: args}
+	}
+	functionFields := []ast.Decl{}
 	for _, name := range sortedStringKeys(names) {
 		v := signatures[name]
 		if name == "NoValue" || (strings.HasPrefix(name, "If") && name != "If") {
@@ -160,20 +174,15 @@ func Intrinsics(extensions bool) *ast.File {
 		if name == "If" {
 			args = id("_")
 		}
-		functionFields = append(functionFields, field(v.key, args, true))
+		functionFields = append(functionFields, key(v.key, args))
 	}
-	add("Function", and(obj(functionFields...), ast.NewCall(ast.NewSel(ast.NewIdent("structs"), "MinFields"), ast.NewLit(token.INT, "1")), ast.NewCall(ast.NewSel(ast.NewIdent("structs"), "MaxFields"), ast.NewLit(token.INT, "1"))))
+	add("Function", keyed(functionFields))
 	restriction := func(ns []string) ast.Expr {
-		fields := []*ast.Field{}
+		fields := []ast.Decl{}
 		for _, name := range ns {
-			v := signatures[name]
-			args := id("_")
-			if name == "NoValue" || strings.HasPrefix(name, "If") {
-				args = v.args
-			}
-			fields = append(fields, field(v.key, args, true))
+			fields = append(fields, key(signatures[name].key, signatures[name].args))
 		}
-		return and(r("Function"), ast.NewCall(id("close"), obj(fields...)))
+		return keyed(fields)
 	}
 	for _, name := range sortedStringKeys(names) {
 		if name == "NoValue" {

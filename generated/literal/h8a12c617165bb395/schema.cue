@@ -19,7 +19,7 @@ import (
 		// A specification that defines the pipeline in JSON format.
 		PipelineDefinitionBody!: string
 	}), close(
-		{PipelineDefinitionS3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
+		{PipelineDefinitionS3Location!: #S3Location},
 	)])
 
 	// The description of the Pipeline.
@@ -36,10 +36,10 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The name of the S3 bucket where the PipelineDefinition file is stored.
 	Bucket!: string
 
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

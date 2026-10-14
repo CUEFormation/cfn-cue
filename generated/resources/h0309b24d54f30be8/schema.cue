@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,22 +12,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RefactorSpaces::Environment Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$" |
-	fn.#StringExpression
-	Name?:              strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	NetworkFabricType?: _#defs."/$defs/Properties/definitions/NetworkFabricType"
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RefactorSpaces::Environment"
+	Properties?: close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$" |
+		fn.#StringExpression
+		Name?:              strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		NetworkFabricType?: #NetworkFabricType
+		Tags?:              [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/NetworkFabricType": "TRANSIT_GATEWAY" | "NONE" | fn.#StringExpression
+#NetworkFabricType: "TRANSIT_GATEWAY" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RefactorSpaces::Environment"
-	Properties?: #Properties
-}

@@ -19,39 +19,27 @@ import (
 		=~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:anomalydetector/[a-zA-Z0-9-]+/[0-9A-Za-z][-.0-9A-Z_a-z]*$"
 
 	// Determines the anomaly detector's algorithm and its configuration.
-	Configuration!: _#defs."/$defs/Properties/definitions/AnomalyDetectorConfiguration"
+	Configuration!: #AnomalyDetectorConfiguration
 
 	// The AnomalyDetector period of detection and metric generation.
 	EvaluationIntervalInSeconds?: int
 
 	// An array of key-value pairs to provide meta-data.
-	Labels?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Label"]
+	Labels?: list.UniqueItems() & [...#Label]
 
 	// The action to perform when running the expression returns no data.
-	MissingDataAction?: _#defs."/$defs/Properties/definitions/MissingDataAction"
+	MissingDataAction?: #MissingDataAction
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Required to identify a specific APS Workspace associated with this Anomaly Detector.
 	Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/AnomalyDetectorConfiguration": close(
-	{RandomCutForest!: _#defs."/$defs/Properties/definitions/RandomCutForestConfiguration"},
-)
+#AnomalyDetectorConfiguration: close({RandomCutForest!: #RandomCutForestConfiguration})
 
-_#defs: "/$defs/Properties/definitions/IgnoreNearExpected": matchN(1, [
-	null | bool | number | string | [...] | {
-		Amount!: _
-		...
-	},
-	null | bool | number | string | [...] | {
-		Ratio!: _
-		...
-	}
-]) &
-(null |
+#IgnoreNearExpected: null |
 bool |
 number |
 string |
@@ -59,11 +47,14 @@ string |
 close({
 	Amount?: number
 	Ratio?:  number
-}))
+	if Amount != _|_ if Amount."Fn::If" == _|_ {
+		Ratio?: close({"Fn::If": _}) | error("Ratio cannot be used with Amount; set exactly one of Amount, Ratio")
+	}
+}) & matchN(>=1, [{Amount!: _}, {Ratio!: _}])
 
 // A key-value pair to provide meta-data and multi-dimensional data analysis for
 // filtering and aggregation.
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -77,17 +68,7 @@ _#defs: "/$defs/Properties/definitions/Label": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/MissingDataAction": matchN(1, [
-	null | bool | number | string | [...] | {
-		MarkAsAnomaly!: _
-		...
-	},
-	null | bool | number | string | [...] | {
-		Skip!: _
-		...
-	}
-]) &
-(null |
+#MissingDataAction: null |
 bool |
 number |
 string |
@@ -95,18 +76,23 @@ string |
 close({
 	MarkAsAnomaly?: bool
 	Skip?:          bool
-}))
+	if MarkAsAnomaly != _|_ if MarkAsAnomaly."Fn::If" == _|_ {
+		Skip?: close({"Fn::If": _}) | error(
+			"Skip cannot be used with MarkAsAnomaly; set exactly one of MarkAsAnomaly, Skip",
+		)
+	}
+}) & matchN(>=1, [{MarkAsAnomaly!: _}, {Skip!: _}])
 
-_#defs: "/$defs/Properties/definitions/RandomCutForestConfiguration": close({
-	IgnoreNearExpectedFromAbove?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected"
-	IgnoreNearExpectedFromBelow?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected"
+#RandomCutForestConfiguration: close({
+	IgnoreNearExpectedFromAbove?: #IgnoreNearExpected
+	IgnoreNearExpectedFromBelow?: #IgnoreNearExpected
 	Query!:                       strings.MinRunes(1)
 	SampleSize?:                  int & <=1024 & >=256
 	ShingleSize?:                 int & <=1024 & >=2
 })
 
 // A key-value pair to associate a tag level security for the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

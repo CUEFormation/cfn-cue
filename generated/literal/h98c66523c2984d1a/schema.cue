@@ -20,15 +20,15 @@ import (
 	// A map that sets information about a component type.
 	Components?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Component"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #Component}})
 
 	// A map that sets information about a composite component.
 	CompositeComponents?: close({
 
-		{[=~"[a-zA-Z_\\-0-9/]+"]: _#defs."/$defs/Properties/definitions/CompositeComponent"}})
+		{[=~"[a-zA-Z_\\-0-9/]+"]: #CompositeComponent}})
 
 	// The date and time when the entity was created.
-	CreationDateTime?: _#defs."/$defs/Properties/definitions/DateTimeFormat"
+	CreationDateTime?: #DateTimeFormat
 
 	// The description of the entity.
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0)
@@ -50,7 +50,7 @@ import (
 	=~"\\$ROOT|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+"
 
 	// The current status of the entity.
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+	Status?: #Status
 
 	// A key-value pair to associate with a resource.
 	Tags?: close({
@@ -58,13 +58,13 @@ import (
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1)}})
 
 	// The last date and time when the entity was updated.
-	UpdateDateTime?: _#defs."/$defs/Properties/definitions/DateTimeFormat"
+	UpdateDateTime?: #DateTimeFormat
 
 	// The ID of the workspace.
 	WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+"
 })
 
-_#defs: "/$defs/Properties/definitions/Component": close({
+#Component: close({
 	// The name of the component.
 	ComponentName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+"
 
@@ -81,19 +81,19 @@ _#defs: "/$defs/Properties/definitions/Component": close({
 	// Each string in the mapping must be unique to this object.
 	Properties?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Property"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #Property}})
 
 	// An object that maps strings to the property groups to set in the component
 	// type. Each string in the mapping must be unique to this object.
 	PropertyGroups?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyGroup"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}})
 
 	// The current status of the entity.
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+	Status?: #Status
 })
 
-_#defs: "/$defs/Properties/definitions/CompositeComponent": close({
+#CompositeComponent: close({
 	// The name of the component.
 	ComponentName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+"
 
@@ -110,28 +110,28 @@ _#defs: "/$defs/Properties/definitions/CompositeComponent": close({
 	// Each string in the mapping must be unique to this object.
 	Properties?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Property"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #Property}})
 
 	// An object that maps strings to the property groups to set in the component
 	// type. Each string in the mapping must be unique to this object.
 	PropertyGroups?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyGroup"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}})
 
 	// The current status of the component.
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+	Status?: #Status
 })
 
 // An object that specifies the data type of a property.
-_#defs: "/$defs/Properties/definitions/DataType": close({
+#DataType: close({
 	// The allowed values for this data type.
-	AllowedValues?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DataValue"]
+	AllowedValues?: list.MaxItems(50) & [...] & [...#DataValue]
 
 	// The nested type in the data type.
-	NestedType?: _#defs."/$defs/Properties/definitions/DataType"
+	NestedType?: #DataType
 
 	// A relationship that associates a component with another component.
-	Relationship?: _#defs."/$defs/Properties/definitions/Relationship"
+	Relationship?: #Relationship
 
 	// The underlying type of the data type.
 	Type?: "RELATIONSHIP" | "STRING" | "LONG" | "BOOLEAN" | "INTEGER" | "DOUBLE" | "LIST" | "MAP"
@@ -141,7 +141,7 @@ _#defs: "/$defs/Properties/definitions/DataType": close({
 })
 
 // An object that specifies a value for a property.
-_#defs: "/$defs/Properties/definitions/DataValue": close({
+#DataValue: close({
 	// A Boolean value.
 	BooleanValue?: bool
 
@@ -155,7 +155,7 @@ _#defs: "/$defs/Properties/definitions/DataValue": close({
 	IntegerValue?: int
 
 	// A list of multiple values.
-	ListValue?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DataValue"]
+	ListValue?: list.MaxItems(50) & [...] & [...#DataValue]
 
 	// A long value.
 	LongValue?: number
@@ -163,7 +163,7 @@ _#defs: "/$defs/Properties/definitions/DataValue": close({
 	// An object that maps strings to multiple DataValue objects.
 	MapValue?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/DataValue"}})
+		{[=~"[a-zA-Z_\\-0-9]+"]: #DataValue}})
 
 	// A value that relates a component to another component.
 	RelationshipValue?: close({
@@ -177,18 +177,18 @@ _#defs: "/$defs/Properties/definitions/DataValue": close({
 	StringValue?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*"
 })
 
-_#defs: "/$defs/Properties/definitions/DateTimeFormat": time.Time
+#DateTimeFormat: time.Time
 
 // An object that specifies information about a property definition.
-_#defs: "/$defs/Properties/definitions/Definition": close({
+#Definition: close({
 	// An object that specifies information about a property configuration.
-	Configuration?: _#defs."/$defs/Properties/definitions/PropertyDefinitionConfiguration"
+	Configuration?: #PropertyDefinitionConfiguration
 
 	// An object that contains information about the data type.
-	DataType?: _#defs."/$defs/Properties/definitions/DataType"
+	DataType?: #DataType
 
 	// An object that contains the default value.
-	DefaultValue?: _#defs."/$defs/Properties/definitions/DataValue"
+	DefaultValue?: #DataValue
 
 	// A Boolean value that specifies whether the property ID comes from an external data store.
 	IsExternalId?: bool
@@ -214,34 +214,32 @@ _#defs: "/$defs/Properties/definitions/Definition": close({
 })
 
 // An object that specifies information about a property.
-_#defs: "/$defs/Properties/definitions/Property": close({
+#Property: close({
 	// The definition of the property.
-	Definition?: _#defs."/$defs/Properties/definitions/Definition"
+	Definition?: #Definition
 
 	// The value of the property.
-	Value?: _#defs."/$defs/Properties/definitions/DataValue"
+	Value?: #DataValue
 })
 
 // An object that specifies information about a property configuration.
-_#defs: "/$defs/Properties/definitions/PropertyDefinitionConfiguration": close({
+#PropertyDefinitionConfiguration: close({
 
 	{[=~"[a-zA-Z_\\-0-9]+"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+"}})
 
 // An object that specifies information about a property group.
-_#defs: "/$defs/Properties/definitions/PropertyGroup": close({
+#PropertyGroup: close({
 	// The type of property group.
 	GroupType?: "TABULAR"
 
 	// The list of property names in the property group.
-	PropertyNames?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PropertyName"
-	]
+	PropertyNames?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#PropertyName]
 })
 
-_#defs: "/$defs/Properties/definitions/PropertyName": =~"[a-zA-Z_\\-0-9]+"
+#PropertyName: =~"[a-zA-Z_\\-0-9]+"
 
 // The type of the relationship.
-_#defs: "/$defs/Properties/definitions/Relationship": close({
+#Relationship: close({
 	// The type of the relationship.
 	RelationshipType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*"
 
@@ -249,7 +247,7 @@ _#defs: "/$defs/Properties/definitions/Relationship": close({
 	TargetComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+"
 })
 
-_#defs: "/$defs/Properties/definitions/Status": close({
+#Status: close({
 	Error?: close({}) | close({
 		Code?:    "VALIDATION_ERROR" | "INTERNAL_FAILURE"
 		Message?: strings.MaxRunes(2048) & strings.MinRunes(0)

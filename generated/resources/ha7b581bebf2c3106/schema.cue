@@ -14,127 +14,107 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicy Resource Type
-#Properties: close({
-	Description?:      _#defs."/$defs/Properties/definitions/Description"
-	ForceDelete?:      _#defs."/$defs/Properties/definitions/ForceDelete"
-	KmsKeyId?:         _#defs."/$defs/Properties/definitions/KmsKeyId"
-	Name!:             _#defs."/$defs/Properties/definitions/Name"
-	PolicyDefinition?: _#defs."/$defs/Properties/definitions/PolicyDefinition"
-	Tags?:             _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::AutomatedReasoningPolicy"
+	Properties!: close({
+		Description?:      #Description
+		ForceDelete?:      #ForceDelete
+		KmsKeyId?:         #KmsKeyId
+		Name!:             #Name
+		PolicyDefinition?: #PolicyDefinition
+		Tags?:             #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CreatedAt": time.Time | fn.#StringExpression
+#CreatedAt: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DefinitionHash": strings.MaxRunes(128) &
-strings.MinRunes(128) &
-=~"^[0-9a-z]{128}$" |
-fn.#StringExpression
+#DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
+#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ForceDelete": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#ForceDelete: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#KmsKeyArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" |
-fn.#StringExpression
+#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyArn": strings.MaxRunes(2048) &
+#PolicyArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinition": close({
-	Rules?:     _#defs."/$defs/Properties/definitions/PolicyDefinitionRuleList" | fn.#ListExpression
-	Types?:     _#defs."/$defs/Properties/definitions/PolicyDefinitionTypeList" | fn.#ListExpression
-	Variables?: _#defs."/$defs/Properties/definitions/PolicyDefinitionVariableList" | fn.#ListExpression
+#PolicyDefinition: close({
+	// The rules definition block of an AutomatedReasoningPolicyDefinition.
+	Rules?: #PolicyDefinitionRuleList
+
+	// The types definition block of an AutomatedReasoningPolicyDefinition.
+	Types?: #PolicyDefinitionTypeList
+
+	// The variables definition block of an AutomatedReasoningPolicyDefinition.
+	Variables?: #PolicyDefinitionVariableList
 	Version?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionRule": close({
+#PolicyDefinitionRule: close({
 	AlternateExpression?: strings.MaxRunes(2048) & =~"^[\\s\\S]+$" | fn.#StringExpression
 	Expression!:          strings.MaxRunes(2048) & =~"^[\\s\\S]+$" | fn.#StringExpression
 	Id!:                  strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[A-Z][0-9A-Z]{11}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionRuleList": list.MaxItems(500) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionRule"
-] |
-	fn.#ListExpression
+#PolicyDefinitionRuleList: list.MaxItems(500) & [...] & [...#PolicyDefinitionRule] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionType": close({
+#PolicyDefinitionType: close({
 	Description?: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" | fn.#StringExpression
-	Values!:      _#defs."/$defs/Properties/definitions/PolicyDefinitionTypeValueList" | fn.#ListExpression
+
+	// A list of valid values for this type.
+	Values!: #PolicyDefinitionTypeValueList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeList": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionType"
-] |
-	fn.#ListExpression
+#PolicyDefinitionTypeList: list.MaxItems(50) & [...] & [...#PolicyDefinitionType] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeValue": close({
+#PolicyDefinitionTypeValue: close({
 	Description?: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
 	Value!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionTypeValue"
-] |
+#PolicyDefinitionTypeValueList: list.MaxItems(50) & list.MinItems(1) & [...#PolicyDefinitionTypeValue] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionVariable": close({
+#PolicyDefinitionVariable: close({
 	Description!: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" | fn.#StringExpression
 	Type!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionVariableList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionVariable"
-] |
-	fn.#ListExpression
+#PolicyDefinitionVariableList: list.MaxItems(200) & [...] & [...#PolicyDefinitionVariable] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyId": strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" |
-fn.#StringExpression
+#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatedAt": time.Time | fn.#StringExpression
+#UpdatedAt: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Version": =~"^(([1-9][0-9]{0,11})|(DRAFT))$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::AutomatedReasoningPolicy"
-	Properties!: #Properties
-}
+#Version: =~"^(([1-9][0-9]{0,11})|(DRAFT))$" | fn.#StringExpression

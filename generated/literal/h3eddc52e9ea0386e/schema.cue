@@ -33,7 +33,7 @@ import (
 	Name?: strings.MaxRunes(256) & strings.MinRunes(6) & =~"^view\\.[a-z0-9][a-z0-9_-]{0,250}$"
 
 	// An array of key-value pairs to apply to the view.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The ownership category of the view. Views created through CloudFormation are
 	// always USER views; MANAGED views are provisioned by AWS.
@@ -44,7 +44,7 @@ import (
 })
 
 // A key-value pair to associate with the view.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

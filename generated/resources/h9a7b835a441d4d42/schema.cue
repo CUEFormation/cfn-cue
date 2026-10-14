@@ -19,44 +19,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // version of a Route 53 traffic policy to a DNS name in a public hosted zone,
 // and Route 53 creates and owns the resource record sets that answer queries
 // for that name.
-#Properties: close({
-	HostedZoneId!: strings.MaxRunes(32) & =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression
-	Name!:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^A-Z\\s]+\\.$" | fn.#StringExpression
-	TTL!: int & <=2147483647 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2147483647 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TrafficPolicyId!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9a-f-]{1,36}$" | fn.#StringExpression
-	TrafficPolicyVersion!: int & <=1000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::TrafficPolicyInstance"
-	Properties!: #Properties
+	Type!: "AWS::Route53::TrafficPolicyInstance"
+	Properties!: close({
+		HostedZoneId!: strings.MaxRunes(32) & =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression
+		Name!:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^A-Z\\s]+\\.$" | fn.#StringExpression
+		TTL!: int & <=2147483647 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2147483647 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TrafficPolicyId!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9a-f-]{1,36}$" | fn.#StringExpression
+		TrafficPolicyVersion!: int & <=1000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
 }

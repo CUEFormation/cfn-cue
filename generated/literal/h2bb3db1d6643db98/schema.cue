@@ -19,16 +19,16 @@ import (
 
 	// LoRaWAN supports all LoRa specific attributes for service profile for
 	// CreateServiceProfile operation
-	LoRaWAN?: _#defs."/$defs/Properties/definitions/LoRaWANServiceProfile"
+	LoRaWAN?: #LoRaWANServiceProfile
 
 	// Name of service profile
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0)
 
 	// A list of key-value pairs that contain metadata for the service profile.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWANServiceProfile": close({
+#LoRaWANServiceProfile: close({
 	AddGwMetadata?:          bool
 	ChannelMask?:            string
 	DevStatusReqFreq?:       int
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/LoRaWANServiceProfile": close({
 	UlRatePolicy?:           string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1)
 })

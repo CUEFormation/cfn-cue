@@ -20,7 +20,7 @@ import "list"
 		DefaultBehavior!: "KEEP" | "DROP"
 
 		// The filters that you want to apply to the logs.
-		Filters!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter"]
+		Filters!: list.MinItems(1) & [...#Filter]
 	})
 
 	// Indicates whether the logging configuration was created by AWS Firewall
@@ -31,14 +31,14 @@ import "list"
 	// The parts of the request that you want to keep out of the logs. For example,
 	// if you redact the HEADER field, the HEADER field in the firehose will be
 	// xxx.
-	RedactedFields?: [..._#defs."/$defs/Properties/definitions/FieldToMatch"]
+	RedactedFields?: [...#FieldToMatch]
 
 	// The Amazon Resource Name (ARN) of the web ACL that you want to associate with
 	// LogDestinationConfigs.
 	ResourceArn!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	// A single action condition.
 	ActionCondition?: close({
 		// Logic to apply to the filtering conditions. You can specify that, in order to
@@ -58,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Method?:      string | {...}
 	QueryString?: string | {...}
 
@@ -71,12 +71,12 @@ _#defs: "/$defs/Properties/definitions/FieldToMatch": close({
 	UriPath?: string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	// How to handle logs that satisfy the filter's conditions and requirement.
 	Behavior!: "KEEP" | "DROP"
 
 	// Match conditions for the filter.
-	Conditions!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Condition"]
+	Conditions!: list.MinItems(1) & [...#Condition]
 
 	// Logic to apply to the filtering conditions. You can specify that, in order to
 	// satisfy the filter, a log must match all conditions or must match at least

@@ -21,7 +21,7 @@ import "list"
 
 	// The type of key used for the encryption. If no keyType is provided, the
 	// service will use the default setting (static-key).
-	Encryption?: _#defs."/$defs/Properties/definitions/Encryption"
+	Encryption?: #Encryption
 
 	// The Amazon Resource Name (ARN), a unique identifier for any AWS resource, of the flow.
 	FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$"
@@ -31,7 +31,7 @@ import "list"
 	MaxLatency?: int
 
 	// The definition for each media stream that is associated with the output.
-	MediaStreamOutputConfigurations?: [..._#defs."/$defs/Properties/definitions/MediaStreamOutputConfiguration"]
+	MediaStreamOutputConfigurations?: [...#MediaStreamOutputConfiguration]
 
 	// The minimum latency in milliseconds.
 	MinLatency?: int
@@ -73,7 +73,7 @@ import "list"
 	// The remote ID for the Zixi-pull stream.
 	RemoteId?:                           string
 	RouterIntegrationState?:             "ENABLED" | "DISABLED"
-	RouterIntegrationTransitEncryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
+	RouterIntegrationTransitEncryption?: #FlowTransitEncryption
 
 	// The smoothing latency in milliseconds for RIST, RTP, and RTP-FEC streams.
 	SmoothingLatency?: int
@@ -83,18 +83,18 @@ import "list"
 	StreamId?: string
 
 	// Key-value pairs that can be used to tag and organize this flow output.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The name of the VPC interface attachment to use for this output.
-	VpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment"
+	VpcInterfaceAttachment?: #VpcInterfaceAttachment
 })
 
 // Configuration settings for automatic encryption key management, where
 // MediaConnect handles key creation and rotation.
-_#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({})
+#AutomaticEncryptionKeyConfiguration: close({})
 
 // The definition of a media stream that is associated with the output.
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close({
+#DestinationConfiguration: close({
 	// The IP address where contents of the media stream will be sent.
 	DestinationIp!: string
 
@@ -102,12 +102,12 @@ _#defs: "/$defs/Properties/definitions/DestinationConfiguration": close({
 	DestinationPort!: int
 
 	// The VPC interface that is used for the media stream associated with the output.
-	Interface!: _#defs."/$defs/Properties/definitions/Interface"
+	Interface!: #Interface
 })
 
 // A collection of parameters that determine how MediaConnect will convert the
 // content. These fields only apply to outputs on flows that have a CDI source.
-_#defs: "/$defs/Properties/definitions/EncodingParameters": close({
+#EncodingParameters: close({
 	// A value that is used to calculate compression for an output. The bitrate of
 	// the output is calculated as follows: Output bitrate = (1 /
 	// compressionFactor) * (source bitrate) This property only applies to outputs
@@ -122,7 +122,7 @@ _#defs: "/$defs/Properties/definitions/EncodingParameters": close({
 })
 
 // Information about the encryption of the flow.
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	// The type of algorithm that is used for the encryption (such as aes128, aes192, or aes256).
 	Algorithm?: "aes128" | "aes192" | "aes256"
 
@@ -143,31 +143,31 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 
 // The configuration that defines how content is encrypted during transit
 // between the MediaConnect router and a MediaConnect flow.
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
+#FlowTransitEncryption: close({
+	EncryptionKeyConfiguration!: #FlowTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #FlowTransitEncryptionKeyType
 })
 
 // Configuration settings for flow transit encryption keys.
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#FlowTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyType": "SECRETS_MANAGER" | "AUTOMATIC"
+#FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC"
 
 // The VPC interface that you want to use for the media stream associated with the output.
-_#defs: "/$defs/Properties/definitions/Interface": close({
+#Interface: close({
 	// The name of the VPC interface that you want to use for the media stream
 	// associated with the output.
 	Name!: string
 })
 
 // The media stream that is associated with the output, and the parameters for that association.
-_#defs: "/$defs/Properties/definitions/MediaStreamOutputConfiguration": close({
+#MediaStreamOutputConfiguration: close({
 	// The media streams that you want to associate with the output.
-	DestinationConfigurations?: [..._#defs."/$defs/Properties/definitions/DestinationConfiguration"]
+	DestinationConfigurations?: [...#DestinationConfiguration]
 
 	// The format that will be used to encode the data. For ancillary data streams,
 	// set the encoding name to smpte291. For audio streams, set the encoding name
@@ -178,7 +178,7 @@ _#defs: "/$defs/Properties/definitions/MediaStreamOutputConfiguration": close({
 
 	// A collection of parameters that determine how MediaConnect will convert the
 	// content. These fields only apply to outputs on flows that have a CDI source.
-	EncodingParameters?: _#defs."/$defs/Properties/definitions/EncodingParameters"
+	EncodingParameters?: #EncodingParameters
 
 	// A name that helps you distinguish one media stream from another.
 	MediaStreamName!: string
@@ -186,7 +186,7 @@ _#defs: "/$defs/Properties/definitions/MediaStreamOutputConfiguration": close({
 
 // The configuration settings for transit encryption of a flow output using AWS
 // Secrets Manager, including the secret ARN and role ARN.
-_#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
+#SecretsManagerEncryptionKeyConfiguration: close({
 	// The ARN of the IAM role used for transit encryption to the router input using
 	// AWS Secrets Manager.
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -196,13 +196,13 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"
 	SecretArn!: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
 // The settings for attaching a VPC interface to an output.
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close({
+#VpcInterfaceAttachment: close({
 	// The name of the VPC interface to use for this output.
 	VpcInterfaceName?: string
 })

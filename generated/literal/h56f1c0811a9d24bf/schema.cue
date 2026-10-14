@@ -30,55 +30,55 @@ import (
 	AIWorkloadConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9]){0,62}$"
 
 	// The benchmark tool configuration and workload specification.
-	AIWorkloadConfigs?: _#defs."/$defs/Properties/definitions/AIWorkloadConfigs"
+	AIWorkloadConfigs?: #AIWorkloadConfigs
 
 	// A timestamp that indicates when the AI workload configuration was created.
 	CreationTime?: time.Time
 
 	// The dataset configuration for the workload. Specify input data channels with
 	// their data sources for benchmark workloads.
-	DatasetConfig?: _#defs."/$defs/Properties/definitions/AIDatasetConfig"
+	DatasetConfig?: #AIDatasetConfig
 
 	// The metadata that you apply to the AI workload configuration to help you
 	// categorize and organize it.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // The dataset configuration for an AI workload.
-_#defs: "/$defs/Properties/definitions/AIDatasetConfig": close({
+#AIDatasetConfig: close({
 	// An array of input data channel configurations for the workload.
-	InputDataConfig!: [..._#defs."/$defs/Properties/definitions/AIWorkloadInputDataConfig"]
+	InputDataConfig!: [...#AIWorkloadInputDataConfig]
 })
 
 // The benchmark tool configuration for an AI workload.
-_#defs: "/$defs/Properties/definitions/AIWorkloadConfigs": close({
+#AIWorkloadConfigs: close({
 	// The workload specification that defines benchmark parameters.
-	WorkloadSpec!: _#defs."/$defs/Properties/definitions/WorkloadSpec"
+	WorkloadSpec!: #WorkloadSpec
 })
 
 // The data source for an AI workload input data channel.
-_#defs: "/$defs/Properties/definitions/AIWorkloadDataSource": close({
+#AIWorkloadDataSource: close({
 	// The Amazon S3 data source configuration.
-	S3DataSource?: _#defs."/$defs/Properties/definitions/AIWorkloadS3DataSource"
+	S3DataSource?: #AIWorkloadS3DataSource
 })
 
 // A channel of input data for an AI workload configuration.
-_#defs: "/$defs/Properties/definitions/AIWorkloadInputDataConfig": close({
+#AIWorkloadInputDataConfig: close({
 	// The logical name for the data channel.
 	ChannelName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$"
 
 	// The data source for this channel.
-	DataSource!: _#defs."/$defs/Properties/definitions/AIWorkloadDataSource"
+	DataSource!: #AIWorkloadDataSource
 })
 
 // The Amazon S3 data source for an AI workload.
-_#defs: "/$defs/Properties/definitions/AIWorkloadS3DataSource": close({
+#AIWorkloadS3DataSource: close({
 	// The Amazon S3 URI of the data.
 	S3Uri!: strings.MaxRunes(1024) & =~"^(https|s3)://([^/]+)/?(.*)$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. Tag keys must be unique per resource.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -87,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The workload specification for benchmark tool configuration.
-_#defs: "/$defs/Properties/definitions/WorkloadSpec": close({
+#WorkloadSpec: close({
 	// An inline YAML or JSON string that defines benchmark parameters. The service
 	// validates the document against its own benchmark schema: it must declare a
 	// benchmark object whose type member matches the pattern ^(aiperf)$.

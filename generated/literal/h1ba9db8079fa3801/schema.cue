@@ -15,9 +15,9 @@ import (
 	Description?:   strings.MaxRunes(500) & strings.MinRunes(0)
 	Id?:            =~"^[a-f0-9]{12}$"
 	Name!:          =~"^([a-z]){1}([a-z0-9_]){2,254}"
-	Reference!:     _#defs."/$defs/Properties/definitions/ReferenceItem"
-	SseConfig?:     _#defs."/$defs/Properties/definitions/SseConfig"
-	Status?:        _#defs."/$defs/Properties/definitions/StoreStatus"
+	Reference!:     #ReferenceItem
+	SseConfig?:     #SseConfig
+	Status?:        #StoreStatus
 	StatusMessage?: strings.MaxRunes(1000) & strings.MinRunes(0)
 	StoreArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -29,17 +29,15 @@ import (
 		]*)$
 		"""
 	StoreSizeBytes?: number
-	Tags?:           _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:           #TagMap
 	UpdateTime?:     time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionType": "KMS"
+#EncryptionType: "KMS"
 
-_#defs: "/$defs/Properties/definitions/ReferenceItem": close(
-	{ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$"},
-)
+#ReferenceItem: close({ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$"})
 
-_#defs: "/$defs/Properties/definitions/SseConfig": close({
+#SseConfig: close({
 	KeyArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"""
@@ -49,11 +47,11 @@ _#defs: "/$defs/Properties/definitions/SseConfig": close({
 		]*):([0-9]{12}):([^:
 		]*)
 		"""
-	Type!: _#defs."/$defs/Properties/definitions/EncryptionType"
+	Type!: #EncryptionType
 })
 
-_#defs: "/$defs/Properties/definitions/StoreStatus": "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED"
+#StoreStatus: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED"
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})

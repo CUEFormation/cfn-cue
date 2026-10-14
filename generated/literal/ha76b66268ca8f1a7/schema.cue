@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -14,42 +14,34 @@ import (
 #Properties: close({
 	Arn?:                       string
 	CreationTime?:              time.Time
-	DefaultForUnmappedSignals?: _#defs."/$defs/Properties/definitions/DefaultForUnmappedSignalsType"
+	DefaultForUnmappedSignals?: #DefaultForUnmappedSignalsType
 	Description?:               strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 	LastModificationTime?:      time.Time
 	ModelManifestArn!:          string
 	Name!:                      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$"
 	NetworkInterfaces?: list.MaxItems(5000) & list.MinItems(1) & [
-		...matchN(1, [
-			_#defs."/$defs/Properties/definitions/CanNetworkInterface",
-			_#defs."/$defs/Properties/definitions/ObdNetworkInterface",
-			_#defs."/$defs/Properties/definitions/CustomDecodingNetworkInterface",
-		])
+		...matchN(1, [#CanNetworkInterface, #ObdNetworkInterface, #CustomDecodingNetworkInterface])
 	]
 	SignalDecoders?: list.MaxItems(5000) & list.MinItems(1) & [
-		...matchN(1, [
-			_#defs."/$defs/Properties/definitions/CanSignalDecoder",
-			_#defs."/$defs/Properties/definitions/ObdSignalDecoder",
-			_#defs."/$defs/Properties/definitions/CustomDecodingSignalDecoder",
-		])
+		...matchN(1, [#CanSignalDecoder, #ObdSignalDecoder, #CustomDecodingSignalDecoder])
 	]
-	Status?: _#defs."/$defs/Properties/definitions/ManifestStatus"
-	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Status?: #ManifestStatus
+	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CanInterface": close({
+#CanInterface: close({
 	Name!:            strings.MaxRunes(100) & strings.MinRunes(1)
 	ProtocolName?:    strings.MaxRunes(50) & strings.MinRunes(1)
 	ProtocolVersion?: strings.MaxRunes(50) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/CanNetworkInterface": close({
-	CanInterface!: _#defs."/$defs/Properties/definitions/CanInterface"
+#CanNetworkInterface: close({
+	CanInterface!: #CanInterface
 	InterfaceId!:  strings.MaxRunes(50) & strings.MinRunes(1)
 	Type!:         "CAN_INTERFACE"
 })
 
-_#defs: "/$defs/Properties/definitions/CanSignal": close({
+#CanSignal: close({
 	Factor!:          number | string
 	IsBigEndian!:     bool | string
 	IsSigned!:        bool | string
@@ -57,41 +49,39 @@ _#defs: "/$defs/Properties/definitions/CanSignal": close({
 	MessageId!:       int | string
 	Name?:            strings.MaxRunes(100) & strings.MinRunes(1)
 	Offset!:          number | string
-	SignalValueType?: _#defs."/$defs/Properties/definitions/SignalValueType"
+	SignalValueType?: #SignalValueType
 	StartBit!:        int | string
 })
 
-_#defs: "/$defs/Properties/definitions/CanSignalDecoder": close({
-	CanSignal!:          _#defs."/$defs/Properties/definitions/CanSignal"
+#CanSignalDecoder: close({
+	CanSignal!:          #CanSignal
 	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1)
 	InterfaceId!:        strings.MaxRunes(50) & strings.MinRunes(1)
 	Type!:               "CAN_SIGNAL"
 })
 
-_#defs: "/$defs/Properties/definitions/CustomDecodingInterface": close(
-	{Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$"},
-)
+#CustomDecodingInterface: close({Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$"})
 
-_#defs: "/$defs/Properties/definitions/CustomDecodingNetworkInterface": close({
-	CustomDecodingInterface!: _#defs."/$defs/Properties/definitions/CustomDecodingInterface"
+#CustomDecodingNetworkInterface: close({
+	CustomDecodingInterface!: #CustomDecodingInterface
 	InterfaceId!:             strings.MaxRunes(50) & strings.MinRunes(1)
 	Type!:                    "CUSTOM_DECODING_INTERFACE"
 })
 
-_#defs: "/$defs/Properties/definitions/CustomDecodingSignal": close({Id!: strings.MaxRunes(150) & strings.MinRunes(1)})
+#CustomDecodingSignal: close({Id!: strings.MaxRunes(150) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/CustomDecodingSignalDecoder": close({
-	CustomDecodingSignal!: _#defs."/$defs/Properties/definitions/CustomDecodingSignal"
+#CustomDecodingSignalDecoder: close({
+	CustomDecodingSignal!: #CustomDecodingSignal
 	FullyQualifiedName!:   strings.MaxRunes(150) & strings.MinRunes(1)
 	InterfaceId!:          strings.MaxRunes(50) & strings.MinRunes(1)
 	Type!:                 "CUSTOM_DECODING_SIGNAL"
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultForUnmappedSignalsType": "CUSTOM_DECODING"
+#DefaultForUnmappedSignalsType: "CUSTOM_DECODING"
 
-_#defs: "/$defs/Properties/definitions/ManifestStatus": "ACTIVE" | "DRAFT"
+#ManifestStatus: "ACTIVE" | "DRAFT"
 
-_#defs: "/$defs/Properties/definitions/ObdInterface": close({
+#ObdInterface: close({
 	DtcRequestIntervalSeconds?: int | string
 	HasTransmissionEcu?:        bool | string
 	Name!:                      strings.MaxRunes(100) & strings.MinRunes(1)
@@ -101,13 +91,13 @@ _#defs: "/$defs/Properties/definitions/ObdInterface": close({
 	UseExtendedIds?:            bool | string
 })
 
-_#defs: "/$defs/Properties/definitions/ObdNetworkInterface": close({
+#ObdNetworkInterface: close({
 	InterfaceId!:  strings.MaxRunes(50) & strings.MinRunes(1)
-	ObdInterface!: _#defs."/$defs/Properties/definitions/ObdInterface"
+	ObdInterface!: #ObdInterface
 	Type!:         "OBD_INTERFACE"
 })
 
-_#defs: "/$defs/Properties/definitions/ObdSignal": close({
+#ObdSignal: close({
 	BitMaskLength?:     int | string
 	BitRightShift?:     int | string
 	ByteLength!:        int | string
@@ -117,20 +107,20 @@ _#defs: "/$defs/Properties/definitions/ObdSignal": close({
 	PidResponseLength!: int | string
 	Scaling!:           number | string
 	ServiceMode!:       int | string
-	SignalValueType?:   _#defs."/$defs/Properties/definitions/SignalValueType"
+	SignalValueType?:   #SignalValueType
 	StartByte!:         int | string
 })
 
-_#defs: "/$defs/Properties/definitions/ObdSignalDecoder": close({
+#ObdSignalDecoder: close({
 	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1)
 	InterfaceId!:        strings.MaxRunes(50) & strings.MinRunes(1)
-	ObdSignal!:          _#defs."/$defs/Properties/definitions/ObdSignal"
+	ObdSignal!:          #ObdSignal
 	Type!:               "OBD_SIGNAL"
 })
 
-_#defs: "/$defs/Properties/definitions/SignalValueType": "INTEGER" | "FLOATING_POINT"
+#SignalValueType: "INTEGER" | "FLOATING_POINT"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

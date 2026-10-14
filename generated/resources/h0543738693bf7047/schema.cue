@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,40 +17,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Grafana::Workspace Resource Type
-#Properties: close({
-	AccountAccessType!: _#defs."/$defs/Properties/definitions/AccountAccessType"
-	AuthenticationProviders!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AuthenticationProviderTypes"
-	] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Grafana::Workspace"
+	Properties!: close({
+		AccountAccessType!: #AccountAccessType
+		AuthenticationProviders!: list.MinItems(1) & list.UniqueItems() & [...#AuthenticationProviderTypes] |
+			fn.#ListExpression
+		ClientToken?:              =~"^[!-~]{1,64}$" | fn.#StringExpression
+		DataSources?:              [...#DataSourceType] | fn.#ListExpression
+		Description?:              strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		GrafanaVersion?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:                     =~"^[a-zA-Z0-9-._~]{1,255}$" | fn.#StringExpression
+		NetworkAccessControl?:     #NetworkAccessControl
+		NotificationDestinations?: [...#NotificationDestinationType] | fn.#ListExpression
+		OrganizationRoleName?:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		OrganizationalUnits?:      [...string | fn.#StringExpression] | fn.#ListExpression
+		PermissionType!:           #PermissionType
+		PluginAdminEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		SamlConfiguration?: #SamlConfiguration
+		StackSetName?:      string | fn.#StringExpression
+		Tags?: [...close({
+			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
 		fn.#ListExpression
-	ClientToken?:          =~"^[!-~]{1,64}$" | fn.#StringExpression
-	DataSources?:          [..._#defs."/$defs/Properties/definitions/DataSourceType"] | fn.#ListExpression
-	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	GrafanaVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:                 =~"^[a-zA-Z0-9-._~]{1,255}$" | fn.#StringExpression
-	NetworkAccessControl?: _#defs."/$defs/Properties/definitions/NetworkAccessControl"
-	NotificationDestinations?: [..._#defs."/$defs/Properties/definitions/NotificationDestinationType"] |
-		fn.#ListExpression
-	OrganizationRoleName?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	OrganizationalUnits?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	PermissionType!:       _#defs."/$defs/Properties/definitions/PermissionType"
-	PluginAdminEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	SamlConfiguration?: _#defs."/$defs/Properties/definitions/SamlConfiguration"
-	StackSetName?:      string | fn.#StringExpression
-	Tags?: [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
-})
+		VpcConfiguration?: #VpcConfiguration
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccountAccessType": "CURRENT_ACCOUNT" | "ORGANIZATION" | fn.#StringExpression
+#AccountAccessType: "CURRENT_ACCOUNT" | "ORGANIZATION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AssertionAttributes": close({
+#AssertionAttributes: close({
 	Email?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Groups?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Login?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -60,9 +60,9 @@ _#defs: "/$defs/Properties/definitions/AssertionAttributes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticationProviderTypes": "AWS_SSO" | "SAML" | fn.#StringExpression
+#AuthenticationProviderTypes: "AWS_SSO" | "SAML" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceType": "AMAZON_OPENSEARCH_SERVICE" |
+#DataSourceType: "AMAZON_OPENSEARCH_SERVICE" |
 	"CLOUDWATCH" |
 	"PROMETHEUS" |
 	"XRAY" |
@@ -72,13 +72,13 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": "AMAZON_OPENSEARCH_SERVI
 	"REDSHIFT" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IdpMetadata": close({
+#IdpMetadata: close({
 	Url?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Xml?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAccessControl": close({
+#NetworkAccessControl: close({
 	PrefixListIds?: list.MaxItems(5) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -90,20 +90,20 @@ _#defs: "/$defs/Properties/definitions/NetworkAccessControl": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationDestinationType": "SNS" | fn.#StringExpression
+#NotificationDestinationType: "SNS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PermissionType": "CUSTOMER_MANAGED" | "SERVICE_MANAGED" | fn.#StringExpression
+#PermissionType: "CUSTOMER_MANAGED" | "SERVICE_MANAGED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleValues": close({
+#RoleValues: close({
 	Admin?:  [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	Editor?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SamlConfiguration": close({
+#SamlConfiguration: close({
 	AllowedOrganizations?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	AssertionAttributes?:  _#defs."/$defs/Properties/definitions/AssertionAttributes"
-	IdpMetadata!:          _#defs."/$defs/Properties/definitions/IdpMetadata"
+	AssertionAttributes?:  #AssertionAttributes
+	IdpMetadata!:          #IdpMetadata
 	LoginValidityDuration?: number |
 		{
 			string &
@@ -123,13 +123,13 @@ _#defs: "/$defs/Properties/definitions/SamlConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	RoleValues?: _#defs."/$defs/Properties/definitions/RoleValues"
+	RoleValues?: #RoleValues
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SamlConfigurationStatus": "CONFIGURED" | "NOT_CONFIGURED" | fn.#StringExpression
+#SamlConfigurationStatus: "CONFIGURED" | "NOT_CONFIGURED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 		fn.#StringExpression
@@ -142,7 +142,7 @@ _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspaceStatus": "ACTIVE" |
+#WorkspaceStatus: "ACTIVE" |
 	"CREATING" |
 	"DELETING" |
 	"FAILED" |
@@ -156,7 +156,3 @@ _#defs: "/$defs/Properties/definitions/WorkspaceStatus": "ACTIVE" |
 	"LICENSE_REMOVAL_FAILED" |
 	"VERSION_UPDATE_FAILED" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Grafana::Workspace"
-	Properties!: #Properties
-}

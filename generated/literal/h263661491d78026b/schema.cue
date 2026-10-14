@@ -48,7 +48,7 @@ import (
 	// definition parameters and defaults, see [Amazon ECS Task
 	// Definitions](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	ContainerDefinitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ContainerDefinition"]
+	ContainerDefinitions?: list.UniqueItems() & [...#ContainerDefinition]
 
 	// The number of ``cpu`` units used by the task. If you use the EC2 launch type,
 	// this field is optional. Any value can be used. If you use the Fargate launch
@@ -69,7 +69,7 @@ import (
 	EnableFaultInjection?: bool
 
 	// The ephemeral storage settings to use for tasks run with the task definition.
-	EphemeralStorage?: _#defs."/$defs/Properties/definitions/EphemeralStorage"
+	EphemeralStorage?: #EphemeralStorage
 
 	// The Amazon Resource Name (ARN) of the task execution role that grants the
 	// Amazon ECS container agent permission to make AWS API calls on your behalf.
@@ -90,7 +90,7 @@ import (
 	// property. If you don't specify a value, CFNlong generates a new task
 	// definition each time that you update it.
 	Family?:                string
-	InferenceAccelerators?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InferenceAccelerator"]
+	InferenceAccelerators?: list.UniqueItems() & [...#InferenceAccelerator]
 
 	// The IPC resource namespace to use for the containers in the task. The valid
 	// values are ``host``, ``task``, or ``none``. If ``host`` is specified, then
@@ -190,9 +190,7 @@ import (
 
 	// An array of placement constraint objects to use for tasks.
 	// This parameter isn't supported for tasks run on FARGATElong.
-	PlacementConstraints?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TaskDefinitionPlacementConstraint"
-	]
+	PlacementConstraints?: list.UniqueItems() & [...#TaskDefinitionPlacementConstraint]
 
 	// The configuration details for the App Mesh proxy.
 	// Your Amazon ECS container instances require at least version 1.26.0 of the
@@ -203,7 +201,7 @@ import (
 	// information, see [Amazon ECS-optimized Linux
 	// AMI](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	ProxyConfiguration?: _#defs."/$defs/Properties/definitions/ProxyConfiguration"
+	ProxyConfiguration?: #ProxyConfiguration
 
 	// The task launch types the task definition was validated against. The valid
 	// values are ``MANAGED_INSTANCES``, ``EC2``, ``FARGATE``, and ``EXTERNAL``.
@@ -213,7 +211,7 @@ import (
 	RequiresCompatibilities?: list.UniqueItems() & [..."EC2" | "EXTERNAL" | "FARGATE" | "MANAGED_INSTANCES"]
 
 	// The operating system that your tasks definitions run on.
-	RuntimePlatform?: _#defs."/$defs/Properties/definitions/RuntimePlatform"
+	RuntimePlatform?: #RuntimePlatform
 
 	// The metadata that you apply to the task definition to help you categorize and
 	// organize them. Each tag consists of a key and an optional value. You define
@@ -232,7 +230,7 @@ import (
 	// such as a prefix for either keys or values as it is reserved for AWS use.
 	// You cannot edit or delete tag keys or values with this prefix. Tags with
 	// this prefix do not count against your tags per resource limit.
-	Tags?:              list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:              list.MaxItems(50) & [...] & [...#Tag]
 	TaskDefinitionArn?: string
 
 	// The short name or full Amazon Resource Name (ARN) of the IAMlong role that
@@ -255,11 +253,11 @@ import (
 	// tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_data_volumes.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
 	// The ``host`` and ``sourcePath`` parameters aren't supported for tasks run on FARGATElong.
-	Volumes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Volume"]
+	Volumes?: list.UniqueItems() & [...#Volume]
 })
 
 // The authorization configuration details for the Amazon EFS file system.
-_#defs: "/$defs/Properties/definitions/AuthorizationConfig": close({
+#AuthorizationConfig: close({
 	// The Amazon EFS access point ID to use. If an access point is specified, the
 	// root directory value specified in the ``EFSVolumeConfiguration`` must either
 	// be omitted or set to ``/`` which will enforce the path set on the EFS access
@@ -283,7 +281,7 @@ _#defs: "/$defs/Properties/definitions/AuthorizationConfig": close({
 // The ``ContainerDefinition`` property specifies a container definition.
 // Container definitions are used in task definitions to describe the different
 // containers that are launched as part of a task.
-_#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
+#ContainerDefinition: close({
 	// The command that's passed to the container. This parameter maps to ``Cmd`` in
 	// the docker container create command and the ``COMMAND`` parameter to docker
 	// run. If there are multiple arguments, each argument is a separated string in
@@ -386,7 +384,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// [AWS::CodeDeploy::DeploymentGroup
 	// BlueGreenDeploymentConfiguration](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codedeploy-deploymentgroup-bluegreendeploymentconfiguration.html),
 	// the ``dependsOn`` parameter is not supported.
-	DependsOn?: [..._#defs."/$defs/Properties/definitions/ContainerDependency"]
+	DependsOn?: [...#ContainerDependency]
 
 	// When this parameter is true, networking is off within the container. This
 	// parameter maps to ``NetworkDisabled`` in the docker container create
@@ -456,7 +454,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// docker run.
 	// We don't recommend that you use plaintext environment variables for sensitive
 	// information, such as credential data.
-	Environment?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
+	Environment?: list.UniqueItems() & [...#KeyValuePair]
 
 	// A list of files containing the environment variables to pass to a container.
 	// This parameter maps to the ``--env-file`` option to docker run.
@@ -472,7 +470,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// see [Specifying Environment
 	// Variables](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/taskdef-envfiles.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	EnvironmentFiles?: [..._#defs."/$defs/Properties/definitions/EnvironmentFile"]
+	EnvironmentFiles?: [...#EnvironmentFile]
 
 	// If the ``essential`` parameter of a container is marked as ``true``, and that
 	// container fails or stops for any reason, all other containers that are part
@@ -494,19 +492,19 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// container create command and the ``--add-host`` option to docker run.
 	// This parameter isn't supported for Windows containers or tasks that use the
 	// ``awsvpc`` network mode.
-	ExtraHosts?: [..._#defs."/$defs/Properties/definitions/HostEntry"]
+	ExtraHosts?: [...#HostEntry]
 
 	// The FireLens configuration for the container. This is used to specify and
 	// configure a log router for container logs. For more information, see [Custom
 	// Log
 	// Routing](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	FirelensConfiguration?: _#defs."/$defs/Properties/definitions/FirelensConfiguration"
+	FirelensConfiguration?: #FirelensConfiguration
 
 	// The container health check command and associated configuration parameters
 	// for the container. This parameter maps to ``HealthCheck`` in the docker
 	// container create command and the ``HEALTHCHECK`` parameter of docker run.
-	HealthCheck?: _#defs."/$defs/Properties/definitions/HealthCheck"
+	HealthCheck?: #HealthCheck
 
 	// The hostname to use for your container. This parameter maps to ``Hostname``
 	// in the docker container create command and the ``--hostname`` option to
@@ -568,7 +566,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// kernel capabilities. For more information see
 	// [KernelCapabilities](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html).
 	// This parameter is not supported for Windows containers.
-	LinuxParameters?: _#defs."/$defs/Properties/definitions/LinuxParameters"
+	LinuxParameters?: #LinuxParameters
 
 	// The log configuration specification for the container.
 	// This parameter maps to ``LogConfig`` in the docker Create a container command
@@ -598,7 +596,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// information, see [Container Agent
 	// Configuration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-config.html)
 	// in the *Developer Guide*.
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	LogConfiguration?: #LogConfiguration
 
 	// The amount (in MiB) of memory to present to the container. If your container
 	// attempts to exceed the memory specified here, the container is killed. The
@@ -660,7 +658,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// Windows containers can mount whole directories on the same drive as
 	// ``$env:ProgramData``. Windows containers can't mount directories on a
 	// different drive, and mount point can't be across drives.
-	MountPoints?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MountPoint"]
+	MountPoints?: list.UniqueItems() & [...#MountPoint]
 
 	// The name of a container. If you're linking multiple containers together in a
 	// task definition, the ``name`` of one container can be entered in the
@@ -694,7 +692,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// assignments are also visible in the ``networkBindings`` section
 	// [DescribeTasks](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_DescribeTasks.html)
 	// responses.
-	PortMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortMapping"]
+	PortMappings?: list.UniqueItems() & [...#PortMapping]
 
 	// When this parameter is true, the container is given elevated privileges on
 	// the host container instance (similar to the ``root`` user). This parameter
@@ -715,11 +713,11 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	ReadonlyRootFilesystem?: bool
 
 	// The private repository authentication credentials to use.
-	RepositoryCredentials?: _#defs."/$defs/Properties/definitions/RepositoryCredentials"
+	RepositoryCredentials?: #RepositoryCredentials
 
 	// The type and amount of a resource to assign to a container. The supported
 	// resources are GPUs and Neuron devices.
-	ResourceRequirements?: [..._#defs."/$defs/Properties/definitions/ResourceRequirement"]
+	ResourceRequirements?: [...#ResourceRequirement]
 
 	// The restart policy for a container. When you set up a restart policy, Amazon
 	// ECS can restart the container without needing to replace the task. For more
@@ -727,13 +725,13 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// container restart
 	// policies](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-restart-policy.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	RestartPolicy?: _#defs."/$defs/Properties/definitions/RestartPolicy"
+	RestartPolicy?: #RestartPolicy
 
 	// The secrets to pass to the container. For more information, see [Specifying
 	// Sensitive
 	// Data](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	Secrets?: [..._#defs."/$defs/Properties/definitions/Secret"]
+	Secrets?: [...#Secret]
 
 	// Time duration (in seconds) to wait before giving up on resolving dependencies
 	// for a container. For example, you specify two containers in a task
@@ -802,7 +800,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// ``--sysctl`` option to docker run. For example, you can configure
 	// ``net.ipv4.tcp_keepalive_time`` setting to maintain longer lived
 	// connections.
-	SystemControls?: [..._#defs."/$defs/Properties/definitions/SystemControl"]
+	SystemControls?: [...#SystemControl]
 
 	// A list of ``ulimits`` to set in the container. This parameter maps to
 	// ``Ulimits`` in the [Create a
@@ -818,7 +816,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// on your container instance, log in to your container instance and run the
 	// following command: ``sudo docker version --format '{{.Server.APIVersion}}'``
 	// This parameter is not supported for Windows containers.
-	Ulimits?: [..._#defs."/$defs/Properties/definitions/Ulimit"]
+	Ulimits?: [...#Ulimit]
 
 	// The user to use inside the container. This parameter maps to ``User`` in the
 	// docker container create command and the ``--user`` option to docker run.
@@ -851,7 +849,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// Data volumes to mount from another container. This parameter maps to
 	// ``VolumesFrom`` in the docker container create command and the
 	// ``--volumes-from`` option to docker run.
-	VolumesFrom?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VolumeFrom"]
+	VolumesFrom?: list.UniqueItems() & [...#VolumeFrom]
 
 	// The working directory to run commands inside the container in. This parameter
 	// maps to ``WorkingDir`` in the docker container create command and the
@@ -879,7 +877,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 // in the *Amazon Elastic Container Service Developer Guide*.
 // For tasks using the Fargate launch type, this parameter requires that the
 // task or service uses platform version 1.3.0 or later.
-_#defs: "/$defs/Properties/definitions/ContainerDependency": close({
+#ContainerDependency: close({
 	// The dependency condition of the container. The following are the available
 	// conditions and their behavior:
 	// + ``START`` - This condition emulates the behavior of links and volumes
@@ -903,7 +901,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDependency": close({
 })
 
 // The ``Device`` property specifies an object representing a container instance host device.
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	// The path inside the container at which to expose the host device.
 	ContainerPath?: string
 
@@ -921,7 +919,7 @@ _#defs: "/$defs/Properties/definitions/Device": close({
 // only supported when you are using the EC2 launch type. Windows containers
 // only support the use of the ``local`` driver. To use bind mounts, specify a
 // ``host`` instead.
-_#defs: "/$defs/Properties/definitions/DockerVolumeConfiguration": close({
+#DockerVolumeConfiguration: close({
 	// If this value is ``true``, the Docker volume is created if it doesn't already exist.
 	// This field is only used if the ``scope`` is ``shared``.
 	Autoprovision?: bool
@@ -960,9 +958,9 @@ _#defs: "/$defs/Properties/definitions/DockerVolumeConfiguration": close({
 // file system for task storage. For more information, see [Amazon EFS
 // volumes](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/efs-volumes.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/EFSVolumeConfiguration": close({
+#EFSVolumeConfiguration: close({
 	// The authorization configuration details for the Amazon EFS file system.
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/AuthorizationConfig"
+	AuthorizationConfig?: #AuthorizationConfig
 
 	// The Amazon EFS file system ID to use.
 	FilesystemId!: string
@@ -1017,7 +1015,7 @@ _#defs: "/$defs/Properties/definitions/EFSVolumeConfiguration": close({
 // + The file is handled like a native Docker env-file.
 // + There is no support for shell escape handling.
 // + The container entry point interperts the ``VARIABLE`` values.
-_#defs: "/$defs/Properties/definitions/EnvironmentFile": close({
+#EnvironmentFile: close({
 	// The file type to use. Environment files are objects in Amazon S3. The only
 	// supported value is ``s3``.
 	Type?: "s3"
@@ -1035,7 +1033,7 @@ _#defs: "/$defs/Properties/definitions/EnvironmentFile": close({
 // For tasks using the Fargate launch type, the task requires the following platforms:
 // + Linux platform version ``1.4.0`` or later.
 // + Windows platform version ``1.0.0`` or later.
-_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
+#EphemeralStorage: close({
 	// The total amount, in GiB, of ephemeral storage to set for the task. The
 	// minimum supported value is ``21`` GiB and the maximum supported value is
 	// ``200`` GiB.
@@ -1050,7 +1048,7 @@ _#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
 // Server
 // Volumes](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/wfsx-volumes.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/FSxAuthorizationConfig": close({
+#FSxAuthorizationConfig: close({
 	// The authorization credential option to use. The authorization credential
 	// options can be provided using either the Amazon Resource Name (ARN) of an
 	// ASMlong secret or SSM Parameter Store parameter. The ARN refers to the
@@ -1070,9 +1068,9 @@ _#defs: "/$defs/Properties/definitions/FSxAuthorizationConfig": close({
 // Server
 // volumes](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/wfsx-volumes.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/FSxWindowsFileServerVolumeConfiguration": close({
+#FSxWindowsFileServerVolumeConfiguration: close({
 	// The authorization configuration details for the Amazon FSx for Windows File Server file system.
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/FSxAuthorizationConfig"
+	AuthorizationConfig?: #FSxAuthorizationConfig
 
 	// The Amazon FSx for Windows File Server file system ID to use.
 	FileSystemId!: string
@@ -1087,7 +1085,7 @@ _#defs: "/$defs/Properties/definitions/FSxWindowsFileServerVolumeConfiguration":
 // log
 // routing](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_firelens.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/FirelensConfiguration": close({
+#FirelensConfiguration: close({
 	// The options to use when configuring the log router. This field is optional
 	// and can be used to add additional metadata, such as the task, task
 	// definition, cluster, and container instance details to the log event.
@@ -1129,7 +1127,7 @@ _#defs: "/$defs/Properties/definitions/FirelensConfiguration": close({
 // Versions](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html).
 // + Container health checks are not supported for tasks that are part of a
 // service that is configured to use a Classic Load Balancer.
-_#defs: "/$defs/Properties/definitions/HealthCheck": close({
+#HealthCheck: close({
 	// A string array representing the command that the container runs to determine
 	// if it is healthy. The string array must start with ``CMD`` to run the
 	// command arguments directly, or ``CMD-SHELL`` to run the command with the
@@ -1172,7 +1170,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheck": close({
 // The ``HostEntry`` property specifies a hostname and an IP address that are
 // added to the ``/etc/hosts`` file of a container through the ``extraHosts``
 // parameter of its ``ContainerDefinition`` resource.
-_#defs: "/$defs/Properties/definitions/HostEntry": close({
+#HostEntry: close({
 	// The hostname to use in the ``/etc/hosts`` entry.
 	Hostname?: string
 
@@ -1182,7 +1180,7 @@ _#defs: "/$defs/Properties/definitions/HostEntry": close({
 
 // The ``HostVolumeProperties`` property specifies details on a container
 // instance bind mount host volume.
-_#defs: "/$defs/Properties/definitions/HostVolumeProperties": close({
+#HostVolumeProperties: close({
 	// When the ``host`` parameter is used, specify a ``sourcePath`` to declare the
 	// path on the host container instance that's presented to the container. If
 	// this parameter is empty, then the Docker daemon has assigned a host path for
@@ -1195,7 +1193,7 @@ _#defs: "/$defs/Properties/definitions/HostVolumeProperties": close({
 	SourcePath?: string
 })
 
-_#defs: "/$defs/Properties/definitions/InferenceAccelerator": close({
+#InferenceAccelerator: close({
 	DeviceName?: string
 	DeviceType?: string
 })
@@ -1225,7 +1223,7 @@ _#defs: "/$defs/Properties/definitions/InferenceAccelerator": close({
 // + The default is to first drop the capabilities specified in the ``drop``
 // request parameter, and then add the capabilities specified in the ``add``
 // request parameter.
-_#defs: "/$defs/Properties/definitions/KernelCapabilities": close({
+#KernelCapabilities: close({
 	// The Linux capabilities for the container that have been added to the default
 	// configuration provided by Docker. This parameter maps to ``CapAdd`` in the
 	// docker container create command and the ``--cap-add`` option to docker run.
@@ -1256,7 +1254,7 @@ _#defs: "/$defs/Properties/definitions/KernelCapabilities": close({
 })
 
 // A key-value pair object.
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	// The name of the key-value pair. For environment variables, this is the name
 	// of the environment variable.
 	Name?: string
@@ -1268,20 +1266,20 @@ _#defs: "/$defs/Properties/definitions/KeyValuePair": close({
 
 // The Linux-specific options that are applied to the container, such as Linux
 // [KernelCapabilities](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_KernelCapabilities.html).
-_#defs: "/$defs/Properties/definitions/LinuxParameters": close({
+#LinuxParameters: close({
 	// The Linux capabilities for the container that are added to or dropped from
 	// the default configuration provided by Docker.
 	// For tasks that use the Fargate launch type, ``capabilities`` is supported for
 	// all platform versions but the ``add`` parameter is only supported if using
 	// platform version 1.4.0 or later.
-	Capabilities?: _#defs."/$defs/Properties/definitions/KernelCapabilities"
+	Capabilities?: #KernelCapabilities
 
 	// Any host devices to expose to the container. This parameter maps to
 	// ``Devices`` in the docker container create command and the ``--device``
 	// option to docker run.
 	// If you're using tasks that use the Fargate launch type, the ``devices``
 	// parameter isn't supported.
-	Devices?: [..._#defs."/$defs/Properties/definitions/Device"]
+	Devices?: [...#Device]
 
 	// Run an ``init`` process inside the container that forwards signals and reaps
 	// processes. This parameter maps to the ``--init`` option to docker run. This
@@ -1325,12 +1323,12 @@ _#defs: "/$defs/Properties/definitions/LinuxParameters": close({
 
 	// The container path, mount options, and size (in MiB) of the tmpfs mount. This
 	// parameter maps to the ``--tmpfs`` option to docker run.
-	Tmpfs?: [..._#defs."/$defs/Properties/definitions/Tmpfs"]
+	Tmpfs?: [...#Tmpfs]
 })
 
 // The ``LogConfiguration`` property specifies log configuration options to send
 // to a custom log driver for the container.
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	// The log driver to use for the container.
 	// For tasks on FARGATElong, the supported log drivers are ``awslogs``,
 	// ``splunk``, and ``awsfirelens``.
@@ -1469,11 +1467,11 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 	// [Specifying sensitive
 	// data](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"]
+	SecretOptions?: [...#Secret]
 })
 
 // The details for a volume mount point that's used in a container definition.
-_#defs: "/$defs/Properties/definitions/MountPoint": close({
+#MountPoint: close({
 	// The path on the container to mount the host volume at.
 	ContainerPath?: string
 
@@ -1498,7 +1496,7 @@ _#defs: "/$defs/Properties/definitions/MountPoint": close({
 // container port assignments are visible in the ``networkBindings`` section of
 // [DescribeTasks](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_DescribeTasks.html)
 // API responses.
-_#defs: "/$defs/Properties/definitions/PortMapping": close({
+#PortMapping: close({
 	// The application protocol that's used for the port mapping. This parameter
 	// only applies to Service Connect. We recommend that you set this parameter to
 	// be consistent with the protocol that your application uses. If you set this
@@ -1627,7 +1625,7 @@ _#defs: "/$defs/Properties/definitions/PortMapping": close({
 // container agent and ``ecs-init``. For more information, see [Amazon
 // ECS-optimized Linux
 // AMI](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html)
-_#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
+#ProxyConfiguration: close({
 	// The name of the container that will serve as the App Mesh proxy.
 	ContainerName!: string
 
@@ -1654,14 +1652,14 @@ _#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
 	// + ``EgressIgnoredIPs`` - (Required) The egress traffic going to the specified
 	// IP addresses is ignored and not redirected to the ``ProxyEgressPort``. It
 	// can be an empty list.
-	ProxyConfigurationProperties?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
+	ProxyConfigurationProperties?: list.UniqueItems() & [...#KeyValuePair]
 
 	// The proxy type. The only supported value is ``APPMESH``.
 	Type?: "APPMESH"
 })
 
 // The repository credentials for private registry authentication.
-_#defs: "/$defs/Properties/definitions/RepositoryCredentials": close({
+#RepositoryCredentials: close({
 	// The Amazon Resource Name (ARN) of the secret containing the private repository credentials.
 	// When you use the Amazon ECS API, CLI, or AWS SDK, if the secret exists in the
 	// same Region as the task that you're launching then you can use either the
@@ -1677,7 +1675,7 @@ _#defs: "/$defs/Properties/definitions/RepositoryCredentials": close({
 // or [Working with Amazon Elastic Inference on Amazon
 // ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-inference.html)
 // in the *Amazon Elastic Container Service Developer Guide*
-_#defs: "/$defs/Properties/definitions/ResourceRequirement": close({
+#ResourceRequirement: close({
 	// The type of resource to assign to a container.
 	Type!: "GPU" | "InferenceAccelerator" | "NeuronDevice"
 
@@ -1707,7 +1705,7 @@ _#defs: "/$defs/Properties/definitions/ResourceRequirement": close({
 // with container restart
 // policies](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-restart-policy.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/RestartPolicy": close({
+#RestartPolicy: close({
 	// Specifies whether a restart policy is enabled for the container.
 	Enabled?: bool
 
@@ -1730,7 +1728,7 @@ _#defs: "/$defs/Properties/definitions/RestartPolicy": close({
 // For more information about ``RuntimePlatform``, see
 // [RuntimePlatform](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#runtime-platform)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/RuntimePlatform": close({
+#RuntimePlatform: close({
 	// The CPU architecture.
 	// You can run your Linux tasks on an ARM-based platform by setting the value to
 	// ``ARM64``. This option is available for tasks that run on Linux Amazon EC2
@@ -1758,7 +1756,7 @@ _#defs: "/$defs/Properties/definitions/RuntimePlatform": close({
 // attaching your file system to compute
 // resources](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files-prereq-policies.html#s3-files-prereq-iam-compute-role)
 // for required permissions.
-_#defs: "/$defs/Properties/definitions/S3FilesVolumeConfiguration": close({
+#S3FilesVolumeConfiguration: close({
 	// The full ARN of the S3 Files access point to use. If an access point is
 	// specified, the root directory value specified in the
 	// ``S3FilesVolumeConfiguration`` must either be omitted or set to ``/`` which
@@ -1797,7 +1795,7 @@ _#defs: "/$defs/Properties/definitions/S3FilesVolumeConfiguration": close({
 // For more information, see [Specifying sensitive
 // data](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	// The name of the secret.
 	Name!: string
 
@@ -1847,7 +1845,7 @@ _#defs: "/$defs/Properties/definitions/Secret": close({
 // This parameter is only supported for tasks that are hosted on FARGATElong if
 // the tasks are using platform version ``1.4.0`` or later (Linux). This isn't
 // supported for Windows containers on Fargate.
-_#defs: "/$defs/Properties/definitions/SystemControl": close({
+#SystemControl: close({
 	// The namespaced kernel parameter to set a ``value`` for.
 	Namespace?: string
 
@@ -1879,7 +1877,7 @@ _#defs: "/$defs/Properties/definitions/SystemControl": close({
 // such as a prefix for either keys or values as it is reserved for AWS use.
 // You cannot edit or delete tag keys or values with this prefix. Tags with
 // this prefix do not count against your tags per resource limit.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// One part of a key-value pair that make up a tag. A ``key`` is a general label
 	// that acts like a category for more specific tag values.
 	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
@@ -1894,7 +1892,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // constraints](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-constraints.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
 // Task placement constraints aren't supported for tasks run on FARGATElong.
-_#defs: "/$defs/Properties/definitions/TaskDefinitionPlacementConstraint": close({
+#TaskDefinitionPlacementConstraint: close({
 	// A cluster query language expression to apply to the constraint. For more
 	// information, see [Cluster query
 	// language](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-query-language.html)
@@ -1907,7 +1905,7 @@ _#defs: "/$defs/Properties/definitions/TaskDefinitionPlacementConstraint": close
 })
 
 // The container path, mount options, and size of the tmpfs mount.
-_#defs: "/$defs/Properties/definitions/Tmpfs": close({
+#Tmpfs: close({
 	// The absolute file path where the tmpfs volume is to be mounted.
 	ContainerPath?: string
 
@@ -1933,7 +1931,7 @@ _#defs: "/$defs/Properties/definitions/Tmpfs": close({
 // default ``nofile`` soft limit is ``65535`` and the default hard limit is
 // ``65535``.
 // You can specify the ``ulimit`` settings for a container in a task definition.
-_#defs: "/$defs/Properties/definitions/Ulimit": close({
+#Ulimit: close({
 	// The hard limit for the ``ulimit`` type. The value can be specified in bytes,
 	// seconds, or as a count, depending on the ``type`` of the ``ulimit``.
 	HardLimit!: int
@@ -1971,7 +1969,7 @@ _#defs: "/$defs/Properties/definitions/Ulimit": close({
 // configuration is specified, by default Amazon ECS uses a host volume. For
 // more information, see [Using data volumes in
 // tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_data_volumes.html).
-_#defs: "/$defs/Properties/definitions/Volume": close({
+#Volume: close({
 	// Indicates whether the volume should be configured at launch time. This is
 	// used to create Amazon EBS volumes for standalone tasks or tasks created as
 	// part of a service. Each task definition revision may only have one volume
@@ -1985,16 +1983,15 @@ _#defs: "/$defs/Properties/definitions/Volume": close({
 	// Windows containers only support the use of the ``local`` driver. To use bind
 	// mounts, specify the ``host`` parameter instead.
 	// Docker volumes aren't supported by tasks run on FARGATElong.
-	DockerVolumeConfiguration?: _#defs."/$defs/Properties/definitions/DockerVolumeConfiguration"
+	DockerVolumeConfiguration?: #DockerVolumeConfiguration
 
 	// This parameter is specified when you use an Amazon Elastic File System file
 	// system for task storage.
-	EFSVolumeConfiguration?: _#defs."/$defs/Properties/definitions/EFSVolumeConfiguration"
+	EFSVolumeConfiguration?: #EFSVolumeConfiguration
 
 	// This parameter is specified when you use Amazon FSx for Windows File Server
 	// file system for task storage.
-	FSxWindowsFileServerVolumeConfiguration?:
-		_#defs."/$defs/Properties/definitions/FSxWindowsFileServerVolumeConfiguration"
+	FSxWindowsFileServerVolumeConfiguration?: #FSxWindowsFileServerVolumeConfiguration
 
 	// This parameter is specified when you use bind mount host volumes. The
 	// contents of the ``host`` parameter determine whether your bind mount host
@@ -2007,7 +2004,7 @@ _#defs: "/$defs/Properties/definitions/Volume": close({
 	// different drive, and mount point can't be across drives. For example, you
 	// can mount ``C:\my\path:C:\my\path`` and ``D:\:D:\``, but not
 	// ``D:\my\path:C:\my\path`` or ``D:\:C:\my\path``.
-	Host?: _#defs."/$defs/Properties/definitions/HostVolumeProperties"
+	Host?: #HostVolumeProperties
 
 	// The name of the volume. Up to 255 letters (uppercase and lowercase), numbers,
 	// underscores, and hyphens are allowed.
@@ -2023,11 +2020,11 @@ _#defs: "/$defs/Properties/definitions/Volume": close({
 	Name?: string
 
 	// This parameter is specified when you use an Amazon S3 Files file system for task storage.
-	S3FilesVolumeConfiguration?: _#defs."/$defs/Properties/definitions/S3FilesVolumeConfiguration"
+	S3FilesVolumeConfiguration?: #S3FilesVolumeConfiguration
 })
 
 // Details on a data volume from another container in the same task definition.
-_#defs: "/$defs/Properties/definitions/VolumeFrom": close({
+#VolumeFrom: close({
 	// If this value is ``true``, the container has read-only access to the volume.
 	// If this value is ``false``, then the container can write to the volume. The
 	// default value is ``false``.

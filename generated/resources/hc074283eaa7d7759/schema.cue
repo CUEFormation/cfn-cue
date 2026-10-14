@@ -9,22 +9,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AmazonMQ::Configuration
-#Properties: close({
-	AuthenticationStrategy?: =~"(?i)^(?:config_managed|ldap|simple)$" | fn.#StringExpression
-	Data?:                   string | fn.#StringExpression
-	Description?:            string | fn.#StringExpression
-	EngineType!:             =~"(?i)^(?:activemq|rabbitmq)$" | fn.#StringExpression
-	EngineVersion?:          string | fn.#StringExpression
-	Name!:                   string | fn.#StringExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AmazonMQ::Configuration"
+	Properties!: close({
+		AuthenticationStrategy?: =~"(?i)^(?:config_managed|ldap|simple)$" | fn.#StringExpression
+		Data?:                   string | fn.#StringExpression
+		Description?:            string | fn.#StringExpression
+		EngineType!:             =~"(?i)^(?:activemq|rabbitmq)$" | fn.#StringExpression
+		EngineVersion?:          string | fn.#StringExpression
+		Name!:                   string | fn.#StringExpression
+		Tags?:                   [...#TagsEntry] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AmazonMQ::Configuration"
-	Properties!: #Properties
-}

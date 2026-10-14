@@ -12,25 +12,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Test and Publish a resource that has been registered in the CloudFormation Registry.
-#Properties: matchN(1, [{
-	TypeName!: _
-	Type!:     _
-	...
-}, {
-	Arn!: _
-	...
-}]) & close({
-	Arn?: strings.MaxRunes(1024) &
-	strings.MinRunes(0) &
-	=~"arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:[0-9]{12}:type/.+" |
-	fn.#StringExpression
-	LogDeliveryBucket?: string | fn.#StringExpression
-	PublicVersionNumber?: strings.MaxRunes(64) & strings.MinRunes(5) & =~"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(.*)$" |
-	fn.#StringExpression
-	Type?:     "RESOURCE" | "MODULE" | "HOOK" | fn.#StringExpression
-	TypeName?: =~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::PublicTypeVersion"
-	Properties?: #Properties
+	Type!: "AWS::CloudFormation::PublicTypeVersion"
+	Properties?: matchN(1, [{
+		TypeName!: _
+		Type!:     _
+		...
+	}, {
+		Arn!: _
+		...
+	}]) & close({
+		Arn?: strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:[0-9]{12}:type/.+" |
+		fn.#StringExpression
+		LogDeliveryBucket?: string | fn.#StringExpression
+		PublicVersionNumber?: strings.MaxRunes(64) & strings.MinRunes(5) & =~"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(.*)$" |
+		fn.#StringExpression
+		Type?:     "RESOURCE" | "MODULE" | "HOOK" | fn.#StringExpression
+		TypeName?: =~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" | fn.#StringExpression
+	})
 }

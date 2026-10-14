@@ -64,11 +64,11 @@ import (
 
 	// Key-value pairs that can be used to group and search for agreements. Tags are
 	// metadata attached to agreements for any purpose.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 })
 
 // Creates a key-value pair for a specific resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The name assigned to the tag that you create.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

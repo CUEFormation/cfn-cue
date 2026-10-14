@@ -17,23 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GameLift::Build
-#Properties: close({
-	Name?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	OperatingSystem?: "AMAZON_LINUX" |
-		"AMAZON_LINUX_2" |
-		"AMAZON_LINUX_2023" |
-		"WINDOWS_2012" |
-		"WINDOWS_2016" |
-		"WINDOWS_2022" |
-		fn.#StringExpression
-	ServerSdkVersion?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
-	StorageLocation?:  _#defs."/$defs/Properties/definitions/StorageLocation" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Version?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::Build"
+	Properties?: close({
+		Name?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		OperatingSystem?: "AMAZON_LINUX" |
+			"AMAZON_LINUX_2" |
+			"AMAZON_LINUX_2023" |
+			"WINDOWS_2012" |
+			"WINDOWS_2016" |
+			"WINDOWS_2022" |
+			fn.#StringExpression
+		ServerSdkVersion?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": null |
+		// Information indicating where your game build files are stored. Use this
+		// parameter only when creating a build with files stored in an Amazon S3
+		// bucket that you own. The storage location must specify an Amazon S3 bucket
+		// name and key. The location must also specify a role ARN that you set up to
+		// allow Amazon GameLift to access your Amazon S3 bucket. The S3 bucket and
+		// your new build must be in the same Region.
+		StorageLocation?: #StorageLocation
+		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Version?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
+
+#S3Location: null |
 bool |
 number |
 string |
@@ -73,7 +82,7 @@ string |
 } |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/StorageLocation": close({
+#StorageLocation: close({
 	Bucket!:        strings.MinRunes(1) | fn.#StringExpression
 	Key!:           strings.MinRunes(1) | fn.#StringExpression
 	ObjectVersion?: strings.MinRunes(1) | fn.#StringExpression
@@ -82,12 +91,8 @@ _#defs: "/$defs/Properties/definitions/StorageLocation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::Build"
-	Properties?: #Properties
-}

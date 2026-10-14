@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 	"time"
 )
 
@@ -17,9 +17,7 @@ import (
 #Properties: close({
 	// The aggregation configuration entries (account, regions, access role)
 	// associated with this profile.
-	AggregationConfiguration!: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/AggregationConfiguration"
-	]
+	AggregationConfiguration!: list.MaxItems(100) & list.UniqueItems() & [...] & [...#AggregationConfiguration]
 
 	// The Amazon Resource Name (ARN) of the Agent Profile.
 	Arn?: strings.MaxRunes(2048) &
@@ -61,17 +59,15 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_-]+$"
 
 	// The list of Well-Architected pillars to focus on.
-	Pillars!: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Pillar"
-	]
+	Pillars!: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [...#Pillar]
 
 	// Key-value pairs to associate with the Agent Profile.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Defines an account, its in-scope regions, and the access role used to reach
 // resources in that account.
-_#defs: "/$defs/Properties/definitions/AggregationConfiguration": close({
+#AggregationConfiguration: close({
 	// The ARN of the IAM role used to access resources in this account.
 	AccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -88,10 +84,10 @@ _#defs: "/$defs/Properties/definitions/AggregationConfiguration": close({
 })
 
 // A Well-Architected pillar the Agent Profile focuses on.
-_#defs: "/$defs/Properties/definitions/Pillar": "COST_OPTIMIZATION" | "SECURITY" | "RESILIENCE" | "PERFORMANCE"
+#Pillar: "COST_OPTIMIZATION" | "SECURITY" | "RESILIENCE" | "PERFORMANCE"
 
 // A key-value pair to associate with the Agent Profile.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

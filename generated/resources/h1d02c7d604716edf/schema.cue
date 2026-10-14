@@ -12,11 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::AcceptedPortfolioShare
-#Properties: close({
-	AcceptLanguage?: =~"^(en|jp|zh)$" | fn.#StringExpression
-	PortfolioId!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::AcceptedPortfolioShare"
-	Properties!: #Properties
+	Type!: "AWS::ServiceCatalog::AcceptedPortfolioShare"
+	Properties!: close({
+		AcceptLanguage?: =~"^(en|jp|zh)$" | fn.#StringExpression
+		PortfolioId!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -17,140 +17,155 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Job
-#Properties: close({
-	AllocatedCapacity?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Job"
+	Properties!: close({
+		AllocatedCapacity?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
 							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Command!:              _#defs."/$defs/Properties/definitions/JobCommand" | fn.#ObjectExpression
-	Connections?:          _#defs."/$defs/Properties/definitions/ConnectionsList" | fn.#ObjectExpression
-	DefaultArguments?:     fn.#Object & {...} | string | fn.#StringObjectExpression
-	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	ExecutionClass?:       "FLEX" | "STANDARD" | fn.#StringExpression
-	ExecutionProperty?:    _#defs."/$defs/Properties/definitions/ExecutionProperty" | fn.#ObjectExpression
-	GlueVersion?:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
-	JobMode?:              "NOTEBOOK" | "SCRIPT" | "VISUAL" | fn.#StringExpression
-	JobRunQueuingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogUri?:               string | fn.#StringExpression
-	MaintenanceWindow?:    =~"^(Sun|Mon|Tue|Wed|Thu|Fri|Sat):([01]?[0-9]|2[0-3])$" | fn.#StringExpression
-	MaxCapacity?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxRetries?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name?:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	NonOverridableArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	NotificationProperty?:    _#defs."/$defs/Properties/definitions/NotificationProperty" | fn.#ObjectExpression
-	NumberOfWorkers?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Role!:                  string | fn.#StringExpression
-	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                  fn.#Object & {...} | string | fn.#StringObjectExpression
-	Timeout?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	WorkerType?: "Standard" |
-		"G.1X" |
-		"G.2X" |
-		"G.025X" |
-		"G.4X" |
-		"G.8X" |
-		"Z.2X" |
-		"G.12X" |
-		"G.16X" |
-		"R.1X" |
-		"R.2X" |
-		"R.4X" |
-		"R.8X" |
-		fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionsList": close({
+		// The code that executes a job.
+		Command!: #JobCommand
+
+		// Specifies the connections used by a job
+		Connections?:      #ConnectionsList
+		DefaultArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Description?:      strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		ExecutionClass?:   "FLEX" | "STANDARD" | fn.#StringExpression
+
+		// The maximum number of concurrent runs that are allowed for this job.
+		ExecutionProperty?:    #ExecutionProperty
+		GlueVersion?:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
+		JobMode?:              "NOTEBOOK" | "SCRIPT" | "VISUAL" | fn.#StringExpression
+		JobRunQueuingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		LogUri?:               string | fn.#StringExpression
+		MaintenanceWindow?:    =~"^(Sun|Mon|Tue|Wed|Thu|Fri|Sat):([01]?[0-9]|2[0-3])$" | fn.#StringExpression
+		MaxCapacity?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxRetries?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name?:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		NonOverridableArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
+
+		// Specifies configuration properties of a notification.
+		NotificationProperty?: #NotificationProperty
+		NumberOfWorkers?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Role!:                  string | fn.#StringExpression
+		SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                  fn.#Object & {...} | string | fn.#StringObjectExpression
+		Timeout?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		WorkerType?: "Standard" |
+			"G.1X" |
+			"G.2X" |
+			"G.025X" |
+			"G.4X" |
+			"G.8X" |
+			"Z.2X" |
+			"G.12X" |
+			"G.16X" |
+			"R.1X" |
+			"R.2X" |
+			"R.4X" |
+			"R.8X" |
+			fn.#StringExpression
+	})
+}
+
+#ConnectionsList: close({
 	Connections?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultArguments": close({
+#DefaultArguments: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionProperty": close({
+#ExecutionProperty: close({
 	MaxConcurrentRuns?: number |
 		{
 			string &
@@ -173,7 +188,7 @@ _#defs: "/$defs/Properties/definitions/ExecutionProperty": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobCommand": close({
+#JobCommand: close({
 	Name?:           string | fn.#StringExpression
 	PythonVersion?:  =~"^([2-3]|3[.]9)$" | fn.#StringExpression
 	Runtime?:        strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
@@ -181,13 +196,13 @@ _#defs: "/$defs/Properties/definitions/JobCommand": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NonOverridableArguments": close({
+#NonOverridableArguments: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationProperty": close({
+#NotificationProperty: close({
 	NotifyDelayAfter?: int & >=1 |
 		{
 			string &
@@ -205,7 +220,3 @@ _#defs: "/$defs/Properties/definitions/NotificationProperty": close({
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Job"
-	Properties!: #Properties
-}

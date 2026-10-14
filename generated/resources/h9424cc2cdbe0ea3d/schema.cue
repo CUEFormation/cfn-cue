@@ -19,23 +19,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Elastic IP
 // Addresses](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html)
 // in the *Amazon EC2 User Guide*.
-#Properties: close({
-	Address?:            string | fn.#StringExpression
-	Domain?:             =~"(?i)^(?:standard|vpc)$" | fn.#StringExpression
-	InstanceId?:         string | fn.#StringExpression
-	IpamPoolId?:         string | fn.#StringExpression
-	NetworkBorderGroup?: string | fn.#StringExpression
-	PublicIpv4Pool?:     string | fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TransferAddress?:    string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::EIP"
+	Properties?: close({
+		Address?:            string | fn.#StringExpression
+		Domain?:             =~"(?i)^(?:standard|vpc)$" | fn.#StringExpression
+		InstanceId?:         string | fn.#StringExpression
+		IpamPoolId?:         string | fn.#StringExpression
+		NetworkBorderGroup?: string | fn.#StringExpression
+		PublicIpv4Pool?:     string | fn.#StringExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+		TransferAddress?:    string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::EIP"
-	Properties?: #Properties
-}

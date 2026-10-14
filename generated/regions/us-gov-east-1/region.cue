@@ -3564,5 +3564,13 @@ import AWS_XRay_TransactionSearchConfig "github.com/cueformation/cfn-cue/resourc
 	AWS_XRay_ResourcePolicy.#Resource |
 	AWS_XRay_SamplingRule.#Resource |
 	AWS_XRay_TransactionSearchConfig.#Resource
-#Resources: [base.#LogicalID]: #Resource
+#Resources: [base.#LogicalID]~(_,R): {
+	Type!: string
+	if R.Type =~ "^Custom::" {
+		#ResourceTypes["AWS::CloudFormation::CustomResource"]
+	}
+	if R.Type !~ "^Custom::" {
+		#ResourceTypes[R.Type]
+	}
+}
 #Template: base.#Template & {Resources!: #Resources}

@@ -18,44 +18,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A markup/discount that is defined for a specific set of services that can
 // later be associated with a pricing plan.
-#Properties: close({
-	BillingEntity?: "AWS" | "AWS Marketplace" | "AISPL" | fn.#StringExpression
-	Description?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ModifierPercentage?: >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BillingConductor::PricingRule"
+	Properties!: close({
+		BillingEntity?: "AWS" | "AWS Marketplace" | "AISPL" | fn.#StringExpression
+		Description?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ModifierPercentage?: >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-	Operation?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	Scope!:     "GLOBAL" | "SERVICE" | "BILLING_ENTITY" | "SKU" | fn.#StringExpression
-	Service?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\-]+" | fn.#StringExpression
-	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Tiering?: close({
-		CustomTiers?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomTier"] |
-			fn.#ListExpression
-		FreeTier?: _#defs."/$defs/Properties/definitions/FreeTier"
-	}) |
-	fn.#ObjectExpression
-	Type!:      "MARKUP" | "DISCOUNT" | "TIERING" | fn.#StringExpression
-	UsageType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
+		Operation?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+		Scope!:     "GLOBAL" | "SERVICE" | "BILLING_ENTITY" | "SKU" | fn.#StringExpression
+		Service?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\-]+" | fn.#StringExpression
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Tiering?: close({
+			CustomTiers?: list.MaxItems(10) & list.MinItems(1) & [...#CustomTier] | fn.#ListExpression
+			FreeTier?:    #FreeTier
+		}) |
+		fn.#ObjectExpression
+		Type!:      "MARKUP" | "DISCOUNT" | "TIERING" | fn.#StringExpression
+		UsageType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CustomTier": close({
+#CustomTier: close({
 	BeginRangeInclusive!: >=0 |
 		{
 			string &
@@ -116,17 +118,11 @@ _#defs: "/$defs/Properties/definitions/CustomTier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FreeTier": close(
-	{Activated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#FreeTier: close({Activated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BillingConductor::PricingRule"
-	Properties!: #Properties
-}

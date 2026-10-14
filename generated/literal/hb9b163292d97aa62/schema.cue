@@ -21,12 +21,12 @@ import (
 	Name!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 
 	// Trace content for your wireless gateway and wireless device resources
 	TraceContent?: close({
-		LogLevel?:                _#defs."/$defs/Properties/definitions/LogLevel"
-		WirelessDeviceFrameInfo?: _#defs."/$defs/Properties/definitions/WirelessDeviceFrameInfo"
+		LogLevel?:                #LogLevel
+		WirelessDeviceFrameInfo?: #WirelessDeviceFrameInfo
 	})
 
 	// List of wireless gateway resources that have been added to the network analyzer configuration
@@ -36,10 +36,10 @@ import (
 	WirelessGateways?: list.MaxItems(250) & [...strings.MaxRunes(256) & strings.MinRunes(0)]
 })
 
-_#defs: "/$defs/Properties/definitions/LogLevel": "INFO" | "ERROR" | "DISABLED"
+#LogLevel: "INFO" | "ERROR" | "DISABLED"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -53,4 +53,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/WirelessDeviceFrameInfo": "ENABLED" | "DISABLED"
+#WirelessDeviceFrameInfo: "ENABLED" | "DISABLED"

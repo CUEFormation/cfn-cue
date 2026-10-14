@@ -13,35 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::QuickSight::Space
-#Properties: close({
-	AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\P{C}\\n\\r\\t\\f\\v\\p{Cf}]*$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\P{C}\\n\\r\\t\\f\\v\\p{Cf}]*$" | fn.#StringExpression
-	Permissions?: [..._#defs."/$defs/Properties/definitions/ResourcePermission"] | fn.#ListExpression
-	Resources?:   [..._#defs."/$defs/Properties/definitions/SpaceResource"] | fn.#ListExpression
-	SpaceId!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" | fn.#StringExpression
-	Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Space"
+	Properties!: close({
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\P{C}\\n\\r\\t\\f\\v\\p{Cf}]*$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\P{C}\\n\\r\\t\\f\\v\\p{Cf}]*$" |
+		fn.#StringExpression
+		Permissions?: [...#ResourcePermission] | fn.#ListExpression
+		Resources?:   [...#SpaceResource] | fn.#ListExpression
+		SpaceId!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	Actions!:   list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpaceResource": close({
+#SpaceResource: close({
 	ResourceArn!:  string | fn.#StringExpression
 	ResourceType!: "TOPIC" | "DASHBOARD" | "KNOWLEDGE_BASE" | "ACTION_CONNECTOR" | "DATA_SET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Space"
-	Properties!: #Properties
-}

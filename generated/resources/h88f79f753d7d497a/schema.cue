@@ -13,16 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::CustomEntityType
-#Properties: close({
-	ContextWords?: list.MaxItems(20) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Name?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RegexString?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::CustomEntityType"
-	Properties?: #Properties
+	Type!: "AWS::Glue::CustomEntityType"
+	Properties?: close({
+		ContextWords?: list.MaxItems(20) & list.MinItems(1) & [
+			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		RegexString?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

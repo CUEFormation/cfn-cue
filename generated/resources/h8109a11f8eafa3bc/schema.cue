@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -19,116 +19,143 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // operation. When you delete a ``PrincipalPermissions`` resource, the
 // permissions on principal-resource pair are revoked via the
 // LFlong``RevokePermissions`` API operation.
-#Properties: close({
-	Catalog?:                    _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	Permissions!:                _#defs."/$defs/Properties/definitions/PermissionList" | fn.#ListExpression
-	PermissionsWithGrantOption!: _#defs."/$defs/Properties/definitions/PermissionList" | fn.#ListExpression
-	Principal!:                  _#defs."/$defs/Properties/definitions/DataLakePrincipal" | fn.#ObjectExpression
-	Resource!:                   _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::PrincipalPermissions"
+	Properties!: close({
+		// The identifier for the GLUDC. By default, the account ID. The GLUDC is the
+		// persistent metadata store. It contains database definitions, table
+		// definitions, and other control information to manage your Lake Formation
+		// environment.
+		Catalog?: #CatalogIdString
 
-_#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(255) & strings.MinRunes(12) |
-fn.#StringExpression
+		// The permissions granted or revoked.
+		Permissions!: #PermissionList
 
-_#defs: "/$defs/Properties/definitions/CatalogResource": string | fn.#StringExpression
+		// Indicates the ability to grant permissions (as a subset of permissions granted).
+		PermissionsWithGrantOption!: #PermissionList
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"] |
-	fn.#ListExpression
+		// The principal to be granted a permission.
+		Principal!: #DataLakePrincipal
 
-_#defs: "/$defs/Properties/definitions/ColumnWildcard": close(
-	{ExcludedColumnNames?: _#defs."/$defs/Properties/definitions/ColumnNames" | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+		// The resource to be granted or revoked permissions.
+		Resource!: _#defs."/$defs/Properties/definitions/Resource"
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DataCellsFilterResource": close({
-	DatabaseName!:   _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name!:           _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	TableCatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	TableName!:      _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
+#CatalogIdString: strings.MaxRunes(255) & strings.MinRunes(12) | fn.#StringExpression
+
+#CatalogResource: string | fn.#StringExpression
+
+#ColumnNames: [...#NameString] | fn.#ListExpression
+
+#ColumnWildcard: close({
+	// Excludes column names. Any column with this name will be excluded.
+	ExcludedColumnNames?: #ColumnNames
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close({
-	DataLakePrincipalIdentifier?: _#defs."/$defs/Properties/definitions/DataLakePrincipalString" | fn.#StringExpression
-}) |
-	fn.#ObjectExpression
+#DataCellsFilterResource: close({
+	// A database in the GLUDC.
+	DatabaseName!: #NameString
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipalList": [
-	..._#defs."/$defs/Properties/definitions/DataLakePrincipal"
-] |
-	fn.#ListExpression
+	// The name given by the user to the data filter cell.
+	Name!: #NameString
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipalString": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+	// The ID of the catalog to which the table belongs.
+	TableCatalogId!: #CatalogIdString
 
-_#defs: "/$defs/Properties/definitions/DataLocationResource": close({
-	CatalogId!:   _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArnString" | fn.#StringExpression
+	// The name of the table.
+	TableName!: #NameString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseResource": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	Name!:      _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
+#DataLakePrincipal: close({
+	// An identifier for the LFlong principal.
+	DataLakePrincipalIdentifier?: #DataLakePrincipalString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Expression": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTag"
-] |
-	fn.#ListExpression
+#DataLakePrincipalList: [...#DataLakePrincipal] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IAMRoleArn": =~"arn:*:iam::[0-9]*:role/.*" | fn.#StringExpression
+#DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LFTag": close({
-	TagKey?:    _#defs."/$defs/Properties/definitions/LFTagKey" | fn.#StringExpression
-	TagValues?: _#defs."/$defs/Properties/definitions/TagValueList" | fn.#ListExpression
+#DataLocationResource: close({
+	// The identifier for the GLUDC where the location is registered with LFlong.
+	CatalogId!: #CatalogIdString
+
+	// The Amazon Resource Name (ARN) that uniquely identifies the data location resource.
+	ResourceArn!: #ResourceArnString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagKey": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#DatabaseResource: close({
+	// The identifier for the Data Catalog. By default, it is the account ID of the caller.
+	CatalogId!: #CatalogIdString
 
-_#defs: "/$defs/Properties/definitions/LFTagKeyResource": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	TagKey!:    _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList" | fn.#ListExpression
+	// The name of the database resource. Unique to the Data Catalog.
+	Name!: #NameString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagPair": close({
-	CatalogId?: _#defs."/$defs/Properties/definitions/CatalogIdString"
-	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey"
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList"
+#Expression: list.MaxItems(5) & list.MinItems(1) & [...#LFTag] | fn.#ListExpression
+
+#IAMRoleArn: =~"arn:*:iam::[0-9]*:role/.*" | fn.#StringExpression
+
+#LFTag: close({
+	// The key-name for the LF-tag.
+	TagKey?: #LFTagKey
+
+	// A list of possible values of the corresponding ``TagKey`` of an LF-tag key-value pair.
+	TagValues?: #TagValueList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagPolicyResource": close({
-	CatalogId!:    _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	Expression!:   _#defs."/$defs/Properties/definitions/Expression" | fn.#ListExpression
-	ResourceType!: _#defs."/$defs/Properties/definitions/ResourceType" | fn.#StringExpression
+#LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+
+#LFTagKeyResource: close({
+	// The identifier for the GLUDC where the location is registered with GLUDC.
+	CatalogId!: #CatalogIdString
+
+	// The key-name for the LF-tag.
+	TagKey!: #NameString
+
+	// A list of possible values for the corresponding ``TagKey`` of an LF-tag key-value pair.
+	TagValues!: #TagValueList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagValue": strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#LFTagPair: close({
+	CatalogId?: #CatalogIdString
+	TagKey!:    #LFTagKey
+	TagValues!: #TagValueList
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagsList": [..._#defs."/$defs/Properties/definitions/LFTagPair"] |
-	fn.#ListExpression
+#LFTagPolicyResource: close({
+	// The identifier for the GLUDC. The GLUDC is the persistent metadata store. It
+	// contains database definitions, table definitions, and other control
+	// information to manage your LFlong environment.
+	CatalogId!: #CatalogIdString
 
-_#defs: "/$defs/Properties/definitions/NameString": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	// A list of LF-tag conditions that apply to the resource's LF-tag policy.
+	Expression!: #Expression
 
-_#defs: "/$defs/Properties/definitions/NullableBoolean": null |
-	bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+	// The resource type for which the LF-tag policy applies.
+	ResourceType!: #ResourceType
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PathString": string | fn.#StringExpression
+#LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Permission": "ALL" |
+#LFTagsList: [...#LFTagPair] | fn.#ListExpression
+
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+#NullableBoolean: null | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+#PathString: string | fn.#StringExpression
+
+#Permission: "ALL" |
 	"SELECT" |
 	"ALTER" |
 	"DROP" |
@@ -143,66 +170,104 @@ _#defs: "/$defs/Properties/definitions/Permission": "ALL" |
 	"GRANT_WITH_LF_TAG_EXPRESSION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PermissionList": [..._#defs."/$defs/Properties/definitions/Permission"] |
-	fn.#ListExpression
+#PermissionList: [...#Permission] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
-	DataLakePrincipal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
-	PermissionList?:    _#defs."/$defs/Properties/definitions/PermissionList"
+#PrincipalPermissions: close({
+	DataLakePrincipal?: #DataLakePrincipal
+	PermissionList?:    #PermissionList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalPermissionsList": [
-	..._#defs."/$defs/Properties/definitions/PrincipalPermissions"
-] |
-	fn.#ListExpression
+#PrincipalPermissionsList: [...#PrincipalPermissions] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalResourcePair": close({
-	Principal!: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+#PrincipalResourcePair: close({
+	Principal!: #DataLakePrincipal
 	Resource!:  _#defs."/$defs/Properties/definitions/Resource"
 }) |
 fn.#ObjectExpression
 
+#ResourceArnString: string | fn.#StringExpression
+
+#ResourceType: "DATABASE" | "TABLE" | fn.#StringExpression
+
+#TableResource: close({
+	// The identifier for the Data Catalog. By default, it is the account ID of the caller.
+	CatalogId!: #CatalogIdString
+
+	// The name of the database for the table. Unique to a Data Catalog. A database
+	// is a set of associated table definitions organized into a logical group. You
+	// can Grant and Revoke database privileges to a principal.
+	DatabaseName!: #NameString
+
+	// The name of the table.
+	Name?: #NameString
+
+	// A wildcard object representing every table under a database.
+	// At least one of ``TableResource$Name`` or ``TableResource$TableWildcard`` is required.
+	TableWildcard?: #TableWildcard
+}) |
+fn.#ObjectExpression
+
+#TableWildcard: fn.#Object & {...} | string | fn.#StringObjectExpression
+
+#TableWithColumnsResource: close({
+	// The identifier for the GLUDC where the location is registered with LFlong.
+	CatalogId!: #CatalogIdString
+
+	// The list of column names for the table. At least one of ``ColumnNames`` or
+	// ``ColumnWildcard`` is required.
+	ColumnNames?: #ColumnNames
+
+	// A wildcard specified by a ``ColumnWildcard`` object. At least one of
+	// ``ColumnNames`` or ``ColumnWildcard`` is required.
+	ColumnWildcard?: #ColumnWildcard
+
+	// The name of the database for the table with columns resource. Unique to the
+	// Data Catalog. A database is a set of associated table definitions organized
+	// into a logical group. You can Grant and Revoke database privileges to a
+	// principal.
+	DatabaseName!: #NameString
+
+	// The name of the table resource. A table is a metadata definition that
+	// represents your data. You can Grant and Revoke table privileges to a
+	// principal.
+	Name!: #NameString
+}) |
+fn.#ObjectExpression
+
+#TagValueList: list.MaxItems(50) & list.MinItems(1) & [...#LFTagValue] | fn.#ListExpression
+
 _#defs: "/$defs/Properties/definitions/Resource": close({
-	Catalog?:          _#defs."/$defs/Properties/definitions/CatalogResource" | fn.#StringExpression
-	DataCellsFilter?:  _#defs."/$defs/Properties/definitions/DataCellsFilterResource" | fn.#ObjectExpression
-	DataLocation?:     _#defs."/$defs/Properties/definitions/DataLocationResource" | fn.#ObjectExpression
-	Database?:         _#defs."/$defs/Properties/definitions/DatabaseResource" | fn.#ObjectExpression
-	LFTag?:            _#defs."/$defs/Properties/definitions/LFTagKeyResource" | fn.#ObjectExpression
-	LFTagPolicy?:      _#defs."/$defs/Properties/definitions/LFTagPolicyResource" | fn.#ObjectExpression
-	Table?:            _#defs."/$defs/Properties/definitions/TableResource" | fn.#ObjectExpression
-	TableWithColumns?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource" | fn.#ObjectExpression
+	// The identifier for the Data Catalog. By default, the account ID. The Data
+	// Catalog is the persistent metadata store. It contains database definitions,
+	// table definitions, and other control information to manage your LFlong
+	// environment.
+	Catalog?: #CatalogResource
+
+	// A data cell filter.
+	DataCellsFilter?: #DataCellsFilterResource
+
+	// The location of an Amazon S3 path where permissions are granted or revoked.
+	DataLocation?: #DataLocationResource
+
+	// The database for the resource. Unique to the Data Catalog. A database is a
+	// set of associated table definitions organized into a logical group. You can
+	// Grant and Revoke database permissions to a principal.
+	Database?: #DatabaseResource
+
+	// The LF-tag key and values attached to a resource.
+	LFTag?: #LFTagKeyResource
+
+	// A list of LF-tag conditions that define a resource's LF-tag policy.
+	LFTagPolicy?: #LFTagPolicyResource
+
+	// The table for the resource. A table is a metadata definition that represents
+	// your data. You can Grant and Revoke table privileges to a principal.
+	Table?: #TableResource
+
+	// The table with columns for the resource. A principal with permissions to this
+	// resource can select metadata from the columns of a table in the Data Catalog
+	// and the underlying data in Amazon S3.
+	TableWithColumns?: #TableWithColumnsResource
 }) |
 fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ResourceArnString": string | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ResourceType": "DATABASE" | "TABLE" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/TableResource": close({
-	CatalogId!:     _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	DatabaseName!:  _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name?:          _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard" | fn.#StringObjectExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TableWildcard": fn.#Object & {...} | string | fn.#StringObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
-	CatalogId!:      _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	ColumnNames?:    _#defs."/$defs/Properties/definitions/ColumnNames" | fn.#ListExpression
-	ColumnWildcard?: _#defs."/$defs/Properties/definitions/ColumnWildcard" | fn.#ObjectExpression
-	DatabaseName!:   _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name!:           _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue"
-] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::PrincipalPermissions"
-	Properties!: #Properties
-}

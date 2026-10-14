@@ -17,42 +17,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::CloudFormation::Stack resource nests a stack as a resource in a top-level template.
-#Properties: close({
-	NotificationARNs?: list.MaxItems(5) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Parameters?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFormation::Stack"
+	Properties!: close({
+		NotificationARNs?: list.MaxItems(5) & [...string | fn.#StringExpression] | fn.#ListExpression
+		Parameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: fn.#Object & {...} |
-		bool |
-		int |
-		string |
-		[...] |
-		fn.#StringNumberBooleanListObjectExpression}}) |
-	fn.#ObjectExpression
-	Tags?:        list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TemplateURL!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	TimeoutInMinutes?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+			{[=~"[a-zA-Z0-9]+"]: fn.#Object & {...} |
+			bool |
+			int |
+			string |
+			[...] |
+			fn.#StringNumberBooleanListObjectExpression}}) |
+		fn.#ObjectExpression
+		Tags?:        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TemplateURL!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		TimeoutInMinutes?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::Stack"
-	Properties!: #Properties
-}

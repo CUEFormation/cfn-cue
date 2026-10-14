@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource-specific logging allows you to specify a logging level for a specific thing group.
-#Properties: close({
-	LogLevel!:   "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression
-	TargetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9.:\\s_\\-]+" | fn.#StringExpression
-	TargetType!: "THING_GROUP" | "CLIENT_ID" | "SOURCE_IP" | "PRINCIPAL_ID" | "EVENT_TYPE" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::ResourceSpecificLogging"
-	Properties!: #Properties
+	Type!: "AWS::IoT::ResourceSpecificLogging"
+	Properties!: close({
+		LogLevel!:   "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression
+		TargetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9.:\\s_\\-]+" | fn.#StringExpression
+		TargetType!: "THING_GROUP" | "CLIENT_ID" | "SOURCE_IP" | "PRINCIPAL_ID" | "EVENT_TYPE" | fn.#StringExpression
+	})
 }

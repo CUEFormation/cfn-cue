@@ -9,9 +9,7 @@ import "list"
 // Resource Type definition for AWS::AppSync::GraphQLApi
 #Properties: close({
 	// A list of additional authentication providers for the GraphqlApi API.
-	AdditionalAuthenticationProviders?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdditionalAuthenticationProvider"
-	]
+	AdditionalAuthenticationProviders?: list.UniqueItems() & [...#AdditionalAuthenticationProvider]
 
 	// Unique AWS AppSync GraphQL API identifier.
 	ApiId?: string
@@ -31,7 +29,7 @@ import "list"
 	// counts, latency, and cache hits/misses. All enhanced metric data is sent to
 	// your CloudWatch account, and you can configure the types of data that will
 	// be sent.
-	EnhancedMetricsConfig?: _#defs."/$defs/Properties/definitions/EnhancedMetricsConfig"
+	EnhancedMetricsConfig?: #EnhancedMetricsConfig
 
 	// A map containing the list of resources with their properties and environment variables.
 	EnvironmentVariables?: close({
@@ -57,10 +55,10 @@ import "list"
 	// A LambdaAuthorizerConfig holds configuration on how to authorize AWS AppSync
 	// API access when using the AWS_LAMBDA authorizer mode. Be aware that an AWS
 	// AppSync API may have only one Lambda authorizer configured at a time.
-	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig"
+	LambdaAuthorizerConfig?: #LambdaAuthorizerConfig
 
 	// The Amazon CloudWatch Logs configuration.
-	LogConfig?: _#defs."/$defs/Properties/definitions/LogConfig"
+	LogConfig?: #LogConfig
 
 	// The AWS Identity and Access Management service role ARN for a merged API.
 	MergedApiExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
@@ -69,7 +67,7 @@ import "list"
 	Name!: string
 
 	// The OpenID Connect configuration.
-	OpenIDConnectConfig?: _#defs."/$defs/Properties/definitions/OpenIDConnectConfig"
+	OpenIDConnectConfig?: #OpenIDConnectConfig
 
 	// The owner contact information for an API resource.
 	OwnerContact?: string
@@ -88,11 +86,11 @@ import "list"
 	ResolverCountLimit?: int & <=10000 & >=0
 
 	// An arbitrary set of tags (key-value pairs) for this GraphQL API.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Optional authorization configuration for using Amazon Cognito user pools with
 	// your GraphQL endpoint.
-	UserPoolConfig?: _#defs."/$defs/Properties/definitions/UserPoolConfig"
+	UserPoolConfig?: #UserPoolConfig
 
 	// Sets the scope of the GraphQL API to public (GLOBAL) or private (PRIVATE). By
 	// default, the scope is set to Global if no value is provided.
@@ -102,16 +100,16 @@ import "list"
 	XrayEnabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalAuthenticationProvider": close({
+#AdditionalAuthenticationProvider: close({
 	// The authentication type for API key, AWS Identity and Access Management,
 	// OIDC, Amazon Cognito user pools, or AWS Lambda.
 	AuthenticationType!:     "AMAZON_COGNITO_USER_POOLS" | "API_KEY" | "AWS_IAM" | "AWS_LAMBDA" | "OPENID_CONNECT"
-	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig"
-	OpenIDConnectConfig?:    _#defs."/$defs/Properties/definitions/OpenIDConnectConfig"
-	UserPoolConfig?:         _#defs."/$defs/Properties/definitions/CognitoUserPoolConfig"
+	LambdaAuthorizerConfig?: #LambdaAuthorizerConfig
+	OpenIDConnectConfig?:    #OpenIDConnectConfig
+	UserPoolConfig?:         #CognitoUserPoolConfig
 })
 
-_#defs: "/$defs/Properties/definitions/CognitoUserPoolConfig": close({
+#CognitoUserPoolConfig: close({
 	// A regular expression for validating the incoming Amazon Cognito user pool app client ID.
 	AppIdClientRegex?: string
 
@@ -122,7 +120,7 @@ _#defs: "/$defs/Properties/definitions/CognitoUserPoolConfig": close({
 	UserPoolId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/EnhancedMetricsConfig": close({
+#EnhancedMetricsConfig: close({
 	// Controls how data source metrics will be emitted to CloudWatch. Data source metrics include:
 	DataSourceLevelMetricsBehavior!: "FULL_REQUEST_DATA_SOURCE_METRICS" | "PER_DATA_SOURCE_METRICS"
 
@@ -133,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/EnhancedMetricsConfig": close({
 	ResolverLevelMetricsBehavior!: "FULL_REQUEST_RESOLVER_METRICS" | "PER_RESOLVER_METRICS"
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaAuthorizerConfig": close({
+#LambdaAuthorizerConfig: close({
 	// The number of seconds a response should be cached for.
 	AuthorizerResultTtlInSeconds?: int & <=3600 & >=0
 
@@ -144,7 +142,7 @@ _#defs: "/$defs/Properties/definitions/LambdaAuthorizerConfig": close({
 	IdentityValidationExpression?: string
 })
 
-_#defs: "/$defs/Properties/definitions/LogConfig": close({
+#LogConfig: close({
 	// The service role that AWS AppSync will assume to publish to Amazon CloudWatch
 	// Logs in your account.
 	CloudWatchLogsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
@@ -157,7 +155,7 @@ _#defs: "/$defs/Properties/definitions/LogConfig": close({
 	FieldLogLevel!: "ALL" | "DEBUG" | "ERROR" | "INFO" | "NONE"
 })
 
-_#defs: "/$defs/Properties/definitions/OpenIDConnectConfig": close({
+#OpenIDConnectConfig: close({
 	// The number of milliseconds that a token is valid after being authenticated.
 	AuthTTL?: number
 
@@ -171,12 +169,12 @@ _#defs: "/$defs/Properties/definitions/OpenIDConnectConfig": close({
 	Issuer?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/UserPoolConfig": close({
+#UserPoolConfig: close({
 	// A regular expression for validating the incoming Amazon Cognito user pool app client ID.
 	AppIdClientRegex?: string
 

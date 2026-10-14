@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,12 +13,12 @@ import (
 #Properties: close({
 	// The ARN of the function.
 	Arn?:                            string
-	AwsServiceRequestConfiguration?: _#defs."/$defs/Properties/definitions/AwsServiceRequestConfiguration"
+	AwsServiceRequestConfiguration?: #AwsServiceRequestConfiguration
 
 	// The configuration for a CONCURRENT_EXECUTOR function. Required when
 	// FunctionType is CONCURRENT_EXECUTOR.
-	ConcurrentExecutorConfiguration?: _#defs."/$defs/Properties/definitions/ConcurrentExecutorConfiguration"
-	CustomOutputConfiguration?:       _#defs."/$defs/Properties/definitions/CustomOutputConfiguration"
+	ConcurrentExecutorConfiguration?: #ConcurrentExecutorConfiguration
+	CustomOutputConfiguration?:       #CustomOutputConfiguration
 
 	// A description of the function.
 	Description?: string
@@ -27,13 +27,13 @@ import (
 	FunctionId!: string
 
 	// The type of the function. Determines which configuration object is used.
-	FunctionType!:                    _#defs."/$defs/Properties/definitions/FunctionType"
-	HttpRequestConfiguration?:        _#defs."/$defs/Properties/definitions/HttpRequestConfiguration"
-	SequentialExecutorConfiguration?: _#defs."/$defs/Properties/definitions/SequentialExecutorConfiguration"
+	FunctionType!:                    #FunctionType
+	HttpRequestConfiguration?:        #HttpRequestConfiguration
+	SequentialExecutorConfiguration?: #SequentialExecutorConfiguration
 
 	// The tags to assign to the function resource.
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VastRequestConfiguration?: _#defs."/$defs/Properties/definitions/VastRequestConfiguration"
+	Tags?:                     list.UniqueItems() & [...#Tag]
+	VastRequestConfiguration?: #VastRequestConfiguration
 })
 
 // The configuration for an AWS_SERVICE_REQUEST function. Contains the target
@@ -41,7 +41,7 @@ import (
 // call an AWS service API. For more information, see AWS_SERVICE_REQUEST
 // (https://docs.aws.amazon.com/mediatailor/latest/ug/monetization-functions-types-aws-service-request.html)
 // in the MediaTailor User Guide.
-_#defs: "/$defs/Properties/definitions/AwsServiceRequestConfiguration": close({
+#AwsServiceRequestConfiguration: close({
 	// An expression that evaluates to the request body for the AWS service API
 	// call. The body must conform to the input format that the target service
 	// operation expects. Applies only when the target operation accepts a request
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/AwsServiceRequestConfiguration": close({
 	Headers?: close({
 
 		{[=~".*"]: string}})
-	MethodType!: _#defs."/$defs/Properties/definitions/MethodType"
+	MethodType!: #MethodType
 
 	// A map of output bindings. Each key is a namespaced output path, such as
 	// player_params.device_type. Each value is an expression that MediaTailor
@@ -72,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/AwsServiceRequestConfiguration": close({
 	// response status code to null and proceeds with output expression evaluation.
 	// Valid values are 100 to 2000.
 	RequestTimeoutMilliseconds!: int & <=2000 & >=100
-	Runtime!:                    _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!:                    #RuntimeType
 
 	// The AWS Region for the target service. Specify a static Region code (for
 	// example, us-east-1) or a JSONata expression that resolves to a Region code
@@ -95,13 +95,13 @@ _#defs: "/$defs/Properties/definitions/AwsServiceRequestConfiguration": close({
 // about functions, see Working with functions
 // (https://docs.aws.amazon.com/mediatailor/latest/ug/monetization-functions.html)
 // in the MediaTailor User Guide.
-_#defs: "/$defs/Properties/definitions/ConcurrentExecutorConfiguration": close({
+#ConcurrentExecutorConfiguration: close({
 	// The list of 1 to 10 child functions that MediaTailor runs in parallel. Each
 	// entry specifies a child function to execute and an optional run condition
 	// expression that controls whether the function runs. Child functions cannot
 	// themselves be executors, and each child function's resolved namespace must
 	// be unique across the list.
-	FunctionList!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FunctionRef"]
+	FunctionList!: list.MaxItems(10) & list.MinItems(1) & [...#FunctionRef]
 
 	// The maximum number of child functions that MediaTailor runs simultaneously.
 	// When the list contains more functions than MaxConcurrency, MediaTailor
@@ -116,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/ConcurrentExecutorConfiguration": close({
 	Output!: close({
 
 		{[=~".*"]: string}})
-	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!: #RuntimeType
 
 	// The maximum time, in milliseconds, for all child functions to complete. This
 	// timeout covers every function in the list, including any HTTP calls the
@@ -127,16 +127,16 @@ _#defs: "/$defs/Properties/definitions/ConcurrentExecutorConfiguration": close({
 })
 
 // Configuration for custom output functions.
-_#defs: "/$defs/Properties/definitions/CustomOutputConfiguration": close({
+#CustomOutputConfiguration: close({
 	// A map of output key-value pairs that define the custom output.
-	Output?: _#defs."/$defs/Properties/definitions/StringMap"
+	Output?: #StringMap
 
 	// The runtime environment for the function expression language.
-	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!: #RuntimeType
 })
 
 // A reference to a child function within an executor function.
-_#defs: "/$defs/Properties/definitions/FunctionRef": close({
+#FunctionRef: close({
 	// An optional alternate name for the child function within the executor.
 	// MediaTailor uses this value as the namespace for the child function's
 	// output. If omitted, MediaTailor uses the function identifier. The resolved
@@ -154,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/FunctionRef": close({
 	RunCondition?: string
 })
 
-_#defs: "/$defs/Properties/definitions/FunctionType": "HTTP_REQUEST" |
+#FunctionType: "HTTP_REQUEST" |
 	"AWS_SERVICE_REQUEST" |
 	"CUSTOM_OUTPUT" |
 	"CONCURRENT_EXECUTOR" |
@@ -162,48 +162,48 @@ _#defs: "/$defs/Properties/definitions/FunctionType": "HTTP_REQUEST" |
 	"VAST_REQUEST"
 
 // Configuration for HTTP request functions.
-_#defs: "/$defs/Properties/definitions/HttpRequestConfiguration": close({
+#HttpRequestConfiguration: close({
 	// The body of the HTTP request.
 	Body?: string
 
 	// A map of HTTP headers to include in the request.
-	Headers?: _#defs."/$defs/Properties/definitions/StringMap"
+	Headers?: #StringMap
 
 	// The HTTP method type for the request.
-	MethodType!: _#defs."/$defs/Properties/definitions/MethodType"
+	MethodType!: #MethodType
 
 	// A map of output key-value pairs. Keys must start with session., temp.,
 	// avail., scte., or be a valid adsRequest directive.
-	Output?: _#defs."/$defs/Properties/definitions/StringMap"
+	Output?: #StringMap
 
 	// The timeout in milliseconds for the HTTP request. Maximum value is 2000.
 	RequestTimeoutMilliseconds!: int
 
 	// The runtime environment for the function expression language.
-	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!: #RuntimeType
 
 	// The URL endpoint for the HTTP request.
 	Url!: string
 })
 
-_#defs: "/$defs/Properties/definitions/MethodType": "GET" | "POST"
+#MethodType: "GET" | "POST"
 
 // The expression language used to evaluate expressions in the function
 // configuration. Set this to JSONATA.
-_#defs: "/$defs/Properties/definitions/RuntimeType": "JSONATA"
+#RuntimeType: "JSONATA"
 
 // The configuration for a SEQUENTIAL_EXECUTOR function. A SEQUENTIAL_EXECUTOR
 // runs an ordered list of child functions one at a time, passing data between
 // them. For more information about functions, see Working with functions
 // (https://docs.aws.amazon.com/mediatailor/latest/ug/monetization-functions.html)
 // in the MediaTailor User Guide.
-_#defs: "/$defs/Properties/definitions/SequentialExecutorConfiguration": close({
+#SequentialExecutorConfiguration: close({
 	// An ordered list of 1 to 10 steps. Each step specifies a child function to
 	// execute and an optional run condition expression that controls whether the
 	// step runs. MediaTailor executes the steps in order, passing data between
 	// steps through temporary data. Each step's resolved namespace must be unique
 	// across the list.
-	FunctionList!: [..._#defs."/$defs/Properties/definitions/FunctionRef"]
+	FunctionList!: [...#FunctionRef]
 
 	// A map of output bindings that controls which bindings the sequence commits to
 	// the session state after all steps complete. Each key is a namespaced output
@@ -212,7 +212,7 @@ _#defs: "/$defs/Properties/definitions/SequentialExecutorConfiguration": close({
 	Output?: close({
 
 		{[=~".*"]: string}})
-	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!: #RuntimeType
 
 	// The maximum time, in milliseconds, for the entire sequence to complete. This
 	// timeout covers all steps, including any HTTP calls made by child functions.
@@ -222,11 +222,11 @@ _#defs: "/$defs/Properties/definitions/SequentialExecutorConfiguration": close({
 	TimeoutMilliseconds!: int
 })
 
-_#defs: "/$defs/Properties/definitions/StringMap": close({
+#StringMap: close({
 
 	{[=~".*"]: string}})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
@@ -238,7 +238,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // expressions. For more information, see Function types and composition
 // (https://docs.aws.amazon.com/mediatailor/latest/ug/monetization-functions-types.html)
 // in the MediaTailor User Guide.
-_#defs: "/$defs/Properties/definitions/VastRequestConfiguration": close({
+#VastRequestConfiguration: close({
 	// An expression that evaluates to the request body, for example to send an
 	// OpenRTB bid request. The expression can be up to 100,000 characters, and the
 	// body after evaluation can be up to 64 KB.
@@ -251,7 +251,7 @@ _#defs: "/$defs/Properties/definitions/VastRequestConfiguration": close({
 	Headers?: close({
 
 		{[=~".*"]: string}})
-	MethodType!: _#defs."/$defs/Properties/definitions/MethodType"
+	MethodType!: #MethodType
 
 	// A map of output bindings. Each key is a namespaced output path (such as
 	// temp.wrappedAds), and each value is an expression that MediaTailor evaluates
@@ -272,7 +272,7 @@ _#defs: "/$defs/Properties/definitions/VastRequestConfiguration": close({
 	// timeout, MediaTailor proceeds with an empty ad list and continues output
 	// expression evaluation. Valid values are 100 to 2000.
 	RequestTimeoutMilliseconds!: int & <=2000 & >=100
-	Runtime!:                    _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!:                    #RuntimeType
 
 	// An expression that evaluates to the VAST endpoint URL. Use {%...%} delimiters
 	// for dynamic expressions. A literal value must be an https:// URL. The

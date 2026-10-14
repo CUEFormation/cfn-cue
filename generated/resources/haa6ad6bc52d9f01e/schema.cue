@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,16 +16,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::LimitsProfile Resource Type
-#Properties: close({
-	AccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ProfileName!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceLimits!: _#defs."/$defs/Properties/definitions/ResourceLimitsMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::LimitsProfile"
+	Properties!: close({
+		AccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ProfileName!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		ResourceLimits!: #ResourceLimitsMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/LimitUnit": "MB" | "GB" | "HOURS" | "DAYS" | fn.#StringExpression
+#LimitUnit: "MB" | "GB" | "HOURS" | "DAYS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileLimitValue": close({
+#ProfileLimitValue: close({
 	MaxValue!: >=0 |
 		{
 			string &
@@ -45,17 +48,13 @@ _#defs: "/$defs/Properties/definitions/ProfileLimitValue": close({
 				)
 		} |
 		fn.#NumberExpression
-	Unit!: _#defs."/$defs/Properties/definitions/LimitUnit"
+	Unit!: #LimitUnit
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceLimitsMap": close({
+#ResourceLimitsMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ProfileLimitValue"}}) |
+	{[=~".+"]: #ProfileLimitValue}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceType": "INDEX_STORAGE" | "AGENT_HOURS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::LimitsProfile"
-	Properties!: #Properties
-}
+#ResourceType: "INDEX_STORAGE" | "AGENT_HOURS" | fn.#StringExpression

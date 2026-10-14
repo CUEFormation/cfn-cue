@@ -17,30 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::ServiceCatalog::CloudFormationProvisionedProduct
-#Properties: close({
-	AcceptLanguage?:   "en" | "jp" | "zh" | fn.#StringExpression
-	NotificationArns?: list.MaxItems(5) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	PathId?:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	PathName?:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ProductId?:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ProductName?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ProvisionedProductName?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ProvisioningArtifactId?:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ProvisioningArtifactName?: string | fn.#StringExpression
-	ProvisioningParameters?:   [..._#defs."/$defs/Properties/definitions/ProvisioningParameter"] | fn.#ListExpression
-	ProvisioningPreferences?:  _#defs."/$defs/Properties/definitions/ProvisioningPreferences"
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ServiceCatalog::CloudFormationProvisionedProduct"
+	Properties?: close({
+		AcceptLanguage?: "en" | "jp" | "zh" | fn.#StringExpression
+		NotificationArns?: list.MaxItems(5) & list.UniqueItems() & [...string | fn.#StringExpression] |
+			fn.#ListExpression
+		PathId?:                   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		PathName?:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ProductId?:                strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ProductName?:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		ProvisionedProductName?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		ProvisioningArtifactId?:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ProvisioningArtifactName?: string | fn.#StringExpression
+		ProvisioningParameters?:   [...#ProvisioningParameter] | fn.#ListExpression
+		ProvisioningPreferences?:  #ProvisioningPreferences
+		Tags?:                     [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/OutputType": string | fn.#StringExpression
+#OutputType: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisioningParameter": close({
+#ProvisioningParameter: close({
 	Key!:   strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(4096) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisioningPreferences": close({
+#ProvisioningPreferences: close({
 	StackSetAccounts?: list.UniqueItems() & [...=~"^[0-9]{12}$" | fn.#StringExpression] | fn.#ListExpression
 	StackSetFailureToleranceCount?: int & >=0 |
 		{
@@ -110,12 +114,8 @@ _#defs: "/$defs/Properties/definitions/ProvisioningPreferences": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::CloudFormationProvisionedProduct"
-	Properties?: #Properties
-}

@@ -9,13 +9,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::ByteMatchSet
-#Properties: close({
-	ByteMatchTuples?: [..._#defs."/$defs/Properties/definitions/ByteMatchTuple"] | fn.#ListExpression
-	Name!:            string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFRegional::ByteMatchSet"
+	Properties!: close({
+		ByteMatchTuples?: [...#ByteMatchTuple] | fn.#ListExpression
+		Name!:            string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ByteMatchTuple": close({
-	FieldToMatch!:         _#defs."/$defs/Properties/definitions/FieldToMatch"
+#ByteMatchTuple: close({
+	FieldToMatch!:         #FieldToMatch
 	PositionalConstraint!: string | fn.#StringExpression
 	TargetString?:         string | fn.#StringExpression
 	TargetStringBase64?:   string | fn.#StringExpression
@@ -23,12 +26,8 @@ _#defs: "/$defs/Properties/definitions/ByteMatchTuple": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string | fn.#StringExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFRegional::ByteMatchSet"
-	Properties!: #Properties
-}

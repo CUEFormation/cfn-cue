@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// Specifies deployment configuration for updating the SageMaker endpoint.
 	// Includes rollback and update policies.
-	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig"
+	DeploymentConfig?: #DeploymentConfig
 
 	// The Amazon Resource Name (ARN) of the endpoint.
 	EndpointArn?: string
@@ -25,7 +25,7 @@ import (
 	EndpointName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
 
 	// Specifies a list of variant properties that you want to exclude when updating an endpoint.
-	ExcludeRetainedVariantProperties?: [..._#defs."/$defs/Properties/definitions/VariantProperty"]
+	ExcludeRetainedVariantProperties?: [...#VariantProperty]
 
 	// When set to true, retains all variant properties for an endpoint when it is updated.
 	RetainAllVariantProperties?: bool
@@ -34,21 +34,21 @@ import (
 	RetainDeploymentConfig?: bool
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Alarm": close({
+#Alarm: close({
 	// The name of the CloudWatch alarm.
 	AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/AutoRollbackConfig": close({
+#AutoRollbackConfig: close({
 	// List of CloudWatch alarms to monitor during the deployment. If any alarm goes
 	// off, the deployment is rolled back.
-	Alarms!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Alarm"]
+	Alarms!: list.MaxItems(10) & [...] & [...#Alarm]
 })
 
-_#defs: "/$defs/Properties/definitions/BlueGreenUpdatePolicy": close({
+#BlueGreenUpdatePolicy: close({
 	// The maximum time allowed for the blue/green update, in seconds.
 	MaximumExecutionTimeoutInSeconds?: int & <=28800 & >=600
 
@@ -56,10 +56,10 @@ _#defs: "/$defs/Properties/definitions/BlueGreenUpdatePolicy": close({
 	TerminationWaitInSeconds?: int & <=3600 & >=0
 
 	// The traffic routing configuration for the blue/green deployment.
-	TrafficRoutingConfiguration!: _#defs."/$defs/Properties/definitions/TrafficRoutingConfig"
+	TrafficRoutingConfiguration!: #TrafficRoutingConfig
 })
 
-_#defs: "/$defs/Properties/definitions/CapacitySize": close({
+#CapacitySize: close({
 	// Specifies whether the `Value` is an instance count or a capacity unit.
 	Type!: "CAPACITY_PERCENT" | "INSTANCE_COUNT"
 
@@ -67,32 +67,32 @@ _#defs: "/$defs/Properties/definitions/CapacitySize": close({
 	Value!: int & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfig": close({
+#DeploymentConfig: close({
 	// Configuration for automatic rollback if an error occurs during deployment.
-	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfig"
+	AutoRollbackConfiguration?: #AutoRollbackConfig
 
 	// Configuration for blue-green update deployment policies.
-	BlueGreenUpdatePolicy?: _#defs."/$defs/Properties/definitions/BlueGreenUpdatePolicy"
+	BlueGreenUpdatePolicy?: #BlueGreenUpdatePolicy
 
 	// Configuration for rolling update deployment policies.
-	RollingUpdatePolicy?: _#defs."/$defs/Properties/definitions/RollingUpdatePolicy"
+	RollingUpdatePolicy?: #RollingUpdatePolicy
 })
 
-_#defs: "/$defs/Properties/definitions/RollingUpdatePolicy": close({
+#RollingUpdatePolicy: close({
 	// Specifies the maximum batch size for each rolling update.
-	MaximumBatchSize!: _#defs."/$defs/Properties/definitions/CapacitySize"
+	MaximumBatchSize!: #CapacitySize
 
 	// The maximum time allowed for the rolling update, in seconds.
 	MaximumExecutionTimeoutInSeconds?: int & <=28800 & >=600
 
 	// The maximum batch size for rollback during an update failure.
-	RollbackMaximumBatchSize?: _#defs."/$defs/Properties/definitions/CapacitySize"
+	RollbackMaximumBatchSize?: #CapacitySize
 
 	// The time to wait between steps during the rolling update, in seconds.
 	WaitIntervalInSeconds!: int & <=3600 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -100,12 +100,12 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/TrafficRoutingConfig": close({
+#TrafficRoutingConfig: close({
 	// Specifies the size of the canary traffic in a canary deployment.
-	CanarySize?: _#defs."/$defs/Properties/definitions/CapacitySize"
+	CanarySize?: #CapacitySize
 
 	// Specifies the step size for linear traffic routing.
-	LinearStepSize?: _#defs."/$defs/Properties/definitions/CapacitySize"
+	LinearStepSize?: #CapacitySize
 
 	// Specifies the type of traffic routing (e.g., 'AllAtOnce', 'Canary', 'Linear').
 	Type!: "ALL_AT_ONCE" | "CANARY" | "LINEAR"
@@ -114,7 +114,7 @@ _#defs: "/$defs/Properties/definitions/TrafficRoutingConfig": close({
 	WaitIntervalInSeconds?: int & <=3600 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/VariantProperty": close({
+#VariantProperty: close({
 	// The type of variant property (e.g., 'DesiredInstanceCount', 'DesiredWeight',
 	// 'DataCaptureConfig').
 	VariantPropertyType?: string

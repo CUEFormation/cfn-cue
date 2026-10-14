@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,31 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A KendraRanking Rescore execution plan
-#Properties: close({
-	CapacityUnits?: _#defs."/$defs/Properties/definitions/CapacityUnitsConfiguration" | fn.#ObjectExpression
-	Description?:   _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	Name!:          _#defs."/$defs/Properties/definitions/Name"
-	Tags?:          _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KendraRanking::ExecutionPlan"
+	Properties!: close({
+		// Capacity units
+		CapacityUnits?: #CapacityUnitsConfiguration
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) | fn.#StringExpression
+		// A description for the execution plan
+		Description?: #Description
+		Name!:        #Name
 
-_#defs: "/$defs/Properties/definitions/CapacityUnitsConfiguration": close(
-	{RescoreCapacityUnits!: _#defs."/$defs/Properties/definitions/RescoreCapacityUnits"},
-) |
-	fn.#ObjectExpression
+		// Tags for labeling the execution plan
+		Tags?: #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
-fn.#StringExpression
+#Arn: strings.MaxRunes(1000) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
+#CapacityUnitsConfiguration: close({RescoreCapacityUnits!: #RescoreCapacityUnits}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1000) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
-fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RescoreCapacityUnits": int & >=0 |
+#Id: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
+
+#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
+
+#RescoreCapacityUnits: int & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -57,17 +58,10 @@ _#defs: "/$defs/Properties/definitions/RescoreCapacityUnits": int & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KendraRanking::ExecutionPlan"
-	Properties!: #Properties
-}
+#Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression

@@ -32,7 +32,7 @@ import (
 
 	// The deletion settings of the image, indicating whether to delete the
 	// underlying resources in addition to the image.
-	DeletionSettings?: _#defs."/$defs/Properties/definitions/DeletionSettings"
+	DeletionSettings?: #DeletionSettings
 
 	// The Amazon Resource Name (ARN) of the distribution configuration.
 	DistributionConfigurationArn?:
@@ -51,7 +51,7 @@ import (
 	ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$"
 
 	// The image pipeline execution settings of the image.
-	ImagePipelineExecutionSettings?: _#defs."/$defs/Properties/definitions/ImagePipelineExecutionSettings" & {
+	ImagePipelineExecutionSettings?: #ImagePipelineExecutionSettings & {
 		ImagePipelineExecutionSettings?: _
 		if ImagePipelineExecutionSettings != _|_ {
 			matchN(1, [
@@ -104,10 +104,10 @@ import (
 
 	// Contains settings for vulnerability scans that Amazon Inspector runs against
 	// the test instance during image creation.
-	ImageScanningConfiguration?: _#defs."/$defs/Properties/definitions/ImageScanningConfiguration"
+	ImageScanningConfiguration?: #ImageScanningConfiguration
 
 	// The image tests configuration used when creating this image.
-	ImageTestsConfiguration?: _#defs."/$defs/Properties/definitions/ImageTestsConfiguration"
+	ImageTestsConfiguration?: #ImageTestsConfiguration
 
 	// URI for containers created in current Region with default ECR image tag
 	ImageUri?: string
@@ -117,10 +117,10 @@ import (
 		=~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$"
 
 	// The latest version references of the image.
-	LatestVersion?: _#defs."/$defs/Properties/definitions/LatestVersion"
+	LatestVersion?: #LatestVersion
 
 	// The logging configuration settings for the image.
-	LoggingConfiguration?: _#defs."/$defs/Properties/definitions/ImageLoggingConfiguration"
+	LoggingConfiguration?: #ImageLoggingConfiguration
 
 	// The name of the image.
 	Name?: string
@@ -131,19 +131,19 @@ import (
 		{[=~".{1,}"]: string}})
 
 	// Workflows to define the image build process
-	Workflows?: [..._#defs."/$defs/Properties/definitions/WorkflowConfiguration"]
+	Workflows?: [...#WorkflowConfiguration]
 })
 
 // The deletion settings of the image, indicating whether to delete the
 // underlying resources in addition to the image.
-_#defs: "/$defs/Properties/definitions/DeletionSettings": close({
+#DeletionSettings: close({
 	// The execution role to use for deleting the image, as well as underlying resources.
 	ExecutionRole!: string
 })
 
 // Settings for Image Builder to configure the ECR repository and output
 // container images that are scanned.
-_#defs: "/$defs/Properties/definitions/EcrConfiguration": close({
+#EcrConfiguration: close({
 	// Tags for Image Builder to apply the output container image that is scanned.
 	// Tags can help you identify and manage your scanned images.
 	ContainerTags?: [...strings.MaxRunes(1024) & strings.MinRunes(1)]
@@ -158,13 +158,13 @@ _#defs: "/$defs/Properties/definitions/EcrConfiguration": close({
 })
 
 // The logging configuration settings for the image.
-_#defs: "/$defs/Properties/definitions/ImageLoggingConfiguration": close({
+#ImageLoggingConfiguration: close({
 	// The name of the log group for image build logs.
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$"
 })
 
 // The settings for starting an image pipeline execution.
-_#defs: "/$defs/Properties/definitions/ImagePipelineExecutionSettings": close({
+#ImagePipelineExecutionSettings: close({
 	// The deployment ID of the pipeline, used to trigger new image pipeline executions.
 	DeploymentId?: string
 
@@ -173,9 +173,9 @@ _#defs: "/$defs/Properties/definitions/ImagePipelineExecutionSettings": close({
 })
 
 // Contains settings for Image Builder image resource and container image scans.
-_#defs: "/$defs/Properties/definitions/ImageScanningConfiguration": close({
+#ImageScanningConfiguration: close({
 	// Contains ECR settings for vulnerability scans.
-	EcrConfiguration?: _#defs."/$defs/Properties/definitions/EcrConfiguration"
+	EcrConfiguration?: #EcrConfiguration
 
 	// This sets whether Image Builder keeps a snapshot of the vulnerability scans
 	// that Amazon Inspector runs against the test instance when you create a new
@@ -184,7 +184,7 @@ _#defs: "/$defs/Properties/definitions/ImageScanningConfiguration": close({
 })
 
 // The image tests configuration used when creating this image.
-_#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
+#ImageTestsConfiguration: close({
 	// ImageTestsEnabled
 	ImageTestsEnabled?: bool
 
@@ -193,7 +193,7 @@ _#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
 })
 
 // The latest version references of the image.
-_#defs: "/$defs/Properties/definitions/LatestVersion": close({
+#LatestVersion: close({
 	// The latest version ARN of the created image.
 	Arn?: string
 
@@ -208,7 +208,7 @@ _#defs: "/$defs/Properties/definitions/LatestVersion": close({
 })
 
 // The workflow configuration of the image
-_#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
+#WorkflowConfiguration: close({
 	// Define execution decision in case of workflow failure
 	OnFailure?: "CONTINUE" | "ABORT"
 
@@ -216,7 +216,7 @@ _#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
 	ParallelGroup?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9-_+#]{0,99}$"
 
 	// The parameters associated with the workflow
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WorkflowParameter"]
+	Parameters?: list.MinItems(1) & [...#WorkflowParameter]
 
 	// The Amazon Resource Name (ARN) of the workflow
 	WorkflowArn?:
@@ -224,10 +224,10 @@ _#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
 })
 
 // A parameter associated with the workflow
-_#defs: "/$defs/Properties/definitions/WorkflowParameter": close({
+#WorkflowParameter: close({
 	Name?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\x00]+$"
-	Value?: [..._#defs."/$defs/Properties/definitions/WorkflowParameterValue"]
+	Value?: [...#WorkflowParameterValue]
 })
 
 // The value associated with the workflow parameter
-_#defs: "/$defs/Properties/definitions/WorkflowParameterValue": strings.MinRunes(0) & =~"^[^\\x00]*$"
+#WorkflowParameterValue: strings.MinRunes(0) & =~"^[^\\x00]*$"

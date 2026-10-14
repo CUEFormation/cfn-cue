@@ -16,45 +16,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::PrefetchSchedule Resource Type
-#Properties: close({
-	Consumption?:                    _#defs."/$defs/Properties/definitions/PrefetchConsumption"
-	Name!:                           string | fn.#StringExpression
-	PlaybackConfigurationName!:      string | fn.#StringExpression
-	RecurringPrefetchConfiguration?: _#defs."/$defs/Properties/definitions/RecurringPrefetchConfiguration"
-	Retrieval?:                      _#defs."/$defs/Properties/definitions/PrefetchRetrieval"
-	ScheduleType?:                   "SINGLE" | "RECURRING" | fn.#StringExpression
-	StreamId?:                       string | fn.#StringExpression
-	Tags?:                           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::PrefetchSchedule"
+	Properties!: close({
+		Consumption?:                    #PrefetchConsumption
+		Name!:                           string | fn.#StringExpression
+		PlaybackConfigurationName!:      string | fn.#StringExpression
+		RecurringPrefetchConfiguration?: #RecurringPrefetchConfiguration
+		Retrieval?:                      #PrefetchRetrieval
+		ScheduleType?:                   "SINGLE" | "RECURRING" | fn.#StringExpression
+		StreamId?:                       string | fn.#StringExpression
+		Tags?:                           [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AvailMatchingCriteria": close({
+#AvailMatchingCriteria: close({
 	DynamicVariable!: string | fn.#StringExpression
 	Operator!:        "EQUALS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrefetchConsumption": close({
-	AvailMatchingCriteria?: [..._#defs."/$defs/Properties/definitions/AvailMatchingCriteria"] | fn.#ListExpression
+#PrefetchConsumption: close({
+	AvailMatchingCriteria?: [...#AvailMatchingCriteria] | fn.#ListExpression
 	EndTime!:               time.Time | fn.#StringExpression
 	StartTime?:             time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrefetchRetrieval": close({
+#PrefetchRetrieval: close({
 	DynamicVariables?: close({
 
 		{[=~".+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	EndTime!:                        time.Time | fn.#StringExpression
 	StartTime?:                      time.Time | fn.#StringExpression
-	TrafficShapingRetrievalWindow?:  _#defs."/$defs/Properties/definitions/TrafficShapingRetrievalWindow"
-	TrafficShapingTpsConfiguration?: _#defs."/$defs/Properties/definitions/TrafficShapingTpsConfiguration"
+	TrafficShapingRetrievalWindow?:  #TrafficShapingRetrievalWindow
+	TrafficShapingTpsConfiguration?: #TrafficShapingTpsConfiguration
 	TrafficShapingType?:             "RETRIEVAL_WINDOW" | "TPS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecurringConsumption": close({
-	AvailMatchingCriteria?: [..._#defs."/$defs/Properties/definitions/AvailMatchingCriteria"] | fn.#ListExpression
+#RecurringConsumption: close({
+	AvailMatchingCriteria?: [...#AvailMatchingCriteria] | fn.#ListExpression
 	RetrievedAdExpirationSeconds?: int |
 		{
 			string &
@@ -72,15 +75,15 @@ _#defs: "/$defs/Properties/definitions/RecurringConsumption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecurringPrefetchConfiguration": close({
+#RecurringPrefetchConfiguration: close({
 	EndTime!:              time.Time | fn.#StringExpression
-	RecurringConsumption!: _#defs."/$defs/Properties/definitions/RecurringConsumption"
-	RecurringRetrieval!:   _#defs."/$defs/Properties/definitions/RecurringRetrieval"
+	RecurringConsumption!: #RecurringConsumption
+	RecurringRetrieval!:   #RecurringRetrieval
 	StartTime?:            time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecurringRetrieval": close({
+#RecurringRetrieval: close({
 	DelayAfterAvailEndSeconds?: int |
 		{
 			string &
@@ -99,19 +102,19 @@ _#defs: "/$defs/Properties/definitions/RecurringRetrieval": close({
 
 		{[=~".+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	TrafficShapingRetrievalWindow?:  _#defs."/$defs/Properties/definitions/TrafficShapingRetrievalWindow"
-	TrafficShapingTpsConfiguration?: _#defs."/$defs/Properties/definitions/TrafficShapingTpsConfiguration"
+	TrafficShapingRetrievalWindow?:  #TrafficShapingRetrievalWindow
+	TrafficShapingTpsConfiguration?: #TrafficShapingTpsConfiguration
 	TrafficShapingType?:             "RETRIEVAL_WINDOW" | "TPS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficShapingRetrievalWindow": close({
+#TrafficShapingRetrievalWindow: close({
 	RetrievalWindowDurationSeconds?: int |
 		{
 			string &
@@ -129,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/TrafficShapingRetrievalWindow": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficShapingTpsConfiguration": close({
+#TrafficShapingTpsConfiguration: close({
 	PeakConcurrentUsers?: int |
 		{
 			string &
@@ -160,7 +163,3 @@ _#defs: "/$defs/Properties/definitions/TrafficShapingTpsConfiguration": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::PrefetchSchedule"
-	Properties!: #Properties
-}

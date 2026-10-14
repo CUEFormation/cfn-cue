@@ -18,10 +18,10 @@ package schema
 	Id?:                         string
 	Port?:                       string
 	PreferredMaintenanceWindow?: string
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                       [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

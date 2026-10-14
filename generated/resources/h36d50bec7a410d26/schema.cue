@@ -17,50 +17,68 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::ImagePipeline
-#Properties: matchN(1, [{
-	Name!:                           _
-	ContainerRecipeArn!:             _
-	InfrastructureConfigurationArn!: _
-	...
-}, {
-	Name!:                           _
-	ImageRecipeArn!:                 _
-	InfrastructureConfigurationArn!: _
-	...
-}]) & close({
-	ContainerRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):container-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::ImagePipeline"
+	Properties?: matchN(1, [{
+		Name!:                           _
+		ContainerRecipeArn!:             _
+		InfrastructureConfigurationArn!: _
+		...
+	}, {
+		Name!:                           _
+		ImageRecipeArn!:                 _
+		InfrastructureConfigurationArn!: _
+		...
+	}]) & close({
+		ContainerRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):container-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+			fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		DistributionConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):distribution-configuration/[a-z0-9-_]+$" |
+			fn.#StringExpression
+		EnhancedImageMetadataEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		ExecutionRole?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 		fn.#StringExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	DistributionConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):distribution-configuration/[a-z0-9-_]+$" |
-		fn.#StringExpression
-	EnhancedImageMetadataEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExecutionRole?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
-		fn.#StringExpression
-	ImageScanningConfiguration?: _#defs."/$defs/Properties/definitions/ImageScanningConfiguration" |
+		ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+			fn.#StringExpression
+
+		// Contains settings for vulnerability scans that Amazon Inspector runs against
+		// the test instance during image creation.
+		ImageScanningConfiguration?: #ImageScanningConfiguration
+		ImageTags?: close({
+
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
 		fn.#ObjectExpression
-	ImageTags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ImageTestsConfiguration?: _#defs."/$defs/Properties/definitions/ImageTestsConfiguration" | fn.#ObjectExpression
-	InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
-		fn.#StringExpression
-	LoggingConfiguration?: _#defs."/$defs/Properties/definitions/PipelineLoggingConfiguration" | fn.#ObjectExpression
-	Name?:                 =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	Schedule?:             _#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
-	Status?:               "DISABLED" | "ENABLED" | fn.#StringExpression
-	Tags?: close({
+		// The image tests configuration of the image pipeline.
+		ImageTestsConfiguration?: #ImageTestsConfiguration
+		InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
+			fn.#StringExpression
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Workflows?: [..._#defs."/$defs/Properties/definitions/WorkflowConfiguration"] | fn.#ListExpression
-})
+		// The logging configuration settings for the image pipeline.
+		LoggingConfiguration?: #PipelineLoggingConfiguration
+		Name?:                 =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoDisablePolicy": close({
+		// The schedule of the image pipeline.
+		Schedule?: #Schedule
+		Status?:   "DISABLED" | "ENABLED" | fn.#StringExpression
+		Tags?: close({
+
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Workflows?: [...#WorkflowConfiguration] | fn.#ListExpression
+	})
+}
+
+#AutoDisablePolicy: close({
 	FailureCount!: int & <=10 & >=1 |
 		{
 			string &
@@ -80,19 +98,20 @@ _#defs: "/$defs/Properties/definitions/AutoDisablePolicy": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcrConfiguration": close({
+#EcrConfiguration: close({
 	ContainerTags?:  [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageScanningConfiguration": close({
-	EcrConfiguration?:     _#defs."/$defs/Properties/definitions/EcrConfiguration" | fn.#ObjectExpression
+#ImageScanningConfiguration: close({
+	// Contains ECR settings for vulnerability scans.
+	EcrConfiguration?:     #EcrConfiguration
 	ImageScanningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
+#ImageTestsConfiguration: close({
 	ImageTestsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TimeoutMinutes?: int & <=1440 & >=60 |
 		{
@@ -113,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipelineLoggingConfiguration": close({
+#PipelineLoggingConfiguration: close({
 	ImageLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$" |
 	fn.#StringExpression
 	PipelineLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$" |
@@ -121,8 +140,9 @@ _#defs: "/$defs/Properties/definitions/PipelineLoggingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
-	AutoDisablePolicy?: _#defs."/$defs/Properties/definitions/AutoDisablePolicy" | fn.#ObjectExpression
+#Schedule: close({
+	// The auto-disable policy for the image pipeline.
+	AutoDisablePolicy?: #AutoDisablePolicy
 	PipelineExecutionStartCondition?: "EXPRESSION_MATCH_ONLY" |
 		"EXPRESSION_MATCH_AND_DEPENDENCY_UPDATES_AVAILABLE" |
 		fn.#StringExpression
@@ -132,25 +152,20 @@ _#defs: "/$defs/Properties/definitions/Schedule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
+#WorkflowConfiguration: close({
 	OnFailure?: "CONTINUE" | "ABORT" | fn.#StringExpression
 	ParallelGroup?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9-_+#]{0,99}$" |
 	fn.#StringExpression
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WorkflowParameter"] | fn.#ListExpression
+	Parameters?: list.MinItems(1) & [...#WorkflowParameter] | fn.#ListExpression
 	WorkflowArn?: =~"^arn:aws(?:-[a-z]+)*:imagebuilder:[a-z]{2,}(?:-[a-z]+)+-[0-9]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?):workflow/(build|test|distribution)/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowParameter": close({
+#WorkflowParameter: close({
 	Name?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
-	Value?: [..._#defs."/$defs/Properties/definitions/WorkflowParameterValue"] | fn.#ListExpression
+	Value?: [...#WorkflowParameterValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowParameterValue": strings.MinRunes(0) & =~"^[^\\x00]*$" |
-fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::ImagePipeline"
-	Properties?: #Properties
-}
+#WorkflowParameterValue: strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression

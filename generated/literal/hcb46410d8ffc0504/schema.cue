@@ -13,7 +13,7 @@ package schema
 	DomainNameArn?:         string
 	DomainNameId?:          string
 	EndpointAccessMode?:    string
-	EndpointConfiguration?: _#defs."/$defs/Properties/definitions/EndpointConfiguration"
+	EndpointConfiguration?: #EndpointConfiguration
 	Policy?:                string | {...}
 
 	// The valid routing modes are [BASE_PATH_MAPPING_ONLY],
@@ -21,15 +21,15 @@ package schema
 	// inputs are invalid.
 	RoutingMode?:    "BASE_PATH_MAPPING_ONLY" | "ROUTING_RULE_THEN_BASE_PATH_MAPPING" | "ROUTING_RULE_ONLY"
 	SecurityPolicy?: string
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:           [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+#EndpointConfiguration: close({
 	IpAddressType?: string
 	Types?:         [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string
 	Value?: string
 })

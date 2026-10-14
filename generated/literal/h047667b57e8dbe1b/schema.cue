@@ -16,7 +16,7 @@ import (
 	CaseId!: strings.MaxRunes(500) & strings.MinRunes(1)
 
 	// The content of a related item to be created.
-	Content!: _#defs."/$defs/Properties/definitions/RelatedItemContent"
+	Content!: #RelatedItemContent
 
 	// The unique identifier of the Cases domain.
 	DomainId!: strings.MaxRunes(500) & strings.MinRunes(1)
@@ -30,14 +30,14 @@ import (
 	RelatedItemId?: strings.MaxRunes(500) & strings.MinRunes(1)
 
 	// A list of tags on the related item.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The type of a related item.
 	Type!: "Contact" | "Comment" | "File" | "Sla" | "ConnectCase" | "Custom"
 })
 
 // Represents a comment.
-_#defs: "/$defs/Properties/definitions/CommentContent": close({
+#CommentContent: close({
 	// Text in the body of a comment.
 	Body!: strings.MaxRunes(15000) & strings.MinRunes(1)
 
@@ -46,12 +46,10 @@ _#defs: "/$defs/Properties/definitions/CommentContent": close({
 })
 
 // Represents the content of a related item.
-_#defs: "/$defs/Properties/definitions/RelatedItemContent": close(
-	{Comment?: _#defs."/$defs/Properties/definitions/CommentContent"},
-)
+#RelatedItemContent: close({Comment?: #CommentContent})
 
 // A tag associated with the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -39,14 +39,14 @@ import (
 	Status?: "RUNNING" | "DONE"
 
 	// Tags to associate with the experiment run.
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TreatmentOverrides?: _#defs."/$defs/Properties/definitions/TreatmentOverrides"
+	Tags?:               list.UniqueItems() & [...#Tag]
+	TreatmentOverrides?: #TreatmentOverrides
 
 	// ISO-8601 timestamp when the run was last updated.
 	UpdatedAt?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Treatment overrides for specific entities.
-_#defs: "/$defs/Properties/definitions/TreatmentOverrides": close({
+#TreatmentOverrides: close({
 	// Map of entity ID to treatment key (t1, t2, ..., or c for control).
 	Inline?: close({
 

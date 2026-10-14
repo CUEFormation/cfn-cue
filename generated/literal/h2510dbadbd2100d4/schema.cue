@@ -21,13 +21,13 @@ import (
 	CreatedAt?: string
 
 	// The identity source for the application
-	IdentitySource!: _#defs."/$defs/Properties/definitions/IdentitySource"
+	IdentitySource!: #IdentitySource
 
 	// The status of the application
 	Status?: "CREATE_IN_PROGRESS" | "ACTIVE" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The tenant ID of the application
 	TenantId?: string
@@ -36,7 +36,7 @@ import (
 	UpdatedAt?: string
 })
 
-_#defs: "/$defs/Properties/definitions/IdentityCenter": close({
+#IdentityCenter: close({
 	// The ARN of the associated Identity Center application
 	ApplicationArn?: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
@@ -48,12 +48,10 @@ _#defs: "/$defs/Properties/definitions/IdentityCenter": close({
 	=~"^arn:[a-z0-9-]+:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$"
 })
 
-_#defs: "/$defs/Properties/definitions/IdentitySource": close(
-	{IdentityCenter!: _#defs."/$defs/Properties/definitions/IdentityCenter"},
-)
+#IdentitySource: close({IdentityCenter!: #IdentityCenter})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:.
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1)

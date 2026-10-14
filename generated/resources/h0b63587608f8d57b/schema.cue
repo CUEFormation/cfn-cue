@@ -18,26 +18,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::Runtime
-#Properties: close({
-	AgentRuntimeArtifact!:    _#defs."/$defs/Properties/definitions/AgentRuntimeArtifact" | fn.#ObjectExpression
-	AgentRuntimeName!:        _#defs."/$defs/Properties/definitions/AgentRuntimeName" | fn.#StringExpression
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration" | fn.#ObjectExpression
-	CapacityProviderConfiguration?: _#defs."/$defs/Properties/definitions/CapacityProviderConfiguration" |
-		fn.#ObjectExpression
-	Description?:              _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	EnvironmentVariables?:     _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap" | fn.#ObjectExpression
-	FilesystemConfigurations?: _#defs."/$defs/Properties/definitions/FilesystemConfigurations" | fn.#ListExpression
-	LifecycleConfiguration?:   _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
-	NetworkConfiguration?:     _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
-	PlatformVersion?:          _#defs."/$defs/Properties/definitions/PlatformVersion" | fn.#StringExpression
-	ProtocolConfiguration?:    _#defs."/$defs/Properties/definitions/ProtocolConfiguration" | fn.#StringExpression
-	RequestHeaderConfiguration?: _#defs."/$defs/Properties/definitions/RequestHeaderConfiguration" |
-		fn.#ObjectExpression
-	RoleArn!: _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	Tags?:    _#defs."/$defs/Properties/definitions/TagsMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::Runtime"
+	Properties!: close({
+		// The artifact of the agent
+		AgentRuntimeArtifact!: #AgentRuntimeArtifact
 
-_#defs: "/$defs/Properties/definitions/AgentManagedRuntimeType": "PYTHON_3_10" |
+		// Name for a resource
+		AgentRuntimeName!: #AgentRuntimeName
+
+		// Authorizer configuration for the agent runtime
+		AuthorizerConfiguration?: #AuthorizerConfiguration
+
+		// Capacity provider configuration for the agent runtime
+		CapacityProviderConfiguration?: #CapacityProviderConfiguration
+
+		// Description of the resource
+		Description?: #Description
+
+		// Environment variables for the agent runtime
+		EnvironmentVariables?: #EnvironmentVariablesMap
+
+		// Filesystem configurations for the agent runtime
+		FilesystemConfigurations?: #FilesystemConfigurations
+
+		// Lifecycle configuration for managing runtime sessions
+		LifecycleConfiguration?: #LifecycleConfiguration
+
+		// Network access configuration for the Agent
+		NetworkConfiguration?: #NetworkConfiguration
+
+		// The version of the runtime platform
+		PlatformVersion?: #PlatformVersion
+
+		// Protocol configuration for the agent runtime
+		ProtocolConfiguration?: #ProtocolConfiguration
+
+		// Configuration for HTTP request headers
+		RequestHeaderConfiguration?: #RequestHeaderConfiguration
+
+		// Amazon Resource Name (ARN) of an IAM role
+		RoleArn!: #RoleArn
+		Tags?:    #TagsMap
+	})
+}
+
+#AgentManagedRuntimeType: "PYTHON_3_10" |
 	"PYTHON_3_11" |
 	"PYTHON_3_12" |
 	"PYTHON_3_13" |
@@ -45,27 +71,23 @@ _#defs: "/$defs/Properties/definitions/AgentManagedRuntimeType": "PYTHON_3_10" |
 	"NODE_22" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeArn": strings.MaxRunes(2048) &
+#AgentRuntimeArn: strings.MaxRunes(2048) &
 =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeArtifact": close({
-	CodeConfiguration?:      _#defs."/$defs/Properties/definitions/CodeConfiguration"
-	ContainerConfiguration?: _#defs."/$defs/Properties/definitions/ContainerConfiguration"
+#AgentRuntimeArtifact: close({
+	CodeConfiguration?:      #CodeConfiguration
+	ContainerConfiguration?: #ContainerConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeId": =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}" |
-	fn.#StringExpression
+#AgentRuntimeId: =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeName": =~"[a-zA-Z][a-zA-Z0-9_]{0,47}" | fn.#StringExpression
+#AgentRuntimeName: =~"[a-zA-Z][a-zA-Z0-9_]{0,47}" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeVersion": strings.MaxRunes(5) &
-strings.MinRunes(1) &
-=~"([1-9][0-9]{0,4})" |
-fn.#StringExpression
+#AgentRuntimeVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"([1-9][0-9]{0,4})" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentStatus": "CREATING" |
+#AgentStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"UPDATING" |
 	"UPDATE_FAILED" |
@@ -74,185 +96,142 @@ _#defs: "/$defs/Properties/definitions/AgentStatus": "CREATING" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedAudience": string | fn.#StringExpression
+#AllowedAudience: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedAudienceList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AllowedAudience"
-] |
-	fn.#ListExpression
+#AllowedAudienceList: list.MinItems(1) & [...#AllowedAudience] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedClient": string | fn.#StringExpression
+#AllowedClient: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedClientsList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AllowedClient"
-] |
-	fn.#ListExpression
+#AllowedClientsList: list.MinItems(1) & [...#AllowedClient] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedScope": =~"[\\x21\\x23-\\x5B\\x5D-\\x7E]+" | fn.#StringExpression
+#AllowedScope: =~"[\\x21\\x23-\\x5B\\x5D-\\x7E]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedScopesList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AllowedScope"
-] |
-	fn.#ListExpression
+#AllowedScopesList: list.MinItems(1) & [...#AllowedScope] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedWorkloadConfiguration": close({
-	HostingEnvironments?: _#defs."/$defs/Properties/definitions/HostingEnvironmentsList"
-	WorkloadIdentities?:  _#defs."/$defs/Properties/definitions/WorkloadIdentitiesList"
+#AllowedWorkloadConfiguration: close({
+	HostingEnvironments?: #HostingEnvironmentsList
+	WorkloadIdentities?:  #WorkloadIdentitiesList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer?: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-) |
-	fn.#ObjectExpression
+#AuthorizerConfiguration: close({CustomJWTAuthorizer?: #CustomJWTAuthorizerConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
-	ClaimMatchOperator!: _#defs."/$defs/Properties/definitions/ClaimMatchOperator"
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+#AuthorizingClaimMatchValueType: close({
+	ClaimMatchOperator!: #ClaimMatchOperator
+	ClaimMatchValue!:    #ClaimMatchValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderArn": strings.MaxRunes(2048) &
+#CapacityProviderArn: strings.MaxRunes(2048) &
 =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:capacity-provider/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderConfiguration": close(
-	{CapacityProviderArn!: _#defs."/$defs/Properties/definitions/CapacityProviderArn"},
-) |
-	fn.#ObjectExpression
+#CapacityProviderConfiguration: close({CapacityProviderArn!: #CapacityProviderArn}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderVolumeConfiguration": close({
-	MountPath!:  _#defs."/$defs/Properties/definitions/MountPath"
-	VolumeName!: _#defs."/$defs/Properties/definitions/CapacityProviderVolumeName"
+#CapacityProviderVolumeConfiguration: close({
+	MountPath!:  #MountPath
+	VolumeName!: #CapacityProviderVolumeName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderVolumeName": strings.MaxRunes(48) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z][a-zA-Z0-9_-]{0,47}$" |
+#CapacityProviderVolumeName: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_-]{0,47}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchOperator": "EQUALS" |
-	"CONTAINS" |
-	"CONTAINS_ANY" |
-	fn.#StringExpression
+#ClaimMatchOperator: "EQUALS" | "CONTAINS" | "CONTAINS_ANY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
-	MatchValueString?:     _#defs."/$defs/Properties/definitions/MatchValueString"
-	MatchValueStringList?: _#defs."/$defs/Properties/definitions/MatchValueStringList"
+#ClaimMatchValueType: close({
+	MatchValueString?:     #MatchValueString
+	MatchValueStringList?: #MatchValueStringList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientToken": strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$" |
-fn.#StringExpression
+#ClientToken: strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Code": close({S3?: _#defs."/$defs/Properties/definitions/S3Location"}) |
-	fn.#ObjectExpression
+#Code: close({S3?: #S3Location}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeConfiguration": close({
-	Code!:       _#defs."/$defs/Properties/definitions/Code"
-	EntryPoint!: _#defs."/$defs/Properties/definitions/EntryPoints"
-	Runtime!:    _#defs."/$defs/Properties/definitions/AgentManagedRuntimeType"
+#CodeConfiguration: close({
+	Code!:       #Code
+	EntryPoint!: #EntryPoints
+	Runtime!:    #AgentManagedRuntimeType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerConfiguration": close(
-	{ContainerUri!: _#defs."/$defs/Properties/definitions/RuntimeContainerUri"},
-) |
-	fn.#ObjectExpression
+#ContainerConfiguration: close({ContainerUri!: #RuntimeContainerUri}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedAt": string | fn.#StringExpression
+#CreatedAt: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
-	InboundTokenClaimName!:      _#defs."/$defs/Properties/definitions/InboundTokenClaimName"
-	InboundTokenClaimValueType!: _#defs."/$defs/Properties/definitions/InboundTokenClaimValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
+	InboundTokenClaimName!:      #InboundTokenClaimName
+	InboundTokenClaimValueType!: #InboundTokenClaimValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomClaimsList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"
-] |
-	fn.#ListExpression
+#CustomClaimsList: list.MinItems(1) & [...#CustomClaimValidationType] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
-	AllowedAudience?:              _#defs."/$defs/Properties/definitions/AllowedAudienceList"
-	AllowedClients?:               _#defs."/$defs/Properties/definitions/AllowedClientsList"
-	AllowedScopes?:                _#defs."/$defs/Properties/definitions/AllowedScopesList"
-	AllowedWorkloadConfiguration?: _#defs."/$defs/Properties/definitions/AllowedWorkloadConfiguration"
-	CustomClaims?:                 _#defs."/$defs/Properties/definitions/CustomClaimsList"
-	DiscoveryUrl!:                 _#defs."/$defs/Properties/definitions/DiscoveryUrl"
-	PrivateEndpoint?:              _#defs."/$defs/Properties/definitions/PrivateEndpoint"
-	PrivateEndpointOverrides?:     _#defs."/$defs/Properties/definitions/PrivateEndpointOverridesList"
+#CustomJWTAuthorizerConfiguration: close({
+	AllowedAudience?:              #AllowedAudienceList
+	AllowedClients?:               #AllowedClientsList
+	AllowedScopes?:                #AllowedScopesList
+	AllowedWorkloadConfiguration?: #AllowedWorkloadConfiguration
+	CustomClaims?:                 #CustomClaimsList
+	DiscoveryUrl!:                 #DiscoveryUrl
+	PrivateEndpoint?:              #PrivateEndpoint
+	PrivateEndpointOverrides?:     #PrivateEndpointOverridesList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1200) & strings.MinRunes(1) | fn.#StringExpression
+#Description: strings.MaxRunes(1200) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DiscoveryUrl": =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
+#DiscoveryUrl: =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EfsAccessPointArn": strings.MaxRunes(128) &
+#EfsAccessPointArn: strings.MaxRunes(128) &
 =~"^arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:access-point/fsap-[0-9a-f]{8,40}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EfsAccessPointConfiguration": close({
-	AccessPointArn!: _#defs."/$defs/Properties/definitions/EfsAccessPointArn"
-	MountPath!:      _#defs."/$defs/Properties/definitions/MountPath"
+#EfsAccessPointConfiguration: close({
+	AccessPointArn!: #EfsAccessPointArn
+	MountPath!:      #MountPath
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntryPoints": list.MaxItems(2) & list.MinItems(1) & [
-	...string | fn.#StringExpression
-] |
-	fn.#ListExpression
+#EntryPoints: list.MaxItems(2) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariableKey": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z_][a-zA-Z0-9_]*$" |
+#EnvironmentVariableKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariableValue": strings.MaxRunes(2048) | fn.#StringExpression
+#EnvironmentVariableValue: strings.MaxRunes(2048) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariablesMap": struct.MaxFields(50) & close({
+#EnvironmentVariablesMap: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: strings.MaxRunes(2048) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilesystemConfiguration": close({
-	CapacityProviderVolume?: _#defs."/$defs/Properties/definitions/CapacityProviderVolumeConfiguration"
-	EfsAccessPoint?:         _#defs."/$defs/Properties/definitions/EfsAccessPointConfiguration"
-	S3FilesAccessPoint?:     _#defs."/$defs/Properties/definitions/S3FilesAccessPointConfiguration"
-	SessionStorage?:         _#defs."/$defs/Properties/definitions/SessionStorageConfiguration"
+#FilesystemConfiguration: close({
+	CapacityProviderVolume?: #CapacityProviderVolumeConfiguration
+	EfsAccessPoint?:         #EfsAccessPointConfiguration
+	S3FilesAccessPoint?:     #S3FilesAccessPointConfiguration
+	SessionStorage?:         #SessionStorageConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilesystemConfigurations": list.MaxItems(5) & [...] & [
-	..._#defs."/$defs/Properties/definitions/FilesystemConfiguration"
-] |
-	fn.#ListExpression
+#FilesystemConfigurations: list.MaxItems(5) & [...] & [...#FilesystemConfiguration] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderName": strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^[A-Za-z][A-Za-z0-9_-]{0,255}$" |
-fn.#StringExpression
+#HeaderName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_-]{0,255}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HostingEnvironment": close(
-	{Arn!: strings.MaxRunes(1011) & strings.MinRunes(20) | fn.#StringExpression},
-) |
+#HostingEnvironment: close({Arn!: strings.MaxRunes(1011) & strings.MinRunes(20) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HostingEnvironmentsList": list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/HostingEnvironment"
-] |
+#HostingEnvironmentsList: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#HostingEnvironment] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/InboundTokenClaimName": =~"[A-Za-z0-9_.-:]+" | fn.#StringExpression
+#InboundTokenClaimName: =~"[A-Za-z0-9_.-:]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InboundTokenClaimValueType": "STRING" | "STRING_ARRAY" | fn.#StringExpression
+#InboundTokenClaimValueType: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastUpdatedAt": string | fn.#StringExpression
+#LastUpdatedAt: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
+#LifecycleConfiguration: close({
 	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60 |
 		{
 			string &
@@ -288,7 +267,7 @@ _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
+#ManagedVpcResource: close({
 	EndpointIpAddressType!: "IPV4" | "IPV6" | fn.#StringExpression
 	RoutingDomain?:         string | fn.#StringExpression
 	SecurityGroupIds?: [
@@ -305,136 +284,100 @@ _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchValueString": =~"[A-Za-z0-9_.-]+" | fn.#StringExpression
+#MatchValueString: =~"[A-Za-z0-9_.-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MatchValueStringList": list.MaxItems(255) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MatchValueString"
-] |
-	fn.#ListExpression
+#MatchValueStringList: list.MaxItems(255) & list.MinItems(1) & [...#MatchValueString] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MountPath": strings.MaxRunes(200) &
-strings.MinRunes(6) &
-=~"^/mnt/[a-zA-Z0-9._-]+/?$" |
-fn.#StringExpression
+#MountPath: strings.MaxRunes(200) & strings.MinRunes(6) & =~"^/mnt/[a-zA-Z0-9._-]+/?$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	NetworkMode!:       _#defs."/$defs/Properties/definitions/NetworkMode"
-	NetworkModeConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+#NetworkConfiguration: close({
+	NetworkMode!:       #NetworkMode
+	NetworkModeConfig?: #VpcConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkMode": "PUBLIC" | "VPC" | fn.#StringExpression
+#NetworkMode: "PUBLIC" | "VPC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PlatformVersion": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\s]+$" |
-fn.#StringExpression
+#PlatformVersion: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": fn.#Object & {...} & matchN(1, [close(
-	{SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"},
-), close(
-	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource"},
-)]) |
+#PrivateEndpoint: fn.#Object & {...} & matchN(1, [
+	close({SelfManagedLatticeResource!: #SelfManagedLatticeResource}), close({ManagedVpcResource!: #ManagedVpcResource}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpointOverride": close({
+#PrivateEndpointOverride: close({
 	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpoint!: #PrivateEndpoint
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpointOverridesList": list.MaxItems(5) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"
-] |
+#PrivateEndpointOverridesList: list.MaxItems(5) & [...] & [...#PrivateEndpointOverride] | fn.#ListExpression
+
+#ProtocolConfiguration: "MCP" | "HTTP" | "A2A" | "AGUI" | fn.#StringExpression
+
+#RequestHeaderAllowlist: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#HeaderName] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ProtocolConfiguration": "MCP" | "HTTP" | "A2A" | "AGUI" | fn.#StringExpression
+#RequestHeaderConfiguration: close({RequestHeaderAllowlist?: #RequestHeaderAllowlist}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequestHeaderAllowlist": list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/HeaderName"
-] |
-	fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/RequestHeaderConfiguration": close(
-	{RequestHeaderAllowlist?: _#defs."/$defs/Properties/definitions/RequestHeaderAllowlist"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuntimeContainerUri": strings.MaxRunes(1024) &
+#RuntimeContainerUri: strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^(([0-9]{12})\\.dkr\\.ecr\\.([a-z0-9-]+)\\.([a-z0-9-]+(?:\\.[a-z0-9-]+)+)|public\\.ecr\\.aws)/((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)(?::([^:@]{1,300}))?(?:@(.+))?$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3FilesAccessPointArn": strings.MaxRunes(256) &
+#S3FilesAccessPointArn: strings.MaxRunes(256) &
 =~"^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3FilesAccessPointConfiguration": close({
-	AccessPointArn!: _#defs."/$defs/Properties/definitions/S3FilesAccessPointArn"
-	MountPath!:      _#defs."/$defs/Properties/definitions/MountPath"
+#S3FilesAccessPointConfiguration: close({
+	AccessPointArn!: #S3FilesAccessPointArn
+	MountPath!:      #MountPath
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:    =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" | fn.#StringExpression
 	Prefix!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(3) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"^sg-[0-9a-zA-Z]{8,17}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SecurityGroupId"
-] |
-	fn.#ListExpression
+#SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close(
-	{ResourceConfigurationIdentifier!: string | fn.#StringExpression},
-) |
+#SelfManagedLatticeResource: close({ResourceConfigurationIdentifier!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionStorageConfiguration": close(
-	{MountPath!: _#defs."/$defs/Properties/definitions/MountPath"},
-) |
-	fn.#ObjectExpression
+#SessionStorageConfiguration: close({MountPath!: #MountPath}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
+#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Subnets": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SubnetId"
-] |
-	fn.#ListExpression
+#Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
-	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets"
+#VpcConfig: close({
+	SecurityGroups!: #SecurityGroups
+	Subnets!:        #Subnets
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadIdentitiesList": list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
+#WorkloadIdentitiesList: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
 	...strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9_.-]+$" | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadIdentityArn": strings.MaxRunes(1024) & strings.MinRunes(1) |
-fn.#StringExpression
+#WorkloadIdentityArn: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadIdentityDetails": close(
-	{WorkloadIdentityArn!: _#defs."/$defs/Properties/definitions/WorkloadIdentityArn"},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::Runtime"
-	Properties!: #Properties
-}
+#WorkloadIdentityDetails: close({WorkloadIdentityArn!: #WorkloadIdentityArn}) | fn.#ObjectExpression

@@ -35,11 +35,11 @@ import (
 
 	// The ID of one or more subnets in which to create an endpoint network interface.
 	SubnetIds!:     list.UniqueItems() & [...strings.MaxRunes(200) & strings.MinRunes(5)]
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 	VpcIdentifier!: strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1)
 })

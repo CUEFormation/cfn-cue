@@ -20,11 +20,11 @@ import "strings"
 	Parameters!: string | {...}
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: string
 

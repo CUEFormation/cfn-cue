@@ -24,7 +24,7 @@ import "strings"
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
 
 	// The latest version references of the workflow.
-	LatestVersion?: _#defs."/$defs/Properties/definitions/LatestVersion"
+	LatestVersion?: #LatestVersion
 
 	// The name of the workflow.
 	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$"
@@ -45,7 +45,7 @@ import "strings"
 })
 
 // The latest version references of the workflow.
-_#defs: "/$defs/Properties/definitions/LatestVersion": close({
+#LatestVersion: close({
 	// The latest version ARN of the created workflow.
 	Arn?: string
 

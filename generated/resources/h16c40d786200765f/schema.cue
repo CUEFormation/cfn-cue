@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Register as a publisher in the CloudFormation Registry.
-#Properties: close({
-	AcceptTermsAndConditions!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ConnectionArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:aws(-[w]+)*:.+:.+:[0-9]{12}:.+" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::Publisher"
-	Properties!: #Properties
+	Type!: "AWS::CloudFormation::Publisher"
+	Properties!: close({
+		AcceptTermsAndConditions!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ConnectionArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:aws(-[w]+)*:.+:.+:[0-9]{12}:.+" |
+		fn.#StringExpression
+	})
 }

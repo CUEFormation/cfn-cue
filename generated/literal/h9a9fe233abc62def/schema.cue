@@ -8,17 +8,17 @@ import "list"
 
 // Resource Type definition for AWS::WAF::WebACL
 #Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/WafAction"
+	DefaultAction!: #WafAction
 	Id?:            string
 	MetricName!:    string
 	Name!:          string
-	Rules?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ActivatedRule"]
+	Rules?:         list.UniqueItems() & [...#ActivatedRule]
 })
 
-_#defs: "/$defs/Properties/definitions/ActivatedRule": close({
-	Action?:   _#defs."/$defs/Properties/definitions/WafAction"
+#ActivatedRule: close({
+	Action?:   #WafAction
 	Priority!: int
 	RuleId!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/WafAction": close({Type!: string})
+#WafAction: close({Type!: string})

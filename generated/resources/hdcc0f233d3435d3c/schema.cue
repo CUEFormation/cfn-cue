@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,136 +17,149 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolClient
-#Properties: close({
-	AccessTokenValidity?: int & <=86400 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=86400 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AllowedOAuthFlows?: list.MaxItems(3) & [...] & [
-		..."client_credentials" | "code" | "implicit" | fn.#StringExpression
-	] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::UserPoolClient"
+	Properties!: close({
+		AccessTokenValidity?: int & <=86400 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=86400 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AllowedOAuthFlows?: list.MaxItems(3) & [...] & [
+			..."client_credentials" | "code" | "implicit" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		AllowedOAuthFlowsUserPoolClient?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		AllowedOAuthScopes?: list.MaxItems(50) & [...] & [
+			...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	AllowedOAuthFlowsUserPoolClient?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	AllowedOAuthScopes?: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	AnalyticsConfiguration?: _#defs."/$defs/Properties/definitions/AnalyticsConfiguration"
-	AuthSessionValidity?: int & <=15 & >=3 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=15 &
-							>=3,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	CallbackURLs?: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	ClientName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
-	DefaultRedirectURI?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
-	fn.#StringExpression
-	EnablePropagateAdditionalUserContextData?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	EnableTokenRevocation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExplicitAuthFlows?: [
-		..."ADMIN_NO_SRP_AUTH" |
-			"ALLOW_ADMIN_USER_PASSWORD_AUTH" |
-			"ALLOW_CUSTOM_AUTH" |
-			"ALLOW_REFRESH_TOKEN_AUTH" |
-			"ALLOW_USER_AUTH" |
-			"ALLOW_USER_PASSWORD_AUTH" |
-			"ALLOW_USER_SRP_AUTH" |
-			"CUSTOM_AUTH_FLOW_ONLY" |
-			"USER_PASSWORD_AUTH" |
+		AnalyticsConfiguration?: #AnalyticsConfiguration
+		AuthSessionValidity?: int & <=15 & >=3 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=15 &
+								>=3,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		CallbackURLs?: list.MaxItems(100) & [...] & [
+			...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
 			fn.#StringExpression
-	] |
+		] |
 		fn.#ListExpression
-	GenerateSecret?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IdTokenValidity?: int & <=86400 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=86400 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	LogoutURLs?: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	PreventUserExistenceErrors?: "ENABLED" | "LEGACY" | fn.#StringExpression
-	ReadAttributes?:       [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	RefreshTokenRotation?: _#defs."/$defs/Properties/definitions/RefreshTokenRotation"
-	RefreshTokenValidity?: int & <=315360000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=315360000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SupportedIdentityProviders?: [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\p{Z}]+$" |
+		ClientName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
+		DefaultRedirectURI?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	TokenValidityUnits?: _#defs."/$defs/Properties/definitions/TokenValidityUnits"
-	UserPoolId!:         strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
-	WriteAttributes?:    [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-})
+		EnablePropagateAdditionalUserContextData?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		EnableTokenRevocation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ExplicitAuthFlows?: [
+			..."ADMIN_NO_SRP_AUTH" |
+				"ALLOW_ADMIN_USER_PASSWORD_AUTH" |
+				"ALLOW_CUSTOM_AUTH" |
+				"ALLOW_REFRESH_TOKEN_AUTH" |
+				"ALLOW_USER_AUTH" |
+				"ALLOW_USER_PASSWORD_AUTH" |
+				"ALLOW_USER_SRP_AUTH" |
+				"CUSTOM_AUTH_FLOW_ONLY" |
+				"USER_PASSWORD_AUTH" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		GenerateSecret?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IdTokenValidity?: int & <=86400 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=86400 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		LogoutURLs?: list.MaxItems(100) & [...] & [
+			...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		PreventUserExistenceErrors?: "ENABLED" | "LEGACY" | fn.#StringExpression
+		ReadAttributes?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		RefreshTokenRotation?: #RefreshTokenRotation
+		RefreshTokenValidity?: int & <=315360000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=315360000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SupportedIdentityProviders?: [
+			...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\p{Z}]+$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		TokenValidityUnits?: #TokenValidityUnits
+		UserPoolId!:      strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+		WriteAttributes?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
+#AnalyticsConfiguration: close({
 	ApplicationArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
@@ -162,7 +175,7 @@ _#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RefreshTokenRotation": {
+#RefreshTokenRotation: {
 	Feature?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	RetryGracePeriodSeconds?: int & <=60 & >=0 |
 		{
@@ -183,13 +196,9 @@ _#defs: "/$defs/Properties/definitions/RefreshTokenRotation": {
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TokenValidityUnits": close({
+#TokenValidityUnits: close({
 	AccessToken?:  "days" | "hours" | "minutes" | "seconds" | fn.#StringExpression
 	IdToken?:      "days" | "hours" | "minutes" | "seconds" | fn.#StringExpression
 	RefreshToken?: "days" | "hours" | "minutes" | "seconds" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolClient"
-	Properties!: #Properties
-}

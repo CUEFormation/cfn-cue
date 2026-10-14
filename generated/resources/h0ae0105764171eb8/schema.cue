@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,127 +13,130 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A resource schema for a Detector in Amazon Fraud Detector.
-#Properties: close({
-	AssociatedModels?:      list.MaxItems(10) & [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-	Description?:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	DetectorId!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-	DetectorVersionStatus?: "DRAFT" | "ACTIVE" | fn.#StringExpression
-	EventType!: close({
-		Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		EntityTypes?: list.MinItems(1) & [...close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FraudDetector::Detector"
+	Properties!: close({
+		AssociatedModels?:      list.MaxItems(10) & [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
+		Description?:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		DetectorId!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
+		DetectorVersionStatus?: "DRAFT" | "ACTIVE" | fn.#StringExpression
+		EventType!: close({
+			Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			EntityTypes?: list.MinItems(1) & [...close({
+				Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+				Inline?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+				Name?:        string | fn.#StringExpression
+				Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+			}) |
+			fn.#ObjectExpression] |
+			fn.#ListExpression
+			EventVariables?: list.MinItems(1) & [...close({
+				DataSource?:   "EVENT" | fn.#StringExpression
+				DataType?:     "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | fn.#StringExpression
+				DefaultValue?: string | fn.#StringExpression
+				Description?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+				Inline?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+				Name?:         string | fn.#StringExpression
+				Tags?:         list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+				VariableType?: "AUTH_CODE" |
+					"AVS" |
+					"BILLING_ADDRESS_L1" |
+					"BILLING_ADDRESS_L2" |
+					"BILLING_CITY" |
+					"BILLING_COUNTRY" |
+					"BILLING_NAME" |
+					"BILLING_PHONE" |
+					"BILLING_STATE" |
+					"BILLING_ZIP" |
+					"CARD_BIN" |
+					"CATEGORICAL" |
+					"CURRENCY_CODE" |
+					"EMAIL_ADDRESS" |
+					"FINGERPRINT" |
+					"FRAUD_LABEL" |
+					"FREE_FORM_TEXT" |
+					"IP_ADDRESS" |
+					"NUMERIC" |
+					"ORDER_ID" |
+					"PAYMENT_TYPE" |
+					"PHONE_NUMBER" |
+					"PRICE" |
+					"PRODUCT_CATEGORY" |
+					"SHIPPING_ADDRESS_L1" |
+					"SHIPPING_ADDRESS_L2" |
+					"SHIPPING_CITY" |
+					"SHIPPING_COUNTRY" |
+					"SHIPPING_NAME" |
+					"SHIPPING_PHONE" |
+					"SHIPPING_STATE" |
+					"SHIPPING_ZIP" |
+					"USERAGENT" |
+					fn.#StringExpression
+			}) |
+			fn.#ObjectExpression] |
+			fn.#ListExpression
+			Inline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Labels?: list.MinItems(2) & [...close({
+				Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+				Inline?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+				Name?:        string | fn.#StringExpression
+				Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+			}) |
+			fn.#ObjectExpression] |
+			fn.#ListExpression
+			Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
+			Tags?: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		RuleExecutionMode?: "FIRST_MATCHED" | "ALL_MATCHED" | fn.#StringExpression
+		Rules!: list.MinItems(1) & [...close({
 			Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Inline?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			Name?:        string | fn.#StringExpression
-			Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+			DetectorId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
+			Expression?:  string | fn.#StringExpression
+			Language?:    "DETECTORPL" | fn.#StringExpression
+			Outcomes?: list.MinItems(1) & [...close({
+				Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+				Inline?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+				Name?:        string | fn.#StringExpression
+				Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+			}) |
+			fn.#ObjectExpression] |
+			fn.#ListExpression
+			RuleId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
+			Tags?:   list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		EventVariables?: list.MinItems(1) & [...close({
-			DataSource?:   "EVENT" | fn.#StringExpression
-			DataType?:     "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | fn.#StringExpression
-			DefaultValue?: string | fn.#StringExpression
-			Description?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Inline?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			Name?:         string | fn.#StringExpression
-			Tags?:         list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-			VariableType?: "AUTH_CODE" |
-				"AVS" |
-				"BILLING_ADDRESS_L1" |
-				"BILLING_ADDRESS_L2" |
-				"BILLING_CITY" |
-				"BILLING_COUNTRY" |
-				"BILLING_NAME" |
-				"BILLING_PHONE" |
-				"BILLING_STATE" |
-				"BILLING_ZIP" |
-				"CARD_BIN" |
-				"CATEGORICAL" |
-				"CURRENCY_CODE" |
-				"EMAIL_ADDRESS" |
-				"FINGERPRINT" |
-				"FRAUD_LABEL" |
-				"FREE_FORM_TEXT" |
-				"IP_ADDRESS" |
-				"NUMERIC" |
-				"ORDER_ID" |
-				"PAYMENT_TYPE" |
-				"PHONE_NUMBER" |
-				"PRICE" |
-				"PRODUCT_CATEGORY" |
-				"SHIPPING_ADDRESS_L1" |
-				"SHIPPING_ADDRESS_L2" |
-				"SHIPPING_CITY" |
-				"SHIPPING_COUNTRY" |
-				"SHIPPING_NAME" |
-				"SHIPPING_PHONE" |
-				"SHIPPING_STATE" |
-				"SHIPPING_ZIP" |
-				"USERAGENT" |
-				fn.#StringExpression
-		}) |
-		fn.#ObjectExpression] |
-		fn.#ListExpression
-		Inline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Labels?: list.MinItems(2) & [...close({
-			Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Inline?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			Name?:        string | fn.#StringExpression
-			Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-		}) |
-		fn.#ObjectExpression] |
-		fn.#ListExpression
-		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-		Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	RuleExecutionMode?: "FIRST_MATCHED" | "ALL_MATCHED" | fn.#StringExpression
-	Rules!: list.MinItems(1) & [...close({
-		Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		DetectorId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-		Expression?:  string | fn.#StringExpression
-		Language?:    "DETECTORPL" | fn.#StringExpression
-		Outcomes?: list.MinItems(1) & [...close({
-			Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Inline?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			Name?:        string | fn.#StringExpression
-			Tags?:        list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-		}) |
-		fn.#ObjectExpression] |
-		fn.#ListExpression
-		RuleId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-		Tags?:   list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EntityType": close({
+#EntityType: close({
 	Arn?:             string | fn.#StringExpression
 	CreatedTime?:     string | fn.#StringExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventType": close({
+#EventType: close({
 	Arn?:             string | fn.#StringExpression
 	CreatedTime?:     string | fn.#StringExpression
 	Description?:     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	EntityTypes?:     list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EntityType"] | fn.#ListExpression
-	EventVariables?:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EventVariable"] | fn.#ListExpression
+	EntityTypes?:     list.MinItems(1) & [...#EntityType] | fn.#ListExpression
+	EventVariables?:  list.MinItems(1) & [...#EventVariable] | fn.#ListExpression
 	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Labels?:          list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Label"] | fn.#ListExpression
+	Labels?:          list.MinItems(2) & [...#Label] | fn.#ListExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventVariable": close({
+#EventVariable: close({
 	Arn?:             string | fn.#StringExpression
 	CreatedTime?:     string | fn.#StringExpression
 	DataSource?:      "EVENT" | fn.#StringExpression
@@ -143,7 +146,7 @@ _#defs: "/$defs/Properties/definitions/EventVariable": close({
 	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	VariableType?: "AUTH_CODE" |
 		"AVS" |
 		"BILLING_ADDRESS_L1" |
@@ -181,31 +184,31 @@ _#defs: "/$defs/Properties/definitions/EventVariable": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	Arn?:             string | fn.#StringExpression
 	CreatedTime?:     string | fn.#StringExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Model": close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Model: close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Outcome": close({
+#Outcome: close({
 	Arn?:             string | fn.#StringExpression
 	CreatedTime?:     string | fn.#StringExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Inline?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LastUpdatedTime?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	Arn?:             string | fn.#StringExpression
 	CreatedTime?:     string | fn.#StringExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -213,19 +216,15 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 	Expression?:      string | fn.#StringExpression
 	Language?:        "DETECTORPL" | fn.#StringExpression
 	LastUpdatedTime?: string | fn.#StringExpression
-	Outcomes?:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Outcome"] | fn.#ListExpression
+	Outcomes?:        list.MinItems(1) & [...#Outcome] | fn.#ListExpression
 	RuleId?:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
 	RuleVersion?:     strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]*)$" | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FraudDetector::Detector"
-	Properties!: #Properties
-}

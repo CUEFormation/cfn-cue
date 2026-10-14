@@ -11,7 +11,7 @@ import "strings"
 #Properties: close({
 	// The Domain name associated with the VPC Ingress Connection.
 	DomainName?:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"[A-Za-z0-9*.-]{1,255}"
-	IngressVpcConfiguration!: _#defs."/$defs/Properties/definitions/IngressVpcConfiguration"
+	IngressVpcConfiguration!: #IngressVpcConfiguration
 
 	// The Amazon Resource Name (ARN) of the service.
 	ServiceArn!: strings.MaxRunes(1011) & strings.MinRunes(1)
@@ -25,7 +25,7 @@ import "strings"
 		"FAILED_UPDATE" |
 		"FAILED_DELETION" |
 		"DELETED"
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the VpcIngressConnection.
 	VpcIngressConnectionArn?: strings.MaxRunes(1011) & strings.MinRunes(1)
@@ -35,7 +35,7 @@ import "strings"
 })
 
 // The configuration of customer’s VPC and related VPC endpoint
-_#defs: "/$defs/Properties/definitions/IngressVpcConfiguration": close({
+#IngressVpcConfiguration: close({
 	// The ID of the VPC endpoint that your App Runner service connects to.
 	VpcEndpointId!: strings.MaxRunes(51200) & strings.MinRunes(0)
 
@@ -43,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/IngressVpcConfiguration": close({
 	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(51200) & strings.MinRunes(0))
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

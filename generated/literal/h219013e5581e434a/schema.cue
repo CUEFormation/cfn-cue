@@ -18,10 +18,10 @@ import "strings"
 	ResourceSetName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+"
 
 	// A collection of tags associated with a resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

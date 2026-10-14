@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,17 +25,17 @@ import (
 	// The domain associated with the dataset
 	Domain!: "RETAIL" | "CUSTOM" | "INVENTORY_PLANNING" | "EC2_CAPACITY" | "WORK_FORCE" | "WEB_TRAFFIC" | "METRICS"
 	EncryptionConfig?: close({
-		KmsKeyArn?: _#defs."/$defs/Properties/definitions/KmsKeyArn"
-		RoleArn?:   _#defs."/$defs/Properties/definitions/RoleArn"
+		KmsKeyArn?: #KmsKeyArn
+		RoleArn?:   #RoleArn
 	})
-	Schema!: close({Attributes?: _#defs."/$defs/Properties/definitions/Attributes"})
+	Schema!: close({Attributes?: #Attributes})
 	Tags?: list.MaxItems(200) & [...] & [...close({
-		Key!:   _#defs."/$defs/Properties/definitions/Key"
-		Value!: _#defs."/$defs/Properties/definitions/Value"
+		Key!:   #Key
+		Value!: #Value
 	})]
 })
 
-_#defs: "/$defs/Properties/definitions/Attributes": list.MaxItems(100) & list.MinItems(1) & [...close({
+#Attributes: list.MaxItems(100) & list.MinItems(1) & [...close({
 	// Name of the dataset field
 	AttributeName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*"
 
@@ -47,18 +47,16 @@ _#defs: "/$defs/Properties/definitions/Attributes": list.MaxItems(100) & list.Mi
 // characters in length and cannot be prefixed with aws:. You can use any of
 // the following characters: the set of Unicode letters, digits, whitespace, _,
 // ., /, =, +, and -.
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
+#Key: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
 // KMS key used to encrypt the Dataset data
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+#KmsKeyArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"arn:aws[-a-z]*:kms:.*:key/.*"
 
 // The ARN of the IAM role that Amazon Forecast can assume to access the AWS KMS key.
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$"
@@ -67,6 +65,4 @@ strings.MinRunes(0) &
 // characters in length and cannot be prefixed with aws:. You can use any of
 // the following characters: the set of Unicode letters, digits, whitespace, _,
 // ., /, =, +, and -.
-_#defs: "/$defs/Properties/definitions/Value": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
+#Value: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"

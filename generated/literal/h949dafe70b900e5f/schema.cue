@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,32 +18,30 @@ import (
 	Category!: "Approval" | "Build" | "Compute" | "Deploy" | "Invoke" | "Source" | "Test"
 
 	// The configuration properties for the custom action.
-	ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConfigurationProperties"
-	]
-	Id?: string
+	ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ConfigurationProperties]
+	Id?:                      string
 
 	// The details of the input artifact for the action, such as its commit ID.
-	InputArtifactDetails!: _#defs."/$defs/Properties/definitions/ArtifactDetails"
+	InputArtifactDetails!: #ArtifactDetails
 
 	// The details of the output artifact of the action, such as its commit ID.
-	OutputArtifactDetails!: _#defs."/$defs/Properties/definitions/ArtifactDetails"
+	OutputArtifactDetails!: #ArtifactDetails
 
 	// The provider of the service used in the custom action, such as AWS CodeDeploy.
 	Provider!: strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$"
 
 	// URLs that provide users information about this custom action.
-	Settings?: _#defs."/$defs/Properties/definitions/Settings"
+	Settings?: #Settings
 
 	// Any tags assigned to the custom action.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The version identifier of the custom action.
 	Version!: strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$"
 })
 
 // Returns information about the details of an artifact.
-_#defs: "/$defs/Properties/definitions/ArtifactDetails": close({
+#ArtifactDetails: close({
 	// The maximum number of artifacts allowed for the action type.
 	MaximumCount!: int & <=5 & >=0
 
@@ -52,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/ArtifactDetails": close({
 })
 
 // The configuration properties for the custom action.
-_#defs: "/$defs/Properties/definitions/ConfigurationProperties": close({
+#ConfigurationProperties: close({
 	// The description of the action configuration property that is displayed to users.
 	Description?: strings.MaxRunes(160) & strings.MinRunes(1)
 
@@ -86,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/ConfigurationProperties": close({
 // Settings is a property of the AWS::CodePipeline::CustomActionType resource
 // that provides URLs that users can access to view information about the
 // CodePipeline custom action.
-_#defs: "/$defs/Properties/definitions/Settings": close({
+#Settings: close({
 	// The URL returned to the AWS CodePipeline console that provides a deep link to
 	// the resources of the external system, such as the configuration page for an
 	// AWS CodeDeploy deployment group. This link is provided as part of the action
@@ -110,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/Settings": close({
 	ThirdPartyConfigurationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

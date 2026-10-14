@@ -16,42 +16,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::AIAgent Resource Type
-#Properties: close({
-	AssistantId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
-		fn.#StringExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/AIAgentConfiguration"
-	Description?:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	Name?:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	Tags?:          _#defs."/$defs/Properties/definitions/Tags"
-	Type!:          _#defs."/$defs/Properties/definitions/AIAgentType"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::AIAgent"
+	Properties!: close({
+		AssistantId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
+			fn.#StringExpression
+		Configuration!: #AIAgentConfiguration
+		Description?:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		Name?:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		Tags?:          #Tags
+		Type!:          #AIAgentType
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AIAgentAssociationConfigurationType": "KNOWLEDGE_BASE" | fn.#StringExpression
+#AIAgentAssociationConfigurationType: "KNOWLEDGE_BASE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AIAgentConfiguration": matchN(1, [close(
-	{ManualSearchAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/ManualSearchAIAgentConfiguration"},
-), close({
-	AnswerRecommendationAIAgentConfiguration!:
-		_#defs."/$defs/Properties/definitions/AnswerRecommendationAIAgentConfiguration"
-}), close(
-	{SelfServiceAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/SelfServiceAIAgentConfiguration"},
+#AIAgentConfiguration: matchN(1, [close(
+	{ManualSearchAIAgentConfiguration!: #ManualSearchAIAgentConfiguration},
 ), close(
-	{EmailResponseAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/EmailResponseAIAgentConfiguration"},
+	{AnswerRecommendationAIAgentConfiguration!: #AnswerRecommendationAIAgentConfiguration},
 ), close(
-	{EmailOverviewAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/EmailOverviewAIAgentConfiguration"},
-), close({
-	EmailGenerativeAnswerAIAgentConfiguration!:
-		_#defs."/$defs/Properties/definitions/EmailGenerativeAnswerAIAgentConfiguration"
-}), close(
-	{OrchestrationAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/OrchestrationAIAgentConfiguration"},
+	{SelfServiceAIAgentConfiguration!: #SelfServiceAIAgentConfiguration},
 ), close(
-	{NoteTakingAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/NoteTakingAIAgentConfiguration"},
-), close({
-	CaseSummarizationAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/CaseSummarizationAIAgentConfiguration"
-})]) |
+	{EmailResponseAIAgentConfiguration!: #EmailResponseAIAgentConfiguration},
+), close(
+	{EmailOverviewAIAgentConfiguration!: #EmailOverviewAIAgentConfiguration},
+), close(
+	{EmailGenerativeAnswerAIAgentConfiguration!: #EmailGenerativeAnswerAIAgentConfiguration},
+), close(
+	{OrchestrationAIAgentConfiguration!: #OrchestrationAIAgentConfiguration},
+), close(
+	{NoteTakingAIAgentConfiguration!: #NoteTakingAIAgentConfiguration},
+), close(
+	{CaseSummarizationAIAgentConfiguration!: #CaseSummarizationAIAgentConfiguration},
+)]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/AIAgentType": "MANUAL_SEARCH" |
+#AIAgentType: "MANUAL_SEARCH" |
 	"ANSWER_RECOMMENDATION" |
 	"SELF_SERVICE" |
 	"EMAIL_RESPONSE" |
@@ -62,15 +63,14 @@ _#defs: "/$defs/Properties/definitions/AIAgentType": "MANUAL_SEARCH" |
 	"CASE_SUMMARIZATION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Annotation": close({}) | fn.#ObjectExpression
+#Annotation: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnswerRecommendationAIAgentConfiguration": close({
+#AnswerRecommendationAIAgentConfiguration: close({
 	AnswerGenerationAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
 	AnswerGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
-	AssociationConfigurations?: [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"] |
-		fn.#ListExpression
+	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
 	IntentLabelingGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
 	Locale?: strings.MinRunes(1) | fn.#StringExpression
@@ -79,20 +79,19 @@ _#defs: "/$defs/Properties/definitions/AnswerRecommendationAIAgentConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssociationConfiguration": close({
-	AssociationConfigurationData?: _#defs."/$defs/Properties/definitions/AssociationConfigurationData"
+#AssociationConfiguration: close({
+	AssociationConfigurationData?: #AssociationConfigurationData
 	AssociationId?:   =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
-	AssociationType?: _#defs."/$defs/Properties/definitions/AIAgentAssociationConfigurationType"
+	AssociationType?: #AIAgentAssociationConfigurationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssociationConfigurationData": close({
-	KnowledgeBaseAssociationConfigurationData!:
-		_#defs."/$defs/Properties/definitions/KnowledgeBaseAssociationConfigurationData"
-}) |
+#AssociationConfigurationData: close(
+	{KnowledgeBaseAssociationConfigurationData!: #KnowledgeBaseAssociationConfigurationData},
+) |
 	fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/CaseSummarizationAIAgentConfiguration": close({
+#CaseSummarizationAIAgentConfiguration: close({
 	CaseSummarizationAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
 	CaseSummarizationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
@@ -101,9 +100,8 @@ _#defs: "/$defs/Properties/definitions/CaseSummarizationAIAgentConfiguration": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmailGenerativeAnswerAIAgentConfiguration": close({
-	AssociationConfigurations?: [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"] |
-		fn.#ListExpression
+#EmailGenerativeAnswerAIAgentConfiguration: close({
+	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
 	EmailGenerativeAnswerAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
 	EmailQueryReformulationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
@@ -112,16 +110,15 @@ _#defs: "/$defs/Properties/definitions/EmailGenerativeAnswerAIAgentConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmailOverviewAIAgentConfiguration": close({
+#EmailOverviewAIAgentConfiguration: close({
 	EmailOverviewAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
 	Locale?: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmailResponseAIAgentConfiguration": close({
-	AssociationConfigurations?: [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"] |
-		fn.#ListExpression
+#EmailResponseAIAgentConfiguration: close({
+	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
 	EmailQueryReformulationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
 	EmailResponseAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
@@ -130,8 +127,8 @@ _#defs: "/$defs/Properties/definitions/EmailResponseAIAgentConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseAssociationConfigurationData": close({
-	ContentTagFilter?: _#defs."/$defs/Properties/definitions/TagFilter"
+#KnowledgeBaseAssociationConfigurationData: close({
+	ContentTagFilter?: #TagFilter
 	MaxResults?: <=100 & >=1 |
 		{
 			string &
@@ -152,24 +149,23 @@ _#defs: "/$defs/Properties/definitions/KnowledgeBaseAssociationConfigurationData
 				)
 		} |
 		fn.#NumberExpression
-	OverrideKnowledgeBaseSearchType?: _#defs."/$defs/Properties/definitions/KnowledgeBaseSearchType"
+	OverrideKnowledgeBaseSearchType?: #KnowledgeBaseSearchType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseSearchType": "HYBRID" | "SEMANTIC" | fn.#StringExpression
+#KnowledgeBaseSearchType: "HYBRID" | "SEMANTIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManualSearchAIAgentConfiguration": close({
+#ManualSearchAIAgentConfiguration: close({
 	AnswerGenerationAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
 	AnswerGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
-	AssociationConfigurations?: [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"] |
-		fn.#ListExpression
-	Locale?: strings.MinRunes(1) | fn.#StringExpression
+	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
+	Locale?:                    strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NoteTakingAIAgentConfiguration": close({
+#NoteTakingAIAgentConfiguration: close({
 	Locale?: strings.MinRunes(1) | fn.#StringExpression
 	NoteTakingAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
@@ -178,14 +174,12 @@ _#defs: "/$defs/Properties/definitions/NoteTakingAIAgentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrCondition": matchN(1, [close(
-	{AndConditions!: [..._#defs."/$defs/Properties/definitions/TagCondition"] | fn.#ListExpression},
-), close(
-	{TagCondition!: _#defs."/$defs/Properties/definitions/TagCondition"},
-)]) |
+#OrCondition: matchN(1, [
+	close({AndConditions!: [...#TagCondition] | fn.#ListExpression}), close({TagCondition!: #TagCondition}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/OrchestrationAIAgentConfiguration": close({
+#OrchestrationAIAgentConfiguration: close({
 	ConnectInstanceArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$" |
@@ -195,13 +189,12 @@ _#defs: "/$defs/Properties/definitions/OrchestrationAIAgentConfiguration": close
 		fn.#StringExpression
 	OrchestrationAIPromptId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
-	ToolConfigurations?: _#defs."/$defs/Properties/definitions/ToolConfigurationList"
+	ToolConfigurations?: #ToolConfigurationList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfServiceAIAgentConfiguration": close({
-	AssociationConfigurations?: [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"] |
-		fn.#ListExpression
+#SelfServiceAIAgentConfiguration: close({
+	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
 	SelfServiceAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
 		fn.#StringExpression
 	SelfServiceAnswerGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
@@ -211,106 +204,84 @@ _#defs: "/$defs/Properties/definitions/SelfServiceAIAgentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagCondition": close({
+#TagCondition: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagFilter": matchN(1, [close(
-	{TagCondition!: _#defs."/$defs/Properties/definitions/TagCondition"},
+#TagFilter: matchN(1, [close(
+	{TagCondition!: #TagCondition},
 ), close(
-	{AndConditions!: [..._#defs."/$defs/Properties/definitions/TagCondition"] | fn.#ListExpression},
+	{AndConditions!: [...#TagCondition] | fn.#ListExpression},
 ), close(
-	{OrConditions!: [..._#defs."/$defs/Properties/definitions/OrCondition"] | fn.#ListExpression},
+	{OrConditions!: [...#OrCondition] | fn.#ListExpression},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
+#Tags: {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolConfiguration": close({
-	Annotations?:                  _#defs."/$defs/Properties/definitions/Annotation"
+#ToolConfiguration: close({
+	Annotations?:                  #Annotation
 	Description?:                  strings.MinRunes(1) | fn.#StringExpression
 	InputSchema?:                  fn.#Object & {...} | fn.#ObjectExpression
-	Instruction?:                  _#defs."/$defs/Properties/definitions/ToolInstruction"
-	OutputFilters?:                _#defs."/$defs/Properties/definitions/ToolOutputFilterList"
+	Instruction?:                  #ToolInstruction
+	OutputFilters?:                #ToolOutputFilterList
 	OutputSchema?:                 fn.#Object & {...} | fn.#ObjectExpression
-	OverrideInputValues?:          _#defs."/$defs/Properties/definitions/ToolOverrideInputValueList"
+	OverrideInputValues?:          #ToolOverrideInputValueList
 	Title?:                        strings.MinRunes(1) | fn.#StringExpression
 	ToolId?:                       strings.MinRunes(1) | fn.#StringExpression
 	ToolName!:                     strings.MinRunes(1) | fn.#StringExpression
-	ToolType!:                     _#defs."/$defs/Properties/definitions/ToolType"
-	UserInteractionConfiguration?: _#defs."/$defs/Properties/definitions/UserInteractionConfiguration"
+	ToolType!:                     #ToolType
+	UserInteractionConfiguration?: #UserInteractionConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolConfigurationList": [
-	..._#defs."/$defs/Properties/definitions/ToolConfiguration"
-] |
-	fn.#ListExpression
+#ToolConfigurationList: [...#ToolConfiguration] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ToolExampleList": [...string | fn.#StringExpression] | fn.#ListExpression
+#ToolExampleList: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ToolInstruction": close({
-	Examples?:    _#defs."/$defs/Properties/definitions/ToolExampleList"
+#ToolInstruction: close({
+	Examples?:    #ToolExampleList
 	Instruction?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolOutputConfiguration": close({
+#ToolOutputConfiguration: close({
 	OutputVariableNameOverride?: strings.MinRunes(1) | fn.#StringExpression
 	SessionDataNamespace?:       strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolOutputFilter": close({
+#ToolOutputFilter: close({
 	JsonPath!:            strings.MinRunes(1) | fn.#StringExpression
-	OutputConfiguration?: _#defs."/$defs/Properties/definitions/ToolOutputConfiguration"
+	OutputConfiguration?: #ToolOutputConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolOutputFilterList": [
-	..._#defs."/$defs/Properties/definitions/ToolOutputFilter"
-] |
-	fn.#ListExpression
+#ToolOutputFilterList: [...#ToolOutputFilter] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideConstantInputValue": close({
-	Type!:  _#defs."/$defs/Properties/definitions/ToolOverrideInputValueType"
+#ToolOverrideConstantInputValue: close({
+	Type!:  #ToolOverrideInputValueType
 	Value!: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideInputValue": close({
+#ToolOverrideInputValue: close({
 	JsonPath!: strings.MinRunes(1) | fn.#StringExpression
-	Value!:    _#defs."/$defs/Properties/definitions/ToolOverrideInputValueConfiguration"
+	Value!:    #ToolOverrideInputValueConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideInputValueConfiguration": close(
-	{Constant!: _#defs."/$defs/Properties/definitions/ToolOverrideConstantInputValue"},
-) |
-	fn.#ValueExpression
+#ToolOverrideInputValueConfiguration: close({Constant!: #ToolOverrideConstantInputValue}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideInputValueList": [
-	..._#defs."/$defs/Properties/definitions/ToolOverrideInputValue"
-] |
-	fn.#ListExpression
+#ToolOverrideInputValueList: [...#ToolOverrideInputValue] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideInputValueType": "STRING" |
-	"NUMBER" |
-	"JSON_STRING" |
-	fn.#StringExpression
+#ToolOverrideInputValueType: "STRING" | "NUMBER" | "JSON_STRING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ToolType": "MODEL_CONTEXT_PROTOCOL" |
-	"RETURN_TO_CONTROL" |
-	"CONSTANT" |
-	fn.#StringExpression
+#ToolType: "MODEL_CONTEXT_PROTOCOL" | "RETURN_TO_CONTROL" | "CONSTANT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UserInteractionConfiguration": close(
+#UserInteractionConfiguration: close(
 	{IsUserConfirmationRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::AIAgent"
-	Properties!: #Properties
-}

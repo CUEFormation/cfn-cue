@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -35,20 +35,20 @@ import (
 	IngestEndpointUrls?: [...string]
 
 	// <p>The list of ingest endpoints.</p>
-	IngestEndpoints?:          [..._#defs."/$defs/Properties/definitions/IngestEndpoint"]
-	InputSwitchConfiguration?: _#defs."/$defs/Properties/definitions/InputSwitchConfiguration"
-	InputType?:                _#defs."/$defs/Properties/definitions/InputType"
+	IngestEndpoints?:          [...#IngestEndpoint]
+	InputSwitchConfiguration?: #InputSwitchConfiguration
+	InputType?:                #InputType
 
 	// <p>The date and time the channel was modified.</p>
 	ModifiedAt?:                time.Time
-	MultiviewConfiguration?:    _#defs."/$defs/Properties/definitions/MultiviewConfiguration"
-	OutputHeaderConfiguration?: _#defs."/$defs/Properties/definitions/OutputHeaderConfiguration"
-	OutputLockingMode?:         _#defs."/$defs/Properties/definitions/OutputLockingMode"
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"]
+	MultiviewConfiguration?:    #MultiviewConfiguration
+	OutputHeaderConfiguration?: #OutputHeaderConfiguration
+	OutputLockingMode?:         #OutputLockingMode
+	Tags?:                      [...#Tag]
 })
 
 // <p>The ingest domain URL where the source stream should be sent.</p>
-_#defs: "/$defs/Properties/definitions/IngestEndpoint": close({
+#IngestEndpoint: close({
 	// <p>The system-generated unique identifier for the IngestEndpoint.</p>
 	Id?: string
 
@@ -58,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/IngestEndpoint": close({
 
 // <p>The configuration for input switching based on the media quality
 // confidence score (MQCS) as provided from AWS Elemental MediaLive.</p>
-_#defs: "/$defs/Properties/definitions/InputSwitchConfiguration": close({
+#InputSwitchConfiguration: close({
 	// <p>When true, AWS Elemental MediaPackage performs input switching based on
 	// the MQCS. Default is false. This setting is valid only when
 	// <code>InputType</code> is <code>CMAF</code>.</p>
@@ -72,20 +72,18 @@ _#defs: "/$defs/Properties/definitions/InputSwitchConfiguration": close({
 	PreferredInput?: int & <=2 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/InputType": "HLS" | "CMAF" | "MULTIVIEW"
+#InputType: "HLS" | "CMAF" | "MULTIVIEW"
 
 // <p>The multiview configuration for a channel. A multiview channel composites
 // video from several source channels into a single tiled output stream.
 // Players receive one standard HLS or DASH stream instead of several separate
 // streams. This setting is required when <code>InputType</code> is
 // <code>MULTIVIEW</code>, and can't be set for any other input type.</p>
-_#defs: "/$defs/Properties/definitions/MultiviewConfiguration": close({
+#MultiviewConfiguration: close({
 	// <p>The tile layouts that players can request from this multiview channel's
 	// origin endpoints. Only the layouts that you list here are available. Each
 	// layout must appear at most once.</p>
-	AvailableLayouts!: list.MaxItems(6) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MultiviewLayoutType"
-	]
+	AvailableLayouts!: list.MaxItems(6) & list.MinItems(1) & [...#MultiviewLayoutType]
 
 	// <p>The channels that players can use as tiles in this multiview channel's
 	// output. Each source channel must be in the same channel group as the
@@ -113,25 +111,20 @@ _#defs: "/$defs/Properties/definitions/MultiviewConfiguration": close({
 // two-by-two grid.</p> </li> <li> <p> <code>LAYOUT_4PL</code> – Four tiles,
 // with one larger primary tile on the left and three stacked on the right.</p>
 // </li> </ul>
-_#defs: "/$defs/Properties/definitions/MultiviewLayoutType": "LAYOUT_2EH" |
-	"LAYOUT_2PL" |
-	"LAYOUT_3EL" |
-	"LAYOUT_3PL" |
-	"LAYOUT_4E" |
-	"LAYOUT_4PL"
+#MultiviewLayoutType: "LAYOUT_2EH" | "LAYOUT_2PL" | "LAYOUT_3EL" | "LAYOUT_3PL" | "LAYOUT_4E" | "LAYOUT_4PL"
 
 // <p>The settings for what common media server data (CMSD) headers AWS
 // Elemental MediaPackage includes in responses to the CDN.</p>
-_#defs: "/$defs/Properties/definitions/OutputHeaderConfiguration": close({
+#OutputHeaderConfiguration: close({
 	// <p>When true, AWS Elemental MediaPackage includes the MQCS in responses to
 	// the CDN. This setting is valid only when <code>InputType</code> is
 	// <code>CMAF</code>.</p>
 	PublishMQCS?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/OutputLockingMode": "EPOCH_LOCKED" | "NON_EPOCH_LOCKED"
+#OutputLockingMode: "EPOCH_LOCKED" | "NON_EPOCH_LOCKED"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string
 	Value?: string
 })

@@ -14,11 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Route53::QueryLoggingConfig. Creates a
 // configuration for DNS query logging, which publishes query logs for a public
 // hosted zone to an Amazon CloudWatch Logs log group.
-#Properties: close({
-	CloudWatchLogsLogGroupArn!: string | fn.#StringExpression
-	HostedZoneId!:              strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::QueryLoggingConfig"
-	Properties!: #Properties
+	Type!: "AWS::Route53::QueryLoggingConfig"
+	Properties!: close({
+		CloudWatchLogsLogGroupArn!: string | fn.#StringExpression
+		HostedZoneId!:              strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
+	})
 }

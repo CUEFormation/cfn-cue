@@ -16,78 +16,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ImageVersion
-#Properties: close({
-	Alias?:           _#defs."/$defs/Properties/definitions/Alias"
-	Aliases?:         _#defs."/$defs/Properties/definitions/Aliases"
-	BaseImage!:       _#defs."/$defs/Properties/definitions/BaseImage"
-	Horovod?:         _#defs."/$defs/Properties/definitions/Horovod"
-	ImageName!:       _#defs."/$defs/Properties/definitions/ImageName"
-	JobType?:         _#defs."/$defs/Properties/definitions/JobType"
-	MLFramework?:     _#defs."/$defs/Properties/definitions/MLFramework"
-	Processor?:       _#defs."/$defs/Properties/definitions/Processor"
-	ProgrammingLang?: _#defs."/$defs/Properties/definitions/ProgrammingLang"
-	ReleaseNotes?:    _#defs."/$defs/Properties/definitions/ReleaseNotes"
-	VendorGuidance?:  _#defs."/$defs/Properties/definitions/VendorGuidance"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::ImageVersion"
+	Properties!: close({
+		Alias?:           #Alias
+		Aliases?:         #Aliases
+		BaseImage!:       #BaseImage
+		Horovod?:         #Horovod
+		ImageName!:       #ImageName
+		JobType?:         #JobType
+		MLFramework?:     #MLFramework
+		Processor?:       #Processor
+		ProgrammingLang?: #ProgrammingLang
+		ReleaseNotes?:    #ReleaseNotes
+		VendorGuidance?:  #VendorGuidance
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Alias": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Alias: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Aliases": [..._#defs."/$defs/Properties/definitions/Alias"] | fn.#ListExpression
+#Aliases: [...#Alias] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BaseImage": strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" |
-fn.#StringExpression
+#BaseImage: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerImage": strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" |
-fn.#StringExpression
+#ContainerImage: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Horovod": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#Horovod: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/ImageArn": strings.MaxRunes(256) &
+#ImageArn: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[A-Za-z0-9]([-.]?[A-Za-z0-9])*$" |
-fn.#StringExpression
+#ImageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z0-9]([-.]?[A-Za-z0-9])*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageVersionArn": strings.MaxRunes(256) &
+#ImageVersionArn: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image-version\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*\\/[0-9]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/JobType": "TRAINING" | "INFERENCE" | "NOTEBOOK_KERNEL" | fn.#StringExpression
+#JobType: "TRAINING" | "INFERENCE" | "NOTEBOOK_KERNEL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MLFramework": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$" |
+#MLFramework: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Processor": "CPU" | "GPU" | fn.#StringExpression
+#Processor: "CPU" | "GPU" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProgrammingLang": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$" |
+#ProgrammingLang: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReleaseNotes": strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" |
-fn.#StringExpression
+#ReleaseNotes: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VendorGuidance": "NOT_PROVIDED" |
-	"STABLE" |
-	"TO_BE_ARCHIVED" |
-	"ARCHIVED" |
-	fn.#StringExpression
+#VendorGuidance: "NOT_PROVIDED" | "STABLE" | "TO_BE_ARCHIVED" | "ARCHIVED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Version": int & >=1 |
+#Version: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -102,7 +84,3 @@ _#defs: "/$defs/Properties/definitions/Version": int & >=1 |
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::ImageVersion"
-	Properties!: #Properties
-}

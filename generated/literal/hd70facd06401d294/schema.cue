@@ -12,49 +12,47 @@ import (
 
 // Resource Type definition for AWS::SageMaker::ModelPackage
 #Properties: close({
-	AdditionalInferenceSpecifications?:      _#defs."/$defs/Properties/definitions/AdditionalInferenceSpecifications"
-	AdditionalInferenceSpecificationsToAdd?: _#defs."/$defs/Properties/definitions/AdditionalInferenceSpecifications"
-	ApprovalDescription?:                    _#defs."/$defs/Properties/definitions/ApprovalDescription"
-	CertifyForMarketplace?:                  _#defs."/$defs/Properties/definitions/CertifyForMarketplace"
-	ClientToken?:                            _#defs."/$defs/Properties/definitions/ClientToken"
-	CreationTime?:                           _#defs."/$defs/Properties/definitions/CreationTime"
-	CustomerMetadataProperties?:             _#defs."/$defs/Properties/definitions/CustomerMetadataProperties"
-	Domain?:                                 _#defs."/$defs/Properties/definitions/Domain"
-	DriftCheckBaselines?:                    _#defs."/$defs/Properties/definitions/DriftCheckBaselines"
-	InferenceSpecification?:                 _#defs."/$defs/Properties/definitions/InferenceSpecification"
-	LastModifiedTime?:                       _#defs."/$defs/Properties/definitions/LastModifiedTime"
-	MetadataProperties?:                     _#defs."/$defs/Properties/definitions/MetadataProperties"
-	ModelApprovalStatus?:                    _#defs."/$defs/Properties/definitions/ModelApprovalStatus"
-	ModelCard?:                              _#defs."/$defs/Properties/definitions/ModelCard"
-	ModelMetrics?:                           _#defs."/$defs/Properties/definitions/ModelMetrics"
-	ModelPackageArn?:                        _#defs."/$defs/Properties/definitions/ModelPackageArn"
-	ModelPackageDescription?:                _#defs."/$defs/Properties/definitions/ModelPackageDescription"
-	ModelPackageGroupName?:                  _#defs."/$defs/Properties/definitions/ModelPackageGroupName"
-	ModelPackageName?:                       _#defs."/$defs/Properties/definitions/ModelPackageName"
-	ModelPackageStatus?:                     _#defs."/$defs/Properties/definitions/ModelPackageStatus"
-	ModelPackageStatusDetails?:              _#defs."/$defs/Properties/definitions/ModelPackageStatusDetails"
-	ModelPackageVersion?:                    _#defs."/$defs/Properties/definitions/ModelPackageVersion"
-	SamplePayloadUrl?:                       _#defs."/$defs/Properties/definitions/SamplePayloadUrl"
-	SecurityConfig?:                         _#defs."/$defs/Properties/definitions/SecurityConfig"
-	SkipModelValidation?:                    _#defs."/$defs/Properties/definitions/SkipModelValidation"
-	SourceAlgorithmSpecification?:           _#defs."/$defs/Properties/definitions/SourceAlgorithmSpecification"
-	SourceUri?:                              _#defs."/$defs/Properties/definitions/SourceUri"
+	AdditionalInferenceSpecifications?:      #AdditionalInferenceSpecifications
+	AdditionalInferenceSpecificationsToAdd?: #AdditionalInferenceSpecifications
+	ApprovalDescription?:                    #ApprovalDescription
+	CertifyForMarketplace?:                  #CertifyForMarketplace
+	ClientToken?:                            #ClientToken
+	CreationTime?:                           #CreationTime
+	CustomerMetadataProperties?:             #CustomerMetadataProperties
+	Domain?:                                 #Domain
+	DriftCheckBaselines?:                    #DriftCheckBaselines
+	InferenceSpecification?:                 #InferenceSpecification
+	LastModifiedTime?:                       #LastModifiedTime
+	MetadataProperties?:                     #MetadataProperties
+	ModelApprovalStatus?:                    #ModelApprovalStatus
+	ModelCard?:                              #ModelCard
+	ModelMetrics?:                           #ModelMetrics
+	ModelPackageArn?:                        #ModelPackageArn
+	ModelPackageDescription?:                #ModelPackageDescription
+	ModelPackageGroupName?:                  #ModelPackageGroupName
+	ModelPackageName?:                       #ModelPackageName
+	ModelPackageStatus?:                     #ModelPackageStatus
+	ModelPackageStatusDetails?:              #ModelPackageStatusDetails
+	ModelPackageVersion?:                    #ModelPackageVersion
+	SamplePayloadUrl?:                       #SamplePayloadUrl
+	SecurityConfig?:                         #SecurityConfig
+	SkipModelValidation?:                    #SkipModelValidation
+	SourceAlgorithmSpecification?:           #SourceAlgorithmSpecification
+	SourceUri?:                              #SourceUri
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:                    list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Task?:                    _#defs."/$defs/Properties/definitions/Task"
-	ValidationSpecification?: _#defs."/$defs/Properties/definitions/ValidationSpecification"
+	Tags?:                    list.MaxItems(50) & [...] & [...#Tag]
+	Task?:                    #Task
+	ValidationSpecification?: #ValidationSpecification
 })
 
 // Additional Inference Specification specifies details about inference jobs
 // that can be run with models based on this model
 // package.AdditionalInferenceSpecifications can be added to existing model
 // packages using AdditionalInferenceSpecificationsToAdd.
-_#defs: "/$defs/Properties/definitions/AdditionalInferenceSpecificationDefinition": close({
+#AdditionalInferenceSpecificationDefinition: close({
 	// The Amazon ECR registry path of the Docker image that contains the inference code.
-	Containers!: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ModelPackageContainerDefinition"
-	]
+	Containers!: list.MaxItems(15) & list.MinItems(1) & [...#ModelPackageContainerDefinition]
 
 	// A description of the additional Inference specification.
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*"
@@ -65,50 +63,48 @@ _#defs: "/$defs/Properties/definitions/AdditionalInferenceSpecificationDefinitio
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
 
 	// The supported MIME types for the input data.
-	SupportedContentTypes?: [..._#defs."/$defs/Properties/definitions/ContentType"]
+	SupportedContentTypes?: [...#ContentType]
 
 	// A list of the instance types that are used to generate inferences in real-time
-	SupportedRealtimeInferenceInstanceTypes?: [..._#defs."/$defs/Properties/definitions/InferenceInstanceType"]
+	SupportedRealtimeInferenceInstanceTypes?: [...#InferenceInstanceType]
 
 	// The supported MIME types for the output data.
-	SupportedResponseMIMETypes?: [..._#defs."/$defs/Properties/definitions/ResponseMIMEType"]
+	SupportedResponseMIMETypes?: [...#ResponseMIMEType]
 
 	// A list of the instance types on which a transformation job can be run or on
 	// which an endpoint can be deployed.
-	SupportedTransformInstanceTypes?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TransformInstanceType"
-	]
+	SupportedTransformInstanceTypes?: list.MinItems(1) & [...#TransformInstanceType]
 })
 
 // An array of additional Inference Specification objects.
-_#defs: "/$defs/Properties/definitions/AdditionalInferenceSpecifications": list.MaxItems(15) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AdditionalInferenceSpecificationDefinition"
+#AdditionalInferenceSpecifications: list.MaxItems(15) & list.MinItems(1) & [
+	...#AdditionalInferenceSpecificationDefinition
 ]
 
 // A description provided for the model approval.
-_#defs: "/$defs/Properties/definitions/ApprovalDescription": strings.MaxRunes(1024) & =~".*"
+#ApprovalDescription: strings.MaxRunes(1024) & =~".*"
 
 // Contains bias metrics for a model.
-_#defs: "/$defs/Properties/definitions/Bias": close({
-	PostTrainingReport?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	PreTrainingReport?:  _#defs."/$defs/Properties/definitions/MetricsSource"
-	Report?:             _#defs."/$defs/Properties/definitions/MetricsSource"
+#Bias: close({
+	PostTrainingReport?: #MetricsSource
+	PreTrainingReport?:  #MetricsSource
+	Report?:             #MetricsSource
 })
 
 // Whether to certify the model package for listing on AWS Marketplace.
-_#defs: "/$defs/Properties/definitions/CertifyForMarketplace": bool
+#CertifyForMarketplace: bool
 
 // A unique token that guarantees that the call to this API is idempotent.
-_#defs: "/$defs/Properties/definitions/ClientToken": strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
+#ClientToken: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 
 // The supported MIME type for the input data.
-_#defs: "/$defs/Properties/definitions/ContentType": strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"
+#ContentType: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"
 
 // The time at which the model package was created.
-_#defs: "/$defs/Properties/definitions/CreationTime": string
+#CreationTime: string
 
 // The metadata properties associated with the model package versions.
-_#defs: "/$defs/Properties/definitions/CustomerMetadataProperties": struct.MaxFields(50) & struct.MinFields(1) & close({
+#CustomerMetadataProperties: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,128}"]: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
@@ -118,52 +114,50 @@ _#defs: "/$defs/Properties/definitions/CustomerMetadataProperties": struct.MaxFi
 })
 
 // Describes the input source of a transform job and the way the transform job consumes it.
-_#defs: "/$defs/Properties/definitions/DataSource": close(
-	{S3DataSource!: _#defs."/$defs/Properties/definitions/S3DataSource"},
-)
+#DataSource: close({S3DataSource!: #S3DataSource})
 
 // The machine learning domain of the model package you specified.
-_#defs: "/$defs/Properties/definitions/Domain": string
+#Domain: string
 
 // Represents the drift check baselines that can be used when the model monitor
 // is set using the model package.
-_#defs: "/$defs/Properties/definitions/DriftCheckBaselines": close({
-	Bias?:             _#defs."/$defs/Properties/definitions/DriftCheckBias"
-	Explainability?:   _#defs."/$defs/Properties/definitions/DriftCheckExplainability"
-	ModelDataQuality?: _#defs."/$defs/Properties/definitions/DriftCheckModelDataQuality"
-	ModelQuality?:     _#defs."/$defs/Properties/definitions/DriftCheckModelQuality"
+#DriftCheckBaselines: close({
+	Bias?:             #DriftCheckBias
+	Explainability?:   #DriftCheckExplainability
+	ModelDataQuality?: #DriftCheckModelDataQuality
+	ModelQuality?:     #DriftCheckModelQuality
 })
 
 // Represents the drift check bias baselines that can be used when the model
 // monitor is set using the model package.
-_#defs: "/$defs/Properties/definitions/DriftCheckBias": close({
-	ConfigFile?:              _#defs."/$defs/Properties/definitions/FileSource"
-	PostTrainingConstraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	PreTrainingConstraints?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#DriftCheckBias: close({
+	ConfigFile?:              #FileSource
+	PostTrainingConstraints?: #MetricsSource
+	PreTrainingConstraints?:  #MetricsSource
 })
 
 // Contains explainability metrics for a model.
-_#defs: "/$defs/Properties/definitions/DriftCheckExplainability": close({
-	ConfigFile?:  _#defs."/$defs/Properties/definitions/FileSource"
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
+#DriftCheckExplainability: close({
+	ConfigFile?:  #FileSource
+	Constraints?: #MetricsSource
 })
 
 // Represents the drift check data quality baselines that can be used when the
 // model monitor is set using the model package.
-_#defs: "/$defs/Properties/definitions/DriftCheckModelDataQuality": close({
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	Statistics?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#DriftCheckModelDataQuality: close({
+	Constraints?: #MetricsSource
+	Statistics?:  #MetricsSource
 })
 
 // Represents the drift check model quality baselines that can be used when the
 // model monitor is set using the model package.
-_#defs: "/$defs/Properties/definitions/DriftCheckModelQuality": close({
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	Statistics?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#DriftCheckModelQuality: close({
+	Constraints?: #MetricsSource
+	Statistics?:  #MetricsSource
 })
 
 // Sets the environment variables in the Docker container
-_#defs: "/$defs/Properties/definitions/Environment": struct.MaxFields(16) & close({
+#Environment: struct.MaxFields(16) & close({
 
 	{[=~"[\\S\\s]*"]: strings.MaxRunes(1024)}
 
@@ -171,12 +165,10 @@ _#defs: "/$defs/Properties/definitions/Environment": struct.MaxFields(16) & clos
 })
 
 // Contains explainability metrics for a model.
-_#defs: "/$defs/Properties/definitions/Explainability": close(
-	{Report?: _#defs."/$defs/Properties/definitions/MetricsSource"},
-)
+#Explainability: close({Report?: #MetricsSource})
 
 // Represents a File Source Object.
-_#defs: "/$defs/Properties/definitions/FileSource": close({
+#FileSource: close({
 	// The digest of the file source.
 	ContentDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$"
 
@@ -188,36 +180,32 @@ _#defs: "/$defs/Properties/definitions/FileSource": close({
 })
 
 // Instance type that is used to generate inferences in real-time
-_#defs: "/$defs/Properties/definitions/InferenceInstanceType": string
+#InferenceInstanceType: string
 
 // Details about inference jobs that can be run with models based on this model package.
-_#defs: "/$defs/Properties/definitions/InferenceSpecification": close({
+#InferenceSpecification: close({
 	// The Amazon ECR registry path of the Docker image that contains the inference code.
-	Containers!: list.MaxItems(15) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ModelPackageContainerDefinition"
-	]
+	Containers!: list.MaxItems(15) & list.MinItems(1) & list.UniqueItems() & [...#ModelPackageContainerDefinition]
 
 	// The supported MIME types for the input data.
-	SupportedContentTypes!: [..._#defs."/$defs/Properties/definitions/ContentType"]
+	SupportedContentTypes!: [...#ContentType]
 
 	// A list of the instance types that are used to generate inferences in real-time
-	SupportedRealtimeInferenceInstanceTypes?: [..._#defs."/$defs/Properties/definitions/InferenceInstanceType"]
+	SupportedRealtimeInferenceInstanceTypes?: [...#InferenceInstanceType]
 
 	// The supported MIME types for the output data.
-	SupportedResponseMIMETypes!: [..._#defs."/$defs/Properties/definitions/ResponseMIMEType"]
+	SupportedResponseMIMETypes!: [...#ResponseMIMEType]
 
 	// A list of the instance types on which a transformation job can be run or on
 	// which an endpoint can be deployed.
-	SupportedTransformInstanceTypes?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TransformInstanceType"
-	]
+	SupportedTransformInstanceTypes?: list.MinItems(1) & [...#TransformInstanceType]
 })
 
 // The time at which the model package was last modified.
-_#defs: "/$defs/Properties/definitions/LastModifiedTime": string
+#LastModifiedTime: string
 
 // Metadata properties of the tracking entity, trial, or trial component.
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	// The commit ID.
 	CommitId?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*"
 
@@ -232,7 +220,7 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 })
 
 // Represents a Metric Source Object.
-_#defs: "/$defs/Properties/definitions/MetricsSource": close({
+#MetricsSource: close({
 	// The digest of the metric source.
 	ContentDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$"
 
@@ -244,16 +232,16 @@ _#defs: "/$defs/Properties/definitions/MetricsSource": close({
 })
 
 // Specifies the access configuration file for the ML model.
-_#defs: "/$defs/Properties/definitions/ModelAccessConfig": close({
+#ModelAccessConfig: close({
 	// Specifies agreement to the model end-user license agreement (EULA).
 	AcceptEula!: bool
 })
 
 // The approval status of the model package.
-_#defs: "/$defs/Properties/definitions/ModelApprovalStatus": "Approved" | "Rejected" | "PendingManualApproval"
+#ModelApprovalStatus: "Approved" | "Rejected" | "PendingManualApproval"
 
 // The model card associated with the model package.
-_#defs: "/$defs/Properties/definitions/ModelCard": close({
+#ModelCard: close({
 	// The content of the model card.
 	ModelCardContent!: strings.MaxRunes(100000) & strings.MinRunes(0) & =~".*"
 
@@ -262,32 +250,30 @@ _#defs: "/$defs/Properties/definitions/ModelCard": close({
 })
 
 // Metrics that measure the quality of the input data for a model.
-_#defs: "/$defs/Properties/definitions/ModelDataQuality": close({
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	Statistics?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#ModelDataQuality: close({
+	Constraints?: #MetricsSource
+	Statistics?:  #MetricsSource
 })
 
 // Specifies the location of ML model data to deploy during endpoint creation.
-_#defs: "/$defs/Properties/definitions/ModelDataSource": close(
-	{S3DataSource?: _#defs."/$defs/Properties/definitions/S3ModelDataSource"},
-)
+#ModelDataSource: close({S3DataSource?: #S3ModelDataSource})
 
 // A structure that contains model metrics reports.
-_#defs: "/$defs/Properties/definitions/ModelMetrics": close({
-	Bias?:             _#defs."/$defs/Properties/definitions/Bias"
-	Explainability?:   _#defs."/$defs/Properties/definitions/Explainability"
-	ModelDataQuality?: _#defs."/$defs/Properties/definitions/ModelDataQuality"
-	ModelQuality?:     _#defs."/$defs/Properties/definitions/ModelQuality"
+#ModelMetrics: close({
+	Bias?:             #Bias
+	Explainability?:   #Explainability
+	ModelDataQuality?: #ModelDataQuality
+	ModelQuality?:     #ModelQuality
 })
 
 // The Amazon Resource Name (ARN) of the model package group.
-_#defs: "/$defs/Properties/definitions/ModelPackageArn": strings.MaxRunes(2048) & strings.MinRunes(1)
+#ModelPackageArn: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 // Describes the Docker container for the model package.
-_#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
+#ModelPackageContainerDefinition: close({
 	// The DNS host name for the Docker container.
 	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}"
-	Environment?:       _#defs."/$defs/Properties/definitions/Environment"
+	Environment?:       #Environment
 
 	// The machine learning framework of the model package container image.
 	Framework?: string
@@ -300,7 +286,7 @@ _#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
 
 	// An MD5 hash of the training algorithm that identifies the Docker image used for training.
 	ImageDigest?:     strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$"
-	ModelDataSource?: _#defs."/$defs/Properties/definitions/ModelDataSource"
+	ModelDataSource?: #ModelDataSource
 
 	// A structure with Model Input details.
 	ModelDataUrl?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$"
@@ -315,32 +301,22 @@ _#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
 })
 
 // The description of the model package.
-_#defs: "/$defs/Properties/definitions/ModelPackageDescription": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*"
+#ModelPackageDescription: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*"
 
 // The name of the model package group.
-_#defs: "/$defs/Properties/definitions/ModelPackageGroupName": strings.MaxRunes(170) & strings.MinRunes(1)
+#ModelPackageGroupName: strings.MaxRunes(170) & strings.MinRunes(1)
 
 // The name or arn of the model package.
-_#defs: "/$defs/Properties/definitions/ModelPackageName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
+#ModelPackageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
 
 // The current status of the model package.
-_#defs: "/$defs/Properties/definitions/ModelPackageStatus": "Pending" |
-	"Deleting" |
-	"InProgress" |
-	"Completed" |
-	"Failed"
+#ModelPackageStatus: "Pending" | "Deleting" | "InProgress" | "Completed" | "Failed"
 
 // Details about the current status of the model package.
-_#defs: "/$defs/Properties/definitions/ModelPackageStatusDetails": close(
-	{ValidationStatuses?: [..._#defs."/$defs/Properties/definitions/ModelPackageStatusItem"]},
-)
+#ModelPackageStatusDetails: close({ValidationStatuses?: [...#ModelPackageStatusItem]})
 
 // Represents the overall status of a model package.
-_#defs: "/$defs/Properties/definitions/ModelPackageStatusItem": close({
+#ModelPackageStatusItem: close({
 	// If the overall status is Failed, the reason for the failure.
 	FailureReason?: string
 
@@ -352,21 +328,19 @@ _#defs: "/$defs/Properties/definitions/ModelPackageStatusItem": close({
 })
 
 // The version of the model package.
-_#defs: "/$defs/Properties/definitions/ModelPackageVersion": int & >=1
+#ModelPackageVersion: int & >=1
 
 // Metrics that measure the quality of a model.
-_#defs: "/$defs/Properties/definitions/ModelQuality": close({
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	Statistics?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#ModelQuality: close({
+	Constraints?: #MetricsSource
+	Statistics?:  #MetricsSource
 })
 
 // The supported MIME types for the output data.
-_#defs: "/$defs/Properties/definitions/ResponseMIMEType": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"^[-\\w]+\\/.+$"
+#ResponseMIMEType: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[-\\w]+\\/.+$"
 
 // Describes the S3 data source.
-_#defs: "/$defs/Properties/definitions/S3DataSource": close({
+#S3DataSource: close({
 	// The S3 Data Source Type
 	S3DataType!: "ManifestFile" | "S3Prefix" | "AugmentedManifestFile"
 
@@ -376,10 +350,10 @@ _#defs: "/$defs/Properties/definitions/S3DataSource": close({
 })
 
 // Specifies the S3 location of ML model data to deploy.
-_#defs: "/$defs/Properties/definitions/S3ModelDataSource": close({
+#S3ModelDataSource: close({
 	// Specifies how the ML model data is prepared.
 	CompressionType!:   "None" | "Gzip"
-	ModelAccessConfig?: _#defs."/$defs/Properties/definitions/ModelAccessConfig"
+	ModelAccessConfig?: #ModelAccessConfig
 
 	// Specifies the type of ML model data to deploy.
 	S3DataType!: "S3Prefix" | "S3Object"
@@ -390,14 +364,12 @@ _#defs: "/$defs/Properties/definitions/S3ModelDataSource": close({
 
 // The Amazon Simple Storage Service (Amazon S3) path where the sample payload
 // are stored pointing to single gzip compressed tar archive.
-_#defs: "/$defs/Properties/definitions/SamplePayloadUrl": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"^(https|s3)://([^/]+)/?(.*)$"
+#SamplePayloadUrl: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$"
 
 // An optional AWS Key Management Service key to encrypt, decrypt, and
 // re-encrypt model package information for regulated workloads with highly
 // sensitive data.
-_#defs: "/$defs/Properties/definitions/SecurityConfig": close({
+#SecurityConfig: close({
 	// The AWS KMS Key ID (KMSKeyId) used for encryption of model package information.
 	KmsKeyId!: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(2048) &
@@ -406,12 +378,12 @@ _#defs: "/$defs/Properties/definitions/SecurityConfig": close({
 })
 
 // Indicates if you want to skip model validation.
-_#defs: "/$defs/Properties/definitions/SkipModelValidation": "None" | "All"
+#SkipModelValidation: "None" | "All"
 
 // Specifies an algorithm that was used to create the model package. The
 // algorithm must be either an algorithm resource in your Amazon SageMaker
 // account or an algorithm in AWS Marketplace that you are subscribed to.
-_#defs: "/$defs/Properties/definitions/SourceAlgorithm": close({
+#SourceAlgorithm: close({
 	// The name of an algorithm that was used to create the model package. The
 	// algorithm must be either an algorithm resource in your Amazon SageMaker
 	// account or an algorithm in AWS Marketplace that you are subscribed to.
@@ -424,16 +396,16 @@ _#defs: "/$defs/Properties/definitions/SourceAlgorithm": close({
 })
 
 // Details about the algorithm that was used to create the model package.
-_#defs: "/$defs/Properties/definitions/SourceAlgorithmSpecification": close({
+#SourceAlgorithmSpecification: close({
 	// A list of algorithms that were used to create a model package.
-	SourceAlgorithms!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SourceAlgorithm"]
+	SourceAlgorithms!: list.MaxItems(1) & list.MinItems(1) & [...#SourceAlgorithm]
 })
 
 // The URI of the source for the model package.
-_#defs: "/$defs/Properties/definitions/SourceUri": strings.MaxRunes(1024) & strings.MinRunes(0)
+#SourceUri: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -448,10 +420,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The machine learning task your model package accomplishes.
-_#defs: "/$defs/Properties/definitions/Task": string
+#Task: string
 
 // Describes the input source of a transform job and the way the transform job consumes it.
-_#defs: "/$defs/Properties/definitions/TransformInput": close({
+#TransformInput: close({
 	// If your transform data is compressed, specify the compression type. Amazon
 	// SageMaker automatically decompresses the data for the transform job
 	// accordingly. The default value is None.
@@ -461,21 +433,21 @@ _#defs: "/$defs/Properties/definitions/TransformInput": close({
 	// SageMaker uses the MIME type with each http call to transfer data to the
 	// transform job.
 	ContentType?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"
-	DataSource!:  _#defs."/$defs/Properties/definitions/DataSource"
+	DataSource!:  #DataSource
 
 	// The method to use to split the transform job's data files into smaller batches.
 	SplitType?: "None" | "TFRecord" | "Line" | "RecordIO"
 })
 
 // Instance types on which a transformation job can be run or on which an endpoint can be deployed.
-_#defs: "/$defs/Properties/definitions/TransformInstanceType": string
+#TransformInstanceType: string
 
 // Defines the input needed to run a transform job using the inference
 // specification specified in the algorithm.
-_#defs: "/$defs/Properties/definitions/TransformJobDefinition": close({
+#TransformJobDefinition: close({
 	// A string that determines the number of records included in a single mini-batch.
 	BatchStrategy?: "MultiRecord" | "SingleRecord"
-	Environment?:   _#defs."/$defs/Properties/definitions/Environment"
+	Environment?:   #Environment
 
 	// The maximum number of parallel requests that can be sent to each instance in
 	// a transform job. The default value is 1.
@@ -484,13 +456,13 @@ _#defs: "/$defs/Properties/definitions/TransformJobDefinition": close({
 	// The maximum payload size allowed, in MB. A payload is the data portion of a
 	// record (without metadata).
 	MaxPayloadInMB?:     int & >=0
-	TransformInput!:     _#defs."/$defs/Properties/definitions/TransformInput"
-	TransformOutput!:    _#defs."/$defs/Properties/definitions/TransformOutput"
-	TransformResources!: _#defs."/$defs/Properties/definitions/TransformResources"
+	TransformInput!:     #TransformInput
+	TransformOutput!:    #TransformOutput
+	TransformResources!: #TransformResources
 })
 
 // Describes the results of a transform job.
-_#defs: "/$defs/Properties/definitions/TransformOutput": close({
+#TransformOutput: close({
 	// The MIME type used to specify the output data. Amazon SageMaker uses the MIME
 	// type with each http call to transfer data from the transform job.
 	Accept?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"
@@ -511,7 +483,7 @@ _#defs: "/$defs/Properties/definitions/TransformOutput": close({
 
 // Describes the resources, including ML instance types and ML instance count,
 // to use for transform job.
-_#defs: "/$defs/Properties/definitions/TransformResources": close({
+#TransformResources: close({
 	// The number of ML compute instances to use in the transform job. For
 	// distributed transform jobs, specify a value greater than 1. The default
 	// value is 1.
@@ -528,18 +500,16 @@ _#defs: "/$defs/Properties/definitions/TransformResources": close({
 
 // Contains data, such as the inputs and targeted instance types that are used
 // in the process of validating the model package.
-_#defs: "/$defs/Properties/definitions/ValidationProfile": close({
+#ValidationProfile: close({
 	// The name of the profile for the model package.
 	ProfileName!:            strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
-	TransformJobDefinition!: _#defs."/$defs/Properties/definitions/TransformJobDefinition"
+	TransformJobDefinition!: #TransformJobDefinition
 })
 
 // Specifies configurations for one or more transform jobs that Amazon SageMaker
 // runs to test the model package.
-_#defs: "/$defs/Properties/definitions/ValidationSpecification": close({
-	ValidationProfiles!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ValidationProfile"
-	]
+#ValidationSpecification: close({
+	ValidationProfiles!: list.MaxItems(1) & list.MinItems(1) & [...#ValidationProfile]
 
 	// The IAM roles to be used for the validation of the model package.
 	ValidationRole!: strings.MaxRunes(2048) &

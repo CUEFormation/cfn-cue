@@ -12,21 +12,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::WorkloadIdentity Resource Type
-#Properties: close({
-	AllowedResourceOauth2ReturnUrls?: [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\w+:(/?/?)[^\\s]+" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Name!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"[A-Za-z0-9_.-]+" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::WorkloadIdentity"
+	Properties!: close({
+		AllowedResourceOauth2ReturnUrls?: [
+			...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\w+:(/?/?)[^\\s]+" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"[A-Za-z0-9_.-]+" | fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::WorkloadIdentity"
-	Properties!: #Properties
-}

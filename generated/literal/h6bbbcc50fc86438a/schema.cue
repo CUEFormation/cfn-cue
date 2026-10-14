@@ -11,7 +11,7 @@ import (
 
 // Resource schema for AWS::RDS::DBProxyTargetGroup
 #Properties: close({
-	ConnectionPoolConfigurationInfo?: _#defs."/$defs/Properties/definitions/ConnectionPoolConfigurationInfoFormat"
+	ConnectionPoolConfigurationInfo?: #ConnectionPoolConfigurationInfoFormat
 	DBClusterIdentifiers?:            [...string]
 	DBInstanceIdentifiers?:           [...string]
 
@@ -19,7 +19,7 @@ import (
 	DBProxyName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-z][0-z]*"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The Amazon Resource Name (ARN) representing the target group.
 	TargetGroupArn?: string
@@ -28,7 +28,7 @@ import (
 	TargetGroupName!: "default" & (strings.MaxRunes(63) & strings.MinRunes(1))
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionPoolConfigurationInfoFormat": close({
+#ConnectionPoolConfigurationInfoFormat: close({
 	// The number of seconds for a proxy to wait for a connection to become
 	// available in the connection pool.
 	ConnectionBorrowTimeout?: int
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionPoolConfigurationInfoFormat": c
 })
 
 // A key-value pair to associate with the DB proxy target group.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -11,11 +11,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::Macie::Session resource specifies a new Amazon Macie session. A
 // session is an object that represents the Amazon Macie service. A session is
 // required for Amazon Macie to become operational.
-#Properties: close({
-	FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
-	Status?:                     "ENABLED" | "PAUSED" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Macie::Session"
-	Properties?: #Properties
+	Type!: "AWS::Macie::Session"
+	Properties?: close({
+		FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
+		Status?:                     "ENABLED" | "PAUSED" | fn.#StringExpression
+	})
 }

@@ -18,18 +18,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The ``AWS::ECS::Cluster`` resource creates an Amazon Elastic Container
 // Service (Amazon ECS) cluster.
-#Properties: close({
-	CapacityProviders?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ClusterName?:       string | fn.#StringExpression
-	ClusterSettings?:   [..._#defs."/$defs/Properties/definitions/ClusterSettings"] | fn.#ListExpression
-	Configuration?:     _#defs."/$defs/Properties/definitions/ClusterConfiguration" | fn.#ObjectExpression
-	DefaultCapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"] |
-		fn.#ListExpression
-	ServiceConnectDefaults?: _#defs."/$defs/Properties/definitions/ServiceConnectDefaults" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::Cluster"
+	Properties?: close({
+		CapacityProviders?: [...string | fn.#StringExpression] | fn.#ListExpression
+		ClusterName?:       string | fn.#StringExpression
+		ClusterSettings?:   [...#ClusterSettings] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+		// The execute command and managed storage configuration for the cluster.
+		Configuration?:                   #ClusterConfiguration
+		DefaultCapacityProviderStrategy?: [...#CapacityProviderStrategyItem] | fn.#ListExpression
+
+		// Use this parameter to set a default Service Connect namespace. After you set
+		// a default Service Connect namespace, any new services with Service Connect
+		// turned on that are created in the cluster are added as client services in
+		// the namespace. This setting only applies to new services that set the
+		// ``enabled`` parameter to ``true`` in the ``ServiceConnectConfiguration``.
+		// You can set the namespace of each service individually in the
+		// ``ServiceConnectConfiguration`` to override this default parameter.
+		// Tasks that run in a namespace can use short names to connect to services in
+		// the namespace. Tasks can connect to services across all of the clusters in
+		// the namespace. Tasks connect through a managed proxy container that collects
+		// logs and metrics for increased visibility. Only the tasks that Amazon ECS
+		// services create are supported with Service Connect. For more information,
+		// see [Service
+		// Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
+		// in the *Amazon Elastic Container Service Developer Guide*.
+		ServiceConnectDefaults?: #ServiceConnectDefaults
+		Tags?:                   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#CapacityProviderStrategyItem: close({
 	Base?: int & <=100000 & >=0 |
 		{
 			string &
@@ -66,30 +86,35 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterConfiguration": close({
-	ExecuteCommandConfiguration?: _#defs."/$defs/Properties/definitions/ExecuteCommandConfiguration" |
-		fn.#ObjectExpression
-	ManagedStorageConfiguration?: _#defs."/$defs/Properties/definitions/ManagedStorageConfiguration" |
-		fn.#ObjectExpression
+#ClusterConfiguration: close({
+	// The details of the execute command configuration.
+	ExecuteCommandConfiguration?: #ExecuteCommandConfiguration
+
+	// The details of the managed storage configuration.
+	ManagedStorageConfiguration?: #ManagedStorageConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterSettings": close({
+#ClusterSettings: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecuteCommandConfiguration": close({
+#ExecuteCommandConfiguration: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/ExecuteCommandLogConfiguration" | fn.#ObjectExpression
+
+	// The log configuration for the results of the execute command actions. The
+	// logs can be sent to CloudWatch Logs or an Amazon S3 bucket. When
+	// ``logging=OVERRIDE`` is specified, a ``logConfiguration`` must be provided.
+	LogConfiguration?: #ExecuteCommandLogConfiguration
 	Logging?:          "DEFAULT" | "NONE" | "OVERRIDE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecuteCommandLogConfiguration": close({
+#ExecuteCommandLogConfiguration: close({
 	CloudWatchEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CloudWatchLogGroupName?:      string | fn.#StringExpression
 	S3BucketName?:                string | fn.#StringExpression
@@ -98,7 +123,7 @@ _#defs: "/$defs/Properties/definitions/ExecuteCommandLogConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedStorageConfiguration": close({
+#ManagedStorageConfiguration: close({
 	FargateEphemeralStorageKmsKeyId?: string | fn.#StringExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
@@ -106,15 +131,10 @@ _#defs: "/$defs/Properties/definitions/ManagedStorageConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectDefaults": close({Namespace?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ServiceConnectDefaults: close({Namespace?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::Cluster"
-	Properties?: #Properties
-}

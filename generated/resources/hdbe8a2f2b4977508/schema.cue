@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"struct"
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
+	"struct"
 )
 
 import cfnScalarStrings "strings"
@@ -20,104 +20,110 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Glue::Session. Sessions provide an
 // on-demand, serverless Apache Spark runtime environment for building,
 // testing, and running data preparation and analytics applications.
-#Properties: close({
-	Command!:     _#defs."/$defs/Properties/definitions/SessionCommand"
-	Connections?: _#defs."/$defs/Properties/definitions/ConnectionsList"
-	DefaultArguments?: struct.MaxFields(75) & close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Session"
+	Properties!: close({
+		Command!:     #SessionCommand
+		Connections?: #ConnectionsList
+		DefaultArguments?: struct.MaxFields(75) & close({
 
-		{[=~"^[.\\-_A-Za-z0-9]+$"]: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
-	Id!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	IdleTimeout?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxCapacity?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+			{[=~"^[.\\-_A-Za-z0-9]+$"]: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
+		Id!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		IdleTimeout?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxCapacity?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
 							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	NumberOfWorkers?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RequestOrigin?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-	Role!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[^:]*:iam::[0-9]*:role/.+$" | fn.#StringExpression
-	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Timeout?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	WorkerType?: "Standard" | "G.1X" | "G.2X" | "G.025X" | "G.4X" | "G.8X" | "Z.2X" | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		NumberOfWorkers?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RequestOrigin?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[.\\-_A-Za-z0-9]+$" | fn.#StringExpression
+		Role!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[^:]*:iam::[0-9]*:role/.+$" |
+		fn.#StringExpression
+		SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Timeout?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		WorkerType?: "Standard" | "G.1X" | "G.2X" | "G.025X" | "G.4X" | "G.8X" | "Z.2X" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ConnectionsList": close({
+#ConnectionsList: close({
 	Connections?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionCommand": close({
+#SessionCommand: close({
 	Name?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	PythonVersion?: =~"^([2-3]|3[.]9)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Session"
-	Properties!: #Properties
-}

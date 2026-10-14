@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -16,79 +16,97 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EKS::Nodegroup
-#Properties: close({
-	AmiType?: "AL2023_ARM_64_NVIDIA" |
-		"AL2023_ARM_64_STANDARD" |
-		"AL2023_x86_64_NEURON" |
-		"AL2023_x86_64_NVIDIA" |
-		"AL2023_x86_64_STANDARD" |
-		"AL2_ARM_64" |
-		"AL2_x86_64" |
-		"AL2_x86_64_GPU" |
-		"BOTTLEROCKET_ARM_64" |
-		"BOTTLEROCKET_ARM_64_FIPS" |
-		"BOTTLEROCKET_ARM_64_NVIDIA" |
-		"BOTTLEROCKET_ARM_64_NVIDIA_FIPS" |
-		"BOTTLEROCKET_x86_64" |
-		"BOTTLEROCKET_x86_64_FIPS" |
-		"BOTTLEROCKET_x86_64_NVIDIA" |
-		"BOTTLEROCKET_x86_64_NVIDIA_FIPS" |
-		"CUSTOM" |
-		"WINDOWS_CORE_2019_x86_64" |
-		"WINDOWS_CORE_2022_x86_64" |
-		"WINDOWS_CORE_2025_x86_64" |
-		"WINDOWS_FULL_2019_x86_64" |
-		"WINDOWS_FULL_2022_x86_64" |
-		"WINDOWS_FULL_2025_x86_64" |
-		fn.#StringExpression
-	CapacityType?: "CAPACITY_BLOCK" | "ON_DEMAND" | "OnDemand" | "SPOT" | fn.#StringExpression
-	ClusterName!:  strings.MinRunes(1) | fn.#StringExpression
-	DiskSize?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ForceUpdateEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceTypes?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	Labels?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::Nodegroup"
+	Properties!: close({
+		AmiType?: "AL2023_ARM_64_NVIDIA" |
+			"AL2023_ARM_64_STANDARD" |
+			"AL2023_x86_64_NEURON" |
+			"AL2023_x86_64_NVIDIA" |
+			"AL2023_x86_64_STANDARD" |
+			"AL2_ARM_64" |
+			"AL2_x86_64" |
+			"AL2_x86_64_GPU" |
+			"BOTTLEROCKET_ARM_64" |
+			"BOTTLEROCKET_ARM_64_FIPS" |
+			"BOTTLEROCKET_ARM_64_NVIDIA" |
+			"BOTTLEROCKET_ARM_64_NVIDIA_FIPS" |
+			"BOTTLEROCKET_x86_64" |
+			"BOTTLEROCKET_x86_64_FIPS" |
+			"BOTTLEROCKET_x86_64_NVIDIA" |
+			"BOTTLEROCKET_x86_64_NVIDIA_FIPS" |
+			"CUSTOM" |
+			"WINDOWS_CORE_2019_x86_64" |
+			"WINDOWS_CORE_2022_x86_64" |
+			"WINDOWS_CORE_2025_x86_64" |
+			"WINDOWS_FULL_2019_x86_64" |
+			"WINDOWS_FULL_2022_x86_64" |
+			"WINDOWS_FULL_2025_x86_64" |
+			fn.#StringExpression
+		CapacityType?: "CAPACITY_BLOCK" | "ON_DEMAND" | "OnDemand" | "SPOT" | fn.#StringExpression
+		ClusterName!:  strings.MinRunes(1) | fn.#StringExpression
+		DiskSize?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ForceUpdateEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstanceTypes?:      [...string | fn.#StringExpression] | fn.#ListExpression
+		Labels?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	LaunchTemplate?:   _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" | fn.#ObjectExpression
-	NodeRepairConfig?: _#defs."/$defs/Properties/definitions/NodeRepairConfig" | fn.#ObjectExpression
-	NodeRole!:         string | fn.#StringExpression
-	NodegroupName?:    strings.MinRunes(1) | fn.#StringExpression
-	ReleaseVersion?:   string | fn.#StringExpression
-	RemoteAccess?:     _#defs."/$defs/Properties/definitions/RemoteAccess" | fn.#ObjectExpression
-	ScalingConfig?:    _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
-	Subnets!:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: close({
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Taints?:         [..._#defs."/$defs/Properties/definitions/Taint"] | fn.#ListExpression
-	UpdateConfig?:   _#defs."/$defs/Properties/definitions/UpdateConfig" | fn.#ObjectExpression
-	Version?:        string | fn.#StringExpression
-	WarmPoolConfig?: _#defs."/$defs/Properties/definitions/WarmPoolConfig" | fn.#ObjectExpression
-})
+		// An object representing a node group's launch template specification.
+		LaunchTemplate?: #LaunchTemplateSpecification
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
+		// The node auto repair configuration for node group.
+		NodeRepairConfig?: #NodeRepairConfig
+		NodeRole!:         string | fn.#StringExpression
+		NodegroupName?:    strings.MinRunes(1) | fn.#StringExpression
+		ReleaseVersion?:   string | fn.#StringExpression
+
+		// The remote access (SSH) configuration to use with your node group.
+		RemoteAccess?: #RemoteAccess
+
+		// The scaling configuration details for the Auto Scaling group that is created for your node group.
+		ScalingConfig?: #ScalingConfig
+		Subnets!:       [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?: close({
+
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Taints?: [...#Taint] | fn.#ListExpression
+
+		// The node group update configuration.
+		UpdateConfig?: #UpdateConfig
+		Version?:      string | fn.#StringExpression
+
+		// The warm pool configuration details for the Auto Scaling group that is
+		// created for the node group.
+		WarmPoolConfig?: #WarmPoolConfig
+	})
+}
+
+#LaunchTemplateSpecification: close({
 	Id?:      strings.MinRunes(1) | fn.#StringExpression
 	Name?:    strings.MinRunes(1) | fn.#StringExpression
 	Version?: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeRepairConfig": close({
+#NodeRepairConfig: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxParallelNodesRepairedCount?: int & >=1 |
 		{
@@ -152,12 +170,11 @@ _#defs: "/$defs/Properties/definitions/NodeRepairConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	NodeRepairConfigOverrides?: [..._#defs."/$defs/Properties/definitions/NodeRepairConfigOverrides"] |
-		fn.#ListExpression
+	NodeRepairConfigOverrides?: [...#NodeRepairConfigOverrides] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeRepairConfigOverrides": close({
+#NodeRepairConfigOverrides: close({
 	MinRepairWaitTimeMins?: int & >=1 |
 		{
 			string &
@@ -179,13 +196,13 @@ _#defs: "/$defs/Properties/definitions/NodeRepairConfigOverrides": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoteAccess": close({
+#RemoteAccess: close({
 	Ec2SshKey!:            string | fn.#StringExpression
 	SourceSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close({
+#ScalingConfig: close({
 	DesiredSize?: int & >=0 |
 		{
 			string &
@@ -234,14 +251,14 @@ _#defs: "/$defs/Properties/definitions/ScalingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Taint": close({
+#Taint: close({
 	Effect?: ("NO_EXECUTE" | "NO_SCHEDULE" | "PREFER_NO_SCHEDULE") & strings.MinRunes(1) | fn.#StringExpression
 	Key?:    strings.MaxRunes(317) & strings.MinRunes(1) | fn.#StringExpression
 	Value?:  strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateConfig": close({
+#UpdateConfig: close({
 	MaxUnavailable?: >=1 |
 		{
 			string &
@@ -285,7 +302,7 @@ _#defs: "/$defs/Properties/definitions/UpdateConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmPoolConfig": close({
+#WarmPoolConfig: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxGroupPreparedCapacity?: int & >=-1 |
 		{
@@ -321,7 +338,3 @@ _#defs: "/$defs/Properties/definitions/WarmPoolConfig": close({
 	ReuseOnScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::Nodegroup"
-	Properties!: #Properties
-}

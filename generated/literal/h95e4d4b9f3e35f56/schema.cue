@@ -11,13 +11,11 @@ import (
 
 // Resource Type definition for AWS::Evidently::Experiment.
 #Properties: close({
-	Arn?:         =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*/experiment/[-a-zA-Z0-9._]*"
-	Description?: strings.MaxRunes(160) & strings.MinRunes(0)
-	MetricGoals!: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricGoalObject"
-	]
+	Arn?:            =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*/experiment/[-a-zA-Z0-9._]*"
+	Description?:    strings.MaxRunes(160) & strings.MinRunes(0)
+	MetricGoals!:    list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#MetricGoalObject]
 	Name!:           strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
-	OnlineAbConfig!: _#defs."/$defs/Properties/definitions/OnlineAbConfigObject"
+	OnlineAbConfig!: #OnlineAbConfigObject
 	Project!: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)"
@@ -25,20 +23,18 @@ import (
 	RemoveSegment?:     bool
 
 	// Start Experiment. Default is False
-	RunningStatus?: _#defs."/$defs/Properties/definitions/RunningStatusObject"
+	RunningStatus?: #RunningStatusObject
 	SamplingRate?:  int & <=100000 & >=0
 	Segment?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Treatments!: list.MaxItems(5) & list.MinItems(2) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TreatmentObject"
-	]
+	Tags?:       list.UniqueItems() & [...#Tag]
+	Treatments!: list.MaxItems(5) & list.MinItems(2) & list.UniqueItems() & [...#TreatmentObject]
 })
 
-_#defs: "/$defs/Properties/definitions/MetricGoalObject": close({
+#MetricGoalObject: close({
 	DesiredChange!: "INCREASE" | "DECREASE"
 
 	// The JSON path to reference the entity id in the event.
@@ -55,12 +51,12 @@ _#defs: "/$defs/Properties/definitions/MetricGoalObject": close({
 	ValueKey!: string
 })
 
-_#defs: "/$defs/Properties/definitions/OnlineAbConfigObject": close({
+#OnlineAbConfigObject: close({
 	ControlTreatmentName?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
-	TreatmentWeights?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TreatmentToWeight"]
+	TreatmentWeights?:     list.UniqueItems() & [...#TreatmentToWeight]
 })
 
-_#defs: "/$defs/Properties/definitions/RunningStatusObject": matchN(1, [{
+#RunningStatusObject: matchN(1, [{
 	Status!:               _
 	AnalysisCompleteTime!: _
 	...
@@ -84,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/RunningStatusObject": matchN(1, [{
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -98,14 +94,14 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TreatmentObject": close({
+#TreatmentObject: close({
 	Description?:   string
 	Feature!:       =~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:.*)"
 	TreatmentName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
 	Variation!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
 })
 
-_#defs: "/$defs/Properties/definitions/TreatmentToWeight": close({
+#TreatmentToWeight: close({
 	SplitWeight!: int & <=100000 & >=0
 	Treatment!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
 })

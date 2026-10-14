@@ -23,7 +23,7 @@ import (
 
 	// A description for the store.
 	Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
-	ETagAlgorithmFamily?: _#defs."/$defs/Properties/definitions/ETagAlgorithmFamily"
+	ETagAlgorithmFamily?: #ETagAlgorithmFamily
 
 	// An S3 location that is used to store files that have failed a direct upload.
 	FallbackLocation?: strings.MinRunes(0)
@@ -43,27 +43,27 @@ import (
 	// The S3 URI of the sequence store.
 	S3Uri?:           string
 	SequenceStoreId?: strings.MaxRunes(36) & strings.MinRunes(10) & =~"^[0-9]+$"
-	SseConfig?:       _#defs."/$defs/Properties/definitions/SseConfig"
-	Status?:          _#defs."/$defs/Properties/definitions/SequenceStoreStatus"
+	SseConfig?:       #SseConfig
+	Status?:          #SequenceStoreStatus
 
 	// The status message of the sequence store.
 	StatusMessage?: strings.MaxRunes(127) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?: #TagMap
 
 	// The last-updated time of the sequence store.
 	UpdateTime?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/ETagAlgorithmFamily": "MD5up" | "SHA256up" | "SHA512up"
+#ETagAlgorithmFamily: "MD5up" | "SHA256up" | "SHA512up"
 
-_#defs: "/$defs/Properties/definitions/EncryptionType": "KMS"
+#EncryptionType: "KMS"
 
-_#defs: "/$defs/Properties/definitions/SequenceStoreStatus": "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "FAILED"
+#SequenceStoreStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "FAILED"
 
 // Server-side encryption (SSE) settings for a store.
-_#defs: "/$defs/Properties/definitions/SseConfig": close({
+#SseConfig: close({
 	// An encryption key ARN.
 	KeyArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -74,9 +74,9 @@ _#defs: "/$defs/Properties/definitions/SseConfig": close({
 		]*):([0-9]{12}):([^:
 		]*)
 		"""
-	Type!: _#defs."/$defs/Properties/definitions/EncryptionType"
+	Type!: #EncryptionType
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})

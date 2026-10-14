@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,18 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::IntelligentPromptRouter Resource Type
-#Properties: close({
-	Description?:      strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$" | fn.#StringExpression
-	FallbackModel!:    _#defs."/$defs/Properties/definitions/PromptRouterTargetModel"
-	Models!:           [..._#defs."/$defs/Properties/definitions/PromptRouterTargetModel"] | fn.#ListExpression
-	PromptRouterName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$" | fn.#StringExpression
-	RoutingCriteria!:  _#defs."/$defs/Properties/definitions/RoutingCriteria"
-	Tags?:             list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::IntelligentPromptRouter"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$" | fn.#StringExpression
+		FallbackModel!: #PromptRouterTargetModel
+		Models!:        [...#PromptRouterTargetModel] | fn.#ListExpression
+		PromptRouterName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$" |
+		fn.#StringExpression
+		RoutingCriteria!: #RoutingCriteria
+		Tags?:            list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PromptRouterStatus": "AVAILABLE" | fn.#StringExpression
+#PromptRouterStatus: "AVAILABLE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PromptRouterTargetModel": close({
+#PromptRouterTargetModel: close({
 	ModelArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"(^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model/[a-z0-9-]{1,63}[.]{1}([a-z0-9-]{1,63}[.]){0,2}[a-z0-9-]{1,63}([:][a-z0-9-]{1,63}){0,2})|(^arn:aws(|-us-gov|-cn|-iso|-iso-b):bedrock:(|[0-9a-z-]{0,20}):(|[0-9]{12}):(inference-profile|application-inference-profile)/[a-zA-Z0-9-:.]+)$" |
@@ -36,9 +40,9 @@ _#defs: "/$defs/Properties/definitions/PromptRouterTargetModel": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PromptRouterType": "custom" | "default" | fn.#StringExpression
+#PromptRouterType: "custom" | "default" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingCriteria": close({
+#RoutingCriteria: close({
 	ResponseQualityDifference!: <=100 & >=0 |
 		{
 			string &
@@ -62,12 +66,8 @@ _#defs: "/$defs/Properties/definitions/RoutingCriteria": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::IntelligentPromptRouter"
-	Properties!: #Properties
-}

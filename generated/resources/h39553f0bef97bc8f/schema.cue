@@ -13,48 +13,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::RestoreTestingSelection
-#Properties: close({
-	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	ProtectedResourceArns?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	ProtectedResourceConditions?: _#defs."/$defs/Properties/definitions/ProtectedResourceConditions"
-	ProtectedResourceType!:       string | fn.#StringExpression
-	RestoreMetadataOverrides?:    _#defs."/$defs/Properties/definitions/SensitiveStringMap"
-	RestoreTestingPlanName!:      string | fn.#StringExpression
-	RestoreTestingSelectionName!: string | fn.#StringExpression
-	ValidationWindowHours?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::RestoreTestingSelection"
+	Properties!: close({
+		IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		ProtectedResourceArns?:       [...string | fn.#StringExpression] | fn.#ListExpression
+		ProtectedResourceConditions?: #ProtectedResourceConditions
+		ProtectedResourceType!:       string | fn.#StringExpression
+		RestoreMetadataOverrides?:    #SensitiveStringMap
+		RestoreTestingPlanName!:      string | fn.#StringExpression
+		RestoreTestingSelectionName!: string | fn.#StringExpression
+		ValidationWindowHours?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/KeyValue": close({
+#KeyValue: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProtectedResourceConditions": close({
-	StringEquals?:    [..._#defs."/$defs/Properties/definitions/KeyValue"] | fn.#ListExpression
-	StringNotEquals?: [..._#defs."/$defs/Properties/definitions/KeyValue"] | fn.#ListExpression
+#ProtectedResourceConditions: close({
+	StringEquals?:    [...#KeyValue] | fn.#ListExpression
+	StringNotEquals?: [...#KeyValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SensitiveStringMap": close({
+#SensitiveStringMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::RestoreTestingSelection"
-	Properties!: #Properties
-}

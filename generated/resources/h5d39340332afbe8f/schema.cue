@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // GuardDuty Master resource schema
-#Properties: close({
-	DetectorId!:   string | fn.#StringExpression
-	InvitationId?: string | fn.#StringExpression
-	MasterId!:     string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::Master"
-	Properties!: #Properties
+	Type!: "AWS::GuardDuty::Master"
+	Properties!: close({
+		DetectorId!:   string | fn.#StringExpression
+		InvitationId?: string | fn.#StringExpression
+		MasterId!:     string | fn.#StringExpression
+	})
 }

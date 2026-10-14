@@ -20,31 +20,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // see [HTTP
 // APIs](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html)
 // in the *API Gateway Developer Guide.*
-#Properties: close({
-	ApiKeySelectionExpression?: string | fn.#StringExpression
-	BasePath?:                  string | fn.#StringExpression
-	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
-	BodyS3Location?:            _#defs."/$defs/Properties/definitions/BodyS3Location" | fn.#ObjectExpression
-	CorsConfiguration?:         _#defs."/$defs/Properties/definitions/Cors" | fn.#ObjectExpression
-	CredentialsArn?:            string | fn.#StringExpression
-	Description?:               string | fn.#StringExpression
-	DisableExecuteApiEndpoint?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisableSchemaValidation?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FailOnWarnings?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IpAddressType?:             string | fn.#StringExpression
-	Name?:                      string | fn.#StringExpression
-	ProtocolType?:              string | fn.#StringExpression
-	RouteKey?:                  string | fn.#StringExpression
-	RouteSelectionExpression?:  string | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::Api"
+	Properties?: close({
+		ApiKeySelectionExpression?: string | fn.#StringExpression
+		BasePath?:                  string | fn.#StringExpression
+		Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Target?:  string | fn.#StringExpression
-	Version?: string | fn.#StringExpression
-})
+		// The S3 location of an OpenAPI definition. Supported only for HTTP APIs. To
+		// import an HTTP API, you must specify a ``Body`` or ``BodyS3Location``. If
+		// you specify a ``Body`` or ``BodyS3Location``, don't specify CloudFormation
+		// resources such as ``AWS::ApiGatewayV2::Authorizer`` or
+		// ``AWS::ApiGatewayV2::Route``. API Gateway doesn't support the combination of
+		// OpenAPI and CloudFormation resources.
+		BodyS3Location?: #BodyS3Location
 
-_#defs: "/$defs/Properties/definitions/BodyS3Location": close({
+		// A CORS configuration. Supported only for HTTP APIs. See [Configuring
+		// CORS](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html)
+		// for more information.
+		CorsConfiguration?: #Cors
+		CredentialsArn?:    string | fn.#StringExpression
+		Description?:       string | fn.#StringExpression
+		DisableExecuteApiEndpoint?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DisableSchemaValidation?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FailOnWarnings?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IpAddressType?:            string | fn.#StringExpression
+		Name?:                     string | fn.#StringExpression
+		ProtocolType?:             string | fn.#StringExpression
+		RouteKey?:                 string | fn.#StringExpression
+		RouteSelectionExpression?: string | fn.#StringExpression
+		Tags?: close({
+
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Target?:  string | fn.#StringExpression
+		Version?: string | fn.#StringExpression
+	})
+}
+
+#BodyS3Location: close({
 	Bucket?:  string | fn.#StringExpression
 	Etag?:    string | fn.#StringExpression
 	Key?:     string | fn.#StringExpression
@@ -52,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/BodyS3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Cors": close({
+#Cors: close({
 	AllowCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AllowHeaders?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowMethods?:     [...string | fn.#StringExpression] | fn.#ListExpression
@@ -74,7 +95,3 @@ _#defs: "/$defs/Properties/definitions/Cors": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Api"
-	Properties?: #Properties
-}

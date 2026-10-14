@@ -17,10 +17,10 @@ import (
 	Id?:             string
 	PortfolioName?:  string
 	ProviderName!:   strings.MaxRunes(50) & strings.MinRunes(1)
-	Tags?:           list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:           list.MaxItems(20) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

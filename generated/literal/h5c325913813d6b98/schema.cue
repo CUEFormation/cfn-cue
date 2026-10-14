@@ -7,15 +7,15 @@ package schema
 // Definition of AWS::ResourceExplorer2::Index Resource Type
 #Properties: close({
 	Arn?:        string
-	IndexState?: _#defs."/$defs/Properties/definitions/IndexState"
-	Tags?:       _#defs."/$defs/Properties/definitions/TagMap"
-	Type!:       _#defs."/$defs/Properties/definitions/IndexType"
+	IndexState?: #IndexState
+	Tags?:       #TagMap
+	Type!:       #IndexType
 })
 
-_#defs: "/$defs/Properties/definitions/IndexState": "ACTIVE" | "CREATING" | "DELETING" | "DELETED" | "UPDATING"
+#IndexState: "ACTIVE" | "CREATING" | "DELETING" | "DELETED" | "UPDATING"
 
-_#defs: "/$defs/Properties/definitions/IndexType": "LOCAL" | "AGGREGATOR"
+#IndexType: "LOCAL" | "AGGREGATOR"
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string}})

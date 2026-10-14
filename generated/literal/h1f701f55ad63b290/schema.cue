@@ -11,71 +11,69 @@ import (
 
 // Resource definition for AWS::BedrockAgentCore::BrowserProfile
 #Properties: close({
-	CreatedAt?:                 _#defs."/$defs/Properties/definitions/CreatedAt"
-	Description?:               _#defs."/$defs/Properties/definitions/BrowserProfileDescription"
-	LastSavedAt?:               _#defs."/$defs/Properties/definitions/LastSavedAt"
-	LastSavedBrowserId?:        _#defs."/$defs/Properties/definitions/LastSavedBrowserId"
-	LastSavedBrowserSessionId?: _#defs."/$defs/Properties/definitions/LastSavedBrowserSessionId"
-	LastUpdatedAt?:             _#defs."/$defs/Properties/definitions/LastUpdatedAt"
-	Name!:                      _#defs."/$defs/Properties/definitions/BrowserProfileName"
-	ProfileArn?:                _#defs."/$defs/Properties/definitions/BrowserProfileArn"
-	ProfileId?:                 _#defs."/$defs/Properties/definitions/BrowserProfileId"
-	Status?:                    _#defs."/$defs/Properties/definitions/BrowserProfileStatus"
+	CreatedAt?:                 #CreatedAt
+	Description?:               #BrowserProfileDescription
+	LastSavedAt?:               #LastSavedAt
+	LastSavedBrowserId?:        #LastSavedBrowserId
+	LastSavedBrowserSessionId?: #LastSavedBrowserSessionId
+	LastUpdatedAt?:             #LastUpdatedAt
+	Name!:                      #BrowserProfileName
+	ProfileArn?:                #BrowserProfileArn
+	ProfileId?:                 #BrowserProfileId
+	Status?:                    #BrowserProfileStatus
 
 	// A map of tag keys and values.
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?: #TagsMap
 })
 
 // The ARN of a BrowserProfile resource.
-_#defs: "/$defs/Properties/definitions/BrowserProfileArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:browser-profile/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$"
+#BrowserProfileArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:browser-profile/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$"
 
 // The description of the browser profile.
-_#defs: "/$defs/Properties/definitions/BrowserProfileDescription": string
+#BrowserProfileDescription: string
 
 // The id of the browser profile.
-_#defs: "/$defs/Properties/definitions/BrowserProfileId": =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$"
+#BrowserProfileId: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$"
 
 // The name of the browser profile.
-_#defs: "/$defs/Properties/definitions/BrowserProfileName": =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$"
+#BrowserProfileName: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$"
 
 // Status of browser profile
-_#defs: "/$defs/Properties/definitions/BrowserProfileStatus": "READY" | "DELETING" | "DELETED" | "SAVING"
+#BrowserProfileStatus: "READY" | "DELETING" | "DELETED" | "SAVING"
 
 // List of browser profiles
-_#defs: "/$defs/Properties/definitions/BrowserProfileSummaries": [
-	..._#defs."/$defs/Properties/definitions/BrowserProfileSummary"
-]
+#BrowserProfileSummaries: [...#BrowserProfileSummary]
 
 // Browser Profile Summary
-_#defs: "/$defs/Properties/definitions/BrowserProfileSummary": close({
-	CreatedAt!:                 _#defs."/$defs/Properties/definitions/CreatedAt"
-	Description?:               _#defs."/$defs/Properties/definitions/BrowserProfileDescription"
-	LastSavedAt?:               _#defs."/$defs/Properties/definitions/LastSavedAt"
-	LastSavedBrowserId?:        _#defs."/$defs/Properties/definitions/LastSavedBrowserId"
-	LastSavedBrowserSessionId?: _#defs."/$defs/Properties/definitions/LastSavedBrowserSessionId"
-	LastUpdatedAt!:             _#defs."/$defs/Properties/definitions/LastUpdatedAt"
-	Name!:                      _#defs."/$defs/Properties/definitions/BrowserProfileName"
-	ProfileArn!:                _#defs."/$defs/Properties/definitions/BrowserProfileArn"
-	ProfileId!:                 _#defs."/$defs/Properties/definitions/BrowserProfileId"
-	Status!:                    _#defs."/$defs/Properties/definitions/BrowserProfileStatus"
+#BrowserProfileSummary: close({
+	CreatedAt!:                 #CreatedAt
+	Description?:               #BrowserProfileDescription
+	LastSavedAt?:               #LastSavedAt
+	LastSavedBrowserId?:        #LastSavedBrowserId
+	LastSavedBrowserSessionId?: #LastSavedBrowserSessionId
+	LastUpdatedAt!:             #LastUpdatedAt
+	Name!:                      #BrowserProfileName
+	ProfileArn!:                #BrowserProfileArn
+	ProfileId!:                 #BrowserProfileId
+	Status!:                    #BrowserProfileStatus
 })
 
 // Timestamp when the browser profile was created.
-_#defs: "/$defs/Properties/definitions/CreatedAt": time.Time
+#CreatedAt: time.Time
 
 // Timestamp when the browser profile was last saved.
-_#defs: "/$defs/Properties/definitions/LastSavedAt": time.Time
+#LastSavedAt: time.Time
 
 // ID of the last saved browser.
-_#defs: "/$defs/Properties/definitions/LastSavedBrowserId": =~"^((aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}))?$"
+#LastSavedBrowserId: =~"^((aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}))?$"
 
 // ID of the last saved browser session.
-_#defs: "/$defs/Properties/definitions/LastSavedBrowserSessionId": =~"^([0-9a-zA-Z]{1,40})?$"
+#LastSavedBrowserSessionId: =~"^([0-9a-zA-Z]{1,40})?$"
 
 // Timestamp when the browser profile was last updated.
-_#defs: "/$defs/Properties/definitions/LastUpdatedAt": time.Time
+#LastUpdatedAt: time.Time
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})

@@ -14,132 +14,126 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::BrowserCustom
-#Properties: close({
-	BrowserSigning?:       _#defs."/$defs/Properties/definitions/BrowserSigning" | fn.#ObjectExpression
-	Certificates?:         _#defs."/$defs/Properties/definitions/CertificateList" | fn.#ListExpression
-	Description?:          string | fn.#StringExpression
-	EnterprisePolicies?:   _#defs."/$defs/Properties/definitions/BrowserEnterprisePolicies" | fn.#ListExpression
-	ExecutionRoleArn?:     _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	Name!:                 string | fn.#StringExpression
-	NetworkConfiguration!: _#defs."/$defs/Properties/definitions/BrowserNetworkConfiguration" | fn.#ObjectExpression
-	RecordingConfig?:      _#defs."/$defs/Properties/definitions/RecordingConfig" | fn.#ObjectExpression
-	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::BrowserCustom"
+	Properties!: close({
+		// Browser signing configuration.
+		BrowserSigning?: #BrowserSigning
 
-_#defs: "/$defs/Properties/definitions/BrowserArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?\\/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
+		// List of root CA certificates in PEM format.
+		Certificates?: #CertificateList
+		Description?:  string | fn.#StringExpression
+
+		// A list of enterprise policy files for the browser.
+		EnterprisePolicies?: #BrowserEnterprisePolicies
+
+		// The Amazon Resource Name (ARN) of the IAM role that the browser uses to access resources.
+		ExecutionRoleArn?: #RoleArn
+		Name!:             string | fn.#StringExpression
+
+		// Network configuration for browser.
+		NetworkConfiguration!: #BrowserNetworkConfiguration
+
+		// Recording configuration for browser.
+		RecordingConfig?: #RecordingConfig
+		Tags?:            #TagsMap
+	})
+}
+
+#BrowserArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?\\/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserEnterprisePolicies": list.MaxItems(10) & [...] & [
-	..._#defs."/$defs/Properties/definitions/BrowserEnterprisePolicy"
-] |
-	fn.#ListExpression
+#BrowserEnterprisePolicies: list.MaxItems(10) & [...] & [...#BrowserEnterprisePolicy] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserEnterprisePolicy": close({
-	Location!: _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
-	Type!:     _#defs."/$defs/Properties/definitions/BrowserEnterprisePolicyType" | fn.#StringExpression
+#BrowserEnterprisePolicy: close({
+	// The S3 location of the enterprise policy file.
+	Location!: #S3Location
+
+	// The type of browser enterprise policy.
+	Type!: #BrowserEnterprisePolicyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserEnterprisePolicyType": "MANAGED" | "RECOMMENDED" | fn.#StringExpression
+#BrowserEnterprisePolicyType: "MANAGED" | "RECOMMENDED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserId": =~"^(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
-	fn.#StringExpression
+#BrowserId: =~"^(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserNetworkConfiguration": close({
-	NetworkMode!: _#defs."/$defs/Properties/definitions/BrowserNetworkMode"
-	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig"
+#BrowserNetworkConfiguration: close({
+	NetworkMode!: #BrowserNetworkMode
+	VpcConfig?:   #VpcConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserNetworkMode": "PUBLIC" | "VPC" | fn.#StringExpression
+#BrowserNetworkMode: "PUBLIC" | "VPC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserSigning": close(
+#BrowserSigning: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserStatus": "CREATING" |
-	"CREATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"DELETED" |
-	fn.#StringExpression
+#BrowserStatus: "CREATING" | "CREATE_FAILED" | "READY" | "DELETING" | "DELETE_FAILED" | "DELETED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserSummaries": [..._#defs."/$defs/Properties/definitions/BrowserSummary"] |
-	fn.#ListExpression
+#BrowserSummaries: [...#BrowserSummary] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserSummary": close({
-	BrowserArn!:    _#defs."/$defs/Properties/definitions/BrowserArn"
-	BrowserId!:     _#defs."/$defs/Properties/definitions/BrowserId"
+#BrowserSummary: close({
+	BrowserArn!:    #BrowserArn
+	BrowserId!:     #BrowserId
 	CreatedAt!:     time.Time | fn.#StringExpression
 	Description?:   string | fn.#StringExpression
 	LastUpdatedAt?: time.Time | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
-	Status!:        _#defs."/$defs/Properties/definitions/BrowserStatus"
+	Status!:        #BrowserStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Certificate": close(
-	{CertificateLocation!: _#defs."/$defs/Properties/definitions/CertificateLocation" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#Certificate: close({
+	// Certificate location in Secrets Manager.
+	CertificateLocation!: #CertificateLocation
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateList": list.MaxItems(10) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Certificate"
-] |
-	fn.#ListExpression
+#CertificateList: list.MaxItems(10) & [...] & [...#Certificate] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateLocation": close({
+#CertificateLocation: close({
 	SecretArn!: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordingConfig": close({
+#RecordingConfig: close({
 	Enabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	S3Location?: _#defs."/$defs/Properties/definitions/S3Location"
+	S3Location?: #S3Location
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" | fn.#StringExpression
 	Prefix!: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"^sg-[0-9a-zA-Z]{8,17}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SecurityGroupId"
-] |
-	fn.#ListExpression
+#SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
+#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Subnets": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SubnetId"
-] |
-	fn.#ListExpression
+#Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
-	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets"
+#VpcConfig: close({
+	SecurityGroups!: #SecurityGroups
+	Subnets!:        #Subnets
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::BrowserCustom"
-	Properties!: #Properties
-}

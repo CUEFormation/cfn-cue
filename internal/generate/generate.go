@@ -22,6 +22,9 @@ type Options struct {
 	Out, Module                            string
 	Regions, Resources                     []string
 	IncludeSAM, LanguageExtensions, Strict bool
+	// NoIAMPolicies keeps provider schemas for IAM policy properties
+	// instead of substituting iam package profiles.
+	NoIAMPolicies bool
 }
 type SchemaInfo struct {
 	Type               string `json:"type"`
@@ -35,6 +38,7 @@ type Manifest struct {
 	Module             string                       `json:"module"`
 	LanguageExtensions bool                         `json:"languageExtensions"`
 	IncludeSAM         bool                         `json:"includeSAM"`
+	IAMPolicies        bool                         `json:"iamPolicies"`
 	Regions            map[string]map[string]string `json:"regions"`
 	Schemas            map[string]SchemaInfo        `json:"schemas"`
 	Diagnostics        []Diagnostic                 `json:"diagnostics"`
@@ -68,14 +72,17 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
-	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
+	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
 	m.ValidationNotes = []string{
 		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
-		"Full regional aggregate evaluation has exceeded prior verification budgets; use the reproducible regional performance script to measure current CUE versions and resource scales.",
+		"The full region #Template selects each resource's schema by Type. Loading a complete region imports every resource package; -resources modules load faster.",
 		"Intrinsic schemas validate argument shapes and result type classes. Function-specific nesting permissions and context permissions require cfn-lint.",
 		"Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",
 		"CreationPolicy, UpdatePolicy, parameter type names, and SAM Globals use structural schemas; service-specific restrictions require cfn-lint.",
 		"LanguageExtensions ForEach schemas describe resource fragments; loop expansion and ForEach in Conditions or Outputs are not implemented.",
+	}
+	if !opt.NoIAMPolicies {
+		m.ValidationNotes = append(m.ValidationNotes, "Listed IAM policy properties use iam package profiles in resources/ schemas. Profiles check policy grammar and placement rules, not whether actions, resources or condition keys exist; literal/ schemas keep provider types.")
 	}
 	requested := map[string]bool{}
 	for _, r := range opt.Regions {
@@ -184,6 +191,13 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	if e = writeAST("template/template.cue", Template(opt.Module, opt.LanguageExtensions, opt.IncludeSAM)); e != nil {
 		return nil, e
 	}
+	policies, e := IAM(opt.Module)
+	if e != nil {
+		return nil, e
+	}
+	if e = writeAST("iam/iam.cue", policies); e != nil {
+		return nil, e
+	}
 	for _, hash := range sortedStringKeys(hashTypes) {
 		b, e := source.read("resources/" + hash + ".json")
 		if e != nil {
@@ -202,7 +216,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		}
 		sum := sha256.Sum256(b)
 		m.Schemas[hash] = SchemaInfo{typ, hex.EncodeToString(sum[:]), len(asArray(root["required"])) > 0}
-		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions}
+		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions, iam: !opt.NoIAMPolicies}
 		f, e := c.extract(root, false)
 		if e != nil {
 			return nil, fmt.Errorf("literal %s: %w", typ, e)
@@ -218,11 +232,14 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		stripRootEmbed(f)
 		addImport(f, "base", opt.Module+"/template:template")
 		propsRequired := len(asArray(root["required"])) > 0
-		resource := and(sel("base", "ResourceAttributes"), obj(field("Type", str(typ), false), field("Properties", id("#Properties"), !propsRequired)))
-		if typ == cfn.CustomResourceType {
-			resource = and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", id("#Properties"), false)))
+		if e = inlineProperties(f, func(properties ast.Expr) ast.Expr {
+			if typ == cfn.CustomResourceType {
+				return and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", properties, false)))
+			}
+			return and(sel("base", "ResourceAttributes"), obj(field("Type", str(typ), false), field("Properties", properties, !propsRequired)))
+		}); e != nil {
+			return nil, fmt.Errorf("template %s: %w", typ, e)
 		}
-		f.Decls = append(f.Decls, def("Resource", resource))
 		if e = writeAST("resources/h"+hash+"/schema.cue", f); e != nil {
 			return nil, e
 		}
@@ -278,6 +295,27 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	}
 	return m, nil
 }
+
+// inlineProperties replaces the extracted #Properties with #Resource, which
+// holds the properties schema inline, so a reader sees the whole resource in
+// one place. Literal packages keep #Properties, as they have no envelope.
+func inlineProperties(f *ast.File, resource func(ast.Expr) ast.Expr) error {
+	for i, d := range f.Decls {
+		properties, ok := d.(*ast.Field)
+		if !ok {
+			continue
+		}
+		if label, ok := properties.Label.(*ast.Ident); !ok || label.Name != "#Properties" {
+			continue
+		}
+		r := def("Resource", resource(properties.Value))
+		ast.SetComments(r, ast.Comments(properties))
+		f.Decls[i] = r
+		return nil
+	}
+	return fmt.Errorf("extracted schema has no #Properties")
+}
+
 func stripRootEmbed(f *ast.File) {
 	decls := f.Decls[:0]
 	for _, d := range f.Decls {

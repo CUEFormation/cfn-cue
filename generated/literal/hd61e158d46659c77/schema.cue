@@ -6,47 +6,47 @@ package schema
 
 // Resource Type definition for AWS::LakeFormation::Permissions
 #Properties: close({
-	DataLakePrincipal!:          _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+	DataLakePrincipal!:          #DataLakePrincipal
 	Id?:                         string
 	Permissions?:                [...string]
 	PermissionsWithGrantOption?: [...string]
 	Resource!:                   _#defs."/$defs/Properties/definitions/Resource"
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnWildcard": close({ExcludedColumnNames?: [...string]})
+#ColumnWildcard: close({ExcludedColumnNames?: [...string]})
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close({DataLakePrincipalIdentifier?: string})
+#DataLakePrincipal: close({DataLakePrincipalIdentifier?: string})
 
-_#defs: "/$defs/Properties/definitions/DataLocationResource": close({
+#DataLocationResource: close({
 	CatalogId?:  string
 	S3Resource?: string
 })
 
-_#defs: "/$defs/Properties/definitions/DatabaseResource": close({
+#DatabaseResource: close({
 	CatalogId?: string
 	Name?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/Resource": close({
-	DataLocationResource?:     _#defs."/$defs/Properties/definitions/DataLocationResource"
-	DatabaseResource?:         _#defs."/$defs/Properties/definitions/DatabaseResource"
-	TableResource?:            _#defs."/$defs/Properties/definitions/TableResource"
-	TableWithColumnsResource?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource"
-})
-
-_#defs: "/$defs/Properties/definitions/TableResource": close({
+#TableResource: close({
 	CatalogId?:     string
 	DatabaseName?:  string
 	Name?:          string
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard"
+	TableWildcard?: #TableWildcard
 })
 
-_#defs: "/$defs/Properties/definitions/TableWildcard": string | {...}
+#TableWildcard: string | {...}
 
-_#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
+#TableWithColumnsResource: close({
 	CatalogId?:      string
 	ColumnNames?:    [...string]
-	ColumnWildcard?: _#defs."/$defs/Properties/definitions/ColumnWildcard"
+	ColumnWildcard?: #ColumnWildcard
 	DatabaseName?:   string
 	Name?:           string
+})
+
+_#defs: "/$defs/Properties/definitions/Resource": close({
+	DataLocationResource?:     #DataLocationResource
+	DatabaseResource?:         #DatabaseResource
+	TableResource?:            #TableResource
+	TableWithColumnsResource?: #TableWithColumnsResource
 })

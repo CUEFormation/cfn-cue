@@ -13,12 +13,12 @@ import "strings"
 	MaxDevices?:  int
 	Name!:        strings.MaxRunes(256) & strings.MinRunes(1)
 	ProjectArn!:  strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+"
-	Rules!:       [..._#defs."/$defs/Properties/definitions/Rule"]
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"]
+	Rules!:       [...#Rule]
+	Tags?:        [...#Tag]
 })
 
 // Represents a condition for a device pool.
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	// The rule's stringified attribute.
 	Attribute?: "ARN" |
 		"PLATFORM" |
@@ -48,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

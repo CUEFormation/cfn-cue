@@ -17,35 +17,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::VerifiedAccessEndpoint resource creates an AWS EC2 Verified Access Endpoint.
-#Properties: close({
-	ApplicationDomain?:       string | fn.#StringExpression
-	AttachmentType!:          "vpc" | fn.#StringExpression
-	CidrOptions?:             _#defs."/$defs/Properties/definitions/CidrOptions" | fn.#ObjectExpression
-	Description?:             string | fn.#StringExpression
-	DomainCertificateArn?:    string | fn.#StringExpression
-	EndpointDomainPrefix?:    string | fn.#StringExpression
-	EndpointType!:            "cidr" | "load-balancer" | "network-interface" | "rds" | fn.#StringExpression
-	LoadBalancerOptions?:     _#defs."/$defs/Properties/definitions/LoadBalancerOptions" | fn.#ObjectExpression
-	NetworkInterfaceOptions?: _#defs."/$defs/Properties/definitions/NetworkInterfaceOptions" | fn.#ObjectExpression
-	PolicyDocument?:          string | fn.#StringExpression
-	PolicyEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RdsOptions?:              _#defs."/$defs/Properties/definitions/RdsOptions" | fn.#ObjectExpression
-	SecurityGroupIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] |
-		fn.#ListExpression
-	SseSpecification?:      _#defs."/$defs/Properties/definitions/SseSpecification" | fn.#ObjectExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VerifiedAccessGroupId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VerifiedAccessEndpoint"
+	Properties!: close({
+		ApplicationDomain?: string | fn.#StringExpression
+		AttachmentType!:    "vpc" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CidrOptions": close({
+		// The options for cidr type endpoint.
+		CidrOptions?:          #CidrOptions
+		Description?:          string | fn.#StringExpression
+		DomainCertificateArn?: string | fn.#StringExpression
+		EndpointDomainPrefix?: string | fn.#StringExpression
+		EndpointType!:         "cidr" | "load-balancer" | "network-interface" | "rds" | fn.#StringExpression
+
+		// The load balancer details if creating the AWS Verified Access endpoint as load-balancer type.
+		LoadBalancerOptions?: #LoadBalancerOptions
+
+		// The options for network-interface type endpoint.
+		NetworkInterfaceOptions?: #NetworkInterfaceOptions
+		PolicyDocument?:          string | fn.#StringExpression
+		PolicyEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The options for rds type endpoint.
+		RdsOptions?:       #RdsOptions
+		SecurityGroupIds?: list.UniqueItems() & [...#SecurityGroupId] | fn.#ListExpression
+
+		// The configuration options for customer provided KMS encryption.
+		SseSpecification?:      #SseSpecification
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VerifiedAccessGroupId!: string | fn.#StringExpression
+	})
+}
+
+#CidrOptions: close({
 	Cidr?:       string | fn.#StringExpression
-	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	PortRanges?: list.UniqueItems() & [...#PortRange] | fn.#ListExpression
 	Protocol?:   "http" | "https" | "tcp" | fn.#StringExpression
-	SubnetIds?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
+	SubnetIds?:  list.UniqueItems() & [...#SubnetId] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoadBalancerOptions": close({
+#LoadBalancerOptions: close({
 	LoadBalancerArn?: string | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
@@ -63,13 +75,13 @@ _#defs: "/$defs/Properties/definitions/LoadBalancerOptions": close({
 				)
 		} |
 		fn.#NumberExpression
-	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	PortRanges?: list.UniqueItems() & [...#PortRange] | fn.#ListExpression
 	Protocol?:   "http" | "https" | "tcp" | fn.#StringExpression
-	SubnetIds?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
+	SubnetIds?:  list.UniqueItems() & [...#SubnetId] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceOptions": close({
+#NetworkInterfaceOptions: close({
 	NetworkInterfaceId?: string | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
@@ -87,12 +99,12 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceOptions": close({
 				)
 		} |
 		fn.#NumberExpression
-	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+	PortRanges?: list.UniqueItems() & [...#PortRange] | fn.#ListExpression
 	Protocol?:   "http" | "https" | "tcp" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
+#PortRange: close({
 	FromPort?: int & <=65535 & >=1 |
 		{
 			string &
@@ -128,7 +140,7 @@ _#defs: "/$defs/Properties/definitions/PortRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsOptions": close({
+#RdsOptions: close({
 	Port?: int & <=65535 & >=1 |
 		{
 			string &
@@ -150,28 +162,24 @@ _#defs: "/$defs/Properties/definitions/RdsOptions": close({
 	RdsDbInstanceArn?: string | fn.#StringExpression
 	RdsDbProxyArn?:    string | fn.#StringExpression
 	RdsEndpoint?:      string | fn.#StringExpression
-	SubnetIds?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
+	SubnetIds?:        list.UniqueItems() & [...#SubnetId] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SseSpecification": close({
+#SseSpecification: close({
 	CustomerManagedKeyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": string | fn.#StringExpression
+#SubnetId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VerifiedAccessEndpoint"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,11 +25,11 @@ import (
 	}
 	...
 }) & close({
-	AccountGrouping!: _#defs."/$defs/Properties/definitions/AccountGrouping"
+	AccountGrouping!: #AccountGrouping
 
 	// Billing Group ARN
 	Arn?:                   =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:billinggroup/?[a-zA-Z0-9]{10,12}"
-	ComputationPreference!: _#defs."/$defs/Properties/definitions/ComputationPreference"
+	ComputationPreference!: #ComputationPreference
 
 	// Creation timestamp in UNIX epoch time format
 	CreationTime?: int
@@ -44,27 +44,27 @@ import (
 
 	// Number of accounts in the billing group
 	Size?:         int
-	Status?:       _#defs."/$defs/Properties/definitions/BillingGroupStatus"
+	Status?:       #BillingGroupStatus
 	StatusReason?: string
-	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:         list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AccountGrouping": close({
+#AccountGrouping: close({
 	AutoAssociate?:    bool
 	LinkedAccountIds?: list.MaxItems(30) & list.MinItems(1) & list.UniqueItems() & [...=~"[0-9]{12}"]
 	ResponsibilityTransferArn?:
 		=~"arn:[a-z0-9][a-z0-9-.]{0,62}:organizations::[0-9]{12}:transfer/o-[a-z0-9]{10,32}/(billing)/(inbound|outbound)/rt-[0-9a-z]{8,32}"
 })
 
-_#defs: "/$defs/Properties/definitions/BillingGroupStatus": "ACTIVE" | "PRIMARY_ACCOUNT_MISSING"
+#BillingGroupStatus: "ACTIVE" | "PRIMARY_ACCOUNT_MISSING"
 
-_#defs: "/$defs/Properties/definitions/ComputationPreference": close({
+#ComputationPreference: close({
 	// ARN of the attached pricing plan
 	PricingPlanArn!:
 		=~"arn:aws(-cn)?:billingconductor::(aws|[0-9]{12}):pricingplan/(BasicPricingPlan|Passthrough|[a-zA-Z0-9]{10})"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

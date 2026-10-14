@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"struct"
 	"strings"
 	"list"
-	"struct"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +16,7 @@ import (
 // delete_then_create.
 #Properties: close({
 	// Configuration for batching events into a single delivery to the target.
-	BatchConfiguration?: _#defs."/$defs/Properties/definitions/BatchConfiguration"
+	BatchConfiguration?: #BatchConfiguration
 
 	// The name of the event bus this subscriber belongs to. This property is read-only.
 	BusName?: string
@@ -34,28 +34,28 @@ import (
 
 	// Configuration for filtering which events are delivered to the target. An
 	// event must match every filter to be delivered.
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	FilterConfiguration?: #FilterConfiguration
 
 	// Configuration for how the subscriber invokes its target, including the target
 	// ARN, the IAM role used to invoke it, and, optionally, the target-specific
 	// parameters object that matches the target type.
-	InvokeConfiguration!: _#defs."/$defs/Properties/definitions/InvokeConfiguration"
+	InvokeConfiguration!: #InvokeConfiguration
 
 	// Last-modification timestamp (ISO-8601), read-only.
 	LastModifiedTime?: string
 
 	// Delivery logging configuration for the subscriber.
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	LogConfiguration?: #LogConfiguration
 
 	// The name of the subscriber. The first character must be alphanumeric; the
 	// remaining characters may also include '.', '-', and '_'.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$"
 
 	// The destination for events that could not be delivered to the target.
-	OnFailureConfiguration?: _#defs."/$defs/Properties/definitions/OnFailureConfiguration"
+	OnFailureConfiguration?: #OnFailureConfiguration
 
 	// The point in time to start delivering events from. Used when StartingPosition is POINT_IN_TIME.
-	PointInTimeConfiguration?: _#defs."/$defs/Properties/definitions/PointInTimeConfiguration"
+	PointInTimeConfiguration?: #PointInTimeConfiguration
 
 	// Resume-time control, never returned by the service. Applied only when an
 	// update transitions State from STOPPED to RUNNING: LAST_PROCESSED (default)
@@ -64,7 +64,7 @@ import (
 	ResumePosition?: "LAST_PROCESSED" | "LATEST"
 
 	// The retry policy for failed deliveries to the target.
-	RetryPolicy?: _#defs."/$defs/Properties/definitions/RetryPolicy"
+	RetryPolicy?: #RetryPolicy
 
 	// Where the subscriber starts reading events: LATEST starts from the newest
 	// events; POINT_IN_TIME starts from the point specified in
@@ -83,10 +83,10 @@ import (
 	=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):subscriber\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$"
 
 	// The tags assigned to the subscriber.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Configuration for transforming events before delivery to the target.
-	Transformer?: _#defs."/$defs/Properties/definitions/Transformer"
+	Transformer?: #Transformer
 
 	// The delivery ordering mode of the subscriber. FIFO delivers events in order
 	// within an event group; UNORDERED delivers without an ordering guarantee.
@@ -94,7 +94,7 @@ import (
 })
 
 // Configuration for batching events into a single delivery.
-_#defs: "/$defs/Properties/definitions/BatchConfiguration": close({
+#BatchConfiguration: close({
 	// The maximum number of events in a single batch delivered to the target. The
 	// maximum depends on the target: 500 for Kinesis Data Streams and Amazon Data
 	// Firehose, 100 for Lambda, Step Functions, and AWS::EventsV2::EventBus
@@ -114,7 +114,7 @@ _#defs: "/$defs/Properties/definitions/BatchConfiguration": close({
 })
 
 // Deduplication settings applied to the forwarded events on the downstream bus.
-_#defs: "/$defs/Properties/definitions/DeduplicationConfiguration": close({
+#DeduplicationConfiguration: close({
 	// How duplicate events are detected: CONTENT_BASED deduplicates by a hash of
 	// the event content. To deduplicate by a caller-supplied token instead, omit
 	// DeduplicationConfiguration and set SystemMetadata.DeduplicationId.
@@ -123,12 +123,12 @@ _#defs: "/$defs/Properties/definitions/DeduplicationConfiguration": close({
 
 // Metadata forwarded with each event, as key-value string pairs, with at most
 // 100 entries. A key or value may also be a JSONata expression.
-_#defs: "/$defs/Properties/definitions/EventBusV2MetadataMap": struct.MaxFields(100) & close({
+#EventBusV2MetadataMap: struct.MaxFields(100) & close({
 
 	{[=~"^[\\s\\S]*$"]: string}})
 
 // Customer-controllable system metadata attached to each forwarded event.
-_#defs: "/$defs/Properties/definitions/EventBusV2SystemMetadata": close({
+#EventBusV2SystemMetadata: close({
 	// The deduplication ID for FIFO deduplication on the downstream event bus.
 	// Accepts a literal value or a JSONata expression.
 	DeduplicationId?: string
@@ -139,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/EventBusV2SystemMetadata": close({
 })
 
 // A single filter entry: an event pattern and the scope of the event it is evaluated against.
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	// The event pattern, as a JSON string.
 	Pattern!: strings.MaxRunes(4096)
 
@@ -151,21 +151,21 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 
 // Configuration for filtering which events are delivered to the target. An
 // event must match every filter to be delivered.
-_#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
+#FilterConfiguration: close({
 	// The list of filters, 1-50 entries. An event must match every filter to be delivered.
-	Filters!: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter"]
+	Filters!: list.MaxItems(50) & list.MinItems(1) & [...#Filter]
 
 	// The filter language. The default is EVENT_BRIDGE_PATTERN.
 	Language?: "EVENT_BRIDGE_PATTERN"
 })
 
 // A map of HTTP header names to values. A header name or value may also be a JSONata expression.
-_#defs: "/$defs/Properties/definitions/HeaderParametersMap": struct.MaxFields(50) & {...}
+#HeaderParametersMap: struct.MaxFields(50) & {...}
 
 // Configuration for how the subscriber invokes its target. Specify the target
 // ARN, the IAM role, and, optionally, the target-specific parameters object
 // that matches the target type.
-_#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
+#InvokeConfiguration: ({
 	TargetArn?: _
 	...
 } | {
@@ -240,21 +240,21 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 	// arn:{partition}:events:{region}:{account}:event-busv2/{name}/{id}.
 	"EventBusV2Parameters"?: close({
 		// Deduplication settings applied to the forwarded events on the downstream event bus.
-		DeduplicationConfiguration?: _#defs."/$defs/Properties/definitions/DeduplicationConfiguration"
+		DeduplicationConfiguration?: #DeduplicationConfiguration
 
 		// Metadata forwarded with each event, as key-value string pairs.
-		Metadata?: _#defs."/$defs/Properties/definitions/EventBusV2MetadataMap"
+		Metadata?: #EventBusV2MetadataMap
 
 		// System metadata attached to each forwarded event, controlling FIFO ordering
 		// and deduplication on the downstream event bus.
-		SystemMetadata?: _#defs."/$defs/Properties/definitions/EventBusV2SystemMetadata"
+		SystemMetadata?: #EventBusV2SystemMetadata
 	})
 
 	// Parameters for invoking an HTTP endpoint target, such as an Amazon API
 	// Gateway endpoint or an EventBridge API destination.
 	"HttpParameters"?: close({
 		// HTTP headers to add to the request.
-		HeaderParameters?: _#defs."/$defs/Properties/definitions/HeaderParametersMap"
+		HeaderParameters?: #HeaderParametersMap
 
 		// The timeout in seconds for each invocation of the target, written as a
 		// string. Accepts a literal value or a JSONata expression.
@@ -264,7 +264,7 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 		PathParameterValues?: list.MaxItems(50) & [...string]
 
 		// Query string parameters to add to the request.
-		QueryStringParameters?: _#defs."/$defs/Properties/definitions/QueryStringParametersMap"
+		QueryStringParameters?: #QueryStringParametersMap
 	})
 
 	// Parameters for writing events to an Amazon Kinesis Data Streams target.
@@ -310,7 +310,7 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 	"SnsParameters"?: close({
 		// Custom message attributes to attach to each message; Amazon SNS subscription
 		// filter policies can match on them.
-		MessageAttributes?: _#defs."/$defs/Properties/definitions/MessageAttributeMap"
+		MessageAttributes?: #MessageAttributeMap
 
 		// The message deduplication ID to use when the target is a FIFO topic. Accepts
 		// a literal value or a JSONata expression.
@@ -336,7 +336,7 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 		DelaySeconds?: string
 
 		// Custom message attributes to attach to each message.
-		MessageAttributes?: _#defs."/$defs/Properties/definitions/MessageAttributeMap"
+		MessageAttributes?: #MessageAttributeMap
 
 		// The message deduplication ID to use when the target is a FIFO queue. Accepts
 		// a literal value or a JSONata expression.
@@ -347,7 +347,7 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 		MessageGroupId?: string
 
 		// Message system attributes to attach to each message, such as AWSTraceHeader.
-		MessageSystemAttributes?: _#defs."/$defs/Properties/definitions/MessageAttributeMap"
+		MessageSystemAttributes?: #MessageAttributeMap
 	})
 
 	// Parameters for starting an AWS Step Functions state machine execution target.
@@ -390,13 +390,13 @@ _#defs: "/$defs/Properties/definitions/InvokeConfiguration": ({
 })
 
 // JSONata transform settings.
-_#defs: "/$defs/Properties/definitions/JsonataConfiguration": close({
+#JsonataConfiguration: close({
 	// The JSONata expression that transforms the event, enclosed in {% %} delimiters.
 	Expression!: strings.MaxRunes(8192) & strings.MinRunes(1)
 })
 
 // Delivery logging configuration.
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	// Whether the event payload is included in emitted log records: FULL includes
 	// it in every emitted record, and ON_ERROR_ONLY includes it only in error
 	// records. The default is ON_ERROR_ONLY.
@@ -410,12 +410,12 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 // A map of message attribute names to values, with at most 50 attributes.
 // Amazon SQS and Amazon SNS enforce their own per-message attribute limits on
 // delivery.
-_#defs: "/$defs/Properties/definitions/MessageAttributeMap": struct.MaxFields(50) & close({
+#MessageAttributeMap: struct.MaxFields(50) & close({
 
-	{[=~"^[\\s\\S]*$"]: _#defs."/$defs/Properties/definitions/MessageAttributeValue"}})
+	{[=~"^[\\s\\S]*$"]: #MessageAttributeValue}})
 
 // A message attribute value and its data type, for Amazon SQS and Amazon SNS targets.
-_#defs: "/$defs/Properties/definitions/MessageAttributeValue": close({
+#MessageAttributeValue: close({
 	// The attribute value for the Binary data type, Base64-encoded.
 	BinaryValue?: string
 
@@ -430,7 +430,7 @@ _#defs: "/$defs/Properties/definitions/MessageAttributeValue": close({
 })
 
 // The destination for events that could not be delivered.
-_#defs: "/$defs/Properties/definitions/OnFailureConfiguration": close({
+#OnFailureConfiguration: close({
 	// The ARN of the destination that receives events that could not be delivered.
 	// An Amazon SQS queue is the supported destination.
 	Arn?: strings.MaxRunes(1600) &
@@ -439,7 +439,7 @@ _#defs: "/$defs/Properties/definitions/OnFailureConfiguration": close({
 })
 
 // The point in time to start delivering events from, used when StartingPosition is POINT_IN_TIME.
-_#defs: "/$defs/Properties/definitions/PointInTimeConfiguration": close({
+#PointInTimeConfiguration: close({
 	// An optional time to stop delivering events at, in seconds since the Unix epoch.
 	EndPoint?: int
 
@@ -453,13 +453,13 @@ _#defs: "/$defs/Properties/definitions/PointInTimeConfiguration": close({
 })
 
 // A map of query string parameter names to values.
-_#defs: "/$defs/Properties/definitions/QueryStringParametersMap": struct.MaxFields(50) & close({
+#QueryStringParametersMap: struct.MaxFields(50) & close({
 
 	{[=~"^[^\\x{0000}-\\x{001F}\\x{007F}]{1,512}$"]: strings.MaxRunes(512) &
 	=~"^[^\\x{0000}-\\x{0009}\\x{000B}\\x{000C}\\x{000E}-\\x{001F}\\x{007F}]+$"}})
 
 // The retry policy for failed deliveries.
-_#defs: "/$defs/Properties/definitions/RetryPolicy": close({
+#RetryPolicy: close({
 	// The maximum age of an event in seconds, 60-86400 (24 hours). When an event
 	// reaches this age, retries stop; if OnFailureConfiguration is set, the event
 	// is delivered to that destination, otherwise it is dropped. The default is
@@ -476,7 +476,7 @@ _#defs: "/$defs/Properties/definitions/RetryPolicy": close({
 })
 
 // A key-value pair to associate with the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. For each resource, each tag key must be unique and each key can
 	// have only one value; keys are case sensitive. A key cannot begin or end with
 	// a whitespace character; whitespace inside the key is allowed.
@@ -489,9 +489,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 // Configuration for transforming events before delivery: the raw payload, the
 // payload with its metadata envelope, or the output of a JSONata expression.
-_#defs: "/$defs/Properties/definitions/Transformer": close({
+#Transformer: close({
 	// The JSONata expression configuration. Required when Type is JSONATA.
-	JsonataConfiguration?: _#defs."/$defs/Properties/definitions/JsonataConfiguration"
+	JsonataConfiguration?: #JsonataConfiguration
 
 	// The transform type: RAW delivers the event payload only; WITH_METADATA
 	// delivers the event with its metadata envelope; JSONATA delivers the output

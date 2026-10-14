@@ -8,19 +8,17 @@ package schema
 #Properties: close({
 	Arn?:              string
 	Id?:               string
-	InitialVersion?:   _#defs."/$defs/Properties/definitions/DeviceDefinitionVersion"
+	InitialVersion?:   #DeviceDefinitionVersion
 	LatestVersionArn?: string
 	Name!:             string
 	Tags?:             string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	CertificateArn!: string
 	Id!:             string
 	SyncShadow?:     bool
 	ThingArn!:       string
 })
 
-_#defs: "/$defs/Properties/definitions/DeviceDefinitionVersion": close(
-	{Devices!: [..._#defs."/$defs/Properties/definitions/Device"]},
-)
+#DeviceDefinitionVersion: close({Devices!: [...#Device]})

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -24,89 +24,94 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and [Step scaling
 // policies](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-step-scaling-policies.html)
 // in the *Application Auto Scaling User Guide*.
-#Properties: matchN(1, [{
-	ScalingTargetId!: _
-	...
-}, {
-	ResourceId!: _
-	...
-}]) & close({
-	ResourceId?: _
-	if ResourceId != _|_ {
-		ScalableDimension!: _
-		ServiceNamespace!:  _
-	}
-	{}
-	PolicyName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	PolicyType!: "PredictiveScaling" | "StepScaling" | "TargetTrackingScaling" | fn.#StringExpression
-	PredictiveScalingPolicyConfiguration?: _#defs."/$defs/Properties/definitions/PredictiveScalingPolicyConfiguration" |
-		fn.#ObjectExpression
-	"ResourceId"?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	ScalableDimension?: "appstream:fleet:DesiredCapacity" |
-		"cassandra:table:ReadCapacityUnits" |
-		"cassandra:table:WriteCapacityUnits" |
-		"comprehend:document-classifier-endpoint:DesiredInferenceUnits" |
-		"comprehend:entity-recognizer-endpoint:DesiredInferenceUnits" |
-		"custom-resource:ResourceType:Property" |
-		"dynamodb:index:ReadCapacityUnits" |
-		"dynamodb:index:WriteCapacityUnits" |
-		"dynamodb:table:ReadCapacityUnits" |
-		"dynamodb:table:WriteCapacityUnits" |
-		"ec2:spot-fleet-request:TargetCapacity" |
-		"ecs:service:DesiredCount" |
-		"elasticache:cache-cluster:Nodes" |
-		"elasticache:replication-group:NodeGroups" |
-		"elasticache:replication-group:Replicas" |
-		"elasticmapreduce:instancegroup:InstanceCount" |
-		"kafka:broker-storage:VolumeSize" |
-		"lambda:function:ProvisionedConcurrency" |
-		"neptune:cluster:ReadReplicaCount" |
-		"rds:cluster:ReadReplicaCount" |
-		"sagemaker:inference-component:DesiredCopyCount" |
-		"sagemaker:variant:DesiredInstanceCount" |
-		"sagemaker:variant:DesiredProvisionedConcurrency" |
-		"workspaces:workspacespool:DesiredUserSessions" |
-		fn.#StringExpression
-	ScalingTargetId?: string | fn.#StringExpression
-	ServiceNamespace?: "appstream" |
-		"cassandra" |
-		"comprehend" |
-		"custom-resource" |
-		"dynamodb" |
-		"ec2" |
-		"ecs" |
-		"elasticache" |
-		"elasticmapreduce" |
-		"kafka" |
-		"lambda" |
-		"neptune" |
-		"rds" |
-		"sagemaker" |
-		"workspaces" |
-		fn.#StringExpression
-	StepScalingPolicyConfiguration?: _#defs."/$defs/Properties/definitions/StepScalingPolicyConfiguration" |
-		fn.#ObjectExpression
-	TargetTrackingScalingPolicyConfiguration?: _#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration" |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApplicationAutoScaling::ScalingPolicy"
+	Properties!: close({
+		ResourceId?: _
+		if ResourceId != _|_ {
+			ScalableDimension!: _
+			ServiceNamespace!:  _
+		}
+		{}
+		PolicyName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		PolicyType!: "PredictiveScaling" | "StepScaling" | "TargetTrackingScaling" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomizedMetricSpecification": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
+		// The predictive scaling policy configuration.
+		PredictiveScalingPolicyConfiguration?: #PredictiveScalingPolicyConfiguration
+		ResourceId?:                           strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		ScalableDimension?: "appstream:fleet:DesiredCapacity" |
+			"cassandra:table:ReadCapacityUnits" |
+			"cassandra:table:WriteCapacityUnits" |
+			"comprehend:document-classifier-endpoint:DesiredInferenceUnits" |
+			"comprehend:entity-recognizer-endpoint:DesiredInferenceUnits" |
+			"custom-resource:ResourceType:Property" |
+			"dynamodb:index:ReadCapacityUnits" |
+			"dynamodb:index:WriteCapacityUnits" |
+			"dynamodb:table:ReadCapacityUnits" |
+			"dynamodb:table:WriteCapacityUnits" |
+			"ec2:spot-fleet-request:TargetCapacity" |
+			"ecs:service:DesiredCount" |
+			"elasticache:cache-cluster:Nodes" |
+			"elasticache:replication-group:NodeGroups" |
+			"elasticache:replication-group:Replicas" |
+			"elasticmapreduce:instancegroup:InstanceCount" |
+			"kafka:broker-storage:VolumeSize" |
+			"lambda:function:ProvisionedConcurrency" |
+			"neptune:cluster:ReadReplicaCount" |
+			"rds:cluster:ReadReplicaCount" |
+			"sagemaker:inference-component:DesiredCopyCount" |
+			"sagemaker:variant:DesiredInstanceCount" |
+			"sagemaker:variant:DesiredProvisionedConcurrency" |
+			"workspaces:workspacespool:DesiredUserSessions" |
+			fn.#StringExpression
+		ScalingTargetId?: string | fn.#StringExpression
+		ServiceNamespace?: "appstream" |
+			"cassandra" |
+			"comprehend" |
+			"custom-resource" |
+			"dynamodb" |
+			"ec2" |
+			"ecs" |
+			"elasticache" |
+			"elasticmapreduce" |
+			"kafka" |
+			"lambda" |
+			"neptune" |
+			"rds" |
+			"sagemaker" |
+			"workspaces" |
+			fn.#StringExpression
+
+		// A step scaling policy.
+		StepScalingPolicyConfiguration?: #StepScalingPolicyConfiguration
+
+		// A target tracking scaling policy.
+		TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration
+		if ScalingTargetId != _|_ if ScalingTargetId."Fn::If" == _|_ {
+			ResourceId?: close({"Fn::If": _}) | error(
+				"ResourceId cannot be used with ScalingTargetId; set exactly one of ScalingTargetId, ResourceId",
+			)
+		}
+	}) & matchN(>=1, [{ScalingTargetId!: _}, {ResourceId!: _}])
+}
+
+#CustomizedMetricSpecification: close({
+	Dimensions?: [...#MetricDimension] | fn.#ListExpression
 	MetricName?: string | fn.#StringExpression
-	Metrics?:    [..._#defs."/$defs/Properties/definitions/TargetTrackingMetricDataQuery"] | fn.#ListExpression
+	Metrics?:    [...#TargetTrackingMetricDataQuery] | fn.#ListExpression
 	Namespace?:  string | fn.#StringExpression
 	Statistic?:  "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum" | fn.#StringExpression
 	Unit?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Name!:  string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredefinedMetricSpecification": close({
+#PredefinedMetricSpecification: close({
 	PredefinedMetricType!: "ALBRequestCountPerTarget" |
 		"AppStreamAverageCapacityUtilization" |
 		"CassandraReadCapacityUtilization" |
@@ -143,65 +148,66 @@ _#defs: "/$defs/Properties/definitions/PredefinedMetricSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedCapacityMetric": close({
-	MetricDataQueries!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricDataQuery"
-	] |
-		fn.#ListExpression
-}) |
+#PredictiveScalingCustomizedCapacityMetric: close(
+	{MetricDataQueries!: list.UniqueItems() & [...#PredictiveScalingMetricDataQuery] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedLoadMetric": close({
-	MetricDataQueries!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricDataQuery"
-	] |
-		fn.#ListExpression
-}) |
+#PredictiveScalingCustomizedLoadMetric: close(
+	{MetricDataQueries!: list.UniqueItems() & [...#PredictiveScalingMetricDataQuery] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedScalingMetric": close({
-	MetricDataQueries!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricDataQuery"
-	] |
-		fn.#ListExpression
-}) |
+#PredictiveScalingCustomizedScalingMetric: close(
+	{MetricDataQueries!: list.UniqueItems() & [...#PredictiveScalingMetricDataQuery] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetric": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricDimension"] | fn.#ListExpression
+#PredictiveScalingMetric: close({
+	Dimensions?: [...#PredictiveScalingMetricDimension] | fn.#ListExpression
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricDataQuery": close({
+#PredictiveScalingMetricDataQuery: close({
 	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Id?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Label?:      string | fn.#StringExpression
-	MetricStat?: _#defs."/$defs/Properties/definitions/PredictiveScalingMetricStat" | fn.#ObjectExpression
+
+	// Information about the metric data to return.
+	// Conditional: Within each ``MetricDataQuery`` object, you must specify either
+	// ``Expression`` or ``MetricStat``, but not both.
+	MetricStat?: #PredictiveScalingMetricStat
 	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricDimension": close({
+#PredictiveScalingMetricDimension: close({
 	Name?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricSpecification": close({
-	CustomizedCapacityMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedCapacityMetric" |
-		fn.#ObjectExpression
-	CustomizedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedLoadMetric" |
-		fn.#ObjectExpression
-	CustomizedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedScalingMetric" |
-		fn.#ObjectExpression
-	PredefinedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric" |
-		fn.#ObjectExpression
-	PredefinedMetricPairSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair" |
-		fn.#ObjectExpression
-	PredefinedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric" |
-		fn.#ObjectExpression
+#PredictiveScalingMetricSpecification: close({
+	// The customized capacity metric specification.
+	CustomizedCapacityMetricSpecification?: #PredictiveScalingCustomizedCapacityMetric
+
+	// The customized load metric specification.
+	CustomizedLoadMetricSpecification?: #PredictiveScalingCustomizedLoadMetric
+
+	// The customized scaling metric specification.
+	CustomizedScalingMetricSpecification?: #PredictiveScalingCustomizedScalingMetric
+
+	// The predefined load metric specification.
+	PredefinedLoadMetricSpecification?: #PredictiveScalingPredefinedLoadMetric
+
+	// The predefined metric pair specification that determines the appropriate
+	// scaling metric and load metric to use.
+	PredefinedMetricPairSpecification?: #PredictiveScalingPredefinedMetricPair
+
+	// The predefined scaling metric specification.
+	PredefinedScalingMetricSpecification?: #PredictiveScalingPredefinedScalingMetric
 	TargetValue!: number |
 		{
 			string &
@@ -224,14 +230,20 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingMetricSpecification": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricStat": close({
-	Metric?: _#defs."/$defs/Properties/definitions/PredictiveScalingMetric" | fn.#ObjectExpression
+#PredictiveScalingMetricStat: close({
+	// The CloudWatch metric to return, including the metric name, namespace, and
+	// dimensions. To get the exact metric name, namespace, and dimensions, inspect
+	// the
+	// [Metric](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Metric.html)
+	// object that is returned by a call to
+	// [ListMetrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html).
+	Metric?: #PredictiveScalingMetric
 	Stat?:   string | fn.#StringExpression
 	Unit?:   strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPolicyConfiguration": close({
+#PredictiveScalingPolicyConfiguration: close({
 	MaxCapacityBreachBehavior?: "HonorMaxCapacity" | "IncreaseMaxCapacity" | fn.#StringExpression
 	MaxCapacityBuffer?: int & <=100 & >=0 |
 		{
@@ -249,11 +261,8 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPolicyConfiguration": cl
 				)
 		} |
 		fn.#NumberExpression
-	MetricSpecifications!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricSpecification"
-	] |
-		fn.#ListExpression
-	Mode?: "ForecastAndScale" | "ForecastOnly" | fn.#StringExpression
+	MetricSpecifications!: list.UniqueItems() & [...#PredictiveScalingMetricSpecification] | fn.#ListExpression
+	Mode?:                 "ForecastAndScale" | "ForecastOnly" | fn.#StringExpression
 	SchedulingBufferTime?: int & <=3600 & >=0 |
 		{
 			string &
@@ -273,7 +282,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPolicyConfiguration": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric": close({
+#PredictiveScalingPredefinedLoadMetric: close({
 	PredefinedMetricType!: ("ALBRequestCount" |
 		"ALBRequestCountPerTarget" |
 		"ECSServiceAverageCPUUtilization" |
@@ -288,7 +297,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair": close({
+#PredictiveScalingPredefinedMetricPair: close({
 	PredefinedMetricType!: ("ALBRequestCount" |
 		"ALBRequestCountPerTarget" |
 		"ECSServiceAverageCPUUtilization" |
@@ -303,7 +312,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric": close({
+#PredictiveScalingPredefinedScalingMetric: close({
 	PredefinedMetricType!: ("ALBRequestCount" |
 		"ALBRequestCountPerTarget" |
 		"ECSServiceAverageCPUUtilization" |
@@ -318,7 +327,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StepAdjustment": close({
+#StepAdjustment: close({
 	MetricIntervalLowerBound?: number |
 		{
 			string &
@@ -374,7 +383,7 @@ _#defs: "/$defs/Properties/definitions/StepAdjustment": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StepScalingPolicyConfiguration": close({
+#StepScalingPolicyConfiguration: close({
 	AdjustmentType?: "ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity" | fn.#StringExpression
 	Cooldown?: int |
 		{
@@ -405,46 +414,56 @@ _#defs: "/$defs/Properties/definitions/StepScalingPolicyConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	StepAdjustments?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StepAdjustment"] |
-		fn.#ListExpression
+	StepAdjustments?: list.UniqueItems() & [...#StepAdjustment] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetric": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/TargetTrackingMetricDimension"] | fn.#ListExpression
+#TargetTrackingMetric: close({
+	Dimensions?: [...#TargetTrackingMetricDimension] | fn.#ListExpression
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricDataQuery": close({
+#TargetTrackingMetricDataQuery: close({
 	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Id?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Label?:      string | fn.#StringExpression
-	MetricStat?: _#defs."/$defs/Properties/definitions/TargetTrackingMetricStat" | fn.#ObjectExpression
+
+	// Information about the metric data to return.
+	// Conditional: Within each ``MetricDataQuery`` object, you must specify either
+	// ``Expression`` or ``MetricStat``, but not both.
+	MetricStat?: #TargetTrackingMetricStat
 	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricDimension": close({
+#TargetTrackingMetricDimension: close({
 	Name?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricStat": close({
-	Metric?: _#defs."/$defs/Properties/definitions/TargetTrackingMetric" | fn.#ObjectExpression
+#TargetTrackingMetricStat: close({
+	// The CloudWatch metric to return, including the metric name, namespace, and
+	// dimensions. To get the exact metric name, namespace, and dimensions, inspect
+	// the
+	// [Metric](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Metric.html)
+	// object that is returned by a call to
+	// [ListMetrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html).
+	Metric?: #TargetTrackingMetric
 	Stat?:   string | fn.#StringExpression
 	Unit?:   strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration": close({
-	CustomizedMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedMetricSpecification" |
-		fn.#ObjectExpression
+#TargetTrackingScalingPolicyConfiguration: close({
+	// A customized metric. You can specify either a predefined metric or a customized metric.
+	CustomizedMetricSpecification?: #CustomizedMetricSpecification
 	DisableScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PredefinedMetricSpecification?: _#defs."/$defs/Properties/definitions/PredefinedMetricSpecification" |
-		fn.#ObjectExpression
+
+	// A predefined metric. You can specify either a predefined metric or a customized metric.
+	PredefinedMetricSpecification?: #PredefinedMetricSpecification
 	ScaleInCooldown?: int |
 		{
 			string &
@@ -494,7 +513,3 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationAutoScaling::ScalingPolicy"
-	Properties!: #Properties
-}

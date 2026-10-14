@@ -45,11 +45,11 @@ import (
 	State?: "PENDING" | "AVAILABLE" | "DELETING" | "UPDATING"
 
 	// The tags for the connection.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A key-value pair to associate with the connection.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. Printable ASCII with at least one non-space character and no
 	// leading or trailing space, at most 128 characters, and cannot be prefixed
 	// with aws:.

@@ -13,17 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A registration that has been created.
-#Properties: close({
-	RegistrationType!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_]+$" | fn.#StringExpression
-	Tags?:             list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::Registration"
+	Properties!: close({
+		RegistrationType!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_]+$" | fn.#StringExpression
+		Tags?:             list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::Registration"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -14,39 +14,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::NetworkSecurityManager::Deployment. Creates
 // and manages a Network Security Manager deployment.
-#Properties: close({
-	AssociatedPolicyList?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AssociatedPolicy"
-	] |
-		fn.#ListExpression
-	AssociatedScopeList?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AssociatedScope"
-	] |
-		fn.#ListExpression
-	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentConfiguration"
-	DeploymentDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
-	DeploymentName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkSecurityManager::Deployment"
+	Properties!: close({
+		AssociatedPolicyList?:    list.MaxItems(2) & list.MinItems(1) & [...#AssociatedPolicy] | fn.#ListExpression
+		AssociatedScopeList?:     list.MaxItems(1) & list.MinItems(1) & [...#AssociatedScope] | fn.#ListExpression
+		DeploymentConfiguration?: #DeploymentConfiguration
+		DeploymentDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
+		DeploymentName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AssociatedPolicy": close({PolicyArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#AssociatedPolicy: close({PolicyArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssociatedScope": close({ScopeArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#AssociatedScope: close({ScopeArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
+#DeploymentConfiguration: close({
 	EnableCrossAccountVisibility!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkSecurityManager::Deployment"
-	Properties!: #Properties
-}

@@ -17,50 +17,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RedshiftServerless::Namespace Resource Type
-#Properties: close({
-	AdminPasswordSecretKmsKeyId?: string | fn.#StringExpression
-	AdminUserPassword?:           strings.MaxRunes(64) & strings.MinRunes(8) | fn.#StringExpression
-	AdminUsername?:               =~"[a-zA-Z][a-zA-Z_0-9+.@-]*" | fn.#StringExpression
-	DbName?:                      strings.MaxRunes(127) & =~"[a-zA-Z][a-zA-Z_0-9+.@-]*" | fn.#StringExpression
-	DefaultIamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	FinalSnapshotName?: strings.MaxRunes(255) & =~"[a-z][a-z0-9]*(-[a-z0-9]+)*" | fn.#StringExpression
-	FinalSnapshotRetentionPeriod?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	IamRoles?: [...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	LogExports?: list.MaxItems(16) & [...] & [..._#defs."/$defs/Properties/definitions/LogExport"] | fn.#ListExpression
-	ManageAdminPassword?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NamespaceName!:             strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	NamespaceResourcePolicy?:   fn.#Object & {...} | string | fn.#StringObjectExpression
-	RedshiftIdcApplicationArn?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	SnapshotCopyConfigurations?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SnapshotCopyConfiguration"
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RedshiftServerless::Namespace"
+	Properties!: close({
+		AdminPasswordSecretKmsKeyId?: string | fn.#StringExpression
+		AdminUserPassword?:           strings.MaxRunes(64) & strings.MinRunes(8) | fn.#StringExpression
+		AdminUsername?:               =~"[a-zA-Z][a-zA-Z_0-9+.@-]*" | fn.#StringExpression
+		DbName?:                      strings.MaxRunes(127) & =~"[a-zA-Z][a-zA-Z_0-9+.@-]*" | fn.#StringExpression
+		DefaultIamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		FinalSnapshotName?: strings.MaxRunes(255) & =~"[a-z][a-z0-9]*(-[a-z0-9]+)*" | fn.#StringExpression
+		FinalSnapshotRetentionPeriod?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		IamRoles?: [...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		LogExports?:              list.MaxItems(16) & [...] & [...#LogExport] | fn.#ListExpression
+		ManageAdminPassword?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		NamespaceName!:           strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
+		NamespaceResourcePolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		RedshiftIdcApplicationArn?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		SnapshotCopyConfigurations?: list.MaxItems(1) & [...] & [...#SnapshotCopyConfiguration] | fn.#ListExpression
+		Tags?:                       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/LogExport": "useractivitylog" |
-	"userlog" |
-	"connectionlog" |
-	fn.#StringExpression
+#LogExport: "useractivitylog" | "userlog" | "connectionlog" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Namespace": close({
+#Namespace: close({
 	AdminPasswordSecretArn?:      string | fn.#StringExpression
 	AdminPasswordSecretKmsKeyId?: string | fn.#StringExpression
 	AdminUsername?:               string | fn.#StringExpression
@@ -72,17 +71,17 @@ _#defs: "/$defs/Properties/definitions/Namespace": close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
-	LogExports?: list.MaxItems(16) & [...] & [..._#defs."/$defs/Properties/definitions/LogExport"] | fn.#ListExpression
+	LogExports?:    list.MaxItems(16) & [...] & [...#LogExport] | fn.#ListExpression
 	NamespaceArn?:  string | fn.#StringExpression
 	NamespaceId?:   string | fn.#StringExpression
 	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	Status?:        _#defs."/$defs/Properties/definitions/NamespaceStatus"
+	Status?:        #NamespaceStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NamespaceStatus": "AVAILABLE" | "MODIFYING" | "DELETING" | fn.#StringExpression
+#NamespaceStatus: "AVAILABLE" | "MODIFYING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SnapshotCopyConfiguration": close({
+#SnapshotCopyConfiguration: close({
 	DestinationKmsKeyId?: string | fn.#StringExpression
 	DestinationRegion!:   string | fn.#StringExpression
 	SnapshotRetentionPeriod?: int |
@@ -102,12 +101,8 @@ _#defs: "/$defs/Properties/definitions/SnapshotCopyConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RedshiftServerless::Namespace"
-	Properties!: #Properties
-}

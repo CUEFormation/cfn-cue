@@ -12,7 +12,7 @@ import (
 
 // Definition of AWS::QuickSight::KnowledgeBase Resource Type
 #Properties: close({
-	AccessControlConfiguration?:                   _#defs."/$defs/Properties/definitions/AccessControlConfiguration"
+	AccessControlConfiguration?:                   #AccessControlConfiguration
 	AwsAccountId!:                                 strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$"
 	CreatedAt?:                                    time.Time
 	DataSourceArn!:                                strings.MaxRunes(1284) & strings.MinRunes(0)
@@ -20,50 +20,44 @@ import (
 	DocumentCount?:                                number
 	IsEmailNotificationOptedForIngestionFailures?: bool
 	KnowledgeBaseArn?:                             strings.MaxRunes(1284) & strings.MinRunes(0)
-	KnowledgeBaseConfiguration!:                   _#defs."/$defs/Properties/definitions/KnowledgeBaseConfiguration"
+	KnowledgeBaseConfiguration!:                   #KnowledgeBaseConfiguration
 	KnowledgeBaseId!:              strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$"
 	KnowledgeBaseSizeBytes?:       number
-	MediaExtractionConfiguration?: _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration"
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\p{L}\\p{N}][\\p{L}\\p{N} _\\-\\.]*$"
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"]
+	MediaExtractionConfiguration?: #MediaExtractionConfiguration
+	Name!:                 strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\p{L}\\p{N}][\\p{L}\\p{N} _\\-\\.]*$"
+	Permissions?:          list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission]
 	PrimaryOwnerArn?:      string
 	PrimaryOwnerUsername?: string
-	Status?:               _#defs."/$defs/Properties/definitions/DataSetStatus"
-	Tags?:                 list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Status?:               #DataSetStatus
+	Tags?:                 list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 	Type?:                 string
 	UpdatedAt?:            time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/AccessControlConfiguration": close({IsACLEnabled?: bool})
+#AccessControlConfiguration: close({IsACLEnabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionConfiguration": close(
-	{AudioExtractionStatus!: _#defs."/$defs/Properties/definitions/AudioExtractionStatus"},
-)
+#AudioExtractionConfiguration: close({AudioExtractionStatus!: #AudioExtractionStatus})
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionStatus": "ENABLED" | "DISABLED"
+#AudioExtractionStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/DataSetStatus": "CREATING" | "UPDATING" | "ACTIVE" | "FAILED" | "DELETING"
+#DataSetStatus: "CREATING" | "UPDATING" | "ACTIVE" | "FAILED" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionConfiguration": close(
-	{ImageExtractionStatus!: _#defs."/$defs/Properties/definitions/ImageExtractionStatus"},
-)
+#ImageExtractionConfiguration: close({ImageExtractionStatus!: #ImageExtractionStatus})
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionStatus": "ENABLED" | "DISABLED"
+#ImageExtractionStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/KbTemplateConfiguration": close({Template?: _})
+#KbTemplateConfiguration: close({Template?: _})
 
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseConfiguration": close(
-	{TemplateConfiguration?: _#defs."/$defs/Properties/definitions/KbTemplateConfiguration"},
-)
+#KnowledgeBaseConfiguration: close({TemplateConfiguration?: #KbTemplateConfiguration})
 
-_#defs: "/$defs/Properties/definitions/MediaExtractionConfiguration": close({
-	AudioExtractionConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionConfiguration"
-	ImageExtractionConfiguration?: _#defs."/$defs/Properties/definitions/ImageExtractionConfiguration"
-	VideoExtractionConfiguration?: _#defs."/$defs/Properties/definitions/VideoExtractionConfiguration"
+#MediaExtractionConfiguration: close({
+	AudioExtractionConfiguration?: #AudioExtractionConfiguration
+	ImageExtractionConfiguration?: #ImageExtractionConfiguration
+	VideoExtractionConfiguration?: #VideoExtractionConfiguration
 })
 
 // <p>Permission for the resource.</p>
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	// <p>The IAM action to grant or revoke permissions on.</p>
 	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string]
 
@@ -90,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/ResourcePermission": close({
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -98,12 +92,11 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionConfiguration": close({
-	VideoExtractionStatus!: _#defs."/$defs/Properties/definitions/VideoExtractionStatus"
-	VideoExtractionType?:   _#defs."/$defs/Properties/definitions/VideoExtractionType"
+#VideoExtractionConfiguration: close({
+	VideoExtractionStatus!: #VideoExtractionStatus
+	VideoExtractionType?:   #VideoExtractionType
 })
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionStatus": "ENABLED" | "DISABLED"
+#VideoExtractionStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionType": "AUDIO_TRANSCRIPTION_ONLY" |
-	"VISUAL_CONTENT_AND_AUDIO_TRANSCRIPTION"
+#VideoExtractionType: "AUDIO_TRANSCRIPTION_ONLY" | "VISUAL_CONTENT_AND_AUDIO_TRANSCRIPTION"

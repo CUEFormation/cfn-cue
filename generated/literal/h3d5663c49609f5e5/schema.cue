@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// When the CodeSigningConfig is later on attached to a function, the function
 	// code will be expected to be signed by profiles from this list
-	AllowedPublishers!: _#defs."/$defs/Properties/definitions/AllowedPublishers"
+	AllowedPublishers!: #AllowedPublishers
 
 	// A unique Arn for CodeSigningConfig resource
 	CodeSigningConfigArn?:
@@ -23,18 +23,18 @@ import (
 	CodeSigningConfigId?: =~"csc-[a-zA-Z0-9-_\\.]{17}"
 
 	// Policies to control how to act if a signature is invalid
-	CodeSigningPolicies?: _#defs."/$defs/Properties/definitions/CodeSigningPolicies"
+	CodeSigningPolicies?: #CodeSigningPolicies
 
 	// A description of the CodeSigningConfig
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0)
 
 	// A list of tags to apply to CodeSigningConfig resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // When the CodeSigningConfig is later on attached to a function, the function
 // code will be expected to be signed by profiles from this list
-_#defs: "/$defs/Properties/definitions/AllowedPublishers": close({
+#AllowedPublishers: close({
 	// List of Signing profile version Arns
 	SigningProfileVersionArns!: list.MaxItems(20) & list.MinItems(1) & [
 		...strings.MaxRunes(1024) &
@@ -44,13 +44,13 @@ _#defs: "/$defs/Properties/definitions/AllowedPublishers": close({
 })
 
 // Policies to control how to act if a signature is invalid
-_#defs: "/$defs/Properties/definitions/CodeSigningPolicies": close({
+#CodeSigningPolicies: close({
 	// Indicates how Lambda operations involve updating the code artifact will
 	// operate. Default to Warn if not provided
 	UntrustedArtifactOnDeployment!: "Warn" | "Enforce"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -13,22 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Route53 Recovery Control Control Panel resource schema .
-#Properties: close({
-	ClusterArn?: =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
-	Name!:       strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: [
-		..._#defs."/$defs/Properties/definitions/Tag" & (null | bool | number | string | list.MaxItems(20) | {...}) |
-		fn.#ObjectExpression
-	] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53RecoveryControl::ControlPanel"
+	Properties!: close({
+		ClusterArn?: =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
+		Name!:       strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryControl::ControlPanel"
-	Properties!: #Properties
-}

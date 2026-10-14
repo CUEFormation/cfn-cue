@@ -6,8 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"struct"
 	"time"
+	"struct"
 )
 
 import cfnScalarStrings "strings"
@@ -19,60 +19,67 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTTwinMaker::ComponentType
-#Properties: close({
-	ComponentTypeId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" | fn.#StringExpression
-	CompositeComponentTypes?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTTwinMaker::ComponentType"
+	Properties!: close({
+		ComponentTypeId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" | fn.#StringExpression
+		CompositeComponentTypes?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/CompositeComponentType"}}) |
-	fn.#ObjectExpression
-	Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	ExtendsFrom?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ParentComponentType"
-	] |
-		fn.#ListExpression
-	Functions?: close({
+			{[=~"[a-zA-Z_\\-0-9]+"]: #CompositeComponentType}}) |
+		fn.#ObjectExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		ExtendsFrom?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#ParentComponentType] |
+			fn.#ListExpression
+		Functions?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/Function"}}) |
-	fn.#ObjectExpression
-	IsSingleton?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PropertyDefinitions?: close({
+			{[=~"[a-zA-Z_\\-0-9]+"]: #Function}}) |
+		fn.#ObjectExpression
+		IsSingleton?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PropertyDefinitions?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyDefinition"}}) |
-	fn.#ObjectExpression
-	PropertyGroups?: close({
+			{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyDefinition}}) |
+		fn.#ObjectExpression
+		PropertyGroups?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/PropertyGroup"}}) |
-	fn.#ObjectExpression
-	Tags?: struct.MaxFields(50) & close({
+			{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}}) |
+		fn.#ObjectExpression
+		Tags?: struct.MaxFields(50) & close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" |
-	fn.#StringExpression
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+			fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CompositeComponentType": close(
+#CompositeComponentType: close(
 	{ComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataConnector": close({
+#DataConnector: close({
 	IsNative?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Lambda?:   _#defs."/$defs/Properties/definitions/LambdaFunction" | fn.#ObjectExpression
+
+	// The Lambda function associated with this data connector.
+	Lambda?: #LambdaFunction
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataType": close({
-	AllowedValues?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DataValue"] |
-		fn.#ListExpression
-	NestedType?:   _#defs."/$defs/Properties/definitions/DataType" | fn.#ObjectExpression
-	Relationship?: _#defs."/$defs/Properties/definitions/Relationship" | fn.#ObjectExpression
+#DataType: close({
+	AllowedValues?: list.MaxItems(50) & [...] & [...#DataValue] | fn.#ListExpression
+
+	// The nested type in the data type.
+	NestedType?: #DataType
+
+	// A relationship that associates a component with another component.
+	Relationship?: #Relationship
 	Type!: "RELATIONSHIP" | "STRING" | "LONG" | "BOOLEAN" | "INTEGER" | "DOUBLE" | "LIST" | "MAP" | fn.#StringExpression
 	UnitOfMeasure?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataValue": close({
+#DataValue: close({
 	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DoubleValue?: number |
 		{
@@ -109,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/DataValue": close({
 				)
 		} |
 		fn.#NumberExpression
-	ListValue?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/DataValue"] | fn.#ListExpression
+	ListValue?: list.MaxItems(50) & [...] & [...#DataValue] | fn.#ListExpression
 	LongValue?: number |
 		{
 			string &
@@ -131,7 +138,7 @@ _#defs: "/$defs/Properties/definitions/DataValue": close({
 		fn.#NumberExpression
 	MapValue?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: _#defs."/$defs/Properties/definitions/DataValue"}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: #DataValue}}) |
 	fn.#ObjectExpression
 	RelationshipValue?: close({
 		TargetComponentName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
@@ -145,19 +152,18 @@ _#defs: "/$defs/Properties/definitions/DataValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DateTimeFormat": time.Time | fn.#StringExpression
+#DateTimeFormat: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Function": close({
-	ImplementedBy?: _#defs."/$defs/Properties/definitions/DataConnector" | fn.#ObjectExpression
-	RequiredProperties?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/RequiredProperty"
-	] |
+#Function: close({
+	// The data connector.
+	ImplementedBy?: #DataConnector
+	RequiredProperties?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#RequiredProperty] |
 		fn.#ListExpression
 	Scope?: "ENTITY" | "WORKSPACE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaFunction": close({
+#LambdaFunction: close({
 	Arn!: strings.MaxRunes(128) &
 	strings.MinRunes(1) &
 	=~"arn:((aws)|(aws-cn)|(aws-us-gov)):lambda:[a-z0-9-]+:[0-9]{12}:function:[\\/a-zA-Z0-9_-]+" |
@@ -165,19 +171,20 @@ _#defs: "/$defs/Properties/definitions/LambdaFunction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParentComponentType": strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"[a-zA-Z_\\.\\-0-9:]+" |
-fn.#StringExpression
+#ParentComponentType: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PropertyDefinition": close({
+#PropertyDefinition: close({
 	Configurations?: close({
 
 		{[=~"[a-zA-Z_\\-0-9]+"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" |
 		fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	DataType?:           _#defs."/$defs/Properties/definitions/DataType" | fn.#ObjectExpression
-	DefaultValue?:       _#defs."/$defs/Properties/definitions/DataValue" | fn.#ObjectExpression
+
+	// An object that contains information about the data type.
+	DataType?: #DataType
+
+	// An object that contains the default value.
+	DefaultValue?:       #DataValue
 	IsExternalId?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsRequiredInEntity?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsStoredExternally?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -185,27 +192,24 @@ _#defs: "/$defs/Properties/definitions/PropertyDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PropertyGroup": close({
-	GroupType?: "TABULAR" | fn.#StringExpression
-	PropertyNames?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PropertyName"
-	] |
-		fn.#ListExpression
+#PropertyGroup: close({
+	GroupType?:     "TABULAR" | fn.#StringExpression
+	PropertyNames?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#PropertyName] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PropertyName": =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
+#PropertyName: =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Relationship": close({
+#Relationship: close({
 	RelationshipType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 	TargetComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequiredProperty": =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
+#RequiredProperty: =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Status": close({
+#Status: close({
 	Error?: fn.#Object &
 	{...} &
 	(close({}) | close({
@@ -216,7 +220,3 @@ _#defs: "/$defs/Properties/definitions/Status": close({
 	State?: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "ERROR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTTwinMaker::ComponentType"
-	Properties!: #Properties
-}

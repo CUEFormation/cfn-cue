@@ -10,13 +10,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Used to install the certificate authority certificate and update the
 // certificate authority status.
-#Properties: close({
-	Certificate!:             string | fn.#StringExpression
-	CertificateAuthorityArn!: string | fn.#StringExpression
-	CertificateChain?:        string | fn.#StringExpression
-	Status?:                  string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ACMPCA::CertificateAuthorityActivation"
-	Properties!: #Properties
+	Type!: "AWS::ACMPCA::CertificateAuthorityActivation"
+	Properties!: close({
+		Certificate!:             string | fn.#StringExpression
+		CertificateAuthorityArn!: string | fn.#StringExpression
+		CertificateChain?:        string | fn.#StringExpression
+		Status?:                  string | fn.#StringExpression
+	})
 }

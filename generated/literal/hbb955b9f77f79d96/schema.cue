@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,16 +15,16 @@ import (
 	Description?: string
 
 	// The destination configuration for the tunnel.
-	DestinationConfig?: _#defs."/$defs/Properties/definitions/DestinationConfig"
+	DestinationConfig?: #DestinationConfig
 
 	// The status of the tunnel. Valid values are OPEN and CLOSED.
 	Status?: "OPEN" | "CLOSED"
 
 	// A collection of tag metadata.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Timeout configuration for the tunnel.
-	TimeoutConfig?: _#defs."/$defs/Properties/definitions/TimeoutConfig"
+	TimeoutConfig?: #TimeoutConfig
 
 	// The Amazon Resource Name (ARN) of the tunnel.
 	TunnelArn?: strings.MaxRunes(1600) & strings.MinRunes(1)
@@ -34,7 +34,7 @@ import (
 })
 
 // The destination configuration.
-_#defs: "/$defs/Properties/definitions/DestinationConfig": close({
+#DestinationConfig: close({
 	// A list of service names that identify the target application.
 	Services!: list.MinItems(1) & [...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$"]
 
@@ -43,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/DestinationConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Tunnel timeout configuration.
-_#defs: "/$defs/Properties/definitions/TimeoutConfig": close({
+#TimeoutConfig: close({
 	// The maximum amount of time (in minutes) a tunnel can remain open.
 	MaxLifetimeTimeoutMinutes?: int & <=720 & >=1
 })

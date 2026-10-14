@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,29 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for AWS::EMR::Step
-#Properties: close({
-	ActionOnFailure!:  string | fn.#StringExpression
-	EncryptionKeyArn?: string | fn.#StringExpression
-	HadoopJarStep!:    _#defs."/$defs/Properties/definitions/HadoopJarStepConfig" | fn.#ObjectExpression
-	JobFlowId!:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	LogUri?:           string | fn.#StringExpression
-	Name!:             string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::Step"
+	Properties!: close({
+		ActionOnFailure!:  string | fn.#StringExpression
+		EncryptionKeyArn?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HadoopJarStepConfig": close({
+		// The HadoopJarStepConfig property type specifies a job flow step consisting of
+		// a JAR file whose main function will be executed. The main function submits a
+		// job for the cluster to execute as a step on the master node, and then waits
+		// for the job to finish or fail before executing subsequent steps.
+		HadoopJarStep!: #HadoopJarStepConfig
+		JobFlowId!:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		LogUri?:        string | fn.#StringExpression
+		Name!:          string | fn.#StringExpression
+	})
+}
+
+#HadoopJarStepConfig: close({
 	Args?:           [...string | fn.#StringExpression] | fn.#ListExpression
 	Jar!:            string | fn.#StringExpression
 	MainClass?:      string | fn.#StringExpression
-	StepProperties?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValue"] | fn.#ListExpression
+	StepProperties?: list.UniqueItems() & [...#KeyValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValue": close({
+#KeyValue: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::Step"
-	Properties!: #Properties
-}

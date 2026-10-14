@@ -13,17 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::CidrCollection.
-#Properties: close({
-	Locations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Location"] | fn.#ListExpression
-	Name!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53::CidrCollection"
+	Properties!: close({
+		Locations?: list.UniqueItems() & [...#Location] | fn.#ListExpression
+		Name!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-]+$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	CidrList!:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	LocationName!: strings.MaxRunes(16) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::CidrCollection"
-	Properties!: #Properties
-}

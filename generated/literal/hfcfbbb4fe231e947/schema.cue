@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,15 +14,15 @@ import (
 	// A list of metrics whose data is retained (stored). By default, data is
 	// retained for any metric used in the profile's behaviors, but it is also
 	// retained for any metric specified here.
-	AdditionalMetricsToRetainV2?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricToRetain"]
+	AdditionalMetricsToRetainV2?: list.UniqueItems() & [...#MetricToRetain]
 
 	// Specifies the destinations to which alerts are sent.
 	AlertTargets?: close({
 
-		{[=~"[a-zA-Z0-9:_-]+"]: _#defs."/$defs/Properties/definitions/AlertTarget"}})
+		{[=~"[a-zA-Z0-9:_-]+"]: #AlertTarget}})
 
 	// Specifies the behaviors that, when violated by a device (thing), cause an alert.
-	Behaviors?: list.MaxItems(100) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Behavior"]
+	Behaviors?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#Behavior]
 
 	// A structure containing the mqtt topic for metrics export.
 	MetricsExportConfig?: close({
@@ -43,14 +43,14 @@ import (
 	SecurityProfileName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
 
 	// Metadata that can be used to manage the security profile.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// A set of target ARNs that the security profile is attached to.
 	TargetArns?: list.UniqueItems() & [...strings.MaxRunes(2048)]
 })
 
 // A structure containing the alert target ARN and the role ARN.
-_#defs: "/$defs/Properties/definitions/AlertTarget": close({
+#AlertTarget: close({
 	// The ARN of the notification target to which alerts are sent.
 	AlertTargetArn!: strings.MaxRunes(2048)
 
@@ -59,13 +59,13 @@ _#defs: "/$defs/Properties/definitions/AlertTarget": close({
 })
 
 // A security profile behavior.
-_#defs: "/$defs/Properties/definitions/Behavior": close({
-	Criteria?:     _#defs."/$defs/Properties/definitions/BehaviorCriteria"
-	ExportMetric?: _#defs."/$defs/Properties/definitions/ExportMetric"
+#Behavior: close({
+	Criteria?:     #BehaviorCriteria
+	ExportMetric?: #ExportMetric
 
 	// What is measured by the behavior.
 	Metric?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
-	MetricDimension?: _#defs."/$defs/Properties/definitions/MetricDimension"
+	MetricDimension?: #MetricDimension
 
 	// The name for the behavior.
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/Behavior": close({
 })
 
 // The criteria by which the behavior is determined to be normal.
-_#defs: "/$defs/Properties/definitions/BehaviorCriteria": close({
+#BehaviorCriteria: close({
 	// The operator that relates the thing measured (metric) to the criteria
 	// (containing a value or statisticalThreshold).
 	ComparisonOperator?: "less-than" |
@@ -103,22 +103,22 @@ _#defs: "/$defs/Properties/definitions/BehaviorCriteria": close({
 
 	// Use this to specify the time duration over which the behavior is evaluated.
 	DurationSeconds?:      int
-	MlDetectionConfig?:    _#defs."/$defs/Properties/definitions/MachineLearningDetectionConfig"
-	StatisticalThreshold?: _#defs."/$defs/Properties/definitions/StatisticalThreshold"
-	Value?:                _#defs."/$defs/Properties/definitions/MetricValue"
+	MlDetectionConfig?:    #MachineLearningDetectionConfig
+	StatisticalThreshold?: #StatisticalThreshold
+	Value?:                #MetricValue
 })
 
 // Flag to enable/disable metrics export for metric to be retained.
-_#defs: "/$defs/Properties/definitions/ExportMetric": bool
+#ExportMetric: bool
 
 // The configuration of an ML Detect Security Profile.
-_#defs: "/$defs/Properties/definitions/MachineLearningDetectionConfig": close({
+#MachineLearningDetectionConfig: close({
 	// The sensitivity of anomalous behavior evaluation. Can be Low, Medium, or High.
 	ConfidenceLevel?: "LOW" | "MEDIUM" | "HIGH"
 })
 
 // The dimension of a metric.
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	// A unique identifier for the dimension.
 	DimensionName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
 
@@ -127,16 +127,16 @@ _#defs: "/$defs/Properties/definitions/MetricDimension": close({
 })
 
 // The metric you want to retain. Dimensions are optional.
-_#defs: "/$defs/Properties/definitions/MetricToRetain": close({
-	ExportMetric?: _#defs."/$defs/Properties/definitions/ExportMetric"
+#MetricToRetain: close({
+	ExportMetric?: #ExportMetric
 
 	// What is measured by the behavior.
 	Metric!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
-	MetricDimension?: _#defs."/$defs/Properties/definitions/MetricDimension"
+	MetricDimension?: #MetricDimension
 })
 
 // The value to be compared with the metric.
-_#defs: "/$defs/Properties/definitions/MetricValue": close({
+#MetricValue: close({
 	// If the ComparisonOperator calls for a set of CIDRs, use this to specify that
 	// set to be compared with the metric.
 	Cidrs?: list.UniqueItems() & [...strings.MaxRunes(43) & strings.MinRunes(2) & =~"^[a-fA-F0-9:\\.\\/]+$"]
@@ -162,14 +162,14 @@ _#defs: "/$defs/Properties/definitions/MetricValue": close({
 // A statistical ranking (percentile) which indicates a threshold value by which
 // a behavior is determined to be in compliance or in violation of the
 // behavior.
-_#defs: "/$defs/Properties/definitions/StatisticalThreshold": close({
+#StatisticalThreshold: close({
 	// The percentile which resolves to a threshold value by which compliance with a
 	// behavior is determined
 	Statistic?: "Average" | "p0" | "p0.1" | "p0.01" | "p1" | "p10" | "p50" | "p90" | "p99" | "p99.9" | "p99.99" | "p100"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

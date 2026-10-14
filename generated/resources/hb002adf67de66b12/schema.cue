@@ -3,10 +3,10 @@
 package schema
 
 import (
+	"struct"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"struct"
 )
 
 import cfnScalarStrings "strings"
@@ -18,34 +18,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::Gateway Resource Type
-#Properties: close({
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"
-	AuthorizerType!:          _#defs."/$defs/Properties/definitions/AuthorizerType"
-	Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	ExceptionLevel?:          _#defs."/$defs/Properties/definitions/ExceptionLevel"
-	InterceptorConfigurations?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GatewayInterceptorConfiguration"
-	] |
-		fn.#ListExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	Name!:                      =~"^([0-9a-zA-Z][-]?){1,48}$" | fn.#StringExpression
-	PolicyEngineConfiguration?: _#defs."/$defs/Properties/definitions/GatewayPolicyEngineConfiguration"
-	ProtocolConfiguration?:     _#defs."/$defs/Properties/definitions/GatewayProtocolConfiguration"
-	ProtocolType?:              _#defs."/$defs/Properties/definitions/GatewayProtocolType" | fn.#ValueExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
-	fn.#StringExpression
-	Tags?:             _#defs."/$defs/Properties/definitions/TagsMap"
-	WafConfiguration?: _#defs."/$defs/Properties/definitions/WafConfiguration"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::Gateway"
+	Properties!: close({
+		AuthorizerConfiguration?: #AuthorizerConfiguration
+		AuthorizerType!:          #AuthorizerType
+		Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		ExceptionLevel?:          #ExceptionLevel
+		InterceptorConfigurations?: list.MaxItems(2) & list.MinItems(1) & [...#GatewayInterceptorConfiguration] |
+			fn.#ListExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		fn.#StringExpression
+		Name!:                      =~"^([0-9a-zA-Z][-]?){1,48}$" | fn.#StringExpression
+		PolicyEngineConfiguration?: #GatewayPolicyEngineConfiguration
+		ProtocolConfiguration?:     #GatewayProtocolConfiguration
+		ProtocolType?:              #GatewayProtocolType | fn.#ValueExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		fn.#StringExpression
+		Tags?:             #TagsMap
+		WafConfiguration?: #WafConfiguration
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AdvertisedScopeMappingType": struct.MaxFields(50) & struct.MinFields(1) & close({
+#AdvertisedScopeMappingType: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"]: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
@@ -53,29 +54,19 @@ _#defs: "/$defs/Properties/definitions/AdvertisedScopeMappingType": struct.MaxFi
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-) |
-	fn.#ValueExpression
+#AuthorizerConfiguration: close({CustomJWTAuthorizer!: #CustomJWTAuthorizerConfiguration}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizerType": "CUSTOM_JWT" |
-	"AWS_IAM" |
-	"NONE" |
-	"AUTHENTICATE_ONLY" |
-	fn.#StringExpression
+#AuthorizerType: "CUSTOM_JWT" | "AWS_IAM" | "NONE" | "AUTHENTICATE_ONLY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
-	ClaimMatchOperator!: _#defs."/$defs/Properties/definitions/ClaimMatchOperatorType"
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+#AuthorizingClaimMatchValueType: close({
+	ClaimMatchOperator!: #ClaimMatchOperatorType
+	ClaimMatchValue!:    #ClaimMatchValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchOperatorType": "EQUALS" |
-	"CONTAINS" |
-	"CONTAINS_ANY" |
-	fn.#StringExpression
+#ClaimMatchOperatorType: "EQUALS" | "CONTAINS" | "CONTAINS_ANY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [close(
+#ClaimMatchValueType: matchN(1, [close(
 	{MatchValueString!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression},
 ), close({
 	MatchValueStringList!: list.MinItems(1) & [
@@ -85,99 +76,77 @@ _#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [close(
 })]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
 	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:-]+$" | fn.#StringExpression
-	InboundTokenClaimValueType!: _#defs."/$defs/Properties/definitions/InboundTokenClaimValueType"
+	InboundTokenClaimValueType!: #InboundTokenClaimValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
-	AdvertisedScopeMapping?: _#defs."/$defs/Properties/definitions/AdvertisedScopeMappingType"
+#CustomJWTAuthorizerConfiguration: close({
+	AdvertisedScopeMapping?: #AdvertisedScopeMappingType
 	AllowedAudience?:        list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedClients?:         list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedScopes?: list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CustomClaims?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"] |
-		fn.#ListExpression
+	CustomClaims?:    list.MinItems(1) & [...#CustomClaimValidationType] | fn.#ListExpression
 	DiscoveryUrl!:    =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
-	PrivateEndpoint?: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpoint?: #PrivateEndpoint
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointIpAddressType": "IPV4" | "IPV6" | fn.#StringExpression
+#EndpointIpAddressType: "IPV4" | "IPV6" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExceptionLevel": "DEBUG" | fn.#StringExpression
+#ExceptionLevel: "DEBUG" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayInterceptionPoint": "REQUEST" | "RESPONSE" | fn.#StringExpression
+#GatewayInterceptionPoint: "REQUEST" | "RESPONSE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayInterceptorConfiguration": close({
-	InputConfiguration?: _#defs."/$defs/Properties/definitions/InterceptorInputConfiguration"
-	InterceptionPoints!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GatewayInterceptionPoint"
-	] |
-		fn.#ListExpression
-	Interceptor!: _#defs."/$defs/Properties/definitions/InterceptorConfiguration"
+#GatewayInterceptorConfiguration: close({
+	InputConfiguration?: #InterceptorInputConfiguration
+	InterceptionPoints!: list.MaxItems(2) & list.MinItems(1) & [...#GatewayInterceptionPoint] | fn.#ListExpression
+	Interceptor!:        #InterceptorConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayPolicyEngineConfiguration": close({
+#GatewayPolicyEngineConfiguration: close({
 	Arn!: strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:aws:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:policy-engine\\/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9_]{10}$" |
 	fn.#StringExpression
-	Mode!: _#defs."/$defs/Properties/definitions/GatewayPolicyEngineMode"
+	Mode!: #GatewayPolicyEngineMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayPolicyEngineMode": "LOG_ONLY" | "ENFORCE" | fn.#StringExpression
+#GatewayPolicyEngineMode: "LOG_ONLY" | "ENFORCE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayProtocolConfiguration": close(
-	{Mcp!: _#defs."/$defs/Properties/definitions/MCPGatewayConfiguration"},
-) |
-	fn.#ValueExpression
+#GatewayProtocolConfiguration: close({Mcp!: #MCPGatewayConfiguration}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayProtocolType": "MCP" | fn.#StringExpression
+#GatewayProtocolType: "MCP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayStatus": "CREATING" |
-	"UPDATING" |
-	"UPDATE_UNSUCCESSFUL" |
-	"DELETING" |
-	"READY" |
-	"FAILED" |
-	fn.#StringExpression
+#GatewayStatus: "CREATING" | "UPDATING" | "UPDATE_UNSUCCESSFUL" | "DELETING" | "READY" | "FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InboundTokenClaimValueType": "STRING" | "STRING_ARRAY" | fn.#StringExpression
+#InboundTokenClaimValueType: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InterceptorConfiguration": close(
-	{Lambda!: _#defs."/$defs/Properties/definitions/LambdaInterceptorConfiguration"},
-) |
-	fn.#ValueExpression
+#InterceptorConfiguration: close({Lambda!: #LambdaInterceptorConfiguration}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/InterceptorInputConfiguration": close({
+#InterceptorInputConfiguration: close({
 	PassRequestHeaders!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PayloadFilter?:      _#defs."/$defs/Properties/definitions/InterceptorPayloadFilter"
+	PayloadFilter?:      #InterceptorPayloadFilter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InterceptorPayloadExclusion": "RESPONSE_BODY" | fn.#StringExpression
+#InterceptorPayloadExclusion: "RESPONSE_BODY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InterceptorPayloadExclusionSelector": close(
-	{Field!: _#defs."/$defs/Properties/definitions/InterceptorPayloadExclusion"},
+#InterceptorPayloadExclusionSelector: close({Field!: #InterceptorPayloadExclusion}) | fn.#ValueExpression
+
+#InterceptorPayloadFilter: close(
+	{Exclude!: list.MaxItems(1) & list.MinItems(1) & [...#InterceptorPayloadExclusionSelector] | fn.#ListExpression},
 ) |
-	fn.#ValueExpression
-
-_#defs: "/$defs/Properties/definitions/InterceptorPayloadFilter": close({
-	Exclude!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/InterceptorPayloadExclusionSelector"
-	] |
-		fn.#ListExpression
-}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaInterceptorConfiguration": close({
+#LambdaInterceptorConfiguration: close({
 	Arn!: strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
@@ -185,17 +154,17 @@ _#defs: "/$defs/Properties/definitions/LambdaInterceptorConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPGatewayConfiguration": close({
+#MCPGatewayConfiguration: close({
 	Instructions?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	SearchType?:             _#defs."/$defs/Properties/definitions/SearchType"
-	SessionConfiguration?:   _#defs."/$defs/Properties/definitions/SessionConfiguration"
-	StreamingConfiguration?: _#defs."/$defs/Properties/definitions/StreamingConfiguration"
+	SearchType?:             #SearchType
+	SessionConfiguration?:   #SessionConfiguration
+	StreamingConfiguration?: #StreamingConfiguration
 	SupportedVersions?:      [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
-	EndpointIpAddressType!: _#defs."/$defs/Properties/definitions/EndpointIpAddressType"
+#ManagedVpcResource: close({
+	EndpointIpAddressType!: #EndpointIpAddressType
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -204,21 +173,19 @@ _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	] |
 		fn.#ListExpression
 	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?:          #TagsMap
 	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close(
-	{SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"},
-), close(
-	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource"},
-)]) |
+#PrivateEndpoint: matchN(1, [
+	close({SelfManagedLatticeResource!: #SelfManagedLatticeResource}), close({ManagedVpcResource!: #ManagedVpcResource}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/SearchType": "SEMANTIC" | fn.#StringExpression
+#SearchType: "SEMANTIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
+#SelfManagedLatticeResource: close({
 	ResourceConfigurationIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$" |
@@ -226,7 +193,7 @@ _#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
 }) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/SessionConfiguration": close({
+#SessionConfiguration: close({
 	SessionTimeoutInSeconds?: <=28800 & >=900 |
 		{
 			string &
@@ -250,29 +217,22 @@ _#defs: "/$defs/Properties/definitions/SessionConfiguration": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamingConfiguration": close(
+#StreamingConfiguration: close(
 	{EnableResponseStreaming?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.MinFields(0) & close({
+#TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WafConfiguration": close(
-	{FailureMode?: _#defs."/$defs/Properties/definitions/WafFailureMode"},
-) |
-	fn.#ObjectExpression
+#WafConfiguration: close({FailureMode?: #WafFailureMode}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WafFailureMode": "FAIL_CLOSE" | "FAIL_OPEN" | fn.#StringExpression
+#WafFailureMode: "FAIL_CLOSE" | "FAIL_OPEN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadIdentityDetails": close(
+#WorkloadIdentityDetails: close(
 	{WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::Gateway"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,69 +13,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::LicenseManager::LicenseAssetRuleSet.
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Rules!:       [..._#defs."/$defs/Properties/definitions/LicenseAssetRule"] | fn.#ListExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::LicenseAssetRuleSet"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		Rules!:       [...#LicenseAssetRule] | fn.#ListExpression
+		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AndRuleStatement": close(
-	{MatchingRuleStatements?: [..._#defs."/$defs/Properties/definitions/MatchingRuleStatement"] | fn.#ListExpression},
-) |
+#AndRuleStatement: close({MatchingRuleStatements?: [...#MatchingRuleStatement] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRuleStatement": close({
-	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement"
-	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement"
-	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement"
+#InstanceRuleStatement: close({
+	AndRuleStatement?:      #AndRuleStatement
+	MatchingRuleStatement?: #MatchingRuleStatement
+	OrRuleStatement?:       #OrRuleStatement
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseAssetRule": close(
-	{RuleStatement!: _#defs."/$defs/Properties/definitions/RuleStatement"},
-) |
-	fn.#ObjectExpression
+#LicenseAssetRule: close({RuleStatement!: #RuleStatement}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseConfigurationRuleStatement": close({
-	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement"
-	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement"
-	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement"
+#LicenseConfigurationRuleStatement: close({
+	AndRuleStatement?:      #AndRuleStatement
+	MatchingRuleStatement?: #MatchingRuleStatement
+	OrRuleStatement?:       #OrRuleStatement
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseRuleStatement": close({
-	AndRuleStatement?:      _#defs."/$defs/Properties/definitions/AndRuleStatement"
-	MatchingRuleStatement?: _#defs."/$defs/Properties/definitions/MatchingRuleStatement"
-	OrRuleStatement?:       _#defs."/$defs/Properties/definitions/OrRuleStatement"
+#LicenseRuleStatement: close({
+	AndRuleStatement?:      #AndRuleStatement
+	MatchingRuleStatement?: #MatchingRuleStatement
+	OrRuleStatement?:       #OrRuleStatement
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchingRuleStatement": close({
+#MatchingRuleStatement: close({
 	Constraint!:   string | fn.#StringExpression
 	KeyToMatch!:   string | fn.#StringExpression
 	ValueToMatch!: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrRuleStatement": close(
-	{MatchingRuleStatements?: [..._#defs."/$defs/Properties/definitions/MatchingRuleStatement"] | fn.#ListExpression},
-) |
+#OrRuleStatement: close({MatchingRuleStatements?: [...#MatchingRuleStatement] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleStatement": close({
-	InstanceRuleStatement?:             _#defs."/$defs/Properties/definitions/InstanceRuleStatement"
-	LicenseConfigurationRuleStatement?: _#defs."/$defs/Properties/definitions/LicenseConfigurationRuleStatement"
-	LicenseRuleStatement?:              _#defs."/$defs/Properties/definitions/LicenseRuleStatement"
+#RuleStatement: close({
+	InstanceRuleStatement?:             #InstanceRuleStatement
+	LicenseConfigurationRuleStatement?: #LicenseConfigurationRuleStatement
+	LicenseRuleStatement?:              #LicenseRuleStatement
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::LicenseAssetRuleSet"
-	Properties!: #Properties
-}

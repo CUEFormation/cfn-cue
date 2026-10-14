@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,19 +21,19 @@ import (
 	KinesisDataStream!:  _
 	...
 }]) & close({
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// The BoundingBoxRegionsOfInterest specifies an array of bounding boxes of
 	// interest in the video frames to analyze, as part of connected home feature.
 	// If an object is partially in a region of interest, Rekognition will tag it
 	// as detected if the overlap of the object with the region-of-interest is
 	// greater than 20%.
-	BoundingBoxRegionsOfInterest?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/BoundingBox"]
-	ConnectedHomeSettings?:        _#defs."/$defs/Properties/definitions/ConnectedHomeSettings"
-	DataSharingPreference?:        _#defs."/$defs/Properties/definitions/DataSharingPreference"
-	FaceSearchSettings?:           _#defs."/$defs/Properties/definitions/FaceSearchSettings"
-	KinesisDataStream?:            _#defs."/$defs/Properties/definitions/KinesisDataStream"
-	KinesisVideoStream!:           _#defs."/$defs/Properties/definitions/KinesisVideoStream"
+	BoundingBoxRegionsOfInterest?: list.UniqueItems() & [...] & [...#BoundingBox]
+	ConnectedHomeSettings?:        #ConnectedHomeSettings
+	DataSharingPreference?:        #DataSharingPreference
+	FaceSearchSettings?:           #FaceSearchSettings
+	KinesisDataStream?:            #KinesisDataStream
+	KinesisVideoStream!:           #KinesisVideoStream
 
 	// The KMS key that is used by Rekognition to encrypt any intermediate customer
 	// metadata and store in the customer's S3 bucket.
@@ -42,12 +42,12 @@ import (
 	// Name of the stream processor. It's an identifier you assign to the stream
 	// processor. You can use it to manage the stream processor.
 	Name?:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]+"
-	NotificationChannel?: _#defs."/$defs/Properties/definitions/NotificationChannel"
+	NotificationChannel?: #NotificationChannel
 
 	// The PolygonRegionsOfInterest specifies a set of polygon areas of interest in
 	// the video frames to analyze, as part of connected home feature. Each polygon
 	// is in turn, an ordered list of Point
-	PolygonRegionsOfInterest?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Polygon"]
+	PolygonRegionsOfInterest?: list.UniqueItems() & [...] & [...#Polygon]
 
 	// ARN of the IAM role that allows access to the stream processor, and provides
 	// Rekognition read permissions for KVS stream and write permissions to S3
@@ -55,7 +55,7 @@ import (
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
-	S3Destination?: _#defs."/$defs/Properties/definitions/S3Destination"
+	S3Destination?: #S3Destination
 
 	// Current status of the stream processor.
 	Status?: string
@@ -64,14 +64,14 @@ import (
 	StatusMessage?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // The ARN of the stream processor
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048)
+#Arn: strings.MaxRunes(2048)
 
 // A bounding box denoting a region of interest in the frame to be analyzed.
-_#defs: "/$defs/Properties/definitions/BoundingBox": close({
+#BoundingBox: close({
 	Height!: <=100 & >=0
 	Left!:   <=100 & >=0
 	Top!:    <=100 & >=0
@@ -80,8 +80,8 @@ _#defs: "/$defs/Properties/definitions/BoundingBox": close({
 
 // Connected home settings to use on a streaming video. Note that either
 // ConnectedHomeSettings or FaceSearchSettings should be set. Not both
-_#defs: "/$defs/Properties/definitions/ConnectedHomeSettings": close({
-	Labels!: _#defs."/$defs/Properties/definitions/Labels"
+#ConnectedHomeSettings: close({
+	Labels!: #Labels
 
 	// Minimum object class match confidence score that must be met to return a
 	// result for a recognized object.
@@ -89,14 +89,14 @@ _#defs: "/$defs/Properties/definitions/ConnectedHomeSettings": close({
 })
 
 // Indicates whether Rekognition is allowed to store the video stream data for model-training.
-_#defs: "/$defs/Properties/definitions/DataSharingPreference": close({
+#DataSharingPreference: close({
 	// Flag to enable data-sharing
 	OptIn!: bool
 })
 
 // Face search settings to use on a streaming video. Note that either
 // FaceSearchSettings or ConnectedHomeSettings should be set. Not both
-_#defs: "/$defs/Properties/definitions/FaceSearchSettings": close({
+#FaceSearchSettings: close({
 	// The ID of a collection that contains faces that you want to search for.
 	CollectionId!: strings.MaxRunes(255) & =~"\\A[a-zA-Z0-9_\\.\\-]+$"
 
@@ -108,32 +108,30 @@ _#defs: "/$defs/Properties/definitions/FaceSearchSettings": close({
 
 // The Amazon Kinesis Data Stream stream to which the Amazon Rekognition stream
 // processor streams the analysis results, as part of face search feature.
-_#defs: "/$defs/Properties/definitions/KinesisDataStream": close({
+#KinesisDataStream: close({
 	// ARN of the Kinesis Data Stream stream.
 	Arn!: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesis:([a-z\\d-]+):\\d{12}:.+$)"
 })
 
 // The Kinesis Video Stream that streams the source video.
-_#defs: "/$defs/Properties/definitions/KinesisVideoStream": close({
+#KinesisVideoStream: close({
 	// ARN of the Kinesis Video Stream that streams the source video.
 	Arn!: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesisvideo:([a-z\\d-]+):\\d{12}:.+$)"
 })
 
 // List of labels that need to be detected in the video stream. Current
 // supported values are PERSON, PET, PACKAGE, ALL.
-_#defs: "/$defs/Properties/definitions/Labels": list.MinItems(1) & list.UniqueItems() & [
-	...strings.MaxRunes(128) & strings.MinRunes(1)
-]
+#Labels: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(128) & strings.MinRunes(1)]
 
 // The ARN of the SNS notification channel where events of interests are
 // published, as part of connected home feature.
-_#defs: "/$defs/Properties/definitions/NotificationChannel": close({
+#NotificationChannel: close({
 	// ARN of the SNS topic.
 	Arn!: strings.MaxRunes(2048)
 })
 
 // An (X, Y) cartesian coordinate denoting a point on the frame
-_#defs: "/$defs/Properties/definitions/Point": close({
+#Point: close({
 	// The X coordinate of the point.
 	X!: number
 
@@ -143,13 +141,11 @@ _#defs: "/$defs/Properties/definitions/Point": close({
 
 // A polygon showing a region of interest. Note that the ordering of the Point
 // entries matter in defining the polygon
-_#defs: "/$defs/Properties/definitions/Polygon": list.MinItems(3) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Point"
-]
+#Polygon: list.MinItems(3) & list.UniqueItems() & [...#Point]
 
 // The S3 location in customer's account where inference output & artifacts are
 // stored, as part of connected home feature.
-_#defs: "/$defs/Properties/definitions/S3Destination": close({
+#S3Destination: close({
 	// Name of the S3 bucket.
 	BucketName!: strings.MaxRunes(63)
 
@@ -158,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/S3Destination": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

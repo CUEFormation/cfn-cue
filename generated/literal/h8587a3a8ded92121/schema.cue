@@ -8,27 +8,27 @@ import "strings"
 
 // Resource Type definition for AWS::S3Tables::TablePolicy
 #Properties: close({
-	Namespace?:      _#defs."/$defs/Properties/definitions/Namespace"
-	ResourcePolicy!: _#defs."/$defs/Properties/definitions/ResourcePolicy"
-	TableARN!:       _#defs."/$defs/Properties/definitions/TableARN"
-	TableBucketARN?: _#defs."/$defs/Properties/definitions/TableBucketARN"
-	TableName?:      _#defs."/$defs/Properties/definitions/TableName"
+	Namespace?:      #Namespace
+	ResourcePolicy!: #ResourcePolicy
+	TableARN!:       #TableARN
+	TableBucketARN?: #TableBucketARN
+	TableName?:      #TableName
 })
 
 // The namespace that the table belongs to.
-_#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$"
+#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$"
 
 // A policy document containing permissions to add to the specified table. In
 // IAM, you must provide policy documents in JSON format. However, in
 // CloudFormation you can provide the policy in JSON or YAML format because
 // CloudFormation converts YAML to JSON before submitting it to IAM.
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": strings.MaxRunes(20480) & strings.MinRunes(1) | {...}
+#ResourcePolicy: strings.MaxRunes(20480) & strings.MinRunes(1) | {...}
 
 // The Amazon Resource Name (ARN) of the specified table.
-_#defs: "/$defs/Properties/definitions/TableARN": string
+#TableARN: string
 
 // The Amazon Resource Name (ARN) of the specified table bucket.
-_#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"
 
 // The name for the table.
-_#defs: "/$defs/Properties/definitions/TableName": string
+#TableName: string

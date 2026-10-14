@@ -8,18 +8,16 @@ package schema
 #Properties: close({
 	Arn?:              string
 	Id?:               string
-	InitialVersion?:   _#defs."/$defs/Properties/definitions/ConnectorDefinitionVersion"
+	InitialVersion?:   #ConnectorDefinitionVersion
 	LatestVersionArn?: string
 	Name!:             string
 	Tags?:             string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/Connector": close({
+#Connector: close({
 	ConnectorArn!: string
 	Id!:           string
 	Parameters?:   string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorDefinitionVersion": close(
-	{Connectors!: [..._#defs."/$defs/Properties/definitions/Connector"]},
-)
+#ConnectorDefinitionVersion: close({Connectors!: [...#Connector]})

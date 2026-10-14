@@ -12,19 +12,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::MalwareProtectionPlan
-#Properties: close({
-	Actions?:           _#defs."/$defs/Properties/definitions/CFNActions" | fn.#ObjectExpression
-	ProtectedResource!: _#defs."/$defs/Properties/definitions/CFNProtectedResource" | fn.#ObjectExpression
-	Role!:              string | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GuardDuty::MalwareProtectionPlan"
+	Properties!: close({
+		// Specifies the action that is to be applied to the Malware Protection plan resource.
+		Actions?: #CFNActions
 
-_#defs: "/$defs/Properties/definitions/CFNActions": close(
-	{Tagging?: _#defs."/$defs/Properties/definitions/CFNTagging" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+		// Information about the protected resource. Presently, S3Bucket is the only
+		// supported protected resource.
+		ProtectedResource!: #CFNProtectedResource
+		Role!:              string | fn.#StringExpression
+		Tags?:              [...#TagItem] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CFNProtectedResource": close({
+#CFNActions: close({
+	// Contains information about tagging status of the Malware Protection plan resource.
+	Tagging?: #CFNTagging
+}) |
+fn.#ObjectExpression
+
+#CFNProtectedResource: close({
 	S3Bucket!: close({
 		BucketName?:     string | fn.#StringExpression
 		ObjectPrefixes?: list.MaxItems(5) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -33,21 +41,16 @@ _#defs: "/$defs/Properties/definitions/CFNProtectedResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNStatusReasons": close({
+#CFNStatusReasons: close({
 	Code?:    string | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNTagging": close({Status?: "DISABLED" | "ENABLED" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CFNTagging: close({Status?: "DISABLED" | "ENABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::MalwareProtectionPlan"
-	Properties!: #Properties
-}

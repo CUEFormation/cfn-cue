@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,32 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::ApiKeyCredentialProvider
-#Properties: close({
-	ApiKey?:             strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	ApiKeySecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference" | fn.#ObjectExpression
-	ApiKeySecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
-	Name!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-	Tags?:               list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::ApiKeyCredentialProvider"
+	Properties!: close({
+		ApiKey?: strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApiKeySecretArn": close({
+		// Configuration for a customer-provided secret containing the API key
+		ApiKeySecretConfig?: #SecretReference
+		ApiKeySecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
+		Name!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#ApiKeySecretArn: close({
 	SecretArn!: =~"^arn:(aws|aws-us-gov):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretReference": close({
+#SecretReference: close({
 	JsonKey!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	SecretId!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::ApiKeyCredentialProvider"
-	Properties!: #Properties
-}

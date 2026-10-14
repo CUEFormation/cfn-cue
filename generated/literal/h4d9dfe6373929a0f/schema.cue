@@ -25,10 +25,10 @@ import (
 	AuthMode!: "SSO" | "IAM"
 
 	// The default space settings.
-	DefaultSpaceSettings?: _#defs."/$defs/Properties/definitions/DefaultSpaceSettings"
+	DefaultSpaceSettings?: #DefaultSpaceSettings
 
 	// The default user settings.
-	DefaultUserSettings!: _#defs."/$defs/Properties/definitions/UserSettings"
+	DefaultUserSettings!: #UserSettings
 
 	// The Amazon Resource Name (ARN) of the created domain.
 	DomainArn?: strings.MaxRunes(256) & =~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:domain/.*"
@@ -38,7 +38,7 @@ import (
 
 	// A name for the domain.
 	DomainName!:     strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}"
-	DomainSettings?: _#defs."/$defs/Properties/definitions/DomainSettings"
+	DomainSettings?: #DomainSettings
 
 	// Indicates whether a home EFS file system is created for the domain. Set to
 	// Disabled to skip EFS creation and reduce domain creation time.
@@ -76,7 +76,7 @@ import (
 	TagPropagation?: "ENABLED" | "DISABLED"
 
 	// A list of tags to apply to the user profile.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The URL to the created domain.
 	Url?: strings.MaxRunes(1024)
@@ -89,7 +89,7 @@ import (
 })
 
 // The instance type that the image version runs on.
-_#defs: "/$defs/Properties/definitions/AppInstanceType": "system" |
+#AppInstanceType: "system" |
 	"ml.t3.micro" |
 	"ml.t3.small" |
 	"ml.t3.medium" |
@@ -261,11 +261,9 @@ _#defs: "/$defs/Properties/definitions/AppInstanceType": "system" |
 	"ml.g7e.24xlarge" |
 	"ml.g7e.48xlarge"
 
-_#defs: "/$defs/Properties/definitions/AppLifecycleManagement": close(
-	{IdleSettings?: _#defs."/$defs/Properties/definitions/IdleSettings"},
-)
+#AppLifecycleManagement: close({IdleSettings?: #IdleSettings})
 
-_#defs: "/$defs/Properties/definitions/AppType": "JupyterServer" |
+#AppType: "JupyterServer" |
 	"TensorBoard" |
 	"RStudioServerPro" |
 	"JupyterLab" |
@@ -274,8 +272,8 @@ _#defs: "/$defs/Properties/definitions/AppType": "JupyterServer" |
 	"Canvas"
 
 // The CodeEditor app settings.
-_#defs: "/$defs/Properties/definitions/CodeEditorAppSettings": close({
-	AppLifecycleManagement?: _#defs."/$defs/Properties/definitions/AppLifecycleManagement"
+#CodeEditorAppSettings: close({
+	AppLifecycleManagement?: #AppLifecycleManagement
 
 	// The lifecycle configuration that runs before the default lifecycle configuration.
 	BuiltInLifecycleConfigArn?: strings.MaxRunes(256) &
@@ -283,31 +281,29 @@ _#defs: "/$defs/Properties/definitions/CodeEditorAppSettings": close({
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$"
 
 	// A list of custom images for use for CodeEditor apps.
-	CustomImages?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"]
+	CustomImages?: list.MaxItems(200) & [...] & [...#CustomImage]
 
 	// The default instance type and the Amazon Resource Name (ARN) of the default
 	// SageMaker image used by the CodeEditor app.
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+	DefaultResourceSpec?: #ResourceSpec
 
 	// A list of LifecycleConfigArns available for use with CodeEditor apps.
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	]
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn]
 })
 
-_#defs: "/$defs/Properties/definitions/CodeRepository": close({
+#CodeRepository: close({
 	// A CodeRepository (valid URL) to be used within Jupyter's Git extension.
 	RepositoryUrl!: strings.MaxRunes(256)
 })
 
-_#defs: "/$defs/Properties/definitions/CustomFileSystemConfig": close({
-	EFSFileSystemConfig?:       _#defs."/$defs/Properties/definitions/EFSFileSystemConfig"
-	FSxLustreFileSystemConfig?: _#defs."/$defs/Properties/definitions/FSxLustreFileSystemConfig"
-	S3FileSystemConfig?:        _#defs."/$defs/Properties/definitions/S3FileSystemConfig"
+#CustomFileSystemConfig: close({
+	EFSFileSystemConfig?:       #EFSFileSystemConfig
+	FSxLustreFileSystemConfig?: #FSxLustreFileSystemConfig
+	S3FileSystemConfig?:        #S3FileSystemConfig
 })
 
 // A custom SageMaker image.
-_#defs: "/$defs/Properties/definitions/CustomImage": close({
+#CustomImage: close({
 	// The Name of the AppImageConfig.
 	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}"
 
@@ -318,7 +314,7 @@ _#defs: "/$defs/Properties/definitions/CustomImage": close({
 	ImageVersionNumber?: int & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/CustomPosixUserConfig": close({
+#CustomPosixUserConfig: close({
 	Gid!: int & <=4000000 & >=1001
 	Uid!: int & <=4000000 & >=10000
 })
@@ -326,24 +322,22 @@ _#defs: "/$defs/Properties/definitions/CustomPosixUserConfig": close({
 // Properties related to the Amazon Elastic Block Store volume. Must be provided
 // if storage type is Amazon EBS and must not be provided if storage type is
 // not Amazon EBS
-_#defs: "/$defs/Properties/definitions/DefaultEbsStorageSettings": close({
+#DefaultEbsStorageSettings: close({
 	// Default size of the Amazon EBS volume in Gb
-	DefaultEbsVolumeSizeInGb!: _#defs."/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb"
+	DefaultEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
 
 	// Maximum size of the Amazon EBS volume in Gb. Must be greater than or equal to
 	// the DefaultEbsVolumeSizeInGb.
-	MaximumEbsVolumeSizeInGb!: _#defs."/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb"
+	MaximumEbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
 })
 
 // A collection of settings that apply to spaces of Amazon SageMaker Studio.
 // These settings are specified when the Create/Update Domain API is called.
-_#defs: "/$defs/Properties/definitions/DefaultSpaceSettings": close({
-	CustomFileSystemConfigs?: list.MaxItems(2) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomFileSystemConfig"
-	]
+#DefaultSpaceSettings: close({
+	CustomFileSystemConfigs?: list.MaxItems(2) & list.UniqueItems() & [...] & [...#CustomFileSystemConfig]
 
 	// The Jupyter lab's custom posix user configurations.
-	CustomPosixUserConfig?: _#defs."/$defs/Properties/definitions/CustomPosixUserConfig"
+	CustomPosixUserConfig?: #CustomPosixUserConfig
 
 	// The execution role for the space.
 	ExecutionRole!: strings.MaxRunes(2048) &
@@ -351,13 +345,13 @@ _#defs: "/$defs/Properties/definitions/DefaultSpaceSettings": close({
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 	// The Jupyter lab's app settings.
-	JupyterLabAppSettings?: _#defs."/$defs/Properties/definitions/JupyterLabAppSettings"
+	JupyterLabAppSettings?: #JupyterLabAppSettings
 
 	// The Jupyter server's app settings.
-	JupyterServerAppSettings?: _#defs."/$defs/Properties/definitions/JupyterServerAppSettings"
+	JupyterServerAppSettings?: #JupyterServerAppSettings
 
 	// The kernel gateway app settings.
-	KernelGatewayAppSettings?: _#defs."/$defs/Properties/definitions/KernelGatewayAppSettings"
+	KernelGatewayAppSettings?: #KernelGatewayAppSettings
 
 	// The security groups for the Amazon Virtual Private Cloud (VPC) that Studio
 	// uses for communication.
@@ -369,16 +363,14 @@ _#defs: "/$defs/Properties/definitions/DefaultSpaceSettings": close({
 	]
 
 	// The Jupyter lab's space storage settings.
-	SpaceStorageSettings?: _#defs."/$defs/Properties/definitions/DefaultSpaceStorageSettings"
+	SpaceStorageSettings?: #DefaultSpaceStorageSettings
 })
 
 // Default storage settings for a space.
-_#defs: "/$defs/Properties/definitions/DefaultSpaceStorageSettings": close(
-	{DefaultEbsStorageSettings?: _#defs."/$defs/Properties/definitions/DefaultEbsStorageSettings"},
-)
+#DefaultSpaceStorageSettings: close({DefaultEbsStorageSettings?: #DefaultEbsStorageSettings})
 
 // A collection of settings that are required to start docker-proxy server.
-_#defs: "/$defs/Properties/definitions/DockerSettings": close({
+#DockerSettings: close({
 	// The flag to enable/disable docker-proxy server
 	EnableDockerAccess?: "ENABLED" | "DISABLED"
 
@@ -387,14 +379,14 @@ _#defs: "/$defs/Properties/definitions/DockerSettings": close({
 })
 
 // A collection of Domain settings.
-_#defs: "/$defs/Properties/definitions/DomainSettings": close({
-	DockerSettings?: _#defs."/$defs/Properties/definitions/DockerSettings"
+#DomainSettings: close({
+	DockerSettings?: #DockerSettings
 
 	// The configuration for attaching a SageMaker user profile name to the
 	// execution role as a sts:SourceIdentity key.
 	ExecutionRoleIdentityConfig?:    "USER_PROFILE_NAME" | "DISABLED"
-	IpAddressType?:                  _#defs."/$defs/Properties/definitions/IpAddressType"
-	RStudioServerProDomainSettings?: _#defs."/$defs/Properties/definitions/RStudioServerProDomainSettings"
+	IpAddressType?:                  #IpAddressType
+	RStudioServerProDomainSettings?: #RStudioServerProDomainSettings
 
 	// The security groups for the Amazon Virtual Private Cloud that the Domain uses
 	// for communication between Domain-level apps and user apps.
@@ -404,20 +396,20 @@ _#defs: "/$defs/Properties/definitions/DomainSettings": close({
 		strings.MinRunes(0) &
 		=~"[-0-9a-zA-Z]+"
 	]
-	UnifiedStudioSettings?: _#defs."/$defs/Properties/definitions/UnifiedStudioSettings"
+	UnifiedStudioSettings?: #UnifiedStudioSettings
 })
 
-_#defs: "/$defs/Properties/definitions/EFSFileSystemConfig": close({
+#EFSFileSystemConfig: close({
 	FileSystemId!:   strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$"
 	FileSystemPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$"
 })
 
-_#defs: "/$defs/Properties/definitions/FSxLustreFileSystemConfig": close({
+#FSxLustreFileSystemConfig: close({
 	FileSystemId!:   strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$"
 	FileSystemPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$"
 })
 
-_#defs: "/$defs/Properties/definitions/HiddenSageMakerImage": close({
+#HiddenSageMakerImage: close({
 	// The SageMaker image name that you are hiding from the Studio user interface.
 	SageMakerImageName?: "sagemaker_distribution"
 	VersionAliases?: list.MaxItems(20) & [...] & [
@@ -425,22 +417,22 @@ _#defs: "/$defs/Properties/definitions/HiddenSageMakerImage": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/IdleSettings": close({
-	IdleTimeoutInMinutes?:    _#defs."/$defs/Properties/definitions/IdleTimeoutInMinutes"
-	LifecycleManagement?:     _#defs."/$defs/Properties/definitions/LifecycleManagement"
-	MaxIdleTimeoutInMinutes?: _#defs."/$defs/Properties/definitions/MaxIdleTimeoutInMinutes"
-	MinIdleTimeoutInMinutes?: _#defs."/$defs/Properties/definitions/MinIdleTimeoutInMinutes"
+#IdleSettings: close({
+	IdleTimeoutInMinutes?:    #IdleTimeoutInMinutes
+	LifecycleManagement?:     #LifecycleManagement
+	MaxIdleTimeoutInMinutes?: #MaxIdleTimeoutInMinutes
+	MinIdleTimeoutInMinutes?: #MinIdleTimeoutInMinutes
 })
 
 // The idle timeout value set in minutes
-_#defs: "/$defs/Properties/definitions/IdleTimeoutInMinutes": int & <=525600 & >=60
+#IdleTimeoutInMinutes: int & <=525600 & >=60
 
 // A setting to indicate if IPv6 routing should be enabled along with IPv4 or not
-_#defs: "/$defs/Properties/definitions/IpAddressType": "IPV4" | "DUALSTACK"
+#IpAddressType: "IPV4" | "DUALSTACK"
 
 // The JupyterLab app settings.
-_#defs: "/$defs/Properties/definitions/JupyterLabAppSettings": close({
-	AppLifecycleManagement?: _#defs."/$defs/Properties/definitions/AppLifecycleManagement"
+#JupyterLabAppSettings: close({
+	AppLifecycleManagement?: #AppLifecycleManagement
 
 	// The lifecycle configuration that runs before the default lifecycle configuration.
 	BuiltInLifecycleConfigArn?: strings.MaxRunes(256) &
@@ -448,56 +440,50 @@ _#defs: "/$defs/Properties/definitions/JupyterLabAppSettings": close({
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$"
 
 	// A list of CodeRepositories available for use with JupyterLab apps.
-	CodeRepositories?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CodeRepository"]
+	CodeRepositories?: list.MaxItems(30) & [...] & [...#CodeRepository]
 
 	// A list of custom images for use for JupyterLab apps.
-	CustomImages?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"]
+	CustomImages?: list.MaxItems(200) & [...] & [...#CustomImage]
 
 	// The default instance type and the Amazon Resource Name (ARN) of the default
 	// SageMaker image used by the JupyterLab app.
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+	DefaultResourceSpec?: #ResourceSpec
 
 	// A list of LifecycleConfigArns available for use with JupyterLab apps.
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	]
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn]
 })
 
 // The JupyterServer app settings.
-_#defs: "/$defs/Properties/definitions/JupyterServerAppSettings": close({
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+#JupyterServerAppSettings: close({
+	DefaultResourceSpec?: #ResourceSpec
 
 	// A list of LifecycleConfigArns available for use with JupyterServer apps.
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	]
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn]
 })
 
 // The kernel gateway app settings.
-_#defs: "/$defs/Properties/definitions/KernelGatewayAppSettings": close({
+#KernelGatewayAppSettings: close({
 	// A list of custom SageMaker images that are configured to run as a KernelGateway app.
-	CustomImages?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"]
+	CustomImages?: list.MaxItems(200) & [...] & [...#CustomImage]
 
 	// The default instance type and the Amazon Resource Name (ARN) of the default
 	// SageMaker image used by the KernelGateway app.
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+	DefaultResourceSpec?: #ResourceSpec
 
 	// A list of LifecycleConfigArns available for use with KernelGateway apps.
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	]
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn]
 })
 
 // A flag to enable/disable AppLifecycleManagement settings
-_#defs: "/$defs/Properties/definitions/LifecycleManagement": "ENABLED" | "DISABLED"
+#LifecycleManagement: "ENABLED" | "DISABLED"
 
 // The maximum idle timeout value set in minutes
-_#defs: "/$defs/Properties/definitions/MaxIdleTimeoutInMinutes": int & <=525600 & >=60
+#MaxIdleTimeoutInMinutes: int & <=525600 & >=60
 
 // The minimum idle timeout value set in minutes
-_#defs: "/$defs/Properties/definitions/MinIdleTimeoutInMinutes": int & <=525600 & >=60
+#MinIdleTimeoutInMinutes: int & <=525600 & >=60
 
-_#defs: "/$defs/Properties/definitions/MlTools": "DataWrangler" |
+#MlTools: "DataWrangler" |
 	"FeatureStore" |
 	"EmrClusters" |
 	"AutoMl" |
@@ -519,14 +505,14 @@ _#defs: "/$defs/Properties/definitions/MlTools": "DataWrangler" |
 	"PerformanceEvaluation"
 
 // A collection of settings that apply to an RSessionGateway app.
-_#defs: "/$defs/Properties/definitions/RSessionAppSettings": close({
+#RSessionAppSettings: close({
 	// A list of custom SageMaker images that are configured to run as a KernelGateway app.
-	CustomImages?:        list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"]
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+	CustomImages?:        list.MaxItems(200) & [...] & [...#CustomImage]
+	DefaultResourceSpec?: #ResourceSpec
 })
 
 // A collection of settings that configure user interaction with the RStudioServerPro app.
-_#defs: "/$defs/Properties/definitions/RStudioServerProAppSettings": close({
+#RStudioServerProAppSettings: close({
 	// Indicates whether the current user has access to the RStudioServerPro app.
 	AccessStatus?: "ENABLED" | "DISABLED"
 
@@ -538,8 +524,8 @@ _#defs: "/$defs/Properties/definitions/RStudioServerProAppSettings": close({
 
 // A collection of settings that update the current configuration for the
 // RStudioServerPro Domain-level app.
-_#defs: "/$defs/Properties/definitions/RStudioServerProDomainSettings": close({
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+#RStudioServerProDomainSettings: close({
+	DefaultResourceSpec?: #ResourceSpec
 
 	// The ARN of the execution role for the RStudioServerPro Domain-level app.
 	DomainExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -554,8 +540,8 @@ _#defs: "/$defs/Properties/definitions/RStudioServerProDomainSettings": close({
 	RStudioPackageManagerUrl?: =~"^(https:|http:|www\\.)\\S*"
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceSpec": close({
-	InstanceType?: _#defs."/$defs/Properties/definitions/AppInstanceType"
+#ResourceSpec: close({
+	InstanceType?: #AppInstanceType
 
 	// The Amazon Resource Name (ARN) of the Lifecycle Configuration to attach to the Resource.
 	LifecycleConfigArn?: strings.MaxRunes(256) &
@@ -578,7 +564,7 @@ _#defs: "/$defs/Properties/definitions/ResourceSpec": close({
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*|None)$"
 })
 
-_#defs: "/$defs/Properties/definitions/S3FileSystemConfig": close({
+#S3FileSystemConfig: close({
 	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(0)
 	S3Uri?:     strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)"
 })
@@ -587,7 +573,7 @@ _#defs: "/$defs/Properties/definitions/S3FileSystemConfig": close({
 // settings are specified as part of DefaultUserSettings when the CreateDomain
 // API is called, and as part of UserSettings when the CreateUserProfile API is
 // called.
-_#defs: "/$defs/Properties/definitions/SharingSettings": close({
+#SharingSettings: close({
 	// Whether to include the notebook cell output when sharing the notebook. The default is Disabled.
 	NotebookOutputOption?: "Allowed" | "Disabled"
 
@@ -601,39 +587,37 @@ _#defs: "/$defs/Properties/definitions/SharingSettings": close({
 	S3OutputPath?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & >=5
+#SpaceEbsVolumeSizeInGb: int & <=16384 & >=5
 
 // The Amazon Resource Name (ARN) of the Lifecycle Configuration to attach to the Resource.
-_#defs: "/$defs/Properties/definitions/StudioLifecycleConfigArn": strings.MaxRunes(256) &
+#StudioLifecycleConfigArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$"
 
 // Studio settings. If these settings are applied on a user level, they take
 // priority over the settings applied on a domain level.
-_#defs: "/$defs/Properties/definitions/StudioWebPortalSettings": close({
+#StudioWebPortalSettings: close({
 	// Applications supported in Studio that are hidden from the Studio left navigation pane.
-	HiddenAppTypes?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/AppType"]
+	HiddenAppTypes?: list.UniqueItems() & [...] & [...#AppType]
 
 	// The instance types you are hiding from the Studio user interface.
-	HiddenInstanceTypes?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/AppInstanceType"]
+	HiddenInstanceTypes?: list.UniqueItems() & [...] & [...#AppInstanceType]
 
 	// The machine learning tools that are hidden from the Studio left navigation pane.
-	HiddenMlTools?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/MlTools"]
+	HiddenMlTools?: list.UniqueItems() & [...] & [...#MlTools]
 
 	// The version aliases you are hiding from the Studio user interface.
-	HiddenSageMakerImageVersionAliases?: list.MaxItems(5) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/HiddenSageMakerImage"
-	]
+	HiddenSageMakerImageVersionAliases?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#HiddenSageMakerImage]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
 // A collection of settings that apply to an Amazon SageMaker AI domain when you
 // use it in Amazon SageMaker Unified Studio.
-_#defs: "/$defs/Properties/definitions/UnifiedStudioSettings": close({
+#UnifiedStudioSettings: close({
 	// The ID of the AWS account that has the Amazon SageMaker Unified Studio
 	// domain. The default value, if you don't specify an ID, is the ID of the
 	// account that has the Amazon SageMaker AI domain.
@@ -673,14 +657,12 @@ _#defs: "/$defs/Properties/definitions/UnifiedStudioSettings": close({
 // A collection of settings that apply to users of Amazon SageMaker Studio.
 // These settings are specified when the CreateUserProfile API is called, and
 // as DefaultUserSettings when the CreateDomain API is called.
-_#defs: "/$defs/Properties/definitions/UserSettings": close({
+#UserSettings: close({
 	// Indicates whether auto-mounting of an EFS volume is supported for the user profile.
-	AutoMountHomeEFS?:      "Enabled" | "Disabled" | "DefaultAsDomain"
-	CodeEditorAppSettings?: _#defs."/$defs/Properties/definitions/CodeEditorAppSettings"
-	CustomFileSystemConfigs?: list.MaxItems(2) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomFileSystemConfig"
-	]
-	CustomPosixUserConfig?: _#defs."/$defs/Properties/definitions/CustomPosixUserConfig"
+	AutoMountHomeEFS?:        "Enabled" | "Disabled" | "DefaultAsDomain"
+	CodeEditorAppSettings?:   #CodeEditorAppSettings
+	CustomFileSystemConfigs?: list.MaxItems(2) & list.UniqueItems() & [...] & [...#CustomFileSystemConfig]
+	CustomPosixUserConfig?:   #CustomPosixUserConfig
 
 	// Defines which Amazon SageMaker application users are directed to by default.
 	DefaultLandingUri?: strings.MaxRunes(1023) & strings.MinRunes(0)
@@ -689,15 +671,15 @@ _#defs: "/$defs/Properties/definitions/UserSettings": close({
 	ExecutionRole!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
-	JupyterLabAppSettings?: _#defs."/$defs/Properties/definitions/JupyterLabAppSettings"
+	JupyterLabAppSettings?: #JupyterLabAppSettings
 
 	// The Jupyter server's app settings.
-	JupyterServerAppSettings?: _#defs."/$defs/Properties/definitions/JupyterServerAppSettings"
+	JupyterServerAppSettings?: #JupyterServerAppSettings
 
 	// The kernel gateway app settings.
-	KernelGatewayAppSettings?:    _#defs."/$defs/Properties/definitions/KernelGatewayAppSettings"
-	RSessionAppSettings?:         _#defs."/$defs/Properties/definitions/RSessionAppSettings"
-	RStudioServerProAppSettings?: _#defs."/$defs/Properties/definitions/RStudioServerProAppSettings"
+	KernelGatewayAppSettings?:    #KernelGatewayAppSettings
+	RSessionAppSettings?:         #RSessionAppSettings
+	RStudioServerProAppSettings?: #RStudioServerProAppSettings
 
 	// The security groups for the Amazon Virtual Private Cloud (VPC) that Studio
 	// uses for communication.
@@ -709,11 +691,11 @@ _#defs: "/$defs/Properties/definitions/UserSettings": close({
 	]
 
 	// The sharing settings.
-	SharingSettings?:      _#defs."/$defs/Properties/definitions/SharingSettings"
-	SpaceStorageSettings?: _#defs."/$defs/Properties/definitions/DefaultSpaceStorageSettings"
+	SharingSettings?:      #SharingSettings
+	SpaceStorageSettings?: #DefaultSpaceStorageSettings
 
 	// Indicates whether the Studio experience is available to users. If not, users
 	// cannot access Studio.
 	StudioWebPortal?:         "ENABLED" | "DISABLED"
-	StudioWebPortalSettings?: _#defs."/$defs/Properties/definitions/StudioWebPortalSettings"
+	StudioWebPortalSettings?: #StudioWebPortalSettings
 })

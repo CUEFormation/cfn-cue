@@ -8,70 +8,63 @@ import "strings"
 
 // Resource schema for AWS::FIS::ExperimentTemplate
 #Properties: close({
-	Actions?:           _#defs."/$defs/Properties/definitions/ExperimentTemplateActionMap"
-	Description!:       _#defs."/$defs/Properties/definitions/ExperimentTemplateDescription"
-	ExperimentOptions?: _#defs."/$defs/Properties/definitions/ExperimentTemplateExperimentOptions"
-	ExperimentReportConfiguration?:
-		_#defs."/$defs/Properties/definitions/ExperimentTemplateExperimentReportConfiguration"
-	Id?:               _#defs."/$defs/Properties/definitions/ExperimentTemplateId"
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/ExperimentTemplateLogConfiguration"
-	RoleArn!:          _#defs."/$defs/Properties/definitions/RoleArn"
-	StopConditions!:   _#defs."/$defs/Properties/definitions/ExperimentTemplateStopConditionList"
+	Actions?:                       #ExperimentTemplateActionMap
+	Description!:                   #ExperimentTemplateDescription
+	ExperimentOptions?:             #ExperimentTemplateExperimentOptions
+	ExperimentReportConfiguration?: #ExperimentTemplateExperimentReportConfiguration
+	Id?:                            #ExperimentTemplateId
+	LogConfiguration?:              #ExperimentTemplateLogConfiguration
+	RoleArn!:                       #RoleArn
+	StopConditions!:                #ExperimentTemplateStopConditionList
 	Tags?: close({
 
 		{[=~".{1,128}"]: strings.MaxRunes(256)}})
-	Targets!: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetMap"
+	Targets!: #ExperimentTemplateTargetMap
 })
 
 // The ID of the action.
-_#defs: "/$defs/Properties/definitions/ActionId": strings.MaxRunes(64)
+#ActionId: strings.MaxRunes(64)
 
-_#defs: "/$defs/Properties/definitions/CloudWatchDashboard": close(
-	{DashboardIdentifier!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\S]+$"},
-)
+#CloudWatchDashboard: close({DashboardIdentifier!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\S]+$"})
 
 // Specifies an action for the experiment template.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateAction": close({
-	ActionId!:    _#defs."/$defs/Properties/definitions/ActionId"
-	Description?: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemDescription"
+#ExperimentTemplateAction: close({
+	ActionId!:    #ActionId
+	Description?: #ExperimentTemplateActionItemDescription
 
 	// The parameters for the action, if applicable.
 	Parameters?: close({
 
-		{[=~".{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemParameter"}})
-	StartAfter?: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfterList"
+		{[=~".{1,64}"]: #ExperimentTemplateActionItemParameter}})
+	StartAfter?: #ExperimentTemplateActionItemStartAfterList
 
 	// One or more targets for the action.
 	Targets?: close({
 
-		{[=~".{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemTarget"}})
+		{[=~".{1,64}"]: #ExperimentTemplateActionItemTarget}})
 })
 
 // A description for the action.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateActionItemDescription": strings.MaxRunes(512)
+#ExperimentTemplateActionItemDescription: strings.MaxRunes(512)
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateActionItemParameter": strings.MaxRunes(1024)
+#ExperimentTemplateActionItemParameter: strings.MaxRunes(1024)
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfter": strings.MaxRunes(64)
+#ExperimentTemplateActionItemStartAfter: strings.MaxRunes(64)
 
 // The names of the actions that must be completed before the current action starts.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfterList": [
-	..._#defs."/$defs/Properties/definitions/ExperimentTemplateActionItemStartAfter"
-]
+#ExperimentTemplateActionItemStartAfterList: [...#ExperimentTemplateActionItemStartAfter]
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateActionItemTarget": strings.MaxRunes(64)
+#ExperimentTemplateActionItemTarget: strings.MaxRunes(64)
 
 // The actions for the experiment.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateActionMap": close({
+#ExperimentTemplateActionMap: close({
 
-	{[=~"[\\S]{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateAction"}})
+	{[=~"[\\S]{1,64}"]: #ExperimentTemplateAction}})
 
 // A description for the experiment template.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateDescription": strings.MaxRunes(512) &
-strings.MinRunes(0) &
-=~"^[\\s\\S]+$"
+#ExperimentTemplateDescription: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\s\\S]+$"
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateExperimentOptions": close({
+#ExperimentTemplateExperimentOptions: close({
 	// The account targeting setting for the experiment template.
 	AccountTargeting?: "multi-account" | "single-account"
 
@@ -79,8 +72,8 @@ _#defs: "/$defs/Properties/definitions/ExperimentTemplateExperimentOptions": clo
 	EmptyTargetResolutionMode?: "fail" | "skip"
 })
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateExperimentReportConfiguration": close({
-	DataSources?: close({CloudWatchDashboards?: [..._#defs."/$defs/Properties/definitions/CloudWatchDashboard"]})
+#ExperimentTemplateExperimentReportConfiguration: close({
+	DataSources?: close({CloudWatchDashboards?: [...#CloudWatchDashboard]})
 	Outputs!: close({
 		ExperimentReportS3Configuration!: close({
 			BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
@@ -91,9 +84,9 @@ _#defs: "/$defs/Properties/definitions/ExperimentTemplateExperimentReportConfigu
 	PreExperimentDuration?:  strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[\\S]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateId": string
+#ExperimentTemplateId: string
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateLogConfiguration": close({
+#ExperimentTemplateLogConfiguration: close({
 	CloudWatchLogsConfiguration?: close({LogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\S]+$"})
 	LogSchemaVersion!:            int & >=1
 	S3Configuration?: close({
@@ -102,76 +95,68 @@ _#defs: "/$defs/Properties/definitions/ExperimentTemplateLogConfiguration": clos
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateStopCondition": close({
-	Source!: _#defs."/$defs/Properties/definitions/StopConditionSource"
-	Value?:  _#defs."/$defs/Properties/definitions/StopConditionValue"
+#ExperimentTemplateStopCondition: close({
+	Source!: #StopConditionSource
+	Value?:  #StopConditionValue
 })
 
 // One or more stop conditions.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateStopConditionList": [
-	..._#defs."/$defs/Properties/definitions/ExperimentTemplateStopCondition"
-]
+#ExperimentTemplateStopConditionList: [...#ExperimentTemplateStopCondition]
 
 // Specifies a target for an experiment.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateTarget": close({
-	Filters?: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterList"
+#ExperimentTemplateTarget: close({
+	Filters?: #ExperimentTemplateTargetFilterList
 	Parameters?: close({
 
 		{[=~".{1,64}"]: strings.MaxRunes(1024)}})
-	ResourceArns?: _#defs."/$defs/Properties/definitions/ResourceArnList"
+	ResourceArns?: #ResourceArnList
 	ResourceTags?: close({
 
 		{[=~".{1,128}"]: strings.MaxRunes(256)}})
-	ResourceType!:  _#defs."/$defs/Properties/definitions/ResourceType"
-	SelectionMode!: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetSelectionMode"
+	ResourceType!:  #ResourceType
+	SelectionMode!: #ExperimentTemplateTargetSelectionMode
 })
 
 // Describes a filter used for the target resource input in an experiment template.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetFilter": close({
-	Path!:   _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterPath"
-	Values!: _#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterValues"
+#ExperimentTemplateTargetFilter: close({
+	Path!:   #ExperimentTemplateTargetFilterPath
+	Values!: #ExperimentTemplateTargetFilterValues
 })
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetFilterList": [
-	..._#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilter"
-]
+#ExperimentTemplateTargetFilterList: [...#ExperimentTemplateTargetFilter]
 
 // The attribute path for the filter.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetFilterPath": strings.MaxRunes(256)
+#ExperimentTemplateTargetFilterPath: strings.MaxRunes(256)
 
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetFilterValue": strings.MaxRunes(128)
+#ExperimentTemplateTargetFilterValue: strings.MaxRunes(128)
 
 // The attribute values for the filter.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetFilterValues": [
-	..._#defs."/$defs/Properties/definitions/ExperimentTemplateTargetFilterValue"
-]
+#ExperimentTemplateTargetFilterValues: [...#ExperimentTemplateTargetFilterValue]
 
 // The targets for the experiment.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetMap": close({
+#ExperimentTemplateTargetMap: close({
 
-	{[=~".{1,64}"]: _#defs."/$defs/Properties/definitions/ExperimentTemplateTarget"}})
+	{[=~".{1,64}"]: #ExperimentTemplateTarget}})
 
 // Scopes the identified resources to a specific number of the resources at
 // random, or a percentage of the resources.
-_#defs: "/$defs/Properties/definitions/ExperimentTemplateTargetSelectionMode": strings.MaxRunes(64)
+#ExperimentTemplateTargetSelectionMode: strings.MaxRunes(64)
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(2048) & strings.MinRunes(20)
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20)
 
 // The Amazon Resource Names (ARNs) of the target resources.
-_#defs: "/$defs/Properties/definitions/ResourceArnList": [..._#defs."/$defs/Properties/definitions/ResourceArn"]
+#ResourceArnList: [...#ResourceArn]
 
 // The AWS resource type. The resource type must be supported for the specified action.
-_#defs: "/$defs/Properties/definitions/ResourceType": strings.MaxRunes(64)
+#ResourceType: strings.MaxRunes(64)
 
 // The Amazon Resource Name (ARN) of an IAM role that grants the AWS FIS service
 // permission to perform service actions on your behalf.
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(1224) &
 strings.MinRunes(20) &
 =~"^[\\S]+$"
 
-_#defs: "/$defs/Properties/definitions/StopConditionSource": strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$"
+#StopConditionSource: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$"
 
-_#defs: "/$defs/Properties/definitions/StopConditionValue": strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"^[\\s\\S]+$"
+#StopConditionValue: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\s\\S]+$"

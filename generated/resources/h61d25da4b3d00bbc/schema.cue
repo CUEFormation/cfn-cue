@@ -13,34 +13,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::Node Resource Type
-#Properties: close({
-	ClusterId!:             string | fn.#StringExpression
-	Name?:                  string | fn.#StringExpression
-	NodeInterfaceMappings?: [..._#defs."/$defs/Properties/definitions/NodeInterfaceMapping"] | fn.#ListExpression
-	Role?:                  _#defs."/$defs/Properties/definitions/NodeRole"
-	SdiSourceMappings?:     [..._#defs."/$defs/Properties/definitions/SdiSourceMapping"] | fn.#ListExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Node"
+	Properties!: close({
+		ClusterId!:             string | fn.#StringExpression
+		Name?:                  string | fn.#StringExpression
+		NodeInterfaceMappings?: [...#NodeInterfaceMapping] | fn.#ListExpression
+		Role?:                  #NodeRole
+		SdiSourceMappings?:     [...#SdiSourceMapping] | fn.#ListExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/NodeConnectionState": "CONNECTED" | "DISCONNECTED" | fn.#StringExpression
+#NodeConnectionState: "CONNECTED" | "DISCONNECTED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodeInterfaceMapping": close({
+#NodeInterfaceMapping: close({
 	LogicalInterfaceName?:  string | fn.#StringExpression
 	NetworkInterfaceMode?:  "NAT" | "BRIDGE" | fn.#StringExpression
 	PhysicalInterfaceName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeInterfaceMappingCreateRequest": close({
+#NodeInterfaceMappingCreateRequest: close({
 	LogicalInterfaceName?:  string | fn.#StringExpression
 	NetworkInterfaceMode?:  "NAT" | "BRIDGE" | fn.#StringExpression
 	PhysicalInterfaceName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeRole": "BACKUP" | "ACTIVE" | fn.#StringExpression
+#NodeRole: "BACKUP" | "ACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodeState": "CREATED" |
+#NodeState: "CREATED" |
 	"REGISTERING" |
 	"READY_TO_ACTIVATE" |
 	"REGISTRATION_FAILED" |
@@ -54,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/NodeState": "CREATED" |
 	"DEREGISTERED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SdiSourceMapping": close({
+#SdiSourceMapping: close({
 	CardNumber?: int |
 		{
 			string &
@@ -87,12 +90,8 @@ _#defs: "/$defs/Properties/definitions/SdiSourceMapping": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Node"
-	Properties!: #Properties
-}

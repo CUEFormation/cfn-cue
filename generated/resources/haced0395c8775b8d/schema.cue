@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,90 +17,89 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Connector
-#Properties: close({
-	AccessRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
-	As2Config?: close({
-		AsyncMdnConfig?:    _#defs."/$defs/Properties/definitions/ConnectorAsyncMdnConfig" | fn.#ObjectExpression
-		BasicAuthSecretId?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		Compression?:       "ZLIB" | "DISABLED" | fn.#StringExpression
-		EncryptionAlgorithm?: "AES128_CBC" |
-			"AES192_CBC" |
-			"AES256_CBC" |
-			"NONE" |
-			"DES_EDE3_CBC" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transfer::Connector"
+	Properties!: close({
+		AccessRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
+		As2Config?: close({
+			// Configuration for an AS2 connector with ASYNC MDN Response
+			AsyncMdnConfig?:    #ConnectorAsyncMdnConfig
+			BasicAuthSecretId?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+			Compression?:       "ZLIB" | "DISABLED" | fn.#StringExpression
+			EncryptionAlgorithm?: "AES128_CBC" |
+				"AES192_CBC" |
+				"AES256_CBC" |
+				"NONE" |
+				"DES_EDE3_CBC" |
+				fn.#StringExpression
+			LocalProfileId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
+			MdnResponse?:    "SYNC" | "ASYNC" | "NONE" | fn.#StringExpression
+			MdnSigningAlgorithm?: "SHA256" | "SHA384" | "SHA512" | "SHA1" | "NONE" | "DEFAULT" | fn.#StringExpression
+			MessageSubject?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\t]+$" |
 			fn.#StringExpression
-		LocalProfileId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
-		MdnResponse?:    "SYNC" | "ASYNC" | "NONE" | fn.#StringExpression
-		MdnSigningAlgorithm?: "SHA256" | "SHA384" | "SHA512" | "SHA1" | "NONE" | "DEFAULT" | fn.#StringExpression
-		MessageSubject?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\t]+$" |
-		fn.#StringExpression
-		PartnerProfileId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
-		PreserveContentType?: "ENABLED" | "DISABLED" | fn.#StringExpression
-		SigningAlgorithm?:    "SHA256" | "SHA384" | "SHA512" | "SHA1" | "NONE" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	EgressConfig?:  _#defs."/$defs/Properties/definitions/ConnectorEgressConfig" | fn.#ObjectExpression
-	EgressType?:    _#defs."/$defs/Properties/definitions/ConnectorEgressType" | fn.#StringExpression
-	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType"
-	LoggingRole?:   strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
-	SecurityPolicyName?: strings.MaxRunes(50) &
-	strings.MinRunes(0) &
-	=~"TransferSFTPConnectorSecurityPolicy-[A-Za-z0-9-]+" |
-	fn.#StringExpression
-	SftpConfig?: close({
-		MaxConcurrentConnections?: int & <=5 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=5 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		OrderedUserSecretVersionStages?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-			...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		] |
-		fn.#ListExpression
-		TrustedHostKeys?: list.MaxItems(10) & [...] & [
-			..._#defs."/$defs/Properties/definitions/SftpConnectorTrustedHostKey"
-		] |
-			fn.#ListExpression
-		UserSecretId?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Url?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-})
+			PartnerProfileId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" |
+			fn.#StringExpression
+			PreserveContentType?: "ENABLED" | "DISABLED" | fn.#StringExpression
+			SigningAlgorithm?:    "SHA256" | "SHA384" | "SHA512" | "SHA1" | "NONE" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorAsyncMdnConfig": close({
-	ServerIds!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerId"
-	] |
-		fn.#ListExpression
-	Url!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		// Egress configuration for the connector.
+		EgressConfig?: #ConnectorEgressConfig
+
+		// Specifies the egress type for the connector.
+		EgressType?:    #ConnectorEgressType
+		IpAddressType?: #IpAddressType
+		LoggingRole?:   strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
+		SecurityPolicyName?: strings.MaxRunes(50) &
+		strings.MinRunes(0) &
+		=~"TransferSFTPConnectorSecurityPolicy-[A-Za-z0-9-]+" |
+		fn.#StringExpression
+		SftpConfig?: close({
+			MaxConcurrentConnections?: int & <=5 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=5 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			OrderedUserSecretVersionStages?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
+				...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+			] |
+			fn.#ListExpression
+			TrustedHostKeys?: list.MaxItems(10) & [...] & [...#SftpConnectorTrustedHostKey] | fn.#ListExpression
+			UserSecretId?:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Url?:  strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
+
+#ConnectorAsyncMdnConfig: close({
+	ServerIds!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ServerId] | fn.#ListExpression
+	Url!:       strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorEgressConfig": close(
-	{VpcLattice!: _#defs."/$defs/Properties/definitions/ConnectorVpcLatticeEgressConfig"},
-) |
-	fn.#ObjectExpression
+#ConnectorEgressConfig: close({VpcLattice!: #ConnectorVpcLatticeEgressConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorEgressType": "SERVICE_MANAGED" | "VPC_LATTICE" | fn.#StringExpression
+#ConnectorEgressType: "SERVICE_MANAGED" | "VPC_LATTICE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorStatus": "ACTIVE" | "PENDING" | "ERRORED" | fn.#StringExpression
+#ConnectorStatus: "ACTIVE" | "PENDING" | "ERRORED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorVpcLatticeEgressConfig": close({
+#ConnectorVpcLatticeEgressConfig: close({
 	PortNumber?: int & <=65535 & >=1 |
 		{
 			string &
@@ -124,20 +123,14 @@ _#defs: "/$defs/Properties/definitions/ConnectorVpcLatticeEgressConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "IPV4" | "DUALSTACK" | fn.#StringExpression
+#IpAddressType: "IPV4" | "DUALSTACK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServerId": strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" |
-fn.#StringExpression
+#ServerId: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SftpConnectorTrustedHostKey": strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
+#SftpConnectorTrustedHostKey: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transfer::Connector"
-	Properties!: #Properties
-}

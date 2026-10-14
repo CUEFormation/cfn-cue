@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,30 +17,28 @@ import (
 
 	// Array of signing rules that define which repositories should be signed and
 	// with which signing profiles.
-	Rules!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Rule"]
+	Rules!: list.MaxItems(50) & [...] & [...#Rule]
 })
 
 // Repository name pattern (supports '*' wildcard).
-_#defs: "/$defs/Properties/definitions/Filter": strings.MaxRunes(256) &
+#Filter: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^(?:[a-z0-9*]+(?:[._-][a-z0-9*]+)*/)*[a-z0-9*]+(?:[._-][a-z0-9*]+)*$"
 
 // Type of repository filter
-_#defs: "/$defs/Properties/definitions/FilterType": "WILDCARD_MATCH"
+#FilterType: "WILDCARD_MATCH"
 
 // An array of objects representing the details of a repository filter.
-_#defs: "/$defs/Properties/definitions/RepositoryFilter": close({
-	Filter!:     _#defs."/$defs/Properties/definitions/Filter"
-	FilterType!: _#defs."/$defs/Properties/definitions/FilterType"
+#RepositoryFilter: close({
+	Filter!:     #Filter
+	FilterType!: #FilterType
 })
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	// Optional array of repository filters. If omitted, the rule matches all
 	// repositories. If provided, must contain at least one filter. Empty arrays
 	// are not allowed.
-	RepositoryFilters?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RepositoryFilter"
-	]
+	RepositoryFilters?: list.MaxItems(100) & list.MinItems(1) & [...#RepositoryFilter]
 
 	// AWS Signer signing profile ARN to use for matched repositories.
 	SigningProfileArn!: strings.MaxRunes(200) &

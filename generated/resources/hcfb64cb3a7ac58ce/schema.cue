@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::ElasticLoadBalancerAttachment
-#Properties: close({
-	ElasticLoadBalancerName!: string | fn.#StringExpression
-	LayerId!:                 string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpsWorks::ElasticLoadBalancerAttachment"
-	Properties!: #Properties
+	Type!: "AWS::OpsWorks::ElasticLoadBalancerAttachment"
+	Properties!: close({
+		ElasticLoadBalancerName!: string | fn.#StringExpression
+		LayerId!:                 string | fn.#StringExpression
+	})
 }

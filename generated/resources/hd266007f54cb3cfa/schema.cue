@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,35 +12,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ControlTower::EnabledBaseline Resource Type
-#Properties: close({
-	BaselineIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
-	fn.#StringExpression
-	BaselineVersion!: =~"^\\d+(?:\\.\\d+){0,2}$" | fn.#StringExpression
-	Parameters?:      [..._#defs."/$defs/Properties/definitions/Parameter"] | fn.#ListExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ControlTower::EnabledBaseline"
+	Properties!: close({
+		BaselineIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
+		fn.#StringExpression
+		BaselineVersion!: =~"^\\d+(?:\\.\\d+){0,2}$" | fn.#StringExpression
+		Parameters?:      [...#Parameter] | fn.#ListExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+		TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AnyType": fn.#Object & {...} |
+#AnyType: fn.#Object & {...} |
 bool |
 number |
 string |
 [...fn.#Object & {...} | bool | number | string | fn.#StringNumberBooleanObjectExpression] |
 fn.#StringNumberBooleanListObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	Key?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: _#defs."/$defs/Properties/definitions/AnyType"
+	Value?: #AnyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ControlTower::EnabledBaseline"
-	Properties!: #Properties
-}

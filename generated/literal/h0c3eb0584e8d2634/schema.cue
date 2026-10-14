@@ -11,57 +11,57 @@ import (
 
 // Resource Type definition for AWS::ECS::CapacityProvider.
 #Properties: close({
-	AutoScalingGroupProvider?: _#defs."/$defs/Properties/definitions/AutoScalingGroupProvider"
+	AutoScalingGroupProvider?: #AutoScalingGroupProvider
 	ClusterName?:              string
-	ManagedInstancesProvider?: _#defs."/$defs/Properties/definitions/ManagedInstancesProvider"
+	ManagedInstancesProvider?: #ManagedInstancesProvider
 	Name?:                     string
-	Tags?:                     list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                     list.MaxItems(50) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
+#AcceleratorCountRequest: close({
 	Max?: int
 	Min?: int
 })
 
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close({
+#AcceleratorTotalMemoryMiBRequest: close({
 	Max?: int
 	Min?: int
 })
 
-_#defs: "/$defs/Properties/definitions/AutoRepairConfiguration": close({ActionsStatus?: "ENABLED" | "DISABLED"})
+#AutoRepairConfiguration: close({ActionsStatus?: "ENABLED" | "DISABLED"})
 
-_#defs: "/$defs/Properties/definitions/AutoScalingGroupProvider": close({
+#AutoScalingGroupProvider: close({
 	AutoScalingGroupArn!:          string
 	ManagedDraining?:              "DISABLED" | "ENABLED"
-	ManagedScaling?:               _#defs."/$defs/Properties/definitions/ManagedScaling"
+	ManagedScaling?:               #ManagedScaling
 	ManagedTerminationProtection?: "DISABLED" | "ENABLED"
 })
 
-_#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
+#BaselineEbsBandwidthMbpsRequest: close({
 	Max?: int
 	Min?: int
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationRequest": close({
+#CapacityReservationRequest: close({
 	ReservationGroupArn?:   string
 	ReservationPreference?: "RESERVATIONS_ONLY" | "RESERVATIONS_FIRST" | "RESERVATIONS_EXCLUDED"
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceLaunchTemplate": close({
+#InstanceLaunchTemplate: close({
 	CapacityOptionType?:              "ON_DEMAND" | "SPOT" | "RESERVED"
-	CapacityReservations?:            _#defs."/$defs/Properties/definitions/CapacityReservationRequest"
+	CapacityReservations?:            #CapacityReservationRequest
 	Ec2InstanceProfileArn!:           string
 	FipsEnabled?:                     bool
 	InstanceMetadataTagsPropagation?: bool
-	InstanceRequirements?:            _#defs."/$defs/Properties/definitions/InstanceRequirementsRequest"
-	LocalStorageConfiguration?:       _#defs."/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration"
-	Monitoring?:                      _#defs."/$defs/Properties/definitions/ManagedInstancesMonitoringOptions"
-	NetworkConfiguration!:            _#defs."/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration"
-	StorageConfiguration?:            _#defs."/$defs/Properties/definitions/ManagedInstancesStorageConfiguration"
+	InstanceRequirements?:            #InstanceRequirementsRequest
+	LocalStorageConfiguration?:       #ManagedInstancesLocalStorageConfiguration
+	Monitoring?:                      #ManagedInstancesMonitoringOptions
+	NetworkConfiguration!:            #ManagedInstancesNetworkConfiguration
+	StorageConfiguration?:            #ManagedInstancesStorageConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
-	AcceleratorCount?:         _#defs."/$defs/Properties/definitions/AcceleratorCountRequest"
+#InstanceRequirementsRequest: close({
+	AcceleratorCount?:         #AcceleratorCountRequest
 	AcceleratorManufacturers?: [..."amazon-web-services" | "amd" | "habana" | "nvidia" | "xilinx"]
 	AcceleratorNames?: [
 		..."a10g" |
@@ -84,13 +84,13 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
 			"trainium2" |
 			"u30"
 	]
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest"
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest
 	AcceleratorTypes?:          [..."gpu" | "fpga" | "inference"]
 	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+"
 	]
 	BareMetal?:                "included" | "required" | "excluded"
-	BaselineEbsBandwidthMbps?: _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest"
+	BaselineEbsBandwidthMbps?: #BaselineEbsBandwidthMbpsRequest
 	BurstablePerformance?:     "included" | "required" | "excluded"
 	CpuManufacturers?:         [..."intel" | "amd" | "amazon-web-services"]
 	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
@@ -100,28 +100,28 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
 	LocalStorage?:                                   "included" | "required" | "excluded"
 	LocalStorageTypes?:                              [..."hdd" | "ssd"]
 	MaxSpotPriceAsPercentageOfOptimalOnDemandPrice?: int
-	MemoryGiBPerVCpu?:                               _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpuRequest"
-	MemoryMiB!:                                      _#defs."/$defs/Properties/definitions/MemoryMiBRequest"
-	NetworkBandwidthGbps?:                           _#defs."/$defs/Properties/definitions/NetworkBandwidthGbpsRequest"
-	NetworkInterfaceCount?:                          _#defs."/$defs/Properties/definitions/NetworkInterfaceCountRequest"
+	MemoryGiBPerVCpu?:                               #MemoryGiBPerVCpuRequest
+	MemoryMiB!:                                      #MemoryMiBRequest
+	NetworkBandwidthGbps?:                           #NetworkBandwidthGbpsRequest
+	NetworkInterfaceCount?:                          #NetworkInterfaceCountRequest
 	OnDemandMaxPricePercentageOverLowestPrice?:      int
 	RequireHibernateSupport?:                        bool
 	SpotMaxPricePercentageOverLowestPrice?:          int
-	TotalLocalStorageGB?:                            _#defs."/$defs/Properties/definitions/TotalLocalStorageGBRequest"
-	VCpuCount!:                                      _#defs."/$defs/Properties/definitions/VCpuCountRangeRequest"
+	TotalLocalStorageGB?:                            #TotalLocalStorageGBRequest
+	VCpuCount!:                                      #VCpuCountRangeRequest
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration": close({UseLocalStorage?: bool})
+#ManagedInstancesLocalStorageConfiguration: close({UseLocalStorage?: bool})
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesMonitoringOptions": "BASIC" | "DETAILED"
+#ManagedInstancesMonitoringOptions: "BASIC" | "DETAILED"
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration": close({
+#ManagedInstancesNetworkConfiguration: close({
 	SecurityGroups!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets!:        [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesProvider": close({
-	AutoRepairConfiguration?: _#defs."/$defs/Properties/definitions/AutoRepairConfiguration"
+#ManagedInstancesProvider: close({
+	AutoRepairConfiguration?: #AutoRepairConfiguration
 
 	// Defines how Amazon ECS Managed Instances optimizes the infrastructure in your
 	// capacity provider. Configure it to turn on or off the infrastructure
@@ -139,14 +139,14 @@ _#defs: "/$defs/Properties/definitions/ManagedInstancesProvider": close({
 		ScaleInAfter?: int & <=3600 & >=-1
 	})
 	InfrastructureRoleArn!:  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	InstanceLaunchTemplate!: _#defs."/$defs/Properties/definitions/InstanceLaunchTemplate"
+	InstanceLaunchTemplate!: #InstanceLaunchTemplate
 	PropagateTags?:          "CAPACITY_PROVIDER" | "NONE"
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesStorageConfiguration": close({StorageSizeGiB!: int & >=1})
+#ManagedInstancesStorageConfiguration: close({StorageSizeGiB!: int & >=1})
 
 // The managed scaling settings for the Auto Scaling group capacity provider.
-_#defs: "/$defs/Properties/definitions/ManagedScaling": close({
+#ManagedScaling: close({
 	InstanceWarmupPeriod?:   int & <=10000 & >=0
 	MaximumScalingStepSize?: int & <=10000 & >=1
 	MinimumScalingStepSize?: int & <=10000 & >=1
@@ -154,37 +154,37 @@ _#defs: "/$defs/Properties/definitions/ManagedScaling": close({
 	TargetCapacity?:         int & <=100 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
+#MemoryGiBPerVCpuRequest: close({
 	Max?: number
 	Min?: number
 })
 
-_#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
+#MemoryMiBRequest: close({
 	Max?: int
 	Min!: int
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
+#NetworkBandwidthGbpsRequest: close({
 	Max?: number
 	Min?: number
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
+#NetworkInterfaceCountRequest: close({
 	Max?: int
 	Min?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
+#TotalLocalStorageGBRequest: close({
 	Max?: number
 	Min?: number
 })
 
-_#defs: "/$defs/Properties/definitions/VCpuCountRangeRequest": close({
+#VCpuCountRangeRequest: close({
 	Max?: int
 	Min!: int
 })

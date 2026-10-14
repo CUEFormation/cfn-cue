@@ -16,16 +16,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeDeploy::DeploymentConfig
-#Properties: close({
-	ComputePlatform?: "ECS" | "Lambda" | "Server" | fn.#StringExpression
-	DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
-	fn.#StringExpression
-	MinimumHealthyHosts?:  _#defs."/$defs/Properties/definitions/MinimumHealthyHosts" | fn.#ObjectExpression
-	TrafficRoutingConfig?: _#defs."/$defs/Properties/definitions/TrafficRoutingConfig" | fn.#ObjectExpression
-	ZonalConfig?:          _#defs."/$defs/Properties/definitions/ZonalConfig" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeDeploy::DeploymentConfig"
+	Properties?: close({
+		ComputePlatform?: "ECS" | "Lambda" | "Server" | fn.#StringExpression
+		DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MinimumHealthyHosts": close({
+		// The minimum number of healthy instances that should be available at any time
+		// during the deployment. There are two parameters expected in the input: type
+		// and value.
+		MinimumHealthyHosts?: #MinimumHealthyHosts
+
+		// The configuration that specifies how the deployment traffic is routed.
+		TrafficRoutingConfig?: #TrafficRoutingConfig
+
+		// The zonal deployment config that specifies how the zonal deployment behaves
+		ZonalConfig?: #ZonalConfig
+	})
+}
+
+#MinimumHealthyHosts: close({
 	Type!: "FLEET_PERCENT" | "HOST_COUNT" | fn.#StringExpression
 	Value!: int |
 		{
@@ -44,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/MinimumHealthyHosts": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MinimumHealthyHostsPerZone": close({
+#MinimumHealthyHostsPerZone: close({
 	Type!: "FLEET_PERCENT" | "HOST_COUNT" | fn.#StringExpression
 	Value!: int |
 		{
@@ -63,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/MinimumHealthyHostsPerZone": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeBasedCanary": close({
+#TimeBasedCanary: close({
 	CanaryInterval!: int |
 		{
 			string &
@@ -95,7 +106,7 @@ _#defs: "/$defs/Properties/definitions/TimeBasedCanary": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeBasedLinear": close({
+#TimeBasedLinear: close({
 	LinearInterval!: int |
 		{
 			string &
@@ -127,14 +138,14 @@ _#defs: "/$defs/Properties/definitions/TimeBasedLinear": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficRoutingConfig": close({
-	TimeBasedCanary?: _#defs."/$defs/Properties/definitions/TimeBasedCanary"
-	TimeBasedLinear?: _#defs."/$defs/Properties/definitions/TimeBasedLinear"
+#TrafficRoutingConfig: close({
+	TimeBasedCanary?: #TimeBasedCanary
+	TimeBasedLinear?: #TimeBasedLinear
 	Type!:            "AllAtOnce" | "TimeBasedCanary" | "TimeBasedLinear" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZonalConfig": close({
+#ZonalConfig: close({
 	FirstZoneMonitorDurationInSeconds?: int |
 		{
 			string &
@@ -149,7 +160,7 @@ _#defs: "/$defs/Properties/definitions/ZonalConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	MinimumHealthyHostsPerZone?: _#defs."/$defs/Properties/definitions/MinimumHealthyHostsPerZone"
+	MinimumHealthyHostsPerZone?: #MinimumHealthyHostsPerZone
 	MonitorDurationInSeconds?: int |
 		{
 			string &
@@ -166,7 +177,3 @@ _#defs: "/$defs/Properties/definitions/ZonalConfig": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeDeploy::DeploymentConfig"
-	Properties?: #Properties
-}

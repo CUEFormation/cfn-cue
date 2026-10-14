@@ -23,13 +23,13 @@ import (
 	// Metadata to assign to the application. Tags help organize and categorize your
 	// AWS AppConfig resources. Each tag consists of a key and an optional value,
 	// both of which you define.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tags"]
+	Tags?: list.UniqueItems() & [...#Tags]
 })
 
 // Metadata to assign to the application. Tags help organize and categorize your
 // AWS AppConfig resources. Each tag consists of a key and an optional value,
 // both of which you define.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	// The key-value string map. The valid character set is [a-zA-Z1-9 +-=._:/-].
 	// The tag key can be up to 128 characters and must not start with aws:.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

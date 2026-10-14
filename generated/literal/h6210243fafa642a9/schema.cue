@@ -13,36 +13,32 @@ import (
 // that you can publish for use in different parts of your workflow, such as
 // development, beta deployment, and production.
 #Properties: close({
-	BotId!:                         _#defs."/$defs/Properties/definitions/Id"
-	BotVersion?:                    _#defs."/$defs/Properties/definitions/BotVersion"
-	BotVersionLocaleSpecification!: _#defs."/$defs/Properties/definitions/BotVersionLocaleSpecificationList"
-	Description?:                   _#defs."/$defs/Properties/definitions/Description"
+	BotId!:                         #Id
+	BotVersion?:                    #BotVersion
+	BotVersionLocaleSpecification!: #BotVersionLocaleSpecificationList
+	Description?:                   #Description
 })
 
 // The version of a bot.
-_#defs: "/$defs/Properties/definitions/BotVersion": strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$"
+#BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$"
 
 // The version of a bot used for a bot locale.
-_#defs: "/$defs/Properties/definitions/BotVersionLocaleDetails": close(
-	{SourceBotVersion!: _#defs."/$defs/Properties/definitions/BotVersion"},
-)
+#BotVersionLocaleDetails: close({SourceBotVersion!: #BotVersion})
 
-_#defs: "/$defs/Properties/definitions/BotVersionLocaleSpecification": close({
-	BotVersionLocaleDetails!: _#defs."/$defs/Properties/definitions/BotVersionLocaleDetails"
-	LocaleId!:                _#defs."/$defs/Properties/definitions/LocaleId"
+#BotVersionLocaleSpecification: close({
+	BotVersionLocaleDetails!: #BotVersionLocaleDetails
+	LocaleId!:                #LocaleId
 })
 
 // Specifies the locales that Amazon Lex adds to this version. You can choose
 // the Draft version or any other previously published version for each locale.
-_#defs: "/$defs/Properties/definitions/BotVersionLocaleSpecificationList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/BotVersionLocaleSpecification"
-]
+#BotVersionLocaleSpecificationList: list.MinItems(1) & [...#BotVersionLocaleSpecification]
 
 // A description of the version. Use the description to help identify the version in lists.
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(200)
+#Description: strings.MaxRunes(200)
 
 // Unique ID of resource
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$"
+#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$"
 
 // The identifier of the language and locale that the bot will be used in.
-_#defs: "/$defs/Properties/definitions/LocaleId": string
+#LocaleId: string

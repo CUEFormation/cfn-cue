@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,40 +17,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A custom line item is an one time charge that is applied to a specific billing group's bill.
-#Properties: close({
-	AccountId?: =~"[0-9]{12}" | fn.#StringExpression
-	BillingGroupArn!: =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:billinggroup/?[a-zA-Z0-9]{10,12}" |
-		fn.#StringExpression
-	BillingPeriodRange?:          _#defs."/$defs/Properties/definitions/BillingPeriodRange"
-	ComputationRule?:             "CONSOLIDATED" | "ITEMIZED" | fn.#StringExpression
-	CustomLineItemChargeDetails?: _#defs."/$defs/Properties/definitions/CustomLineItemChargeDetails"
-	Description?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-	PresentationDetails?: close(
-		{Service!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression},
-	) |
-	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BillingConductor::CustomLineItem"
+	Properties!: close({
+		AccountId?: =~"[0-9]{12}" | fn.#StringExpression
+		BillingGroupArn!: =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:billinggroup/?[a-zA-Z0-9]{10,12}" |
+			fn.#StringExpression
+		BillingPeriodRange?:          #BillingPeriodRange
+		ComputationRule?:             "CONSOLIDATED" | "ITEMIZED" | fn.#StringExpression
+		CustomLineItemChargeDetails?: #CustomLineItemChargeDetails
+		Description?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
+		PresentationDetails?: close(
+			{Service!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression},
+		) |
+		fn.#ObjectExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AttributeValue": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
-fn.#StringExpression
+#AttributeValue: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BillingPeriodRange": close({
-	ExclusiveEndBillingPeriod?:   _#defs."/$defs/Properties/definitions/ExclusiveEndBillingPeriod"
-	InclusiveStartBillingPeriod?: _#defs."/$defs/Properties/definitions/InclusiveStartBillingPeriod"
+#BillingPeriodRange: close({
+	ExclusiveEndBillingPeriod?:   #ExclusiveEndBillingPeriod
+	InclusiveStartBillingPeriod?: #InclusiveStartBillingPeriod
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomLineItemChargeDetails": close({
-	Flat?:            _#defs."/$defs/Properties/definitions/CustomLineItemFlatChargeDetails"
-	LineItemFilters?: _#defs."/$defs/Properties/definitions/LineItemFilters"
-	Percentage?:      _#defs."/$defs/Properties/definitions/CustomLineItemPercentageChargeDetails"
-	Type!:            _#defs."/$defs/Properties/definitions/Type"
+#CustomLineItemChargeDetails: close({
+	Flat?:            #CustomLineItemFlatChargeDetails
+	LineItemFilters?: #LineItemFilters
+	Percentage?:      #CustomLineItemPercentageChargeDetails
+	Type!:            #Type
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomLineItemFlatChargeDetails": close({
+#CustomLineItemFlatChargeDetails: close({
 	ChargeValue!: <=1000000 & >=0 |
 		{
 			string &
@@ -74,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/CustomLineItemFlatChargeDetails": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomLineItemPercentageChargeDetails": close({
+#CustomLineItemPercentageChargeDetails: close({
 	ChildAssociatedResources?: list.UniqueItems() & [
 		...=~"(arn:aws(-cn)?:billingconductor::[0-9]{12}:(customlineitem|billinggroup)/)?[a-zA-Z0-9]{10,12}" |
 			fn.#StringExpression
@@ -103,34 +105,26 @@ _#defs: "/$defs/Properties/definitions/CustomLineItemPercentageChargeDetails": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExclusiveEndBillingPeriod": =~"\\d{4}-(0?[1-9]|1[012])" | fn.#StringExpression
+#ExclusiveEndBillingPeriod: =~"\\d{4}-(0?[1-9]|1[012])" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InclusiveStartBillingPeriod": =~"\\d{4}-(0?[1-9]|1[012])" | fn.#StringExpression
+#InclusiveStartBillingPeriod: =~"\\d{4}-(0?[1-9]|1[012])" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LineItemFilter": close({
-	Attribute!: "LINE_ITEM_TYPE" | "SERVICE" | fn.#StringExpression
-	AttributeValues?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AttributeValue"] |
-		fn.#ListExpression
-	MatchOption!: "NOT_EQUAL" | "EQUAL" | fn.#StringExpression
-	Values?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LineItemFilterValue"] | fn.#ListExpression
+#LineItemFilter: close({
+	Attribute!:       "LINE_ITEM_TYPE" | "SERVICE" | fn.#StringExpression
+	AttributeValues?: list.UniqueItems() & [...#AttributeValue] | fn.#ListExpression
+	MatchOption!:     "NOT_EQUAL" | "EQUAL" | fn.#StringExpression
+	Values?:          list.UniqueItems() & [...#LineItemFilterValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LineItemFilterValue": "SAVINGS_PLAN_NEGATION" | fn.#StringExpression
+#LineItemFilterValue: "SAVINGS_PLAN_NEGATION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LineItemFilters": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/LineItemFilter"
-] |
-	fn.#ListExpression
+#LineItemFilters: list.UniqueItems() & [...#LineItemFilter] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Type": "FEE" | "CREDIT" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BillingConductor::CustomLineItem"
-	Properties!: #Properties
-}
+#Type: "FEE" | "CREDIT" | fn.#StringExpression

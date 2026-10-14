@@ -9,14 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption
-#Properties: close({
-	ApplicationName!:         string | fn.#StringExpression
-	CloudWatchLoggingOption!: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOption"
-})
-
-_#defs: "/$defs/Properties/definitions/CloudWatchLoggingOption": close({LogStreamARN!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption"
-	Properties!: #Properties
+	Type!: "AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption"
+	Properties!: close({
+		ApplicationName!:         string | fn.#StringExpression
+		CloudWatchLoggingOption!: #CloudWatchLoggingOption
+	})
 }
+
+#CloudWatchLoggingOption: close({LogStreamARN!: string | fn.#StringExpression}) | fn.#ObjectExpression

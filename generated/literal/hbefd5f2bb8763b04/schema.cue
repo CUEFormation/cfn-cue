@@ -36,11 +36,11 @@ import (
 
 	// A list of tags associated with the application. Tags are key-value pairs that
 	// you can use to organize and identify your resources.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A tag consisting of a name/value pair for a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key, or name, for the resource tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

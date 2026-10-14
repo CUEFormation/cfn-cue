@@ -3,21 +3,15 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // StackSet as a resource provides one-click experience for provisioning a
 // StackSet and StackInstances
-#Properties: matchN(1, [{
-	TemplateURL!: _
-	...
-}, {
-	TemplateBody!: _
-	...
-}]) & close({
+#Properties: close({
 	// The Amazon Resource Number (ARN) of the IAM role to use to create this stack
 	// set. Specify an IAM role only if you are using customized administrator
 	// roles to control which users or groups can manage specific stack sets within
@@ -28,7 +22,7 @@ import (
 	// Describes whether StackSets automatically deploys to AWS Organizations
 	// accounts that are added to the target organization or organizational unit
 	// (OU). Specify only if PermissionModel is SERVICE_MANAGED.
-	AutoDeployment?: _#defs."/$defs/Properties/definitions/AutoDeployment"
+	AutoDeployment?: #AutoDeployment
 
 	// Specifies the AWS account that you are acting from. By default, SELF is
 	// specified. For self-managed permissions, specify SELF; for service-managed
@@ -40,7 +34,7 @@ import (
 	// In some cases, you must explicitly acknowledge that your stack set template
 	// contains certain capabilities in order for AWS CloudFormation to create the
 	// stack set and related stack instances.
-	Capabilities?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Capability"]
+	Capabilities?: list.UniqueItems() & [...#Capability]
 
 	// A description of the stack set. You can use the description to identify the
 	// stack set's purpose or other important information.
@@ -53,18 +47,18 @@ import (
 
 	// Describes whether StackSets performs non-conflicting operations concurrently
 	// and queues conflicting operations.
-	ManagedExecution?:     close({Active?: _#defs."/$defs/Properties/definitions/Active"})
-	OperationPreferences?: _#defs."/$defs/Properties/definitions/OperationPreferences"
+	ManagedExecution?:     close({Active?: #Active})
+	OperationPreferences?: #OperationPreferences
 
 	// The input parameters for the stack set template.
-	Parameters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Parameter"]
+	Parameters?: list.UniqueItems() & [...#Parameter]
 
 	// Describes how the IAM roles required for stack set operations are created. By
 	// default, SELF-MANAGED is specified.
 	PermissionModel!: "SERVICE_MANAGED" | "SELF_MANAGED"
 
 	// A group of stack instances with parameters in some specific accounts and regions.
-	StackInstancesGroup?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StackInstances"]
+	StackInstancesGroup?: list.UniqueItems() & [...#StackInstances]
 
 	// The ID of the stack set that you're creating.
 	StackSetId?: string
@@ -77,7 +71,7 @@ import (
 	// from it. AWS CloudFormation also propagates these tags to supported
 	// resources that are created in the stacks. A maximum number of 50 tags can be
 	// specified.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The structure that contains the template body, with a minimum length of 1
 	// byte and a maximum length of 51,200 bytes.
@@ -86,22 +80,27 @@ import (
 	// Location of file containing the template body. The URL must point to a
 	// template (max size: 460,800 bytes) that is located in an Amazon S3 bucket.
 	TemplateURL?: strings.MaxRunes(5120) & strings.MinRunes(1)
-})
+	if TemplateURL != _|_ if TemplateURL."Fn::If" == _|_ {
+		TemplateBody?: close({"Fn::If": _}) | error(
+			"TemplateBody cannot be used with TemplateURL; set exactly one of TemplateURL, TemplateBody",
+		)
+	}
+}) & matchN(>=1, [{TemplateURL!: _}, {TemplateBody!: _}])
 
 // AWS account that you want to create stack instances in the specified Region(s) for.
-_#defs: "/$defs/Properties/definitions/Account": =~"^[0-9]{12}$"
+#Account: =~"^[0-9]{12}$"
 
 // When true, StackSets performs non-conflicting operations concurrently and
 // queues conflicting operations. After conflicting operations finish,
 // StackSets starts queued operations in request order.
-_#defs: "/$defs/Properties/definitions/Active": bool
+#Active: bool
 
-_#defs: "/$defs/Properties/definitions/AutoDeployment": close({
+#AutoDeployment: close({
 	// A list of StackSet ARNs that this StackSet depends on for auto-deployment
 	// operations. When auto-deployment is triggered, operations will be sequenced
 	// to ensure all dependencies complete successfully before this StackSet's
 	// operation begins.
-	DependsOn?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StackSetArn"]
+	DependsOn?: list.UniqueItems() & [...#StackSetArn]
 
 	// If set to true, StackSets automatically deploys additional stack instances to
 	// AWS Organizations accounts that are added to a target organization or
@@ -116,43 +115,41 @@ _#defs: "/$defs/Properties/definitions/AutoDeployment": close({
 	RetainStacksOnAccountRemoval?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/Capability": "CAPABILITY_IAM" | "CAPABILITY_NAMED_IAM" | "CAPABILITY_AUTO_EXPAND"
+#Capability: "CAPABILITY_IAM" | "CAPABILITY_NAMED_IAM" | "CAPABILITY_AUTO_EXPAND"
 
 // Specifies how the concurrency level behaves during the operation execution.
-_#defs: "/$defs/Properties/definitions/ConcurrencyMode": "STRICT_FAILURE_TOLERANCE" | "SOFT_FAILURE_TOLERANCE"
+#ConcurrencyMode: "STRICT_FAILURE_TOLERANCE" | "SOFT_FAILURE_TOLERANCE"
 
 // The AWS OrganizationalUnitIds or Accounts for which to create stack instances
 // in the specified Regions.
-_#defs: "/$defs/Properties/definitions/DeploymentTargets": close({
+#DeploymentTargets: close({
 	// The filter type you want to apply on organizational units and accounts.
 	AccountFilterType?: "NONE" | "UNION" | "INTERSECTION" | "DIFFERENCE"
 
 	// AWS accounts that you want to create stack instances in the specified Region(s) for.
-	Accounts?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Account"]
+	Accounts?: list.MinItems(1) & list.UniqueItems() & [...#Account]
 
 	// Returns the value of the AccountsUrl property.
 	AccountsUrl?: strings.MaxRunes(5120) & strings.MinRunes(1) & =~"(s3://|http(s?)://).+"
 
 	// The organization root ID or organizational unit (OU) IDs to which StackSets deploys.
-	OrganizationalUnitIds?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OrganizationalUnitId"
-	]
+	OrganizationalUnitIds?: list.MinItems(1) & list.UniqueItems() & [...#OrganizationalUnitId]
 })
 
 // The user-specified preferences for how AWS CloudFormation performs a stack set operation.
-_#defs: "/$defs/Properties/definitions/OperationPreferences": close({
-	ConcurrencyMode?:            _#defs."/$defs/Properties/definitions/ConcurrencyMode"
+#OperationPreferences: close({
+	ConcurrencyMode?:            #ConcurrencyMode
 	FailureToleranceCount?:      int & >=0
 	FailureTolerancePercentage?: int & <=100 & >=0
 	MaxConcurrentCount?:         int & >=1
 	MaxConcurrentPercentage?:    int & <=100 & >=0
-	RegionConcurrencyType?:      _#defs."/$defs/Properties/definitions/RegionConcurrencyType"
-	RegionOrder?:                [..._#defs."/$defs/Properties/definitions/Region"]
+	RegionConcurrencyType?:      #RegionConcurrencyType
+	RegionOrder?:                [...#Region]
 })
 
-_#defs: "/$defs/Properties/definitions/OrganizationalUnitId": =~"^(ou-[a-z0-9]{4,32}-[a-z0-9]{8,32}|r-[a-z0-9]{4,32})$"
+#OrganizationalUnitId: =~"^(ou-[a-z0-9]{4,32}-[a-z0-9]{8,32}|r-[a-z0-9]{4,32})$"
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	// The key associated with the parameter. If you don't specify a key and value
 	// for a particular parameter, AWS CloudFormation uses the default value that
 	// is specified in your template.
@@ -162,30 +159,30 @@ _#defs: "/$defs/Properties/definitions/Parameter": close({
 	ParameterValue!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Region": =~"^[a-zA-Z0-9-]{1,128}$"
+#Region: =~"^[a-zA-Z0-9-]{1,128}$"
 
 // The concurrency type of deploying StackSets operations in regions, could be
 // in parallel or one region at a time
-_#defs: "/$defs/Properties/definitions/RegionConcurrencyType": "SEQUENTIAL" | "PARALLEL"
+#RegionConcurrencyType: "SEQUENTIAL" | "PARALLEL"
 
 // Stack instances in some specific accounts and Regions.
-_#defs: "/$defs/Properties/definitions/StackInstances": close({
-	DeploymentTargets!: _#defs."/$defs/Properties/definitions/DeploymentTargets"
+#StackInstances: close({
+	DeploymentTargets!: #DeploymentTargets
 
 	// A list of stack set parameters whose values you want to override in the selected stack instances.
-	ParameterOverrides?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Parameter"]
+	ParameterOverrides?: list.UniqueItems() & [...#Parameter]
 
 	// The names of one or more Regions where you want to create stack instances
 	// using the specified AWS account(s).
-	Regions!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Region"]
+	Regions!: list.MinItems(1) & list.UniqueItems() & [...#Region]
 })
 
 // The Amazon Resource Number (ARN) of a stack set.
-_#defs: "/$defs/Properties/definitions/StackSetArn": string
+#StackSetArn: string
 
 // Tag type enables you to specify a key-value pair that can be used to store
 // information about an AWS CloudFormation StackSet.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag. You can specify a maximum of 127 characters for a tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

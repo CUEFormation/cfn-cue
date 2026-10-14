@@ -14,21 +14,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for Local Gateway Route Table which describes a
 // route table for a local gateway.
-#Properties: close({
-	LocalGatewayId!: string | fn.#StringExpression
-	Mode?:           "coip" | "direct-vpc-routing" | fn.#StringExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::LocalGatewayRouteTable"
+	Properties!: close({
+		LocalGatewayId!: string | fn.#StringExpression
+		Mode?:           "coip" | "direct-vpc-routing" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+		// The tags for the local gateway route table.
+		Tags?: #Tags
+	})
+}
+
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::LocalGatewayRouteTable"
-	Properties!: #Properties
-}
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression

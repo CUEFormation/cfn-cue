@@ -19,9 +19,7 @@ import (
 
 	// The metric selections that define which metrics are enabled for detailed
 	// monitoring on the resource.
-	MetricSelections?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourceMetricSelection"
-	]
+	MetricSelections?: list.MaxItems(1) & list.MinItems(1) & [...#ResourceMetricSelection]
 
 	// The Amazon Resource Name (ARN) of the resource for which the detailed
 	// monitoring metrics configuration is managed.
@@ -34,7 +32,7 @@ import (
 })
 
 // Defines which metrics are enabled for detailed monitoring on the resource.
-_#defs: "/$defs/Properties/definitions/ResourceMetricSelection": close({
+#ResourceMetricSelection: close({
 	// The list of metric names to include in detailed monitoring for the resource.
 	IncludeMetrics!: list.MaxItems(500) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 })

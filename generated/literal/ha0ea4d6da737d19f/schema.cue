@@ -13,11 +13,11 @@ import (
 #Properties: close({
 	Identifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
 	Name!:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$"
-	Scopes?:     list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceServerScopeType"]
+	Scopes?:     list.MaxItems(100) & [...] & [...#ResourceServerScopeType]
 	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceServerScopeType": close({
+#ResourceServerScopeType: close({
 	ScopeDescription!: strings.MaxRunes(256) & strings.MinRunes(1)
 	ScopeName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x2E\\x30-\\x5B\\x5D-\\x7E]+$"
 })

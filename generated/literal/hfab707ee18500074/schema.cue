@@ -13,56 +13,52 @@ import (
 // Resource schema for StateMachine
 #Properties: close({
 	Arn?:                     strings.MaxRunes(2048) & strings.MinRunes(1)
-	Definition?:              _#defs."/$defs/Properties/definitions/Definition"
-	DefinitionS3Location?:    _#defs."/$defs/Properties/definitions/S3Location"
+	Definition?:              #Definition
+	DefinitionS3Location?:    #S3Location
 	DefinitionString?:        strings.MaxRunes(1048576) & strings.MinRunes(1)
-	DefinitionSubstitutions?: _#defs."/$defs/Properties/definitions/DefinitionSubstitutions"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration"
+	DefinitionSubstitutions?: #DefinitionSubstitutions
+	EncryptionConfiguration?: #EncryptionConfiguration
+	LoggingConfiguration?:    #LoggingConfiguration
 	Name?:                    strings.MaxRunes(80) & strings.MinRunes(1)
 	RoleArn!:                 =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(256) & strings.MinRunes(1))
 	StateMachineName?:        strings.MaxRunes(80) & strings.MinRunes(1)
 	StateMachineRevisionId?:  strings.MaxRunes(256) & strings.MinRunes(1)
 	StateMachineType?:        "STANDARD" | "EXPRESS"
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/TagsEntry"]
-	TracingConfiguration?:    _#defs."/$defs/Properties/definitions/TracingConfiguration"
+	Tags?:                    [...#TagsEntry]
+	TracingConfiguration?:    #TracingConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsLogGroup": close(
-	{LogGroupArn?: strings.MaxRunes(256) & strings.MinRunes(1)},
-)
+#CloudWatchLogsLogGroup: close({LogGroupArn?: strings.MaxRunes(256) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/Definition": struct.MinFields(1)
+#Definition: struct.MinFields(1)
 
-_#defs: "/$defs/Properties/definitions/DefinitionSubstitutions": struct.MinFields(1) & close({
+#DefinitionSubstitutions: struct.MinFields(1) & close({
 
 	{[=~".*"]: string | int | bool}})
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 	Type!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY"
 })
 
-_#defs: "/$defs/Properties/definitions/LogDestination": close(
-	{CloudWatchLogsLogGroup?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogGroup"},
-)
+#LogDestination: close({CloudWatchLogsLogGroup?: #CloudWatchLogsLogGroup})
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
-	Destinations?:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogDestination"]
+#LoggingConfiguration: close({
+	Destinations?:         list.MinItems(1) & [...#LogDestination]
 	IncludeExecutionData?: bool
 	Level?:                "ALL" | "ERROR" | "FATAL" | "OFF"
 })
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:  string
 	Key!:     string
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TracingConfiguration": close({Enabled?: bool})
+#TracingConfiguration: close({Enabled?: bool})

@@ -14,10 +14,10 @@ package schema
 
 	// The list of compute node group configurations associated with the queue.
 	// Queues assign jobs to associated compute node groups.
-	ComputeNodeGroupConfigurations?: [..._#defs."/$defs/Properties/definitions/ComputeNodeGroupConfiguration"]
+	ComputeNodeGroupConfigurations?: [...#ComputeNodeGroupConfiguration]
 
 	// The list of errors that occurred during queue provisioning.
-	ErrorInfo?: [..._#defs."/$defs/Properties/definitions/ErrorInfo"]
+	ErrorInfo?: [...#ErrorInfo]
 
 	// The generated unique ID of the queue.
 	Id?: string
@@ -28,7 +28,7 @@ package schema
 	// The Slurm configuration for the queue.
 	SlurmConfiguration?: close({
 		// Custom Slurm parameters that directly map to Slurm configuration settings.
-		SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting"]
+		SlurmCustomSettings?: [...#SlurmCustomSetting]
 	})
 
 	// The provisioning status of the queue. The provisioning status doesn't
@@ -43,13 +43,13 @@ package schema
 })
 
 // The compute node group configuration for a queue.
-_#defs: "/$defs/Properties/definitions/ComputeNodeGroupConfiguration": close({
+#ComputeNodeGroupConfiguration: close({
 	// The compute node group ID for the compute node group configuration.
 	ComputeNodeGroupId?: string
 })
 
 // An error that occurred during resource provisioning.
-_#defs: "/$defs/Properties/definitions/ErrorInfo": close({
+#ErrorInfo: close({
 	// The short-form error code.
 	Code?: string
 
@@ -58,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/ErrorInfo": close({
 })
 
 // Additional settings that directly map to Slurm settings.
-_#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({
+#SlurmCustomSetting: close({
 	// AWS PCS supports configuration of the Slurm parameters for queues:.
 	ParameterName!: string
 

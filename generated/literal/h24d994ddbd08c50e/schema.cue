@@ -23,46 +23,46 @@ import (
 	Id?: =~"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
 
 	// The list of task definitions.
-	LoRaWANUpdateGatewayTaskEntry?: _#defs."/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskEntry"
+	LoRaWANUpdateGatewayTaskEntry?: #LoRaWANUpdateGatewayTaskEntry
 
 	// The name of the new resource.
 	Name?: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// A list of key-value pairs that contain metadata for the destination.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 
 	// A filter to list only the wireless gateway task definitions that use this task definition type
 	TaskDefinitionType?: "UPDATE"
 
 	// Information about the gateways to update.
-	Update?: _#defs."/$defs/Properties/definitions/UpdateWirelessGatewayTaskCreate"
+	Update?: #UpdateWirelessGatewayTaskCreate
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWANGatewayVersion": close({
+#LoRaWANGatewayVersion: close({
 	Model?:          strings.MaxRunes(4096) & strings.MinRunes(1)
 	PackageVersion?: strings.MaxRunes(32) & strings.MinRunes(1)
 	Station?:        strings.MaxRunes(4096) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskCreate": close({
-	CurrentVersion?:  _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
+#LoRaWANUpdateGatewayTaskCreate: close({
+	CurrentVersion?:  #LoRaWANGatewayVersion
 	SigKeyCrc?:       int & <=4294967295 & >=1
 	UpdateSignature?: strings.MaxRunes(4096) & strings.MinRunes(1)
-	UpdateVersion?:   _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
+	UpdateVersion?:   #LoRaWANGatewayVersion
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskEntry": close({
-	CurrentVersion?: _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
-	UpdateVersion?:  _#defs."/$defs/Properties/definitions/LoRaWANGatewayVersion"
+#LoRaWANUpdateGatewayTaskEntry: close({
+	CurrentVersion?: #LoRaWANGatewayVersion
+	UpdateVersion?:  #LoRaWANGatewayVersion
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/UpdateWirelessGatewayTaskCreate": close({
-	LoRaWAN?:          _#defs."/$defs/Properties/definitions/LoRaWANUpdateGatewayTaskCreate"
+#UpdateWirelessGatewayTaskCreate: close({
+	LoRaWAN?:          #LoRaWANUpdateGatewayTaskCreate
 	UpdateDataRole?:   strings.MaxRunes(2048) & strings.MinRunes(1)
 	UpdateDataSource?: strings.MaxRunes(4096) & strings.MinRunes(1)
 })

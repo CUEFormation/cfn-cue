@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Express::BucketPolicy.
-#Properties: close({
-	Bucket!:         string | fn.#StringExpression
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Express::BucketPolicy"
-	Properties!: #Properties
+	Type!: "AWS::S3Express::BucketPolicy"
+	Properties!: close({
+		Bucket!:         string | fn.#StringExpression
+		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

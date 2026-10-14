@@ -19,20 +19,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::EventsV2::EventBus, an Amazon EventBridge
 // custom event bus that receives events and delivers them to matching
 // subscribers.
-#Properties: close({
-	Description?:             strings.MaxRunes(512) | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
-	StorageConfiguration?: _#defs."/$defs/Properties/definitions/StorageConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EventsV2::EventBus"
+	Properties!: close({
+		Description?: strings.MaxRunes(512) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close(
+		// Encryption configuration for the event bus. The service stores and returns
+		// the customer managed key as its key ARN. The key ARN is recommended so that
+		// drift detection stays accurate. A key ID is also accepted and is matched to
+		// the returned key ARN when CloudFormation checks for drift; a key alias is
+		// accepted but can be reported as a value difference, because an alias cannot
+		// be matched to the key ARN it points to.
+		EncryptionConfiguration?: #EncryptionConfiguration
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
+
+		// The event storage configuration for the event bus, which controls the number
+		// of days events are retained on the bus.
+		StorageConfiguration?: #StorageConfiguration
+		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#EncryptionConfiguration: close(
 	{KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageConfiguration": close({
+#StorageConfiguration: close({
 	RetentionPeriodInDays?: int & <=365 & >=1 |
 		{
 			string &
@@ -52,12 +65,8 @@ _#defs: "/$defs/Properties/definitions/StorageConfiguration": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventsV2::EventBus"
-	Properties!: #Properties
-}

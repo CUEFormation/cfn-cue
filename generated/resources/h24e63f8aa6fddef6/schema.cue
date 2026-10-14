@@ -9,19 +9,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::PushTemplate
-#Properties: close({
-	ADM?:                  _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
-	APNS?:                 _#defs."/$defs/Properties/definitions/APNSPushNotificationTemplate"
-	Baidu?:                _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
-	Default?:              _#defs."/$defs/Properties/definitions/DefaultPushNotificationTemplate"
-	DefaultSubstitutions?: string | fn.#StringExpression
-	GCM?:                  _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
-	Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
-	TemplateDescription?:  string | fn.#StringExpression
-	TemplateName!:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pinpoint::PushTemplate"
+	Properties!: close({
+		ADM?:                  #AndroidPushNotificationTemplate
+		APNS?:                 #APNSPushNotificationTemplate
+		Baidu?:                #AndroidPushNotificationTemplate
+		Default?:              #DefaultPushNotificationTemplate
+		DefaultSubstitutions?: string | fn.#StringExpression
+		GCM?:                  #AndroidPushNotificationTemplate
+		Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
+		TemplateDescription?:  string | fn.#StringExpression
+		TemplateName!:         string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/APNSPushNotificationTemplate": close({
+#APNSPushNotificationTemplate: close({
 	Action?:   string | fn.#StringExpression
 	Body?:     string | fn.#StringExpression
 	MediaUrl?: string | fn.#StringExpression
@@ -31,7 +34,7 @@ _#defs: "/$defs/Properties/definitions/APNSPushNotificationTemplate": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AndroidPushNotificationTemplate": close({
+#AndroidPushNotificationTemplate: close({
 	Action?:            string | fn.#StringExpression
 	Body?:              string | fn.#StringExpression
 	ImageIconUrl?:      string | fn.#StringExpression
@@ -43,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/AndroidPushNotificationTemplate": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultPushNotificationTemplate": close({
+#DefaultPushNotificationTemplate: close({
 	Action?: string | fn.#StringExpression
 	Body?:   string | fn.#StringExpression
 	Sound?:  string | fn.#StringExpression
@@ -51,7 +54,3 @@ _#defs: "/$defs/Properties/definitions/DefaultPushNotificationTemplate": close({
 	Url?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::PushTemplate"
-	Properties!: #Properties
-}

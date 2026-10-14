@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -17,64 +17,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Container
-#Properties: close({
-	ContainerServiceDeployment?: _#defs."/$defs/Properties/definitions/ContainerServiceDeployment" |
-		fn.#ObjectExpression
-	IsDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Power!:      "large" | "medium" | "micro" | "nano" | "small" | "xlarge" | fn.#StringExpression
-	PrivateRegistryAccess?: close({
-		EcrImagePullerRole?: close(
-			{IsActive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-		) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Container"
+	Properties!: close({
+		// Describes a container deployment configuration of an Amazon Lightsail container service.
+		ContainerServiceDeployment?: #ContainerServiceDeployment
+		IsDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Power!:      "large" | "medium" | "micro" | "nano" | "small" | "xlarge" | fn.#StringExpression
+		PrivateRegistryAccess?: close({
+			EcrImagePullerRole?: close(
+				{IsActive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+			) |
+				fn.#ObjectExpression
+		}) |
 			fn.#ObjectExpression
-	}) |
-		fn.#ObjectExpression
-	PublicDomainNames?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PublicDomainName"] |
-		fn.#ListExpression
-	Scale!: int & <=20 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=20 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ServiceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]{1,2}|[a-z0-9][a-z0-9-]+[a-z0-9]$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		PublicDomainNames?: list.UniqueItems() & [...#PublicDomainName] | fn.#ListExpression
+		Scale!: int & <=20 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=20 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ServiceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]{1,2}|[a-z0-9][a-z0-9-]+[a-z0-9]$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Container": close({
+#Container: close({
 	Command?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	ContainerName?: string | fn.#StringExpression
-	Environment?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] |
-		fn.#ListExpression
-	Image?: string | fn.#StringExpression
-	Ports?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortInfo"] | fn.#ListExpression
+	Environment?:   list.UniqueItems() & [...#EnvironmentVariable] | fn.#ListExpression
+	Image?:         string | fn.#StringExpression
+	Ports?:         list.UniqueItems() & [...#PortInfo] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerServiceDeployment": close({
-	Containers?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Container"] | fn.#ListExpression
-	PublicEndpoint?: _#defs."/$defs/Properties/definitions/PublicEndpoint" | fn.#ObjectExpression
+#ContainerServiceDeployment: close({
+	Containers?: list.UniqueItems() & [...#Container] | fn.#ListExpression
+
+	// An object that describes the endpoint of the deployment.
+	PublicEndpoint?: #PublicEndpoint
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Value?:    string | fn.#StringExpression
 	Variable?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
+#HealthCheckConfig: close({
 	HealthyThreshold?: int |
 		{
 			string &
@@ -136,13 +141,13 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortInfo": close({
+#PortInfo: close({
 	Port?:     string | fn.#StringExpression
 	Protocol?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateRegistryAccess": close({
+#PrivateRegistryAccess: close({
 	EcrImagePullerRole?: close({
 		IsActive?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		PrincipalArn?: string | fn.#StringExpression
@@ -151,13 +156,13 @@ _#defs: "/$defs/Properties/definitions/PrivateRegistryAccess": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicDomainName": close({
+#PublicDomainName: close({
 	CertificateName?: string | fn.#StringExpression
 	DomainNames?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicEndpoint": close({
+#PublicEndpoint: close({
 	ContainerName?: string | fn.#StringExpression
 	ContainerPort?: int |
 		{
@@ -173,16 +178,14 @@ _#defs: "/$defs/Properties/definitions/PublicEndpoint": close({
 				)
 		} |
 		fn.#NumberExpression
-	HealthCheckConfig?: _#defs."/$defs/Properties/definitions/HealthCheckConfig" | fn.#ObjectExpression
+
+	// An object that describes the health check configuration of the container.
+	HealthCheckConfig?: #HealthCheckConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Container"
-	Properties!: #Properties
-}

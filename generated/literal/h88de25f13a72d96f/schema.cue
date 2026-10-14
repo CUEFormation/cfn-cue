@@ -19,33 +19,33 @@ import "strings"
 	Description?: string
 
 	// AWS Region and TableName for an Amazon DynamoDB table in your account.
-	DynamoDBConfig?: _#defs."/$defs/Properties/definitions/DynamoDBConfig"
+	DynamoDBConfig?: #DynamoDBConfig
 
 	// AWS Region and Endpoints for an Amazon OpenSearch Service domain in your account.
 	// As of September 2021, Amazon Elasticsearch Service is Amazon OpenSearch
 	// Service. This property is deprecated. For new data sources, use
 	// OpenSearchServiceConfig to specify an OpenSearch Service data source.
-	ElasticsearchConfig?: _#defs."/$defs/Properties/definitions/ElasticsearchConfig"
+	ElasticsearchConfig?: #ElasticsearchConfig
 
 	// ARN for the EventBridge bus.
-	EventBridgeConfig?: _#defs."/$defs/Properties/definitions/EventBridgeConfig"
+	EventBridgeConfig?: #EventBridgeConfig
 
 	// Endpoints for an HTTP data source.
-	HttpConfig?: _#defs."/$defs/Properties/definitions/HttpConfig"
+	HttpConfig?: #HttpConfig
 
 	// An ARN of a Lambda function in valid ARN format. This can be the ARN of a
 	// Lambda function that exists in the current account or in another account.
-	LambdaConfig?:  _#defs."/$defs/Properties/definitions/LambdaConfig"
+	LambdaConfig?:  #LambdaConfig
 	MetricsConfig?: "DISABLED" | "ENABLED"
 
 	// Friendly name for you to identify your AppSync data source after creation.
 	Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$"
 
 	// AWS Region and Endpoints for an Amazon OpenSearch Service domain in your account.
-	OpenSearchServiceConfig?: _#defs."/$defs/Properties/definitions/OpenSearchServiceConfig"
+	OpenSearchServiceConfig?: #OpenSearchServiceConfig
 
 	// Relational Database configuration of the relational database data source.
-	RelationalDatabaseConfig?: _#defs."/$defs/Properties/definitions/RelationalDatabaseConfig"
+	RelationalDatabaseConfig?: #RelationalDatabaseConfig
 
 	// The AWS Identity and Access Management service role ARN for the data source.
 	// The system assumes this role when accessing the data source.
@@ -63,15 +63,15 @@ import "strings"
 		"RELATIONAL_DATABASE"
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizationConfig": close({
+#AuthorizationConfig: close({
 	// The authorization type that the HTTP endpoint requires.
 	AuthorizationType!: "AWS_IAM"
 
 	// The AWS Identity and Access Management settings.
-	AwsIamConfig?: _#defs."/$defs/Properties/definitions/AwsIamConfig"
+	AwsIamConfig?: #AwsIamConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AwsIamConfig": close({
+#AwsIamConfig: close({
 	// The signing Region for AWS Identity and Access Management authorization.
 	SigningRegion?: string
 
@@ -79,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/AwsIamConfig": close({
 	SigningServiceName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/DeltaSyncConfig": close({
+#DeltaSyncConfig: close({
 	// The number of minutes that an Item is stored in the data source.
 	BaseTableTTL!: string
 
@@ -90,12 +90,12 @@ _#defs: "/$defs/Properties/definitions/DeltaSyncConfig": close({
 	DeltaSyncTableTTL!: string
 })
 
-_#defs: "/$defs/Properties/definitions/DynamoDBConfig": close({
+#DynamoDBConfig: close({
 	// The AWS Region.
 	AwsRegion!: string
 
 	// The DeltaSyncConfig for a versioned datasource.
-	DeltaSyncConfig?: _#defs."/$defs/Properties/definitions/DeltaSyncConfig"
+	DeltaSyncConfig?: #DeltaSyncConfig
 
 	// The table name.
 	TableName!: string
@@ -107,7 +107,7 @@ _#defs: "/$defs/Properties/definitions/DynamoDBConfig": close({
 	Versioned?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchConfig": close({
+#ElasticsearchConfig: close({
 	// The AWS Region.
 	AwsRegion!: string
 
@@ -115,25 +115,25 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchConfig": close({
 	Endpoint!: string
 })
 
-_#defs: "/$defs/Properties/definitions/EventBridgeConfig": close({
+#EventBridgeConfig: close({
 	// ARN for the EventBridge bus.
 	EventBusArn!: string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpConfig": close({
+#HttpConfig: close({
 	// The authorization configuration.
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/AuthorizationConfig"
+	AuthorizationConfig?: #AuthorizationConfig
 
 	// The endpoint.
 	Endpoint!: string
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close({
+#LambdaConfig: close({
 	// The ARN for the Lambda function.
 	LambdaFunctionArn!: string
 })
 
-_#defs: "/$defs/Properties/definitions/OpenSearchServiceConfig": close({
+#OpenSearchServiceConfig: close({
 	// The AWS Region.
 	AwsRegion!: string
 
@@ -141,7 +141,7 @@ _#defs: "/$defs/Properties/definitions/OpenSearchServiceConfig": close({
 	Endpoint!: string
 })
 
-_#defs: "/$defs/Properties/definitions/RdsHttpEndpointConfig": close({
+#RdsHttpEndpointConfig: close({
 	// AWS Region for RDS HTTP endpoint.
 	AwsRegion!: string
 
@@ -158,9 +158,9 @@ _#defs: "/$defs/Properties/definitions/RdsHttpEndpointConfig": close({
 	Schema?: string
 })
 
-_#defs: "/$defs/Properties/definitions/RelationalDatabaseConfig": close({
+#RelationalDatabaseConfig: close({
 	// Information about the Amazon RDS resource.
-	RdsHttpEndpointConfig?: _#defs."/$defs/Properties/definitions/RdsHttpEndpointConfig"
+	RdsHttpEndpointConfig?: #RdsHttpEndpointConfig
 
 	// The type of relational data source.
 	RelationalDatabaseSourceType!: "RDS_HTTP_ENDPOINT"

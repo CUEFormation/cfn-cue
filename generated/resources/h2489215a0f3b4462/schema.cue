@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,43 +13,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::Plugin Resource Type
-#Properties: close({
-	ApplicationId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
-	fn.#StringExpression
-	AuthConfiguration!:         _#defs."/$defs/Properties/definitions/PluginAuthConfiguration"
-	CustomPluginConfiguration?: _#defs."/$defs/Properties/definitions/CustomPluginConfiguration"
-	DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	ServerUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
-	fn.#StringExpression
-	State?: _#defs."/$defs/Properties/definitions/PluginState"
-	Tags?:  list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!:  _#defs."/$defs/Properties/definitions/PluginType"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QBusiness::Plugin"
+	Properties!: close({
+		ApplicationId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		fn.#StringExpression
+		AuthConfiguration!:         #PluginAuthConfiguration
+		CustomPluginConfiguration?: #CustomPluginConfiguration
+		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+		fn.#StringExpression
+		ServerUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
+		fn.#StringExpression
+		State?: #PluginState
+		Tags?:  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:  #PluginType
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/APISchema": matchN(1, [
-	close({Payload!: string | fn.#StringExpression}), close({S3!: _#defs."/$defs/Properties/definitions/S3"}),
-]) |
-fn.#ValueExpression
+#APISchema: matchN(1, [close({Payload!: string | fn.#StringExpression}), close({S3!: #S3})]) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/APISchemaType": "OPEN_API_V3" | fn.#StringExpression
+#APISchemaType: "OPEN_API_V3" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BasicAuthConfiguration": close({
+#BasicAuthConfiguration: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
 	fn.#StringExpression
 	SecretArn!: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPluginConfiguration": close({
-	ApiSchema!:     _#defs."/$defs/Properties/definitions/APISchema"
-	ApiSchemaType!: _#defs."/$defs/Properties/definitions/APISchemaType"
+#CustomPluginConfiguration: close({
+	ApiSchema!:     #APISchema
+	ApiSchemaType!: #APISchemaType
 	Description!:   strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NoAuthConfiguration": fn.#Object & {...} | string | fn.#StringObjectExpression
+#NoAuthConfiguration: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration": close({
+#OAuth2ClientCredentialConfiguration: close({
 	AuthorizationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
 	fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
@@ -59,16 +60,16 @@ _#defs: "/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration": clo
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PluginAuthConfiguration": matchN(1, [close(
-	{BasicAuthConfiguration!: _#defs."/$defs/Properties/definitions/BasicAuthConfiguration"},
+#PluginAuthConfiguration: matchN(1, [close(
+	{BasicAuthConfiguration!: #BasicAuthConfiguration},
 ), close(
-	{OAuth2ClientCredentialConfiguration!: _#defs."/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration"},
+	{OAuth2ClientCredentialConfiguration!: #OAuth2ClientCredentialConfiguration},
 ), close(
-	{NoAuthConfiguration!: _#defs."/$defs/Properties/definitions/NoAuthConfiguration"},
+	{NoAuthConfiguration!: #NoAuthConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/PluginBuildStatus": "READY" |
+#PluginBuildStatus: "READY" |
 	"CREATE_IN_PROGRESS" |
 	"CREATE_FAILED" |
 	"UPDATE_IN_PROGRESS" |
@@ -77,9 +78,9 @@ _#defs: "/$defs/Properties/definitions/PluginBuildStatus": "READY" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PluginState": "ENABLED" | "DISABLED" | fn.#StringExpression
+#PluginState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PluginType": "SERVICE_NOW" |
+#PluginType: "SERVICE_NOW" |
 	"SALESFORCE" |
 	"JIRA" |
 	"ZENDESK" |
@@ -98,19 +99,15 @@ _#defs: "/$defs/Properties/definitions/PluginType": "SERVICE_NOW" |
 	"ASANA" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3": close({
+#S3: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
 	fn.#StringExpression
 	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QBusiness::Plugin"
-	Properties!: #Properties
-}

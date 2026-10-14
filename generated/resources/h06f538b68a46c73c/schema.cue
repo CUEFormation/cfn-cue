@@ -13,24 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::TransitGatewayConnectPeer
-#Properties: close({
-	ConnectPeerConfiguration!: close({
-		InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
-		PeerAddress!:           string | fn.#StringExpression
-		TransitGatewayAddress?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TransitGatewayAttachmentId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TransitGatewayConnectPeer"
+	Properties!: close({
+		ConnectPeerConfiguration!: close({
+			InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
+			PeerAddress!:           string | fn.#StringExpression
+			TransitGatewayAddress?: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?:                       [...#Tag] | fn.#ListExpression
+		TransitGatewayAttachmentId!: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration": close({
+#TransitGatewayAttachmentBgpConfiguration: close({
 	BgpStatus?:   string | fn.#StringExpression
 	PeerAddress?: string | fn.#StringExpression
 	PeerAsn?: number |
@@ -75,16 +78,11 @@ _#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayConnectPeerConfiguration": close({
-	BgpConfigurations?: [..._#defs."/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration"] |
-		fn.#ListExpression
+#TransitGatewayConnectPeerConfiguration: close({
+	BgpConfigurations?:     [...#TransitGatewayAttachmentBgpConfiguration] | fn.#ListExpression
 	InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
 	PeerAddress!:           string | fn.#StringExpression
 	Protocol?:              string | fn.#StringExpression
 	TransitGatewayAddress?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayConnectPeer"
-	Properties!: #Properties
-}

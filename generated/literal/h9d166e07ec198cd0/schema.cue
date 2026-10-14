@@ -5,18 +5,7 @@ package schema
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::Instance
-#Properties: matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaces!: _
-		SubnetId!:          _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		SubnetId!:          _
-		NetworkInterfaces!: _
-		...
-	}]) & {...}
-]) & close({
+#Properties: close({
 	// This property is reserved for internal use. If you use it, the stack fails
 	// with this error: Bad property set: [Testing this property] (Service:
 	// AmazonEC2; Status Code: 400; Error Code: InvalidParameterCombination;
@@ -35,7 +24,7 @@ package schema
 
 	// The block device mapping entries that defines the block devices to attach to
 	// the instance at launch.
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"]
+	BlockDeviceMappings?: [...#BlockDeviceMapping]
 
 	// The CPU options for the instance.
 	CpuOptions?: close({
@@ -55,11 +44,11 @@ package schema
 	EbsOptimized?: bool
 
 	// An elastic GPU to associate with the instance. Amazon Elastic Graphics is no longer available.
-	ElasticGpuSpecifications?: [..._#defs."/$defs/Properties/definitions/ElasticGpuSpecification"]
+	ElasticGpuSpecifications?: [...#ElasticGpuSpecification]
 
 	// An elastic inference accelerator to associate with the instance. Amazon
 	// Elastic Inference is no longer available.
-	ElasticInferenceAccelerators?: [..._#defs."/$defs/Properties/definitions/ElasticInferenceAccelerator"]
+	ElasticInferenceAccelerators?: [...#ElasticInferenceAccelerator]
 
 	// Indicates whether the instance is enabled for AWS Nitro Enclaves.
 	EnclaveOptions?: close({
@@ -109,7 +98,7 @@ package schema
 
 	// [EC2-VPC] The IPv6 addresses from the range of the subnet to associate with
 	// the primary network interface.
-	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"]
+	Ipv6Addresses?: [...#InstanceIpv6Address]
 
 	// The ID of the kernel.
 	KernelId?: string
@@ -118,19 +107,19 @@ package schema
 	KeyName?: string
 
 	// The launch template to use to launch the instances.
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
+	LaunchTemplate?: #LaunchTemplateSpecification
 
 	// The license configurations.
-	LicenseSpecifications?: [..._#defs."/$defs/Properties/definitions/LicenseSpecification"]
+	LicenseSpecifications?: [...#LicenseSpecification]
 
 	// The metadata options for the instance
-	MetadataOptions?: _#defs."/$defs/Properties/definitions/MetadataOptions"
+	MetadataOptions?: #MetadataOptions
 
 	// Specifies whether detailed monitoring is enabled for the instance.
 	Monitoring?: bool
 
 	// The network interfaces to associate with the instance.
-	NetworkInterfaces?: [..._#defs."/$defs/Properties/definitions/NetworkInterface"]
+	NetworkInterfaces?: [...#NetworkInterface]
 
 	// The name of an existing placement group that you want to launch the instance
 	// into (cluster | partition | spread).
@@ -140,7 +129,7 @@ package schema
 	PrivateDnsName?: string
 
 	// The options for the instance hostname.
-	PrivateDnsNameOptions?: _#defs."/$defs/Properties/definitions/PrivateDnsNameOptions"
+	PrivateDnsNameOptions?: #PrivateDnsNameOptions
 
 	// The private IP address of the specified instance. For example: 10.24.34.0.
 	PrivateIp?: string
@@ -176,16 +165,16 @@ package schema
 	SourceDestCheck?: bool
 
 	// The SSM document and parameter values in AWS Systems Manager to associate with this instance.
-	SsmAssociations?: [..._#defs."/$defs/Properties/definitions/SsmAssociation"]
+	SsmAssociations?: [...#SsmAssociation]
 
 	// The current state of the instance.
-	State?: _#defs."/$defs/Properties/definitions/State"
+	State?: #State
 
 	// [EC2-VPC] The ID of the subnet to launch the instance into.
 	SubnetId?: string
 
 	// The tags to add to the instance.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The tenancy of the instance (if the instance is running in a VPC). An
 	// instance with a tenancy of dedicated runs on single-tenant hardware.
@@ -195,13 +184,16 @@ package schema
 	UserData?: string
 
 	// The volumes to attach to the instance.
-	Volumes?: [..._#defs."/$defs/Properties/definitions/Volume"]
+	Volumes?: [...#Volume]
 
 	// The ID of the VPC that the instance is running in.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
+	if NetworkInterfaces != _|_ if NetworkInterfaces."Fn::If" == _|_ {
+		SubnetId?: close({"Fn::If": _}) | error("SubnetId cannot be used with NetworkInterfaces")
+	}
 })
 
-_#defs: "/$defs/Properties/definitions/AssociationParameter": close({
+#AssociationParameter: close({
 	// The name of an input parameter that is in the associated SSM document.
 	Key!: string
 
@@ -209,26 +201,30 @@ _#defs: "/$defs/Properties/definitions/AssociationParameter": close({
 	Value!: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
+#BlockDeviceMapping: close({
 	// The device name (for example, /dev/sdh or xvdh).
 	DeviceName!: string
 
 	// Parameters used to automatically set up EBS volumes when the instance is launched.
-	Ebs?:         _#defs."/$defs/Properties/definitions/Ebs"
+	Ebs?:         #Ebs
 	NoDevice?:    close({})
 	VirtualName?: string
-})
+	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
+		Ebs?: close({"Fn::If": _}) | error(
+			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+	}
+	if Ebs != _|_ if Ebs."Fn::If" == _|_ {
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
-_#defs: "/$defs/Properties/definitions/Ebs": close({
+#Ebs: close({
 	// Indicates whether the EBS volume is deleted on instance termination.
 	DeleteOnTermination?: bool
 
@@ -261,12 +257,12 @@ _#defs: "/$defs/Properties/definitions/Ebs": close({
 	VolumeType?: "gp2" | "gp3" | "io1" | "io2" | "sc1" | "st1" | "standard"
 })
 
-_#defs: "/$defs/Properties/definitions/ElasticGpuSpecification": close({
+#ElasticGpuSpecification: close({
 	// The type of Elastic Graphics accelerator. Amazon Elastic Graphics is no longer available.
 	Type!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ElasticInferenceAccelerator": close({
+#ElasticInferenceAccelerator: close({
 	// The number of elastic inference accelerators to attach to the instance.
 	// Amazon Elastic Inference is no longer available.
 	Count?: int & >=0
@@ -276,25 +272,25 @@ _#defs: "/$defs/Properties/definitions/ElasticInferenceAccelerator": close({
 })
 
 // Specifies the ENA Express settings for the network interface that's attached to the instance.
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
+#EnaSrdSpecification: close({
 	// Specifies whether ENA Express is enabled for the network interface when you launch an instance.
 	EnaSrdEnabled?:          bool
-	EnaSrdUdpSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdUdpSpecification"
+	EnaSrdUdpSpecification?: #EnaSrdUdpSpecification
 })
 
 // Contains ENA Express settings for UDP network traffic for the network
 // interface that's attached to the instance.
-_#defs: "/$defs/Properties/definitions/EnaSrdUdpSpecification": close({
+#EnaSrdUdpSpecification: close({
 	// Indicates whether UDP traffic uses ENA Express for your instance.
 	EnaSrdUdpEnabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceIpv6Address": close({
+#InstanceIpv6Address: close({
 	// The IPv6 address.
 	Ipv6Address!: string
 })
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": matchN(1, [{
+#LaunchTemplateSpecification: matchN(1, [{
 	LaunchTemplateName!: _
 	Version!:            _
 	...
@@ -315,12 +311,12 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": matchN(1, [
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/LicenseSpecification": close({
+#LicenseSpecification: close({
 	// The Amazon Resource Name (ARN) of the license configuration.
 	LicenseConfigurationArn!: string
 })
 
-_#defs: "/$defs/Properties/definitions/MetadataOptions": close({
+#MetadataOptions: close({
 	// Enables or disables the HTTP metadata endpoint on your instances. If you
 	// specify a value of disabled, you cannot access your instance metadata.
 	HttpEndpoint?: "disabled" | "enabled"
@@ -340,28 +336,7 @@ _#defs: "/$defs/Properties/definitions/MetadataOptions": close({
 	InstanceMetadataTags?: "disabled" | "enabled"
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociateCarrierIpAddress!: _
-		NetworkInterfaceId!:        _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		AssociatePublicIpAddress!: _
-		NetworkInterfaceId!:       _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:        _
-		AssociateCarrierIpAddress!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		NetworkInterfaceId!:       _
-		AssociatePublicIpAddress!: _
-		...
-	}]) & {...}
-]) & close({
+#NetworkInterface: close({
 	// Not currently supported by AWS CloudFormation.
 	AssociateCarrierIpAddress?: bool
 
@@ -377,7 +352,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 	// The position of the network interface in the attachment order. A primary
 	// network interface has a device index of 0.
 	DeviceIndex!:         string
-	EnaSrdSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdSpecification"
+	EnaSrdSpecification?: #EnaSrdSpecification
 
 	// The IDs of the security groups for the network interface.
 	GroupSet?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
@@ -386,7 +361,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 	Ipv6AddressCount?: int
 
 	// The IPv6 addresses associated with the network interface.
-	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"]
+	Ipv6Addresses?: [...#InstanceIpv6Address]
 
 	// The ID of the network interface.
 	NetworkInterfaceId?: string
@@ -395,16 +370,26 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": matchN(4, [
 	PrivateIpAddress?: string
 
 	// One or more private IPv4 addresses to assign to the network interface.
-	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification"]
+	PrivateIpAddresses?: [...#PrivateIpAddressSpecification]
 
 	// The number of secondary private IPv4 addresses.
 	SecondaryPrivateIpAddressCount?: int
 
 	// The ID of the subnet.
 	SubnetId?: string
+	if AssociateCarrierIpAddress != _|_ if AssociateCarrierIpAddress."Fn::If" == _|_ {
+		NetworkInterfaceId?: close({"Fn::If": _}) | error(
+			"NetworkInterfaceId cannot be used with AssociateCarrierIpAddress",
+		)
+	}
+	if AssociatePublicIpAddress != _|_ if AssociatePublicIpAddress."Fn::If" == _|_ {
+		NetworkInterfaceId?: close({"Fn::If": _}) | error(
+			"NetworkInterfaceId cannot be used with AssociatePublicIpAddress",
+		)
+	}
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
+#PrivateDnsNameOptions: close({
 	// Indicates whether to respond to DNS queries for instance hostnames with DNS
 	// AAAA records. For more information, see Amazon EC2 instance hostname types
 	// in the Amazon Elastic Compute Cloud User Guide.
@@ -425,7 +410,7 @@ _#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
 	HostnameType?: "ip-name" | "resource-name"
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
+#PrivateIpAddressSpecification: close({
 	// Indicates whether the private IPv4 address is the primary private IPv4
 	// address. Only one IPv4 address can be designated as primary.
 	Primary!: bool
@@ -434,16 +419,16 @@ _#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
 	PrivateIpAddress!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SsmAssociation": close({
+#SsmAssociation: close({
 	// The input parameter values to use with the associated SSM document.
-	AssociationParameters?: [..._#defs."/$defs/Properties/definitions/AssociationParameter"]
+	AssociationParameters?: [...#AssociationParameter]
 
 	// The name of an SSM document to associate with the instance.
 	DocumentName!: string
 })
 
 // The current state of the instance
-_#defs: "/$defs/Properties/definitions/State": close({
+#State: close({
 	// The state of the instance as a 16-bit unsigned integer.
 	Code?: string
 
@@ -451,12 +436,12 @@ _#defs: "/$defs/Properties/definitions/State": close({
 	Name?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Volume": close({
+#Volume: close({
 	// The device name (for example, /dev/sdh or xvdh).
 	Device!: string
 

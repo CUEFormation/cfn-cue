@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -19,32 +19,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::BedrockAgentCore::OnlineEvaluationConfig -
 // Creates an online evaluation configuration for continuous monitoring of
 // agent performance.
-#Properties: close({
-	ClusteringConfig?: _#defs."/$defs/Properties/definitions/ClusteringConfig" | fn.#ObjectExpression
-	DataSourceConfig!: _#defs."/$defs/Properties/definitions/DataSourceConfig" | fn.#ObjectExpression
-	Description?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	EvaluationExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
-	fn.#StringExpression
-	Evaluators?: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/EvaluatorReference"] |
-		fn.#ListExpression
-	ExecutionStatus?: _#defs."/$defs/Properties/definitions/ExecutionStatus" | fn.#StringExpression
-	Insights?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Insight"] | fn.#ListExpression
-	OnlineEvaluationConfigName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	OutputConfig?:               _#defs."/$defs/Properties/definitions/OutputConfig" | fn.#ObjectExpression
-	Rule!:                       _#defs."/$defs/Properties/definitions/Rule" | fn.#ObjectExpression
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::OnlineEvaluationConfig"
+	Properties!: close({
+		// The configuration for clustering analysis of evaluation results.
+		ClusteringConfig?: #ClusteringConfig
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": matchN(1, [{
-	LogGroupNames!: _
-	...
-}, {
-	LogGroupNamePrefixes!: _
-	...
-}]) & close({
+		// The data source configuration that specifies CloudWatch log groups and service names to monitor.
+		DataSourceConfig!: #DataSourceConfig
+		Description?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		EvaluationExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		fn.#StringExpression
+		Evaluators?: list.MaxItems(25) & [...] & [...#EvaluatorReference] | fn.#ListExpression
+
+		// The execution status indicating whether the online evaluation is currently running.
+		ExecutionStatus?:            #ExecutionStatus
+		Insights?:                   list.MaxItems(10) & [...] & [...#Insight] | fn.#ListExpression
+		OnlineEvaluationConfigName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+
+		// The configuration that specifies where evaluation results should be written.
+		OutputConfig?: #OutputConfig
+
+		// The evaluation rule that defines sampling configuration, filters, and session detection settings.
+		Rule!: #Rule
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
+
+#CloudWatchLogsInputConfig: close({
 	LogGroupNamePrefixes?: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	] |
@@ -57,38 +62,37 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": matchN(1, [{
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-}) |
+	if LogGroupNames != _|_ if LogGroupNames."Fn::If" == _|_ {
+		LogGroupNamePrefixes?: close({"Fn::If": _}) | error(
+			"LogGroupNamePrefixes cannot be used with LogGroupNames; set exactly one of LogGroupNames, LogGroupNamePrefixes",
+		)
+	}
+}) & matchN(>=1, [{LogGroupNames!: _}, {LogGroupNamePrefixes!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({
+#CloudWatchOutputConfig: close({
 	LogGroupName?:      strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	MetricsNamespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._#/:-]+$" | fn.#StringExpression
 	ResultDestination?: "DEDICATED_LOG_GROUP" | "SOURCE_LOG_GROUP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusteringConfig": close({
-	Frequencies!: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/ClusteringFrequency"] |
-		fn.#ListExpression
-}) |
+#ClusteringConfig: close({Frequencies!: list.MaxItems(3) & [...] & [...#ClusteringFrequency] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusteringFrequency": "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
+#ClusteringFrequency: "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceConfig": close(
-	{CloudWatchLogs!: _#defs."/$defs/Properties/definitions/CloudWatchLogsInputConfig"},
-) |
-	fn.#ObjectExpression
+#DataSourceConfig: close({CloudWatchLogs!: #CloudWatchLogsInputConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluatorReference": close({
+#EvaluatorReference: close({
 	EvaluatorId!: =~"^(Builtin\\.[a-zA-Z0-9._-]+|ThirdParty\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#ExecutionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
 	Operator!: "Equals" |
 		"NotEquals" |
@@ -99,11 +103,11 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 		"Contains" |
 		"NotContains" |
 		fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/FilterValue"
+	Value!: #FilterValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterValue": close({
+#FilterValue: close({
 	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DoubleValue?: number |
 		{
@@ -128,12 +132,12 @@ _#defs: "/$defs/Properties/definitions/FilterValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Insight": close(
+#Insight: close(
 	{InsightId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9._]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnlineEvaluationConfigStatus": "ACTIVE" |
+#OnlineEvaluationConfigStatus: "ACTIVE" |
 	"CREATING" |
 	"CREATE_FAILED" |
 	"UPDATING" |
@@ -141,19 +145,16 @@ _#defs: "/$defs/Properties/definitions/OnlineEvaluationConfigStatus": "ACTIVE" |
 	"DELETING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutputConfig": close(
-	{CloudWatchConfig?: _#defs."/$defs/Properties/definitions/CloudWatchOutputConfig"},
-) |
-	fn.#ObjectExpression
+#OutputConfig: close({CloudWatchConfig?: #CloudWatchOutputConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	Filters?:        list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
-	SamplingConfig!: _#defs."/$defs/Properties/definitions/SamplingConfig"
-	SessionConfig?:  _#defs."/$defs/Properties/definitions/SessionConfig"
+#Rule: close({
+	Filters?:        list.MaxItems(5) & [...] & [...#Filter] | fn.#ListExpression
+	SamplingConfig!: #SamplingConfig
+	SessionConfig?:  #SessionConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SamplingConfig": close({
+#SamplingConfig: close({
 	SamplingPercentage!: <=100 & >=0.01 |
 		{
 			string &
@@ -177,7 +178,7 @@ _#defs: "/$defs/Properties/definitions/SamplingConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionConfig": close({
+#SessionConfig: close({
 	SessionTimeoutMinutes!: int & <=1440 & >=1 |
 		{
 			string &
@@ -197,12 +198,8 @@ _#defs: "/$defs/Properties/definitions/SessionConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::OnlineEvaluationConfig"
-	Properties!: #Properties
-}

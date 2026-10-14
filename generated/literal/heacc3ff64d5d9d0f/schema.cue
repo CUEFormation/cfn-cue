@@ -8,18 +8,18 @@ import "strings"
 
 // Resource Type definition for AWS::AppStream::DirectoryConfig
 #Properties: close({
-	CertificateBasedAuthProperties?:       _#defs."/$defs/Properties/definitions/CertificateBasedAuthProperties"
+	CertificateBasedAuthProperties?:       #CertificateBasedAuthProperties
 	DirectoryName!:                        string
 	OrganizationalUnitDistinguishedNames!: [...strings.MaxRunes(2000) & strings.MinRunes(0)]
-	ServiceAccountCredentials!:            _#defs."/$defs/Properties/definitions/ServiceAccountCredentials"
+	ServiceAccountCredentials!:            #ServiceAccountCredentials
 })
 
-_#defs: "/$defs/Properties/definitions/CertificateBasedAuthProperties": close({
+#CertificateBasedAuthProperties: close({
 	CertificateAuthorityArn?: string
 	Status?:                  "DISABLED" | "ENABLED" | "ENABLED_NO_DIRECTORY_LOGIN_FALLBACK"
 })
 
-_#defs: "/$defs/Properties/definitions/ServiceAccountCredentials": close({
+#ServiceAccountCredentials: close({
 	AccountName!:     strings.MinRunes(1)
 	AccountPassword!: strings.MaxRunes(127) & strings.MinRunes(1)
 })

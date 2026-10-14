@@ -27,11 +27,11 @@ import (
 	RuleSetBody!: strings.MaxRunes(65535) & strings.MinRunes(1)
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

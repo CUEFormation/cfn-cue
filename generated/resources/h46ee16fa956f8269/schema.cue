@@ -13,51 +13,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::NetworkAclEntry
-#Properties: matchN(1, [{
-	Ipv6CidrBlock!: _
-	...
-}, {
-	CidrBlock!: _
-	...
-}]) & close({
-	CidrBlock?:     string | fn.#StringExpression
-	Egress?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Icmp?:          _#defs."/$defs/Properties/definitions/Icmp" | fn.#ObjectExpression
-	Ipv6CidrBlock?: string | fn.#StringExpression
-	NetworkAclId!:  string | fn.#StringExpression
-	PortRange?:     _#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression
-	Protocol!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RuleAction!: =~"(?i)^(?:allow|deny)$" | fn.#StringExpression
-	RuleNumber!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::NetworkAclEntry"
+	Properties!: close({
+		CidrBlock?: string | fn.#StringExpression
+		Egress?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/Icmp": close({
+		// The Internet Control Message Protocol (ICMP) code and type. Requirement is
+		// conditional: Required if specifying 1 (ICMP) for the protocol parameter
+		Icmp?:          #Icmp
+		Ipv6CidrBlock?: string | fn.#StringExpression
+		NetworkAclId!:  string | fn.#StringExpression
+
+		// The IPv4 network range to allow or deny, in CIDR notation (for example
+		// 172.16.0.0/24). We modify the specified CIDR block to its canonical form;
+		// for example, if you specify 100.68.0.18/18, we modify it to 100.68.0.0/18
+		PortRange?: #PortRange
+		Protocol!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RuleAction!: =~"(?i)^(?:allow|deny)$" | fn.#StringExpression
+		RuleNumber!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		if Ipv6CidrBlock != _|_ if Ipv6CidrBlock."Fn::If" == _|_ {
+			CidrBlock?: close({"Fn::If": _}) | error(
+				"CidrBlock cannot be used with Ipv6CidrBlock; set exactly one of Ipv6CidrBlock, CidrBlock",
+			)
+		}
+	}) & matchN(>=1, [{Ipv6CidrBlock!: _}, {CidrBlock!: _}])
+}
+
+#Icmp: close({
 	Code?: int |
 		{
 			string &
@@ -89,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/Icmp": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
+#PortRange: close({
 	From?: int |
 		{
 			string &
@@ -120,7 +133,3 @@ _#defs: "/$defs/Properties/definitions/PortRange": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::NetworkAclEntry"
-	Properties!: #Properties
-}

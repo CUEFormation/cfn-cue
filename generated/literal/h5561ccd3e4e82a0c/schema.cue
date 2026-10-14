@@ -21,9 +21,7 @@ import (
 	EventTimeFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}"
 
 	// An Array of Feature Definition
-	FeatureDefinitions!: list.MaxItems(2500) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FeatureDefinition"
-	]
+	FeatureDefinitions!: list.MaxItems(2500) & list.MinItems(1) & [...#FeatureDefinition]
 
 	// The Name of the FeatureGroup.
 	FeatureGroupName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}"
@@ -31,16 +29,16 @@ import (
 	// The status of the feature group.
 	FeatureGroupStatus?: string
 	OfflineStoreConfig?: close({
-		DataCatalogConfig?:        _#defs."/$defs/Properties/definitions/DataCatalogConfig"
+		DataCatalogConfig?:        #DataCatalogConfig
 		DisableGlueTableCreation?: bool
-		S3StorageConfig!:          _#defs."/$defs/Properties/definitions/S3StorageConfig"
-		TableFormat?:              _#defs."/$defs/Properties/definitions/TableFormat"
+		S3StorageConfig!:          #S3StorageConfig
+		TableFormat?:              #TableFormat
 	})
 	OnlineStoreConfig?: close({
 		EnableOnlineStore?: bool
-		SecurityConfig?:    _#defs."/$defs/Properties/definitions/OnlineStoreSecurityConfig"
-		StorageType?:       _#defs."/$defs/Properties/definitions/StorageType"
-		TtlDuration?:       _#defs."/$defs/Properties/definitions/TtlDuration"
+		SecurityConfig?:    #OnlineStoreSecurityConfig
+		StorageType?:       #StorageType
+		TtlDuration?:       #TtlDuration
 	})
 
 	// The Record Identifier Feature Name.
@@ -53,49 +51,46 @@ import (
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 	// An array of key-value pair to apply to this resource.
-	Tags?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	ThroughputConfig?: _#defs."/$defs/Properties/definitions/ThroughputConfig"
+	Tags?:             list.MaxItems(50) & [...] & [...#Tag]
+	ThroughputConfig?: #ThroughputConfig
 })
 
-_#defs: "/$defs/Properties/definitions/DataCatalogConfig": close({
+#DataCatalogConfig: close({
 	Catalog!:   strings.MaxRunes(255) & strings.MinRunes(1)
 	Database!:  strings.MaxRunes(255) & strings.MinRunes(1)
 	TableName!: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/FeatureDefinition": close({
+#FeatureDefinition: close({
 	FeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}"
 	FeatureType!: "Integral" | "Fractional" | "String"
 })
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-	string) &
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(0) &
 =~"^[a-zA-Z0-9:/_-]*$"
 
-_#defs: "/$defs/Properties/definitions/OnlineStoreSecurityConfig": close(
-	{KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"},
-)
+#OnlineStoreSecurityConfig: close({KmsKeyId?: #KmsKeyId})
 
-_#defs: "/$defs/Properties/definitions/S3StorageConfig": close({
-	KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
+#S3StorageConfig: close({
+	KmsKeyId?: #KmsKeyId
 	S3Uri!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/StorageType": "Standard" | "InMemory"
+#StorageType: "Standard" | "InMemory"
 
 // Format for the offline store feature group. Iceberg is the optimal format for
 // feature groups shared between offline and online stores.
-_#defs: "/$defs/Properties/definitions/TableFormat": "Iceberg" | "Glue"
+#TableFormat: "Iceberg" | "Glue"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/ThroughputConfig": close({
+#ThroughputConfig: close({
 	// For provisioned feature groups with online store enabled, this indicates the
 	// read throughput you are billed for and can consume without throttling.
 	ProvisionedReadCapacityUnits?: int & <=10000000 & >=0
@@ -103,20 +98,20 @@ _#defs: "/$defs/Properties/definitions/ThroughputConfig": close({
 	// For provisioned feature groups, this indicates the write throughput you are
 	// billed for and can consume without throttling.
 	ProvisionedWriteCapacityUnits?: int & <=10000000 & >=0
-	ThroughputMode!:                _#defs."/$defs/Properties/definitions/ThroughputMode"
+	ThroughputMode!:                #ThroughputMode
 })
 
 // Throughput mode configuration of the feature group
-_#defs: "/$defs/Properties/definitions/ThroughputMode": "OnDemand" | "Provisioned"
+#ThroughputMode: "OnDemand" | "Provisioned"
 
 // TTL configuration of the feature group
-_#defs: "/$defs/Properties/definitions/TtlDuration": close({
-	Unit?:  _#defs."/$defs/Properties/definitions/Unit"
-	Value?: _#defs."/$defs/Properties/definitions/Value"
+#TtlDuration: close({
+	Unit?:  #Unit
+	Value?: #Value
 })
 
 // Unit of ttl configuration
-_#defs: "/$defs/Properties/definitions/Unit": "Seconds" | "Minutes" | "Hours" | "Days" | "Weeks"
+#Unit: "Seconds" | "Minutes" | "Hours" | "Days" | "Weeks"
 
 // Value of ttl configuration
-_#defs: "/$defs/Properties/definitions/Value": int & >=1
+#Value: int & >=1

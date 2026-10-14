@@ -15,7 +15,7 @@ import (
 // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-types.htmlin
 // the Amazon Elastic Container Service Developer Guide.
 #Properties: close({
-	CapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"]
+	CapacityProviderStrategy?: [...#CapacityProviderStrategyItem]
 
 	// The short name or full Amazon Resource Name (ARN) of the cluster that hosts
 	// the service to create the task set in.
@@ -35,8 +35,8 @@ import (
 	// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_types.html
 	// in the Amazon Elastic Container Service Developer Guide.
 	LaunchType?:           "EC2" | "FARGATE"
-	LoadBalancers?:        [..._#defs."/$defs/Properties/definitions/LoadBalancer"]
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	LoadBalancers?:        [...#LoadBalancer]
+	NetworkConfiguration?: #NetworkConfiguration
 
 	// The platform version that the tasks in the task set should use. A platform
 	// version is specified only for tasks using the Fargate launch type. If one
@@ -45,7 +45,7 @@ import (
 
 	// A floating-point percentage of the desired number of tasks to place and keep
 	// running in the task set.
-	Scale?: _#defs."/$defs/Properties/definitions/Scale"
+	Scale?: #Scale
 
 	// The short name or full Amazon Resource Name (ARN) of the service to create the task set in.
 	Service!: string
@@ -53,8 +53,8 @@ import (
 	// The details of the service discovery registries to assign to this task set.
 	// For more information, see
 	// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-discovery.html.
-	ServiceRegistries?: [..._#defs."/$defs/Properties/definitions/ServiceRegistry"]
-	Tags?:              list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ServiceRegistries?: [...#ServiceRegistry]
+	Tags?:              list.MaxItems(50) & [...] & [...#Tag]
 
 	// The short name or full Amazon Resource Name (ARN) of the task definition for
 	// the tasks in the task set to use.
@@ -63,7 +63,7 @@ import (
 
 // The VPC subnets and security groups associated with a task. All specified
 // subnets and security groups must be from the same VPC.
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
+#AwsVpcConfiguration: close({
 	// Whether the task's elastic network interface receives a public IP address.
 	// The default value is DISABLED.
 	AssignPublicIp?: "DISABLED" | "ENABLED"
@@ -79,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 	Subnets!: list.MaxItems(16) & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?:             int & <=100000 & >=0
 	CapacityProvider?: string
 	Weight?:           int & <=1000 & >=0
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 // A load balancer object representing the load balancer to use with the task
 // set. The supported load balancer types are either an Application Load
 // Balancer or a Network Load Balancer.
-_#defs: "/$defs/Properties/definitions/LoadBalancer": close({
+#LoadBalancer: close({
 	// The name of the container (as it appears in a container definition) to
 	// associate with the load balancer.
 	ContainerName?: string
@@ -121,11 +121,9 @@ _#defs: "/$defs/Properties/definitions/LoadBalancer": close({
 })
 
 // An object representing the network configuration for a task or service.
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsVpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
-)
+#NetworkConfiguration: close({AwsVpcConfiguration?: #AwsVpcConfiguration})
 
-_#defs: "/$defs/Properties/definitions/Scale": close({
+#Scale: close({
 	// The unit of measure for the scale value.
 	Unit?: "PERCENT"
 
@@ -134,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/Scale": close({
 	Value?: <=100 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
+#ServiceRegistry: close({
 	// The container name value, already specified in the task definition, to be
 	// used for your service discovery service. If the task definition that your
 	// service task specifies uses the bridge or host network mode, you must
@@ -165,7 +163,7 @@ _#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
 	RegistryArn?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

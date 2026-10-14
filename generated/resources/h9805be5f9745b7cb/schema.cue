@@ -9,25 +9,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DocDB::DBInstance
-#Properties: close({
-	AutoMinorVersionUpgrade?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AvailabilityZone?:           string | fn.#StringExpression
-	CACertificateIdentifier?:    string | fn.#StringExpression
-	CertificateRotationRestart?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DBClusterIdentifier!:        string | fn.#StringExpression
-	DBInstanceClass!:            string | fn.#StringExpression
-	DBInstanceIdentifier?:       string | fn.#StringExpression
-	EnablePerformanceInsights?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DocDB::DBInstance"
+	Properties!: close({
+		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AvailabilityZone?:        string | fn.#StringExpression
+		CACertificateIdentifier?: string | fn.#StringExpression
+		CertificateRotationRestart?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DBClusterIdentifier!:  string | fn.#StringExpression
+		DBInstanceClass!:      string | fn.#StringExpression
+		DBInstanceIdentifier?: string | fn.#StringExpression
+		EnablePerformanceInsights?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		Tags?:                       [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DocDB::DBInstance"
-	Properties!: #Properties
-}

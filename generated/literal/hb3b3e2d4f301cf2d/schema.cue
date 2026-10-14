@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +16,7 @@ import (
 	AIVersion?: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// The automatic evaluation configuration of an evaluation form.
-	AutoEvaluationConfiguration?: _#defs."/$defs/Properties/definitions/AutoEvaluationConfiguration"
+	AutoEvaluationConfiguration?: #AutoEvaluationConfiguration
 
 	// The description of the evaluation form.
 	// *Length Constraints*: Minimum length of 0. Maximum length of 1024.
@@ -32,16 +32,16 @@ import (
 	// section.
 	// *Minimum size*: 1
 	// *Maximum size*: 100
-	Items!: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EvaluationFormBaseItem"]
+	Items!: list.MaxItems(200) & list.MinItems(1) & [...#EvaluationFormBaseItem]
 
 	// Configuration for language settings of this evaluation form.
-	LanguageConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormLanguageConfiguration"
+	LanguageConfiguration?: #EvaluationFormLanguageConfiguration
 
 	// Configuration for evaluation review settings of this evaluation form.
-	ReviewConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationReviewConfiguration"
+	ReviewConfiguration?: #EvaluationReviewConfiguration
 
 	// A scoring strategy of the evaluation form.
-	ScoringStrategy?: _#defs."/$defs/Properties/definitions/ScoringStrategy"
+	ScoringStrategy?: #ScoringStrategy
 
 	// The status of the evaluation form.
 	// *Allowed values*: ``DRAFT`` | ``ACTIVE``
@@ -49,109 +49,107 @@ import (
 
 	// The tags used to organize, track, or control access for this resource. For
 	// example, { "tags": {"key1":"value1", "key2":"value2"} }.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Configuration that specifies the target for this evaluation form.
-	TargetConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormTargetConfiguration"
+	TargetConfiguration?: #EvaluationFormTargetConfiguration
 
 	// A title of the evaluation form.
 	Title!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // Configuration information about automated evaluations.
-_#defs: "/$defs/Properties/definitions/AutoEvaluationConfiguration": close({Enabled?: bool})
+#AutoEvaluationConfiguration: close({Enabled?: bool})
 
 // Information about automatic fail configuration for an evaluation form.
-_#defs: "/$defs/Properties/definitions/AutomaticFailConfiguration": close({
+#AutomaticFailConfiguration: close({
 	// The referenceId of the target section for auto failure.
 	TargetSection?: =~"^[a-zA-Z0-9._-]{1,40}$"
 })
 
 // An item at the root level. All items must be sections.
-_#defs: "/$defs/Properties/definitions/EvaluationFormBaseItem": close({
+#EvaluationFormBaseItem: close({
 	// A subsection or inner section of an item.
-	Section!: _#defs."/$defs/Properties/definitions/EvaluationFormSection"
+	Section!: #EvaluationFormSection
 })
 
 // Items that are part of the evaluation form. The total number of sections and
 // questions must not exceed 100 each. Questions must be contained in a
 // section.
-_#defs: "/$defs/Properties/definitions/EvaluationFormItem": close({
+#EvaluationFormItem: close({
 	// The information of the question.
-	Question?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestion"
+	Question?: #EvaluationFormQuestion
 
 	// The information of the section.
-	Section?: _#defs."/$defs/Properties/definitions/EvaluationFormSection"
+	Section?: #EvaluationFormSection
 })
 
 // A condition for item enablement.
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementCondition": close({
+#EvaluationFormItemEnablementCondition: close({
 	// Operands of the enablement condition.
-	Operands!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementConditionOperand"
-	]
+	Operands!: list.MinItems(1) & [...#EvaluationFormItemEnablementConditionOperand]
 
 	// The operator to be used to be applied to operands if more than one provided.
 	Operator?: "OR" | "AND"
 })
 
 // An operand of the enablement condition.
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementConditionOperand": close({
+#EvaluationFormItemEnablementConditionOperand: close({
 	// An expression of the enablement condition.
-	Expression?: _#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementExpression"
+	Expression?: #EvaluationFormItemEnablementExpression
 })
 
 // An item enablement configuration.
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementConfiguration": close({
+#EvaluationFormItemEnablementConfiguration: close({
 	// An enablement action that if condition is satisfied.
 	Action!: "DISABLE" | "ENABLE"
 
 	// A condition for item enablement configuration.
-	Condition!: _#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementCondition"
+	Condition!: #EvaluationFormItemEnablementCondition
 
 	// An enablement action that if condition is not satisfied.
 	DefaultAction?: "DISABLE" | "ENABLE"
 })
 
 // An expression that defines a basic building block of conditional enablement.
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementExpression": close({
+#EvaluationFormItemEnablementExpression: close({
 	// A comparator to be used against list of values.
 	Comparator!: "IN" | "NOT_IN" | "ALL_IN" | "EXACT"
 
 	// A source item of enablement expression.
-	Source!: _#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementSource"
+	Source!: #EvaluationFormItemEnablementSource
 
 	// A list of values from source item.
-	Values!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementSourceValue"]
+	Values!: list.MinItems(1) & [...#EvaluationFormItemEnablementSourceValue]
 })
 
 // An enablement expression source item.
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementSource": close({
+#EvaluationFormItemEnablementSource: close({
 	// A referenceId of the source item.
-	RefId?: _#defs."/$defs/Properties/definitions/RefId"
+	RefId?: #RefId
 
 	// A type of source item.
 	Type!: "QUESTION_REF_ID"
 })
 
 // An enablement expression source value.
-_#defs: "/$defs/Properties/definitions/EvaluationFormItemEnablementSourceValue": close({
+#EvaluationFormItemEnablementSourceValue: close({
 	// A referenceId of the source value.
-	RefId?: _#defs."/$defs/Properties/definitions/RefId"
+	RefId?: #RefId
 
 	// A type of source item value.
 	Type?: "OPTION_REF_ID"
 })
 
 // Language configuration for an evaluation form.
-_#defs: "/$defs/Properties/definitions/EvaluationFormLanguageConfiguration": close({
+#EvaluationFormLanguageConfiguration: close({
 	// The language for the evaluation form.
 	FormLanguage?: "de-DE" | "en-US" | "es-ES" | "fr-FR" | "it-IT" | "pt-BR" | "ja-JP" | "ko-KR" | "zh-CN" | "ms-MY"
 })
 
 // Information about the metric configuration for an evaluation form question.
 // Use this to associate a business outcome metric with a question.
-_#defs: "/$defs/Properties/definitions/EvaluationFormMetricConfiguration": close({
+#EvaluationFormMetricConfiguration: close({
 	// The name of the metric. Valid values are:
 	// + ``SALE_SUCCESS`` – Sale success.
 	// + ``CSAT`` – Customer satisfaction.
@@ -165,75 +163,71 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormMetricConfiguration": close
 })
 
 // Automation configuration for multi-select questions.
-_#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomation": close({
-	AnswerSource?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource"
+#EvaluationFormMultiSelectQuestionAutomation: close({
+	AnswerSource?: #EvaluationFormQuestionAutomationAnswerSource
 
 	// Reference IDs of default options.
-	DefaultOptionRefIds?: _#defs."/$defs/Properties/definitions/ReferenceIdList"
+	DefaultOptionRefIds?: #ReferenceIdList
 
 	// Automation options for the multi-select question.
-	Options?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomationOption"
-	]
+	Options?: list.MaxItems(20) & list.MinItems(1) & [...#EvaluationFormMultiSelectQuestionAutomationOption]
 })
 
 // An automation option for a multi-select question.
-_#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomationOption": close({
+#EvaluationFormMultiSelectQuestionAutomationOption: close({
 	// Rule category configuration for this automation option.
-	RuleCategory!: _#defs."/$defs/Properties/definitions/MultiSelectQuestionRuleCategoryAutomation"
+	RuleCategory!: #MultiSelectQuestionRuleCategoryAutomation
 })
 
 // An option for a multi-select question in an evaluation form.
-_#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionOption": close({
+#EvaluationFormMultiSelectQuestionOption: close({
 	// The flag to mark the option as automatic fail. If an automatic fail answer is
 	// provided, the overall evaluation gets a score of 0.
 	AutomaticFail?:              bool
-	AutomaticFailConfiguration?: _#defs."/$defs/Properties/definitions/AutomaticFailConfiguration"
+	AutomaticFailConfiguration?: #AutomaticFailConfiguration
 
 	// The points configuration for point-based scoring.
-	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionOptionPointsConfiguration"
+	PointsConfiguration?: #QuestionOptionPointsConfiguration
 
 	// Reference identifier for this option.
-	RefId!: _#defs."/$defs/Properties/definitions/RefId"
+	RefId!: #RefId
 
 	// The score assigned to the answer option.
-	Score?: _#defs."/$defs/Properties/definitions/Score"
+	Score?: #Score
 
 	// Display text for this option.
 	Text!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // Properties for a multi-select question in an evaluation form.
-_#defs: "/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionProperties": close({
+#EvaluationFormMultiSelectQuestionProperties: close({
 	// Automation configuration for this multi-select question.
-	Automation?: _#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionAutomation"
+	Automation?: #EvaluationFormMultiSelectQuestionAutomation
 
 	// Display format for the multi-select question.
 	DisplayAs?: "DROPDOWN" | "CHECKBOX"
 
 	// Options available for this multi-select question.
-	Options!: list.MaxItems(256) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionOption"
-	]
+	Options!: list.MaxItems(256) & list.MinItems(2) & [...#EvaluationFormMultiSelectQuestionOption]
 })
 
 // Information about the automation configuration in numeric questions.
-_#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionAutomation": close({
+#EvaluationFormNumericQuestionAutomation: close({
 	// A source of automation answer for numeric question.
-	AnswerSource?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource"
+	AnswerSource?: #EvaluationFormQuestionAutomationAnswerSource
 
 	// The property value of the automation.
-	PropertyValue?: _#defs."/$defs/Properties/definitions/NumericQuestionPropertyValueAutomation"
+	PropertyValue?: #NumericQuestionPropertyValueAutomation
 })
 
 // Information about the option range used for scoring in numeric questions.
-_#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionOption": close({
+#EvaluationFormNumericQuestionOption: close({
 	// The flag to mark the option as automatic fail. If an automatic fail answer is
 	// provided, the overall evaluation gets a score of 0.
 	AutomaticFail?: bool
 
 	// A configuration for automatic fail.
-	AutomaticFailConfiguration?: _#defs."/$defs/Properties/definitions/AutomaticFailConfiguration"
+	AutomaticFailConfiguration?: #AutomaticFailConfiguration
 
 	// The maximum answer value of the range option.
 	MaxValue!: int
@@ -242,18 +236,18 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionOption": clo
 	MinValue!: int
 
 	// The points configuration for point-based scoring.
-	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionOptionPointsConfiguration"
+	PointsConfiguration?: #QuestionOptionPointsConfiguration
 
 	// The score assigned to answer values within the range option.
 	// *Minimum*: 0
 	// *Maximum*: 10
-	Score?: _#defs."/$defs/Properties/definitions/Score"
+	Score?: #Score
 })
 
 // Information about properties for a numeric question in an evaluation form.
-_#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionProperties": close({
+#EvaluationFormNumericQuestionProperties: close({
 	// The automation properties of the numeric question.
-	Automation?: _#defs."/$defs/Properties/definitions/EvaluationFormNumericQuestionAutomation"
+	Automation?: #EvaluationFormNumericQuestionAutomation
 
 	// The maximum answer value.
 	MaxValue!: int
@@ -262,15 +256,13 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormNumericQuestionProperties":
 	MinValue!: int
 
 	// The scoring options of the numeric question.
-	Options?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormNumericQuestionOption"
-	]
+	Options?: list.MaxItems(10) & list.MinItems(1) & [...#EvaluationFormNumericQuestionOption]
 })
 
 // Information about a question from an evaluation form.
-_#defs: "/$defs/Properties/definitions/EvaluationFormQuestion": close({
+#EvaluationFormQuestion: close({
 	// A question conditional enablement.
-	Enablement?: _#defs."/$defs/Properties/definitions/EvaluationFormItemEnablementConfiguration"
+	Enablement?: #EvaluationFormItemEnablementConfiguration
 
 	// The instructions of the section.
 	// *Length Constraints*: Minimum length of 0. Maximum length of 1024.
@@ -278,7 +270,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormQuestion": close({
 
 	// The metric configuration for the question. Use this to associate a business
 	// outcome metric with the question.
-	MetricConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormMetricConfiguration"
+	MetricConfiguration?: #EvaluationFormMetricConfiguration
 
 	// The flag to enable not applicable answers to the question.
 	NotApplicableEnabled?: bool
@@ -289,14 +281,14 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormQuestion": close({
 
 	// The properties of the type of question. Text questions do not have to define
 	// question type properties.
-	QuestionTypeProperties?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionTypeProperties"
+	QuestionTypeProperties?: #EvaluationFormQuestionTypeProperties
 
 	// The identifier of the question. An identifier must be unique within the evaluation form.
 	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
-	RefId!: _#defs."/$defs/Properties/definitions/RefId"
+	RefId!: #RefId
 
 	// The scoring configuration of the question.
-	ScoringConfiguration?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionScoringConfiguration"
+	ScoringConfiguration?: #EvaluationFormQuestionScoringConfiguration
 
 	// The title of the question.
 	// *Length Constraints*: Minimum length of 1. Maximum length of 350.
@@ -305,46 +297,46 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormQuestion": close({
 	// The scoring weight of the section.
 	// *Minimum*: 0
 	// *Maximum*: 100
-	Weight?: _#defs."/$defs/Properties/definitions/Weight"
+	Weight?: #Weight
 })
 
 // A question automation answer.
-_#defs: "/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource": close({
+#EvaluationFormQuestionAutomationAnswerSource: close({
 	// The automation answer source type.
 	SourceType!: "CONTACT_LENS_DATA" | "GEN_AI"
 })
 
 // Scoring configuration for a question in an evaluation form.
-_#defs: "/$defs/Properties/definitions/EvaluationFormQuestionScoringConfiguration": close({
+#EvaluationFormQuestionScoringConfiguration: close({
 	// The flag to exclude the question from scoring.
 	IsExcludedFromScoring?: bool
 
 	// The points configuration for point-based scoring.
-	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionPointsConfiguration"
+	PointsConfiguration?: #QuestionPointsConfiguration
 
 	// The score thresholds for performance categories.
-	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold"]
+	ScoreThresholds?: [...#EvaluationFormScoreThreshold]
 })
 
 // Information about properties for a question in an evaluation form. The
 // question type properties must be either for a numeric question or a single
 // select question.
-_#defs: "/$defs/Properties/definitions/EvaluationFormQuestionTypeProperties": close({
+#EvaluationFormQuestionTypeProperties: close({
 	// Properties for multi-select question types.
-	MultiSelect?: _#defs."/$defs/Properties/definitions/EvaluationFormMultiSelectQuestionProperties"
+	MultiSelect?: #EvaluationFormMultiSelectQuestionProperties
 
 	// The properties of the numeric question.
-	Numeric?: _#defs."/$defs/Properties/definitions/EvaluationFormNumericQuestionProperties"
+	Numeric?: #EvaluationFormNumericQuestionProperties
 
 	// The properties of the numeric question.
-	SingleSelect?: _#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionProperties"
+	SingleSelect?: #EvaluationFormSingleSelectQuestionProperties
 
 	// The properties of the text question.
-	Text?: _#defs."/$defs/Properties/definitions/EvaluationFormTextQuestionProperties"
+	Text?: #EvaluationFormTextQuestionProperties
 })
 
 // Information about a score threshold for a performance category.
-_#defs: "/$defs/Properties/definitions/EvaluationFormScoreThreshold": close({
+#EvaluationFormScoreThreshold: close({
 	// The maximum score percentage for the performance category.
 	MaxScorePercentage?: <=100 & >=0
 
@@ -358,7 +350,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormScoreThreshold": close({
 // Information about a section from an evaluation form. A section can contain
 // sections and/or questions. Evaluation forms can only contain sections and
 // subsections (two level nesting).
-_#defs: "/$defs/Properties/definitions/EvaluationFormSection": close({
+#EvaluationFormSection: close({
 	// The instructions of the section.
 	Instructions?: strings.MaxRunes(1024)
 
@@ -367,14 +359,14 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormSection": close({
 
 	// The items of the section.
 	// *Minimum*: 1
-	Items?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EvaluationFormItem"]
+	Items?: list.MaxItems(200) & list.MinItems(1) & [...#EvaluationFormItem]
 
 	// The identifier of the section. An identifier must be unique within the evaluation form.
 	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
-	RefId!: _#defs."/$defs/Properties/definitions/RefId"
+	RefId!: #RefId
 
 	// The score thresholds for performance categories.
-	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold"]
+	ScoreThresholds?: [...#EvaluationFormScoreThreshold]
 
 	// The title of the section.
 	// *Length Constraints*: Minimum length of 1. Maximum length of 128.
@@ -383,56 +375,54 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormSection": close({
 	// The scoring weight of the section.
 	// *Minimum*: 0
 	// *Maximum*: 100
-	Weight?: _#defs."/$defs/Properties/definitions/Weight"
+	Weight?: #Weight
 })
 
 // Information about the automation configuration in single select questions.
 // Automation options are evaluated in order, and the first matched option is
 // applied. If no automation option matches, and there is a default option,
 // then the default option is applied.
-_#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomation": close({
+#EvaluationFormSingleSelectQuestionAutomation: close({
 	// Automation answer source.
-	AnswerSource?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource"
+	AnswerSource?: #EvaluationFormQuestionAutomationAnswerSource
 
 	// The identifier of the default answer option, when none of the automation
 	// options match the criteria.
 	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
-	DefaultOptionRefId?: _#defs."/$defs/Properties/definitions/RefId"
+	DefaultOptionRefId?: #RefId
 
 	// The automation options of the single select question.
 	// *Minimum*: 1
 	// *Maximum*: 20
-	Options?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomationOption"
-	]
+	Options?: list.MaxItems(20) & list.MinItems(1) & [...#EvaluationFormSingleSelectQuestionAutomationOption]
 })
 
 // The automation options of the single select question.
-_#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomationOption": close({
+#EvaluationFormSingleSelectQuestionAutomationOption: close({
 	// The automation option based on a rule category for the single select question.
-	RuleCategory!: _#defs."/$defs/Properties/definitions/SingleSelectQuestionRuleCategoryAutomation"
+	RuleCategory!: #SingleSelectQuestionRuleCategoryAutomation
 })
 
 // Information about the automation configuration in single select questions.
-_#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionOption": close({
+#EvaluationFormSingleSelectQuestionOption: close({
 	// The flag to mark the option as automatic fail. If an automatic fail answer is
 	// provided, the overall evaluation gets a score of 0.
 	AutomaticFail?: bool
 
 	// Whether automatic fail is configured on a single select question.
-	AutomaticFailConfiguration?: _#defs."/$defs/Properties/definitions/AutomaticFailConfiguration"
+	AutomaticFailConfiguration?: #AutomaticFailConfiguration
 
 	// The points configuration for point-based scoring.
-	PointsConfiguration?: _#defs."/$defs/Properties/definitions/QuestionOptionPointsConfiguration"
+	PointsConfiguration?: #QuestionOptionPointsConfiguration
 
 	// The identifier of the answer option. An identifier must be unique within the question.
 	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
-	RefId!: _#defs."/$defs/Properties/definitions/RefId"
+	RefId!: #RefId
 
 	// The score assigned to the answer option.
 	// *Minimum*: 0
 	// *Maximum*: 10
-	Score?: _#defs."/$defs/Properties/definitions/Score"
+	Score?: #Score
 
 	// The title of the answer option.
 	// *Length Constraints*: Minimum length of 1. Maximum length of 128.
@@ -440,9 +430,9 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionOption"
 })
 
 // Information about the options in single select questions.
-_#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionProperties": close({
+#EvaluationFormSingleSelectQuestionProperties: close({
 	// The display mode of the single select question.
-	Automation?: _#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionAutomation"
+	Automation?: #EvaluationFormSingleSelectQuestionAutomation
 
 	// The display mode of the single select question.
 	// *Allowed values*: ``DROPDOWN`` | ``RADIO``
@@ -451,58 +441,54 @@ _#defs: "/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionPropert
 	// The answer options of the single select question.
 	// *Minimum*: 2
 	// *Maximum*: 256
-	Options!: list.MaxItems(256) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationFormSingleSelectQuestionOption"
-	]
+	Options!: list.MaxItems(256) & list.MinItems(2) & [...#EvaluationFormSingleSelectQuestionOption]
 })
 
 // Configuration that specifies the target for an evaluation form.
-_#defs: "/$defs/Properties/definitions/EvaluationFormTargetConfiguration": close({
+#EvaluationFormTargetConfiguration: close({
 	// The contact interaction type for this evaluation form.
 	ContactInteractionType!: "AGENT" | "AUTOMATED" | "CUSTOMER"
 })
 
 // Information about the automation configuration in text questions.
-_#defs: "/$defs/Properties/definitions/EvaluationFormTextQuestionAutomation": close({
+#EvaluationFormTextQuestionAutomation: close({
 	// Automation answer source.
-	AnswerSource?: _#defs."/$defs/Properties/definitions/EvaluationFormQuestionAutomationAnswerSource"
+	AnswerSource?: #EvaluationFormQuestionAutomationAnswerSource
 })
 
 // Information about properties for a text question in an evaluation form.
-_#defs: "/$defs/Properties/definitions/EvaluationFormTextQuestionProperties": close({
+#EvaluationFormTextQuestionProperties: close({
 	// The automation properties of the text question.
-	Automation?: _#defs."/$defs/Properties/definitions/EvaluationFormTextQuestionAutomation"
+	Automation?: #EvaluationFormTextQuestionAutomation
 })
 
 // Configuration settings for evaluation reviews.
-_#defs: "/$defs/Properties/definitions/EvaluationReviewConfiguration": close({
+#EvaluationReviewConfiguration: close({
 	// Number of days during which a request for review can be submitted for
 	// evaluations created from this form.
 	EligibilityDays?: int & <=90 & >=1
 
 	// List of recipients who should be notified when a review is requested.
-	ReviewNotificationRecipients!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EvaluationReviewNotificationRecipient"
-	]
+	ReviewNotificationRecipients!: list.MinItems(1) & [...#EvaluationReviewNotificationRecipient]
 })
 
 // Information about a recipient who should be notified when an evaluation review is requested.
-_#defs: "/$defs/Properties/definitions/EvaluationReviewNotificationRecipient": close({
+#EvaluationReviewNotificationRecipient: close({
 	// The type of notification recipient.
 	Type!: "USER_ID"
 
 	// The value associated with the notification recipient type.
-	Value!: _#defs."/$defs/Properties/definitions/EvaluationReviewNotificationRecipientValue"
+	Value!: #EvaluationReviewNotificationRecipientValue
 })
 
 // The value information for an evaluation review notification recipient.
-_#defs: "/$defs/Properties/definitions/EvaluationReviewNotificationRecipientValue": close({
+#EvaluationReviewNotificationRecipientValue: close({
 	// The user identifier for the notification recipient.
 	UserId?: strings.MaxRunes(500) & strings.MinRunes(1)
 })
 
 // Automation rule for multi-select questions based on rule categories.
-_#defs: "/$defs/Properties/definitions/MultiSelectQuestionRuleCategoryAutomation": close({
+#MultiSelectQuestionRuleCategoryAutomation: close({
 	// The category name for this automation rule.
 	Category!: strings.MaxRunes(50) & strings.MinRunes(1)
 
@@ -510,11 +496,11 @@ _#defs: "/$defs/Properties/definitions/MultiSelectQuestionRuleCategoryAutomation
 	Condition!: "PRESENT" | "NOT_PRESENT"
 
 	// Reference IDs of options for this automation rule.
-	OptionRefIds!: _#defs."/$defs/Properties/definitions/ReferenceIdList"
+	OptionRefIds!: #ReferenceIdList
 })
 
 // Information about the property value used in automation of a numeric questions.
-_#defs: "/$defs/Properties/definitions/NumericQuestionPropertyValueAutomation": close({
+#NumericQuestionPropertyValueAutomation: close({
 	// The property label of the automation.
 	Label!: "OVERALL_CUSTOMER_SENTIMENT_SCORE" |
 		"OVERALL_AGENT_SENTIMENT_SCORE" |
@@ -532,44 +518,44 @@ _#defs: "/$defs/Properties/definitions/NumericQuestionPropertyValueAutomation": 
 })
 
 // The point value for scoring.
-_#defs: "/$defs/Properties/definitions/PointValue": int & <=100 & >=0
+#PointValue: int & <=100 & >=0
 
 // Information about the points configuration for an answer option.
-_#defs: "/$defs/Properties/definitions/QuestionOptionPointsConfiguration": close({
+#QuestionOptionPointsConfiguration: close({
 	// The flag to mark the option as a bonus option.
 	IsBonus?: bool
 
 	// The point value assigned to the answer option.
-	PointValue!: _#defs."/$defs/Properties/definitions/PointValue"
+	PointValue!: #PointValue
 })
 
 // Information about the points configuration for a question.
-_#defs: "/$defs/Properties/definitions/QuestionPointsConfiguration": close({
+#QuestionPointsConfiguration: close({
 	// The flag to mark the question as a bonus question.
 	IsBonus?: bool
 
 	// The maximum point value.
-	MaxPointValue?: _#defs."/$defs/Properties/definitions/PointValue"
+	MaxPointValue?: #PointValue
 
 	// The minimum point value.
-	MinPointValue?: _#defs."/$defs/Properties/definitions/PointValue"
+	MinPointValue?: #PointValue
 })
 
 // The identifier to reference the item.
-_#defs: "/$defs/Properties/definitions/RefId": =~"^[a-zA-Z0-9._-]{1,40}$"
+#RefId: =~"^[a-zA-Z0-9._-]{1,40}$"
 
 // The list of reference id.
-_#defs: "/$defs/Properties/definitions/ReferenceIdList": [..._#defs."/$defs/Properties/definitions/RefId"]
+#ReferenceIdList: [...#RefId]
 
 // The score of an answer option.
-_#defs: "/$defs/Properties/definitions/Score": int & <=10 & >=0
+#Score: int & <=10 & >=0
 
 // A scoring strategy of the evaluation form.
-_#defs: "/$defs/Properties/definitions/ScoringStrategy": close({
+#ScoringStrategy: close({
 	// The scoring mode of the evaluation form.
 	// *Allowed values*: ``QUESTION_ONLY`` | ``SECTION_ONLY``
 	Mode!:            "QUESTION_ONLY" | "SECTION_ONLY" | "POINTS_BASED"
-	ScoreThresholds?: [..._#defs."/$defs/Properties/definitions/EvaluationFormScoreThreshold"]
+	ScoreThresholds?: [...#EvaluationFormScoreThreshold]
 
 	// The scoring status of the evaluation form.
 	// *Allowed values*: ``ENABLED`` | ``DISABLED``
@@ -578,7 +564,7 @@ _#defs: "/$defs/Properties/definitions/ScoringStrategy": close({
 
 // Information about the automation option based on a rule category for a single select question.
 // *Length Constraints*: Minimum length of 1. Maximum length of 50.
-_#defs: "/$defs/Properties/definitions/SingleSelectQuestionRuleCategoryAutomation": close({
+#SingleSelectQuestionRuleCategoryAutomation: close({
 	// The category name, as defined in Rules.
 	// *Minimum*: 1
 	// *Maximum*: 50
@@ -594,11 +580,11 @@ _#defs: "/$defs/Properties/definitions/SingleSelectQuestionRuleCategoryAutomatio
 
 	// The identifier of the answer option. An identifier must be unique within the question.
 	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
-	OptionRefId!: _#defs."/$defs/Properties/definitions/RefId"
+	OptionRefId!: #RefId
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -613,4 +599,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The item weight used for scoring.
-_#defs: "/$defs/Properties/definitions/Weight": <=100 & >=0
+#Weight: <=100 & >=0

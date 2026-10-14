@@ -16,8 +16,8 @@ import "strings"
 
 	// A summary description of the custom plugin.
 	Description?:     strings.MaxRunes(1024) & strings.MinRunes(0)
-	FileDescription?: _#defs."/$defs/Properties/definitions/CustomPluginFileDescription"
-	Location!:        _#defs."/$defs/Properties/definitions/CustomPluginLocation"
+	FileDescription?: #CustomPluginFileDescription
+	Location!:        #CustomPluginLocation
 
 	// The name of the custom plugin.
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -26,11 +26,11 @@ import "strings"
 	Revision?: int
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // Details about the custom plugin file.
-_#defs: "/$defs/Properties/definitions/CustomPluginFileDescription": close({
+#CustomPluginFileDescription: close({
 	// The hex-encoded MD5 checksum of the custom plugin file. You can use it to validate the file.
 	FileMd5?: string
 
@@ -39,13 +39,11 @@ _#defs: "/$defs/Properties/definitions/CustomPluginFileDescription": close({
 })
 
 // Information about the location of a custom plugin.
-_#defs: "/$defs/Properties/definitions/CustomPluginLocation": close(
-	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
-)
+#CustomPluginLocation: close({S3Location!: #S3Location})
 
 // The S3 bucket Amazon Resource Name (ARN), file key, and object version of the
 // plugin file stored in Amazon S3.
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The Amazon Resource Name (ARN) of an S3 bucket.
 	BucketArn!: string
 
@@ -57,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

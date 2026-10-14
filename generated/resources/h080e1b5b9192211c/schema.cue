@@ -24,16 +24,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // If the root volume is detached from an instance with an MKT product code,
 // then the product codes from that volume are no longer associated with the
 // instance.
-#Properties: close({
-	Device?:       _#defs."/$defs/Properties/definitions/Device" | fn.#StringExpression
-	EbsCardIndex?: _#defs."/$defs/Properties/definitions/EbsCardIndex" | fn.#NumberExpression
-	InstanceId!:   _#defs."/$defs/Properties/definitions/InstanceId" | fn.#StringExpression
-	VolumeId!:     _#defs."/$defs/Properties/definitions/VolumeId" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VolumeAttachment"
+	Properties!: close({
+		// The device name (for example, ``/dev/sdh`` or ``xvdh``).
+		Device?: #Device
 
-_#defs: "/$defs/Properties/definitions/Device": string | fn.#StringExpression
+		// The index of the EBS card. Some instance types support multiple EBS cards.
+		// The default EBS card index is 0.
+		EbsCardIndex?: #EbsCardIndex
 
-_#defs: "/$defs/Properties/definitions/EbsCardIndex": int |
+		// The ID of the instance to which the volume attaches. This value can be a
+		// reference to an
+		// [AWS::EC2::Instance](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html)
+		// resource, or it can be the physical ID of an existing EC2 instance.
+		InstanceId!: #InstanceId
+
+		// The ID of the Amazon EBS volume. The volume and instance must be within the
+		// same Availability Zone. This value can be a reference to an
+		// [AWS::EC2::Volume](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-ebs-volume.html)
+		// resource, or it can be the volume ID of an existing Amazon EBS volume.
+		VolumeId!: #VolumeId
+	})
+}
+
+#Device: string | fn.#StringExpression
+
+#EbsCardIndex: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -47,12 +64,8 @@ _#defs: "/$defs/Properties/definitions/EbsCardIndex": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Id": string | fn.#StringExpression
+#Id: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceId": string | fn.#StringExpression
+#InstanceId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeId": string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VolumeAttachment"
-	Properties!: #Properties
-}
+#VolumeId: string | fn.#StringExpression

@@ -14,47 +14,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::CodeInterpreterCustom
-#Properties: close({
-	Certificates?:     _#defs."/$defs/Properties/definitions/CertificateList" | fn.#ListExpression
-	Description?:      _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	ExecutionRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	Name!:             _#defs."/$defs/Properties/definitions/SandboxName" | fn.#StringExpression
-	NetworkConfiguration!: _#defs."/$defs/Properties/definitions/CodeInterpreterNetworkConfiguration" |
-		fn.#ObjectExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::CodeInterpreterCustom"
+	Properties!: close({
+		// List of root CA certificates in PEM format.
+		Certificates?: #CertificateList
 
-_#defs: "/$defs/Properties/definitions/Certificate": close(
-	{CertificateLocation!: _#defs."/$defs/Properties/definitions/CertificateLocation" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+		// The description of the code interpreter.
+		Description?: #Description
 
-_#defs: "/$defs/Properties/definitions/CertificateList": list.MaxItems(10) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Certificate"
-] |
-	fn.#ListExpression
+		// The ARN of the IAM role that the code interpreter uses to access resources.
+		ExecutionRoleArn?: #RoleArn
 
-_#defs: "/$defs/Properties/definitions/CertificateLocation": close({
+		// The name of the code interpreter.
+		Name!: #SandboxName
+
+		// Network configuration for code interpreter.
+		NetworkConfiguration!: #CodeInterpreterNetworkConfiguration
+		Tags?:                 #TagsMap
+	})
+}
+
+#Certificate: close({
+	// Certificate location in Secrets Manager.
+	CertificateLocation!: #CertificateLocation
+}) |
+fn.#ObjectExpression
+
+#CertificateList: list.MaxItems(10) & [...] & [...#Certificate] | fn.#ListExpression
+
+#CertificateLocation: close({
 	SecretArn!: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeInterpreterArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):code-interpreter(-custom)?\\/(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
+#CodeInterpreterArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):code-interpreter(-custom)?\\/(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CodeInterpreterId": =~"^(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
-	fn.#StringExpression
+#CodeInterpreterId: =~"^(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CodeInterpreterNetworkConfiguration": close({
-	NetworkMode!: _#defs."/$defs/Properties/definitions/CodeInterpreterNetworkMode"
-	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig"
+#CodeInterpreterNetworkConfiguration: close({
+	NetworkMode!: #CodeInterpreterNetworkMode
+	VpcConfig?:   #VpcConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeInterpreterNetworkMode": "PUBLIC" | "SANDBOX" | "VPC" | fn.#StringExpression
+#CodeInterpreterNetworkMode: "PUBLIC" | "SANDBOX" | "VPC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CodeInterpreterStatus": "CREATING" |
+#CodeInterpreterStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"READY" |
 	"DELETING" |
@@ -62,58 +70,45 @@ _#defs: "/$defs/Properties/definitions/CodeInterpreterStatus": "CREATING" |
 	"DELETED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CodeInterpreterSummaries": [
-	..._#defs."/$defs/Properties/definitions/CodeInterpreterSummary"
-] |
-	fn.#ListExpression
+#CodeInterpreterSummaries: [...#CodeInterpreterSummary] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CodeInterpreterSummary": close({
-	CodeInterpreterArn!: _#defs."/$defs/Properties/definitions/CodeInterpreterArn"
-	CodeInterpreterId!:  _#defs."/$defs/Properties/definitions/CodeInterpreterId"
+#CodeInterpreterSummary: close({
+	CodeInterpreterArn!: #CodeInterpreterArn
+	CodeInterpreterId!:  #CodeInterpreterId
 	CreatedAt!:          time.Time | fn.#StringExpression
-	Description?:        _#defs."/$defs/Properties/definitions/Description"
+	Description?:        #Description
 	LastUpdatedAt?:      time.Time | fn.#StringExpression
-	Name?:               _#defs."/$defs/Properties/definitions/SandboxName"
-	Status!:             _#defs."/$defs/Properties/definitions/CodeInterpreterStatus"
+	Name?:               #SandboxName
+	Status!:             #CodeInterpreterStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Description": string | fn.#StringExpression
+#Description: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SandboxName": string | fn.#StringExpression
+#SandboxName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"^sg-[0-9a-zA-Z]{8,17}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SecurityGroupId"
-] |
-	fn.#ListExpression
+#SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
+#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Subnets": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SubnetId"
-] |
-	fn.#ListExpression
+#Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
-	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets"
+#VpcConfig: close({
+	SecurityGroups!: #SecurityGroups
+	Subnets!:        #Subnets
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::CodeInterpreterCustom"
-	Properties!: #Properties
-}

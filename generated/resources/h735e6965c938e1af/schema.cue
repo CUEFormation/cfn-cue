@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
-	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,71 +17,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DLM::LifecyclePolicy
-#Properties: close({
-	CopyTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CreateInterval?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	CrossRegionCopyTargets?: _#defs."/$defs/Properties/definitions/CrossRegionCopyTargets"
-	DefaultPolicy?:          "INSTANCE" | "VOLUME" | fn.#StringExpression
-	Description?:            strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
-	Exclusions?:             _#defs."/$defs/Properties/definitions/Exclusions"
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/" |
-	fn.#StringExpression
-	ExtendDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PolicyDetails?:  _#defs."/$defs/Properties/definitions/PolicyDetails"
-	RetainInterval?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	State?: string | fn.#StringExpression
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DLM::LifecyclePolicy"
+	Properties?: close({
+		CopyTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CreateInterval?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		CrossRegionCopyTargets?: #CrossRegionCopyTargets
+		DefaultPolicy?:          "INSTANCE" | "VOLUME" | fn.#StringExpression
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
+		Exclusions?:  #Exclusions
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/" |
+		fn.#StringExpression
+		ExtendDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PolicyDetails?:  #PolicyDetails
+		RetainInterval?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		State?: string | fn.#StringExpression
+		Tags?:  [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	CrossRegionCopy!: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/CrossRegionCopyAction"] |
-		fn.#ListExpression
-	Name!: strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
+#Action: close({
+	CrossRegionCopy!: list.MaxItems(3) & [...] & [...#CrossRegionCopyAction] | fn.#ListExpression
+	Name!:            strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ArchiveRetainRule": close(
-	{RetentionArchiveTier!: _#defs."/$defs/Properties/definitions/RetentionArchiveTier"},
-) |
-	fn.#ObjectExpression
+#ArchiveRetainRule: close({RetentionArchiveTier!: #RetentionArchiveTier}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ArchiveRule": close(
-	{RetainRule!: _#defs."/$defs/Properties/definitions/ArchiveRetainRule"},
-) |
-	fn.#ObjectExpression
+#ArchiveRule: close({RetainRule!: #ArchiveRetainRule}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreateRule": close({
+#CreateRule: close({
 	CronExpression?: strings.MaxRunes(106) & strings.MinRunes(17) & =~"^cron\\([^\\n]{11,100}\\)$" |
 	fn.#StringExpression
 	Interval?: int & >=1 |
@@ -101,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/CreateRule": close({
 		fn.#NumberExpression
 	IntervalUnit?: "HOURS" | fn.#StringExpression
 	Location?:     "CLOUD" | "LOCAL_ZONE" | "OUTPOST_LOCAL" | fn.#StringExpression
-	Scripts?:      list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Script"] | fn.#ListExpression
+	Scripts?:      list.MaxItems(1) & [...] & [...#Script] | fn.#ListExpression
 	Times?: list.MaxItems(1) & [...] & [
 		...strings.MaxRunes(5) & strings.MinRunes(5) & =~"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" | fn.#StringExpression
 	] |
@@ -109,14 +109,14 @@ _#defs: "/$defs/Properties/definitions/CreateRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyAction": close({
-	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	RetainRule?:              _#defs."/$defs/Properties/definitions/CrossRegionCopyRetainRule"
+#CrossRegionCopyAction: close({
+	EncryptionConfiguration!: #EncryptionConfiguration
+	RetainRule?:              #CrossRegionCopyRetainRule
 	Target!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyDeprecateRule": close({
+#CrossRegionCopyDeprecateRule: close({
 	Interval!: int & >=1 |
 		{
 			string &
@@ -136,7 +136,7 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyDeprecateRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyRetainRule": close({
+#CrossRegionCopyRetainRule: close({
 	Interval!: int & >=1 |
 		{
 			string &
@@ -156,31 +156,28 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyRetainRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyRule": close({
+#CrossRegionCopyRule: close({
 	CmkArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[a-z]{1,3}){0,2}:kms:([a-z]+-){2,3}\\d:\\d+:key/" |
 	fn.#StringExpression
 	CopyTags?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DeprecateRule?: _#defs."/$defs/Properties/definitions/CrossRegionCopyDeprecateRule"
+	DeprecateRule?: #CrossRegionCopyDeprecateRule
 	Encrypted!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RetainRule?:    _#defs."/$defs/Properties/definitions/CrossRegionCopyRetainRule"
+	RetainRule?:    #CrossRegionCopyRetainRule
 	Target?:        strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" | fn.#StringExpression
 	TargetRegion?:  strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyTarget": close(
+#CrossRegionCopyTarget: close(
 	{TargetRegion?: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyTargets": list.MaxItems(3) & [...] & [
-	..._#defs."/$defs/Properties/definitions/CrossRegionCopyTarget"
-] |
-	fn.#ListExpression
+#CrossRegionCopyTargets: list.MaxItems(3) & [...] & [...#CrossRegionCopyTarget] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DeprecateRule": close({
+#DeprecateRule: close({
 	Count?: int & <=1000 & >=1 |
 		{
 			string &
@@ -216,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/DeprecateRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	CmkArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[a-z]{1,3}){0,2}:kms:([a-z]+-){2,3}\\d:\\d+:key/" |
@@ -225,7 +222,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventParameters": close({
+#EventParameters: close({
 	DescriptionRegex?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	EventType!:        "shareSnapshot" | fn.#StringExpression
 	SnapshotOwner!: list.MaxItems(50) & [...] & [
@@ -235,25 +232,22 @@ _#defs: "/$defs/Properties/definitions/EventParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventSource": close({
-	Parameters?: _#defs."/$defs/Properties/definitions/EventParameters"
+#EventSource: close({
+	Parameters?: #EventParameters
 	Type!:       "MANAGED_CWE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExcludeVolumeTypesList": list.MaxItems(6) & [...] & [
-	...string | fn.#StringExpression
-] |
-	fn.#ListExpression
+#ExcludeVolumeTypesList: list.MaxItems(6) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Exclusions": close({
+#Exclusions: close({
 	ExcludeBootVolumes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExcludeTags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	ExcludeVolumeTypes?: _#defs."/$defs/Properties/definitions/ExcludeVolumeTypesList"
+	ExcludeTags?:        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	ExcludeVolumeTypes?: #ExcludeVolumeTypesList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FastRestoreRule": close({
+#FastRestoreRule: close({
 	AvailabilityZoneIds?: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(16) & strings.MinRunes(0) & =~"^[a-z]{3,4}\\d-az\\d+$" | fn.#StringExpression
 	] |
@@ -297,17 +291,15 @@ _#defs: "/$defs/Properties/definitions/FastRestoreRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Parameters": close({
-	ExcludeBootVolume?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExcludeDataVolumeTags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	NoReboot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+#Parameters: close({
+	ExcludeBootVolume?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ExcludeDataVolumeTags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	NoReboot?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDetails": close({
-	Actions?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Action"] |
-		fn.#ListExpression
+#PolicyDetails: close({
+	Actions?:  list.MaxItems(1) & list.MinItems(1) & [...#Action] | fn.#ListExpression
 	CopyTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CreateInterval?: int & >=1 |
 		{
@@ -324,11 +316,11 @@ _#defs: "/$defs/Properties/definitions/PolicyDetails": close({
 				)
 		} |
 		fn.#NumberExpression
-	CrossRegionCopyTargets?: _#defs."/$defs/Properties/definitions/CrossRegionCopyTargets"
-	EventSource?:            _#defs."/$defs/Properties/definitions/EventSource"
-	Exclusions?:             _#defs."/$defs/Properties/definitions/Exclusions"
+	CrossRegionCopyTargets?: #CrossRegionCopyTargets
+	EventSource?:            #EventSource
+	Exclusions?:             #Exclusions
 	ExtendDeletion?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Parameters?:             _#defs."/$defs/Properties/definitions/Parameters"
+	Parameters?:             #Parameters
 	PolicyLanguage?:         "SIMPLIFIED" | "STANDARD" | fn.#StringExpression
 	PolicyType?: "EBS_SNAPSHOT_MANAGEMENT" | "EVENT_BASED_POLICY" | "IMAGE_MANAGEMENT" | fn.#StringExpression
 	ResourceLocations?: list.MaxItems(1) & list.MinItems(1) & [
@@ -353,14 +345,12 @@ _#defs: "/$defs/Properties/definitions/PolicyDetails": close({
 				)
 		} |
 		fn.#NumberExpression
-	Schedules?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Schedule"] |
-		fn.#ListExpression
-	TargetTags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Schedules?:  list.MaxItems(4) & list.MinItems(1) & [...#Schedule] | fn.#ListExpression
+	TargetTags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetainRule": close({
+#RetainRule: close({
 	Count?: int & <=1000 & >=0 |
 		{
 			string &
@@ -396,7 +386,7 @@ _#defs: "/$defs/Properties/definitions/RetainRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionArchiveTier": close({
+#RetentionArchiveTier: close({
 	Count?: int & <=1000 & >=1 |
 		{
 			string &
@@ -432,23 +422,22 @@ _#defs: "/$defs/Properties/definitions/RetentionArchiveTier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
-	ArchiveRule?: _#defs."/$defs/Properties/definitions/ArchiveRule"
-	CopyTags?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CreateRule?:  _#defs."/$defs/Properties/definitions/CreateRule"
-	CrossRegionCopyRules?: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/CrossRegionCopyRule"] |
-		fn.#ListExpression
-	DeprecateRule?:   _#defs."/$defs/Properties/definitions/DeprecateRule"
-	FastRestoreRule?: _#defs."/$defs/Properties/definitions/FastRestoreRule"
-	Name?:            strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
-	RetainRule?:      _#defs."/$defs/Properties/definitions/RetainRule"
-	ShareRules?:   list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/ShareRule"] | fn.#ListExpression
-	TagsToAdd?:    list.MaxItems(45) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VariableTags?: list.MaxItems(45) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+#Schedule: close({
+	ArchiveRule?:          #ArchiveRule
+	CopyTags?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CreateRule?:           #CreateRule
+	CrossRegionCopyRules?: list.MaxItems(3) & [...] & [...#CrossRegionCopyRule] | fn.#ListExpression
+	DeprecateRule?:        #DeprecateRule
+	FastRestoreRule?:      #FastRestoreRule
+	Name?:                 strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
+	RetainRule?:           #RetainRule
+	ShareRules?:           list.MaxItems(1) & [...] & [...#ShareRule] | fn.#ListExpression
+	TagsToAdd?:            list.MaxItems(45) & [...] & [...#Tag] | fn.#ListExpression
+	VariableTags?:         list.MaxItems(45) & [...] & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Script": close({
+#Script: close({
 	ExecuteOperationOnScriptFailure?: bool |
 		"true" |
 		"True" |
@@ -498,7 +487,7 @@ _#defs: "/$defs/Properties/definitions/Script": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ShareRule": close({
+#ShareRule: close({
 	TargetAccounts?: list.MinItems(1) & [
 		...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	] |
@@ -522,12 +511,8 @@ _#defs: "/$defs/Properties/definitions/ShareRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DLM::LifecyclePolicy"
-	Properties?: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +15,7 @@ import (
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkvpcassociation/snva-[0-9a-z]{17}$"
 	CreatedAt?:         string
-	DnsOptions?:        _#defs."/$defs/Properties/definitions/DnsOptions"
+	DnsOptions?:        #DnsOptions
 	Id?:                strings.MaxRunes(22) & strings.MinRunes(22) & =~"^snva-[0-9a-z]{17}$"
 	PrivateDnsEnabled?: bool
 	SecurityGroupIds?: list.UniqueItems() & [
@@ -38,7 +38,7 @@ import (
 		"DELETE_IN_PROGRESS" |
 		"CREATE_FAILED" |
 		"DELETE_FAILED"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(5) &
@@ -46,7 +46,7 @@ import (
 	VpcIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/DnsOptions": close({
+#DnsOptions: close({
 	PrivateDnsPreference?: "VERIFIED_DOMAINS_ONLY" |
 		"ALL_DOMAINS" |
 		"VERIFIED_DOMAINS_AND_SPECIFIED_DOMAINS" |
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/DnsOptions": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

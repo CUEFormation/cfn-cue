@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,25 +14,25 @@ import (
 	// The identifier (arn) of the task template.
 	Arn?:
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/task-template/[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}$"
-	ClientToken?: _#defs."/$defs/Properties/definitions/ClientToken"
+	ClientToken?: #ClientToken
 
 	// The constraints for the task template
 	Constraints?: close({
-		InvisibleFields?: _#defs."/$defs/Properties/definitions/InvisibleTaskTemplateFields"
-		ReadOnlyFields?:  _#defs."/$defs/Properties/definitions/ReadOnlyTaskTemplateFields"
-		RequiredFields?:  _#defs."/$defs/Properties/definitions/RequiredTaskTemplateFields"
+		InvisibleFields?: #InvisibleTaskTemplateFields
+		ReadOnlyFields?:  #ReadOnlyTaskTemplateFields
+		RequiredFields?:  #RequiredTaskTemplateFields
 	})
 
 	// The identifier of the contact flow.
 	ContactFlowArn?:
 		=~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$"
-	Defaults?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/DefaultFieldValue"]
+	Defaults?: list.MaxItems(50) & [...#DefaultFieldValue]
 
 	// The description of the task template.
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0)
 
 	// The list of task template's fields
-	Fields?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Field"]
+	Fields?: list.MaxItems(50) & [...#Field]
 
 	// The identifier (arn) of the instance.
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
@@ -43,45 +43,45 @@ import (
 	// The identifier of the contact flow.
 	SelfAssignContactFlowArn?:
 		=~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$"
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+	Status?: #Status
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // the client token string in uuid format
-_#defs: "/$defs/Properties/definitions/ClientToken": strings.MaxRunes(500) &
+#ClientToken: strings.MaxRunes(500) &
 strings.MinRunes(0) &
 =~"^$|[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$"
 
 // the default value for the task template's field
-_#defs: "/$defs/Properties/definitions/DefaultFieldValue": close({
-	DefaultValue!: _#defs."/$defs/Properties/definitions/FieldValue"
-	Id!:           _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#DefaultFieldValue: close({
+	DefaultValue!: #FieldValue
+	Id!:           #FieldIdentifier
 })
 
 // A task template field object.
-_#defs: "/$defs/Properties/definitions/Field": close({
+#Field: close({
 	// The description of the task template's field
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0)
-	Id!:          _#defs."/$defs/Properties/definitions/FieldIdentifier"
+	Id!:          #FieldIdentifier
 
 	// list of field options to be used with single select
-	SingleSelectOptions?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/FieldOption"]
-	Type!:                _#defs."/$defs/Properties/definitions/FieldType"
+	SingleSelectOptions?: list.MaxItems(50) & [...#FieldOption]
+	Type!:                #FieldType
 })
 
 // the identifier (name) for the task template field
-_#defs: "/$defs/Properties/definitions/FieldIdentifier": close({
+#FieldIdentifier: close({
 	// The name of the task template field
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1)
 })
 
 // Single select field identifier
-_#defs: "/$defs/Properties/definitions/FieldOption": strings.MaxRunes(100) & strings.MinRunes(1)
+#FieldOption: strings.MaxRunes(100) & strings.MinRunes(1)
 
 // The type of the task template's field
-_#defs: "/$defs/Properties/definitions/FieldType": "NAME" |
+#FieldType: "NAME" |
 	"DESCRIPTION" |
 	"SCHEDULED_TIME" |
 	"QUICK_CONNECT" |
@@ -97,43 +97,31 @@ _#defs: "/$defs/Properties/definitions/FieldType": "NAME" |
 	"SELF_ASSIGN"
 
 // the default value for the task template's field
-_#defs: "/$defs/Properties/definitions/FieldValue": strings.MaxRunes(4096) & strings.MinRunes(1)
+#FieldValue: strings.MaxRunes(4096) & strings.MinRunes(1)
 
 // Invisible field info
-_#defs: "/$defs/Properties/definitions/InvisibleFieldInfo": close(
-	{Id!: _#defs."/$defs/Properties/definitions/FieldIdentifier"},
-)
+#InvisibleFieldInfo: close({Id!: #FieldIdentifier})
 
 // The list of the task template's invisible fields
-_#defs: "/$defs/Properties/definitions/InvisibleTaskTemplateFields": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/InvisibleFieldInfo"
-]
+#InvisibleTaskTemplateFields: list.MaxItems(50) & [...#InvisibleFieldInfo]
 
 // ReadOnly field info
-_#defs: "/$defs/Properties/definitions/ReadOnlyFieldInfo": close(
-	{Id!: _#defs."/$defs/Properties/definitions/FieldIdentifier"},
-)
+#ReadOnlyFieldInfo: close({Id!: #FieldIdentifier})
 
 // The list of the task template's read only fields
-_#defs: "/$defs/Properties/definitions/ReadOnlyTaskTemplateFields": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/ReadOnlyFieldInfo"
-]
+#ReadOnlyTaskTemplateFields: list.MaxItems(50) & [...#ReadOnlyFieldInfo]
 
 // Required field info
-_#defs: "/$defs/Properties/definitions/RequiredFieldInfo": close(
-	{Id!: _#defs."/$defs/Properties/definitions/FieldIdentifier"},
-)
+#RequiredFieldInfo: close({Id!: #FieldIdentifier})
 
 // The list of the task template's required fields
-_#defs: "/$defs/Properties/definitions/RequiredTaskTemplateFields": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/RequiredFieldInfo"
-]
+#RequiredTaskTemplateFields: list.MaxItems(50) & [...#RequiredFieldInfo]
 
 // The status of the task template
-_#defs: "/$defs/Properties/definitions/Status": "ACTIVE" | "INACTIVE"
+#Status: "ACTIVE" | "INACTIVE"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

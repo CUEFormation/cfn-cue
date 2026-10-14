@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -17,14 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A connection between a source computer and a destination device using AWS IoT Secure Tunneling.
-#Properties: close({
-	Description?:       string | fn.#StringExpression
-	DestinationConfig?: _#defs."/$defs/Properties/definitions/DestinationConfig" | fn.#ObjectExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeoutConfig?:     _#defs."/$defs/Properties/definitions/TimeoutConfig" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSecureTunneling::Tunnel"
+	Properties?: close({
+		Description?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationConfig": close({
+		// The destination configuration for the tunnel.
+		DestinationConfig?: #DestinationConfig
+		Tags?:              [...#Tag] | fn.#ListExpression
+
+		// Timeout configuration for the tunnel.
+		TimeoutConfig?: #TimeoutConfig
+	})
+}
+
+#DestinationConfig: close({
 	Services!: list.MinItems(1) & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression
 	] |
@@ -33,13 +40,13 @@ _#defs: "/$defs/Properties/definitions/DestinationConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeoutConfig": close({
+#TimeoutConfig: close({
 	MaxLifetimeTimeoutMinutes?: int & <=720 & >=1 |
 		{
 			string &
@@ -58,7 +65,3 @@ _#defs: "/$defs/Properties/definitions/TimeoutConfig": close({
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSecureTunneling::Tunnel"
-	Properties?: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
+	"strings"
 	"list"
 )
 
@@ -19,20 +19,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::SecurityHub::ConfigurationPolicy resource represents the Central
 // Configuration Policy in your account.
-#Properties: close({
-	ConfigurationPolicy!: _#defs."/$defs/Properties/definitions/Policy"
-	Description?:         strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
-	Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Tags?:                _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::ConfigurationPolicy"
+	Properties!: close({
+		ConfigurationPolicy!: #Policy
+		Description?:         strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
+		Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		Tags?:                #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
-	Value?:     _#defs."/$defs/Properties/definitions/ParameterValue"
+#ParameterConfiguration: close({
+	Value?:     #ParameterValue
 	ValueType!: "DEFAULT" | "CUSTOM" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": struct.MaxFields(1) & struct.MinFields(1) & close({
+#ParameterValue: struct.MaxFields(1) & struct.MinFields(1) & close({
 	Boolean?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Double?: number |
 		{
@@ -95,21 +98,18 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": struct.MaxFields(1) & st
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Policy": close(
-	{SecurityHub?: _#defs."/$defs/Properties/definitions/SecurityHubPolicy"},
-) |
-	fn.#ObjectExpression
+#Policy: close({SecurityHub?: #SecurityHubPolicy}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityControlCustomParameter": close({
+#SecurityControlCustomParameter: close({
 	Parameters?: struct.MinFields(1) & close({
 
-		{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration"}}) |
+		{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: #ParameterConfiguration}}) |
 	fn.#ObjectExpression
 	SecurityControlId?: strings.MaxRunes(2048) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityControlsConfiguration": close({
+#SecurityControlsConfiguration: close({
 	DisabledSecurityControlIdentifiers?: list.MaxItems(1000) & list.UniqueItems() & [
 		...strings.MaxRunes(2048) | fn.#StringExpression
 	] |
@@ -118,25 +118,19 @@ _#defs: "/$defs/Properties/definitions/SecurityControlsConfiguration": close({
 		...strings.MaxRunes(2048) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	SecurityControlCustomParameters?: list.MaxItems(1000) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SecurityControlCustomParameter"
-	] |
+	SecurityControlCustomParameters?: list.MaxItems(1000) & list.UniqueItems() & [...#SecurityControlCustomParameter] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityHubPolicy": close({
+#SecurityHubPolicy: close({
 	EnabledStandardIdentifiers?: list.MaxItems(1000) & list.UniqueItems() & [
 		...strings.MaxRunes(2048) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	SecurityControlsConfiguration?: _#defs."/$defs/Properties/definitions/SecurityControlsConfiguration"
+	SecurityControlsConfiguration?: #SecurityControlsConfiguration
 	ServiceEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::ConfigurationPolicy"
-	Properties!: #Properties
-}
+#Tags: {...} | fn.#ObjectExpression

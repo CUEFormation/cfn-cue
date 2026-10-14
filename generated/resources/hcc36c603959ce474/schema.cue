@@ -20,50 +20,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // implementing policies. Data workers use their SSO corporate identities via
 // Identity Center to log into the Amazon DataZone Data Portal and access
 // projects where they have memberships.
-#Properties: close({
-	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	SessionName?:      strings.MaxRunes(64) & strings.MinRunes(2) | fn.#StringExpression
-	Status?:           _#defs."/$defs/Properties/definitions/UserProfileStatus"
-	UserIdentifier!: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)" |
-		fn.#StringExpression
-	UserType?: _#defs."/$defs/Properties/definitions/UserType"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::UserProfile"
+	Properties!: close({
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		SessionName?:      strings.MaxRunes(64) & strings.MinRunes(2) | fn.#StringExpression
+		Status?:           #UserProfileStatus
+		UserIdentifier!: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)" |
+			fn.#StringExpression
+		UserType?: #UserType
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/IamUserProfileDetails": close({
+#IamUserProfileDetails: close({
 	Arn?:            string | fn.#StringExpression
 	GroupProfileId?: string | fn.#StringExpression
 	SessionName?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SsoUserProfileDetails": close({
+#SsoUserProfileDetails: close({
 	FirstName?: string | fn.#StringExpression
 	LastName?:  string | fn.#StringExpression
 	Username?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserProfileDetails": matchN(1, [close(
-	{Iam!: _#defs."/$defs/Properties/definitions/IamUserProfileDetails"},
-), close(
-	{Sso!: _#defs."/$defs/Properties/definitions/SsoUserProfileDetails"},
-)]) |
+#UserProfileDetails: matchN(1, [close({Iam!: #IamUserProfileDetails}), close({Sso!: #SsoUserProfileDetails})]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/UserProfileStatus": "ASSIGNED" |
-	"NOT_ASSIGNED" |
-	"ACTIVATED" |
-	"DEACTIVATED" |
-	fn.#StringExpression
+#UserProfileStatus: "ASSIGNED" | "NOT_ASSIGNED" | "ACTIVATED" | "DEACTIVATED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UserProfileType": "IAM" | "SSO" | fn.#StringExpression
+#UserProfileType: "IAM" | "SSO" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UserType": "IAM_USER" |
-	"IAM_ROLE" |
-	"SSO_USER" |
-	"IAM_ROLE_SESSION" |
-	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::UserProfile"
-	Properties!: #Properties
-}
+#UserType: "IAM_USER" | "IAM_ROLE" | "SSO_USER" | "IAM_ROLE_SESSION" | fn.#StringExpression

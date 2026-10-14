@@ -16,12 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // API Documentation in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-documenting-api-content-representation.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	Description?:          string | fn.#StringExpression
-	DocumentationVersion!: strings.MinRunes(1) | fn.#StringExpression
-	RestApiId!:            strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::DocumentationVersion"
-	Properties!: #Properties
+	Type!: "AWS::ApiGateway::DocumentationVersion"
+	Properties!: close({
+		Description?:          string | fn.#StringExpression
+		DocumentationVersion!: strings.MinRunes(1) | fn.#StringExpression
+		RestApiId!:            strings.MinRunes(1) | fn.#StringExpression
+	})
 }

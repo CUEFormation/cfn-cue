@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,22 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MPA::IdentitySource.
-#Properties: close({
-	IdentitySourceParameters!: close({
-		IamIdentityCenter!: close({
-			InstanceArn!: strings.MaxRunes(2048) &
-			strings.MinRunes(20) &
-			=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" |
-			fn.#StringExpression
-			Region!: strings.MaxRunes(1000) | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MPA::IdentitySource"
+	Properties!: close({
+		IdentitySourceParameters!: close({
+			IamIdentityCenter!: close({
+				InstanceArn!: strings.MaxRunes(2048) &
+				strings.MinRunes(20) &
+				=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" |
+				fn.#StringExpression
+				Region!: strings.MaxRunes(1000) | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
-})
+		Tags?: #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/IamIdentityCenter": close({
+#IamIdentityCenter: close({
 	ApprovalPortalUrl?: string | fn.#StringExpression
 	InstanceArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -38,22 +41,14 @@ _#defs: "/$defs/Properties/definitions/IamIdentityCenter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceArn": string | fn.#StringExpression
+#IdentitySourceArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceParameters": close(
-	{IamIdentityCenter!: _#defs."/$defs/Properties/definitions/IamIdentityCenter"},
-) |
-	fn.#ObjectExpression
+#IdentitySourceParameters: close({IamIdentityCenter!: #IamIdentityCenter}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MPA::IdentitySource"
-	Properties!: #Properties
-}
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression

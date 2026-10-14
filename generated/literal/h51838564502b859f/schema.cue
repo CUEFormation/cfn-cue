@@ -13,14 +13,14 @@ import "strings"
 
 	// Settings for an AWS CodeBuild build that packages and builds an application
 	// version from source code.
-	BuildConfiguration?: _#defs."/$defs/Properties/definitions/BuildConfiguration"
+	BuildConfiguration?: #BuildConfiguration
 
 	// A description of this application version.
 	Description?: strings.MaxRunes(200) & strings.MinRunes(0)
 	Id?:          string
 
 	// Configuration for image-based application versions.
-	ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfiguration"
+	ImageConfiguration?: #ImageConfiguration
 
 	// Pre-process and validate the environment manifest (`env.yaml`) and
 	// configuration files in the source bundle. Leave unset for the service
@@ -28,10 +28,10 @@ import "strings"
 	Process?: bool
 
 	// The Amazon S3 bucket and key that identify the location of the source bundle for this version.
-	SourceBundle?: _#defs."/$defs/Properties/definitions/SourceBundle"
+	SourceBundle?: #SourceBundle
 })
 
-_#defs: "/$defs/Properties/definitions/BuildConfiguration": close({
+#BuildConfiguration: close({
 	// The name of the build artifact.
 	ArtifactName?: string
 
@@ -48,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/BuildConfiguration": close({
 	TimeoutInMinutes?: int
 })
 
-_#defs: "/$defs/Properties/definitions/ImageBuildConfiguration": close({
+#ImageBuildConfiguration: close({
 	// The target architecture for the built container image.
 	Architecture?: "amd64" | "arm64"
 
@@ -71,26 +71,23 @@ _#defs: "/$defs/Properties/definitions/ImageBuildConfiguration": close({
 	Type!: "docker" | "buildpack"
 })
 
-_#defs: "/$defs/Properties/definitions/ImageConfiguration": matchN(1, [{
-	Source!: _
-	...
-}, {
-	Build!: _
-	...
-}]) & close({
+#ImageConfiguration: close({
 	// Configuration for building a container image from source code.
-	Build?: _#defs."/$defs/Properties/definitions/ImageBuildConfiguration"
+	Build?: #ImageBuildConfiguration
 
 	// The container image source for this version, as an ECR image URI.
-	Source?: _#defs."/$defs/Properties/definitions/ImageSource"
-})
+	Source?: #ImageSource
+	if Source != _|_ if Source."Fn::If" == _|_ {
+		Build?: close({"Fn::If": _}) | error("Build cannot be used with Source; set exactly one of Source, Build")
+	}
+}) & matchN(>=1, [{Source!: _}, {Build!: _}])
 
-_#defs: "/$defs/Properties/definitions/ImageSource": close({
+#ImageSource: close({
 	// The URI of the container image, e.g. an ECR image URI.
 	Uri?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SourceBundle": close({
+#SourceBundle: close({
 	// The Amazon S3 bucket where the data is located.
 	S3Bucket!: strings.MaxRunes(255) & strings.MinRunes(0)
 

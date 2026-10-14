@@ -8,37 +8,37 @@ import "list"
 
 // Resource Type definition for AWS::OpsWorks::App
 #Properties: close({
-	AppSource?: _#defs."/$defs/Properties/definitions/Source"
+	AppSource?: #Source
 	Attributes?: {
 		{[=~"[a-zA-Z0-9]+"]: string}
 		...
 	}
-	DataSources?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DataSource"]
+	DataSources?:      list.UniqueItems() & [...#DataSource]
 	Description?:      string
 	Domains?:          [...string]
 	EnableSsl?:        bool
-	Environment?:      [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"]
+	Environment?:      [...#EnvironmentVariable]
 	Id?:               string
 	Name!:             string
 	Shortname?:        string
-	SslConfiguration?: _#defs."/$defs/Properties/definitions/SslConfiguration"
+	SslConfiguration?: #SslConfiguration
 	StackId!:          string
 	Type!:             string
 })
 
-_#defs: "/$defs/Properties/definitions/DataSource": close({
+#DataSource: close({
 	Arn?:          string
 	DatabaseName?: string
 	Type?:         string
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Key!:    string
 	Secure?: bool
 	Value!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/Source": close({
+#Source: close({
 	Password?: string
 	Revision?: string
 	SshKey?:   string
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 	Username?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SslConfiguration": close({
+#SslConfiguration: close({
 	Certificate?: string
 	Chain?:       string
 	PrivateKey?:  string

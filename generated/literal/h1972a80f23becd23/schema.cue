@@ -15,7 +15,7 @@ import (
 	Arn?: string
 
 	// Container provider for the security configuration.
-	ContainerProvider?: _#defs."/$defs/Properties/definitions/ContainerProvider"
+	ContainerProvider?: #ContainerProvider
 
 	// The ID of the security configuration.
 	Id?: string
@@ -24,56 +24,54 @@ import (
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$"
 
 	// Security configuration input for the security configuration.
-	SecurityConfigurationData!: _#defs."/$defs/Properties/definitions/SecurityConfigurationData"
+	SecurityConfigurationData!: #SecurityConfigurationData
 
 	// An array of key-value pairs to apply to this security configuration.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // At-rest encryption configuration.
-_#defs: "/$defs/Properties/definitions/AtRestEncryptionConfiguration": close({
-	LocalDiskEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/LocalDiskEncryptionConfiguration"
-	S3EncryptionConfiguration?:        _#defs."/$defs/Properties/definitions/S3EncryptionConfiguration"
+#AtRestEncryptionConfiguration: close({
+	LocalDiskEncryptionConfiguration?: #LocalDiskEncryptionConfiguration
+	S3EncryptionConfiguration?:        #S3EncryptionConfiguration
 })
 
 // Authentication configuration for the security configuration.
-_#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
-	IAMConfiguration?:            _#defs."/$defs/Properties/definitions/IAMConfiguration"
-	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
+#AuthenticationConfiguration: close({
+	IAMConfiguration?:            #IAMConfiguration
+	IdentityCenterConfiguration?: #IdentityCenterConfiguration
 })
 
 // Authorization configuration for the security configuration.
-_#defs: "/$defs/Properties/definitions/AuthorizationConfiguration": close(
-	{LakeFormationConfiguration?: _#defs."/$defs/Properties/definitions/LakeFormationConfiguration"},
-)
+#AuthorizationConfiguration: close({LakeFormationConfiguration?: #LakeFormationConfiguration})
 
 // Container information.
-_#defs: "/$defs/Properties/definitions/ContainerInfo": close({EksInfo?: _#defs."/$defs/Properties/definitions/EksInfo"})
+#ContainerInfo: close({EksInfo?: #EksInfo})
 
 // Container provider information.
-_#defs: "/$defs/Properties/definitions/ContainerProvider": close({
+#ContainerProvider: close({
 	// The container provider ID.
 	Id!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*$"
-	Info?: _#defs."/$defs/Properties/definitions/ContainerInfo"
+	Info?: #ContainerInfo
 
 	// The container provider type.
 	Type!: "EKS"
 })
 
 // EKS information.
-_#defs: "/$defs/Properties/definitions/EksInfo": close({
+#EksInfo: close({
 	// The EKS namespace.
 	Namespace?: string
 })
 
 // Encryption configuration for the security configuration.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	AtRestEncryptionConfiguration?:    _#defs."/$defs/Properties/definitions/AtRestEncryptionConfiguration"
-	InTransitEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/InTransitEncryptionConfiguration"
+#EncryptionConfiguration: close({
+	AtRestEncryptionConfiguration?:    #AtRestEncryptionConfiguration
+	InTransitEncryptionConfiguration?: #InTransitEncryptionConfiguration
 })
 
 // IAM configuration.
-_#defs: "/$defs/Properties/definitions/IAMConfiguration": close({
+#IAMConfiguration: close({
 	// The system role ARN.
 	SystemRole?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -81,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/IAMConfiguration": close({
 })
 
 // Identity Center configuration.
-_#defs: "/$defs/Properties/definitions/IdentityCenterConfiguration": close({
+#IdentityCenterConfiguration: close({
 	// Whether to enable Identity Center integration.
 	EnableIdentityCenter?: bool
 
@@ -95,12 +93,10 @@ _#defs: "/$defs/Properties/definitions/IdentityCenterConfiguration": close({
 })
 
 // In-transit encryption configuration.
-_#defs: "/$defs/Properties/definitions/InTransitEncryptionConfiguration": close(
-	{TLSCertificateConfiguration?: _#defs."/$defs/Properties/definitions/TLSCertificateConfiguration"},
-)
+#InTransitEncryptionConfiguration: close({TLSCertificateConfiguration?: #TLSCertificateConfiguration})
 
 // Lake Formation configuration.
-_#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
+#LakeFormationConfiguration: close({
 	// The session tag to authorize Lake Formation access.
 	AuthorizedSessionTagValue?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9 ]+$"
 
@@ -112,11 +108,11 @@ _#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:role/.+$"
-	SecureNamespaceInfo?: _#defs."/$defs/Properties/definitions/SecureNamespaceInfo"
+	SecureNamespaceInfo?: #SecureNamespaceInfo
 })
 
 // Local disk encryption configuration.
-_#defs: "/$defs/Properties/definitions/LocalDiskEncryptionConfiguration": close({
+#LocalDiskEncryptionConfiguration: close({
 	// The AWS KMS key ID.
 	AwsKmsKeyId?: string
 
@@ -125,7 +121,7 @@ _#defs: "/$defs/Properties/definitions/LocalDiskEncryptionConfiguration": close(
 })
 
 // S3 encryption configuration.
-_#defs: "/$defs/Properties/definitions/S3EncryptionConfiguration": close({
+#S3EncryptionConfiguration: close({
 	// The S3 encryption option.
 	EncryptionOption?: "SSE-S3" | "SSE-KMS" | "CSE-KMS"
 
@@ -134,7 +130,7 @@ _#defs: "/$defs/Properties/definitions/S3EncryptionConfiguration": close({
 })
 
 // Secure namespace information for Lake Formation.
-_#defs: "/$defs/Properties/definitions/SecureNamespaceInfo": close({
+#SecureNamespaceInfo: close({
 	// The ID of the cluster.
 	ClusterId?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*$"
 
@@ -143,14 +139,14 @@ _#defs: "/$defs/Properties/definitions/SecureNamespaceInfo": close({
 })
 
 // Security configuration data containing encryption and authorization settings.
-_#defs: "/$defs/Properties/definitions/SecurityConfigurationData": close({
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration"
-	AuthorizationConfiguration?:  _#defs."/$defs/Properties/definitions/AuthorizationConfiguration"
-	EncryptionConfiguration?:     _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+#SecurityConfigurationData: close({
+	AuthenticationConfiguration?: #AuthenticationConfiguration
+	AuthorizationConfiguration?:  #AuthorizationConfiguration
+	EncryptionConfiguration?:     #EncryptionConfiguration
 })
 
 // TLS certificate configuration for in-transit encryption.
-_#defs: "/$defs/Properties/definitions/TLSCertificateConfiguration": close({
+#TLSCertificateConfiguration: close({
 	// The certificate provider type.
 	CertificateProviderType?: "PEM"
 
@@ -162,7 +158,7 @@ _#defs: "/$defs/Properties/definitions/TLSCertificateConfiguration": close({
 })
 
 // An arbitrary set of tags (key-value pairs) for this security configuration.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: string
 

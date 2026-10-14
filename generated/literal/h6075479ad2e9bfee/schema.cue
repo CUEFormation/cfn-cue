@@ -21,7 +21,7 @@ import "strings"
 	// Amazon Web Services SSO to enable Amazon Web Services SSO users to log in to
 	// Nimble Studio portal.</p>
 	SsoClientId?:                   string
-	StudioEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/StudioEncryptionConfiguration"
+	StudioEncryptionConfiguration?: #StudioEncryptionConfiguration
 	StudioId?:                      string
 
 	// <p>The studio name that is used in the URL of the Nimble Studio portal when
@@ -30,22 +30,22 @@ import "strings"
 
 	// <p>The address of the web page for the studio.</p>
 	StudioUrl?: string
-	Tags?:      _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:      #Tags
 
 	// <p>The IAM role that Studio Users will assume when logging in to the Nimble Studio portal.</p>
 	UserRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // <p>Configuration of the encryption method that is used for the studio.</p>
-_#defs: "/$defs/Properties/definitions/StudioEncryptionConfiguration": close({
+#StudioEncryptionConfiguration: close({
 	// <p>The ARN for a KMS key that is used to encrypt studio data.</p>
 	KeyArn?:  strings.MinRunes(4) & =~"^arn:.*"
-	KeyType!: _#defs."/$defs/Properties/definitions/StudioEncryptionConfigurationKeyType"
+	KeyType!: #StudioEncryptionConfigurationKeyType
 })
 
 // <p>The type of KMS key that is used to encrypt studio data.</p>
-_#defs: "/$defs/Properties/definitions/StudioEncryptionConfigurationKeyType": "AWS_OWNED_KEY" | "CUSTOMER_MANAGED_KEY"
+#StudioEncryptionConfigurationKeyType: "AWS_OWNED_KEY" | "CUSTOMER_MANAGED_KEY"
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~".+"]: string}})

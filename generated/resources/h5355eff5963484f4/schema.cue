@@ -18,89 +18,92 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WorkSpacesWeb::UserSettings Resource Type
-#Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
-	BrandingConfiguration?: close({
-		ColorTheme?:       _#defs."/$defs/Properties/definitions/ColorTheme"
-		Favicon?:          string | fn.#StringExpression
-		LocalizedStrings?: _#defs."/$defs/Properties/definitions/LocalizedBrandingStringMap"
-		Logo?:             string | fn.#StringExpression
-		TermsOfService?:   strings.MaxRunes(153600) | fn.#StringExpression
-		Wallpaper?:        string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	CookieSynchronizationConfiguration?: _#defs."/$defs/Properties/definitions/CookieSynchronizationConfiguration"
-	CopyAllowed!:                        _#defs."/$defs/Properties/definitions/EnabledType"
-	CustomerManagedKey?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	DeepLinkAllowed?: _#defs."/$defs/Properties/definitions/EnabledType"
-	DisconnectTimeoutInMinutes?: <=600 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpacesWeb::UserSettings"
+	Properties!: close({
+		AdditionalEncryptionContext?: #EncryptionContextMap
+		BrandingConfiguration?: close({
+			ColorTheme?:       #ColorTheme
+			Favicon?:          string | fn.#StringExpression
+			LocalizedStrings?: #LocalizedBrandingStringMap
+			Logo?:             string | fn.#StringExpression
+			TermsOfService?:   strings.MaxRunes(153600) | fn.#StringExpression
+			Wallpaper?:        string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		CookieSynchronizationConfiguration?: #CookieSynchronizationConfiguration
+		CopyAllowed!:                        #EnabledType
+		CustomerManagedKey?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		DeepLinkAllowed?: #EnabledType
+		DisconnectTimeoutInMinutes?: <=600 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=600 &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							<=600 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DownloadAllowed!: _#defs."/$defs/Properties/definitions/EnabledType"
-	IdleDisconnectTimeoutInMinutes?: <=60 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DownloadAllowed!: #EnabledType
+		IdleDisconnectTimeoutInMinutes?: <=60 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=60 &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							<=60 &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PasteAllowed!: _#defs."/$defs/Properties/definitions/EnabledType"
-	PrintAllowed!: _#defs."/$defs/Properties/definitions/EnabledType"
-	Tags?:         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	ToolbarConfiguration?: _#defs."/$defs/Properties/definitions/ToolbarConfiguration"
-	UploadAllowed!:        _#defs."/$defs/Properties/definitions/EnabledType"
-	WebAuthnAllowed?:      _#defs."/$defs/Properties/definitions/EnabledType"
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PasteAllowed!:         #EnabledType
+		PrintAllowed!:         #EnabledType
+		Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		ToolbarConfiguration?: #ToolbarConfiguration
+		UploadAllowed!:        #EnabledType
+		WebAuthnAllowed?:      #EnabledType
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BrandingConfiguration": close({
-	ColorTheme?:        _#defs."/$defs/Properties/definitions/ColorTheme"
+#BrandingConfiguration: close({
+	ColorTheme?:        #ColorTheme
 	Favicon?:           string | fn.#StringExpression
-	FaviconMetadata?:   _#defs."/$defs/Properties/definitions/ImageMetadata"
-	LocalizedStrings?:  _#defs."/$defs/Properties/definitions/LocalizedBrandingStringMap"
+	FaviconMetadata?:   #ImageMetadata
+	LocalizedStrings?:  #LocalizedBrandingStringMap
 	Logo?:              string | fn.#StringExpression
-	LogoMetadata?:      _#defs."/$defs/Properties/definitions/ImageMetadata"
+	LogoMetadata?:      #ImageMetadata
 	TermsOfService?:    strings.MaxRunes(153600) | fn.#StringExpression
 	Wallpaper?:         string | fn.#StringExpression
-	WallpaperMetadata?: _#defs."/$defs/Properties/definitions/ImageMetadata"
+	WallpaperMetadata?: #ImageMetadata
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ColorTheme": "Light" | "Dark" | fn.#StringExpression
+#ColorTheme: "Light" | "Dark" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CookieSpecification": close({
+#CookieSpecification: close({
 	Domain!: strings.MaxRunes(253) &
 	strings.MinRunes(0) &
 	=~"^(\\.?)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)*[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" |
@@ -110,29 +113,27 @@ _#defs: "/$defs/Properties/definitions/CookieSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CookieSynchronizationConfiguration": close({
-	Allowlist!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/CookieSpecification"] |
-		fn.#ListExpression
-	Blocklist?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/CookieSpecification"] |
-		fn.#ListExpression
+#CookieSynchronizationConfiguration: close({
+	Allowlist!: list.MaxItems(10) & [...] & [...#CookieSpecification] | fn.#ListExpression
+	Blocklist?: list.MaxItems(10) & [...] & [...#CookieSpecification] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnabledType": "Disabled" | "Enabled" | fn.#StringExpression
+#EnabledType: "Disabled" | "Enabled" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageMetadata": close({
+#ImageMetadata: close({
 	FileExtension!:       strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	LastUploadTimestamp!: time.Time | fn.#StringExpression
-	MimeType!:            _#defs."/$defs/Properties/definitions/MimeType"
+	MimeType!:            #MimeType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Locale": "de-DE" |
+#Locale: "de-DE" |
 	"en-US" |
 	"es-ES" |
 	"fr-FR" |
@@ -145,12 +146,12 @@ _#defs: "/$defs/Properties/definitions/Locale": "de-DE" |
 	"zh-TW" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LocalizedBrandingStringMap": close({
+#LocalizedBrandingStringMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/LocalizedBrandingStrings"}}) |
+	{[=~".+"]: #LocalizedBrandingStrings}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocalizedBrandingStrings": close({
+#LocalizedBrandingStrings: close({
 	BrowserTabTitle!:   =~"^[^<>&'`~\\\\]*$" | fn.#StringExpression
 	ContactButtonText?: =~"^[^<>&'`~\\\\]*$" | fn.#StringExpression
 	ContactLink?:       =~"^(https?://|mailto:).*" | fn.#StringExpression
@@ -162,7 +163,7 @@ _#defs: "/$defs/Properties/definitions/LocalizedBrandingStrings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaxDisplayResolution": "size4096X2160" |
+#MaxDisplayResolution: "size4096X2160" |
 	"size3840X2160" |
 	"size3440X1440" |
 	"size2560X1440" |
@@ -172,33 +173,24 @@ _#defs: "/$defs/Properties/definitions/MaxDisplayResolution": "size4096X2160" |
 	"size800X600" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MimeType": "image/png" | "image/jpeg" | "image/x-icon" | fn.#StringExpression
+#MimeType: "image/png" | "image/jpeg" | "image/x-icon" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolbarConfiguration": close({
-	HiddenToolbarItems?:   [..._#defs."/$defs/Properties/definitions/ToolbarItem"] | fn.#ListExpression
-	MaxDisplayResolution?: _#defs."/$defs/Properties/definitions/MaxDisplayResolution"
-	ToolbarType?:          _#defs."/$defs/Properties/definitions/ToolbarType"
-	VisualMode?:           _#defs."/$defs/Properties/definitions/VisualMode"
+#ToolbarConfiguration: close({
+	HiddenToolbarItems?:   [...#ToolbarItem] | fn.#ListExpression
+	MaxDisplayResolution?: #MaxDisplayResolution
+	ToolbarType?:          #ToolbarType
+	VisualMode?:           #VisualMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ToolbarItem": "Windows" |
-	"DualMonitor" |
-	"FullScreen" |
-	"Webcam" |
-	"Microphone" |
-	fn.#StringExpression
+#ToolbarItem: "Windows" | "DualMonitor" | "FullScreen" | "Webcam" | "Microphone" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ToolbarType": "Floating" | "Docked" | fn.#StringExpression
+#ToolbarType: "Floating" | "Docked" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VisualMode": "Dark" | "Light" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpacesWeb::UserSettings"
-	Properties!: #Properties
-}
+#VisualMode: "Dark" | "Light" | fn.#StringExpression

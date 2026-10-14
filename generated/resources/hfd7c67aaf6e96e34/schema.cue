@@ -13,23 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A resource schema for a List in Amazon Fraud Detector.
-#Properties: close({
-	Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Elements?: list.MaxItems(100000) & [...] & [..._#defs."/$defs/Properties/definitions/Element"] | fn.#ListExpression
-	Name!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" | fn.#StringExpression
-	Tags?:     list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VariableType?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Z_]{1,64}$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FraudDetector::List"
+	Properties!: close({
+		Description?:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Elements?:     list.MaxItems(100000) & [...] & [...#Element] | fn.#ListExpression
+		Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" | fn.#StringExpression
+		Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		VariableType?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Z_]{1,64}$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Element": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^\\S+( +\\S+)*$" |
-fn.#StringExpression
+#Element: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^\\S+( +\\S+)*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FraudDetector::List"
-	Properties!: #Properties
-}

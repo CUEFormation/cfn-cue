@@ -13,30 +13,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGatewayV2::Stage
-#Properties: close({
-	AccessLogSettings?:    _#defs."/$defs/Properties/definitions/AccessLogSettings" | fn.#ObjectExpression
-	ApiId!:                string | fn.#StringExpression
-	AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ClientCertificateId?:  string | fn.#StringExpression
-	DefaultRouteSettings?: _#defs."/$defs/Properties/definitions/RouteSettings" | fn.#ObjectExpression
-	DeploymentId?:         string | fn.#StringExpression
-	Description?:          string | fn.#StringExpression
-	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-	StageName!:            string | fn.#StringExpression
-	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::Stage"
+	Properties!: close({
+		// Settings for logging access in this stage.
+		AccessLogSettings?:   #AccessLogSettings
+		ApiId!:               string | fn.#StringExpression
+		AutoDeploy?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ClientCertificateId?: string | fn.#StringExpression
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+		// The default route settings for the stage.
+		DefaultRouteSettings?: #RouteSettings
+		DeploymentId?:         string | fn.#StringExpression
+		Description?:          string | fn.#StringExpression
+		RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+		StageName!:            string | fn.#StringExpression
+		StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?: close({
 
-_#defs: "/$defs/Properties/definitions/AccessLogSettings": close({
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
+
+#AccessLogSettings: close({
 	DestinationArn?: string | fn.#StringExpression
 	Format?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouteSettings": close({
+#RouteSettings: close({
 	DataTraceEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DetailedMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LoggingLevel?:           string | fn.#StringExpression
@@ -75,7 +81,3 @@ _#defs: "/$defs/Properties/definitions/RouteSettings": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Stage"
-	Properties!: #Properties
-}

@@ -14,15 +14,15 @@ import (
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$"
 	DomainId?:    strings.MaxRunes(22) & strings.MinRunes(22) & =~"^[a-zA-Z0-9]{22}$"
 	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
-	ServerSideEncryptionConfiguration!: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration"
-	Tags?:                              list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ServerSideEncryptionConfiguration!: #ServerSideEncryptionConfiguration
+	Tags?:                              list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+#ServerSideEncryptionConfiguration: close({
 	KmsKeyId!: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

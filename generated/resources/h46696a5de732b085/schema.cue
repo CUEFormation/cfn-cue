@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,59 +13,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Inspector CodeSecurityScanConfiguration resource schema
-#Properties: close({
-	Configuration?: _#defs."/$defs/Properties/definitions/CodeSecurityScanConfiguration" | fn.#ObjectExpression
-	Level?:         _#defs."/$defs/Properties/definitions/ConfigurationLevel" | fn.#StringExpression
-	Name?:          strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
-	ScopeSettings?: _#defs."/$defs/Properties/definitions/ScopeSettings" | fn.#ObjectExpression
-	Tags?:          _#defs."/$defs/Properties/definitions/TagMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InspectorV2::CodeSecurityScanConfiguration"
+	Properties?: close({
+		// Code Security Scan Configuration
+		Configuration?: #CodeSecurityScanConfiguration
 
-_#defs: "/$defs/Properties/definitions/CodeSecurityScanConfiguration": close({
-	continuousIntegrationScanConfiguration?:
-		_#defs."/$defs/Properties/definitions/ContinuousIntegrationScanConfiguration"
-	periodicScanConfiguration?: _#defs."/$defs/Properties/definitions/PeriodicScanConfiguration"
-	ruleSetCategories!: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RuleSetCategory"
-	] |
-		fn.#ListExpression
+		// Configuration Level
+		Level?: #ConfigurationLevel
+		Name?:  strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
+
+		// Scope Settings
+		ScopeSettings?: #ScopeSettings
+		Tags?:          #TagMap
+	})
+}
+
+#CodeSecurityScanConfiguration: close({
+	continuousIntegrationScanConfiguration?: #ContinuousIntegrationScanConfiguration
+	periodicScanConfiguration?:              #PeriodicScanConfiguration
+	ruleSetCategories!: list.MaxItems(3) & list.MinItems(1) & [...#RuleSetCategory] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationLevel": "ORGANIZATION" | "ACCOUNT" | fn.#StringExpression
+#ConfigurationLevel: "ORGANIZATION" | "ACCOUNT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ContinuousIntegrationScanConfiguration": close({
-	supportedEvents!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ContinuousIntegrationScanEvent"
-	] |
-		fn.#ListExpression
-}) |
+#ContinuousIntegrationScanConfiguration: close(
+	{supportedEvents!: list.MaxItems(2) & list.MinItems(1) & [...#ContinuousIntegrationScanEvent] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContinuousIntegrationScanEvent": "PULL_REQUEST" | "PUSH" | fn.#StringExpression
+#ContinuousIntegrationScanEvent: "PULL_REQUEST" | "PUSH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PeriodicScanConfiguration": close({
-	frequency?:           _#defs."/$defs/Properties/definitions/PeriodicScanFrequency"
+#PeriodicScanConfiguration: close({
+	frequency?:           #PeriodicScanFrequency
 	frequencyExpression?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PeriodicScanFrequency": "WEEKLY" | "MONTHLY" | "NEVER" | fn.#StringExpression
+#PeriodicScanFrequency: "WEEKLY" | "MONTHLY" | "NEVER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectSelectionScope": "ALL" | fn.#StringExpression
+#ProjectSelectionScope: "ALL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuleSetCategory": "SAST" | "IAC" | "SCA" | fn.#StringExpression
+#RuleSetCategory: "SAST" | "IAC" | "SCA" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScopeSettings": close(
-	{projectSelectionScope?: _#defs."/$defs/Properties/definitions/ProjectSelectionScope"},
-) |
-	fn.#ObjectExpression
+#ScopeSettings: close({projectSelectionScope?: #ProjectSelectionScope}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~"^.{2,127}$"]: =~"^.{1,255}$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InspectorV2::CodeSecurityScanConfiguration"
-	Properties?: #Properties
-}

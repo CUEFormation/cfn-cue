@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,50 +18,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Specifies a listener for an Application Load Balancer, Network Load Balancer,
 // or Gateway Load Balancer.
-#Properties: close({
-	AlpnPolicy?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Certificates?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Certificate"] | fn.#ListExpression
-	DefaultActions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
-	ListenerAttributes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ListenerAttribute"] |
-		fn.#ListExpression
-	LoadBalancerArn!:      string | fn.#StringExpression
-	MutualAuthentication?: _#defs."/$defs/Properties/definitions/MutualAuthentication" | fn.#ObjectExpression
-	Port?: int & <=65535 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=65535 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Protocol?: "GENEVE" |
-		"HTTP" |
-		"HTTPS" |
-		"QUIC" |
-		"TCP" |
-		"TCP_QUIC" |
-		"TCP_UDP" |
-		"TLS" |
-		"UDP" |
-		fn.#StringExpression
-	SslPolicy?: string | fn.#StringExpression
-	Tags?:      list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancingV2::Listener"
+	Properties!: close({
+		AlpnPolicy?:         [...string | fn.#StringExpression] | fn.#ListExpression
+		Certificates?:       list.UniqueItems() & [...#Certificate] | fn.#ListExpression
+		DefaultActions!:     list.UniqueItems() & [...#Action] | fn.#ListExpression
+		ListenerAttributes?: list.UniqueItems() & [...#ListenerAttribute] | fn.#ListExpression
+		LoadBalancerArn!:    string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	AuthenticateCognitoConfig?: _#defs."/$defs/Properties/definitions/AuthenticateCognitoConfig" | fn.#ObjectExpression
-	AuthenticateOidcConfig?:    _#defs."/$defs/Properties/definitions/AuthenticateOidcConfig" | fn.#ObjectExpression
-	FixedResponseConfig?:       _#defs."/$defs/Properties/definitions/FixedResponseConfig" | fn.#ObjectExpression
-	ForwardConfig?:             _#defs."/$defs/Properties/definitions/ForwardConfig" | fn.#ObjectExpression
-	JwtValidationConfig?:       _#defs."/$defs/Properties/definitions/JwtValidationConfig" | fn.#ObjectExpression
+		// The mutual authentication configuration information.
+		MutualAuthentication?: #MutualAuthentication
+		Port?: int & <=65535 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65535 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Protocol?: "GENEVE" |
+			"HTTP" |
+			"HTTPS" |
+			"QUIC" |
+			"TCP" |
+			"TCP_QUIC" |
+			"TCP_UDP" |
+			"TLS" |
+			"UDP" |
+			fn.#StringExpression
+		SslPolicy?: string | fn.#StringExpression
+		Tags?:      list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#Action: close({
+	// [HTTPS listeners] Information for using Amazon Cognito to authenticate users.
+	// Specify only when ``Type`` is ``authenticate-cognito``.
+	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig
+
+	// [HTTPS listeners] Information about an identity provider that is compliant
+	// with OpenID Connect (OIDC). Specify only when ``Type`` is
+	// ``authenticate-oidc``.
+	AuthenticateOidcConfig?: #AuthenticateOidcConfig
+
+	// [Application Load Balancer] Information for creating an action that returns a
+	// custom HTTP response. Specify only when ``Type`` is ``fixed-response``.
+	FixedResponseConfig?: #FixedResponseConfig
+
+	// Information for creating an action that distributes requests among multiple
+	// target groups. Specify only when ``Type`` is ``forward``.
+	// If you specify both ``ForwardConfig`` and ``TargetGroupArn``, you can specify
+	// only one target group using ``ForwardConfig`` and it must be the same target
+	// group specified in ``TargetGroupArn``.
+	ForwardConfig?: #ForwardConfig
+
+	// [HTTPS listeners] Information for validating JWT access tokens in client
+	// requests. Specify only when ``Type`` is ``jwt-validation``.
+	JwtValidationConfig?: #JwtValidationConfig
 	Order?: int & <=50000 & >=1 |
 		{
 			string &
@@ -78,7 +102,10 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 				)
 		} |
 		fn.#NumberExpression
-	RedirectConfig?: _#defs."/$defs/Properties/definitions/RedirectConfig" | fn.#ObjectExpression
+
+	// [Application Load Balancer] Information for creating a redirect action.
+	// Specify only when ``Type`` is ``redirect``.
+	RedirectConfig?: #RedirectConfig
 	TargetGroupArn?: string | fn.#StringExpression
 	Type!: "authenticate-cognito" |
 		"authenticate-oidc" |
@@ -90,7 +117,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
+#AuthenticateCognitoConfig: close({
 	AuthenticationRequestExtraParams?: {
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
@@ -105,13 +132,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
-	ClientSecret!: _
-	...
-}, {
-	UseExistingClientSecret!: _
-	...
-}]) & close({
+#AuthenticateOidcConfig: close({
 	AuthenticationRequestExtraParams?: {
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
@@ -127,51 +148,46 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": matchN(>=1, [{
 	TokenEndpoint!:            string | fn.#StringExpression
 	UseExistingClientSecret?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UserInfoEndpoint!:         string | fn.#StringExpression
-}) |
+}) & matchN(>=1, [{ClientSecret!: _}, {UseExistingClientSecret!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Certificate": close({CertificateArn?: string & string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Certificate: close({CertificateArn?: string & string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FixedResponseConfig": close({
+#FixedResponseConfig: close({
 	ContentType?: strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
 	MessageBody?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	StatusCode!:  =~"^(2|4|5)\\d\\d$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ForwardConfig": close({
-	TargetGroupStickinessConfig?: _#defs."/$defs/Properties/definitions/TargetGroupStickinessConfig" |
-		fn.#ObjectExpression
-	TargetGroups?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupTuple"] |
-		fn.#ListExpression
+#ForwardConfig: close({
+	// Information about the target group stickiness for a rule.
+	TargetGroupStickinessConfig?: #TargetGroupStickinessConfig
+	TargetGroups?:                list.UniqueItems() & [...#TargetGroupTuple] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JwtValidationActionAdditionalClaim": close({
+#JwtValidationActionAdditionalClaim: close({
 	Format!: "single-string" | "space-separated-values" | "string-array" | fn.#StringExpression
 	Name!:   string | fn.#StringExpression
 	Values!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JwtValidationConfig": close({
-	AdditionalClaims?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/JwtValidationActionAdditionalClaim"
-	] |
-		fn.#ListExpression
-	Issuer!:       string | fn.#StringExpression
-	JwksEndpoint!: string | fn.#StringExpression
+#JwtValidationConfig: close({
+	AdditionalClaims?: list.UniqueItems() & [...#JwtValidationActionAdditionalClaim] | fn.#ListExpression
+	Issuer!:           string | fn.#StringExpression
+	JwksEndpoint!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerAttribute": close({
+#ListenerAttribute: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MutualAuthentication": close({
+#MutualAuthentication: close({
 	AdvertiseTrustStoreCaNames?: "off" | "on" | fn.#StringExpression
 	IgnoreClientCertificateExpiry?: bool |
 		"true" |
@@ -186,7 +202,7 @@ _#defs: "/$defs/Properties/definitions/MutualAuthentication": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedirectConfig": close({
+#RedirectConfig: close({
 	Host?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Path?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Port?:       string | fn.#StringExpression
@@ -196,13 +212,13 @@ _#defs: "/$defs/Properties/definitions/RedirectConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetGroupStickinessConfig": close({
+#TargetGroupStickinessConfig: close({
 	DurationSeconds?: int |
 		{
 			string &
@@ -221,7 +237,7 @@ _#defs: "/$defs/Properties/definitions/TargetGroupStickinessConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
+#TargetGroupTuple: close({
 	TargetGroupArn?: string | fn.#StringExpression
 	Weight?: int |
 		{
@@ -239,7 +255,3 @@ _#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancingV2::Listener"
-	Properties!: #Properties
-}

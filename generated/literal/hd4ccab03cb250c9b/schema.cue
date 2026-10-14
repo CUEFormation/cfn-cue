@@ -3,58 +3,52 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ImageBuilder
-#Properties: matchN(>=1, [{
-	ImageName!: _
-	...
-}, {
-	ImageArn!: _
-	...
-}]) & close({
-	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AccessEndpoint"]
+#Properties: close({
+	AccessEndpoints?:             list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint]
 	AppstreamAgentVersion?:       strings.MaxRunes(100) & strings.MinRunes(1)
 	Description?:                 strings.MaxRunes(256) & strings.MinRunes(0)
 	DisableIMDSV1?:               bool
 	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(0)
-	DomainJoinInfo?:              _#defs."/$defs/Properties/definitions/DomainJoinInfo"
+	DomainJoinInfo?:              #DomainJoinInfo
 	EnableDefaultInternetAccess?: bool
 	IamRoleArn?:                  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	ImageArn?:                    string
 	ImageName?:                   strings.MinRunes(1)
 	InstanceType!:                strings.MinRunes(1)
 	Name!:                        strings.MinRunes(1)
-	RootVolumeConfig?:            _#defs."/$defs/Properties/definitions/VolumeConfig"
+	RootVolumeConfig?:            #VolumeConfig
 	SoftwaresToInstall?:          [...strings.MinRunes(1)]
 	SoftwaresToUninstall?:        [...strings.MinRunes(1)]
 	StreamingUrl?:                string
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcConfig?:                   _#defs."/$defs/Properties/definitions/VpcConfig"
-})
+	Tags?:                        [...#Tag]
+	VpcConfig?:                   #VpcConfig
+}) & matchN(>=1, [{ImageName!: _}, {ImageArn!: _}])
 
-_#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
+#AccessEndpoint: close({
 	EndpointType!: "STREAMING"
 	VpceId!:       strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DomainJoinInfo": close({
+#DomainJoinInfo: close({
 	DirectoryName?:                       string
 	OrganizationalUnitDistinguishedName?: strings.MaxRunes(2000) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VolumeConfig": close({VolumeSizeInGb?: int})
+#VolumeConfig: close({VolumeSizeInGb?: int})
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1)
 	]

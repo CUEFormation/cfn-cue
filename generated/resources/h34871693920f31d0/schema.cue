@@ -9,24 +9,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::DataExchange::DataSet Resource Type
-#Properties: close({
-	AssetType!: "S3_SNAPSHOT" |
-		"REDSHIFT_DATA_SHARE" |
-		"API_GATEWAY_API" |
-		"S3_DATA_ACCESS" |
-		"LAKE_FORMATION_DATA_PERMISSION" |
-		fn.#StringExpression
-	Description!: string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataExchange::DataSet"
+	Properties!: close({
+		AssetType!: "S3_SNAPSHOT" |
+			"REDSHIFT_DATA_SHARE" |
+			"API_GATEWAY_API" |
+			"S3_DATA_ACCESS" |
+			"LAKE_FORMATION_DATA_PERMISSION" |
+			fn.#StringExpression
+		Description!: string | fn.#StringExpression
+		Name!:        string | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataExchange::DataSet"
-	Properties!: #Properties
-}

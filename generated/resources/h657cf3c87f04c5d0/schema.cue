@@ -13,28 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeStarNotifications::NotificationRule
-#Properties: close({
-	CreatedBy?:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	DetailType!:   "BASIC" | "FULL" | fn.#StringExpression
-	EventTypeId?:  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	EventTypeIds!: [...strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9\\-_ ]+$" | fn.#StringExpression
-	Resource!:     =~"^arn:aws[^:\\s]*:[^:\\s]*:[^:\\s]*:[0-9]{12}:[^\\s]+$" | fn.#StringExpression
-	Status?:       "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeStarNotifications::NotificationRule"
+	Properties!: close({
+		CreatedBy?:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		DetailType!:   "BASIC" | "FULL" | fn.#StringExpression
+		EventTypeId?:  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		EventTypeIds!: [...strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9\\-_ ]+$" | fn.#StringExpression
+		Resource!:     =~"^arn:aws[^:\\s]*:[^:\\s]*:[^:\\s]*:[0-9]{12}:[^\\s]+$" | fn.#StringExpression
+		Status?:       "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	TargetAddress?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Targets!:       list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/Target"] | fn.#ListExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		TargetAddress?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Targets!:       list.MaxItems(10) & [...#Target] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	TargetAddress!: string | fn.#StringExpression
 	TargetType!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeStarNotifications::NotificationRule"
-	Properties!: #Properties
-}

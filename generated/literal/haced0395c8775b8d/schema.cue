@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,7 +20,7 @@ import (
 	// Configuration for an AS2 connector.
 	As2Config?: close({
 		// Configuration for an AS2 connector with ASYNC MDN Response
-		AsyncMdnConfig?: _#defs."/$defs/Properties/definitions/ConnectorAsyncMdnConfig"
+		AsyncMdnConfig?: #ConnectorAsyncMdnConfig
 
 		// ARN or name of the secret in AWS Secrets Manager which contains the
 		// credentials for Basic authentication. If empty, Basic authentication is
@@ -59,14 +59,14 @@ import (
 	ConnectorId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^c-([0-9a-f]{17})$"
 
 	// Egress configuration for the connector.
-	EgressConfig?: _#defs."/$defs/Properties/definitions/ConnectorEgressConfig"
+	EgressConfig?: #ConnectorEgressConfig
 
 	// Specifies the egress type for the connector.
-	EgressType?: _#defs."/$defs/Properties/definitions/ConnectorEgressType"
+	EgressType?: #ConnectorEgressType
 
 	// Detailed error message when Connector in ERRORED status
 	ErrorMessage?:  strings.MaxRunes(2048)
-	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType"
+	IpAddressType?: #IpAddressType
 
 	// Specifies the logging role for the connector.
 	LoggingRole?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*"
@@ -94,42 +94,36 @@ import (
 		]
 
 		// List of public host keys, for the external server to which you are connecting.
-		TrustedHostKeys?: list.MaxItems(10) & [...] & [
-			..._#defs."/$defs/Properties/definitions/SftpConnectorTrustedHostKey"
-		]
+		TrustedHostKeys?: list.MaxItems(10) & [...] & [...#SftpConnectorTrustedHostKey]
 
 		// ARN or name of the secret in AWS Secrets Manager which contains the SFTP
 		// user's private keys or passwords.
 		UserSecretId?: strings.MaxRunes(2048) & strings.MinRunes(1)
 	})
-	Status?: _#defs."/$defs/Properties/definitions/ConnectorStatus"
+	Status?: #ConnectorStatus
 
 	// Key-value pairs that can be used to group and search for connectors. Tags are
 	// metadata attached to connectors for any purpose.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 
 	// URL for Connector
 	Url?: strings.MaxRunes(255) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorAsyncMdnConfig": close({
-	ServerIds!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerId"
-	]
+#ConnectorAsyncMdnConfig: close({
+	ServerIds!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ServerId]
 
 	// URL of the server to receive the MDN response on
 	Url!: strings.MaxRunes(255) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorEgressConfig": close(
-	{VpcLattice!: _#defs."/$defs/Properties/definitions/ConnectorVpcLatticeEgressConfig"},
-)
+#ConnectorEgressConfig: close({VpcLattice!: #ConnectorVpcLatticeEgressConfig})
 
-_#defs: "/$defs/Properties/definitions/ConnectorEgressType": "SERVICE_MANAGED" | "VPC_LATTICE"
+#ConnectorEgressType: "SERVICE_MANAGED" | "VPC_LATTICE"
 
-_#defs: "/$defs/Properties/definitions/ConnectorStatus": "ACTIVE" | "PENDING" | "ERRORED"
+#ConnectorStatus: "ACTIVE" | "PENDING" | "ERRORED"
 
-_#defs: "/$defs/Properties/definitions/ConnectorVpcLatticeEgressConfig": close({
+#ConnectorVpcLatticeEgressConfig: close({
 	// Port to connect to on the target VPC Lattice resource
 	PortNumber?: int & <=65535 & >=1
 
@@ -140,16 +134,16 @@ _#defs: "/$defs/Properties/definitions/ConnectorVpcLatticeEgressConfig": close({
 })
 
 // IP address type for Connector
-_#defs: "/$defs/Properties/definitions/IpAddressType": "IPV4" | "DUALSTACK"
+#IpAddressType: "IPV4" | "DUALSTACK"
 
 // A unique identifier for the server.
-_#defs: "/$defs/Properties/definitions/ServerId": strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$"
+#ServerId: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$"
 
 // The public host key for the external server to which you are connecting.
-_#defs: "/$defs/Properties/definitions/SftpConnectorTrustedHostKey": strings.MaxRunes(2048) & strings.MinRunes(1)
+#SftpConnectorTrustedHostKey: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 // Creates a key-value pair for a specific resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The name assigned to the tag that you create.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

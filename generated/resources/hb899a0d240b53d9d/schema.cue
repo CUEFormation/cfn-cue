@@ -17,29 +17,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that require an API key. To specify which API key clients must use, map the
 // API key with the ``RestApi`` and ``Stage`` resources that include the
 // methods that require a key.
-#Properties: close({
-	CustomerId?:         string | fn.#StringExpression
-	Description?:        string | fn.#StringExpression
-	Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GenerateDistinctId?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name?:               string | fn.#StringExpression
-	StageKeys?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StageKey"] | fn.#ListExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Value?:              string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::ApiKey"
+	Properties?: close({
+		CustomerId?:         string | fn.#StringExpression
+		Description?:        string | fn.#StringExpression
+		Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		GenerateDistinctId?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name?:               string | fn.#StringExpression
+		StageKeys?:          list.UniqueItems() & [...#StageKey] | fn.#ListExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+		Value?:              string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/StageKey": close({
+#StageKey: close({
 	RestApiId?: string | fn.#StringExpression
 	StageName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::ApiKey"
-	Properties?: #Properties
-}

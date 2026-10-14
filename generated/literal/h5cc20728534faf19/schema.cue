@@ -29,21 +29,21 @@ import "strings"
 
 	// A list of metadata items that you can associate with your observability
 	// configuration resource. A tag is a key-value pair.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The configuration of the tracing feature within this observability
 	// configuration. If you don't specify it, App Runner doesn't enable tracing.
-	TraceConfiguration?: _#defs."/$defs/Properties/definitions/TraceConfiguration"
+	TraceConfiguration?: #TraceConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // Describes the configuration of the tracing feature within an AWS App Runner
 // observability configuration.
-_#defs: "/$defs/Properties/definitions/TraceConfiguration": close({
+#TraceConfiguration: close({
 	// The implementation provider chosen for tracing App Runner services.
 	Vendor!: "AWSXRAY"
 })

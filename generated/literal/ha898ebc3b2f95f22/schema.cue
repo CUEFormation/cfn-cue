@@ -43,7 +43,7 @@ import (
 	InternetProtocol?: "IPV4" | "IPV6"
 
 	// The Point in time (PIT) policy to manage snapshots taken during replication.
-	PitPolicy!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PITPolicyRule"]
+	PitPolicy!: list.MaxItems(10) & list.MinItems(1) & [...#PITPolicyRule]
 
 	// The Replication Configuration Template ID.
 	ReplicationConfigurationTemplateID?: strings.MaxRunes(21) & strings.MinRunes(21) & =~"^rct-[0-9a-zA-Z]{17}$"
@@ -66,13 +66,13 @@ import (
 		{[=~"^.{0,256}$"]: strings.MaxRunes(256)}})
 
 	// A set of tags to be associated with the Replication Configuration Template resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Whether to use a dedicated Replication Server in the replication staging area.
 	UseDedicatedReplicationServer?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/PITPolicyRule": close({
+#PITPolicyRule: close({
 	// Whether this rule is enabled or not.
 	Enabled?: bool
 
@@ -89,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/PITPolicyRule": close({
 	Units!: "MINUTE" | "HOUR" | "DAY"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(0)
 

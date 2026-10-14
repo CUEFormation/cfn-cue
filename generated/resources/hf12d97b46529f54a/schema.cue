@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,73 +16,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::AppFlow::Flow.
-#Properties: close({
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*" | fn.#StringExpression
-	DestinationFlowConfigList!: [..._#defs."/$defs/Properties/definitions/DestinationFlowConfig"] | fn.#ListExpression
-	FlowName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
-	FlowStatus?: "Active" | "Suspended" | "Draft" | fn.#StringExpression
-	KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"arn:aws:kms:.*:[0-9]+:.*" |
-	fn.#StringExpression
-	MetadataCatalogConfig?: _#defs."/$defs/Properties/definitions/MetadataCatalogConfig" | fn.#ObjectExpression
-	SourceFlowConfig!:      _#defs."/$defs/Properties/definitions/SourceFlowConfig" | fn.#ObjectExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Tasks!:                 [..._#defs."/$defs/Properties/definitions/Task"] | fn.#ListExpression
-	TriggerConfig!:         _#defs."/$defs/Properties/definitions/TriggerConfig" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppFlow::Flow"
+	Properties!: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*" | fn.#StringExpression
+		DestinationFlowConfigList!: [...#DestinationFlowConfig] | fn.#ListExpression
+		FlowName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
+		FlowStatus?: "Active" | "Suspended" | "Draft" | fn.#StringExpression
+		KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws:kms:.*:[0-9]+:.*" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AggregationConfig": {
-	AggregationType?: _#defs."/$defs/Properties/definitions/AggregationType"
-	TargetFileSize?:  _#defs."/$defs/Properties/definitions/TargetFileSize"
+		// Configurations of metadata catalog of the flow.
+		MetadataCatalogConfig?: #MetadataCatalogConfig
+
+		// Configurations of Source connector of the flow.
+		SourceFlowConfig!: #SourceFlowConfig
+		Tags?:             [...#Tag] | fn.#ListExpression
+		Tasks!:            [...#Task] | fn.#ListExpression
+
+		// Trigger settings of the flow.
+		TriggerConfig!: #TriggerConfig
+	})
+}
+
+#AggregationConfig: {
+	AggregationType?: #AggregationType
+	TargetFileSize?:  #TargetFileSize
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AggregationType": "None" | "SingleFile" | fn.#StringExpression
+#AggregationType: "None" | "SingleFile" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AmplitudeConnectorOperator": "BETWEEN" | fn.#StringExpression
+#AmplitudeConnectorOperator: "BETWEEN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AmplitudeSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#AmplitudeSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApiVersion": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#ApiVersion: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BucketName": strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+" |
-fn.#StringExpression
+#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BucketPrefix": strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+#BucketPrefix: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorOperator": {
-	Amplitude?:       _#defs."/$defs/Properties/definitions/AmplitudeConnectorOperator"
-	CustomConnector?: _#defs."/$defs/Properties/definitions/Operator"
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorOperator"
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorOperator"
-	GoogleAnalytics?: _#defs."/$defs/Properties/definitions/GoogleAnalyticsConnectorOperator"
-	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusConnectorOperator"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoConnectorOperator"
-	Pardot?:          _#defs."/$defs/Properties/definitions/PardotConnectorOperator"
-	S3?:              _#defs."/$defs/Properties/definitions/S3ConnectorOperator"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataConnectorOperator"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceConnectorOperator"
-	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowConnectorOperator"
-	Singular?:        _#defs."/$defs/Properties/definitions/SingularConnectorOperator"
-	Slack?:           _#defs."/$defs/Properties/definitions/SlackConnectorOperator"
-	Trendmicro?:      _#defs."/$defs/Properties/definitions/TrendmicroConnectorOperator"
-	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaConnectorOperator"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskConnectorOperator"
+#ConnectorOperator: {
+	Amplitude?:       #AmplitudeConnectorOperator
+	CustomConnector?: #Operator
+	Datadog?:         #DatadogConnectorOperator
+	Dynatrace?:       #DynatraceConnectorOperator
+	GoogleAnalytics?: #GoogleAnalyticsConnectorOperator
+	InforNexus?:      #InforNexusConnectorOperator
+	Marketo?:         #MarketoConnectorOperator
+	Pardot?:          #PardotConnectorOperator
+	S3?:              #S3ConnectorOperator
+	SAPOData?:        #SAPODataConnectorOperator
+	Salesforce?:      #SalesforceConnectorOperator
+	ServiceNow?:      #ServiceNowConnectorOperator
+	Singular?:        #SingularConnectorOperator
+	Slack?:           #SlackConnectorOperator
+	Trendmicro?:      #TrendmicroConnectorOperator
+	Veeva?:           #VeevaConnectorOperator
+	Zendesk?:         #ZendeskConnectorOperator
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorProfileName": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"[\\w/!@#+=.-]+" |
-fn.#StringExpression
+#ConnectorProfileName: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorType": "SAPOData" |
+#ConnectorType: "SAPOData" |
 	"Salesforce" |
 	"Pardot" |
 	"Singular" |
@@ -106,32 +107,32 @@ _#defs: "/$defs/Properties/definitions/ConnectorType": "SAPOData" |
 	"LookoutMetrics" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomConnectorDestinationProperties": close({
-	CustomProperties?:    _#defs."/$defs/Properties/definitions/CustomProperties"
-	EntityName!:          _#defs."/$defs/Properties/definitions/EntityName"
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
+#CustomConnectorDestinationProperties: close({
+	CustomProperties?:    #CustomProperties
+	EntityName!:          #EntityName
+	ErrorHandlingConfig?: #ErrorHandlingConfig
 	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression] |
 	fn.#ListExpression
-	WriteOperationType?: _#defs."/$defs/Properties/definitions/WriteOperationType"
+	WriteOperationType?: #WriteOperationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomConnectorSourceProperties": close({
-	CustomProperties?: _#defs."/$defs/Properties/definitions/CustomProperties"
+#CustomConnectorSourceProperties: close({
+	CustomProperties?: #CustomProperties
 	DataTransferApi?: close({
 		Name!: strings.MaxRunes(64) & strings.MinRunes(0) & =~"[\\w/-]+" | fn.#StringExpression
 		Type!: "SYNC" | "ASYNC" | "AUTOMATIC" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	EntityName!: _#defs."/$defs/Properties/definitions/EntityName"
+	EntityName!: #EntityName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomProperties": {...} | fn.#ObjectExpression
+#CustomProperties: {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataTransferApi": "AUTOMATIC" | "BULKV2" | "REST_SYNC" | fn.#StringExpression
+#DataTransferApi: "AUTOMATIC" | "BULKV2" | "REST_SYNC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatadogConnectorOperator": "PROJECTION" |
+#DatadogConnectorOperator: "PROJECTION" |
 	"BETWEEN" |
 	"EQUAL_TO" |
 	"ADDITION" |
@@ -148,42 +149,43 @@ _#defs: "/$defs/Properties/definitions/DatadogConnectorOperator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatadogSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#DatadogSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatetimeTypeFieldName": strings.MaxRunes(256) & strings.MinRunes(0) |
-fn.#StringExpression
+#DatetimeTypeFieldName: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationConnectorProperties": {
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorDestinationProperties"
-	EventBridge?:     _#defs."/$defs/Properties/definitions/EventBridgeDestinationProperties"
-	LookoutMetrics?:  _#defs."/$defs/Properties/definitions/LookoutMetricsDestinationProperties"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoDestinationProperties"
-	Redshift?:        _#defs."/$defs/Properties/definitions/RedshiftDestinationProperties"
-	S3?:              _#defs."/$defs/Properties/definitions/S3DestinationProperties"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataDestinationProperties"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceDestinationProperties"
-	Snowflake?:       _#defs."/$defs/Properties/definitions/SnowflakeDestinationProperties"
-	Upsolver?:        _#defs."/$defs/Properties/definitions/UpsolverDestinationProperties"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskDestinationProperties"
+#DestinationConnectorProperties: {
+	CustomConnector?: #CustomConnectorDestinationProperties
+	EventBridge?:     #EventBridgeDestinationProperties
+	LookoutMetrics?:  #LookoutMetricsDestinationProperties
+	Marketo?:         #MarketoDestinationProperties
+	Redshift?:        #RedshiftDestinationProperties
+	S3?:              #S3DestinationProperties
+	SAPOData?:        #SAPODataDestinationProperties
+	Salesforce?:      #SalesforceDestinationProperties
+	Snowflake?:       #SnowflakeDestinationProperties
+	Upsolver?:        #UpsolverDestinationProperties
+	Zendesk?:         #ZendeskDestinationProperties
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationFlowConfig": close({
-	ApiVersion?:           _#defs."/$defs/Properties/definitions/ApiVersion" | fn.#StringExpression
-	ConnectorProfileName?: _#defs."/$defs/Properties/definitions/ConnectorProfileName" | fn.#StringExpression
-	ConnectorType!:        _#defs."/$defs/Properties/definitions/ConnectorType" | fn.#StringExpression
-	DestinationConnectorProperties!: _#defs."/$defs/Properties/definitions/DestinationConnectorProperties" |
-		fn.#ObjectExpression
+#DestinationFlowConfig: close({
+	// The API version that the destination connector uses.
+	ApiVersion?: #ApiVersion
+
+	// Name of destination connector profile
+	ConnectorProfileName?: #ConnectorProfileName
+
+	// Destination connector type
+	ConnectorType!: #ConnectorType
+
+	// Destination connector details
+	DestinationConnectorProperties!: #DestinationConnectorProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentType": strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w_-]+" |
-fn.#StringExpression
+#DocumentType: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w_-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DynatraceConnectorOperator": "PROJECTION" |
+#DynatraceConnectorOperator: "PROJECTION" |
 	"BETWEEN" |
 	"EQUAL_TO" |
 	"ADDITION" |
@@ -200,39 +202,28 @@ _#defs: "/$defs/Properties/definitions/DynatraceConnectorOperator": "PROJECTION"
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DynatraceSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#DynatraceSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnableDynamicFieldUpdate": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#EnableDynamicFieldUpdate: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#EntityName: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ErrorHandlingConfig": close({
-	BucketName?:       _#defs."/$defs/Properties/definitions/BucketName"
-	BucketPrefix?:     _#defs."/$defs/Properties/definitions/BucketPrefix"
+#ErrorHandlingConfig: close({
+	BucketName?:       #BucketName
+	BucketPrefix?:     #BucketPrefix
 	FailOnFirstError?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeDestinationProperties": close({
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
-	Object!:              _#defs."/$defs/Properties/definitions/Object"
+#EventBridgeDestinationProperties: close({
+	ErrorHandlingConfig?: #ErrorHandlingConfig
+	Object!:              #Object
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileType": "CSV" | "JSON" | "PARQUET" | fn.#StringExpression
+#FileType: "CSV" | "JSON" | "PARQUET" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GlueDataCatalog": close({
+#GlueDataCatalog: close({
 	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
@@ -243,57 +234,24 @@ _#defs: "/$defs/Properties/definitions/GlueDataCatalog": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GoogleAnalyticsConnectorOperator": "PROJECTION" |
-	"BETWEEN" |
-	fn.#StringExpression
+#GoogleAnalyticsConnectorOperator: "PROJECTION" | "BETWEEN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GoogleAnalyticsSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#GoogleAnalyticsSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IncludeAllVersions": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#IncludeAllVersions: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/IncludeDeletedRecords": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#IncludeDeletedRecords: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/IncludeRenditions": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#IncludeRenditions: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/IncludeSourceFiles": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#IncludeSourceFiles: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/IncrementalPullConfig": {
-	DatetimeTypeFieldName?: _#defs."/$defs/Properties/definitions/DatetimeTypeFieldName"
+#IncrementalPullConfig: {
+	DatetimeTypeFieldName?: #DatetimeTypeFieldName
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InforNexusConnectorOperator": "PROJECTION" |
+#InforNexusConnectorOperator: "PROJECTION" |
 	"BETWEEN" |
 	"EQUAL_TO" |
 	"ADDITION" |
@@ -310,17 +268,11 @@ _#defs: "/$defs/Properties/definitions/InforNexusConnectorOperator": "PROJECTION
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InforNexusSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#InforNexusSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LookoutMetricsDestinationProperties": close(
-	{Object?: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#LookoutMetricsDestinationProperties: close({Object?: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MarketoConnectorOperator": "PROJECTION" |
+#MarketoConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -338,28 +290,25 @@ _#defs: "/$defs/Properties/definitions/MarketoConnectorOperator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MarketoDestinationProperties": close({
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
-	Object!:              _#defs."/$defs/Properties/definitions/Object"
+#MarketoDestinationProperties: close({
+	ErrorHandlingConfig?: #ErrorHandlingConfig
+	Object!:              #Object
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MarketoSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#MarketoSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataCatalogConfig": close(
-	{GlueDataCatalog?: _#defs."/$defs/Properties/definitions/GlueDataCatalog" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#MetadataCatalogConfig: close({
+	// Configurations of glue data catalog of the flow.
+	GlueDataCatalog?: #GlueDataCatalog
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(128) & =~"\\S+" | fn.#StringExpression
+#Name: strings.MaxRunes(128) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Object": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#Object: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Operator": "PROJECTION" |
+#Operator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"CONTAINS" |
@@ -382,7 +331,7 @@ _#defs: "/$defs/Properties/definitions/Operator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OperatorPropertiesKeys": "VALUE" |
+#OperatorPropertiesKeys: "VALUE" |
 	"VALUES" |
 	"DATA_TYPE" |
 	"UPPER_BOUND" |
@@ -401,7 +350,7 @@ _#defs: "/$defs/Properties/definitions/OperatorPropertiesKeys": "VALUE" |
 	"ORDERED_PARTITION_KEYS_LIST" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PardotConnectorOperator": "PROJECTION" |
+#PardotConnectorOperator: "PROJECTION" |
 	"EQUAL_TO" |
 	"NO_OP" |
 	"ADDITION" |
@@ -417,50 +366,34 @@ _#defs: "/$defs/Properties/definitions/PardotConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PardotSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#PardotSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PathPrefix": "EXECUTION_ID" | "SCHEMA_VERSION" | fn.#StringExpression
+#PathPrefix: "EXECUTION_ID" | "SCHEMA_VERSION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PathPrefixHierarchy": [..._#defs."/$defs/Properties/definitions/PathPrefix"] |
-	fn.#ListExpression
+#PathPrefixHierarchy: [...#PathPrefix] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PrefixConfig": close({
-	PathPrefixHierarchy?: _#defs."/$defs/Properties/definitions/PathPrefixHierarchy"
-	PrefixFormat?:        _#defs."/$defs/Properties/definitions/PrefixFormat"
-	PrefixType?:          _#defs."/$defs/Properties/definitions/PrefixType"
+#PrefixConfig: close({
+	PathPrefixHierarchy?: #PathPrefixHierarchy
+	PrefixFormat?:        #PrefixFormat
+	PrefixType?:          #PrefixType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrefixFormat": "YEAR" |
-	"MONTH" |
-	"DAY" |
-	"HOUR" |
-	"MINUTE" |
-	fn.#StringExpression
+#PrefixFormat: "YEAR" | "MONTH" | "DAY" | "HOUR" | "MINUTE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PrefixType": "FILENAME" | "PATH" | "PATH_AND_FILENAME" | fn.#StringExpression
+#PrefixType: "FILENAME" | "PATH" | "PATH_AND_FILENAME" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PreserveSourceDataTyping": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#PreserveSourceDataTyping: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftDestinationProperties": close({
-	BucketPrefix?:           _#defs."/$defs/Properties/definitions/BucketPrefix"
-	ErrorHandlingConfig?:    _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
-	IntermediateBucketName!: _#defs."/$defs/Properties/definitions/BucketName"
-	Object!:                 _#defs."/$defs/Properties/definitions/Object"
+#RedshiftDestinationProperties: close({
+	BucketPrefix?:           #BucketPrefix
+	ErrorHandlingConfig?:    #ErrorHandlingConfig
+	IntermediateBucketName!: #BucketName
+	Object!:                 #Object
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3ConnectorOperator": "PROJECTION" |
+#S3ConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -482,34 +415,34 @@ _#defs: "/$defs/Properties/definitions/S3ConnectorOperator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3DestinationProperties": close({
-	BucketName!:           _#defs."/$defs/Properties/definitions/BucketName"
-	BucketPrefix?:         _#defs."/$defs/Properties/definitions/BucketPrefix"
-	S3OutputFormatConfig?: _#defs."/$defs/Properties/definitions/S3OutputFormatConfig"
+#S3DestinationProperties: close({
+	BucketName!:           #BucketName
+	BucketPrefix?:         #BucketPrefix
+	S3OutputFormatConfig?: #S3OutputFormatConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3InputFormatConfig": {
+#S3InputFormatConfig: {
 	S3InputFileType?: "CSV" | "JSON" | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3OutputFormatConfig": close({
-	AggregationConfig?:        _#defs."/$defs/Properties/definitions/AggregationConfig"
-	FileType?:                 _#defs."/$defs/Properties/definitions/FileType"
-	PrefixConfig?:             _#defs."/$defs/Properties/definitions/PrefixConfig"
-	PreserveSourceDataTyping?: _#defs."/$defs/Properties/definitions/PreserveSourceDataTyping"
+#S3OutputFormatConfig: close({
+	AggregationConfig?:        #AggregationConfig
+	FileType?:                 #FileType
+	PrefixConfig?:             #PrefixConfig
+	PreserveSourceDataTyping?: #PreserveSourceDataTyping
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3SourceProperties": close({
-	BucketName!:          _#defs."/$defs/Properties/definitions/BucketName"
-	BucketPrefix!:        _#defs."/$defs/Properties/definitions/BucketPrefix"
-	S3InputFormatConfig?: _#defs."/$defs/Properties/definitions/S3InputFormatConfig"
+#S3SourceProperties: close({
+	BucketName!:          #BucketName
+	BucketPrefix!:        #BucketPrefix
+	S3InputFormatConfig?: #S3InputFormatConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SAPODataConnectorOperator": "PROJECTION" |
+#SAPODataConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"CONTAINS" |
 	"GREATER_THAN" |
@@ -532,17 +465,17 @@ _#defs: "/$defs/Properties/definitions/SAPODataConnectorOperator": "PROJECTION" 
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SAPODataDestinationProperties": close({
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
+#SAPODataDestinationProperties: close({
+	ErrorHandlingConfig?: #ErrorHandlingConfig
 	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression] |
 	fn.#ListExpression
-	ObjectPath!:                    _#defs."/$defs/Properties/definitions/Object"
-	SuccessResponseHandlingConfig?: _#defs."/$defs/Properties/definitions/SuccessResponseHandlingConfig"
-	WriteOperationType?:            _#defs."/$defs/Properties/definitions/WriteOperationType"
+	ObjectPath!:                    #Object
+	SuccessResponseHandlingConfig?: #SuccessResponseHandlingConfig
+	WriteOperationType?:            #WriteOperationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SAPODataMaxPageSize": int & <=10000 & >=1 |
+#SAPODataMaxPageSize: int & <=10000 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -559,7 +492,7 @@ _#defs: "/$defs/Properties/definitions/SAPODataMaxPageSize": int & <=10000 & >=1
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/SAPODataMaxParallelism": int & <=10 & >=1 |
+#SAPODataMaxParallelism: int & <=10 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -576,24 +509,18 @@ _#defs: "/$defs/Properties/definitions/SAPODataMaxParallelism": int & <=10 & >=1
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/SAPODataPaginationConfig": close(
-	{maxPageSize!: _#defs."/$defs/Properties/definitions/SAPODataMaxPageSize"},
-) |
-	fn.#ObjectExpression
+#SAPODataPaginationConfig: close({maxPageSize!: #SAPODataMaxPageSize}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SAPODataParallelismConfig": close(
-	{maxParallelism!: _#defs."/$defs/Properties/definitions/SAPODataMaxParallelism"},
-) |
-	fn.#ObjectExpression
+#SAPODataParallelismConfig: close({maxParallelism!: #SAPODataMaxParallelism}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SAPODataSourceProperties": close({
-	ObjectPath!:        _#defs."/$defs/Properties/definitions/Object"
-	paginationConfig?:  _#defs."/$defs/Properties/definitions/SAPODataPaginationConfig"
-	parallelismConfig?: _#defs."/$defs/Properties/definitions/SAPODataParallelismConfig"
+#SAPODataSourceProperties: close({
+	ObjectPath!:        #Object
+	paginationConfig?:  #SAPODataPaginationConfig
+	parallelismConfig?: #SAPODataParallelismConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceConnectorOperator": "PROJECTION" |
+#SalesforceConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"CONTAINS" |
 	"GREATER_THAN" |
@@ -616,25 +543,25 @@ _#defs: "/$defs/Properties/definitions/SalesforceConnectorOperator": "PROJECTION
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceDestinationProperties": close({
-	DataTransferApi?:     _#defs."/$defs/Properties/definitions/DataTransferApi"
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
+#SalesforceDestinationProperties: close({
+	DataTransferApi?:     #DataTransferApi
+	ErrorHandlingConfig?: #ErrorHandlingConfig
 	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression] |
 	fn.#ListExpression
-	Object!:             _#defs."/$defs/Properties/definitions/Object"
-	WriteOperationType?: _#defs."/$defs/Properties/definitions/WriteOperationType"
+	Object!:             #Object
+	WriteOperationType?: #WriteOperationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceSourceProperties": close({
-	DataTransferApi?:          _#defs."/$defs/Properties/definitions/DataTransferApi"
-	EnableDynamicFieldUpdate?: _#defs."/$defs/Properties/definitions/EnableDynamicFieldUpdate"
-	IncludeDeletedRecords?:    _#defs."/$defs/Properties/definitions/IncludeDeletedRecords"
-	Object!:                   _#defs."/$defs/Properties/definitions/Object"
+#SalesforceSourceProperties: close({
+	DataTransferApi?:          #DataTransferApi
+	EnableDynamicFieldUpdate?: #EnableDynamicFieldUpdate
+	IncludeDeletedRecords?:    #IncludeDeletedRecords
+	Object!:                   #Object
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledTriggerProperties": close({
+#ScheduledTriggerProperties: close({
 	DataPullMode?: "Incremental" | "Complete" | fn.#StringExpression
 	FirstExecutionFrom?: number |
 		{
@@ -734,7 +661,7 @@ _#defs: "/$defs/Properties/definitions/ScheduledTriggerProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConnectorOperator": "PROJECTION" |
+#ServiceNowConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"CONTAINS" |
 	"GREATER_THAN" |
@@ -757,12 +684,9 @@ _#defs: "/$defs/Properties/definitions/ServiceNowConnectorOperator": "PROJECTION
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#ServiceNowSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SingularConnectorOperator": "PROJECTION" |
+#SingularConnectorOperator: "PROJECTION" |
 	"EQUAL_TO" |
 	"ADDITION" |
 	"MULTIPLICATION" |
@@ -778,12 +702,9 @@ _#defs: "/$defs/Properties/definitions/SingularConnectorOperator": "PROJECTION" 
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SingularSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#SingularSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlackConnectorOperator": "PROJECTION" |
+#SlackConnectorOperator: "PROJECTION" |
 	"BETWEEN" |
 	"EQUAL_TO" |
 	"ADDITION" |
@@ -800,64 +721,70 @@ _#defs: "/$defs/Properties/definitions/SlackConnectorOperator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SlackSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#SlackSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeDestinationProperties": close({
-	BucketPrefix?:           _#defs."/$defs/Properties/definitions/BucketPrefix"
-	ErrorHandlingConfig?:    _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
-	IntermediateBucketName!: _#defs."/$defs/Properties/definitions/BucketName"
-	Object!:                 _#defs."/$defs/Properties/definitions/Object"
+#SnowflakeDestinationProperties: close({
+	BucketPrefix?:           #BucketPrefix
+	ErrorHandlingConfig?:    #ErrorHandlingConfig
+	IntermediateBucketName!: #BucketName
+	Object!:                 #Object
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConnectorProperties": {
-	Amplitude?:       _#defs."/$defs/Properties/definitions/AmplitudeSourceProperties"
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorSourceProperties"
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogSourceProperties"
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceSourceProperties"
-	GoogleAnalytics?: _#defs."/$defs/Properties/definitions/GoogleAnalyticsSourceProperties"
-	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusSourceProperties"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoSourceProperties"
-	Pardot?:          _#defs."/$defs/Properties/definitions/PardotSourceProperties"
-	S3?:              _#defs."/$defs/Properties/definitions/S3SourceProperties"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataSourceProperties"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceSourceProperties"
-	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowSourceProperties"
-	Singular?:        _#defs."/$defs/Properties/definitions/SingularSourceProperties"
-	Slack?:           _#defs."/$defs/Properties/definitions/SlackSourceProperties"
-	Trendmicro?:      _#defs."/$defs/Properties/definitions/TrendmicroSourceProperties"
-	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaSourceProperties"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskSourceProperties"
+#SourceConnectorProperties: {
+	Amplitude?:       #AmplitudeSourceProperties
+	CustomConnector?: #CustomConnectorSourceProperties
+	Datadog?:         #DatadogSourceProperties
+	Dynatrace?:       #DynatraceSourceProperties
+	GoogleAnalytics?: #GoogleAnalyticsSourceProperties
+	InforNexus?:      #InforNexusSourceProperties
+	Marketo?:         #MarketoSourceProperties
+	Pardot?:          #PardotSourceProperties
+	S3?:              #S3SourceProperties
+	SAPOData?:        #SAPODataSourceProperties
+	Salesforce?:      #SalesforceSourceProperties
+	ServiceNow?:      #ServiceNowSourceProperties
+	Singular?:        #SingularSourceProperties
+	Slack?:           #SlackSourceProperties
+	Trendmicro?:      #TrendmicroSourceProperties
+	Veeva?:           #VeevaSourceProperties
+	Zendesk?:         #ZendeskSourceProperties
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceFlowConfig": close({
-	ApiVersion?:                _#defs."/$defs/Properties/definitions/ApiVersion" | fn.#StringExpression
-	ConnectorProfileName?:      _#defs."/$defs/Properties/definitions/ConnectorProfileName" | fn.#StringExpression
-	ConnectorType!:             _#defs."/$defs/Properties/definitions/ConnectorType" | fn.#StringExpression
-	IncrementalPullConfig?:     _#defs."/$defs/Properties/definitions/IncrementalPullConfig" | fn.#ObjectExpression
-	SourceConnectorProperties!: _#defs."/$defs/Properties/definitions/SourceConnectorProperties" | fn.#ObjectExpression
+#SourceFlowConfig: close({
+	// The API version that the destination connector uses.
+	ApiVersion?: #ApiVersion
+
+	// Name of source connector profile
+	ConnectorProfileName?: #ConnectorProfileName
+
+	// Type of source connector
+	ConnectorType!: #ConnectorType
+
+	// Configuration for scheduled incremental data pull
+	IncrementalPullConfig?: #IncrementalPullConfig
+
+	// Source connector details required to query a connector
+	SourceConnectorProperties!: #SourceConnectorProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "Active" | "Draft" | "Errored" | "Suspended" | fn.#StringExpression
+#Status: "Active" | "Draft" | "Errored" | "Suspended" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SuccessResponseHandlingConfig": close({
-	BucketName?:   _#defs."/$defs/Properties/definitions/BucketName"
-	BucketPrefix?: _#defs."/$defs/Properties/definitions/BucketPrefix"
+#SuccessResponseHandlingConfig: close({
+	BucketName?:   #BucketName
+	BucketPrefix?: #BucketPrefix
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetFileSize": int |
+#TargetFileSize: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -871,22 +798,25 @@ _#defs: "/$defs/Properties/definitions/TargetFileSize": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Task": close({
-	ConnectorOperator?: _#defs."/$defs/Properties/definitions/ConnectorOperator" | fn.#ObjectExpression
+#Task: close({
+	// Operation to be performed on provided source fields
+	ConnectorOperator?: #ConnectorOperator
 	DestinationField?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	SourceFields!:      [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	TaskProperties?:    [..._#defs."/$defs/Properties/definitions/TaskPropertiesObject"] | fn.#ListExpression
-	TaskType!:          _#defs."/$defs/Properties/definitions/TaskType" | fn.#StringExpression
+	TaskProperties?:    [...#TaskPropertiesObject] | fn.#ListExpression
+
+	// Type of task
+	TaskType!: #TaskType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskPropertiesObject": close({
-	Key!:   _#defs."/$defs/Properties/definitions/OperatorPropertiesKeys"
+#TaskPropertiesObject: close({
+	Key!:   #OperatorPropertiesKeys
 	Value!: strings.MaxRunes(2048) & =~".+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskType": "Arithmetic" |
+#TaskType: "Arithmetic" |
 	"Filter" |
 	"Map" |
 	"Map_all" |
@@ -898,7 +828,7 @@ _#defs: "/$defs/Properties/definitions/TaskType": "Arithmetic" |
 	"Partition" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TrendmicroConnectorOperator": "PROJECTION" |
+#TrendmicroConnectorOperator: "PROJECTION" |
 	"EQUAL_TO" |
 	"ADDITION" |
 	"MULTIPLICATION" |
@@ -914,39 +844,36 @@ _#defs: "/$defs/Properties/definitions/TrendmicroConnectorOperator": "PROJECTION
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TrendmicroSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
+#TrendmicroSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerConfig": close({
-	TriggerProperties?: _#defs."/$defs/Properties/definitions/ScheduledTriggerProperties" | fn.#ObjectExpression
-	TriggerType!:       _#defs."/$defs/Properties/definitions/TriggerType" | fn.#StringExpression
+#TriggerConfig: close({
+	// Details required based on the type of trigger
+	TriggerProperties?: #ScheduledTriggerProperties
+
+	// Trigger type of the flow
+	TriggerType!: #TriggerType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerType": "Scheduled" | "Event" | "OnDemand" | fn.#StringExpression
+#TriggerType: "Scheduled" | "Event" | "OnDemand" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UpsolverBucketName": strings.MaxRunes(63) &
-strings.MinRunes(16) &
-=~"^(upsolver-appflow)\\S*" |
-fn.#StringExpression
+#UpsolverBucketName: strings.MaxRunes(63) & strings.MinRunes(16) & =~"^(upsolver-appflow)\\S*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UpsolverDestinationProperties": close({
-	BucketName!:           _#defs."/$defs/Properties/definitions/UpsolverBucketName"
-	BucketPrefix?:         _#defs."/$defs/Properties/definitions/BucketPrefix"
-	S3OutputFormatConfig!: _#defs."/$defs/Properties/definitions/UpsolverS3OutputFormatConfig"
+#UpsolverDestinationProperties: close({
+	BucketName!:           #UpsolverBucketName
+	BucketPrefix?:         #BucketPrefix
+	S3OutputFormatConfig!: #UpsolverS3OutputFormatConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpsolverS3OutputFormatConfig": close({
-	AggregationConfig?: _#defs."/$defs/Properties/definitions/AggregationConfig"
-	FileType?:          _#defs."/$defs/Properties/definitions/FileType"
-	PrefixConfig!:      _#defs."/$defs/Properties/definitions/PrefixConfig"
+#UpsolverS3OutputFormatConfig: close({
+	AggregationConfig?: #AggregationConfig
+	FileType?:          #FileType
+	PrefixConfig!:      #PrefixConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VeevaConnectorOperator": "PROJECTION" |
+#VeevaConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -968,22 +895,18 @@ _#defs: "/$defs/Properties/definitions/VeevaConnectorOperator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VeevaSourceProperties": close({
-	DocumentType?:       _#defs."/$defs/Properties/definitions/DocumentType"
-	IncludeAllVersions?: _#defs."/$defs/Properties/definitions/IncludeAllVersions"
-	IncludeRenditions?:  _#defs."/$defs/Properties/definitions/IncludeRenditions"
-	IncludeSourceFiles?: _#defs."/$defs/Properties/definitions/IncludeSourceFiles"
-	Object!:             _#defs."/$defs/Properties/definitions/Object"
+#VeevaSourceProperties: close({
+	DocumentType?:       #DocumentType
+	IncludeAllVersions?: #IncludeAllVersions
+	IncludeRenditions?:  #IncludeRenditions
+	IncludeSourceFiles?: #IncludeSourceFiles
+	Object!:             #Object
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WriteOperationType": "INSERT" |
-	"UPSERT" |
-	"UPDATE" |
-	"DELETE" |
-	fn.#StringExpression
+#WriteOperationType: "INSERT" | "UPSERT" | "UPDATE" | "DELETE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ZendeskConnectorOperator": "PROJECTION" |
+#ZendeskConnectorOperator: "PROJECTION" |
 	"GREATER_THAN" |
 	"ADDITION" |
 	"MULTIPLICATION" |
@@ -999,20 +922,13 @@ _#defs: "/$defs/Properties/definitions/ZendeskConnectorOperator": "PROJECTION" |
 	"NO_OP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ZendeskDestinationProperties": close({
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
+#ZendeskDestinationProperties: close({
+	ErrorHandlingConfig?: #ErrorHandlingConfig
 	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression] |
 	fn.#ListExpression
-	Object!:             _#defs."/$defs/Properties/definitions/Object"
-	WriteOperationType?: _#defs."/$defs/Properties/definitions/WriteOperationType"
+	Object!:             #Object
+	WriteOperationType?: #WriteOperationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZendeskSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppFlow::Flow"
-	Properties!: #Properties
-}
+#ZendeskSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression

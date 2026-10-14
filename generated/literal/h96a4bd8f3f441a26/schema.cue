@@ -12,11 +12,9 @@ import (
 
 // Definition of AWS::QBusiness::DataAccessor Resource Type
 #Properties: close({
-	ActionConfigurations!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ActionConfiguration"
-	]
+	ActionConfigurations!: list.MaxItems(10) & list.MinItems(1) & [...#ActionConfiguration]
 	ApplicationId!:        strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	AuthenticationDetail?: _#defs."/$defs/Properties/definitions/DataAccessorAuthenticationDetail"
+	AuthenticationDetail?: #DataAccessorAuthenticationDetail
 	CreatedAt?:            time.Time
 	DataAccessorArn?:      strings.MaxRunes(1284) & strings.MinRunes(0)
 	DataAccessorId?:       strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
@@ -25,59 +23,56 @@ import (
 	strings.MinRunes(10) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso::\\d{12}:application/(sso)?ins-[a-zA-Z0-9-.]{16}/apl-[a-zA-Z0-9]{16}$"
 	Principal!: strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^arn:aws:iam::[0-9]{12}:role/[a-zA-Z0-9_/+=,.@-]+$"
-	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:      list.MaxItems(200) & [...] & [...#Tag]
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/ActionConfiguration": close({
+#ActionConfiguration: close({
 	Action!:              =~"^qbusiness:[a-zA-Z]+$"
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/ActionFilterConfiguration"
+	FilterConfiguration?: #ActionFilterConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ActionFilterConfiguration": close(
-	{DocumentAttributeFilter!: _#defs."/$defs/Properties/definitions/AttributeFilter"},
+#ActionFilterConfiguration: close({DocumentAttributeFilter!: #AttributeFilter})
+
+#AttributeFilter: close({
+	AndAllFilters?:       [...#AttributeFilter]
+	ContainsAll?:         #DocumentAttribute
+	ContainsAny?:         #DocumentAttribute
+	EqualsTo?:            #DocumentAttribute
+	GreaterThan?:         #DocumentAttribute
+	GreaterThanOrEquals?: #DocumentAttribute
+	LessThan?:            #DocumentAttribute
+	LessThanOrEquals?:    #DocumentAttribute
+	NotFilter?:           #AttributeFilter
+	OrAllFilters?:        [...#AttributeFilter]
+})
+
+#DataAccessorAuthenticationConfiguration: close(
+	{IdcTrustedTokenIssuerConfiguration!: #DataAccessorIdcTrustedTokenIssuerConfiguration},
 )
 
-_#defs: "/$defs/Properties/definitions/AttributeFilter": close({
-	AndAllFilters?:       [..._#defs."/$defs/Properties/definitions/AttributeFilter"]
-	ContainsAll?:         _#defs."/$defs/Properties/definitions/DocumentAttribute"
-	ContainsAny?:         _#defs."/$defs/Properties/definitions/DocumentAttribute"
-	EqualsTo?:            _#defs."/$defs/Properties/definitions/DocumentAttribute"
-	GreaterThan?:         _#defs."/$defs/Properties/definitions/DocumentAttribute"
-	GreaterThanOrEquals?: _#defs."/$defs/Properties/definitions/DocumentAttribute"
-	LessThan?:            _#defs."/$defs/Properties/definitions/DocumentAttribute"
-	LessThanOrEquals?:    _#defs."/$defs/Properties/definitions/DocumentAttribute"
-	NotFilter?:           _#defs."/$defs/Properties/definitions/AttributeFilter"
-	OrAllFilters?:        [..._#defs."/$defs/Properties/definitions/AttributeFilter"]
-})
-
-_#defs: "/$defs/Properties/definitions/DataAccessorAuthenticationConfiguration": close({
-	IdcTrustedTokenIssuerConfiguration!:
-		_#defs."/$defs/Properties/definitions/DataAccessorIdcTrustedTokenIssuerConfiguration"
-})
-
-_#defs: "/$defs/Properties/definitions/DataAccessorAuthenticationDetail": close({
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/DataAccessorAuthenticationConfiguration"
-	AuthenticationType!:          _#defs."/$defs/Properties/definitions/DataAccessorAuthenticationType"
+#DataAccessorAuthenticationDetail: close({
+	AuthenticationConfiguration?: #DataAccessorAuthenticationConfiguration
+	AuthenticationType!:          #DataAccessorAuthenticationType
 	ExternalIds?: list.MaxItems(1) & list.MinItems(1) & [
 		...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/DataAccessorAuthenticationType": "AWS_IAM_IDC_TTI" | "AWS_IAM_IDC_AUTH_CODE"
+#DataAccessorAuthenticationType: "AWS_IAM_IDC_TTI" | "AWS_IAM_IDC_AUTH_CODE"
 
-_#defs: "/$defs/Properties/definitions/DataAccessorIdcTrustedTokenIssuerConfiguration": close({
+#DataAccessorIdcTrustedTokenIssuerConfiguration: close({
 	IdcTrustedTokenIssuerArn!: strings.MaxRunes(1284) &
 	strings.MinRunes(0) &
 	=~"^arn:aws:sso::[0-9]{12}:trustedTokenIssuer/(sso)?ins-[a-zA-Z0-9-.]{16}/tti-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentAttribute": close({
+#DocumentAttribute: close({
 	Name!:  strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$"
-	Value!: _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
+	Value!: #DocumentAttributeValue
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeValue": matchN(1, [close(
+#DocumentAttributeValue: matchN(1, [close(
 	{StringValue!: strings.MaxRunes(2048)},
 ), close(
 	{StringListValue!: [...strings.MaxRunes(2048) & strings.MinRunes(1)]},
@@ -87,9 +82,9 @@ _#defs: "/$defs/Properties/definitions/DocumentAttributeValue": matchN(1, [close
 	{DateValue!: time.Time},
 )])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

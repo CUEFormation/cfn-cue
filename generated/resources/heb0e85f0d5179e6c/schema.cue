@@ -12,20 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage form types in Amazon Datazone
-#Properties: close({
-	Description?:             strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	DomainIdentifier!:        =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Model!:                   _#defs."/$defs/Properties/definitions/Model" & fn.#Object & {...} | fn.#ObjectExpression
-	Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	OwningProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Status?:                  "ENABLED" | "DISABLED" | fn.#StringExpression
-})
-
-_#defs: "/$defs/Properties/definitions/Model": close(
-	{Smithy?: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::FormType"
-	Properties!: #Properties
+	Type!: "AWS::DataZone::FormType"
+	Properties!: close({
+		Description?:             strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		DomainIdentifier!:        =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		Model!:                   #Model & fn.#Object & {...} | fn.#ObjectExpression
+		Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		OwningProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		Status?:                  "ENABLED" | "DISABLED" | fn.#StringExpression
+	})
 }
+
+#Model: close({Smithy?: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression

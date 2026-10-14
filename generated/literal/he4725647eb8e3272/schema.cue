@@ -11,16 +11,14 @@ import (
 
 // Definition of AWS::Transfer::User Resource Type
 #Properties: close({
-	Arn?:           strings.MaxRunes(1600) & strings.MinRunes(20) & =~"^arn:\\S+$"
-	HomeDirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$"
-	HomeDirectoryMappings?: list.MaxItems(50000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/HomeDirectoryMapEntry"
-	]
-	HomeDirectoryType?: _#defs."/$defs/Properties/definitions/HomeDirectoryType"
-	Policy?:            strings.MaxRunes(2048) & strings.MinRunes(0)
-	PosixProfile?:      _#defs."/$defs/Properties/definitions/PosixProfile"
-	Role!:              strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$"
-	ServerId!:          strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$"
+	Arn?:                   strings.MaxRunes(1600) & strings.MinRunes(20) & =~"^arn:\\S+$"
+	HomeDirectory?:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$"
+	HomeDirectoryMappings?: list.MaxItems(50000) & list.MinItems(1) & [...#HomeDirectoryMapEntry]
+	HomeDirectoryType?:     #HomeDirectoryType
+	Policy?:                strings.MaxRunes(2048) & strings.MinRunes(0)
+	PosixProfile?:          #PosixProfile
+	Role!:                  strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$"
+	ServerId!:              strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$"
 
 	// This represents the SSH User Public Keys for CloudFormation resource
 	SshPublicKeys?: [
@@ -28,27 +26,27 @@ import (
 		strings.MinRunes(0) &
 		=~"^\\s*(ssh|ecdsa)-[a-z0-9-]+[ \\t]+(([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{1,3})?(={0,3})?)(\\s*|[ \\t]+[\\S \\t]*\\s*)$"
 	]
-	Tags?:     list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:     list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 	UserName!: strings.MaxRunes(100) & strings.MinRunes(3) & =~"^[\\w][\\w@.-]{2,99}$"
 })
 
-_#defs: "/$defs/Properties/definitions/HomeDirectoryMapEntry": close({
+#HomeDirectoryMapEntry: close({
 	Entry!:  strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$"
 	Target!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$"
-	Type?:   _#defs."/$defs/Properties/definitions/MapType"
+	Type?:   #MapType
 })
 
-_#defs: "/$defs/Properties/definitions/HomeDirectoryType": "PATH" | "LOGICAL"
+#HomeDirectoryType: "PATH" | "LOGICAL"
 
-_#defs: "/$defs/Properties/definitions/MapType": "FILE" | "DIRECTORY"
+#MapType: "FILE" | "DIRECTORY"
 
-_#defs: "/$defs/Properties/definitions/PosixProfile": close({
+#PosixProfile: close({
 	Gid!:           <=4294967295 & >=0
 	SecondaryGids?: list.MaxItems(16) & [...] & [...<=4294967295 & >=0]
 	Uid!:           <=4294967295 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(0)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

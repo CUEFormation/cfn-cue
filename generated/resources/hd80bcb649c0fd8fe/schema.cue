@@ -15,40 +15,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An Amazon Comprehend custom entity recognizer: a trained model that
 // identifies custom entity types in text, created via an asynchronous training
 // job.
-#Properties: close({
-	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
-	InputDataConfig!: _#defs."/$defs/Properties/definitions/EntityRecognizerInputDataConfig" | fn.#ObjectExpression
-	LanguageCode!: "en" |
-		"es" |
-		"fr" |
-		"de" |
-		"it" |
-		"pt" |
-		"ar" |
-		"hi" |
-		"ja" |
-		"ko" |
-		"zh" |
-		"zh-TW" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Comprehend::EntityRecognizer"
+	Properties!: close({
+		DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
 		fn.#StringExpression
-	ModelKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
-	ModelPolicy?: strings.MaxRunes(20000) &
-	strings.MinRunes(1) &
-	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
-	fn.#StringExpression
-	RecognizerName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
-	fn.#StringExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VersionName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
-	VpcConfig?:      _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
-})
 
-_#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
+		// Specifies the format and location of the input data. The S3 bucket containing
+		// the input data must be located in the same Region as the entity recognizer
+		// being created.
+		InputDataConfig!: #EntityRecognizerInputDataConfig
+		LanguageCode!: "en" |
+			"es" |
+			"fr" |
+			"de" |
+			"it" |
+			"pt" |
+			"ar" |
+			"hi" |
+			"ja" |
+			"ko" |
+			"zh" |
+			"zh-TW" |
+			fn.#StringExpression
+		ModelKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
+		ModelPolicy?: strings.MaxRunes(20000) &
+		strings.MinRunes(1) &
+		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+		fn.#StringExpression
+		RecognizerName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VersionName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
+
+		// Configuration parameters for an optional private VPC containing the resources
+		// you are using for your custom entity recognizer.
+		VpcConfig?: #VpcConfig
+	})
+}
+
+#AugmentedManifestsListItem: close({
 	AnnotationDataS3Uri?: strings.MaxRunes(1024) &
 	strings.MinRunes(0) &
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
@@ -68,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityRecognizerAnnotations": close({
+#EntityRecognizerAnnotations: close({
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
 	fn.#StringExpression
 	TestS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
@@ -76,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/EntityRecognizerAnnotations": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityRecognizerDocuments": close({
+#EntityRecognizerDocuments: close({
 	InputFormat?: "ONE_DOC_PER_FILE" | "ONE_DOC_PER_LINE" | fn.#StringExpression
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
 	fn.#StringExpression
@@ -85,34 +96,37 @@ _#defs: "/$defs/Properties/definitions/EntityRecognizerDocuments": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityRecognizerEntityList": close({
+#EntityRecognizerEntityList: close({
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityRecognizerInputDataConfig": close({
-	Annotations?:        _#defs."/$defs/Properties/definitions/EntityRecognizerAnnotations" | fn.#ObjectExpression
-	AugmentedManifests?: [..._#defs."/$defs/Properties/definitions/AugmentedManifestsListItem"] | fn.#ListExpression
+#EntityRecognizerInputDataConfig: close({
+	// The S3 location of the CSV file that annotates your training documents.
+	Annotations?:        #EntityRecognizerAnnotations
+	AugmentedManifests?: [...#AugmentedManifestsListItem] | fn.#ListExpression
 	DataFormat?:         "COMPREHEND_CSV" | "AUGMENTED_MANIFEST" | fn.#StringExpression
-	Documents?:          _#defs."/$defs/Properties/definitions/EntityRecognizerDocuments" | fn.#ObjectExpression
-	EntityList?:         _#defs."/$defs/Properties/definitions/EntityRecognizerEntityList" | fn.#ObjectExpression
-	EntityTypes!:        [..._#defs."/$defs/Properties/definitions/EntityTypesListItem"] | fn.#ListExpression
+
+	// The S3 location of the folder that contains the training documents.
+	Documents?: #EntityRecognizerDocuments
+
+	// The S3 location of the CSV file that has the entity list.
+	EntityList?:  #EntityRecognizerEntityList
+	EntityTypes!: [...#EntityTypesListItem] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityTypesListItem": close(
-	{Type!: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#EntityTypesListItem: close({Type!: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &
@@ -127,7 +141,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Comprehend::EntityRecognizer"
-	Properties!: #Properties
-}

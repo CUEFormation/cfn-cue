@@ -26,7 +26,7 @@ import (
 
 	// A list of metadata items that you can associate with your VPC connector
 	// resource. A tag is a key-value pair.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The Amazon Resource Name (ARN) of this VPC connector.
 	VpcConnectorArn?: strings.MaxRunes(1011) & strings.MinRunes(44)
@@ -40,7 +40,7 @@ import (
 	VpcConnectorRevision?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

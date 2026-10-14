@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,44 +12,41 @@ import (
 // Resource type definition for AWS::SSMIncidents::ReplicationSet
 #Properties: close({
 	// The ARN of the ReplicationSet.
-	Arn?:               _#defs."/$defs/Properties/definitions/Arn"
-	DeletionProtected?: _#defs."/$defs/Properties/definitions/DeletionProtected"
+	Arn?:               #Arn
+	DeletionProtected?: #DeletionProtected
 
 	// The ReplicationSet configuration.
-	Regions!: _#defs."/$defs/Properties/definitions/RegionList"
+	Regions!: #RegionList
 
 	// The tags to apply to the replication set.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // The ARN of the ReplicationSet.
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) &
-=~"^arn:aws(-(cn|us-gov|iso(-b)?))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
+#Arn: strings.MaxRunes(1000) & =~"^arn:aws(-(cn|us-gov|iso(-b)?))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 
 // Configures the ReplicationSet deletion protection.
-_#defs: "/$defs/Properties/definitions/DeletionProtected": bool
+#DeletionProtected: bool
 
 // The ReplicationSet regional configuration.
-_#defs: "/$defs/Properties/definitions/RegionConfiguration": close({
+#RegionConfiguration: close({
 	// The AWS Key Management Service key ID or Key Alias to use to encrypt your replication set.
 	SseKmsKeyId!: strings.MaxRunes(2048)
 })
 
-_#defs: "/$defs/Properties/definitions/RegionList": list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/ReplicationRegion"
-]
+#RegionList: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationRegion]
 
 // The AWS region name.
-_#defs: "/$defs/Properties/definitions/RegionName": strings.MaxRunes(20)
+#RegionName: strings.MaxRunes(20)
 
 // The ReplicationSet regional configuration.
-_#defs: "/$defs/Properties/definitions/ReplicationRegion": close({
-	RegionConfiguration?: _#defs."/$defs/Properties/definitions/RegionConfiguration"
-	RegionName?:          _#defs."/$defs/Properties/definitions/RegionName"
+#ReplicationRegion: close({
+	RegionConfiguration?: #RegionConfiguration
+	RegionName?:          #RegionName
 })
 
 // A key-value pair to tag a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

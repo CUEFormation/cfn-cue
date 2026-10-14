@@ -9,18 +9,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::ConnectorDefinitionVersion
-#Properties: close({
-	ConnectorDefinitionId!: string | fn.#StringExpression
-	Connectors!:            [..._#defs."/$defs/Properties/definitions/Connector"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::ConnectorDefinitionVersion"
+	Properties!: close({
+		ConnectorDefinitionId!: string | fn.#StringExpression
+		Connectors!:            [...#Connector] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Connector": close({
+#Connector: close({
 	ConnectorArn!: string | fn.#StringExpression
 	Id!:           string | fn.#StringExpression
 	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::ConnectorDefinitionVersion"
-	Properties!: #Properties
-}

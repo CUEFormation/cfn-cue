@@ -12,62 +12,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Inspector CodeSecurityIntegration resource schema
-#Properties: close({
-	CreateIntegrationDetails?: _#defs."/$defs/Properties/definitions/CreateDetails" | fn.#ObjectExpression
-	Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
-	Type?: _#defs."/$defs/Properties/definitions/IntegrationType" | fn.#StringExpression
-	UpdateIntegrationDetails?: _#defs."/$defs/Properties/definitions/UpdateDetails" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InspectorV2::CodeSecurityIntegration"
+	Properties?: close({
+		// Create Integration Details
+		CreateIntegrationDetails?: #CreateDetails
+		Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
+		Tags?: #TagMap
 
-_#defs: "/$defs/Properties/definitions/CreateDetails": close(
-	{gitlabSelfManaged!: _#defs."/$defs/Properties/definitions/CreateGitLabSelfManagedIntegrationDetail"},
-) |
-	fn.#ObjectExpression
+		// Integration Type
+		Type?: #IntegrationType
 
-_#defs: "/$defs/Properties/definitions/CreateGitLabSelfManagedIntegrationDetail": close({
+		// Update Integration Details
+		UpdateIntegrationDetails?: #UpdateDetails
+	})
+}
+
+#CreateDetails: close({gitlabSelfManaged!: #CreateGitLabSelfManagedIntegrationDetail}) | fn.#ObjectExpression
+
+#CreateGitLabSelfManagedIntegrationDetail: close({
 	accessToken!: string | fn.#StringExpression
 	instanceUrl!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationStatus": "PENDING" |
-	"IN_PROGRESS" |
-	"ACTIVE" |
-	"INACTIVE" |
-	"DISABLING" |
-	fn.#StringExpression
+#IntegrationStatus: "PENDING" | "IN_PROGRESS" | "ACTIVE" | "INACTIVE" | "DISABLING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationType": "GITLAB_SELF_MANAGED" | "GITHUB" | fn.#StringExpression
+#IntegrationType: "GITLAB_SELF_MANAGED" | "GITHUB" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~"^.{2,127}$"]: =~"^.{1,255}$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateDetails": matchN(1, [{
+#UpdateDetails: matchN(1, [{
 	gitlabSelfManaged!: _
 	...
 }, {
 	github!: _
 	...
 }]) & close({
-	github?:            _#defs."/$defs/Properties/definitions/UpdateGitHubIntegrationDetail"
-	gitlabSelfManaged?: _#defs."/$defs/Properties/definitions/UpdateGitLabSelfManagedIntegrationDetail"
+	github?:            #UpdateGitHubIntegrationDetail
+	gitlabSelfManaged?: #UpdateGitLabSelfManagedIntegrationDetail
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateGitHubIntegrationDetail": close({
+#UpdateGitHubIntegrationDetail: close({
 	code!:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	installationId!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateGitLabSelfManagedIntegrationDetail": close(
+#UpdateGitLabSelfManagedIntegrationDetail: close(
 	{authCode!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InspectorV2::CodeSecurityIntegration"
-	Properties?: #Properties
-}

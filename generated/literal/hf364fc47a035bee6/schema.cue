@@ -11,40 +11,37 @@ import (
 
 // Resource Type definition for AWS::Evidently::Project
 #Properties: close({
-	AppConfigResource?: _#defs."/$defs/Properties/definitions/AppConfigResourceObject"
+	AppConfigResource?: #AppConfigResourceObject
 	Arn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*"
-	DataDelivery?: _#defs."/$defs/Properties/definitions/DataDeliveryObject"
+	DataDelivery?: #DataDeliveryObject
 	Description?:  strings.MaxRunes(160) & strings.MinRunes(0)
 	Name!:         strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AppConfigResourceObject": close({
+#AppConfigResourceObject: close({
 	ApplicationId!: =~"[a-z0-9]{4,7}"
 	EnvironmentId!: =~"[a-z0-9]{4,7}"
 })
 
 // Destinations for data.
-_#defs: "/$defs/Properties/definitions/DataDeliveryObject": matchN(1, [{
-	S3!: _
-	...
-}, {
-	LogGroup!: _
-	...
-}]) & close({
+#DataDeliveryObject: close({
 	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9._/]+$"
-	S3?:       _#defs."/$defs/Properties/definitions/S3Destination"
-})
+	S3?:       #S3Destination
+	if S3 != _|_ if S3."Fn::If" == _|_ {
+		LogGroup?: close({"Fn::If": _}) | error("LogGroup cannot be used with S3; set exactly one of S3, LogGroup")
+	}
+}) & matchN(>=1, [{S3!: _}, {LogGroup!: _}])
 
-_#defs: "/$defs/Properties/definitions/S3Destination": close({
+#S3Destination: close({
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]*[a-z0-9]$"
 	Prefix?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9!_.*'()/]*$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,46 +13,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	AllowedOperations?: list.MaxItems(8) & list.MinItems(1) & list.UniqueItems() & [
-		..."CheckInLicense" |
-			"CheckoutBorrowLicense" |
-			"CheckoutLicense" |
-			"CreateGrant" |
-			"CreateToken" |
-			"ExtendConsumptionLicense" |
-			"ListPurchasedLicenses" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::Grant"
+	Properties?: close({
+		AllowedOperations?: list.MaxItems(8) & list.MinItems(1) & list.UniqueItems() & [
+			..."CheckInLicense" |
+				"CheckoutBorrowLicense" |
+				"CheckoutLicense" |
+				"CreateGrant" |
+				"CreateToken" |
+				"ExtendConsumptionLicense" |
+				"ListPurchasedLicenses" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		GrantName?:  string | fn.#StringExpression
+		HomeRegion?: string | fn.#StringExpression
+
+		// License Arn for the grant.
+		LicenseArn?: #Arn
+		Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#Arn] | fn.#ListExpression
+		Status?: "ACTIVE" |
+			"DELETED" |
+			"DISABLED" |
+			"FAILED_WORKFLOW" |
+			"PENDING_ACCEPT" |
+			"PENDING_DELETE" |
+			"PENDING_WORKFLOW" |
+			"REJECTED" |
+			"WORKFLOW_COMPLETED" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	GrantName?:  string | fn.#StringExpression
-	HomeRegion?: string | fn.#StringExpression
-	LicenseArn?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Arn"
-	] |
-		fn.#ListExpression
-	Status?: "ACTIVE" |
-		"DELETED" |
-		"DISABLED" |
-		"FAILED_WORKFLOW" |
-		"PENDING_ACCEPT" |
-		"PENDING_DELETE" |
-		"PENDING_WORKFLOW" |
-		"REJECTED" |
-		"WORKFLOW_COMPLETED" |
-		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::Grant"
-	Properties?: #Properties
-}

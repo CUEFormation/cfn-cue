@@ -17,20 +17,20 @@ import (
 
 	// The ID of the catalog.
 	CatalogId?:         string
-	CatalogProperties?: _#defs."/$defs/Properties/definitions/CatalogProperties"
+	CatalogProperties?: #CatalogProperties
 
 	// An array of PrincipalPermissions objects for default database permissions.
-	CreateDatabaseDefaultPermissions?: [..._#defs."/$defs/Properties/definitions/PrincipalPermissions"]
+	CreateDatabaseDefaultPermissions?: [...#PrincipalPermissions]
 
 	// An array of PrincipalPermissions objects for default table permissions.
-	CreateTableDefaultPermissions?: [..._#defs."/$defs/Properties/definitions/PrincipalPermissions"]
+	CreateTableDefaultPermissions?: [...#PrincipalPermissions]
 
 	// The time at which the catalog was created.
 	CreateTime?: int
 
 	// A description of the catalog.
 	Description?:      strings.MaxRunes(2048)
-	FederatedCatalog?: _#defs."/$defs/Properties/definitions/FederatedCatalog"
+	FederatedCatalog?: #FederatedCatalog
 
 	// The name of the catalog to create.
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -47,24 +47,24 @@ import (
 	ResourceArn?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TargetRedshiftCatalog?: _#defs."/$defs/Properties/definitions/TargetRedshiftCatalog"
+	Tags?:                  list.UniqueItems() & [...#Tag]
+	TargetRedshiftCatalog?: #TargetRedshiftCatalog
 
 	// The time at which the catalog was last updated.
 	UpdateTime?: int
 })
 
 // A structure that specifies data lake access properties and other custom properties.
-_#defs: "/$defs/Properties/definitions/CatalogProperties": close({
+#CatalogProperties: close({
 	// Additional key-value properties for the catalog.
 	CustomProperties?: close({
 
 		{[=~"^.+$"]: string}})
-	DataLakeAccessProperties?: _#defs."/$defs/Properties/definitions/DataLakeAccessProperties"
+	DataLakeAccessProperties?: #DataLakeAccessProperties
 })
 
 // Data lake access properties for the catalog.
-_#defs: "/$defs/Properties/definitions/DataLakeAccessProperties": close({
+#DataLakeAccessProperties: close({
 	// Allows third-party engines to access data in Amazon S3 locations that are
 	// registered with Lake Formation.
 	AllowFullTableExternalDataAccess?: "True" | "False"
@@ -95,13 +95,13 @@ _#defs: "/$defs/Properties/definitions/DataLakeAccessProperties": close({
 })
 
 // The Lake Formation principal.
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close({
+#DataLakePrincipal: close({
 	// An identifier for the Lake Formation principal.
 	DataLakePrincipalIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // A FederatedCatalog structure that references an entity outside the Glue Data Catalog.
-_#defs: "/$defs/Properties/definitions/FederatedCatalog": close({
+#FederatedCatalog: close({
 	// The name of the connection to an external data source.
 	ConnectionName?: string
 
@@ -110,7 +110,7 @@ _#defs: "/$defs/Properties/definitions/FederatedCatalog": close({
 })
 
 // Permissions granted to a principal.
-_#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
+#PrincipalPermissions: close({
 	// The permissions that are granted to the principal.
 	Permissions?: [
 		..."ALL" |
@@ -123,10 +123,10 @@ _#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
 			"CREATE_TABLE" |
 			"DATA_LOCATION_ACCESS"
 	]
-	Principal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+	Principal?: #DataLakePrincipal
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -135,7 +135,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A structure that describes a target catalog for resource linking.
-_#defs: "/$defs/Properties/definitions/TargetRedshiftCatalog": close({
+#TargetRedshiftCatalog: close({
 	// The Amazon Resource Name (ARN) of the catalog resource.
 	CatalogArn!: string
 })

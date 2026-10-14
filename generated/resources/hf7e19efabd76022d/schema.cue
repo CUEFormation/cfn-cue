@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,20 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Express::DirectoryBucket.
-#Properties: close({
-	BucketEncryption?: _#defs."/$defs/Properties/definitions/BucketEncryption"
-	BucketName?:       strings.MaxRunes(63) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
-	DataRedundancy!:   "SingleAvailabilityZone" | "SingleLocalZone" | fn.#StringExpression
-	InventoryConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InventoryConfiguration"] |
-		fn.#ListExpression
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
-	LocationName!:           string | fn.#StringExpression
-	MetricsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricsConfiguration"] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Express::DirectoryBucket"
+	Properties!: close({
+		BucketEncryption?:        #BucketEncryption
+		BucketName?:              strings.MaxRunes(63) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
+		DataRedundancy!:          "SingleAvailabilityZone" | "SingleLocalZone" | fn.#StringExpression
+		InventoryConfigurations?: list.UniqueItems() & [...#InventoryConfiguration] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+		// Lifecycle rules that define how Amazon S3 Express manages objects during their lifetime.
+		LifecycleConfiguration?: #LifecycleConfiguration
+		LocationName!:           string | fn.#StringExpression
+		MetricsConfigurations?:  list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#AbortIncompleteMultipartUpload: close({
 	DaysAfterInitiation!: int & >=0 |
 		{
 			string &
@@ -49,17 +52,14 @@ _#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BucketEncryption": close({
-	ServerSideEncryptionConfiguration!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerSideEncryptionRule"
-	] |
-		fn.#ListExpression
-}) |
+#BucketEncryption: close(
+	{ServerSideEncryptionConfiguration!: list.UniqueItems() & [...#ServerSideEncryptionRule] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Destination": close({
+#Destination: close({
 	BucketAccountId?: string | fn.#StringExpression
 	BucketArn!:       string | fn.#StringExpression
 	Format!:          "CSV" | "ORC" | "Parquet" | fn.#StringExpression
@@ -67,8 +67,8 @@ _#defs: "/$defs/Properties/definitions/Destination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
-	Destination!:            _#defs."/$defs/Properties/definitions/Destination"
+#InventoryConfiguration: close({
+	Destination!:            #Destination
 	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Id!:                     string | fn.#StringExpression
 	IncludedObjectVersions!: "All" | "Current" | fn.#StringExpression
@@ -90,20 +90,17 @@ _#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close(
-	{Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#LifecycleConfiguration: close({Rules!: list.UniqueItems() & [...#Rule] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
+#MetricsConfiguration: close({
 	AccessPointArn?: string | fn.#StringExpression
 	Id!:             string | fn.#StringExpression
 	Prefix?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload"
+#Rule: close({
+	AbortIncompleteMultipartUpload?: #AbortIncompleteMultipartUpload
 	ExpirationInDays?: int |
 		{
 			string &
@@ -126,7 +123,7 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
+#ServerSideEncryptionByDefault: close({
 	KMSMasterKeyID?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -134,19 +131,15 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionRule": close({
+#ServerSideEncryptionRule: close({
 	BucketKeyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ServerSideEncryptionByDefault?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionByDefault"
+	ServerSideEncryptionByDefault?: #ServerSideEncryptionByDefault
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Express::DirectoryBucket"
-	Properties!: #Properties
-}

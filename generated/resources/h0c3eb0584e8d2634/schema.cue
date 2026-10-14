@@ -17,15 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ECS::CapacityProvider.
-#Properties: close({
-	AutoScalingGroupProvider?: _#defs."/$defs/Properties/definitions/AutoScalingGroupProvider"
-	ClusterName?:              string | fn.#StringExpression
-	ManagedInstancesProvider?: _#defs."/$defs/Properties/definitions/ManagedInstancesProvider"
-	Name?:                     string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::CapacityProvider"
+	Properties?: close({
+		AutoScalingGroupProvider?: #AutoScalingGroupProvider
+		ClusterName?:              string | fn.#StringExpression
+		ManagedInstancesProvider?: #ManagedInstancesProvider
+		Name?:                     string | fn.#StringExpression
+		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
+#AcceleratorCountRequest: close({
 	Max?: int |
 		{
 			string &
@@ -57,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close({
+#AcceleratorTotalMemoryMiBRequest: close({
 	Max?: int |
 		{
 			string &
@@ -89,20 +92,17 @@ _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoRepairConfiguration": close(
-	{ActionsStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#AutoRepairConfiguration: close({ActionsStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingGroupProvider": close({
+#AutoScalingGroupProvider: close({
 	AutoScalingGroupArn!:          string | fn.#StringExpression
 	ManagedDraining?:              "DISABLED" | "ENABLED" | fn.#StringExpression
-	ManagedScaling?:               _#defs."/$defs/Properties/definitions/ManagedScaling"
+	ManagedScaling?:               #ManagedScaling
 	ManagedTerminationProtection?: "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
+#BaselineEbsBandwidthMbpsRequest: close({
 	Max?: int |
 		{
 			string &
@@ -134,15 +134,15 @@ _#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationRequest": close({
+#CapacityReservationRequest: close({
 	ReservationGroupArn?:   string | fn.#StringExpression
 	ReservationPreference?: "RESERVATIONS_ONLY" | "RESERVATIONS_FIRST" | "RESERVATIONS_EXCLUDED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceLaunchTemplate": close({
+#InstanceLaunchTemplate: close({
 	CapacityOptionType?:    "ON_DEMAND" | "SPOT" | "RESERVED" | fn.#StringExpression
-	CapacityReservations?:  _#defs."/$defs/Properties/definitions/CapacityReservationRequest"
+	CapacityReservations?:  #CapacityReservationRequest
 	Ec2InstanceProfileArn!: string | fn.#StringExpression
 	FipsEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceMetadataTagsPropagation?: bool |
@@ -153,16 +153,16 @@ _#defs: "/$defs/Properties/definitions/InstanceLaunchTemplate": close({
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	InstanceRequirements?:      _#defs."/$defs/Properties/definitions/InstanceRequirementsRequest"
-	LocalStorageConfiguration?: _#defs."/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration"
-	Monitoring?:                _#defs."/$defs/Properties/definitions/ManagedInstancesMonitoringOptions"
-	NetworkConfiguration!:      _#defs."/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration"
-	StorageConfiguration?:      _#defs."/$defs/Properties/definitions/ManagedInstancesStorageConfiguration"
+	InstanceRequirements?:      #InstanceRequirementsRequest
+	LocalStorageConfiguration?: #ManagedInstancesLocalStorageConfiguration
+	Monitoring?:                #ManagedInstancesMonitoringOptions
+	NetworkConfiguration!:      #ManagedInstancesNetworkConfiguration
+	StorageConfiguration?:      #ManagedInstancesStorageConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
-	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCountRequest"
+#InstanceRequirementsRequest: close({
+	AcceleratorCount?: #AcceleratorCountRequest
 	AcceleratorManufacturers?: [
 		..."amazon-web-services" | "amd" | "habana" | "nvidia" | "xilinx" | fn.#StringExpression
 	] |
@@ -190,14 +190,14 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest"
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest
 	AcceleratorTypes?:          [..."gpu" | "fpga" | "inference" | fn.#StringExpression] | fn.#ListExpression
 	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" | fn.#StringExpression
 	] |
 	fn.#ListExpression
 	BareMetal?:                "included" | "required" | "excluded" | fn.#StringExpression
-	BaselineEbsBandwidthMbps?: _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest"
+	BaselineEbsBandwidthMbps?: #BaselineEbsBandwidthMbpsRequest
 	BurstablePerformance?:     "included" | "required" | "excluded" | fn.#StringExpression
 	CpuManufacturers?:         [..."intel" | "amd" | "amazon-web-services" | fn.#StringExpression] | fn.#ListExpression
 	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
@@ -221,10 +221,10 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
 				)
 		} |
 		fn.#NumberExpression
-	MemoryGiBPerVCpu?:      _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpuRequest"
-	MemoryMiB!:             _#defs."/$defs/Properties/definitions/MemoryMiBRequest"
-	NetworkBandwidthGbps?:  _#defs."/$defs/Properties/definitions/NetworkBandwidthGbpsRequest"
-	NetworkInterfaceCount?: _#defs."/$defs/Properties/definitions/NetworkInterfaceCountRequest"
+	MemoryGiBPerVCpu?:      #MemoryGiBPerVCpuRequest
+	MemoryMiB!:             #MemoryMiBRequest
+	NetworkBandwidthGbps?:  #NetworkBandwidthGbpsRequest
+	NetworkInterfaceCount?: #NetworkInterfaceCountRequest
 	OnDemandMaxPricePercentageOverLowestPrice?: int |
 		{
 			string &
@@ -254,19 +254,19 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
 				)
 		} |
 		fn.#NumberExpression
-	TotalLocalStorageGB?: _#defs."/$defs/Properties/definitions/TotalLocalStorageGBRequest"
-	VCpuCount!:           _#defs."/$defs/Properties/definitions/VCpuCountRangeRequest"
+	TotalLocalStorageGB?: #TotalLocalStorageGBRequest
+	VCpuCount!:           #VCpuCountRangeRequest
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration": close(
+#ManagedInstancesLocalStorageConfiguration: close(
 	{UseLocalStorage?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesMonitoringOptions": "BASIC" | "DETAILED" | fn.#StringExpression
+#ManagedInstancesMonitoringOptions: "BASIC" | "DETAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration": close({
+#ManagedInstancesNetworkConfiguration: close({
 	SecurityGroups!: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -276,8 +276,8 @@ _#defs: "/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesProvider": close({
-	AutoRepairConfiguration?: _#defs."/$defs/Properties/definitions/AutoRepairConfiguration"
+#ManagedInstancesProvider: close({
+	AutoRepairConfiguration?: #AutoRepairConfiguration
 	InfrastructureOptimization?: close({
 		ScaleInAfter?: int & <=3600 & >=-1 |
 			{
@@ -301,12 +301,12 @@ _#defs: "/$defs/Properties/definitions/ManagedInstancesProvider": close({
 		fn.#ObjectExpression
 	InfrastructureRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	InstanceLaunchTemplate!: _#defs."/$defs/Properties/definitions/InstanceLaunchTemplate"
+	InstanceLaunchTemplate!: #InstanceLaunchTemplate
 	PropagateTags?:          "CAPACITY_PROVIDER" | "NONE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesStorageConfiguration": close({
+#ManagedInstancesStorageConfiguration: close({
 	StorageSizeGiB!: int & >=1 |
 		{
 			string &
@@ -325,7 +325,7 @@ _#defs: "/$defs/Properties/definitions/ManagedInstancesStorageConfiguration": cl
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedScaling": close({
+#ManagedScaling: close({
 	InstanceWarmupPeriod?: int & <=10000 & >=0 |
 		{
 			string &
@@ -394,7 +394,7 @@ _#defs: "/$defs/Properties/definitions/ManagedScaling": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
+#MemoryGiBPerVCpuRequest: close({
 	Max?: number |
 		{
 			string &
@@ -436,7 +436,7 @@ _#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
+#MemoryMiBRequest: close({
 	Max?: int |
 		{
 			string &
@@ -468,7 +468,7 @@ _#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
+#NetworkBandwidthGbpsRequest: close({
 	Max?: number |
 		{
 			string &
@@ -510,7 +510,7 @@ _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
+#NetworkInterfaceCountRequest: close({
 	Max?: int |
 		{
 			string &
@@ -542,13 +542,13 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
+#TotalLocalStorageGBRequest: close({
 	Max?: number |
 		{
 			string &
@@ -590,7 +590,7 @@ _#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VCpuCountRangeRequest": close({
+#VCpuCountRangeRequest: close({
 	Max?: int |
 		{
 			string &
@@ -621,7 +621,3 @@ _#defs: "/$defs/Properties/definitions/VCpuCountRangeRequest": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::CapacityProvider"
-	Properties?: #Properties
-}

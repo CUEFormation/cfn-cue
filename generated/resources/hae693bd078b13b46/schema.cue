@@ -11,13 +11,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::ApiGateway::BasePathMapping`` resource creates a base path that
 // clients who call your API must use in the invocation URL. Supported only for
 // public custom domain names.
-#Properties: close({
-	BasePath?:   string | fn.#StringExpression
-	DomainName!: string | fn.#StringExpression
-	RestApiId?:  string | fn.#StringExpression
-	Stage?:      string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::BasePathMapping"
-	Properties!: #Properties
+	Type!: "AWS::ApiGateway::BasePathMapping"
+	Properties!: close({
+		BasePath?:   string | fn.#StringExpression
+		DomainName!: string | fn.#StringExpression
+		RestApiId?:  string | fn.#StringExpression
+		Stage?:      string | fn.#StringExpression
+	})
 }

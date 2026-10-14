@@ -43,7 +43,7 @@ import (
 	=~"^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):storagegateway:[a-z\\-0-9]+:[0-9]+:gateway\\/(.+)\\/volume\\/vol-(\\S+)$"
 
 	// A list of up to 50 tags to assign to the volume.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the volume target, which includes the iSCSI target name.
 	TargetARN?: strings.MaxRunes(800) & strings.MinRunes(50)
@@ -74,7 +74,7 @@ import (
 	VolumeUsedInBytes?: number
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

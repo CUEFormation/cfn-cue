@@ -15,9 +15,7 @@ import (
 	Arn?: string
 
 	// The final list of shard-level metrics
-	DesiredShardLevelMetrics?: list.MaxItems(7) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnhancedMetric"
-	]
+	DesiredShardLevelMetrics?: list.MaxItems(7) & list.UniqueItems() & [...#EnhancedMetric]
 
 	// Maximum size of a data record in KiB allowed to be put into Kinesis stream.
 	MaxRecordSizeInKiB?: int & <=10240 & >=1024
@@ -37,24 +35,24 @@ import (
 
 	// When specified, enables or updates server-side encryption using an AWS KMS
 	// key for a specified stream.
-	StreamEncryption?: _#defs."/$defs/Properties/definitions/StreamEncryption"
+	StreamEncryption?: #StreamEncryption
 
 	// The mode in which the stream is running.
-	StreamModeDetails?: _#defs."/$defs/Properties/definitions/StreamModeDetails"
+	StreamModeDetails?: #StreamModeDetails
 
 	// An arbitrary set of tags (key-value pairs) to associate with the Kinesis stream.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// Target warm throughput in MiB/s for the stream. This property can ONLY be set
 	// when StreamMode is ON_DEMAND.
 	WarmThroughputMiBps?: int & >=0
 
 	// Warm throughput configuration details for the stream. Only present for ON_DEMAND streams.
-	WarmThroughputObject?: _#defs."/$defs/Properties/definitions/WarmThroughputObject"
+	WarmThroughputObject?: #WarmThroughputObject
 })
 
 // Value of an enhanced metric
-_#defs: "/$defs/Properties/definitions/EnhancedMetric": "IncomingBytes" |
+#EnhancedMetric: "IncomingBytes" |
 	"IncomingRecords" |
 	"OutgoingBytes" |
 	"OutgoingRecords" |
@@ -66,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/EnhancedMetric": "IncomingBytes" |
 // When specified, enables or updates server-side encryption using an AWS KMS
 // key for a specified stream. Removing this property from your stack template
 // and updating your stack disables encryption.
-_#defs: "/$defs/Properties/definitions/StreamEncryption": close({
+#StreamEncryption: close({
 	// The encryption type to use. The only valid value is KMS.
 	EncryptionType!: "KMS"
 
@@ -79,13 +77,13 @@ _#defs: "/$defs/Properties/definitions/StreamEncryption": close({
 })
 
 // When specified, enables or updates the mode of stream. Default is PROVISIONED.
-_#defs: "/$defs/Properties/definitions/StreamModeDetails": close({
+#StreamModeDetails: close({
 	// The mode of the stream
 	StreamMode!: "ON_DEMAND" | "PROVISIONED"
 })
 
 // An arbitrary set of tags (key-value pairs) to associate with the Kinesis stream.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -100,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Warm throughput configuration details for the stream. Only present for ON_DEMAND streams.
-_#defs: "/$defs/Properties/definitions/WarmThroughputObject": close({
+#WarmThroughputObject: close({
 	// Current warm throughput in MiB/s
 	CurrentMiBps?: int
 

@@ -12,13 +12,13 @@ package schema
 	DesiredDeliveryMediums?: [...string]
 	ForceAliasCreation?:     bool
 	MessageAction?:          string
-	UserAttributes?:         [..._#defs."/$defs/Properties/definitions/AttributeType"]
+	UserAttributes?:         [...#AttributeType]
 	UserPoolId!:             string
 	Username?:               string
-	ValidationData?:         [..._#defs."/$defs/Properties/definitions/AttributeType"]
+	ValidationData?:         [...#AttributeType]
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeType": close({
+#AttributeType: close({
 	Name?:  string
 	Value?: string
 })

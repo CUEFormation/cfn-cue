@@ -9,24 +9,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::Host
-#Properties: close({
-	AssetId?:          string | fn.#StringExpression
-	AutoPlacement?:    "on" | "off" | fn.#StringExpression
-	AvailabilityZone!: string | fn.#StringExpression
-	HostMaintenance?:  "on" | "off" | fn.#StringExpression
-	HostRecovery?:     "on" | "off" | fn.#StringExpression
-	InstanceFamily?:   string | fn.#StringExpression
-	InstanceType?:     string | fn.#StringExpression
-	OutpostArn?:       string | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::Host"
+	Properties!: close({
+		AssetId?:          string | fn.#StringExpression
+		AutoPlacement?:    "on" | "off" | fn.#StringExpression
+		AvailabilityZone!: string | fn.#StringExpression
+		HostMaintenance?:  "on" | "off" | fn.#StringExpression
+		HostRecovery?:     "on" | "off" | fn.#StringExpression
+		InstanceFamily?:   string | fn.#StringExpression
+		InstanceType?:     string | fn.#StringExpression
+		OutpostArn?:       string | fn.#StringExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::Host"
-	Properties!: #Properties
-}

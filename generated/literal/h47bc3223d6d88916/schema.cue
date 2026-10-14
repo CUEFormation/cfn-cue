@@ -58,15 +58,15 @@ import (
 
 	// A list of key-value pairs to associate with the composite alarm. You can
 	// associate as many as 50 tags with an alarm.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Amazon Resource Name (ARN) of the action
-_#defs: "/$defs/Properties/definitions/AlarmActionARN": strings.MaxRunes(1024) & strings.MinRunes(1)
+#AlarmActionARN: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 // Metadata that you can assign to a composite alarm, Tags can help you organize
 // and categorize your resources.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A unique identifier for the tag. The combination of tag keys and values can
 	// help you organize and categorize your resources.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

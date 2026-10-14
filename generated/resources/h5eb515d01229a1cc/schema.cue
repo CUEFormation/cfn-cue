@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -16,53 +16,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Registers a package version.
-#Properties: close({
-	MarkLatest?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OwnerAccount?:              _#defs."/$defs/Properties/definitions/PackageOwnerAccount" | fn.#StringExpression
-	PackageId!:                 _#defs."/$defs/Properties/definitions/NodePackageId" | fn.#StringExpression
-	PackageVersion!:            _#defs."/$defs/Properties/definitions/NodePackageVersion" | fn.#StringExpression
-	PatchVersion!:              _#defs."/$defs/Properties/definitions/NodePackagePatchVersion" | fn.#StringExpression
-	UpdatedLatestPatchVersion?: _#defs."/$defs/Properties/definitions/NodePackagePatchVersion" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Panorama::PackageVersion"
+	Properties!: close({
+		MarkLatest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/NodePackageArn": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+		// An owner account.
+		OwnerAccount?: #PackageOwnerAccount
 
-_#defs: "/$defs/Properties/definitions/NodePackageId": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_\\/]+$" |
-fn.#StringExpression
+		// A package ID.
+		PackageId!: #NodePackageId
 
-_#defs: "/$defs/Properties/definitions/NodePackageName": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$" |
-fn.#StringExpression
+		// A package version.
+		PackageVersion!: #NodePackageVersion
 
-_#defs: "/$defs/Properties/definitions/NodePackagePatchVersion": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-z0-9]+$" |
-fn.#StringExpression
+		// A patch version.
+		PatchVersion!: #NodePackagePatchVersion
 
-_#defs: "/$defs/Properties/definitions/NodePackageVersion": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^([0-9]+)\\.([0-9]+)$" |
-fn.#StringExpression
+		// If the version was marked latest, the new version to maker as latest.
+		UpdatedLatestPatchVersion?: #NodePackagePatchVersion
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PackageOwnerAccount": strings.MaxRunes(12) &
-strings.MinRunes(1) &
-=~"^[0-9a-z\\_]+$" |
-fn.#StringExpression
+#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PackageVersionStatus": "REGISTER_PENDING" |
-	"REGISTER_COMPLETED" |
-	"FAILED" |
-	"DELETING" |
-	fn.#StringExpression
+#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PackageVersionStatusDescription": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimeStamp": int |
+#NodePackagePatchVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9]+$" | fn.#StringExpression
+
+#NodePackageVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([0-9]+)\\.([0-9]+)$" | fn.#StringExpression
+
+#PackageOwnerAccount: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9a-z\\_]+$" | fn.#StringExpression
+
+#PackageVersionStatus: "REGISTER_PENDING" | "REGISTER_COMPLETED" | "FAILED" | "DELETING" | fn.#StringExpression
+
+#PackageVersionStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+#TimeStamp: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -75,7 +67,3 @@ _#defs: "/$defs/Properties/definitions/TimeStamp": int |
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Panorama::PackageVersion"
-	Properties!: #Properties
-}

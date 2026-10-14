@@ -30,32 +30,20 @@ import "strings"
 
 	// [VPC only] The outbound rules associated with the security group. There is a
 	// short interruption during which you cannot connect to the security group.
-	"SecurityGroupEgress"?: [..._#defs."/$defs/Properties/definitions/Egress"]
+	"SecurityGroupEgress"?: [...#Egress]
 
 	// The inbound rules associated with the security group. There is a short
 	// interruption during which you cannot connect to the security group.
-	SecurityGroupIngress?: [..._#defs."/$defs/Properties/definitions/Ingress"]
+	SecurityGroupIngress?: [...#Ingress]
 
 	// Any tags assigned to the security group.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the VPC for the security group.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Egress": matchN(1, [{
-	CidrIp!: _
-	...
-}, {
-	CidrIpv6!: _
-	...
-}, {
-	DestinationSecurityGroupId!: _
-	...
-}, {
-	DestinationPrefixListId!: _
-	...
-}]) & close({
+#Egress: close({
 	CidrIp?:                     string
 	CidrIpv6?:                   string
 	Description?:                string
@@ -64,24 +52,33 @@ _#defs: "/$defs/Properties/definitions/Egress": matchN(1, [{
 	FromPort?:                   int & >=-1
 	IpProtocol!:                 string
 	ToPort?:                     int & >=-1
-})
+	if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
+		CidrIpv6?: close({"Fn::If": _}) | error(
+			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+		DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
+			"DestinationSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
+			"DestinationPrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+	}
+	if CidrIpv6 != _|_ if CidrIpv6."Fn::If" == _|_ {
+		DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
+			"DestinationSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
+			"DestinationPrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+	}
+	if DestinationSecurityGroupId != _|_ if DestinationSecurityGroupId."Fn::If" == _|_ {
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
+			"DestinationPrefixListId cannot be used with DestinationSecurityGroupId; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+	}
+}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationSecurityGroupId!: _}, {DestinationPrefixListId!: _}])
 
-_#defs: "/$defs/Properties/definitions/Ingress": matchN(1, [{
-	CidrIp!: _
-	...
-}, {
-	CidrIpv6!: _
-	...
-}, {
-	SourcePrefixListId!: _
-	...
-}, {
-	SourceSecurityGroupId!: _
-	...
-}, {
-	SourceSecurityGroupName!: _
-	...
-}]) & close({
+#Ingress: close({
 	CidrIp?:                     string
 	CidrIpv6?:                   string
 	Description?:                string
@@ -92,9 +89,50 @@ _#defs: "/$defs/Properties/definitions/Ingress": matchN(1, [{
 	SourceSecurityGroupName?:    string
 	SourceSecurityGroupOwnerId?: string
 	ToPort?:                     int & >=-1
-})
+	if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
+		CidrIpv6?: close({"Fn::If": _}) | error(
+			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourcePrefixListId?: close({"Fn::If": _}) | error(
+			"SourcePrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if CidrIpv6 != _|_ if CidrIpv6."Fn::If" == _|_ {
+		SourcePrefixListId?: close({"Fn::If": _}) | error(
+			"SourcePrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if SourcePrefixListId != _|_ if SourcePrefixListId."Fn::If" == _|_ {
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupId cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if SourceSecurityGroupId != _|_ if SourceSecurityGroupId."Fn::If" == _|_ {
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with SourceSecurityGroupId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{CidrIp!: _}, {CidrIpv6!: _}, {SourcePrefixListId!: _}, {SourceSecurityGroupId!: _}, {SourceSecurityGroupName!: _}],
+)
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

@@ -23,8 +23,8 @@ package schema
 
 	// The endpoint configuration of this DomainName showing the endpoint types and
 	// IP address types of the domain name.
-	EndpointConfiguration?:   _#defs."/$defs/Properties/definitions/EndpointConfiguration"
-	MutualTlsAuthentication?: _#defs."/$defs/Properties/definitions/MutualTlsAuthentication"
+	EndpointConfiguration?:   #EndpointConfiguration
+	MutualTlsAuthentication?: #MutualTlsAuthentication
 
 	// The ARN of the public certificate issued by ACM to validate ownership of your
 	// custom domain. Only required when configuring mutual TLS and using an ACM
@@ -35,7 +35,7 @@ package schema
 	RegionalHostedZoneId?:                string
 	RoutingMode?:    "BASE_PATH_MAPPING_ONLY" | "ROUTING_RULE_THEN_BASE_PATH_MAPPING" | "ROUTING_RULE_ONLY"
 	SecurityPolicy?: string
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:           [...#Tag]
 })
 
 // The ``EndpointConfiguration`` property type specifies the endpoint types and
@@ -43,12 +43,12 @@ package schema
 // ``EndpointConfiguration`` is a property of the
 // [AWS::ApiGateway::DomainName](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-domainname.html)
 // resource.
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+#EndpointConfiguration: close({
 	IpAddressType?: string
 	Types?:         [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/MutualTlsAuthentication": close({
+#MutualTlsAuthentication: close({
 	TruststoreUri?:     string
 	TruststoreVersion?: string
 })
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/MutualTlsAuthentication": close({
 // An array of key-value pairs to apply to this resource.
 // For more information, see
 // [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
 	Key?: string

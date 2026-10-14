@@ -20,7 +20,7 @@ import (
 	CreatedAt?: time.Time
 
 	// The local resources to monitor.
-	LocalResources!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MonitorLocalResource"]
+	LocalResources!: list.MinItems(1) & [...#MonitorLocalResource]
 
 	// The date and time when the monitor was last modified.
 	ModifiedAt?: time.Time
@@ -32,17 +32,17 @@ import (
 	MonitorStatus?: "PENDING" | "ACTIVE" | "INACTIVE" | "ERROR" | "DELETING"
 
 	// The remote resources to monitor.
-	RemoteResources?: [..._#defs."/$defs/Properties/definitions/MonitorRemoteResource"]
+	RemoteResources?: [...#MonitorRemoteResource]
 
 	// The Amazon Resource Name (ARN) of the scope for the monitor.
 	ScopeArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$"
 
 	// The tags for the monitor.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
 // A local resource is the host where the agent is installed.
-_#defs: "/$defs/Properties/definitions/MonitorLocalResource": close({
+#MonitorLocalResource: close({
 	// The identifier of the local resource.
 	Identifier!: string
 
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/MonitorLocalResource": close({
 })
 
 // A remote resource is the other endpoint in a network flow.
-_#defs: "/$defs/Properties/definitions/MonitorRemoteResource": close({
+#MonitorRemoteResource: close({
 	// The identifier of the remote resource.
 	Identifier!: string
 
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/MonitorRemoteResource": close({
 	Type!: "AWS::EC2::VPC" | "AWS::AvailabilityZone" | "AWS::EC2::Subnet" | "AWS::AWSService" | "AWS::Region"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

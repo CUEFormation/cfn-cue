@@ -17,19 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Workflow
-#Properties: close({
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w\\- ]*$" | fn.#StringExpression
-	OnExceptionSteps?: list.MaxItems(8) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/WorkflowStep"
-	] |
-		fn.#ListExpression
-	Steps!: list.MaxItems(8) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/WorkflowStep"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transfer::Workflow"
+	Properties!: close({
+		Description?:      strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w\\- ]*$" | fn.#StringExpression
+		OnExceptionSteps?: list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep] | fn.#ListExpression
+		Steps!:            list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep] | fn.#ListExpression
+		Tags?:             list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EfsInputFileLocation": close({
+#EfsInputFileLocation: close({
 	FileSystemId?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:(access-point/fsap|file-system/fs)-[0-9a-f]{8,40}|fs(ap)?-[0-9a-f]{8,40})$" |
@@ -38,39 +36,36 @@ _#defs: "/$defs/Properties/definitions/EfsInputFileLocation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputFileLocation": close({
-	EfsFileLocation?: _#defs."/$defs/Properties/definitions/EfsInputFileLocation"
-	S3FileLocation?:  _#defs."/$defs/Properties/definitions/S3InputFileLocation"
+#InputFileLocation: close({
+	EfsFileLocation?: #EfsInputFileLocation
+	S3FileLocation?:  #S3InputFileLocation
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3FileLocation": close(
-	{S3FileLocation?: _#defs."/$defs/Properties/definitions/S3InputFileLocation"},
-) |
-	fn.#ObjectExpression
+#S3FileLocation: close({S3FileLocation?: #S3InputFileLocation}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3InputFileLocation": close({
+#S3InputFileLocation: close({
 	Bucket?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
 	fn.#StringExpression
 	Key?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Tag": close({
+#S3Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowStep": close({
+#WorkflowStep: close({
 	CopyStepDetails?: close({
-		DestinationFileLocation?: _#defs."/$defs/Properties/definitions/S3FileLocation"
+		DestinationFileLocation?: #S3FileLocation
 		Name?:                    strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
 		OverwriteExisting?:       "TRUE" | "FALSE" | fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
@@ -103,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/WorkflowStep": close({
 	}) |
 	fn.#ObjectExpression
 	DecryptStepDetails?: close({
-		DestinationFileLocation!: _#defs."/$defs/Properties/definitions/InputFileLocation"
+		DestinationFileLocation!: #InputFileLocation
 		Name?:                    strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
 		OverwriteExisting?:       "TRUE" | "FALSE" | fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
@@ -121,16 +116,9 @@ _#defs: "/$defs/Properties/definitions/WorkflowStep": close({
 		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
 		fn.#StringExpression
-		Tags?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/S3Tag"
-		] |
-			fn.#ListExpression
+		Tags?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#S3Tag] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	Type?: "COPY" | "CUSTOM" | "DECRYPT" | "DELETE" | "TAG" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transfer::Workflow"
-	Properties!: #Properties
-}

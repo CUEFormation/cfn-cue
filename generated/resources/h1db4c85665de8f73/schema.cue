@@ -12,22 +12,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCEndpointService
-#Properties: close({
-	AcceptanceRequired?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ContributorInsightsEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GatewayLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	NetworkLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	PayerResponsibility?:         string | fn.#StringExpression
-	PrivateDnsName?:              string | fn.#StringExpression
-	PrivateDnsNameConfiguration?: close({}) | fn.#ObjectExpression
-	SupportedIpAddressTypes?:     [..._#defs."/$defs/Properties/definitions/IpAddressType"] | fn.#ListExpression
-	SupportedRegions?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VPCEndpointService"
+	Properties?: close({
+		AcceptanceRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ContributorInsightsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		GatewayLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
+		NetworkLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
+		PayerResponsibility?:         string | fn.#StringExpression
+		PrivateDnsName?:              string | fn.#StringExpression
+		PrivateDnsNameConfiguration?: close({}) | fn.#ObjectExpression
+		SupportedIpAddressTypes?:     [...#IpAddressType] | fn.#ListExpression
+		SupportedRegions?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                        [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "ipv4" | "ipv6" | fn.#StringExpression
+#IpAddressType: "ipv4" | "ipv6" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameConfiguration": close({
+#PrivateDnsNameConfiguration: close({
 	Name?:  string | fn.#StringExpression
 	State?: string | fn.#StringExpression
 	Type?:  string | fn.#StringExpression
@@ -35,12 +45,8 @@ _#defs: "/$defs/Properties/definitions/PrivateDnsNameConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPCEndpointService"
-	Properties?: #Properties
-}

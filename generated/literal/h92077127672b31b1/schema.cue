@@ -14,7 +14,7 @@ import (
 #Properties: close({
 	// List of governed actions a policy applies to.
 	Actions!:      list.MaxItems(10) & list.MinItems(1) & [..."SHARE"]
-	ApplicableTo!: _#defs."/$defs/Properties/definitions/ApplicableTo"
+	ApplicableTo!: #ApplicableTo
 
 	// List of approval group ARNs (e.g. QuickSight group ARNs).
 	// At least one approval group is required; the upper bound is enforced
@@ -34,7 +34,7 @@ import (
 
 // Scoping: who the policy applies to.
 // GROUP: `groupArns` required (one or more group ARNs).
-_#defs: "/$defs/Properties/definitions/ApplicableTo": close({
+#ApplicableTo: close({
 	// Required when type = GROUP. One or more group ARNs.
 	GroupArns?: list.MinItems(1) & [...string]
 	Type!:      "GROUP"

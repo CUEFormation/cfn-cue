@@ -11,14 +11,14 @@ import (
 
 // Resource Type definition for AWS::WorkSpaces::Directory
 #Properties: close({
-	ActiveDirectoryConfig?: _#defs."/$defs/Properties/definitions/ActiveDirectoryConfig"
+	ActiveDirectoryConfig?: #ActiveDirectoryConfig
 
 	// The directory alias.
 	Alias?: string
 
 	// The Amazon Resource Name (ARN) of the WorkSpace directory.
 	Arn?:                            string
-	CertificateBasedAuthProperties?: _#defs."/$defs/Properties/definitions/CertificateBasedAuthProperties"
+	CertificateBasedAuthProperties?: #CertificateBasedAuthProperties
 
 	// The user name for the service account.
 	CustomerUserName?: strings.MaxRunes(63) & strings.MinRunes(1)
@@ -44,7 +44,7 @@ import (
 	// Endpoint encryption mode that allows you to configure the specified directory
 	// between Standard TLS and FIPS 140-2 validated mode.
 	EndpointEncryptionMode?: "STANDARD_TLS" | "FIPS_VALIDATED"
-	IDCConfig?:              _#defs."/$defs/Properties/definitions/IDCConfig"
+	IDCConfig?:              #IDCConfig
 
 	// The identifier of the IAM role.
 	IamRoleId?: string
@@ -54,16 +54,16 @@ import (
 
 	// The identifiers of the IP access control groups associated with the directory.
 	IpGroupIds?:           [...=~"^wsipg-[0-9a-z]{8,63}$"]
-	MicrosoftEntraConfig?: _#defs."/$defs/Properties/definitions/MicrosoftEntraConfig"
+	MicrosoftEntraConfig?: #MicrosoftEntraConfig
 
 	// The registration code for the directory.
 	RegistrationCode?:       strings.MaxRunes(20) & strings.MinRunes(1)
-	SamlProperties?:         _#defs."/$defs/Properties/definitions/SamlProperties"
-	SelfservicePermissions?: _#defs."/$defs/Properties/definitions/SelfservicePermissions"
+	SamlProperties?:         #SamlProperties
+	SelfservicePermissions?: #SelfservicePermissions
 
 	// The state of the directory's registration with Amazon WorkSpaces.
 	State?:               "REGISTERING" | "REGISTERED" | "DEREGISTERING" | "DEREGISTERED" | "ERROR"
-	StreamingProperties?: _#defs."/$defs/Properties/definitions/StreamingProperties"
+	StreamingProperties?: #StreamingProperties
 
 	// The identifiers of the subnets for your virtual private cloud (VPC).
 	SubnetIds?: list.MaxItems(2) & [...] & [
@@ -71,15 +71,15 @@ import (
 	]
 
 	// The tags associated with the directory.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Indicates whether your WorkSpace directory is dedicated or shared.
 	Tenancy?: "DEDICATED" | "SHARED"
 
 	// The type of identity management the user is using.
 	UserIdentityType?:            "CUSTOMER_MANAGED" | "AWS_DIRECTORY_SERVICE" | "AWS_IAM_IDENTITY_CENTER"
-	WorkspaceAccessProperties?:   _#defs."/$defs/Properties/definitions/WorkspaceAccessProperties"
-	WorkspaceCreationProperties?: _#defs."/$defs/Properties/definitions/DefaultWorkspaceCreationProperties"
+	WorkspaceAccessProperties?:   #WorkspaceAccessProperties
+	WorkspaceCreationProperties?: #DefaultWorkspaceCreationProperties
 
 	// Description of the directory to register.
 	WorkspaceDirectoryDescription?: =~"^([a-zA-Z0-9_])[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]{1,255}$"
@@ -95,7 +95,7 @@ import (
 })
 
 // Describes the access type and endpoint for a WorkSpace.
-_#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
+#AccessEndpoint: close({
 	// Indicates the type of access endpoint.
 	AccessEndpointType?: "STREAMING_WSP"
 
@@ -104,9 +104,9 @@ _#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
 })
 
 // Describes the access endpoint configuration for a WorkSpace.
-_#defs: "/$defs/Properties/definitions/AccessEndpointConfig": close({
+#AccessEndpointConfig: close({
 	// Indicates a list of access endpoints associated with this directory.
-	AccessEndpoints!: [..._#defs."/$defs/Properties/definitions/AccessEndpoint"]
+	AccessEndpoints!: [...#AccessEndpoint]
 
 	// Indicates a list of protocols that fallback to using the public Internet when
 	// streaming over a VPC endpoint is not available.
@@ -114,7 +114,7 @@ _#defs: "/$defs/Properties/definitions/AccessEndpointConfig": close({
 })
 
 // Information about the Active Directory config.
-_#defs: "/$defs/Properties/definitions/ActiveDirectoryConfig": close({
+#ActiveDirectoryConfig: close({
 	// The name of the domain.
 	DomainName!: =~"^([a-zA-Z0-9]+[.-])+([a-zA-Z0-9])+$"
 
@@ -125,7 +125,7 @@ _#defs: "/$defs/Properties/definitions/ActiveDirectoryConfig": close({
 
 // Describes the properties of the certificate-based authentication you want to
 // use with your WorkSpaces.
-_#defs: "/$defs/Properties/definitions/CertificateBasedAuthProperties": close({
+#CertificateBasedAuthProperties: close({
 	// The Amazon Resource Name (ARN) of the Amazon Web Services Certificate Manager
 	// Private CA resource.
 	CertificateAuthorityArn?: strings.MaxRunes(200) &
@@ -137,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/CertificateBasedAuthProperties": close({
 })
 
 // The default values that are used to create WorkSpaces.
-_#defs: "/$defs/Properties/definitions/DefaultWorkspaceCreationProperties": close({
+#DefaultWorkspaceCreationProperties: close({
 	// The identifier of the default security group to apply to WorkSpaces when they are created.
 	CustomSecurityGroupId?: strings.MaxRunes(20) & strings.MinRunes(11) & =~"^(sg-([0-9a-f]{8}|[0-9a-f]{17}))$"
 
@@ -159,7 +159,7 @@ _#defs: "/$defs/Properties/definitions/DefaultWorkspaceCreationProperties": clos
 })
 
 // Describes the Global Accelerator for directory.
-_#defs: "/$defs/Properties/definitions/GlobalAcceleratorForDirectory": close({
+#GlobalAcceleratorForDirectory: close({
 	// Indicates if Global Accelerator for directory is enabled or disabled.
 	Mode!: "ENABLED_AUTO" | "DISABLED"
 
@@ -168,7 +168,7 @@ _#defs: "/$defs/Properties/definitions/GlobalAcceleratorForDirectory": close({
 })
 
 // Specifies the configurations of the identity center.
-_#defs: "/$defs/Properties/definitions/IDCConfig": close({
+#IDCConfig: close({
 	// The Amazon Resource Name (ARN) of the application.
 	ApplicationArn?: string
 
@@ -177,7 +177,7 @@ _#defs: "/$defs/Properties/definitions/IDCConfig": close({
 })
 
 // Specifies the configurations of the Microsoft Entra.
-_#defs: "/$defs/Properties/definitions/MicrosoftEntraConfig": close({
+#MicrosoftEntraConfig: close({
 	// The Amazon Resource Name (ARN) of the application config.
 	ApplicationConfigSecretArn?:
 		=~"^arn:aws[a-z-]{0,7}:secretsmanager:[A-za-z0-9_/.-]{0,63}:[A-za-z0-9_/.-]{0,63}:secret:[A-Za-z0-9][A-za-z0-9_/.-]{8,519}$"
@@ -189,7 +189,7 @@ _#defs: "/$defs/Properties/definitions/MicrosoftEntraConfig": close({
 // Describes the enablement status, user access URL, and relay state parameter
 // name that are used for configuring federation with an SAML 2.0 identity
 // provider.
-_#defs: "/$defs/Properties/definitions/SamlProperties": close({
+#SamlProperties: close({
 	// The relay state parameter name supported by the SAML 2.0 identity provider (IdP).
 	RelayStateParameterName?: strings.MinRunes(1)
 
@@ -201,7 +201,7 @@ _#defs: "/$defs/Properties/definitions/SamlProperties": close({
 })
 
 // Describes the self-service permissions for a directory.
-_#defs: "/$defs/Properties/definitions/SelfservicePermissions": close({
+#SelfservicePermissions: close({
 	// Specifies whether users can change the compute type (bundle) for their WorkSpace.
 	ChangeComputeType?: "ENABLED" | "DISABLED"
 
@@ -219,7 +219,7 @@ _#defs: "/$defs/Properties/definitions/SelfservicePermissions": close({
 })
 
 // Describes the storage connector.
-_#defs: "/$defs/Properties/definitions/StorageConnector": close({
+#StorageConnector: close({
 	// The type of connector used to save user files.
 	ConnectorType!: "HOME_FOLDER"
 
@@ -228,20 +228,20 @@ _#defs: "/$defs/Properties/definitions/StorageConnector": close({
 })
 
 // Describes the streaming properties.
-_#defs: "/$defs/Properties/definitions/StreamingProperties": close({
-	GlobalAccelerator?: _#defs."/$defs/Properties/definitions/GlobalAcceleratorForDirectory"
+#StreamingProperties: close({
+	GlobalAccelerator?: #GlobalAcceleratorForDirectory
 
 	// Indicates the storage connector used.
-	StorageConnectors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/StorageConnector"]
+	StorageConnectors?: list.MinItems(1) & [...#StorageConnector]
 
 	// Indicates the type of preferred protocol for the streaming experience.
 	StreamingExperiencePreferredProtocol?: "TCP" | "UDP"
 
 	// Indicates the permission settings associated with the user.
-	UserSettings?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UserSetting"]
+	UserSettings?: list.MinItems(1) & [...#UserSetting]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1)
 
@@ -250,7 +250,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Information about the user's permission settings.
-_#defs: "/$defs/Properties/definitions/UserSetting": close({
+#UserSetting: close({
 	// Indicates the type of action.
 	Action!: "CLIPBOARD_COPY_FROM_LOCAL_DEVICE" |
 		"CLIPBOARD_COPY_TO_LOCAL_DEVICE" |
@@ -265,8 +265,8 @@ _#defs: "/$defs/Properties/definitions/UserSetting": close({
 })
 
 // The device types and operating systems that can be used to access a WorkSpace.
-_#defs: "/$defs/Properties/definitions/WorkspaceAccessProperties": close({
-	AccessEndpointConfig?: _#defs."/$defs/Properties/definitions/AccessEndpointConfig"
+#WorkspaceAccessProperties: close({
+	AccessEndpointConfig?: #AccessEndpointConfig
 
 	// Indicates whether users can use Android and Android-compatible Chrome OS
 	// devices to access their WorkSpaces.

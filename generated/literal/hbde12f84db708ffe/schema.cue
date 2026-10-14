@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -54,7 +54,7 @@ import (
 	PolicyType?: ("PredictiveScaling" | "SimpleScaling" | "StepScaling" | "TargetTrackingScaling") & (strings.MaxRunes(64) & strings.MinRunes(1))
 
 	// A predictive scaling policy. Includes support for predefined metrics only.
-	PredictiveScalingConfiguration?: _#defs."/$defs/Properties/definitions/PredictiveScalingConfiguration"
+	PredictiveScalingConfiguration?: #PredictiveScalingConfiguration
 
 	// The amount by which to scale, based on the specified adjustment type. A
 	// positive value adds to the current capacity while a negative number removes
@@ -66,48 +66,48 @@ import (
 	// A set of adjustments that enable you to scale based on the size of the alarm
 	// breach. Required if the policy type is StepScaling. (Not used with any other
 	// policy type.)
-	StepAdjustments?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StepAdjustment"]
+	StepAdjustments?: list.UniqueItems() & [...#StepAdjustment]
 
 	// A target tracking scaling policy. Includes support for predefined or customized metrics.
-	TargetTrackingConfiguration?: _#defs."/$defs/Properties/definitions/TargetTrackingConfiguration"
+	TargetTrackingConfiguration?: #TargetTrackingConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/CustomizedMetricSpecification": close({
-	Dimensions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDimension"]
+#CustomizedMetricSpecification: close({
+	Dimensions?: list.UniqueItems() & [...#MetricDimension]
 	MetricName?: string
-	Metrics?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetTrackingMetricDataQuery"]
+	Metrics?:    list.UniqueItems() & [...#TargetTrackingMetricDataQuery]
 	Namespace?:  string
 	Period?:     int & >=1
 	Statistic?:  "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum"
 	Unit?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/Metric": close({
-	Dimensions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDimension"]
+#Metric: close({
+	Dimensions?: list.UniqueItems() & [...#MetricDimension]
 	MetricName!: string
 	Namespace!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
+#MetricDataQuery: close({
 	Expression?: strings.MaxRunes(1023) & strings.MinRunes(1)
 	Id!:         strings.MaxRunes(255) & strings.MinRunes(1)
 	Label?:      strings.MaxRunes(2047) & strings.MinRunes(0)
-	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat"
+	MetricStat?: #MetricStat
 	ReturnData?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Name!:  string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/MetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric"
+#MetricStat: close({
+	Metric!: #Metric
 	Stat!:   strings.MaxRunes(100) & strings.MinRunes(1)
 	Unit?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/PredefinedMetricSpecification": close({
+#PredefinedMetricSpecification: close({
 	PredefinedMetricType!: "ALBRequestCountPerTarget" |
 		"ASGAverageCPUUtilization" |
 		"ASGAverageNetworkIn" |
@@ -115,42 +115,31 @@ _#defs: "/$defs/Properties/definitions/PredefinedMetricSpecification": close({
 	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingConfiguration": close({
+#PredictiveScalingConfiguration: close({
 	MaxCapacityBreachBehavior?: "HonorMaxCapacity" | "IncreaseMaxCapacity"
 	MaxCapacityBuffer?:         int & <=100 & >=0
-	MetricSpecifications!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricSpecification"
-	]
-	Mode?:                 "ForecastAndScale" | "ForecastOnly"
-	SchedulingBufferTime?: int & >=0
+	MetricSpecifications!:      list.UniqueItems() & [...#PredictiveScalingMetricSpecification]
+	Mode?:                      "ForecastAndScale" | "ForecastOnly"
+	SchedulingBufferTime?:      int & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedCapacityMetric": close(
-	{MetricDataQueries!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"]},
-)
+#PredictiveScalingCustomizedCapacityMetric: close({MetricDataQueries!: list.UniqueItems() & [...#MetricDataQuery]})
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedLoadMetric": close(
-	{MetricDataQueries!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"]},
-)
+#PredictiveScalingCustomizedLoadMetric: close({MetricDataQueries!: list.UniqueItems() & [...#MetricDataQuery]})
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedScalingMetric": close(
-	{MetricDataQueries!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"]},
-)
+#PredictiveScalingCustomizedScalingMetric: close({MetricDataQueries!: list.UniqueItems() & [...#MetricDataQuery]})
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricSpecification": close({
-	CustomizedCapacityMetricSpecification?:
-		_#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedCapacityMetric"
-	CustomizedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedLoadMetric"
-	CustomizedScalingMetricSpecification?:
-		_#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedScalingMetric"
-	PredefinedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric"
-	PredefinedMetricPairSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair"
-	PredefinedScalingMetricSpecification?:
-		_#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric"
-	TargetValue!: number
+#PredictiveScalingMetricSpecification: close({
+	CustomizedCapacityMetricSpecification?: #PredictiveScalingCustomizedCapacityMetric
+	CustomizedLoadMetricSpecification?:     #PredictiveScalingCustomizedLoadMetric
+	CustomizedScalingMetricSpecification?:  #PredictiveScalingCustomizedScalingMetric
+	PredefinedLoadMetricSpecification?:     #PredictiveScalingPredefinedLoadMetric
+	PredefinedMetricPairSpecification?:     #PredictiveScalingPredefinedMetricPair
+	PredefinedScalingMetricSpecification?:  #PredictiveScalingPredefinedScalingMetric
+	TargetValue!:                           number
 })
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric": close({
+#PredictiveScalingPredefinedLoadMetric: close({
 	PredefinedMetricType!: "ALBTargetGroupRequestCount" |
 		"ASGTotalCPUUtilization" |
 		"ASGTotalNetworkIn" |
@@ -158,12 +147,12 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric": c
 	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair": close({
+#PredictiveScalingPredefinedMetricPair: close({
 	PredefinedMetricType!: "ALBRequestCount" | "ASGCPUUtilization" | "ASGNetworkIn" | "ASGNetworkOut"
 	ResourceLabel?:        strings.MaxRunes(1023) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric": close({
+#PredictiveScalingPredefinedScalingMetric: close({
 	PredefinedMetricType!: "ALBRequestCountPerTarget" |
 		"ASGAverageCPUUtilization" |
 		"ASGAverageNetworkIn" |
@@ -171,30 +160,30 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric"
 	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/StepAdjustment": close({
+#StepAdjustment: close({
 	MetricIntervalLowerBound?: number
 	MetricIntervalUpperBound?: number
 	ScalingAdjustment!:        int
 })
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close({
-	CustomizedMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedMetricSpecification"
+#TargetTrackingConfiguration: close({
+	CustomizedMetricSpecification?: #CustomizedMetricSpecification
 	DisableScaleIn?:                bool
-	PredefinedMetricSpecification?: _#defs."/$defs/Properties/definitions/PredefinedMetricSpecification"
+	PredefinedMetricSpecification?: #PredefinedMetricSpecification
 	TargetValue!:                   number
 })
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricDataQuery": close({
+#TargetTrackingMetricDataQuery: close({
 	Expression?: strings.MaxRunes(2047) & strings.MinRunes(1)
 	Id!:         strings.MaxRunes(64) & strings.MinRunes(1)
 	Label?:      strings.MaxRunes(2047) & strings.MinRunes(0)
-	MetricStat?: _#defs."/$defs/Properties/definitions/TargetTrackingMetricStat"
+	MetricStat?: #TargetTrackingMetricStat
 	Period?:     int & >=1
 	ReturnData?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric"
+#TargetTrackingMetricStat: close({
+	Metric!: #Metric
 	Period?: int & >=1
 	Stat!:   strings.MaxRunes(100) & strings.MinRunes(1)
 	Unit?:   string

@@ -12,85 +12,109 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::DataSource
-#Properties: close({
-	ApiId!:               string | fn.#StringExpression
-	Description?:         string | fn.#StringExpression
-	DynamoDBConfig?:      _#defs."/$defs/Properties/definitions/DynamoDBConfig" | fn.#ObjectExpression
-	ElasticsearchConfig?: _#defs."/$defs/Properties/definitions/ElasticsearchConfig" | fn.#ObjectExpression
-	EventBridgeConfig?:   _#defs."/$defs/Properties/definitions/EventBridgeConfig" | fn.#ObjectExpression
-	HttpConfig?:          _#defs."/$defs/Properties/definitions/HttpConfig" | fn.#ObjectExpression
-	LambdaConfig?:        _#defs."/$defs/Properties/definitions/LambdaConfig" | fn.#ObjectExpression
-	MetricsConfig?:       "DISABLED" | "ENABLED" | fn.#StringExpression
-	Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-	OpenSearchServiceConfig?:  _#defs."/$defs/Properties/definitions/OpenSearchServiceConfig" | fn.#ObjectExpression
-	RelationalDatabaseConfig?: _#defs."/$defs/Properties/definitions/RelationalDatabaseConfig" | fn.#ObjectExpression
-	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Type!: "AMAZON_BEDROCK_RUNTIME" |
-		"AMAZON_DYNAMODB" |
-		"AMAZON_ELASTICSEARCH" |
-		"AMAZON_EVENTBRIDGE" |
-		"AMAZON_OPENSEARCH_SERVICE" |
-		"AWS_LAMBDA" |
-		"HTTP" |
-		"NONE" |
-		"RELATIONAL_DATABASE" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::DataSource"
+	Properties!: close({
+		ApiId!:       string | fn.#StringExpression
+		Description?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizationConfig": close({
+		// AWS Region and TableName for an Amazon DynamoDB table in your account.
+		DynamoDBConfig?: #DynamoDBConfig
+
+		// AWS Region and Endpoints for an Amazon OpenSearch Service domain in your account.
+		// As of September 2021, Amazon Elasticsearch Service is Amazon OpenSearch
+		// Service. This property is deprecated. For new data sources, use
+		// OpenSearchServiceConfig to specify an OpenSearch Service data source.
+		ElasticsearchConfig?: #ElasticsearchConfig
+
+		// ARN for the EventBridge bus.
+		EventBridgeConfig?: #EventBridgeConfig
+
+		// Endpoints for an HTTP data source.
+		HttpConfig?: #HttpConfig
+
+		// An ARN of a Lambda function in valid ARN format. This can be the ARN of a
+		// Lambda function that exists in the current account or in another account.
+		LambdaConfig?:  #LambdaConfig
+		MetricsConfig?: "DISABLED" | "ENABLED" | fn.#StringExpression
+		Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+
+		// AWS Region and Endpoints for an Amazon OpenSearch Service domain in your account.
+		OpenSearchServiceConfig?: #OpenSearchServiceConfig
+
+		// Relational Database configuration of the relational database data source.
+		RelationalDatabaseConfig?: #RelationalDatabaseConfig
+		ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Type!: "AMAZON_BEDROCK_RUNTIME" |
+			"AMAZON_DYNAMODB" |
+			"AMAZON_ELASTICSEARCH" |
+			"AMAZON_EVENTBRIDGE" |
+			"AMAZON_OPENSEARCH_SERVICE" |
+			"AWS_LAMBDA" |
+			"HTTP" |
+			"NONE" |
+			"RELATIONAL_DATABASE" |
+			fn.#StringExpression
+	})
+}
+
+#AuthorizationConfig: close({
 	AuthorizationType!: "AWS_IAM" | fn.#StringExpression
-	AwsIamConfig?:      _#defs."/$defs/Properties/definitions/AwsIamConfig" | fn.#ObjectExpression
+
+	// The AWS Identity and Access Management settings.
+	AwsIamConfig?: #AwsIamConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AwsIamConfig": close({
+#AwsIamConfig: close({
 	SigningRegion?:      string | fn.#StringExpression
 	SigningServiceName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeltaSyncConfig": close({
+#DeltaSyncConfig: close({
 	BaseTableTTL!:       string | fn.#StringExpression
 	DeltaSyncTableName!: string | fn.#StringExpression
 	DeltaSyncTableTTL!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDBConfig": close({
-	AwsRegion!:            string | fn.#StringExpression
-	DeltaSyncConfig?:      _#defs."/$defs/Properties/definitions/DeltaSyncConfig" | fn.#ObjectExpression
+#DynamoDBConfig: close({
+	AwsRegion!: string | fn.#StringExpression
+
+	// The DeltaSyncConfig for a versioned datasource.
+	DeltaSyncConfig?:      #DeltaSyncConfig
 	TableName!:            string | fn.#StringExpression
 	UseCallerCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Versioned?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchConfig": close({
+#ElasticsearchConfig: close({
 	AwsRegion!: string | fn.#StringExpression
 	Endpoint!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeConfig": close({EventBusArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#EventBridgeConfig: close({EventBusArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpConfig": close({
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/AuthorizationConfig" | fn.#ObjectExpression
+#HttpConfig: close({
+	// The authorization configuration.
+	AuthorizationConfig?: #AuthorizationConfig
 	Endpoint!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close({LambdaFunctionArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#LambdaConfig: close({LambdaFunctionArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenSearchServiceConfig": close({
+#OpenSearchServiceConfig: close({
 	AwsRegion!: string | fn.#StringExpression
 	Endpoint!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsHttpEndpointConfig": close({
+#RdsHttpEndpointConfig: close({
 	AwsRegion!:           string | fn.#StringExpression
 	AwsSecretStoreArn!:   string | fn.#StringExpression
 	DatabaseName?:        string | fn.#StringExpression
@@ -99,12 +123,9 @@ _#defs: "/$defs/Properties/definitions/RdsHttpEndpointConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RelationalDatabaseConfig": close({
-	RdsHttpEndpointConfig?:        _#defs."/$defs/Properties/definitions/RdsHttpEndpointConfig" | fn.#ObjectExpression
+#RelationalDatabaseConfig: close({
+	// Information about the Amazon RDS resource.
+	RdsHttpEndpointConfig?:        #RdsHttpEndpointConfig
 	RelationalDatabaseSourceType!: "RDS_HTTP_ENDPOINT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::DataSource"
-	Properties!: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,51 +13,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DataSync::LocationAzureBlob.
-#Properties: close({
-	AgentArns?: list.MaxItems(8) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
-		strings.MinRunes(0) &
-		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	AzureAccessTier?:             "HOT" | "COOL" | "ARCHIVE" | fn.#StringExpression
-	AzureBlobAuthenticationType!: "SAS" | "NONE" | "OIDC" | fn.#StringExpression
-	AzureBlobContainerUrl?: strings.MaxRunes(325) &
-	=~"^https://[A-Za-z0-9]((.|-+)?[A-Za-z0-9]){0,252}/[a-z0-9](-?[a-z0-9]){2,62}$" |
-	fn.#StringExpression
-	AzureBlobSasConfiguration?: _#defs."/$defs/Properties/definitions/AzureBlobSasConfiguration"
-	AzureBlobType?:             "BLOCK" | fn.#StringExpression
-	CmkSecretConfig?: close({
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(2048) &
-		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
-	FederatedIdentity?:  _#defs."/$defs/Properties/definitions/AzureFederatedIdentityConfig"
-	Subdirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::LocationAzureBlob"
+	Properties!: close({
+		AgentArns?: list.MaxItems(8) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
+			fn.#StringExpression
+		] |
 		fn.#ListExpression
-})
+		AzureAccessTier?:             "HOT" | "COOL" | "ARCHIVE" | fn.#StringExpression
+		AzureBlobAuthenticationType!: "SAS" | "NONE" | "OIDC" | fn.#StringExpression
+		AzureBlobContainerUrl?: strings.MaxRunes(325) &
+		=~"^https://[A-Za-z0-9]((.|-+)?[A-Za-z0-9]){0,252}/[a-z0-9](-?[a-z0-9]){2,62}$" |
+		fn.#StringExpression
+		AzureBlobSasConfiguration?: #AzureBlobSasConfiguration
+		AzureBlobType?:             "BLOCK" | fn.#StringExpression
+		CmkSecretConfig?: close({
+			KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		CustomSecretConfig?: #CustomSecretConfig
+		FederatedIdentity?:  #AzureFederatedIdentityConfig
+		Subdirectory?: strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AzureBlobSasConfiguration": close(
+#AzureBlobSasConfiguration: close(
 	{AzureBlobSasToken!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"(^.+$)" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AzureFederatedIdentityConfig": close({
+#AzureFederatedIdentityConfig: close({
 	AwsIamRole?: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" |
 	fn.#StringExpression
-	AzureOidc?: _#defs."/$defs/Properties/definitions/AzureOidcConfig"
+	AzureOidc?: #AzureOidcConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AzureOidcConfig": close({
+#AzureOidcConfig: close({
 	ClientId!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
@@ -69,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/AzureOidcConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -82,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	SecretAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -95,19 +99,15 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::LocationAzureBlob"
-	Properties!: #Properties
-}

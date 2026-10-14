@@ -8,21 +8,21 @@ import "list"
 
 // Resource Type definition for AWS::RDS::DBSecurityGroup
 #Properties: close({
-	DBSecurityGroupIngress!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Ingress"]
+	DBSecurityGroupIngress!: list.UniqueItems() & [...#Ingress]
 	EC2VpcId?:               string
 	GroupDescription!:       string
 	Id?:                     string
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                   [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Ingress": close({
+#Ingress: close({
 	CIDRIP?:                  string
 	EC2SecurityGroupId?:      =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	EC2SecurityGroupName?:    string
 	EC2SecurityGroupOwnerId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

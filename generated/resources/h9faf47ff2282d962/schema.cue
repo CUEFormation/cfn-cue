@@ -9,13 +9,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::SubscriptionDefinition
-#Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/SubscriptionDefinitionVersion"
-	Name!:           string | fn.#StringExpression
-	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::SubscriptionDefinition"
+	Properties!: close({
+		InitialVersion?: #SubscriptionDefinitionVersion
+		Name!:           string | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Subscription": close({
+#Subscription: close({
 	Id!:      string | fn.#StringExpression
 	Source!:  string | fn.#StringExpression
 	Subject!: string | fn.#StringExpression
@@ -23,11 +26,4 @@ _#defs: "/$defs/Properties/definitions/Subscription": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubscriptionDefinitionVersion": close(
-	{Subscriptions!: [..._#defs."/$defs/Properties/definitions/Subscription"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::SubscriptionDefinition"
-	Properties!: #Properties
-}
+#SubscriptionDefinitionVersion: close({Subscriptions!: [...#Subscription] | fn.#ListExpression}) | fn.#ObjectExpression

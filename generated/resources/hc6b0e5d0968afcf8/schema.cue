@@ -14,38 +14,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // This resource schema represents the Profiling Group resource in the Amazon
 // CodeGuru Profiler service.
-#Properties: close({
-	AgentPermissions?: close({Principals!: [..._#defs."/$defs/Properties/definitions/IamArn"] | fn.#ListExpression}) |
-		fn.#ObjectExpression
-	AnomalyDetectionNotificationConfiguration?: [..._#defs."/$defs/Properties/definitions/Channel"] | fn.#ListExpression
-	ComputePlatform?:                           "Default" | "AWSLambda" | fn.#StringExpression
-	ProfilingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeGuruProfiler::ProfilingGroup"
+	Properties!: close({
+		AgentPermissions?: close({Principals!: [...#IamArn] | fn.#ListExpression}) | fn.#ObjectExpression
+		AnomalyDetectionNotificationConfiguration?: [...#Channel] | fn.#ListExpression
+		ComputePlatform?:                           "Default" | "AWSLambda" | fn.#StringExpression
+		ProfilingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-]+$" | fn.#StringExpression
+		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Channel": {
-	channelId?:  _#defs."/$defs/Properties/definitions/ChannelId"
-	channelUri!: _#defs."/$defs/Properties/definitions/ChannelUri"
+#Channel: {
+	channelId?:  #ChannelId
+	channelUri!: #ChannelUri
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelId": =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" |
+#ChannelId: =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" | fn.#StringExpression
+
+#ChannelUri: =~"^arn:aws([-\\w]*):[a-z-]+:(([a-z]+-)+[0-9]+)?:([0-9]{12}):[^.]+$" | fn.#StringExpression
+
+#IamArn: =~"^arn:aws([-\\w]*):iam::([0-9]{12}):[\\S]+$" | fn.#StringExpression
+
+#ProfilingGroupArn: =~"^arn:aws([-\\w]*):codeguru-profiler:(([a-z]+-)+[0-9]+):([0-9]{12}):profilingGroup/[^.]+$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelUri": =~"^arn:aws([-\\w]*):[a-z-]+:(([a-z]+-)+[0-9]+)?:([0-9]{12}):[^.]+$" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/IamArn": =~"^arn:aws([-\\w]*):iam::([0-9]{12}):[\\S]+$" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ProfilingGroupArn": =~"^arn:aws([-\\w]*):codeguru-profiler:(([a-z]+-)+[0-9]+):([0-9]{12}):profilingGroup/[^.]+$" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeGuruProfiler::ProfilingGroup"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -45,7 +45,7 @@ import (
 	DirectInternetAccess?: "Disabled" | "Enabled"
 
 	// Information on the IMDS configuration of the notebook instance.
-	InstanceMetadataServiceConfiguration?: _#defs."/$defs/Properties/definitions/InstanceMetadataServiceConfiguration"
+	InstanceMetadataServiceConfiguration?: #InstanceMetadataServiceConfiguration
 
 	// The type of ML compute instance to launch for the notebook instance. Expect
 	// some interruption of service if this parameter is changed as CloudFormation
@@ -296,7 +296,7 @@ import (
 	SubnetId?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$"
 
 	// A list of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The size, in GB, of the ML storage volume to attach to the notebook instance.
 	// The default value is 5 GB. Expect some interruption of service if this
@@ -306,7 +306,7 @@ import (
 })
 
 // Information on the IMDS configuration of the notebook instance
-_#defs: "/$defs/Properties/definitions/InstanceMetadataServiceConfiguration": close({
+#InstanceMetadataServiceConfiguration: close({
 	// Indicates the minimum IMDS version that the notebook instance supports. When
 	// passed as part of CreateNotebookInstance, if no value is selected, then it
 	// defaults to IMDSv1. This means that both IMDSv1 and IMDSv2 are supported. If
@@ -316,7 +316,7 @@ _#defs: "/$defs/Properties/definitions/InstanceMetadataServiceConfiguration": cl
 
 // A tag object that consists of a key and an optional value, used to manage
 // metadata for SageMaker AWS resources.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. Tag keys must be unique per resource.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

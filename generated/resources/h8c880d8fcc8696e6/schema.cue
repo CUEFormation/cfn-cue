@@ -17,28 +17,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RUM::AppMonitor
-#Properties: close({
-	AppMonitorConfiguration?:    _#defs."/$defs/Properties/definitions/AppMonitorConfiguration"
-	CustomEvents?:               _#defs."/$defs/Properties/definitions/CustomEvents"
-	CwLogEnabled?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DeobfuscationConfiguration?: _#defs."/$defs/Properties/definitions/DeobfuscationConfiguration"
-	Domain?:                     strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	DomainList?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
-	Platform?:       "Web" | "Android" | "iOS" | fn.#StringExpression
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
-	Tags?:           _#defs."/$defs/Properties/definitions/TagDef"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RUM::AppMonitor"
+	Properties!: close({
+		AppMonitorConfiguration?: #AppMonitorConfiguration
+		CustomEvents?:            #CustomEvents
+		CwLogEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DeobfuscationConfiguration?: #DeobfuscationConfiguration
+		Domain?:                     strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+		DomainList?: list.MaxItems(5) & list.MinItems(1) & [
+			...strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
+		Platform?:       "Web" | "Android" | "iOS" | fn.#StringExpression
+		ResourcePolicy?: #ResourcePolicy
+		Tags?:           #TagDef
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AppMonitorConfiguration": close({
-	AllowCookies?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableXRay?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExcludedPages?: _#defs."/$defs/Properties/definitions/Pages" | fn.#ListExpression
-	FavoritePages?: _#defs."/$defs/Properties/definitions/FavoritePages" | fn.#ListExpression
-	GuestRoleArn?: _#defs."/$defs/Properties/definitions/Arn" &
+#AppMonitorConfiguration: close({
+	AllowCookies?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableXRay?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// A list of URLs in your website or application to exclude from RUM data
+	// collection. You can't include both ExcludedPages and IncludedPages in the
+	// same operation.
+	ExcludedPages?: #Pages
+
+	// A list of pages in the RUM console that are to be displayed with a favorite icon.
+	FavoritePages?: #FavoritePages
+	GuestRoleArn?: #Arn &
 	(null |
 	bool |
 	number |
@@ -47,11 +56,12 @@ _#defs: "/$defs/Properties/definitions/AppMonitorConfiguration": close({
 	{...}) |
 	fn.#StringExpression
 	IdentityPoolId?: strings.MaxRunes(55) & strings.MinRunes(1) & =~"[\\w-]+:[0-9a-f-]+" | fn.#StringExpression
-	IncludedPages?:  _#defs."/$defs/Properties/definitions/Pages" | fn.#ListExpression
-	MetricDestinations?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDestination"
-	] |
-		fn.#ListExpression
+
+	// If this app monitor is to collect data from only certain pages in your
+	// application, this structure lists those pages. You can't include both
+	// ExcludedPages and IncludedPages in the same operation.
+	IncludedPages?:      #Pages
+	MetricDestinations?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#MetricDestination] | fn.#ListExpression
 	SessionSampleRate?: <=1 & >=0 |
 		{
 			string &
@@ -72,20 +82,21 @@ _#defs: "/$defs/Properties/definitions/AppMonitorConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Telemetries?: [..._#defs."/$defs/Properties/definitions/Telemetry"] | fn.#ListExpression
+	Telemetries?: [...#Telemetry] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" | fn.#StringExpression
+#Arn: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomEvents": close(
-	{Status?: _#defs."/$defs/Properties/definitions/CustomEventsStatus" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#CustomEvents: close({
+	// Indicates whether AppMonitor accepts custom events.
+	Status?: #CustomEventsStatus
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomEventsStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#CustomEventsStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeobfuscationConfiguration": close({
+#DeobfuscationConfiguration: close({
 	JavaScriptSourceMaps?: close({
 		S3Uri?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
@@ -97,10 +108,9 @@ _#defs: "/$defs/Properties/definitions/DeobfuscationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FavoritePages": list.MaxItems(50) & [...] & [...string | fn.#StringExpression] |
-	fn.#ListExpression
+#FavoritePages: list.MaxItems(50) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDefinition": close({
+#MetricDefinition: close({
 	DimensionKeys?: {...} | fn.#ObjectExpression
 	EventPattern?:  strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -110,46 +120,35 @@ _#defs: "/$defs/Properties/definitions/MetricDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDestination": close({
+#MetricDestination: close({
 	Destination!:    "CloudWatch" | "Evidently" | fn.#StringExpression
 	DestinationArn?: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" | fn.#StringExpression
 	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" |
 		fn.#StringExpression
-	MetricDefinitions?: list.MaxItems(2000) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDefinition"
-	] |
-		fn.#ListExpression
+	MetricDefinitions?: list.MaxItems(2000) & list.UniqueItems() & [...] & [...#MetricDefinition] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Pages": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Url"
-] |
-	fn.#ListExpression
+#Pages: list.MaxItems(50) & [...] & [...#Url] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({
+#ResourcePolicy: close({
 	PolicyDocument!:   string | fn.#StringExpression
 	PolicyRevisionId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagDef": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#TagDef: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Telemetry": "errors" | "performance" | "http" | fn.#StringExpression
+#Telemetry: "errors" | "performance" | "http" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Url": strings.MaxRunes(1260) &
+#Url: strings.MaxRunes(1260) &
 strings.MinRunes(1) &
 =~"https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RUM::AppMonitor"
-	Properties!: #Properties
-}

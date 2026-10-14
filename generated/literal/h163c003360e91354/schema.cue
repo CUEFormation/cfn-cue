@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"list"
+	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,13 +15,13 @@ import (
 // agent performance.
 #Properties: close({
 	// The configuration for clustering analysis of evaluation results.
-	ClusteringConfig?: _#defs."/$defs/Properties/definitions/ClusteringConfig"
+	ClusteringConfig?: #ClusteringConfig
 
 	// The timestamp when the online evaluation configuration was created.
 	CreatedAt?: time.Time
 
 	// The data source configuration that specifies CloudWatch log groups and service names to monitor.
-	DataSourceConfig!: _#defs."/$defs/Properties/definitions/DataSourceConfig"
+	DataSourceConfig!: #DataSourceConfig
 
 	// The description of the online evaluation configuration.
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
@@ -33,13 +33,13 @@ import (
 	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
 
 	// The list of evaluators to apply during online evaluation.
-	Evaluators?: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/EvaluatorReference"]
+	Evaluators?: list.MaxItems(25) & [...] & [...#EvaluatorReference]
 
 	// The execution status indicating whether the online evaluation is currently running.
-	ExecutionStatus?: _#defs."/$defs/Properties/definitions/ExecutionStatus"
+	ExecutionStatus?: #ExecutionStatus
 
 	// The list of insights to enable for failure analysis.
-	Insights?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Insight"]
+	Insights?: list.MaxItems(10) & [...] & [...#Insight]
 
 	// The Amazon Resource Name (ARN) of the online evaluation configuration.
 	OnlineEvaluationConfigArn?:
@@ -52,29 +52,23 @@ import (
 	OnlineEvaluationConfigName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$"
 
 	// The configuration that specifies where evaluation results should be written.
-	OutputConfig?: _#defs."/$defs/Properties/definitions/OutputConfig"
+	OutputConfig?: #OutputConfig
 
 	// The evaluation rule that defines sampling configuration, filters, and session detection settings.
-	Rule!: _#defs."/$defs/Properties/definitions/Rule"
+	Rule!: #Rule
 
 	// The status of the online evaluation configuration.
-	Status?: _#defs."/$defs/Properties/definitions/OnlineEvaluationConfigStatus"
+	Status?: #OnlineEvaluationConfigStatus
 
 	// A list of tags to assign to the online evaluation configuration.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The timestamp when the online evaluation configuration was last updated.
 	UpdatedAt?: time.Time
 })
 
 // The configuration for reading agent traces from CloudWatch logs.
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": matchN(1, [{
-	LogGroupNames!: _
-	...
-}, {
-	LogGroupNamePrefixes!: _
-	...
-}]) & close({
+#CloudWatchLogsInputConfig: close({
 	// The list of CloudWatch log group name prefixes to monitor for agent traces.
 	// Mutually exclusive with LogGroupNames; specify exactly one of the two
 	// selectors.
@@ -91,10 +85,15 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsInputConfig": matchN(1, [{
 	ServiceNames!: list.MaxItems(1) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$"
 	]
-})
+	if LogGroupNames != _|_ if LogGroupNames."Fn::If" == _|_ {
+		LogGroupNamePrefixes?: close({"Fn::If": _}) | error(
+			"LogGroupNamePrefixes cannot be used with LogGroupNames; set exactly one of LogGroupNames, LogGroupNamePrefixes",
+		)
+	}
+}) & matchN(>=1, [{LogGroupNames!: _}, {LogGroupNamePrefixes!: _}])
 
 // The CloudWatch configuration for writing evaluation results.
-_#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({
+#CloudWatchOutputConfig: close({
 	// The CloudWatch log group name for evaluation results. Omit to use the
 	// service-managed default log group.
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$"
@@ -111,30 +110,28 @@ _#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({
 })
 
 // The configuration for clustering analysis of evaluation results.
-_#defs: "/$defs/Properties/definitions/ClusteringConfig": close({
+#ClusteringConfig: close({
 	// The list of frequencies at which clustering reports are generated.
-	Frequencies!: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/ClusteringFrequency"]
+	Frequencies!: list.MaxItems(3) & [...] & [...#ClusteringFrequency]
 })
 
 // The frequency at which clustering reports are generated.
-_#defs: "/$defs/Properties/definitions/ClusteringFrequency": "DAILY" | "WEEKLY" | "MONTHLY"
+#ClusteringFrequency: "DAILY" | "WEEKLY" | "MONTHLY"
 
 // The configuration that specifies where to read agent traces for online evaluation.
-_#defs: "/$defs/Properties/definitions/DataSourceConfig": close(
-	{CloudWatchLogs!: _#defs."/$defs/Properties/definitions/CloudWatchLogsInputConfig"},
-)
+#DataSourceConfig: close({CloudWatchLogs!: #CloudWatchLogsInputConfig})
 
 // The reference to an evaluator used in online evaluation configurations.
-_#defs: "/$defs/Properties/definitions/EvaluatorReference": close({
+#EvaluatorReference: close({
 	// The unique identifier of the evaluator.
 	EvaluatorId!:
 		=~"^(Builtin\\.[a-zA-Z0-9._-]+|ThirdParty\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$"
 })
 
-_#defs: "/$defs/Properties/definitions/ExecutionStatus": "ENABLED" | "DISABLED"
+#ExecutionStatus: "ENABLED" | "DISABLED"
 
 // The filter that applies conditions to agent traces during online evaluation.
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	// The key or field name to filter on within the agent trace data.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$"
 
@@ -147,11 +144,11 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 		"LessThanOrEqual" |
 		"Contains" |
 		"NotContains"
-	Value!: _#defs."/$defs/Properties/definitions/FilterValue"
+	Value!: #FilterValue
 })
 
 // The value used in filter comparisons.
-_#defs: "/$defs/Properties/definitions/FilterValue": close({
+#FilterValue: close({
 	// The boolean value for true/false filtering conditions.
 	BooleanValue?: bool
 
@@ -163,45 +160,38 @@ _#defs: "/$defs/Properties/definitions/FilterValue": close({
 })
 
 // An insight configuration for failure analysis.
-_#defs: "/$defs/Properties/definitions/Insight": close({
+#Insight: close({
 	// The unique identifier of the insight.
 	InsightId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9._]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/OnlineEvaluationConfigStatus": "ACTIVE" |
-	"CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"DELETING"
+#OnlineEvaluationConfigStatus: "ACTIVE" | "CREATING" | "CREATE_FAILED" | "UPDATING" | "UPDATE_FAILED" | "DELETING"
 
 // The configuration that specifies where evaluation results should be written.
-_#defs: "/$defs/Properties/definitions/OutputConfig": close(
-	{CloudWatchConfig?: _#defs."/$defs/Properties/definitions/CloudWatchOutputConfig"},
-)
+#OutputConfig: close({CloudWatchConfig?: #CloudWatchOutputConfig})
 
 // The evaluation rule that defines sampling configuration, filtering criteria,
 // and session detection settings.
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	// The list of filters that determine which agent traces should be included in the evaluation.
-	Filters?:        list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Filter"]
-	SamplingConfig!: _#defs."/$defs/Properties/definitions/SamplingConfig"
-	SessionConfig?:  _#defs."/$defs/Properties/definitions/SessionConfig"
+	Filters?:        list.MaxItems(5) & [...] & [...#Filter]
+	SamplingConfig!: #SamplingConfig
+	SessionConfig?:  #SessionConfig
 })
 
 // The configuration that controls what percentage of agent traces are sampled for evaluation.
-_#defs: "/$defs/Properties/definitions/SamplingConfig": close({
+#SamplingConfig: close({
 	// The percentage of agent traces to sample for evaluation.
 	SamplingPercentage!: <=100 & >=0.01
 })
 
 // The configuration that defines how agent sessions are detected.
-_#defs: "/$defs/Properties/definitions/SessionConfig": close({
+#SessionConfig: close({
 	// The number of minutes of inactivity after which an agent session is considered complete.
 	SessionTimeoutMinutes!: int & <=1440 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

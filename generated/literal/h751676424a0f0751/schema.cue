@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -29,20 +29,20 @@ import (
 	ProfileName!: strings.MaxRunes(100) & strings.MinRunes(3)
 
 	// The profile questions.
-	ProfileQuestions!: [..._#defs."/$defs/Properties/definitions/ProfileQuestionUpdate"]
+	ProfileQuestions!: [...#ProfileQuestionUpdate]
 
 	// The profile version.
 	ProfileVersion?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[A-Za-z0-9.\\-]+$"
 
 	// The tags assigned to the profile.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The date and time the profile was last updated.
 	UpdatedAt?: time.Time
 })
 
 // An update to a profile question.
-_#defs: "/$defs/Properties/definitions/ProfileQuestionUpdate": close({
+#ProfileQuestionUpdate: close({
 	// The ID of the question.
 	QuestionId?: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/ProfileQuestionUpdate": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

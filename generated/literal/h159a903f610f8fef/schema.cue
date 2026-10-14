@@ -26,10 +26,10 @@ import "strings"
 	ScheduleIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0)
 
 	// An optional set of tags for the snapshot schedule.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key, or name, for the resource tag.
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1)
 

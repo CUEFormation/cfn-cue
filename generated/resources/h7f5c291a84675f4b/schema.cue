@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,57 +18,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::GameSessionQueue resource creates an Amazon GameLift
 // (GameLift) game session queue.
-#Properties: close({
-	CustomEventData?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	Destinations?:    [..._#defs."/$defs/Properties/definitions/GameSessionQueueDestination"] | fn.#ListExpression
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]+" | fn.#StringExpression
-	NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]*(\\.fifo)?" |
-	fn.#StringExpression
-	PlayerLatencyPolicies?: [..._#defs."/$defs/Properties/definitions/PlayerLatencyPolicy"] | fn.#ListExpression
-	PriorityConfiguration?: _#defs."/$defs/Properties/definitions/PriorityConfiguration" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	TimeoutInSeconds?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::GameSessionQueue"
+	Properties!: close({
+		CustomEventData?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
+		Destinations?:        [...#GameSessionQueueDestination] | fn.#ListExpression
+		FilterConfiguration?: #FilterConfiguration & fn.#Object & {...} | fn.#ObjectExpression
+		Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]+" | fn.#StringExpression
+		NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]*(\\.fifo)?" |
+		fn.#StringExpression
+		PlayerLatencyPolicies?: [...#PlayerLatencyPolicy] | fn.#ListExpression
+		PriorityConfiguration?: #PriorityConfiguration & fn.#Object & {...} | fn.#ObjectExpression
+		Tags?:                  list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TimeoutInSeconds?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AllowedLocations": list.MaxItems(100) & list.MinItems(1) & [
+#AllowedLocations: list.MaxItems(100) & list.MinItems(1) & [
 	...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z]+(-([a-z]+|\\d))*" | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/FilterConfiguration": close(
-	{AllowedLocations?: _#defs."/$defs/Properties/definitions/AllowedLocations"},
-) |
-	fn.#ObjectExpression
+#FilterConfiguration: close({AllowedLocations?: #AllowedLocations}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GameSessionQueueDestination": close(
+#GameSessionQueueDestination: close(
 	{DestinationArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocationOrder": list.MaxItems(100) & list.MinItems(1) & [
+#LocationOrder: list.MaxItems(100) & list.MinItems(1) & [
 	...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PlayerLatencyPolicy": close({
+#PlayerLatencyPolicy: close({
 	MaximumIndividualPlayerLatencyMilliseconds?: int & >=0 |
 		{
 			string &
@@ -102,23 +101,19 @@ _#defs: "/$defs/Properties/definitions/PlayerLatencyPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PriorityConfiguration": close({
-	LocationOrder?: _#defs."/$defs/Properties/definitions/LocationOrder"
-	PriorityOrder?: _#defs."/$defs/Properties/definitions/PriorityOrder"
+#PriorityConfiguration: close({
+	LocationOrder?: #LocationOrder
+	PriorityOrder?: #PriorityOrder
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PriorityOrder": list.MaxItems(4) & list.MinItems(1) & [
+#PriorityOrder: list.MaxItems(4) & list.MinItems(1) & [
 	..."LATENCY" | "COST" | "DESTINATION" | "LOCATION" | fn.#StringExpression
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::GameSessionQueue"
-	Properties!: #Properties
-}

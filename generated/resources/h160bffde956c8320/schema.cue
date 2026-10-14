@@ -14,16 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::HealthAgent::Domain. Creates and manages a
 // HealthAgent Domain resource.
-#Properties: close({
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::HealthAgent::Domain"
-	Properties!: #Properties
+	Type!: "AWS::HealthAgent::Domain"
+	Properties!: close({
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: list.UniqueItems() & [...close({
+			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
 }

@@ -19,41 +19,37 @@ import (
 
 	// Information about the exclude resource tags used to identify resources that
 	// are excluded by the retention rule.
-	ExcludeResourceTags?: list.MaxItems(5) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceTag"
-	]
+	ExcludeResourceTags?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#ResourceTag]
 
 	// The unique ID of the retention rule.
 	Identifier?: =~"[0-9a-zA-Z]{11}"
 
 	// Information about the retention rule lock configuration.
-	LockConfiguration?: _#defs."/$defs/Properties/definitions/UnlockDelay"
+	LockConfiguration?: #UnlockDelay
 
 	// The lock state for the retention rule.
 	LockState?: =~"locked|pending_unlock|unlocked"
 
 	// Information about the resource tags used to identify resources that are
 	// retained by the retention rule.
-	ResourceTags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceTag"
-	]
+	ResourceTags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#ResourceTag]
 
 	// The resource type retained by the retention rule.
 	ResourceType!: "EBS_SNAPSHOT" | "EC2_IMAGE" | "EBS_VOLUME"
 
 	// Information about the retention period for which the retention rule is to retain resources.
-	RetentionPeriod!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
+	RetentionPeriod!: #RetentionPeriod
 
 	// The state of the retention rule. Only retention rules that are in the
 	// available state retain resources.
 	Status?: =~"pending|available"
 
 	// Information about the tags assigned to the retention rule.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // The resource tag of the rule.
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	// The tag key of the resource.
 	ResourceTagKey!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]{1,128}$"
 
@@ -62,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/ResourceTag": close({
 })
 
 // The retention period of the rule.
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	// The retention period unit of the rule
 	RetentionPeriodUnit!: "DAYS"
 
@@ -71,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
 })
 
 // Metadata of a retention rule, consisting of a key-value pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A unique identifier for the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -79,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/UnlockDelay": close({
+#UnlockDelay: close({
 	// The unit of time in which to measure the unlock delay. Currently, the unlock
 	// delay can be measure only in days.
 	UnlockDelayUnit?: "DAYS"

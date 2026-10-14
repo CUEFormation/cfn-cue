@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -39,47 +39,45 @@ import (
 	FunctionCode!: string
 
 	// Contains configuration information about a CloudFront function.
-	FunctionConfig!: _#defs."/$defs/Properties/definitions/FunctionConfig"
+	FunctionConfig!: #FunctionConfig
 
 	// Contains metadata about a CloudFront function.
-	FunctionMetadata?: _#defs."/$defs/Properties/definitions/FunctionMetadata"
+	FunctionMetadata?: #FunctionMetadata
 
 	// A name to identify the function.
 	Name!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$"
 	Stage?: string
 
 	// A complex type that contains zero or more ``Tag`` elements.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // Contains configuration information about a CloudFront function.
-_#defs: "/$defs/Properties/definitions/FunctionConfig": close({
+#FunctionConfig: close({
 	// A comment to describe the function. The comment cannot be longer than 128 characters.
 	Comment!: string
 
 	// The configuration for the key value store associations.
-	KeyValueStoreAssociations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KeyValueStoreAssociation"
-	]
+	KeyValueStoreAssociations?: list.UniqueItems() & [...#KeyValueStoreAssociation]
 
 	// The function's runtime environment version.
 	Runtime!: "cloudfront-js-1.0" | "cloudfront-js-2.0"
 })
 
 // Contains metadata about a CloudFront function.
-_#defs: "/$defs/Properties/definitions/FunctionMetadata": close({
+#FunctionMetadata: close({
 	// The Amazon Resource Name (ARN) of the function. The ARN uniquely identifies the function.
 	FunctionARN?: string
 })
 
 // The key value store association.
-_#defs: "/$defs/Properties/definitions/KeyValueStoreAssociation": close({
+#KeyValueStoreAssociation: close({
 	// The Amazon Resource Name (ARN) of the key value store association.
 	KeyValueStoreARN!: string
 })
 
 // A complex type that contains ``Tag`` key and ``Tag`` value.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that contains ``Tag`` key.
 	// The string length should be between 1 and 128 characters. Valid characters
 	// include ``a-z``, ``A-Z``, ``0-9``, space, and the special characters ``_ - .

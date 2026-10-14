@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,55 +17,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::FirewallPolicy
-#Properties: close({
-	Description?:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	FirewallPolicy!:     _#defs."/$defs/Properties/definitions/FirewallPolicy"
-	FirewallPolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkFirewall::FirewallPolicy"
+	Properties!: close({
+		Description?:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+		FirewallPolicy!:     #FirewallPolicy
+		FirewallPolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		Tags?:               list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ActionDefinition": close(
-	{PublishMetricAction?: _#defs."/$defs/Properties/definitions/PublishMetricAction"},
-) |
-	fn.#ObjectExpression
+#ActionDefinition: close({PublishMetricAction?: #PublishMetricAction}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAction": close({
-	ActionDefinition!: _#defs."/$defs/Properties/definitions/ActionDefinition"
+#CustomAction: close({
+	ActionDefinition!: #ActionDefinition
 	ActionName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Dimension": close(
-	{Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" | fn.#StringExpression},
-) |
+#Dimension: close({Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallPolicy": close({
-	EnableTLSSessionHolding?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PolicyVariables?: close({RuleVariables?: _#defs."/$defs/Properties/definitions/RuleVariables"}) |
-		fn.#ObjectExpression
-	StatefulDefaultActions?: [...string | fn.#StringExpression] | fn.#ListExpression
-	StatefulEngineOptions?:  _#defs."/$defs/Properties/definitions/StatefulEngineOptions"
-	StatefulRuleGroupReferences?: [..._#defs."/$defs/Properties/definitions/StatefulRuleGroupReference"] |
-		fn.#ListExpression
-	StatelessCustomActions?:          [..._#defs."/$defs/Properties/definitions/CustomAction"] | fn.#ListExpression
-	StatelessDefaultActions!:         [...string | fn.#StringExpression] | fn.#ListExpression
+#FirewallPolicy: close({
+	EnableTLSSessionHolding?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PolicyVariables?:             close({RuleVariables?: #RuleVariables}) | fn.#ObjectExpression
+	StatefulDefaultActions?:      [...string | fn.#StringExpression] | fn.#ListExpression
+	StatefulEngineOptions?:       #StatefulEngineOptions
+	StatefulRuleGroupReferences?: [...#StatefulRuleGroupReference] | fn.#ListExpression
+	StatelessCustomActions?:      [...#CustomAction] | fn.#ListExpression
+	StatelessDefaultActions!:     [...string | fn.#StringExpression] | fn.#ListExpression
 	StatelessFragmentDefaultActions!: [...string | fn.#StringExpression] | fn.#ListExpression
-	StatelessRuleGroupReferences?: [..._#defs."/$defs/Properties/definitions/StatelessRuleGroupReference"] |
-		fn.#ListExpression
-	TLSInspectionConfigurationArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
+	StatelessRuleGroupReferences?:    [...#StatelessRuleGroupReference] | fn.#ListExpression
+	TLSInspectionConfigurationArn?:   #ResourceArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IPSet": close(
-	{Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#IPSet: close({Definition?: [...#VariableDefinition] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OverrideAction": "DROP_TO_ALERT" | fn.#StringExpression
+#OverrideAction: "DROP_TO_ALERT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Priority": int & <=65535 & >=1 |
+#Priority: int & <=65535 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -82,23 +73,19 @@ _#defs: "/$defs/Properties/definitions/Priority": int & <=65535 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PublishMetricAction": close({
-	Dimensions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Dimension"] |
-		fn.#ListExpression
-}) |
+#PublishMetricAction: close({Dimensions!: list.MaxItems(1) & list.MinItems(1) & [...#Dimension] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" |
-fn.#StringExpression
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuleOrder": "DEFAULT_ACTION_ORDER" | "STRICT_ORDER" | fn.#StringExpression
+#RuleOrder: "DEFAULT_ACTION_ORDER" | "STRICT_ORDER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuleVariables": close({
+#RuleVariables: close({
 
-	{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSet"}}) |
+	{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSet}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatefulEngineOptions": close({
+#StatefulEngineOptions: close({
 	FlowTimeouts?: close({
 		TcpIdleTimeoutSeconds?: int & <=6000 & >=60 |
 			{
@@ -120,40 +107,33 @@ _#defs: "/$defs/Properties/definitions/StatefulEngineOptions": close({
 			fn.#NumberExpression
 	}) |
 		fn.#ObjectExpression
-	RuleOrder?:             _#defs."/$defs/Properties/definitions/RuleOrder"
-	StreamExceptionPolicy?: _#defs."/$defs/Properties/definitions/StreamExceptionPolicy"
+	RuleOrder?:             #RuleOrder
+	StreamExceptionPolicy?: #StreamExceptionPolicy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatefulRuleGroupOverride": close(
-	{Action?: _#defs."/$defs/Properties/definitions/OverrideAction"},
-) |
-	fn.#ObjectExpression
+#StatefulRuleGroupOverride: close({Action?: #OverrideAction}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatefulRuleGroupReference": close({
+#StatefulRuleGroupReference: close({
 	DeepThreatInspection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Override?:             _#defs."/$defs/Properties/definitions/StatefulRuleGroupOverride"
-	Priority?:             _#defs."/$defs/Properties/definitions/Priority"
-	ResourceArn!:          _#defs."/$defs/Properties/definitions/ResourceArn"
+	Override?:             #StatefulRuleGroupOverride
+	Priority?:             #Priority
+	ResourceArn!:          #ResourceArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatelessRuleGroupReference": close({
-	Priority!:    _#defs."/$defs/Properties/definitions/Priority"
-	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArn"
+#StatelessRuleGroupReference: close({
+	Priority!:    #Priority
+	ResourceArn!: #ResourceArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamExceptionPolicy": "DROP" | "CONTINUE" | "REJECT" | fn.#StringExpression
+#StreamExceptionPolicy: "DROP" | "CONTINUE" | "REJECT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VariableDefinition": strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkFirewall::FirewallPolicy"
-	Properties!: #Properties
-}
+#VariableDefinition: strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression

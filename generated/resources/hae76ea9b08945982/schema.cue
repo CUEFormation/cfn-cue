@@ -13,33 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::CloudFormation::ChangeSet
-#Properties: close({
-	Capabilities?: [..."CAPABILITY_IAM" | "CAPABILITY_NAMED_IAM" | "CAPABILITY_AUTO_EXPAND" | fn.#StringExpression] |
-		fn.#ListExpression
-	ChangeSetName!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][-a-zA-Z0-9]*$" | fn.#StringExpression
-	ChangeSetType?:  "CREATE" | "UPDATE" | "IMPORT" | fn.#StringExpression
-	DeploymentMode?: "REVERT_DRIFT" | fn.#StringExpression
-	Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ImportExistingResources?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IncludeNestedStacks?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NotificationARNs?:        list.MaxItems(5) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	OnStackFailure?:          "DO_NOTHING" | "ROLLBACK" | "DELETE" | fn.#StringExpression
-	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	StackName!: strings.MinRunes(1) &
-	=~"^([a-zA-Z][-a-zA-Z0-9]*)|(arn:\\b(aws|aws-us-gov|aws-cn)\\b:[-a-zA-Z0-9:/._+]*)$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	TemplateBody?:        strings.MinRunes(1) | fn.#StringExpression
-	TemplateURL?:         strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
-	UsePreviousTemplate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::ChangeSet"
-	Properties!: #Properties
+	Type!: "AWS::CloudFormation::ChangeSet"
+	Properties!: close({
+		Capabilities?: [..."CAPABILITY_IAM" | "CAPABILITY_NAMED_IAM" | "CAPABILITY_AUTO_EXPAND" | fn.#StringExpression] |
+			fn.#ListExpression
+		ChangeSetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][-a-zA-Z0-9]*$" | fn.#StringExpression
+		ChangeSetType?: "CREATE" | "UPDATE" | "IMPORT" | fn.#StringExpression
+		DeploymentMode?:          "REVERT_DRIFT" | fn.#StringExpression
+		Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		ImportExistingResources?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IncludeNestedStacks?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		NotificationARNs?:        list.MaxItems(5) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		OnStackFailure?:          "DO_NOTHING" | "ROLLBACK" | "DELETE" | fn.#StringExpression
+		RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		StackName!: strings.MinRunes(1) &
+		=~"^([a-zA-Z][-a-zA-Z0-9]*)|(arn:\\b(aws|aws-us-gov|aws-cn)\\b:[-a-zA-Z0-9:/._+]*)$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...close({
+			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		TemplateBody?:        strings.MinRunes(1) | fn.#StringExpression
+		TemplateURL?:         strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
+		UsePreviousTemplate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
 }

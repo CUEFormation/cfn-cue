@@ -27,33 +27,31 @@ import (
 	PartnerType?: "Sidewalk"
 
 	// The Sidewalk account credentials.
-	Sidewalk?: _#defs."/$defs/Properties/definitions/SidewalkAccountInfo"
+	Sidewalk?: #SidewalkAccountInfo
 
 	// The Sidewalk account credentials.
-	SidewalkResponse?: _#defs."/$defs/Properties/definitions/SidewalkAccountInfoWithFingerprint"
+	SidewalkResponse?: #SidewalkAccountInfoWithFingerprint
 
 	// The Sidewalk account credentials.
-	SidewalkUpdate?: _#defs."/$defs/Properties/definitions/SidewalkUpdateAccount"
+	SidewalkUpdate?: #SidewalkUpdateAccount
 
 	// A list of key-value pairs that contain metadata for the destination.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/SidewalkAccountInfo": close(
-	{AppServerPrivateKey!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}"},
-)
+#SidewalkAccountInfo: close({AppServerPrivateKey!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}"})
 
-_#defs: "/$defs/Properties/definitions/SidewalkAccountInfoWithFingerprint": close({
+#SidewalkAccountInfoWithFingerprint: close({
 	AmazonId?:    strings.MaxRunes(2048)
 	Arn?:         string
 	Fingerprint?: strings.MaxRunes(64) & strings.MinRunes(64) & =~"[a-fA-F0-9]{64}"
 })
 
-_#defs: "/$defs/Properties/definitions/SidewalkUpdateAccount": close(
+#SidewalkUpdateAccount: close(
 	{AppServerPrivateKey?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}"},
 )
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1)
 })

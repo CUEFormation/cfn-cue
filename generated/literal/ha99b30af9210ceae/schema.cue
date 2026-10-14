@@ -3,132 +3,128 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::JobDefinition
 #Properties: close({
-	ConsumableResourceProperties?: _#defs."/$defs/Properties/definitions/ConsumableResourceProperties"
-	ContainerProperties?:          _#defs."/$defs/Properties/definitions/ContainerProperties"
-	EcsProperties?:                _#defs."/$defs/Properties/definitions/EcsProperties"
-	EksProperties?:                _#defs."/$defs/Properties/definitions/EksProperties"
+	ConsumableResourceProperties?: #ConsumableResourceProperties
+	ContainerProperties?:          #ContainerProperties
+	EcsProperties?:                #EcsProperties
+	EksProperties?:                #EksProperties
 	JobDefinitionArn?:             string
 	JobDefinitionName?:            strings.MaxRunes(128)
-	NodeProperties?:               _#defs."/$defs/Properties/definitions/NodeProperties"
+	NodeProperties?:               #NodeProperties
 	Parameters?: close({
 
 		{[=~".*"]: string}})
 	PlatformCapabilities?:    [...=~"(?i)^(?:ec2|fargate|managed_instances)$"]
 	PropagateTags?:           bool
-	ResourceRetentionPolicy?: _#defs."/$defs/Properties/definitions/ResourceRetentionPolicy"
-	RetryStrategy?:           _#defs."/$defs/Properties/definitions/RetryStrategy"
+	ResourceRetentionPolicy?: #ResourceRetentionPolicy
+	RetryStrategy?:           #RetryStrategy
 	SchedulingPriority?:      int
 
 	// A key-value pair to associate with a resource.
 	Tags?: close({
 
 		{[=~".*"]: string}})
-	Timeout?: _#defs."/$defs/Properties/definitions/JobTimeout"
+	Timeout?: #JobTimeout
 	Type!:    =~"(?i)^(?:container|multinode)$"
 })
 
-_#defs: "/$defs/Properties/definitions/ConsumableResourceProperties": close({
-	ConsumableResourceList!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ConsumableResourceRequirement"
-	]
-})
+#ConsumableResourceProperties: close(
+	{ConsumableResourceList!: list.UniqueItems() & [...#ConsumableResourceRequirement]},
+)
 
-_#defs: "/$defs/Properties/definitions/ConsumableResourceRequirement": close({
+#ConsumableResourceRequirement: close({
 	// The ARN of the consumable resource the job definition should consume.
 	ConsumableResource!: string
 	Quantity!:           int
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerProperties": close({
+#ContainerProperties: close({
 	Command?:                      [...string]
 	EnableExecuteCommand?:         bool
-	Environment?:                  [..._#defs."/$defs/Properties/definitions/Environment"]
-	EphemeralStorage?:             _#defs."/$defs/Properties/definitions/EphemeralStorage"
+	Environment?:                  [...#Environment]
+	EphemeralStorage?:             #EphemeralStorage
 	ExecutionRoleArn?:             =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	FargatePlatformConfiguration?: close({PlatformVersion?: string})
 	Image!:                        string
 	JobRoleArn?:                   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	LinuxParameters?:              _#defs."/$defs/Properties/definitions/LinuxParameters"
-	LogConfiguration?:             _#defs."/$defs/Properties/definitions/LogConfiguration"
+	LinuxParameters?:              #LinuxParameters
+	LogConfiguration?:             #LogConfiguration
 	Memory?:                       int
-	MountPoints?:                  [..._#defs."/$defs/Properties/definitions/MountPoint"]
-	NetworkConfiguration?:         _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	MountPoints?:                  [...#MountPoint]
+	NetworkConfiguration?:         #NetworkConfiguration
 	Privileged?:                   bool
 	ReadonlyRootFilesystem?:       bool
-	RepositoryCredentials?:        _#defs."/$defs/Properties/definitions/RepositoryCredentials"
-	ResourceRequirements?:         [..._#defs."/$defs/Properties/definitions/ResourceRequirement"]
-	RuntimePlatform?:              _#defs."/$defs/Properties/definitions/RuntimePlatform"
-	Secrets?:                      [..._#defs."/$defs/Properties/definitions/Secret"]
-	Ulimits?:                      [..._#defs."/$defs/Properties/definitions/Ulimit"]
+	RepositoryCredentials?:        #RepositoryCredentials
+	ResourceRequirements?:         [...#ResourceRequirement]
+	RuntimePlatform?:              #RuntimePlatform
+	Secrets?:                      [...#Secret]
+	Ulimits?:                      [...#Ulimit]
 	User?:                         string
 	Vcpus?:                        int
-	Volumes?:                      [..._#defs."/$defs/Properties/definitions/Volume"]
+	Volumes?:                      [...#Volume]
 })
 
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	ContainerPath?: string
 	HostPath?:      string
 	Permissions?:   [...=~"(?i)^(?:mknod|read|write)$"]
 })
 
-_#defs: "/$defs/Properties/definitions/EFSAuthorizationConfig": close({
+#EFSAuthorizationConfig: close({
 	AccessPointId?: string
 	Iam?:           =~"(?i)^(?:disabled|enabled)$"
 })
 
-_#defs: "/$defs/Properties/definitions/EFSVolumeConfiguration": close({
-	AuthorizationConfig?:   _#defs."/$defs/Properties/definitions/EFSAuthorizationConfig"
+#EFSVolumeConfiguration: close({
+	AuthorizationConfig?:   #EFSAuthorizationConfig
 	FileSystemId!:          string
 	RootDirectory?:         string
 	TransitEncryption?:     =~"(?i)^(?:disabled|enabled)$"
 	TransitEncryptionPort?: int
 })
 
-_#defs: "/$defs/Properties/definitions/EcsProperties": close(
-	{TaskProperties!: [..._#defs."/$defs/Properties/definitions/EcsTaskProperties"]},
-)
+#EcsProperties: close({TaskProperties!: [...#EcsTaskProperties]})
 
-_#defs: "/$defs/Properties/definitions/EcsTaskProperties": close({
-	Containers?:           [..._#defs."/$defs/Properties/definitions/TaskContainerProperties"]
+#EcsTaskProperties: close({
+	Containers?:           [...#TaskContainerProperties]
 	EnableExecuteCommand?: bool
-	EphemeralStorage?:     _#defs."/$defs/Properties/definitions/EphemeralStorage"
+	EphemeralStorage?:     #EphemeralStorage
 	ExecutionRoleArn?:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	IpcMode?:              string
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	NetworkConfiguration?: #NetworkConfiguration
 	NetworkMode?:          string
 	PidMode?:              string
 	PlatformVersion?:      string
-	RuntimePlatform?:      _#defs."/$defs/Properties/definitions/RuntimePlatform"
+	RuntimePlatform?:      #RuntimePlatform
 	TaskRoleArn?:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	Volumes?:              [..._#defs."/$defs/Properties/definitions/Volume"]
+	Volumes?:              [...#Volume]
 })
 
-_#defs: "/$defs/Properties/definitions/EksContainer": close({
+#EksContainer: close({
 	Args?:            [...string]
 	Command?:         [...string]
-	Env?:             [..._#defs."/$defs/Properties/definitions/EksContainerEnvironmentVariable"]
+	Env?:             [...#EksContainerEnvironmentVariable]
 	Image!:           string
 	ImagePullPolicy?: string
 	Name?:            string
-	Resources?:       _#defs."/$defs/Properties/definitions/EksContainerResourceRequirements"
-	SecurityContext?: _#defs."/$defs/Properties/definitions/EksContainerSecurityContext"
-	VolumeMounts?:    [..._#defs."/$defs/Properties/definitions/EksContainerVolumeMount"]
+	Resources?:       #EksContainerResourceRequirements
+	SecurityContext?: #EksContainerSecurityContext
+	VolumeMounts?:    [...#EksContainerVolumeMount]
 })
 
-_#defs: "/$defs/Properties/definitions/EksContainerEnvironmentVariable": close({
+#EksContainerEnvironmentVariable: close({
 	Name!:  string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/EksContainerResourceRequirements": close({
+#EksContainerResourceRequirements: close({
 	Limits?: close({
 
 		{[=~".*"]: string}})
@@ -137,7 +133,7 @@ _#defs: "/$defs/Properties/definitions/EksContainerResourceRequirements": close(
 		{[=~".*"]: string}})
 })
 
-_#defs: "/$defs/Properties/definitions/EksContainerSecurityContext": close({
+#EksContainerSecurityContext: close({
 	AllowPrivilegeEscalation?: bool
 	Privileged?:               bool
 	ReadOnlyRootFilesystem?:   bool
@@ -146,21 +142,21 @@ _#defs: "/$defs/Properties/definitions/EksContainerSecurityContext": close({
 	RunAsUser?:                int
 })
 
-_#defs: "/$defs/Properties/definitions/EksContainerVolumeMount": close({
+#EksContainerVolumeMount: close({
 	MountPath?: string
 	Name?:      string
 	ReadOnly?:  bool
 	SubPath?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/EksEmptyDir": close({
+#EksEmptyDir: close({
 	Medium?:    string
 	SizeLimit?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/EksHostPath": close({Path?: string})
+#EksHostPath: close({Path?: string})
 
-_#defs: "/$defs/Properties/definitions/EksMetadata": close({
+#EksMetadata: close({
 	Annotations?: close({
 
 		{[=~".*"]: string}})
@@ -170,179 +166,175 @@ _#defs: "/$defs/Properties/definitions/EksMetadata": close({
 	Namespace?: string
 })
 
-_#defs: "/$defs/Properties/definitions/EksPersistentVolumeClaim": close({
+#EksPersistentVolumeClaim: close({
 	ClaimName!: string
 	ReadOnly?:  bool
 })
 
-_#defs: "/$defs/Properties/definitions/EksPodProperties": close({
-	Containers?:            [..._#defs."/$defs/Properties/definitions/EksContainer"]
+#EksPodProperties: close({
+	Containers?:            [...#EksContainer]
 	DnsPolicy?:             string
 	HostNetwork?:           bool
-	ImagePullSecrets?:      [..._#defs."/$defs/Properties/definitions/ImagePullSecret"]
-	InitContainers?:        [..._#defs."/$defs/Properties/definitions/EksContainer"]
-	Metadata?:              _#defs."/$defs/Properties/definitions/EksMetadata"
+	ImagePullSecrets?:      [...#ImagePullSecret]
+	InitContainers?:        [...#EksContainer]
+	Metadata?:              #EksMetadata
 	ServiceAccountName?:    string
 	ShareProcessNamespace?: bool
-	Volumes?:               [..._#defs."/$defs/Properties/definitions/EksVolume"]
+	Volumes?:               [...#EksVolume]
 })
 
-_#defs: "/$defs/Properties/definitions/EksProperties": close(
-	{PodProperties?: _#defs."/$defs/Properties/definitions/EksPodProperties"},
-)
+#EksProperties: close({PodProperties?: #EksPodProperties})
 
-_#defs: "/$defs/Properties/definitions/EksSecret": close({
+#EksSecret: close({
 	Optional?:   bool
 	SecretName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/EksVolume": close({
-	EmptyDir?:              _#defs."/$defs/Properties/definitions/EksEmptyDir"
-	HostPath?:              _#defs."/$defs/Properties/definitions/EksHostPath"
+#EksVolume: close({
+	EmptyDir?:              #EksEmptyDir
+	HostPath?:              #EksHostPath
 	Name!:                  string
-	PersistentVolumeClaim?: _#defs."/$defs/Properties/definitions/EksPersistentVolumeClaim"
-	Secret?:                _#defs."/$defs/Properties/definitions/EksSecret"
+	PersistentVolumeClaim?: #EksPersistentVolumeClaim
+	Secret?:                #EksSecret
 })
 
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 	Name?:  string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({SizeInGiB!: int})
+#EphemeralStorage: close({SizeInGiB!: int})
 
-_#defs: "/$defs/Properties/definitions/EvaluateOnExit": close({
+#EvaluateOnExit: close({
 	Action!:         =~"(?i)^(?:exit|retry)$"
 	OnExitCode?:     string
 	OnReason?:       string
 	OnStatusReason?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Host": close({SourcePath?: string})
+#Host: close({SourcePath?: string})
 
-_#defs: "/$defs/Properties/definitions/ImagePullSecret": close({Name?: string})
+#ImagePullSecret: close({Name?: string})
 
-_#defs: "/$defs/Properties/definitions/JobTimeout": close({AttemptDurationSeconds?: int})
+#JobTimeout: close({AttemptDurationSeconds?: int})
 
-_#defs: "/$defs/Properties/definitions/LinuxParameters": close({
-	Devices?:            [..._#defs."/$defs/Properties/definitions/Device"]
+#LinuxParameters: close({
+	Devices?:            [...#Device]
 	InitProcessEnabled?: bool
 	MaxSwap?:            int
 	SharedMemorySize?:   int
 	Swappiness?:         int
-	Tmpfs?:              [..._#defs."/$defs/Properties/definitions/Tmpfs"]
+	Tmpfs?:              [...#Tmpfs]
 })
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	LogDriver!: =~"(?i)^(?:awsfirelens|awslogs|fluentd|gelf|journald|json-file|splunk|syslog)$"
 	Options?: close({
 
 		{[=~".*"]: string}})
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"]
+	SecretOptions?: [...#Secret]
 })
 
-_#defs: "/$defs/Properties/definitions/MountPoint": close({
+#MountPoint: close({
 	ContainerPath?: string
 	ReadOnly?:      bool
 	SourceVolume?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/MultiNodeContainerProperties": close({
+#MultiNodeContainerProperties: close({
 	Command?:                [...string]
 	EnableExecuteCommand?:   bool
-	Environment?:            [..._#defs."/$defs/Properties/definitions/Environment"]
-	EphemeralStorage?:       _#defs."/$defs/Properties/definitions/EphemeralStorage"
+	Environment?:            [...#Environment]
+	EphemeralStorage?:       #EphemeralStorage
 	ExecutionRoleArn?:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Image!:                  string
 	InstanceType?:           string
 	JobRoleArn?:             =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	LinuxParameters?:        _#defs."/$defs/Properties/definitions/LinuxParameters"
-	LogConfiguration?:       _#defs."/$defs/Properties/definitions/LogConfiguration"
+	LinuxParameters?:        #LinuxParameters
+	LogConfiguration?:       #LogConfiguration
 	Memory?:                 int
-	MountPoints?:            [..._#defs."/$defs/Properties/definitions/MountPoint"]
+	MountPoints?:            [...#MountPoint]
 	Privileged?:             bool
 	ReadonlyRootFilesystem?: bool
-	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials"
-	ResourceRequirements?:   [..._#defs."/$defs/Properties/definitions/ResourceRequirement"]
-	RuntimePlatform?:        _#defs."/$defs/Properties/definitions/RuntimePlatform"
-	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"]
-	Ulimits?:                [..._#defs."/$defs/Properties/definitions/Ulimit"]
+	RepositoryCredentials?:  #RepositoryCredentials
+	ResourceRequirements?:   [...#ResourceRequirement]
+	RuntimePlatform?:        #RuntimePlatform
+	Secrets?:                [...#Secret]
+	Ulimits?:                [...#Ulimit]
 	User?:                   string
 	Vcpus?:                  int
-	Volumes?:                [..._#defs."/$defs/Properties/definitions/Volume"]
+	Volumes?:                [...#Volume]
 })
 
-_#defs: "/$defs/Properties/definitions/MultiNodeEcsProperties": close(
-	{TaskProperties!: [..._#defs."/$defs/Properties/definitions/MultiNodeEcsTaskProperties"]},
-)
+#MultiNodeEcsProperties: close({TaskProperties!: [...#MultiNodeEcsTaskProperties]})
 
-_#defs: "/$defs/Properties/definitions/MultiNodeEcsTaskProperties": close({
-	Containers?:           [..._#defs."/$defs/Properties/definitions/TaskContainerProperties"]
+#MultiNodeEcsTaskProperties: close({
+	Containers?:           [...#TaskContainerProperties]
 	EnableExecuteCommand?: bool
 	ExecutionRoleArn?:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	IpcMode?:              string
 	PidMode?:              string
 	TaskRoleArn?:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	Volumes?:              [..._#defs."/$defs/Properties/definitions/Volume"]
+	Volumes?:              [...#Volume]
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({AssignPublicIp?: =~"(?i)^(?:disabled|enabled)$"})
+#NetworkConfiguration: close({AssignPublicIp?: =~"(?i)^(?:disabled|enabled)$"})
 
-_#defs: "/$defs/Properties/definitions/NodeProperties": close({
+#NodeProperties: close({
 	MainNode!:            int
-	NodeRangeProperties!: [..._#defs."/$defs/Properties/definitions/NodeRangeProperty"]
+	NodeRangeProperties!: [...#NodeRangeProperty]
 	NumNodes!:            int
 })
 
-_#defs: "/$defs/Properties/definitions/NodeRangeProperty": close({
-	ConsumableResourceProperties?: _#defs."/$defs/Properties/definitions/ConsumableResourceProperties"
-	Container?:                    _#defs."/$defs/Properties/definitions/MultiNodeContainerProperties"
-	EcsProperties?:                _#defs."/$defs/Properties/definitions/MultiNodeEcsProperties"
-	EksProperties?:                _#defs."/$defs/Properties/definitions/EksProperties"
+#NodeRangeProperty: close({
+	ConsumableResourceProperties?: #ConsumableResourceProperties
+	Container?:                    #MultiNodeContainerProperties
+	EcsProperties?:                #MultiNodeEcsProperties
+	EksProperties?:                #EksProperties
 	InstanceTypes?:                [...string]
 	TargetNodes!:                  string
 })
 
-_#defs: "/$defs/Properties/definitions/RepositoryCredentials": close({CredentialsParameter!: string})
+#RepositoryCredentials: close({CredentialsParameter!: string})
 
-_#defs: "/$defs/Properties/definitions/ResourceRequirement": close({
+#ResourceRequirement: close({
 	Type?:  =~"(?i)^(?:gpu|memory|vcpu)$"
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceRetentionPolicy": close({SkipDeregisterOnUpdate?: bool})
+#ResourceRetentionPolicy: close({SkipDeregisterOnUpdate?: bool})
 
-_#defs: "/$defs/Properties/definitions/RetryStrategy": close({
+#RetryStrategy: close({
 	Attempts?:       int
-	EvaluateOnExit?: [..._#defs."/$defs/Properties/definitions/EvaluateOnExit"]
+	EvaluateOnExit?: [...#EvaluateOnExit]
 })
 
-_#defs: "/$defs/Properties/definitions/RuntimePlatform": close({
+#RuntimePlatform: close({
 	CpuArchitecture?:       string
 	OperatingSystemFamily?: string
 })
 
-_#defs: "/$defs/Properties/definitions/S3FilesVolumeConfiguration": close({
+#S3FilesVolumeConfiguration: close({
 	AccessPointArn?:        string
 	FileSystemArn!:         string
 	RootDirectory?:         string
 	TransitEncryptionPort?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	Name!:      string
 	ValueFrom!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TaskContainerDependency": close({
+#TaskContainerDependency: close({
 	Condition!:     string
 	ContainerName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TaskContainerProperties": close({
+#TaskContainerProperties: close({
 	Command?:     [...string]
-	DependsOn?:   [..._#defs."/$defs/Properties/definitions/TaskContainerDependency"]
-	Environment?: [..._#defs."/$defs/Properties/definitions/Environment"]
+	DependsOn?:   [...#TaskContainerDependency]
+	Environment?: [...#Environment]
 	Essential?:   bool
 	FirelensConfiguration?: close({
 		Options?: close({
@@ -351,36 +343,36 @@ _#defs: "/$defs/Properties/definitions/TaskContainerProperties": close({
 		Type!: =~"(?i)^(?:fluentbit|fluentd)$"
 	})
 	Image!:                  string
-	LinuxParameters?:        _#defs."/$defs/Properties/definitions/LinuxParameters"
-	LogConfiguration?:       _#defs."/$defs/Properties/definitions/LogConfiguration"
-	MountPoints?:            [..._#defs."/$defs/Properties/definitions/MountPoint"]
+	LinuxParameters?:        #LinuxParameters
+	LogConfiguration?:       #LogConfiguration
+	MountPoints?:            [...#MountPoint]
 	Name?:                   string
 	Privileged?:             bool
 	ReadonlyRootFilesystem?: bool
-	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials"
-	ResourceRequirements?:   [..._#defs."/$defs/Properties/definitions/ResourceRequirement"]
-	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"]
+	RepositoryCredentials?:  #RepositoryCredentials
+	ResourceRequirements?:   [...#ResourceRequirement]
+	Secrets?:                [...#Secret]
 	StartTimeout?:           int
 	StopTimeout?:            int
-	Ulimits?:                [..._#defs."/$defs/Properties/definitions/Ulimit"]
+	Ulimits?:                [...#Ulimit]
 	User?:                   string
 })
 
-_#defs: "/$defs/Properties/definitions/Tmpfs": close({
+#Tmpfs: close({
 	ContainerPath!: string
 	MountOptions?:  [...string]
 	Size!:          int
 })
 
-_#defs: "/$defs/Properties/definitions/Ulimit": close({
+#Ulimit: close({
 	HardLimit!: int
 	Name!:      string
 	SoftLimit!: int
 })
 
-_#defs: "/$defs/Properties/definitions/Volume": close({
-	EfsVolumeConfiguration?:     _#defs."/$defs/Properties/definitions/EFSVolumeConfiguration"
-	Host?:                       _#defs."/$defs/Properties/definitions/Host"
+#Volume: close({
+	EfsVolumeConfiguration?:     #EFSVolumeConfiguration
+	Host?:                       #Host
 	Name?:                       string
-	S3FilesVolumeConfiguration?: _#defs."/$defs/Properties/definitions/S3FilesVolumeConfiguration"
+	S3FilesVolumeConfiguration?: #S3FilesVolumeConfiguration
 })

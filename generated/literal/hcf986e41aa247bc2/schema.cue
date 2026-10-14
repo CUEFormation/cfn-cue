@@ -6,15 +6,15 @@ package schema
 
 // Resource Type definition for AWS::EC2::ClientVpnEndpoint
 #Properties: close({
-	AuthenticationOptions!:         [..._#defs."/$defs/Properties/definitions/ClientAuthenticationRequest"]
-	AuthorizationPolicy?:           _#defs."/$defs/Properties/definitions/AuthorizationPolicy"
+	AuthenticationOptions!:         [...#ClientAuthenticationRequest]
+	AuthorizationPolicy?:           #AuthorizationPolicy
 	ClientCidrBlock?:               string
-	ClientConnectOptions?:          _#defs."/$defs/Properties/definitions/ClientConnectOptions"
-	ClientLoginBannerOptions?:      _#defs."/$defs/Properties/definitions/ClientLoginBannerOptions"
-	ClientRouteEnforcementOptions?: _#defs."/$defs/Properties/definitions/ClientRouteEnforcementOptions"
-	ConnectionLogOptions!:          _#defs."/$defs/Properties/definitions/ConnectionLogOptions"
+	ClientConnectOptions?:          #ClientConnectOptions
+	ClientLoginBannerOptions?:      #ClientLoginBannerOptions
+	ClientRouteEnforcementOptions?: #ClientRouteEnforcementOptions
+	ConnectionLogOptions!:          #ConnectionLogOptions
 	Description?:                   string
-	DevicePostureOptions?:          _#defs."/$defs/Properties/definitions/DevicePostureOptions"
+	DevicePostureOptions?:          #DevicePostureOptions
 	DisconnectOnSessionTimeout?:    bool
 	DnsServers?:                    [...string]
 	EndpointIpAddressType?:         string
@@ -24,79 +24,77 @@ package schema
 	ServerCertificateArn!:          string
 	SessionTimeoutHours?:           int
 	SplitTunnel?:                   bool
-	TagSpecifications?:             [..._#defs."/$defs/Properties/definitions/TagSpecification"]
+	TagSpecifications?:             [...#TagSpecification]
 	TrafficIpAddressType?:          string
-	TransitGatewayConfiguration?:   _#defs."/$defs/Properties/definitions/TransitGatewayConfiguration"
+	TransitGatewayConfiguration?:   #TransitGatewayConfiguration
 	TransportProtocol?:             string
 	VpcId?:                         =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	VpnPort?:                       int
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizationPolicy": close({
+#AuthorizationPolicy: close({
 	Description?:    string
 	PolicyDocument!: string
 	ShadowMode?:     string
 })
 
-_#defs: "/$defs/Properties/definitions/CertificateAuthenticationRequest": close(
-	{ClientRootCertificateChainArn!: string},
-)
+#CertificateAuthenticationRequest: close({ClientRootCertificateChainArn!: string})
 
-_#defs: "/$defs/Properties/definitions/ClientAuthenticationRequest": close({
-	ActiveDirectory?:         _#defs."/$defs/Properties/definitions/DirectoryServiceAuthenticationRequest"
-	FederatedAuthentication?: _#defs."/$defs/Properties/definitions/FederatedAuthenticationRequest"
-	MutualAuthentication?:    _#defs."/$defs/Properties/definitions/CertificateAuthenticationRequest"
+#ClientAuthenticationRequest: close({
+	ActiveDirectory?:         #DirectoryServiceAuthenticationRequest
+	FederatedAuthentication?: #FederatedAuthenticationRequest
+	MutualAuthentication?:    #CertificateAuthenticationRequest
 	Type!:                    string
 })
 
-_#defs: "/$defs/Properties/definitions/ClientConnectOptions": close({
+#ClientConnectOptions: close({
 	Enabled!:           bool
 	LambdaFunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/ClientLoginBannerOptions": close({
+#ClientLoginBannerOptions: close({
 	BannerText?: string
 	Enabled!:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/ClientRouteEnforcementOptions": close({Enforced?: bool})
+#ClientRouteEnforcementOptions: close({Enforced?: bool})
 
-_#defs: "/$defs/Properties/definitions/ConnectionLogOptions": close({
+#ConnectionLogOptions: close({
 	CloudwatchLogGroup?:                string
 	CloudwatchLogStream?:               string
 	Enabled!:                           bool
 	IncludeAuthorizationPolicyContext?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/DevicePostureOptions": close({
+#DevicePostureOptions: close({
 	Enabled!:        bool
-	TrustProviders!: [..._#defs."/$defs/Properties/definitions/DevicePostureTrustProvider"]
+	TrustProviders!: [...#DevicePostureTrustProvider]
 })
 
-_#defs: "/$defs/Properties/definitions/DevicePostureTrustProvider": close({
+#DevicePostureTrustProvider: close({
 	PublicSigningKeyUrl?: string
 	TenantId!:            string
 	TrustProviderType!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/DirectoryServiceAuthenticationRequest": close({DirectoryId!: string})
+#DirectoryServiceAuthenticationRequest: close({DirectoryId!: string})
 
-_#defs: "/$defs/Properties/definitions/FederatedAuthenticationRequest": close({
+#FederatedAuthenticationRequest: close({
 	SAMLProviderArn!:            string
 	SelfServiceSAMLProviderArn?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType!: string
-	Tags!:         [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags!:         [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayConfiguration": close({
+#TransitGatewayConfiguration: close({
 	AvailabilityZoneIds?: [...string]
 	AvailabilityZones?:   [...string]
 	TransitGatewayId!:    string

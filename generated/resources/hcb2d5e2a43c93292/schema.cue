@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"struct"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"struct"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::Terms
-#Properties: close({
-	ClientId?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
-	Enforcement!: _#defs."/$defs/Properties/definitions/TermsEnforcementType"
-	Links!:       _#defs."/$defs/Properties/definitions/LinksType"
-	TermsName!:   _#defs."/$defs/Properties/definitions/TermsNameType"
-	TermsSource!: _#defs."/$defs/Properties/definitions/TermsSourceType"
-	UserPoolId!:  strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::Terms"
+	Properties!: close({
+		ClientId?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
+		Enforcement!: #TermsEnforcementType
+		Links!:       #LinksType
+		TermsName!:   #TermsNameType
+		TermsSource!: #TermsSourceType
+		UserPoolId!:  strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/LinksType": struct.MaxFields(12) & struct.MinFields(1) & close({
+#LinksType: struct.MaxFields(12) & struct.MinFields(1) & close({
 
 	{[=~"^cognito:(default|english|french|spanish|german|bahasa-indonesia|italian|japanese|korean|portuguese-brazil|chinese-(simplified|traditional))$"]: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
@@ -30,15 +33,11 @@ _#defs: "/$defs/Properties/definitions/LinksType": struct.MaxFields(12) & struct
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TermsEnforcementType": "NONE" | fn.#StringExpression
+#TermsEnforcementType: "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TermsIdType": =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" |
+#TermsIdType: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TermsNameType": =~"^(terms-of-use|privacy-policy)$" | fn.#StringExpression
+#TermsNameType: =~"^(terms-of-use|privacy-policy)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TermsSourceType": "LINK" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::Terms"
-	Properties!: #Properties
-}
+#TermsSourceType: "LINK" | fn.#StringExpression

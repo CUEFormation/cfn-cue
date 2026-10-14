@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,28 +14,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Redshift::RedshiftIdcApplication. Creates
 // an Amazon Redshift application for use with IAM Identity Center.
-#Properties: close({
-	ApplicationType?:           "None" | "Lakehouse" | fn.#StringExpression
-	AuthorizedTokenIssuerList?: [..._#defs."/$defs/Properties/definitions/AuthorizedTokenIssuer"] | fn.#ListExpression
-	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2147483647) &
-	strings.MinRunes(0) &
-	=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
-	fn.#StringExpression
-	IdcDisplayName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	IdcInstanceArn!: strings.MaxRunes(2147483647) &
-	strings.MinRunes(0) &
-	=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
-	fn.#StringExpression
-	IdentityNamespace?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_+.#@$-]+$" | fn.#StringExpression
-	RedshiftIdcApplicationName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
-	fn.#StringExpression
-	ServiceIntegrations?: [..._#defs."/$defs/Properties/definitions/ServiceIntegrationsUnion"] | fn.#ListExpression
-	SsoTagKeys?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	Tags?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::RedshiftIdcApplication"
+	Properties!: close({
+		ApplicationType?:           "None" | "Lakehouse" | fn.#StringExpression
+		AuthorizedTokenIssuerList?: [...#AuthorizedTokenIssuer] | fn.#ListExpression
+		IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2147483647) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
+		fn.#StringExpression
+		IdcDisplayName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		IdcInstanceArn!: strings.MaxRunes(2147483647) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
+		fn.#StringExpression
+		IdentityNamespace?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_+.#@$-]+$" |
+		fn.#StringExpression
+		RedshiftIdcApplicationName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		fn.#StringExpression
+		ServiceIntegrations?: [...#ServiceIntegrationsUnion] | fn.#ListExpression
+		SsoTagKeys?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuthorizedTokenIssuer": close({
+#AuthorizedTokenIssuer: close({
 	AuthorizedAudiencesList?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
 	TrustedTokenIssuerArn?: strings.MaxRunes(2147483647) &
@@ -45,47 +49,27 @@ _#defs: "/$defs/Properties/definitions/AuthorizedTokenIssuer": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Connect": close({Authorization!: "Enabled" | "Disabled" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Connect: close({Authorization!: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LakeFormationQuery": close(
-	{Authorization!: "Enabled" | "Disabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#LakeFormationQuery: close({Authorization!: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LakeFormationScopeUnion": close(
-	{LakeFormationQuery?: _#defs."/$defs/Properties/definitions/LakeFormationQuery"},
-) |
-	fn.#ObjectExpression
+#LakeFormationScopeUnion: close({LakeFormationQuery?: #LakeFormationQuery}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReadWriteAccess": close(
-	{Authorization!: "Enabled" | "Disabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ReadWriteAccess: close({Authorization!: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftScopeUnion": close(
-	{Connect?: _#defs."/$defs/Properties/definitions/Connect"},
-) |
-	fn.#ObjectExpression
+#RedshiftScopeUnion: close({Connect?: #Connect}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3AccessGrantsScopeUnion": close(
-	{ReadWriteAccess?: _#defs."/$defs/Properties/definitions/ReadWriteAccess"},
-) |
-	fn.#ObjectExpression
+#S3AccessGrantsScopeUnion: close({ReadWriteAccess?: #ReadWriteAccess}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceIntegrationsUnion": close({
-	LakeFormation?:  [..._#defs."/$defs/Properties/definitions/LakeFormationScopeUnion"] | fn.#ListExpression
-	Redshift?:       [..._#defs."/$defs/Properties/definitions/RedshiftScopeUnion"] | fn.#ListExpression
-	S3AccessGrants?: [..._#defs."/$defs/Properties/definitions/S3AccessGrantsScopeUnion"] | fn.#ListExpression
+#ServiceIntegrationsUnion: close({
+	LakeFormation?:  [...#LakeFormationScopeUnion] | fn.#ListExpression
+	Redshift?:       [...#RedshiftScopeUnion] | fn.#ListExpression
+	S3AccessGrants?: [...#S3AccessGrantsScopeUnion] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::RedshiftIdcApplication"
-	Properties!: #Properties
-}

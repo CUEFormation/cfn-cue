@@ -13,41 +13,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::InAppTemplate
-#Properties: close({
-	Content?:      [..._#defs."/$defs/Properties/definitions/InAppMessageContent"] | fn.#ListExpression
-	CustomConfig?: fn.#Object & {...} | fn.#ObjectExpression
-	Layout?: "BOTTOM_BANNER" |
-		"TOP_BANNER" |
-		"OVERLAYS" |
-		"MOBILE_FEED" |
-		"MIDDLE_BANNER" |
-		"CAROUSEL" |
-		fn.#StringExpression
-	Tags?:                fn.#Object & {...} | string | fn.#StringObjectExpression
-	TemplateDescription?: string | fn.#StringExpression
-	TemplateName!:        string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pinpoint::InAppTemplate"
+	Properties!: close({
+		Content?:      [...#InAppMessageContent] | fn.#ListExpression
+		CustomConfig?: fn.#Object & {...} | fn.#ObjectExpression
+		Layout?: "BOTTOM_BANNER" |
+			"TOP_BANNER" |
+			"OVERLAYS" |
+			"MOBILE_FEED" |
+			"MIDDLE_BANNER" |
+			"CAROUSEL" |
+			fn.#StringExpression
+		Tags?:                fn.#Object & {...} | string | fn.#StringObjectExpression
+		TemplateDescription?: string | fn.#StringExpression
+		TemplateName!:        string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Alignment": "LEFT" | "CENTER" | "RIGHT" | fn.#StringExpression
+#Alignment: "LEFT" | "CENTER" | "RIGHT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BodyConfig": close({
-	Alignment?: _#defs."/$defs/Properties/definitions/Alignment"
+#BodyConfig: close({
+	Alignment?: #Alignment
 	Body?:      string | fn.#StringExpression
 	TextColor?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ButtonAction": "LINK" | "DEEP_LINK" | "CLOSE" | fn.#StringExpression
+#ButtonAction: "LINK" | "DEEP_LINK" | "CLOSE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ButtonConfig": close({
-	Android?:       _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
-	DefaultConfig?: _#defs."/$defs/Properties/definitions/DefaultButtonConfiguration"
-	IOS?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
-	Web?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
+#ButtonConfig: close({
+	Android?:       #OverrideButtonConfiguration
+	DefaultConfig?: #DefaultButtonConfiguration
+	IOS?:           #OverrideButtonConfiguration
+	Web?:           #OverrideButtonConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultButtonConfiguration": close({
+#DefaultButtonConfiguration: close({
 	BackgroundColor?: string | fn.#StringExpression
 	BorderRadius?: int |
 		{
@@ -63,36 +66,32 @@ _#defs: "/$defs/Properties/definitions/DefaultButtonConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	ButtonAction?: _#defs."/$defs/Properties/definitions/ButtonAction"
+	ButtonAction?: #ButtonAction
 	Link?:         string | fn.#StringExpression
 	Text?:         string | fn.#StringExpression
 	TextColor?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderConfig": close({
-	Alignment?: _#defs."/$defs/Properties/definitions/Alignment"
+#HeaderConfig: close({
+	Alignment?: #Alignment
 	Header?:    string | fn.#StringExpression
 	TextColor?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InAppMessageContent": close({
+#InAppMessageContent: close({
 	BackgroundColor?: string | fn.#StringExpression
-	BodyConfig?:      _#defs."/$defs/Properties/definitions/BodyConfig"
-	HeaderConfig?:    _#defs."/$defs/Properties/definitions/HeaderConfig"
+	BodyConfig?:      #BodyConfig
+	HeaderConfig?:    #HeaderConfig
 	ImageUrl?:        string | fn.#StringExpression
-	PrimaryBtn?:      _#defs."/$defs/Properties/definitions/ButtonConfig"
-	SecondaryBtn?:    _#defs."/$defs/Properties/definitions/ButtonConfig"
+	PrimaryBtn?:      #ButtonConfig
+	SecondaryBtn?:    #ButtonConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OverrideButtonConfiguration": close({
-	ButtonAction?: _#defs."/$defs/Properties/definitions/ButtonAction"
+#OverrideButtonConfiguration: close({
+	ButtonAction?: #ButtonAction
 	Link?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::InAppTemplate"
-	Properties!: #Properties
-}

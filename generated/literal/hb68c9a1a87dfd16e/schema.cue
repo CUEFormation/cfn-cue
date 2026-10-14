@@ -7,7 +7,7 @@ package schema
 // Resource Type definition for AWS::MSK::BatchScramSecret
 #Properties: close({
 	ClusterArn!:    string
-	SecretArnList?: _#defs."/$defs/Properties/definitions/SecretArnList"
+	SecretArnList?: #SecretArnList
 })
 
-_#defs: "/$defs/Properties/definitions/SecretArnList": [...string]
+#SecretArnList: [...string]

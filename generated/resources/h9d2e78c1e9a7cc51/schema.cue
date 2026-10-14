@@ -12,31 +12,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::Detector
-#Properties: close({
-	DataSources?: _#defs."/$defs/Properties/definitions/CFNDataSourceConfigurations"
-	Enable!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Features?:    [..._#defs."/$defs/Properties/definitions/CFNFeatureConfiguration"] | fn.#ListExpression
-	FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GuardDuty::Detector"
+	Properties!: close({
+		DataSources?: #CFNDataSourceConfigurations
+		Enable!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Features?:    [...#CFNFeatureConfiguration] | fn.#ListExpression
+		FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
+		Tags?:                       [...#TagItem] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CFNDataSourceConfigurations": close({
-	Kubernetes?:        _#defs."/$defs/Properties/definitions/CFNKubernetesConfiguration"
-	MalwareProtection?: _#defs."/$defs/Properties/definitions/CFNMalwareProtectionConfiguration"
-	S3Logs?:            _#defs."/$defs/Properties/definitions/CFNS3LogsConfiguration"
+#CFNDataSourceConfigurations: close({
+	Kubernetes?:        #CFNKubernetesConfiguration
+	MalwareProtection?: #CFNMalwareProtectionConfiguration
+	S3Logs?:            #CFNS3LogsConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNFeatureAdditionalConfiguration": close({
+#CFNFeatureAdditionalConfiguration: close({
 	Name?: ("EC2_AGENT_MANAGEMENT" | "ECS_FARGATE_AGENT_MANAGEMENT" | "EKS_ADDON_MANAGEMENT" | "RDS_DATA_RISK") & (strings.MaxRunes(256) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	Status?: ("DISABLED" | "ENABLED") & (strings.MaxRunes(128) & strings.MinRunes(1)) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNFeatureConfiguration": close({
-	AdditionalConfiguration?: [..._#defs."/$defs/Properties/definitions/CFNFeatureAdditionalConfiguration"] |
-		fn.#ListExpression
+#CFNFeatureConfiguration: close({
+	AdditionalConfiguration?: [...#CFNFeatureAdditionalConfiguration] | fn.#ListExpression
 	Name!: ("AI_ANALYST" |
 		"AI_PROTECTION" |
 		"EBS_MALWARE_PROTECTION" |
@@ -51,37 +53,28 @@ _#defs: "/$defs/Properties/definitions/CFNFeatureConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNKubernetesAuditLogsConfiguration": close(
+#CFNKubernetesAuditLogsConfiguration: close(
 	{Enable!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNKubernetesConfiguration": close(
-	{AuditLogs!: _#defs."/$defs/Properties/definitions/CFNKubernetesAuditLogsConfiguration"},
-) |
+#CFNKubernetesConfiguration: close({AuditLogs!: #CFNKubernetesAuditLogsConfiguration}) | fn.#ObjectExpression
+
+#CFNMalwareProtectionConfiguration: close({ScanEc2InstanceWithFindings?: #CFNScanEc2InstanceWithFindingsConfiguration}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNMalwareProtectionConfiguration": close(
-	{ScanEc2InstanceWithFindings?: _#defs."/$defs/Properties/definitions/CFNScanEc2InstanceWithFindingsConfiguration"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/CFNS3LogsConfiguration": close(
+#CFNS3LogsConfiguration: close(
 	{Enable!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CFNScanEc2InstanceWithFindingsConfiguration": close(
+#CFNScanEc2InstanceWithFindingsConfiguration: close(
 	{EbsVolumes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::Detector"
-	Properties!: #Properties
-}

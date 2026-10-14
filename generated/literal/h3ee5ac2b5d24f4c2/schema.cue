@@ -12,10 +12,10 @@ import (
 // Resource Type definition for AWS::Inspector::ResourceGroup
 #Properties: close({
 	Arn?:               string
-	ResourceGroupTags!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ResourceGroupTags!: list.MaxItems(10) & list.MinItems(1) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

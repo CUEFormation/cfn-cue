@@ -13,31 +13,31 @@ import (
 // Definition of AWS::Location::Tracker Resource Type
 #Properties: close({
 	Arn?: strings.MaxRunes(1600) & =~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:([^/].*)?$"
-	CreateTime?:                    _#defs."/$defs/Properties/definitions/iso8601UTC"
+	CreateTime?:                    #iso8601UTC
 	Description?:                   strings.MaxRunes(1000) & strings.MinRunes(0)
 	EventBridgeEnabled?:            bool
 	KmsKeyEnableGeospatialQueries?: bool
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
-	PositionFiltering?: _#defs."/$defs/Properties/definitions/PositionFiltering"
-	PricingPlan?:       _#defs."/$defs/Properties/definitions/PricingPlan"
+	PositionFiltering?: #PositionFiltering
+	PricingPlan?:       #PricingPlan
 
 	// This shape is deprecated since 2022-02-01: Deprecated. No longer allowed.
 	PricingPlanDataSource?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 	TrackerArn?: strings.MaxRunes(1600) &
 	=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:([^/].*)?$"
 	TrackerName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$"
-	UpdateTime?:  _#defs."/$defs/Properties/definitions/iso8601UTC"
+	UpdateTime?:  #iso8601UTC
 })
 
-_#defs: "/$defs/Properties/definitions/PositionFiltering": "TimeBased" | "DistanceBased" | "AccuracyBased"
+#PositionFiltering: "TimeBased" | "DistanceBased" | "AccuracyBased"
 
-_#defs: "/$defs/Properties/definitions/PricingPlan": "RequestBasedUsage"
+#PricingPlan: "RequestBasedUsage"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -51,11 +51,11 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(50) & close({
+#TagMap: struct.MaxFields(50) & close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"}})
 
 // The datetime value in ISO 8601 format. The timezone is always UTC. (YYYY-MM-DDThh:mm:ss.sssZ)
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"

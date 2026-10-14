@@ -107,7 +107,7 @@ import (
 	// with an ``AWS::ECS::Service`` resource, the ``DependsOn`` attribute ensures
 	// that CFN deletes the ``AWS::ECS::Service`` resource before deleting its
 	// role's policy.
-	Policies?: [..._#defs."/$defs/Properties/definitions/Policy"]
+	Policies?: [...#Policy]
 	RoleId?:   string
 
 	// A name for the IAM role, up to 64 characters in length. For valid values, see
@@ -138,7 +138,7 @@ import (
 	// tagging, see [Tagging IAM
 	// resources](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_tags.html) in
 	// the *IAM User Guide*.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // Contains information about an attached policy.
@@ -147,7 +147,7 @@ import (
 // Inline
 // Policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/policies-managed-vs-inline.html)
 // in the *User Guide*.
-_#defs: "/$defs/Properties/definitions/Policy": close({
+#Policy: close({
 	// The entire contents of the policy that defines permissions. For more
 	// information, see [Overview of JSON
 	// policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#access_policies-json).
@@ -161,7 +161,7 @@ _#defs: "/$defs/Properties/definitions/Policy": close({
 // with an IAM resource. For more information about tagging, see [Tagging IAM
 // resources](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_tags.html) in
 // the *IAM User Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name that can be used to look up or retrieve the associated value.
 	// For example, ``Department`` or ``Cost Center`` are common choices.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$"

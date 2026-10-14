@@ -14,19 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::SecurityHub::HubV2 resource represents the implementation of the AWS
 // Security Hub V2 service in your account. Only one hubv2 resource can created
 // in each region in which you enable Security Hub V2.
-#Properties: close({
-	NetworkScanning?: _#defs."/$defs/Properties/definitions/NetworkScanning"
-	Tags?:            _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::HubV2"
+	Properties?: close({
+		NetworkScanning?: #NetworkScanning
+		Tags?:            #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
+#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkScanning": close({Status!: "ENABLED" | "DISABLED" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#NetworkScanning: close({Status!: "ENABLED" | "DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::HubV2"
-	Properties?: #Properties
-}
+#Tags: struct.MaxFields(50) & {...} | fn.#ObjectExpression

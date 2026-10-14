@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,35 +13,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A connection function.
-#Properties: close({
-	AutoPublish?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ConnectionFunctionCode!:   string | fn.#StringExpression
-	ConnectionFunctionConfig!: _#defs."/$defs/Properties/definitions/ConnectionFunctionConfig" | fn.#ObjectExpression
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::ConnectionFunction"
+	Properties!: close({
+		AutoPublish?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ConnectionFunctionCode!: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionFunctionConfig": close({
-	Comment!: string | fn.#StringExpression
-	KeyValueStoreAssociations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KeyValueStoreAssociation"
-	] |
-		fn.#ListExpression
-	Runtime!: "cloudfront-js-2.0" | fn.#StringExpression
+		// Contains configuration information about a CloudFront function.
+		ConnectionFunctionConfig!: #ConnectionFunctionConfig
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
+
+#ConnectionFunctionConfig: close({
+	Comment!:                   string | fn.#StringExpression
+	KeyValueStoreAssociations?: list.UniqueItems() & [...#KeyValueStoreAssociation] | fn.#ListExpression
+	Runtime!:                   "cloudfront-js-2.0" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValueStoreAssociation": close(
-	{KeyValueStoreARN!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#KeyValueStoreAssociation: close({KeyValueStoreARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::ConnectionFunction"
-	Properties!: #Properties
-}

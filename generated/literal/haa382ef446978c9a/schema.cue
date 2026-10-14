@@ -24,7 +24,7 @@ import (
 	Description?: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]+$"
 
 	// The files to stream.
-	Files!: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/StreamFile"]
+	Files!: list.MaxItems(50) & list.MinItems(1) & [...#StreamFile]
 
 	// The date when the stream was last updated.
 	LastUpdatedAt?: time.Time
@@ -39,11 +39,11 @@ import (
 	StreamVersion?: int & <=65535 & >=0
 
 	// Metadata which can be used to manage streams.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The location of the file in S3.
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The S3 bucket.
 	Bucket?: strings.MinRunes(1)
 
@@ -55,14 +55,14 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // Represents a file to stream.
-_#defs: "/$defs/Properties/definitions/StreamFile": close({
+#StreamFile: close({
 	// The file ID.
 	FileId?:     int & <=255 & >=0
-	S3Location?: _#defs."/$defs/Properties/definitions/S3Location"
+	S3Location?: #S3Location
 })
 
 // A set of key/value pairs that are used to manage the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

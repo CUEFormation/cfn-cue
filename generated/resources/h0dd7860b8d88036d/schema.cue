@@ -17,45 +17,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Athena::CapacityReservation
-#Properties: close({
-	CapacityAssignmentConfiguration?: _#defs."/$defs/Properties/definitions/CapacityAssignmentConfiguration"
-	Name!:                            =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetDpus!: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Athena::CapacityReservation"
+	Properties!: close({
+		CapacityAssignmentConfiguration?: #CapacityAssignmentConfiguration
+		Name!:                            =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
+		Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetDpus!: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityAssignment": close(
-	{WorkgroupNames!: _#defs."/$defs/Properties/definitions/WorkgroupNames"},
-) |
-	fn.#ObjectExpression
+#CapacityAssignment: close({WorkgroupNames!: #WorkgroupNames}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityAssignmentConfiguration": close(
-	{CapacityAssignments!: _#defs."/$defs/Properties/definitions/CapacityAssignments"},
-) |
-	fn.#ObjectExpression
+#CapacityAssignmentConfiguration: close({CapacityAssignments!: #CapacityAssignments}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityAssignments": [
-	..._#defs."/$defs/Properties/definitions/CapacityAssignment"
-] |
-	fn.#ListExpression
+#CapacityAssignments: [...#CapacityAssignment] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationStatus": "PENDING" |
+#CapacityReservationStatus: "PENDING" |
 	"ACTIVE" |
 	"CANCELLING" |
 	"CANCELLED" |
@@ -63,17 +59,12 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationStatus": "PENDING" |
 	"UPDATE_PENDING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkgroupName": =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
+#WorkgroupName: =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkgroupNames": [..._#defs."/$defs/Properties/definitions/WorkgroupName"] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Athena::CapacityReservation"
-	Properties!: #Properties
-}
+#WorkgroupNames: [...#WorkgroupName] | fn.#ListExpression

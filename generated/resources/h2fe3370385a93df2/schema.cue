@@ -3,8 +3,9 @@
 package schema
 
 import (
-	"strings"
+	"github.com/cueformation/cfn-cue/iam:iam"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,23 +18,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // on
 // Entities](https://docs.aws.amazon.com/IAM/latest/UserGuide/LimitationsOnEntities.html)
 // in the *User Guide*.
-#Properties: close({
-	GroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
-	fn.#StringExpression
-	Policies?: [..._#defs."/$defs/Properties/definitions/Policy"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IAM::Group"
+	Properties?: close({
+		GroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [
+			...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		Path?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
+		fn.#StringExpression
+		Policies?: [...#Policy] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Policy": close({
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+#Policy: close({
+	PolicyDocument!: iam.#IdentityPolicyValue
 	PolicyName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::Group"
-	Properties?: #Properties
-}

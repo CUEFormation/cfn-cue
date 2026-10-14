@@ -23,34 +23,34 @@ import (
 	Status?: "SUCCEEDED" | "IN_PROGRESS" | "FAILED"
 
 	// The tags for the scope.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 
 	// The targets for the scope.
-	Targets!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TargetResource"]
+	Targets!: list.MaxItems(100) & list.MinItems(1) & [...#TargetResource]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // A target ID is an internally-generated identifier for a target.
-_#defs: "/$defs/Properties/definitions/TargetId": close({
+#TargetId: close({
 	// The account ID for the target.
 	AccountId!: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9]{12}$"
 })
 
 // A target identifier is a pair of identifying information for a scope target.
-_#defs: "/$defs/Properties/definitions/TargetIdentifier": close({
-	TargetId!: _#defs."/$defs/Properties/definitions/TargetId"
+#TargetIdentifier: close({
+	TargetId!: #TargetId
 
 	// The type of the target. Currently always ACCOUNT.
 	TargetType!: "ACCOUNT"
 })
 
 // A target resource in a scope, identified by a Region and target identifier.
-_#defs: "/$defs/Properties/definitions/TargetResource": close({
+#TargetResource: close({
 	// The AWS Region for the target resource.
 	Region!:           string
-	TargetIdentifier!: _#defs."/$defs/Properties/definitions/TargetIdentifier"
+	TargetIdentifier!: #TargetIdentifier
 })

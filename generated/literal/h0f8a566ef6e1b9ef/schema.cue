@@ -9,10 +9,10 @@ import "strings"
 // Resource schema for AWS::AutoScaling::WarmPool.
 #Properties: close({
 	AutoScalingGroupName!:     strings.MaxRunes(255) & strings.MinRunes(1)
-	InstanceReusePolicy?:      _#defs."/$defs/Properties/definitions/InstanceReusePolicy"
+	InstanceReusePolicy?:      #InstanceReusePolicy
 	MaxGroupPreparedCapacity?: int & >=-1
 	MinSize?:                  int & >=0
 	PoolState?:                "Hibernated" | "Running" | "Stopped"
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceReusePolicy": close({ReuseOnScaleIn?: bool})
+#InstanceReusePolicy: close({ReuseOnScaleIn?: bool})

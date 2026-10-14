@@ -5,6 +5,7 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/iam:iam"
 	"list"
 )
 
@@ -68,81 +69,84 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // KMS CloudFormation resources are available in all Regions in which KMS and
 // CFN are supported. You can use the ``AWS::KMS::Key`` resource to create and
 // manage all KMS key types that are supported in a Region.
-#Properties: close({
-	BypassPolicyLockoutSafetyCheck?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	Description?:       strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
-	EnableKeyRotation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyPolicy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
-	KeySpec?: "SYMMETRIC_DEFAULT" |
-		"RSA_2048" |
-		"RSA_3072" |
-		"RSA_4096" |
-		"ECC_NIST_P256" |
-		"ECC_NIST_P384" |
-		"ECC_NIST_P521" |
-		"ECC_SECG_P256K1" |
-		"HMAC_224" |
-		"HMAC_256" |
-		"HMAC_384" |
-		"HMAC_512" |
-		"SM2" |
-		"ML_DSA_44" |
-		"ML_DSA_65" |
-		"ML_DSA_87" |
-		"ECC_NIST_EDWARDS25519" |
-		fn.#StringExpression
-	KeyUsage?:    "ENCRYPT_DECRYPT" | "SIGN_VERIFY" | "GENERATE_VERIFY_MAC" | "KEY_AGREEMENT" | fn.#StringExpression
-	MultiRegion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Origin?:      "AWS_KMS" | "EXTERNAL" | fn.#StringExpression
-	PendingWindowInDays?: int & <=30 & >=7 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=30 &
-							>=7,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RotationPeriodInDays?: int & <=2560 & >=90 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2560 &
-							>=90,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KMS::Key"
+	Properties?: close({
+		BypassPolicyLockoutSafetyCheck?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Description?:       strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
+		EnableKeyRotation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KeyPolicy?:         iam.#KMSKeyPolicyValue
+		KeySpec?: "SYMMETRIC_DEFAULT" |
+			"RSA_2048" |
+			"RSA_3072" |
+			"RSA_4096" |
+			"ECC_NIST_P256" |
+			"ECC_NIST_P384" |
+			"ECC_NIST_P521" |
+			"ECC_SECG_P256K1" |
+			"HMAC_224" |
+			"HMAC_256" |
+			"HMAC_384" |
+			"HMAC_512" |
+			"SM2" |
+			"ML_DSA_44" |
+			"ML_DSA_65" |
+			"ML_DSA_87" |
+			"ECC_NIST_EDWARDS25519" |
+			fn.#StringExpression
+		KeyUsage?:    "ENCRYPT_DECRYPT" | "SIGN_VERIFY" | "GENERATE_VERIFY_MAC" | "KEY_AGREEMENT" | fn.#StringExpression
+		MultiRegion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Origin?:      "AWS_KMS" | "EXTERNAL" | fn.#StringExpression
+		PendingWindowInDays?: int & <=30 & >=7 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=30 &
+								>=7,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RotationPeriodInDays?: int & <=2560 & >=90 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2560 &
+								>=90,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KMS::Key"
-	Properties?: #Properties
-}

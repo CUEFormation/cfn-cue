@@ -11,19 +11,19 @@ import "strings"
 	Description?:            strings.MaxRunes(1001) & strings.MinRunes(1) & =~"^[\\S ]+$"
 	Name!:                   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]+$"
 	Notes?:                  strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^[\\S \\n]+$"
-	OperatingAddress?:       _#defs."/$defs/Properties/definitions/Address"
-	RackPhysicalProperties?: _#defs."/$defs/Properties/definitions/RackPhysicalProperties"
-	ShippingAddress?:        _#defs."/$defs/Properties/definitions/Address"
+	OperatingAddress?:       #Address
+	RackPhysicalProperties?: #RackPhysicalProperties
+	ShippingAddress?:        #Address
 	SiteArn?: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:site/(os-[a-f0-9]{17})$"
 	SiteId?: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:site/)?(os-[a-f0-9]{17})$"
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Address": close({
+#Address: close({
 	AddressLine1!:       strings.MaxRunes(180) & strings.MinRunes(1) & =~"^\\S[\\S ]*$"
 	AddressLine2?:       strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$"
 	AddressLine3?:       strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$"
@@ -37,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/Address": close({
 	StateOrRegion!:      strings.MaxRunes(50) & strings.MinRunes(1) & =~"^\\S[\\S ]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/RackPhysicalProperties": close({
+#RackPhysicalProperties: close({
 	FiberOpticCableType?:       "SINGLE_MODE" | "MULTI_MODE"
 	MaximumSupportedWeightLbs?: "NO_LIMIT" | "MAX_1400_LBS" | "MAX_1600_LBS" | "MAX_1800_LBS" | "MAX_2000_LBS"
 	OpticalStandard?: "OPTIC_10GBASE_SR" |
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/RackPhysicalProperties": close({
 	UplinkGbps?: "UPLINK_1G" | "UPLINK_10G" | "UPLINK_40G" | "UPLINK_100G"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$"
 })

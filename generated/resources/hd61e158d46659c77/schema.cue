@@ -9,62 +9,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LakeFormation::Permissions
-#Properties: close({
-	DataLakePrincipal!:          _#defs."/$defs/Properties/definitions/DataLakePrincipal"
-	Permissions?:                [...string | fn.#StringExpression] | fn.#ListExpression
-	PermissionsWithGrantOption?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Resource!:                   _#defs."/$defs/Properties/definitions/Resource"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::Permissions"
+	Properties!: close({
+		DataLakePrincipal!:          #DataLakePrincipal
+		Permissions?:                [...string | fn.#StringExpression] | fn.#ListExpression
+		PermissionsWithGrantOption?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Resource!:                   _#defs."/$defs/Properties/definitions/Resource"
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ColumnWildcard": close(
-	{ExcludedColumnNames?: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#ColumnWildcard: close({ExcludedColumnNames?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close(
-	{DataLakePrincipalIdentifier?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DataLakePrincipal: close({DataLakePrincipalIdentifier?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataLocationResource": close({
+#DataLocationResource: close({
 	CatalogId?:  string | fn.#StringExpression
 	S3Resource?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseResource": close({
+#DatabaseResource: close({
 	CatalogId?: string | fn.#StringExpression
 	Name?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Resource": close({
-	DataLocationResource?:     _#defs."/$defs/Properties/definitions/DataLocationResource"
-	DatabaseResource?:         _#defs."/$defs/Properties/definitions/DatabaseResource"
-	TableResource?:            _#defs."/$defs/Properties/definitions/TableResource"
-	TableWithColumnsResource?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TableResource": close({
+#TableResource: close({
 	CatalogId?:     string | fn.#StringExpression
 	DatabaseName?:  string | fn.#StringExpression
 	Name?:          string | fn.#StringExpression
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard"
+	TableWildcard?: #TableWildcard
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableWildcard": fn.#Object & {...} | string | fn.#StringObjectExpression
+#TableWildcard: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
+#TableWithColumnsResource: close({
 	CatalogId?:      string | fn.#StringExpression
 	ColumnNames?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	ColumnWildcard?: _#defs."/$defs/Properties/definitions/ColumnWildcard"
+	ColumnWildcard?: #ColumnWildcard
 	DatabaseName?:   string | fn.#StringExpression
 	Name?:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::Permissions"
-	Properties!: #Properties
-}
+
+_#defs: "/$defs/Properties/definitions/Resource": close({
+	DataLocationResource?:     #DataLocationResource
+	DatabaseResource?:         #DatabaseResource
+	TableResource?:            #TableResource
+	TableWithColumnsResource?: #TableWithColumnsResource
+}) |
+fn.#ObjectExpression

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,8 +23,8 @@ import (
 
 	// Size of chunks (blocks) in bytes that the data is divided into when stored in the HDFS cluster.
 	BlockSize?:          int & <=1073741824 & >=1048576
-	CmkSecretConfig?:    _#defs."/$defs/Properties/definitions/CmkSecretConfig"
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
+	CmkSecretConfig?:    #CmkSecretConfig
+	CustomSecretConfig?: #CustomSecretConfig
 
 	// The Base64 string representation of the Keytab file.
 	KerberosKeytab?: strings.MaxRunes(87384)
@@ -48,11 +48,11 @@ import (
 
 	// The URL of the HDFS location that was described.
 	LocationUri?:         strings.MaxRunes(4356) & =~"^(efs|nfs|s3|smb|fsxw|hdfs)://[a-zA-Z0-9.:/\\-]+$"
-	ManagedSecretConfig?: _#defs."/$defs/Properties/definitions/ManagedSecretConfig"
+	ManagedSecretConfig?: #ManagedSecretConfig
 
 	// An array of Name Node(s) of the HDFS location.
-	NameNodes!:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/NameNode"]
-	QopConfiguration?: _#defs."/$defs/Properties/definitions/QopConfiguration"
+	NameNodes!:        list.MinItems(1) & [...#NameNode]
+	QopConfiguration?: #QopConfiguration
 
 	// Number of copies of each block that exists inside the HDFS cluster.
 	ReplicationFactor?: int & <=512 & >=1
@@ -65,13 +65,13 @@ import (
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Specifies configuration information for a DataSync-managed secret, such as an
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and a customer-managed AWS KMS key.
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	// Specifies the ARN for the customer-managed AWS KMS key used to encrypt the
 	// secret specified for SecretArn. DataSync provides this key to AWS Secrets
 	// Manager.
@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and an IAM role that DataSync can assume and
 // access the customer-managed secret.
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	// Specifies the ARN for the AWS Identity and Access Management role that
 	// DataSync uses to access the secret specified for SecretArn.
 	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -108,14 +108,14 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location. DataSync uses the default AWS-managed KMS key to
 // encrypt this secret in AWS Secrets Manager.
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	// Specifies the ARN for an AWS Secrets Manager secret.
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$"
 })
 
 // HDFS Name Node IP and port information.
-_#defs: "/$defs/Properties/definitions/NameNode": close({
+#NameNode: close({
 	// The DNS name or IP address of the Name Node in the customer's on premises HDFS cluster.
 	Hostname!: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
@@ -128,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/NameNode": close({
 // Configuration information for RPC Protection and Data Transfer Protection.
 // These parameters can be set to AUTHENTICATION, INTEGRITY, or PRIVACY. The
 // default value is PRIVACY.
-_#defs: "/$defs/Properties/definitions/QopConfiguration": close({
+#QopConfiguration: close({
 	// Configuration for Data Transfer Protection.
 	DataTransferProtection?: "AUTHENTICATION" | "INTEGRITY" | "PRIVACY" | "DISABLED"
 
@@ -137,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/QopConfiguration": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

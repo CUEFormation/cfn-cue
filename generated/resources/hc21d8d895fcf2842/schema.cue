@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,59 +12,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Portal
-#Properties: close({
-	Alarms?: close({
-		AlarmRoleArn?: strings.MaxRunes(1600) &
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::Portal"
+	Properties!: close({
+		Alarms?: close({
+			AlarmRoleArn?: strings.MaxRunes(1600) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
+			fn.#StringExpression
+			NotificationLambdaArn?: strings.MaxRunes(1600) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		NotificationSenderEmail?: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9_\\-\\.\\+]+@[a-zA-Z0-9_\\-\\.\\+]+\\.[a-zA-Z]{2,}$" |
+		fn.#StringExpression
+		PortalAuthMode?: "IAM" | "SSO" | fn.#StringExpression
+		PortalContactEmail!: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9_\\-\\.\\+]+@[a-zA-Z0-9_\\-\\.\\+]+\\.[a-zA-Z]{2,}$" |
+		fn.#StringExpression
+		PortalDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		PortalName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		PortalType?:              "SITEWISE_PORTAL_V1" | "SITEWISE_PORTAL_V2" | fn.#StringExpression
+		PortalTypeConfiguration?: #PortalTypeConfiguration
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1600) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
 		fn.#StringExpression
-		NotificationLambdaArn?: strings.MaxRunes(1600) &
-		strings.MinRunes(1) &
-		=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	NotificationSenderEmail?: strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9_\\-\\.\\+]+@[a-zA-Z0-9_\\-\\.\\+]+\\.[a-zA-Z]{2,}$" |
-	fn.#StringExpression
-	PortalAuthMode?: "IAM" | "SSO" | fn.#StringExpression
-	PortalContactEmail!: strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9_\\-\\.\\+]+@[a-zA-Z0-9_\\-\\.\\+]+\\.[a-zA-Z]{2,}$" |
-	fn.#StringExpression
-	PortalDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	PortalName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	PortalType?:              "SITEWISE_PORTAL_V1" | "SITEWISE_PORTAL_V2" | fn.#StringExpression
-	PortalTypeConfiguration?: _#defs."/$defs/Properties/definitions/PortalTypeConfiguration"
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(1600) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
-	fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PortalTools": [...string | fn.#StringExpression] | fn.#ListExpression
+#PortalTools: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PortalTypeConfiguration": close({
+#PortalTypeConfiguration: close({
 
-	{[=~"^[a-z][a-zA-Z0-9_]*$"]: _#defs."/$defs/Properties/definitions/PortalTypeEntry"}}) |
+	{[=~"^[a-z][a-zA-Z0-9_]*$"]: #PortalTypeEntry}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortalTypeEntry": close(
-	{PortalTools!: _#defs."/$defs/Properties/definitions/PortalTools"},
-) |
-	fn.#ObjectExpression
+#PortalTypeEntry: close({PortalTools!: #PortalTools}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::Portal"
-	Properties!: #Properties
-}

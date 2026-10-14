@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,9 +12,7 @@ import (
 // Resource schema for AWS::IoTSiteWise::Gateway
 #Properties: close({
 	// A list of gateway capability summaries that each contain a namespace and status.
-	GatewayCapabilitySummaries?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/GatewayCapabilitySummary"
-	]
+	GatewayCapabilitySummaries?: list.UniqueItems() & [...#GatewayCapabilitySummary]
 
 	// The ID of the gateway device.
 	GatewayId?: string
@@ -23,47 +21,46 @@ import (
 	GatewayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 
 	// The gateway's platform. You can only specify one platform in a gateway.
-	GatewayPlatform!: _#defs."/$defs/Properties/definitions/GatewayPlatform"
+	GatewayPlatform!: #GatewayPlatform
 
 	// The version of the gateway you want to create.
 	GatewayVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]+$"
 
 	// A list of key-value pairs that contain metadata for the gateway.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The JSON document that defines the gateway capability's configuration.
-_#defs: "/$defs/Properties/definitions/CapabilityConfiguration": string
+#CapabilityConfiguration: string
 
 // The namespace of the capability configuration.
-_#defs: "/$defs/Properties/definitions/CapabilityNamespace": string
+#CapabilityNamespace: string
 
 // Contains a summary of a gateway capability configuration.
-_#defs: "/$defs/Properties/definitions/GatewayCapabilitySummary": close({
-	CapabilityConfiguration?: _#defs."/$defs/Properties/definitions/CapabilityConfiguration"
-	CapabilityNamespace!:     _#defs."/$defs/Properties/definitions/CapabilityNamespace"
+#GatewayCapabilitySummary: close({
+	CapabilityConfiguration?: #CapabilityConfiguration
+	CapabilityNamespace!:     #CapabilityNamespace
 })
 
 // Contains a gateway's platform information.
-_#defs: "/$defs/Properties/definitions/GatewayPlatform": matchN(1, [{
-	GreengrassV2!: _
-	...
-}, {
-	SiemensIE!: _
-	...
-}]) & close({
+#GatewayPlatform: close({
 	// A gateway that runs on AWS IoT Greengrass V2.
-	GreengrassV2?: _#defs."/$defs/Properties/definitions/GreengrassV2"
+	GreengrassV2?: #GreengrassV2
 
 	// A gateway that runs on Siemens Industrial Edge.
-	SiemensIE?: _#defs."/$defs/Properties/definitions/SiemensIE"
-})
+	SiemensIE?: #SiemensIE
+	if GreengrassV2 != _|_ if GreengrassV2."Fn::If" == _|_ {
+		SiemensIE?: close({"Fn::If": _}) | error(
+			"SiemensIE cannot be used with GreengrassV2; set exactly one of GreengrassV2, SiemensIE",
+		)
+	}
+}) & matchN(>=1, [{GreengrassV2!: _}, {SiemensIE!: _}])
 
 // The version of the gateway you want to create.
-_#defs: "/$defs/Properties/definitions/GatewayVersion": string
+#GatewayVersion: string
 
 // Contains the CoreDeviceThingName of AWS IoT Greengrass Group V2 that the gateway runs on.
-_#defs: "/$defs/Properties/definitions/GreengrassV2": close({
+#GreengrassV2: close({
 	// The operating system of the core device in AWS IoT Greengrass V2.
 	CoreDeviceOperatingSystem?: "LINUX_AARCH64" | "LINUX_AMD64" | "WINDOWS_AMD64"
 
@@ -72,14 +69,14 @@ _#defs: "/$defs/Properties/definitions/GreengrassV2": close({
 })
 
 // Contains the IotCoreThingName of AWS IoT Thing that the gateway runs on.
-_#defs: "/$defs/Properties/definitions/SiemensIE": close({
+#SiemensIE: close({
 	// The name of the IoT Core Thing.
 	IotCoreThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$"
 })
 
 // To add or update tag, provide both key and value. To delete tag, provide only
 // tag key to be deleted
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

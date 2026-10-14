@@ -11,36 +11,36 @@ import (
 
 // Resource Type definition for AWS::RTBFabric::RequesterGateway Resource Type.
 #Properties: close({
-	ActiveLinksCount?:       _#defs."/$defs/Properties/definitions/ActiveLinksCount"
-	Arn?:                    _#defs."/$defs/Properties/definitions/Arn"
-	CreatedTimestamp?:       _#defs."/$defs/Properties/definitions/CreatedTimestamp"
-	Description?:            _#defs."/$defs/Properties/definitions/Description"
-	DomainName?:             _#defs."/$defs/Properties/definitions/DomainName"
-	GatewayId?:              _#defs."/$defs/Properties/definitions/GatewayId"
-	RequesterGatewayStatus?: _#defs."/$defs/Properties/definitions/RequesterGatewayStatus"
-	SecurityGroupIds!:       _#defs."/$defs/Properties/definitions/SecurityGroupIds"
-	SubnetIds!:              _#defs."/$defs/Properties/definitions/SubnetIds"
-	Tags?:                   _#defs."/$defs/Properties/definitions/Tags"
-	TotalLinksCount?:        _#defs."/$defs/Properties/definitions/TotalLinksCount"
-	UpdatedTimestamp?:       _#defs."/$defs/Properties/definitions/UpdatedTimestamp"
-	VpcId!:                  _#defs."/$defs/Properties/definitions/VpcId"
+	ActiveLinksCount?:       #ActiveLinksCount
+	Arn?:                    #Arn
+	CreatedTimestamp?:       #CreatedTimestamp
+	Description?:            #Description
+	DomainName?:             #DomainName
+	GatewayId?:              #GatewayId
+	RequesterGatewayStatus?: #RequesterGatewayStatus
+	SecurityGroupIds!:       #SecurityGroupIds
+	SubnetIds!:              #SubnetIds
+	Tags?:                   #Tags
+	TotalLinksCount?:        #TotalLinksCount
+	UpdatedTimestamp?:       #UpdatedTimestamp
+	VpcId!:                  #VpcId
 })
 
-_#defs: "/$defs/Properties/definitions/ActiveLinksCount": int
+#ActiveLinksCount: int
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+$"
 
-_#defs: "/$defs/Properties/definitions/CreatedTimestamp": string
+#CreatedTimestamp: string
 
-_#defs: "/$defs/Properties/definitions/Description": =~"^[A-Za-z0-9 ]+$"
+#Description: =~"^[A-Za-z0-9 ]+$"
 
-_#defs: "/$defs/Properties/definitions/DomainName": =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$"
+#DomainName: =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$"
 
-_#defs: "/$defs/Properties/definitions/GatewayId": =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$"
+#GatewayId: =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$"
 
-_#defs: "/$defs/Properties/definitions/RequesterGatewayStatus": "PENDING_CREATION" |
+#RequesterGatewayStatus: "PENDING_CREATION" |
 	"ACTIVE" |
 	"PENDING_DELETION" |
 	"DELETED" |
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/RequesterGatewayStatus": "PENDING_CREATIO
 	"PENDING_RESTORATION"
 
 // The ID of one or more security groups in order to create a requester gateway.
-_#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & list.UniqueItems() & [
+#SecurityGroupIds: list.MinItems(1) & list.UniqueItems() & [
 	...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 	string &
 	strings.MaxRunes(43) &
@@ -60,12 +60,12 @@ _#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & lis
 ]
 
 // The ID of one or more subnets in order to create a requester gateway.
-_#defs: "/$defs/Properties/definitions/SubnetIds": list.MinItems(1) & list.UniqueItems() & [
+#SubnetIds: list.MinItems(1) & list.UniqueItems() & [
 	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8,17}$"
 ]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -80,15 +80,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Tags to assign to the Requester Gateway.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/TotalLinksCount": int
+#TotalLinksCount: int
 
-_#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string
+#UpdatedTimestamp: string
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+#VpcId: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 strings.MaxRunes(50) &
 strings.MinRunes(5) &
 =~"^vpc-[a-f0-9]{8,17}$"

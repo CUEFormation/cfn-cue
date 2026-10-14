@@ -9,14 +9,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::ChannelPlacementGroup Resource Type
-#Properties: close({
-	ClusterId?: string | fn.#StringExpression
-	Name?:      string | fn.#StringExpression
-	Nodes?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::ChannelPlacementGroup"
+	Properties?: close({
+		ClusterId?: string | fn.#StringExpression
+		Name?:      string | fn.#StringExpression
+		Nodes?:     [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:      [...#Tags] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ChannelPlacementGroupState": "UNASSIGNED" |
+#ChannelPlacementGroupState: "UNASSIGNED" |
 	"ASSIGNING" |
 	"ASSIGNED" |
 	"DELETING" |
@@ -24,12 +27,8 @@ _#defs: "/$defs/Properties/definitions/ChannelPlacementGroupState": "UNASSIGNED"
 	"UNASSIGNING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::ChannelPlacementGroup"
-	Properties?: #Properties
-}

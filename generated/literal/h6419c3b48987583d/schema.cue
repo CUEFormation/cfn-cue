@@ -18,29 +18,29 @@ import (
 	Description?: string
 
 	// The configuration parameters for egress access logging.
-	EgressAccessLogs?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	EgressAccessLogs?: #LogConfiguration
 
 	// An HTTP Live Streaming (HLS) ingest resource configuration.
-	HlsIngest?: _#defs."/$defs/Properties/definitions/HlsIngest"
+	HlsIngest?: #HlsIngest
 
 	// The ID of the Channel.
 	Id!: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// The configuration parameters for egress access logging.
-	IngressAccessLogs?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	IngressAccessLogs?: #LogConfiguration
 
 	// A collection of tags associated with a resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // An HTTP Live Streaming (HLS) ingest resource configuration.
-_#defs: "/$defs/Properties/definitions/HlsIngest": close({
+#HlsIngest: close({
 	// A list of endpoints to which the source stream should be sent.
-	ingestEndpoints?: [..._#defs."/$defs/Properties/definitions/IngestEndpoint"]
+	ingestEndpoints?: [...#IngestEndpoint]
 })
 
 // An endpoint for ingesting source content for a Channel.
-_#defs: "/$defs/Properties/definitions/IngestEndpoint": close({
+#IngestEndpoint: close({
 	// The system generated unique identifier for the IngestEndpoint
 	Id?: string
 
@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/IngestEndpoint": close({
 	Username?: string
 })
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	// Sets a custom AWS CloudWatch log group name for access logs. If a log group
 	// name isn't specified, the defaults are used:
 	// /aws/MediaPackage/EgressAccessLogs for egress access logs and
@@ -62,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 	LogGroupName?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

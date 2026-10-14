@@ -12,17 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PCAConnectorAD::ServicePrincipalName Resource Type
-#Properties: close({
-	ConnectorArn!: strings.MaxRunes(200) &
-	strings.MinRunes(5) &
-	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector(\\/[\\w-]+)$" |
-	fn.#StringExpression
-	DirectoryRegistrationArn!: strings.MaxRunes(200) &
-	strings.MinRunes(5) &
-	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:directory-registration(\\/[\\w-]+)$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCAConnectorAD::ServicePrincipalName"
-	Properties!: #Properties
+	Type!: "AWS::PCAConnectorAD::ServicePrincipalName"
+	Properties!: close({
+		ConnectorArn!: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector(\\/[\\w-]+)$" |
+		fn.#StringExpression
+		DirectoryRegistrationArn!: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:directory-registration(\\/[\\w-]+)$" |
+		fn.#StringExpression
+	})
 }

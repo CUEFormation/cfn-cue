@@ -11,36 +11,28 @@ import (
 
 // Policy Statement defined in AWS Entity Resolution Service
 #Properties: close({
-	Action?:      _#defs."/$defs/Properties/definitions/StatementActionList"
-	Arn!:         _#defs."/$defs/Properties/definitions/VeniceGlobalArn"
-	Condition?:   _#defs."/$defs/Properties/definitions/StatementCondition"
-	Effect?:      _#defs."/$defs/Properties/definitions/StatementEffect"
-	Principal?:   _#defs."/$defs/Properties/definitions/StatementPrincipalList"
-	StatementId!: _#defs."/$defs/Properties/definitions/StatementId"
+	Action?:      #StatementActionList
+	Arn!:         #VeniceGlobalArn
+	Condition?:   #StatementCondition
+	Effect?:      #StatementEffect
+	Principal?:   #StatementPrincipalList
+	StatementId!: #StatementId
 })
 
-_#defs: "/$defs/Properties/definitions/StatementAction": strings.MaxRunes(64) &
-strings.MinRunes(3) &
-=~"^(entityresolution:[a-zA-Z0-9]+)$"
+#StatementAction: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^(entityresolution:[a-zA-Z0-9]+)$"
 
-_#defs: "/$defs/Properties/definitions/StatementActionList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/StatementAction"
-]
+#StatementActionList: list.MinItems(1) & [...#StatementAction]
 
-_#defs: "/$defs/Properties/definitions/StatementCondition": strings.MaxRunes(40960) & strings.MinRunes(1)
+#StatementCondition: strings.MaxRunes(40960) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/StatementEffect": "Allow" | "Deny"
+#StatementEffect: "Allow" | "Deny"
 
 // The Statement Id of the policy statement that is being attached.
-_#defs: "/$defs/Properties/definitions/StatementId": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$"
+#StatementId: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$"
 
-_#defs: "/$defs/Properties/definitions/StatementPrincipal": strings.MaxRunes(64) &
-strings.MinRunes(12) &
-=~"^(\\\\d{12})|([a-z0-9\\\\.]+)$"
+#StatementPrincipal: strings.MaxRunes(64) & strings.MinRunes(12) & =~"^(\\\\d{12})|([a-z0-9\\\\.]+)$"
 
-_#defs: "/$defs/Properties/definitions/StatementPrincipalList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/StatementPrincipal"
-]
+#StatementPrincipalList: list.MinItems(1) & [...#StatementPrincipal]
 
 // Arn of the resource to which the policy statement is being attached.
-_#defs: "/$defs/Properties/definitions/VeniceGlobalArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:((schemamapping|matchingworkflow|idmappingworkflow|idnamespace)/[a-zA-Z_0-9-]{1,255})$"
+#VeniceGlobalArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:((schemamapping|matchingworkflow|idmappingworkflow|idnamespace)/[a-zA-Z_0-9-]{1,255})$"

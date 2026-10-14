@@ -14,48 +14,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates an app authorization within an app bundle, which allows AppFabric to
 // connect to an application.
-#Properties: close({
-	App!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	AppBundleIdentifier!: strings.MaxRunes(1011) &
-	strings.MinRunes(1) &
-	=~"^arn:.+$|^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	fn.#StringExpression
-	AuthType!:   "oauth2" | "apiKey" | fn.#StringExpression
-	Credential?: _#defs."/$defs/Properties/definitions/Credential" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Tenant!: _#defs."/$defs/Properties/definitions/Tenant" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppFabric::AppAuthorization"
+	Properties!: close({
+		App!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		AppBundleIdentifier!: strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^arn:.+$|^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		fn.#StringExpression
+		AuthType!: "oauth2" | "apiKey" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApiKeyCredential": close(
-	{ApiKey!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+		// Contains credentials for the application.
+		Credential?: #Credential
+		Tags?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+
+		// Contains information about an application tenant.
+		Tenant!: #Tenant
+	})
+}
+
+#ApiKeyCredential: close({ApiKey!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Credential": close({
-	ApiKeyCredential?: _#defs."/$defs/Properties/definitions/ApiKeyCredential"
-	Oauth2Credential?: _#defs."/$defs/Properties/definitions/Oauth2Credential"
+#Credential: close({
+	ApiKeyCredential?: #ApiKeyCredential
+	Oauth2Credential?: #Oauth2Credential
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Oauth2Credential": close({
+#Oauth2Credential: close({
 	ClientId!:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tenant": close({
+#Tenant: close({
 	TenantDisplayName!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	TenantIdentifier!:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppFabric::AppAuthorization"
-	Properties!: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"struct"
-	"strings"
 	"list"
+	"strings"
+	"struct"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,10 +15,10 @@ import (
 // related findings.
 #Properties: close({
 	// One or more attributes used to filter the findings included in the insight
-	Filters!: _#defs."/$defs/Properties/definitions/AwsSecurityFindingFilters" & struct.MaxFields(10)
+	Filters!: #AwsSecurityFindingFilters & struct.MaxFields(10)
 
 	// The grouping attribute for the insight's findings
-	GroupByAttribute!: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	GroupByAttribute!: #NonEmptyString
 
 	// The ARN of a Security Hub insight
 	InsightArn?: =~"arn:aws\\S*:securityhub:\\S*"
@@ -28,462 +28,352 @@ import (
 })
 
 // A collection of filters that are applied to all active findings aggregated by AWS Security Hub.
-_#defs: "/$defs/Properties/definitions/AwsSecurityFindingFilters": close({
+#AwsSecurityFindingFilters: close({
 	// The AWS account ID in which a finding is generated.
-	AwsAccountId?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	AwsAccountId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The name of the AWS account in which a finding is generated.
-	AwsAccountName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	AwsAccountName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The name of the findings provider (company) that owns the solution (product)
 	// that generates findings.
-	CompanyName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	CompanyName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The unique identifier of a standard in which a control is enabled.
-	ComplianceAssociatedStandardsId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ComplianceAssociatedStandardsId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The unique identifier of a control across standards.
-	ComplianceSecurityControlId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ComplianceSecurityControlId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The name of a security control parameter.
-	ComplianceSecurityControlParametersName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ComplianceSecurityControlParametersName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The current value of a security control parameter.
-	ComplianceSecurityControlParametersValue?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ComplianceSecurityControlParametersValue?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// Exclusive to findings that are generated as the result of a check run against
 	// a specific rule in a supported standard.
-	ComplianceStatus?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ComplianceStatus?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// A finding's confidence.
-	Confidence?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"]
+	Confidence?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// An ISO8601-formatted timestamp that indicates when the security findings
 	// provider captured the potential security issue that a finding captured.
-	CreatedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	CreatedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The level of importance assigned to the resources associated with the finding.
-	Criticality?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"]
+	Criticality?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// A finding's description.
-	Description?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	Description?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The finding provider value for the finding confidence.
-	FindingProviderFieldsConfidence?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter"
-	]
+	FindingProviderFieldsConfidence?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// The finding provider value for the level of importance assigned to the
 	// resources associated with the findings.
-	FindingProviderFieldsCriticality?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter"
-	]
+	FindingProviderFieldsCriticality?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// The finding identifier of a related finding that is identified by the finding provider.
-	FindingProviderFieldsRelatedFindingsId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	FindingProviderFieldsRelatedFindingsId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The ARN of the solution that generated a related finding that is identified
 	// by the finding provider.
-	FindingProviderFieldsRelatedFindingsProductArn?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	FindingProviderFieldsRelatedFindingsProductArn?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The finding provider value for the severity label.
-	FindingProviderFieldsSeverityLabel?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	FindingProviderFieldsSeverityLabel?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The finding provider's original value for the severity.
-	FindingProviderFieldsSeverityOriginal?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	FindingProviderFieldsSeverityOriginal?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// One or more finding types that the finding provider assigned to the finding.
-	FindingProviderFieldsTypes?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	FindingProviderFieldsTypes?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// An ISO8601-formatted timestamp that indicates when the security findings
 	// provider first observed the potential security issue that a finding
 	// captured.
-	FirstObservedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	FirstObservedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The identifier for the solution-specific component (a discrete unit of logic)
 	// that generated a finding.
-	GeneratorId?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	GeneratorId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The security findings provider-specific identifier for a finding.
-	Id?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	Id?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// A keyword for a finding.
-	Keyword?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeywordFilter"]
+	Keyword?: list.MaxItems(20) & list.UniqueItems() & [...#KeywordFilter]
 
 	// An ISO8601-formatted timestamp that indicates when the security findings
 	// provider most recently observed the potential security issue that a finding
 	// captured.
-	LastObservedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	LastObservedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The name of the malware that was observed.
-	MalwareName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	MalwareName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The filesystem path of the malware that was observed.
-	MalwarePath?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	MalwarePath?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The state of the malware that was observed.
-	MalwareState?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	MalwareState?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The type of the malware that was observed.
-	MalwareType?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	MalwareType?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The destination domain of network-related information about a finding.
-	NetworkDestinationDomain?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	NetworkDestinationDomain?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The destination IPv4 address of network-related information about a finding.
-	NetworkDestinationIpV4?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter"
-	]
+	NetworkDestinationIpV4?: list.MaxItems(20) & list.UniqueItems() & [...#IpFilter]
 
 	// The destination IPv6 address of network-related information about a finding.
-	NetworkDestinationIpV6?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter"
-	]
+	NetworkDestinationIpV6?: list.MaxItems(20) & list.UniqueItems() & [...#IpFilter]
 
 	// The destination port of network-related information about a finding.
-	NetworkDestinationPort?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter"
-	]
+	NetworkDestinationPort?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// Indicates the direction of network traffic associated with a finding.
-	NetworkDirection?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	NetworkDirection?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The protocol of network-related information about a finding.
-	NetworkProtocol?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	NetworkProtocol?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The source domain of network-related information about a finding.
-	NetworkSourceDomain?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	NetworkSourceDomain?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The source IPv4 address of network-related information about a finding.
-	NetworkSourceIpV4?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IpFilter"]
+	NetworkSourceIpV4?: list.MaxItems(20) & list.UniqueItems() & [...#IpFilter]
 
 	// The source IPv6 address of network-related information about a finding.
-	NetworkSourceIpV6?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IpFilter"]
+	NetworkSourceIpV6?: list.MaxItems(20) & list.UniqueItems() & [...#IpFilter]
 
 	// The source media access control (MAC) address of network-related information about a finding.
-	NetworkSourceMac?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	NetworkSourceMac?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The source port of network-related information about a finding.
-	NetworkSourcePort?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter"
-	]
+	NetworkSourcePort?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// The text of a note.
-	NoteText?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	NoteText?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The timestamp of when the note was updated.
-	NoteUpdatedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	NoteUpdatedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The principal that created a note.
-	NoteUpdatedBy?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	NoteUpdatedBy?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// A timestamp that identifies when the process was launched.
-	ProcessLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	ProcessLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The name of the process.
-	ProcessName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ProcessName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The parent process ID.
-	ProcessParentPid?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"]
+	ProcessParentPid?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// The path to the process executable.
-	ProcessPath?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ProcessPath?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The process ID.
-	ProcessPid?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"]
+	ProcessPid?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// A timestamp that identifies when the process was terminated.
-	ProcessTerminatedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter"
-	]
+	ProcessTerminatedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The ARN generated by Security Hub that uniquely identifies a third-party
 	// company (security findings provider) after this provider's product (solution
 	// that generates findings) is registered with Security Hub.
-	ProductArn?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ProductArn?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// A data type where security findings providers can include additional
 	// solution-specific details that aren't part of the defined AwsSecurityFinding
 	// format.
-	ProductFields?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MapFilter"]
+	ProductFields?: list.MaxItems(20) & list.UniqueItems() & [...#MapFilter]
 
 	// The name of the solution (product) that generates findings.
-	ProductName?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ProductName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The recommendation of what to do about the issue described in a finding.
-	RecommendationText?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	RecommendationText?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The updated record state for the finding.
-	RecordState?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	RecordState?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The Region from which the finding was generated.
-	Region?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	Region?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The solution-generated identifier for a related finding.
-	RelatedFindingsId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	RelatedFindingsId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The ARN of the solution that generated a related finding.
-	RelatedFindingsProductArn?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	RelatedFindingsProductArn?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The ARN of the application that is related to a finding.
-	ResourceApplicationArn?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceApplicationArn?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The name of the application that is related to a finding.
-	ResourceApplicationName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceApplicationName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The IAM profile ARN of the instance.
-	ResourceAwsEc2InstanceIamInstanceProfileArn?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsEc2InstanceIamInstanceProfileArn?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The Amazon Machine Image (AMI) ID of the instance.
-	ResourceAwsEc2InstanceImageId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsEc2InstanceImageId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The IPv4 addresses associated with the instance.
-	ResourceAwsEc2InstanceIpV4Addresses?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter"
-	]
+	ResourceAwsEc2InstanceIpV4Addresses?: list.MaxItems(20) & list.UniqueItems() & [...#IpFilter]
 
 	// The IPv6 addresses associated with the instance.
-	ResourceAwsEc2InstanceIpV6Addresses?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpFilter"
-	]
+	ResourceAwsEc2InstanceIpV6Addresses?: list.MaxItems(20) & list.UniqueItems() & [...#IpFilter]
 
 	// The key name associated with the instance.
-	ResourceAwsEc2InstanceKeyName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsEc2InstanceKeyName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The date and time the instance was launched.
-	ResourceAwsEc2InstanceLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter"
-	]
+	ResourceAwsEc2InstanceLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The identifier of the subnet that the instance was launched in.
-	ResourceAwsEc2InstanceSubnetId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsEc2InstanceSubnetId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The instance type of the instance.
-	ResourceAwsEc2InstanceType?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsEc2InstanceType?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The identifier of the VPC that the instance was launched in.
-	ResourceAwsEc2InstanceVpcId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsEc2InstanceVpcId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The creation date/time of the IAM access key related to a finding.
-	ResourceAwsIamAccessKeyCreatedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter"
-	]
+	ResourceAwsIamAccessKeyCreatedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The name of the principal that is associated with an IAM access key.
-	ResourceAwsIamAccessKeyPrincipalName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsIamAccessKeyPrincipalName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The status of the IAM access key related to a finding.
-	ResourceAwsIamAccessKeyStatus?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsIamAccessKeyStatus?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The user associated with the IAM access key related to a finding.
-	ResourceAwsIamAccessKeyUserName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsIamAccessKeyUserName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The name of an IAM user.
-	ResourceAwsIamUserUserName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsIamUserUserName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The canonical user ID of the owner of the S3 bucket.
-	ResourceAwsS3BucketOwnerId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsS3BucketOwnerId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The display name of the owner of the S3 bucket.
-	ResourceAwsS3BucketOwnerName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceAwsS3BucketOwnerName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The identifier of the image related to a finding.
-	ResourceContainerImageId?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceContainerImageId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The name of the image related to a finding.
-	ResourceContainerImageName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceContainerImageName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// A timestamp that identifies when the container was started.
-	ResourceContainerLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter"
-	]
+	ResourceContainerLaunchedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The name of the container related to a finding.
-	ResourceContainerName?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourceContainerName?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The details of a resource that doesn't have a specific subfield for the resource type defined.
-	ResourceDetailsOther?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MapFilter"
-	]
+	ResourceDetailsOther?: list.MaxItems(20) & list.UniqueItems() & [...#MapFilter]
 
 	// The canonical identifier for the given resource type.
-	ResourceId?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ResourceId?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The canonical AWS partition name that the Region is assigned to.
-	ResourcePartition?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ResourcePartition?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The canonical AWS external Region name where this resource is located.
-	ResourceRegion?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ResourceRegion?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// A list of AWS tags associated with a resource at the time the finding was processed.
-	ResourceTags?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MapFilter"]
+	ResourceTags?: list.MaxItems(20) & list.UniqueItems() & [...#MapFilter]
 
 	// Specifies the type of the resource that details are provided for.
-	ResourceType?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	ResourceType?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// Indicates whether or not sample findings are included in the filter results.
-	Sample?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BooleanFilter"]
+	Sample?: list.MaxItems(20) & list.UniqueItems() & [...#BooleanFilter]
 
 	// The label of a finding's severity.
-	SeverityLabel?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	SeverityLabel?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The normalized severity of a finding.
-	SeverityNormalized?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NumberFilter"
-	]
+	SeverityNormalized?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// The native severity as defined by the security findings provider's solution
 	// that generated the finding.
-	SeverityProduct?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NumberFilter"]
+	SeverityProduct?: list.MaxItems(20) & list.UniqueItems() & [...#NumberFilter]
 
 	// A URL that links to a page about the current finding in the security findings
 	// provider's solution.
-	SourceUrl?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	SourceUrl?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The category of a threat intelligence indicator.
-	ThreatIntelIndicatorCategory?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ThreatIntelIndicatorCategory?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// A timestamp that identifies the last observation of a threat intelligence indicator.
-	ThreatIntelIndicatorLastObservedAt?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DateFilter"
-	]
+	ThreatIntelIndicatorLastObservedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// The source of the threat intelligence.
-	ThreatIntelIndicatorSource?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ThreatIntelIndicatorSource?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The URL for more details from the source of the threat intelligence.
-	ThreatIntelIndicatorSourceUrl?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ThreatIntelIndicatorSourceUrl?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The type of a threat intelligence indicator.
-	ThreatIntelIndicatorType?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ThreatIntelIndicatorType?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The value of a threat intelligence indicator.
-	ThreatIntelIndicatorValue?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	ThreatIntelIndicatorValue?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// A finding's title.
-	Title?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	Title?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// A finding type in the format of namespace/category/classifier that classifies a finding.
-	Type?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	Type?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// An ISO8601-formatted timestamp that indicates when the security findings
 	// provider last updated the finding record.
-	UpdatedAt?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DateFilter"]
+	UpdatedAt?: list.MaxItems(20) & list.UniqueItems() & [...#DateFilter]
 
 	// A list of name/value string pairs associated with the finding.
-	UserDefinedFields?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MapFilter"]
+	UserDefinedFields?: list.MaxItems(20) & list.UniqueItems() & [...#MapFilter]
 
 	// The veracity of a finding.
-	VerificationState?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	VerificationState?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// Indicates whether a software vulnerability in your environment has a known exploit.
-	VulnerabilitiesExploitAvailable?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	VulnerabilitiesExploitAvailable?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// Indicates whether a vulnerability is fixed in a newer version of the affected software packages.
-	VulnerabilitiesFixAvailable?: list.MaxItems(20) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StringFilter"
-	]
+	VulnerabilitiesFixAvailable?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The workflow state of a finding.
-	WorkflowState?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	WorkflowState?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 
 	// The status of the investigation into a finding.
-	WorkflowStatus?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StringFilter"]
+	WorkflowStatus?: list.MaxItems(20) & list.UniqueItems() & [...#StringFilter]
 })
 
 // Boolean filter for querying findings.
-_#defs: "/$defs/Properties/definitions/BooleanFilter": close({
+#BooleanFilter: close({
 	// The value of the boolean.
 	Value!: bool
 })
 
 // A date filter for querying findings.
-_#defs: "/$defs/Properties/definitions/DateFilter": close({
-	DateRange?: _#defs."/$defs/Properties/definitions/DateRange"
-	End?:       _#defs."/$defs/Properties/definitions/ISO8601DateString"
-	Start?:     _#defs."/$defs/Properties/definitions/ISO8601DateString"
+#DateFilter: close({
+	DateRange?: #DateRange
+	End?:       #ISO8601DateString
+	Start?:     #ISO8601DateString
 })
 
 // A date range for the date filter.
-_#defs: "/$defs/Properties/definitions/DateRange": close({
+#DateRange: close({
 	// A date range unit for the date filter.
 	Unit!: "DAYS"
 
@@ -492,33 +382,33 @@ _#defs: "/$defs/Properties/definitions/DateRange": close({
 })
 
 // The date and time, in UTC and ISO 8601 format.
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": string
+#ISO8601DateString: string
 
 // The IP filter for querying findings.
-_#defs: "/$defs/Properties/definitions/IpFilter": close({
+#IpFilter: close({
 	// A finding's CIDR value.
-	Cidr!: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Cidr!: #NonEmptyString
 })
 
 // A keyword filter for querying findings.
-_#defs: "/$defs/Properties/definitions/KeywordFilter": close({
+#KeywordFilter: close({
 	// A value for the keyword.
-	Value!: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Value!: #NonEmptyString
 })
 
 // A map filter for filtering AWS Security Hub findings.
-_#defs: "/$defs/Properties/definitions/MapFilter": close({
+#MapFilter: close({
 	// The condition to apply to the key value when filtering Security Hub findings with a map filter.
 	Comparison!: "EQUALS" | "NOT_EQUALS"
-	Key!:        _#defs."/$defs/Properties/definitions/NonEmptyString"
-	Value!:      _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Key!:        #NonEmptyString
+	Value!:      #NonEmptyString
 })
 
 // Non-empty string definition.
-_#defs: "/$defs/Properties/definitions/NonEmptyString": strings.MinRunes(1) & =~"\\S"
+#NonEmptyString: strings.MinRunes(1) & =~"\\S"
 
 // A number filter for querying findings.
-_#defs: "/$defs/Properties/definitions/NumberFilter": close({
+#NumberFilter: close({
 	// The equal-to condition to be applied to a single field when querying for findings.
 	Eq?: number
 
@@ -530,10 +420,10 @@ _#defs: "/$defs/Properties/definitions/NumberFilter": close({
 })
 
 // A string filter for filtering AWS Security Hub findings.
-_#defs: "/$defs/Properties/definitions/StringFilter": close({
-	Comparison!: _#defs."/$defs/Properties/definitions/StringFilterComparison"
-	Value!:      _#defs."/$defs/Properties/definitions/NonEmptyString"
+#StringFilter: close({
+	Comparison!: #StringFilterComparison
+	Value!:      #NonEmptyString
 })
 
 // The condition to apply to a string value when filtering Security Hub findings.
-_#defs: "/$defs/Properties/definitions/StringFilterComparison": "EQUALS" | "PREFIX" | "NOT_EQUALS" | "PREFIX_NOT_EQUALS"
+#StringFilterComparison: "EQUALS" | "PREFIX" | "NOT_EQUALS" | "PREFIX_NOT_EQUALS"

@@ -15,7 +15,7 @@ import "strings"
 	GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$"
 
 	// A list of AWS Glue table definitions used by the transform.
-	InputRecordTables!: _#defs."/$defs/Properties/definitions/InputRecordTables"
+	InputRecordTables!: #InputRecordTables
 
 	// The number of AWS Glue DPUs allocated to task runs for this transform.
 	MaxCapacity?: <=100 & >=1
@@ -37,20 +37,20 @@ import "strings"
 	Timeout?: int & >=1
 
 	// The encryption-at-rest settings of the transform.
-	TransformEncryption?: _#defs."/$defs/Properties/definitions/TransformEncryption"
+	TransformEncryption?: #TransformEncryption
 
 	// The unique identifier for the transform.
 	TransformId?: string
 
 	// The algorithm-specific parameters that are associated with the machine learning transform.
-	TransformParameters!: _#defs."/$defs/Properties/definitions/TransformParameters"
+	TransformParameters!: #TransformParameters
 
 	// The type of predefined worker that is allocated when a task runs.
 	WorkerType?: "G.025X" | "G.1X" | "G.2X" | "G.4X" | "G.8X" | "Standard" | "Z.2X"
 })
 
 // The parameters to configure the find matches transform.
-_#defs: "/$defs/Properties/definitions/FindMatchesParameters": close({
+#FindMatchesParameters: close({
 	// The value for accuracy and cost tradeoff. A value of 0.5 means balance.
 	AccuracyCostTradeoff?: number
 
@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/FindMatchesParameters": close({
 })
 
 // The database and table in the AWS Glue Data Catalog that is used for input or output data.
-_#defs: "/$defs/Properties/definitions/GlueTables": close({
+#GlueTables: close({
 	// A unique identifier for the AWS Glue Data Catalog.
 	CatalogId?: string
 
@@ -80,13 +80,13 @@ _#defs: "/$defs/Properties/definitions/GlueTables": close({
 })
 
 // A list of AWS Glue table definitions used by the transform.
-_#defs: "/$defs/Properties/definitions/InputRecordTables": close({
+#InputRecordTables: close({
 	// The database and table in the AWS Glue Data Catalog that is used for input or output data.
-	GlueTables?: [..._#defs."/$defs/Properties/definitions/GlueTables"]
+	GlueTables?: [...#GlueTables]
 })
 
 // The encryption-at-rest settings of the transform that apply to accessing user data.
-_#defs: "/$defs/Properties/definitions/MLUserDataEncryption": close({
+#MLUserDataEncryption: close({
 	// The ID for the customer-provided KMS key.
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(255) & strings.MinRunes(1))
 
@@ -95,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/MLUserDataEncryption": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -104,16 +104,16 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The encryption-at-rest settings of the transform that apply to accessing user data.
-_#defs: "/$defs/Properties/definitions/TransformEncryption": close({
-	MLUserDataEncryption?: _#defs."/$defs/Properties/definitions/MLUserDataEncryption"
+#TransformEncryption: close({
+	MLUserDataEncryption?: #MLUserDataEncryption
 
 	// The name of the security configuration.
 	TaskRunSecurityConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // The algorithm-specific parameters that are associated with the machine learning transform.
-_#defs: "/$defs/Properties/definitions/TransformParameters": close({
-	FindMatchesParameters?: _#defs."/$defs/Properties/definitions/FindMatchesParameters"
+#TransformParameters: close({
+	FindMatchesParameters?: #FindMatchesParameters
 
 	// The type of machine learning transform.
 	TransformType!: string

@@ -13,57 +13,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::CleanRoomsML::TrainingDataset Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TrainingData!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Dataset"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRoomsML::TrainingDataset"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$" |
+		fn.#StringExpression
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TrainingData!: list.MaxItems(1) & list.MinItems(1) & [...#Dataset] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ColumnSchema": close({
+#ColumnSchema: close({
 	ColumnName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
 	fn.#StringExpression
-	ColumnTypes!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnType"] |
-		fn.#ListExpression
+	ColumnTypes!: list.MaxItems(1) & list.MinItems(1) & [...#ColumnType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnType": "USER_ID" |
-	"ITEM_ID" |
-	"TIMESTAMP" |
-	"CATEGORICAL_FEATURE" |
-	"NUMERICAL_FEATURE" |
-	fn.#StringExpression
+#ColumnType: "USER_ID" | "ITEM_ID" | "TIMESTAMP" | "CATEGORICAL_FEATURE" | "NUMERICAL_FEATURE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSource": close(
-	{GlueDataSource!: _#defs."/$defs/Properties/definitions/GlueDataSource"},
-) |
-	fn.#ObjectExpression
+#DataSource: close({GlueDataSource!: #GlueDataSource}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Dataset": close({
-	InputConfig!: _#defs."/$defs/Properties/definitions/DatasetInputConfig"
-	Type!:        _#defs."/$defs/Properties/definitions/DatasetType"
+#Dataset: close({
+	InputConfig!: #DatasetInputConfig
+	Type!:        #DatasetType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetInputConfig": close({
-	DataSource!: _#defs."/$defs/Properties/definitions/DataSource"
-	Schema!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSchema"] |
-		fn.#ListExpression
+#DatasetInputConfig: close({
+	DataSource!: #DataSource
+	Schema!:     list.MaxItems(100) & list.MinItems(1) & [...#ColumnSchema] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetType": "INTERACTIONS" | fn.#StringExpression
+#DatasetType: "INTERACTIONS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GlueDataSource": close({
+#GlueDataSource: close({
 	CatalogId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	DatabaseName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_]+-)*([a-zA-Z0-9_]+))?$" |
 	fn.#StringExpression
@@ -72,14 +64,10 @@ _#defs: "/$defs/Properties/definitions/GlueDataSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrainingDatasetStatus": "ACTIVE" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRoomsML::TrainingDataset"
-	Properties!: #Properties
-}
+#TrainingDatasetStatus: "ACTIVE" | fn.#StringExpression

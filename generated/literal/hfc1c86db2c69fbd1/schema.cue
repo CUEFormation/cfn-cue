@@ -24,11 +24,11 @@ import "list"
 	Name!: string
 
 	// The list of networks in the gateway.
-	Networks!: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GatewayNetwork"]
+	Networks!: list.MaxItems(4) & list.MinItems(1) & [...#GatewayNetwork]
 })
 
 // The network settings for a gateway.
-_#defs: "/$defs/Properties/definitions/GatewayNetwork": close({
+#GatewayNetwork: close({
 	// A unique IP address range to use for this network. These IP addresses should
 	// be in the form of a Classless Inter-Domain Routing (CIDR) block; for
 	// example, 10.0.0.0/16.

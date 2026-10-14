@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,29 +13,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::Connector
-#Properties: close({
-	ConnectorConfiguration!: _#defs."/$defs/Properties/definitions/ConnectorConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::Connector"
+	Properties!: close({
+		// The configuration for the connector that specifies the third-party cloud
+		// provider connection details.
+		ConnectorConfiguration!: #ConnectorConfiguration
+		Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AzureConnectorConfiguration": close({
+#AzureConnectorConfiguration: close({
 	ClientIdentifier!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	TenantIdentifier!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorConfiguration": close(
-	{Azure?: _#defs."/$defs/Properties/definitions/AzureConnectorConfiguration" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#ConnectorConfiguration: close({
+	// The configuration for connecting to Microsoft Azure.
+	Azure?: #AzureConnectorConfiguration
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::Connector"
-	Properties!: #Properties
-}

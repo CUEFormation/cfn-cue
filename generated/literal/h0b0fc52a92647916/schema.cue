@@ -197,7 +197,7 @@ import "strings"
 	// The tags that you attach to this queue. For more information, see [Resource
 	// tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html)
 	// in the *User Guide*.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The length of time during which a message will be unavailable after a message
 	// is delivered from the queue. This blocks other components from receiving the
@@ -211,7 +211,7 @@ import "strings"
 	VisibilityTimeout?: int & <=43200 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

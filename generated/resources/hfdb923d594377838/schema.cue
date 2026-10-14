@@ -16,30 +16,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::BackupPlan
-#Properties: close({
-	BackupPlan!: _#defs."/$defs/Properties/definitions/BackupPlanResourceType"
-	BackupPlanTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::BackupPlan"
+	Properties!: close({
+		BackupPlan!: #BackupPlanResourceType
+		BackupPlanTags?: close({
 
-		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AdvancedBackupSettingResourceType": close({
+#AdvancedBackupSettingResourceType: close({
 	BackupOptions!: fn.#Object & {...} | string | fn.#StringObjectExpression
 	ResourceType!:  =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BackupPlanResourceType": close({
-	AdvancedBackupSettings?: [..._#defs."/$defs/Properties/definitions/AdvancedBackupSettingResourceType"] |
-		fn.#ListExpression
-	BackupPlanName!: string | fn.#StringExpression
-	BackupPlanRule!: [..._#defs."/$defs/Properties/definitions/BackupRuleResourceType"] | fn.#ListExpression
-	ScanSettings?:   [..._#defs."/$defs/Properties/definitions/ScanSettingResourceType"] | fn.#ListExpression
+#BackupPlanResourceType: close({
+	AdvancedBackupSettings?: [...#AdvancedBackupSettingResourceType] | fn.#ListExpression
+	BackupPlanName!:         string | fn.#StringExpression
+	BackupPlanRule!:         [...#BackupRuleResourceType] | fn.#ListExpression
+	ScanSettings?:           [...#ScanSettingResourceType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BackupRuleResourceType": close({
+#BackupRuleResourceType: close({
 	CompletionWindowMinutes?: number |
 		{
 			string &
@@ -59,16 +61,16 @@ _#defs: "/$defs/Properties/definitions/BackupRuleResourceType": close({
 				)
 		} |
 		fn.#NumberExpression
-	CopyActions?:            [..._#defs."/$defs/Properties/definitions/CopyActionResourceType"] | fn.#ListExpression
+	CopyActions?:            [...#CopyActionResourceType] | fn.#ListExpression
 	EnableContinuousBackup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IndexActions?:           [..._#defs."/$defs/Properties/definitions/IndexActionsResourceType"] | fn.#ListExpression
-	Lifecycle?:              _#defs."/$defs/Properties/definitions/LifecycleResourceType"
+	IndexActions?:           [...#IndexActionsResourceType] | fn.#ListExpression
+	Lifecycle?:              #LifecycleResourceType
 	RecoveryPointTags?: close({
 
 		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	RuleName!:                   string | fn.#StringExpression
-	ScanActions?:                [..._#defs."/$defs/Properties/definitions/ScanActionResourceType"] | fn.#ListExpression
+	ScanActions?:                [...#ScanActionResourceType] | fn.#ListExpression
 	ScheduleExpression?:         string | fn.#StringExpression
 	ScheduleExpressionTimezone?: string | fn.#StringExpression
 	StartWindowMinutes?: number |
@@ -95,18 +97,15 @@ _#defs: "/$defs/Properties/definitions/BackupRuleResourceType": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CopyActionResourceType": close({
+#CopyActionResourceType: close({
 	DestinationBackupVaultArn!: string | fn.#StringExpression
-	Lifecycle?:                 _#defs."/$defs/Properties/definitions/LifecycleResourceType"
+	Lifecycle?:                 #LifecycleResourceType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IndexActionsResourceType": close(
-	{ResourceTypes?: _#defs."/$defs/Properties/definitions/ResourceTypes"},
-) |
-	fn.#ObjectExpression
+#IndexActionsResourceType: close({ResourceTypes?: #ResourceTypes}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleResourceType": close({
+#LifecycleResourceType: close({
 	DeleteAfterDays?: number |
 		{
 			string &
@@ -156,31 +155,24 @@ _#defs: "/$defs/Properties/definitions/LifecycleResourceType": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MalwareScanner": "GUARDDUTY" | fn.#StringExpression
+#MalwareScanner: "GUARDDUTY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceType": =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" | fn.#StringExpression
+#ResourceType: =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTypes": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/ResourceType"
-] |
-	fn.#ListExpression
+#ResourceTypes: list.UniqueItems() & [...#ResourceType] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ScanActionResourceType": close({
-	MalwareScanner?: _#defs."/$defs/Properties/definitions/MalwareScanner"
-	ScanMode?:       _#defs."/$defs/Properties/definitions/ScanMode"
+#ScanActionResourceType: close({
+	MalwareScanner?: #MalwareScanner
+	ScanMode?:       #ScanMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScanMode": "FULL_SCAN" | "INCREMENTAL_SCAN" | fn.#StringExpression
+#ScanMode: "FULL_SCAN" | "INCREMENTAL_SCAN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScanSettingResourceType": close({
-	MalwareScanner?: _#defs."/$defs/Properties/definitions/MalwareScanner"
-	ResourceTypes?:  _#defs."/$defs/Properties/definitions/ResourceTypes"
+#ScanSettingResourceType: close({
+	MalwareScanner?: #MalwareScanner
+	ResourceTypes?:  #ResourceTypes
 	ScannerRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::BackupPlan"
-	Properties!: #Properties
-}

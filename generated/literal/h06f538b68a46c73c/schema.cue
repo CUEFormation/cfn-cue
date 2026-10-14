@@ -7,7 +7,7 @@ package schema
 // Resource Type definition for AWS::EC2::TransitGatewayConnectPeer
 #Properties: close({
 	// The Connect peer details.
-	ConnectPeerConfiguration!: _#defs."/$defs/Properties/definitions/TransitGatewayConnectPeerConfiguration"
+	ConnectPeerConfiguration!: #TransitGatewayConnectPeerConfiguration
 
 	// The creation time.
 	CreationTime?: string
@@ -16,7 +16,7 @@ package schema
 	State?: string
 
 	// The tags for the Connect Peer.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the Connect attachment.
 	TransitGatewayAttachmentId!: string
@@ -25,7 +25,7 @@ package schema
 	TransitGatewayConnectPeerId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag. Constraints: Tag keys are case-sensitive and accept a
 	// maximum of 127 Unicode characters. May not begin with aws: .
 	Key?: string
@@ -35,7 +35,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration": close({
+#TransitGatewayAttachmentBgpConfiguration: close({
 	// The BGP status.
 	BgpStatus?: string
 
@@ -52,9 +52,9 @@ _#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration"
 	TransitGatewayAsn?: number
 })
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayConnectPeerConfiguration": close({
+#TransitGatewayConnectPeerConfiguration: close({
 	// The BGP configuration details.
-	BgpConfigurations?: [..._#defs."/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration"]
+	BgpConfigurations?: [...#TransitGatewayAttachmentBgpConfiguration]
 
 	// The range of interior BGP peer IP addresses.
 	InsideCidrBlocks!: [...string]

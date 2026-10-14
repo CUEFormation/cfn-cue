@@ -18,19 +18,7 @@ package schema
 // specify all types or all codes, use -1.
 // Rule changes are propagated to instances associated with the security group
 // as quickly as possible. However, a small delay might occur.
-#Properties: matchN(1, [{
-	CidrIp!: _
-	...
-}, {
-	CidrIpv6!: _
-	...
-}, {
-	DestinationPrefixListId!: _
-	...
-}, {
-	DestinationSecurityGroupId!: _
-	...
-}]) & close({
+#Properties: close({
 	// The IPv4 address range, in CIDR format.
 	// You must specify exactly one of the following: ``CidrIp``, ``CidrIpv6``,
 	// ``DestinationPrefixListId``, or ``DestinationSecurityGroupId``.
@@ -91,4 +79,28 @@ package schema
 	// the start port is -1 (all ICMP types), then the end port must be -1 (all
 	// ICMP codes).
 	ToPort?: int & >=-1
-})
+	if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
+		CidrIpv6?: close({"Fn::If": _}) | error(
+			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+		)
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
+			"DestinationPrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+		)
+		DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
+			"DestinationSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+		)
+	}
+	if CidrIpv6 != _|_ if CidrIpv6."Fn::If" == _|_ {
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
+			"DestinationPrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+		)
+		DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
+			"DestinationSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+		)
+	}
+	if DestinationPrefixListId != _|_ if DestinationPrefixListId."Fn::If" == _|_ {
+		DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
+			"DestinationSecurityGroupId cannot be used with DestinationPrefixListId; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+		)
+	}
+}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationPrefixListId!: _}, {DestinationSecurityGroupId!: _}])

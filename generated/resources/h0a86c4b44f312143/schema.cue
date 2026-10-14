@@ -17,30 +17,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Distribution
-#Properties: close({
-	BundleId!:              string | fn.#StringExpression
-	CacheBehaviorSettings?: _#defs."/$defs/Properties/definitions/CacheSettings" | fn.#ObjectExpression
-	CacheBehaviors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CacheBehaviorPerPath"] |
-		fn.#ListExpression
-	CertificateName?:      =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	DefaultCacheBehavior!: _#defs."/$defs/Properties/definitions/CacheBehavior" | fn.#ObjectExpression
-	DistributionName!:     =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
-	IpAddressType?:        "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
-	IsEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Origin!:               _#defs."/$defs/Properties/definitions/InputOrigin" | fn.#ObjectExpression
-	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Distribution"
+	Properties!: close({
+		BundleId!: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CacheBehavior": close({Behavior?: "cache" | "dont-cache" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+		// An object that describes the cache behavior settings for the distribution.
+		CacheBehaviorSettings?: #CacheSettings
+		CacheBehaviors?:        list.UniqueItems() & [...#CacheBehaviorPerPath] | fn.#ListExpression
+		CertificateName?:       =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CacheBehaviorPerPath": close({
+		// An object that describes the default cache behavior for the distribution.
+		DefaultCacheBehavior!: #CacheBehavior
+		DistributionName!:     =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
+		IpAddressType?:        "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
+		IsEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// An object that describes the origin resource for the distribution, such as a
+		// Lightsail instance or load balancer.
+		Origin!: #InputOrigin
+		Tags?:   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#CacheBehavior: close({Behavior?: "cache" | "dont-cache" | fn.#StringExpression}) | fn.#ObjectExpression
+
+#CacheBehaviorPerPath: close({
 	Behavior?: "cache" | "dont-cache" | fn.#StringExpression
 	Path?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CacheSettings": close({
+#CacheSettings: close({
 	AllowedHTTPMethods?: =~"\\S" | fn.#StringExpression
 	CachedHTTPMethods?:  =~"\\S" | fn.#StringExpression
 	DefaultTTL?: int |
@@ -57,9 +65,18 @@ _#defs: "/$defs/Properties/definitions/CacheSettings": close({
 				)
 		} |
 		fn.#NumberExpression
-	ForwardedCookies?:      _#defs."/$defs/Properties/definitions/CookieObject" | fn.#ObjectExpression
-	ForwardedHeaders?:      _#defs."/$defs/Properties/definitions/HeaderObject" | fn.#ObjectExpression
-	ForwardedQueryStrings?: _#defs."/$defs/Properties/definitions/QueryStringObject" | fn.#ObjectExpression
+
+	// An object that describes the cookies that are forwarded to the origin. Your
+	// content is cached based on the cookies that are forwarded.
+	ForwardedCookies?: #CookieObject
+
+	// An object that describes the headers that are forwarded to the origin. Your
+	// content is cached based on the headers that are forwarded.
+	ForwardedHeaders?: #HeaderObject
+
+	// An object that describes the query strings that are forwarded to the origin.
+	// Your content is cached based on the query strings that are forwarded.
+	ForwardedQueryStrings?: #QueryStringObject
 	MaximumTTL?: int |
 		{
 			string &
@@ -91,19 +108,19 @@ _#defs: "/$defs/Properties/definitions/CacheSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CookieObject": close({
+#CookieObject: close({
 	CookiesAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Option?:           "all" | "allow-list" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderObject": close({
+#HeaderObject: close({
 	HeadersAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Option?:           "all" | "allow-list" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputOrigin": close({
+#InputOrigin: close({
 	Name?:           =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
 	ProtocolPolicy?: "http-only" | "https-only" | fn.#StringExpression
 	RegionName?: "ap-east-1" |
@@ -130,18 +147,14 @@ _#defs: "/$defs/Properties/definitions/InputOrigin": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringObject": close({
+#QueryStringObject: close({
 	Option?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QueryStringsAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Distribution"
-	Properties!: #Properties
-}

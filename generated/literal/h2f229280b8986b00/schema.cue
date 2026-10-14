@@ -12,77 +12,73 @@ import (
 // IdNamespace defined in AWS Entity Resolution service
 #Properties: close({
 	// The date and time when the IdNamespace was created
-	CreatedAt?:   string
-	Description?: strings.MaxRunes(255) & strings.MinRunes(0)
-	IdMappingWorkflowProperties?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IdNamespaceIdMappingWorkflowProperties"
-	]
+	CreatedAt?:                   string
+	Description?:                 strings.MaxRunes(255) & strings.MinRunes(0)
+	IdMappingWorkflowProperties?: list.MaxItems(1) & list.MinItems(1) & [...#IdNamespaceIdMappingWorkflowProperties]
 
 	// The arn associated with the IdNamespace
 	IdNamespaceArn?:
 		=~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$"
-	IdNamespaceName!:   _#defs."/$defs/Properties/definitions/EntityName"
-	InputSourceConfig?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/IdNamespaceInputSource"]
+	IdNamespaceName!:   #EntityName
+	InputSourceConfig?: list.MaxItems(20) & [...] & [...#IdNamespaceInputSource]
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(32) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 	Type!: "SOURCE" | "TARGET"
 
 	// The date and time when the IdNamespace was updated
 	UpdatedAt?: string
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(255) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z_0-9- \\t]*$"
+#AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$"
 
-_#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9-]*$"
+#EntityName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9-]*$"
 
-_#defs: "/$defs/Properties/definitions/IdNamespaceIdMappingWorkflowProperties": close({
+#IdNamespaceIdMappingWorkflowProperties: close({
 	IdMappingType!:       "PROVIDER" | "RULE_BASED"
-	ProviderProperties?:  _#defs."/$defs/Properties/definitions/NamespaceProviderProperties"
-	RuleBasedProperties?: _#defs."/$defs/Properties/definitions/NamespaceRuleBasedProperties"
+	ProviderProperties?:  #NamespaceProviderProperties
+	RuleBasedProperties?: #NamespaceRuleBasedProperties
 })
 
-_#defs: "/$defs/Properties/definitions/IdNamespaceInputSource": close({
+#IdNamespaceInputSource: close({
 	InputSourceARN!:
 		=~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$"
-	SchemaName?: _#defs."/$defs/Properties/definitions/EntityName"
+	SchemaName?: #EntityName
 })
 
-_#defs: "/$defs/Properties/definitions/NamespaceProviderProperties": close({
+#NamespaceProviderProperties: close({
 	// Additional Provider configuration that would be required for the provider
 	// service. The Configuration must be in JSON string format.
 	ProviderConfiguration?: close({
 
 		{[=~"^.+$"]: string}})
-	ProviderServiceArn!: _#defs."/$defs/Properties/definitions/ProviderServiceArn"
+	ProviderServiceArn!: #ProviderServiceArn
 })
 
-_#defs: "/$defs/Properties/definitions/NamespaceRuleBasedProperties": close({
+#NamespaceRuleBasedProperties: close({
 	AttributeMatchingModel?: "ONE_TO_ONE" | "MANY_TO_MANY"
-	RecordMatchingModels?:   [..._#defs."/$defs/Properties/definitions/RecordMatchingModel"]
-	RuleDefinitionTypes?:    [..._#defs."/$defs/Properties/definitions/RuleDefinitionType"]
-	Rules?:                  list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"]
+	RecordMatchingModels?:   [...#RecordMatchingModel]
+	RuleDefinitionTypes?:    [...#RuleDefinitionType]
+	Rules?:                  list.MaxItems(25) & list.MinItems(1) & [...#Rule]
 })
 
-_#defs: "/$defs/Properties/definitions/ProviderServiceArn": strings.MaxRunes(255) &
+#ProviderServiceArn: strings.MaxRunes(255) &
 strings.MinRunes(20) &
 =~"^arn:(aws|aws-us-gov|aws-cn):(entityresolution):([a-z]{2}-[a-z]{1,10}-[0-9])::providerservice/([a-zA-Z0-9_-]{1,255})/([a-zA-Z0-9_-]{1,255})$"
 
-_#defs: "/$defs/Properties/definitions/RecordMatchingModel": "ONE_SOURCE_TO_ONE_TARGET" | "MANY_SOURCE_TO_ONE_TARGET"
+#RecordMatchingModel: "ONE_SOURCE_TO_ONE_TARGET" | "MANY_SOURCE_TO_ONE_TARGET"
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	MatchingKeys!: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AttributeName"]
+#Rule: close({
+	MatchingKeys!: list.MaxItems(25) & list.MinItems(1) & [...#AttributeName]
 	RuleName!:     strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/RuleDefinitionType": "SOURCE" | "TARGET"
+#RuleDefinitionType: "SOURCE" | "TARGET"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

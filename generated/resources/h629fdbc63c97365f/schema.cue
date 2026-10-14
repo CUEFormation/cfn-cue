@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for StateMachineVersion
-#Properties: close({
-	Description?:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	StateMachineArn!:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	StateMachineRevisionId?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::StepFunctions::StateMachineVersion"
-	Properties!: #Properties
+	Type!: "AWS::StepFunctions::StateMachineVersion"
+	Properties!: close({
+		Description?:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		StateMachineArn!:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		StateMachineRevisionId?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

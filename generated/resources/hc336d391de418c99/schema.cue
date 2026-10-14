@@ -13,78 +13,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AppSync ChannelNamespace
-#Properties: close({
-	ApiId!:              string | fn.#StringExpression
-	CodeHandlers?:       _#defs."/$defs/Properties/definitions/Code"
-	CodeS3Location?:     string | fn.#StringExpression
-	HandlerConfigs?:     _#defs."/$defs/Properties/definitions/HandlerConfigs"
-	Name!:               _#defs."/$defs/Properties/definitions/Namespace"
-	PublishAuthModes?:   _#defs."/$defs/Properties/definitions/AuthModes" | fn.#ListExpression
-	SubscribeAuthModes?: _#defs."/$defs/Properties/definitions/AuthModes" | fn.#ListExpression
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::ChannelNamespace"
+	Properties!: close({
+		ApiId!:          string | fn.#StringExpression
+		CodeHandlers?:   #Code
+		CodeS3Location?: string | fn.#StringExpression
+		HandlerConfigs?: #HandlerConfigs
+		Name!:           #Namespace
 
-_#defs: "/$defs/Properties/definitions/AuthMode": close(
-	{AuthType?: _#defs."/$defs/Properties/definitions/AuthenticationType"},
-) |
-	fn.#ObjectExpression
+		// List of AuthModes supported for Publish operations.
+		PublishAuthModes?: #AuthModes
 
-_#defs: "/$defs/Properties/definitions/AuthModes": [..._#defs."/$defs/Properties/definitions/AuthMode"] |
-	fn.#ListExpression
+		// List of AuthModes supported for Subscribe operations.
+		SubscribeAuthModes?: #AuthModes
+		Tags?:               #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "AMAZON_COGNITO_USER_POOLS" |
+#AuthMode: close({AuthType?: #AuthenticationType}) | fn.#ObjectExpression
+
+#AuthModes: [...#AuthMode] | fn.#ListExpression
+
+#AuthenticationType: "AMAZON_COGNITO_USER_POOLS" |
 	"AWS_IAM" |
 	"API_KEY" |
 	"OPENID_CONNECT" |
 	"AWS_LAMBDA" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelNamespaceArn": string | fn.#StringExpression
+#ChannelNamespaceArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Code": strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
+#Code: strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HandlerBehavior": "CODE" | "DIRECT" | fn.#StringExpression
+#HandlerBehavior: "CODE" | "DIRECT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HandlerConfig": close({
-	Behavior!:    _#defs."/$defs/Properties/definitions/HandlerBehavior"
-	Integration!: _#defs."/$defs/Properties/definitions/Integration"
+#HandlerConfig: close({
+	Behavior!:    #HandlerBehavior
+	Integration!: #Integration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HandlerConfigs": close({
-	OnPublish?:   _#defs."/$defs/Properties/definitions/HandlerConfig"
-	OnSubscribe?: _#defs."/$defs/Properties/definitions/HandlerConfig"
+#HandlerConfigs: close({
+	OnPublish?:   #HandlerConfig
+	OnSubscribe?: #HandlerConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Integration": close({
+#Integration: close({
 	DataSourceName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"([_A-Za-z][_0-9A-Za-z]{0,511})?" |
 	fn.#StringExpression
-	LambdaConfig?: _#defs."/$defs/Properties/definitions/LambdaConfig"
+	LambdaConfig?: #LambdaConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InvokeType": "REQUEST_RESPONSE" | "EVENT" | fn.#StringExpression
+#InvokeType: "REQUEST_RESPONSE" | "EVENT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close(
-	{InvokeType!: _#defs."/$defs/Properties/definitions/InvokeType"},
-) |
-	fn.#ObjectExpression
+#LambdaConfig: close({InvokeType!: #InvokeType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(50) &
-strings.MinRunes(1) &
-=~"([A-Za-z0-9](?:[A-Za-z0-9\\-]{0,48}[A-Za-z0-9])?)" |
+#Namespace: strings.MaxRunes(50) & strings.MinRunes(1) & =~"([A-Za-z0-9](?:[A-Za-z0-9\\-]{0,48}[A-Za-z0-9])?)" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::ChannelNamespace"
-	Properties!: #Properties
-}
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression

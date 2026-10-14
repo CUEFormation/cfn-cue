@@ -3,17 +3,15 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for SSO PermissionSet
 #Properties: close({
-	CustomerManagedPolicyReferences?: list.MaxItems(25) & [
-		..._#defs."/$defs/Properties/definitions/CustomerManagedPolicyReference"
-	]
+	CustomerManagedPolicyReferences?: list.MaxItems(25) & [...#CustomerManagedPolicyReference]
 
 	// The permission set description.
 	Description?: strings.MaxRunes(700) &
@@ -27,7 +25,7 @@ import (
 	InstanceArn!: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}"
-	ManagedPolicies?: list.MaxItems(25) & [..._#defs."/$defs/Properties/definitions/ManagedPolicyArn"]
+	ManagedPolicies?: list.MaxItems(25) & [...#ManagedPolicyArn]
 
 	// The name you want to assign to this permission set.
 	Name!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"[\\w+=,.@-]+"
@@ -36,7 +34,7 @@ import (
 	PermissionSetArn?: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::permissionSet/(sso)?ins-[a-zA-Z0-9-.]{16}/ps-[a-zA-Z0-9-./]{16}"
-	PermissionsBoundary?: _#defs."/$defs/Properties/definitions/PermissionsBoundary"
+	PermissionsBoundary?: #PermissionsBoundary
 
 	// The relay state URL that redirect links to any service in the AWS Management Console.
 	RelayStateType?: strings.MaxRunes(240) &
@@ -45,24 +43,24 @@ import (
 
 	// The length of time that a user can be signed in to an AWS account.
 	SessionDuration?: strings.MaxRunes(100) & strings.MinRunes(1)
-	Tags?:            list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:            list.MaxItems(50) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedPolicyReference": close({
+#CustomerManagedPolicyReference: close({
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+"
 	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"((/[A-Za-z0-9\\.,\\+@=_-]+)*)/"
 })
 
 // The managed policy to attach.
-_#defs: "/$defs/Properties/definitions/ManagedPolicyArn": strings.MaxRunes(2048) & strings.MinRunes(20)
+#ManagedPolicyArn: strings.MaxRunes(2048) & strings.MinRunes(20)
 
-_#defs: "/$defs/Properties/definitions/PermissionsBoundary": close({
-	CustomerManagedPolicyReference?: _#defs."/$defs/Properties/definitions/CustomerManagedPolicyReference"
-	ManagedPolicyArn?:               _#defs."/$defs/Properties/definitions/ManagedPolicyArn"
+#PermissionsBoundary: close({
+	CustomerManagedPolicyReference?: #CustomerManagedPolicyReference
+	ManagedPolicyArn?:               #ManagedPolicyArn
 })
 
 // The metadata that you apply to the permission set to help you categorize and organize them.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w+=,.@-]+"
 })

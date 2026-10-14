@@ -28,14 +28,14 @@ import (
 	SubnetIds!: list.MaxItems(3) & list.MinItems(2) & [
 		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$"
 	]
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 	strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^vpc-[0-9a-z]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

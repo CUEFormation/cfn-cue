@@ -34,14 +34,14 @@ import (
 	StateReason?: string
 
 	// A list of tags to apply to the function.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The timestamp when the function was last updated.
 	UpdatedAt?: time.Time
 })
 
 // A key-value pair to associate with the function.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

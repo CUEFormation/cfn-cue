@@ -9,8 +9,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::ReceiptRuleSet
-#Properties: close({RuleSetName?: string | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SES::ReceiptRuleSet"
-	Properties?: #Properties
+	Properties?: close({RuleSetName?: string | fn.#StringExpression})
 }

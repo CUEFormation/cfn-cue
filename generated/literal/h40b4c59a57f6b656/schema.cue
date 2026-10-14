@@ -7,13 +7,7 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::SimSpaceWeaver::Simulation resource creates an AWS Simulation.
-#Properties: matchN(1, [{
-	SchemaS3Location!: _
-	...
-}, {
-	SnapshotS3Location!: _
-	...
-}]) & close({
+#Properties: close({
 	// Json object with all simulation details
 	DescribePayload?: string
 
@@ -25,11 +19,16 @@ import "strings"
 
 	// Role ARN.
 	RoleArn!:            =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	SchemaS3Location?:   _#defs."/$defs/Properties/definitions/S3Location"
-	SnapshotS3Location?: _#defs."/$defs/Properties/definitions/S3Location"
-})
+	SchemaS3Location?:   #S3Location
+	SnapshotS3Location?: #S3Location
+	if SchemaS3Location != _|_ if SchemaS3Location."Fn::If" == _|_ {
+		SnapshotS3Location?: close({"Fn::If": _}) | error(
+			"SnapshotS3Location cannot be used with SchemaS3Location; set exactly one of SchemaS3Location, SnapshotS3Location",
+		)
+	}
+}) & matchN(>=1, [{SchemaS3Location!: _}, {SnapshotS3Location!: _}])
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The Schema S3 bucket name.
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-zA-Z0-9_\\-]{3,63}$"
 

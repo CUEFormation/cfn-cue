@@ -13,39 +13,37 @@ import (
 #Properties: close({
 	Arn?:                     strings.MaxRunes(256)
 	CollaborationArn?:        strings.MaxRunes(100)
-	CollaborationIdentifier?: _#defs."/$defs/Properties/definitions/UUID"
+	CollaborationIdentifier?: #UUID
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$"
-	IdMappingConfig?:                  _#defs."/$defs/Properties/definitions/IdMappingConfig"
-	IdNamespaceAssociationIdentifier?: _#defs."/$defs/Properties/definitions/UUID"
-	InputReferenceConfig!:             _#defs."/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceConfig"
-	InputReferenceProperties?:         _#defs."/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceProperties"
+	IdMappingConfig?:                  #IdMappingConfig
+	IdNamespaceAssociationIdentifier?: #UUID
+	InputReferenceConfig!:             #IdNamespaceAssociationInputReferenceConfig
+	InputReferenceProperties?:         #IdNamespaceAssociationInputReferenceProperties
 	MembershipArn?:                    strings.MaxRunes(100)
-	MembershipIdentifier!:             _#defs."/$defs/Properties/definitions/UUID"
+	MembershipIdentifier!:             #UUID
 	Name!:                             strings.MaxRunes(100) & strings.MinRunes(1)
-	Tags?:                             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                             list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Document": string | {...}
+#Document: string | {...}
 
-_#defs: "/$defs/Properties/definitions/IdMappingConfig": close({AllowUseAsDimensionColumn!: bool})
+#IdMappingConfig: close({AllowUseAsDimensionColumn!: bool})
 
-_#defs: "/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceConfig": close({
+#IdNamespaceAssociationInputReferenceConfig: close({
 	InputReferenceArn!: strings.MaxRunes(256) &
 	=~"^arn:aws:entityresolution:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:idnamespace/[\\d\\w-]+$"
 	ManageResourcePolicies!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/IdNamespaceAssociationInputReferenceProperties": close({
-	IdMappingWorkflowsSupported?: [..._#defs."/$defs/Properties/definitions/Document"]
+#IdNamespaceAssociationInputReferenceProperties: close({
+	IdMappingWorkflowsSupported?: [...#Document]
 	IdNamespaceType?:             "SOURCE" | "TARGET"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/UUID": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"

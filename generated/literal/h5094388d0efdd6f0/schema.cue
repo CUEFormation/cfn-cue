@@ -33,11 +33,11 @@ import (
 	OwnerType?: "USER" | "ROLE" | "GROUP"
 
 	// The resource URIs for the function.
-	ResourceUris?: list.MaxItems(1000) & [..._#defs."/$defs/Properties/definitions/ResourceUri"]
+	ResourceUris?: list.MaxItems(1000) & [...#ResourceUri]
 })
 
 // The URIs for function resources.
-_#defs: "/$defs/Properties/definitions/ResourceUri": close({
+#ResourceUri: close({
 	// The type of the resource.
 	ResourceType?: "JAR" | "FILE" | "ARCHIVE"
 

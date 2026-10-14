@@ -22,7 +22,7 @@ import (
 
 	// The URL of the FSx OpenZFS that was described.
 	LocationUri?: strings.MaxRunes(4356) & =~"^(efs|nfs|s3|smb|fsxw|hdfs|fsxl|fsxz)://[a-zA-Z0-9.:/\\-]+$"
-	Protocol!:    _#defs."/$defs/Properties/definitions/Protocol"
+	Protocol!:    #Protocol
 
 	// The ARNs of the security groups that are to use to configure the FSx OpenZFS file system.
 	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
@@ -35,23 +35,23 @@ import (
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // The NFS mount options that DataSync can use to mount your NFS share.
-_#defs: "/$defs/Properties/definitions/MountOptions": close({
+#MountOptions: close({
 	// The specific NFS version that you want DataSync to use to mount your NFS share.
 	Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1" | "NFS4_2"
 })
 
 // FSx OpenZFS file system NFS protocol information
-_#defs: "/$defs/Properties/definitions/NFS": close({MountOptions!: _#defs."/$defs/Properties/definitions/MountOptions"})
+#NFS: close({MountOptions!: #MountOptions})
 
 // Configuration settings for an NFS or SMB protocol, currently only support NFS
-_#defs: "/$defs/Properties/definitions/Protocol": close({NFS?: _#defs."/$defs/Properties/definitions/NFS"})
+#Protocol: close({NFS?: #NFS})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 

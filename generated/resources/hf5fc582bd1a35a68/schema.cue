@@ -16,17 +16,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Multiplexprogram
-#Properties: close({
-	MultiplexId?:              string | fn.#StringExpression
-	MultiplexProgramSettings?: _#defs."/$defs/Properties/definitions/MultiplexProgramSettings" | fn.#ObjectExpression
-	PacketIdentifiersMap?: _#defs."/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap" |
-		fn.#ObjectExpression
-	PipelineDetails?: [..._#defs."/$defs/Properties/definitions/MultiplexProgramPipelineDetail"] | fn.#ListExpression
-	PreferredChannelPipeline?: _#defs."/$defs/Properties/definitions/PreferredChannelPipeline" | fn.#StringExpression
-	ProgramName?:              string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Multiplexprogram"
+	Properties?: close({
+		MultiplexId?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap": close({
+		// The settings for this multiplex program.
+		MultiplexProgramSettings?: #MultiplexProgramSettings
+
+		// The packet identifier map for this multiplex program.
+		PacketIdentifiersMap?: #MultiplexProgramPacketIdentifiersMap
+		PipelineDetails?:      [...#MultiplexProgramPipelineDetail] | fn.#ListExpression
+
+		// The settings for this multiplex program.
+		PreferredChannelPipeline?: #PreferredChannelPipeline
+		ProgramName?:              string | fn.#StringExpression
+	})
+}
+
+#MultiplexProgramPacketIdentifiersMap: close({
 	AudioPids?: [
 		...int |
 			{
@@ -232,21 +240,20 @@ _#defs: "/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexProgramPipelineDetail": close({
+#MultiplexProgramPipelineDetail: close({
 	ActiveChannelPipeline?: string | fn.#StringExpression
 	PipelineId?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexProgramServiceDescriptor": close({
+#MultiplexProgramServiceDescriptor: close({
 	ProviderName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ServiceName!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexProgramSettings": close({
-	PreferredChannelPipeline?: _#defs."/$defs/Properties/definitions/PreferredChannelPipeline" & string |
-		fn.#StringExpression
+#MultiplexProgramSettings: close({
+	PreferredChannelPipeline?: #PreferredChannelPipeline & string | fn.#StringExpression
 	ProgramNumber!: int & <=65535 & >=0 |
 		{
 			string &
@@ -263,12 +270,16 @@ _#defs: "/$defs/Properties/definitions/MultiplexProgramSettings": close({
 				)
 		} |
 		fn.#NumberExpression
-	ServiceDescriptor?: _#defs."/$defs/Properties/definitions/MultiplexProgramServiceDescriptor" | fn.#ObjectExpression
-	VideoSettings?:     _#defs."/$defs/Properties/definitions/MultiplexVideoSettings" | fn.#ObjectExpression
+
+	// Transport stream service descriptor configuration for the Multiplex program.
+	ServiceDescriptor?: #MultiplexProgramServiceDescriptor
+
+	// Program video settings configuration.
+	VideoSettings?: #MultiplexVideoSettings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexStatmuxVideoSettings": close({
+#MultiplexStatmuxVideoSettings: close({
 	MaximumBitrate?: int & <=100000000 & >=100000 |
 		{
 			string &
@@ -320,18 +331,13 @@ _#defs: "/$defs/Properties/definitions/MultiplexStatmuxVideoSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexVideoSettings": fn.#Object & {...} & matchN(1, [close(
+#MultiplexVideoSettings: fn.#Object & {...} & matchN(1, [close(
 	{ConstantBitrate!: int & <=100000000 & >=100000 | fn.#NumberExpression},
-), close(
-	{StatmuxSettings!: _#defs."/$defs/Properties/definitions/MultiplexStatmuxVideoSettings" | fn.#ObjectExpression},
-)]) |
+), close({
+	// Statmux rate control settings.
+	// When this field is defined, ConstantBitrate must be undefined.
+	StatmuxSettings!: #MultiplexStatmuxVideoSettings
+})]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PreferredChannelPipeline": "CURRENTLY_ACTIVE" |
-	"PIPELINE_0" |
-	"PIPELINE_1" |
-	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Multiplexprogram"
-	Properties?: #Properties
-}
+#PreferredChannelPipeline: "CURRENTLY_ACTIVE" | "PIPELINE_0" | "PIPELINE_1" | fn.#StringExpression

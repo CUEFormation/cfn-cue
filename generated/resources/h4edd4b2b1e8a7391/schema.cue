@@ -15,62 +15,67 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a routing rule. When the incoming request to a domain name matches
 // the conditions for a rule, API Gateway invokes a stage of a target API.
 // Supported only for REST APIs.
-#Properties: close({
-	Actions!:       [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
-	Conditions!:    [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
-	DomainNameArn!: string | fn.#StringExpression
-	Priority!: int & <=1000000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1000000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::RoutingRule"
+	Properties!: close({
+		Actions!:       [...#Action] | fn.#ListExpression
+		Conditions!:    [...#Condition] | fn.#ListExpression
+		DomainNameArn!: string | fn.#StringExpression
+		Priority!: int & <=1000000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1000000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Action": {
-	InvokeApi!: _#defs."/$defs/Properties/definitions/ActionInvokeApi" | fn.#ObjectExpression
+#Action: {
+	// Represents an InvokeApi action.
+	InvokeApi!: #ActionInvokeApi
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ActionInvokeApi": {
+#ActionInvokeApi: {
 	ApiId!:         string | fn.#StringExpression
 	Stage!:         string | fn.#StringExpression
 	StripBasePath?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Condition": {
-	MatchBasePaths?: _#defs."/$defs/Properties/definitions/MatchBasePaths" | fn.#ObjectExpression
-	MatchHeaders?:   _#defs."/$defs/Properties/definitions/MatchHeaders" | fn.#ObjectExpression
+#Condition: {
+	// The base path to be matched.
+	MatchBasePaths?: #MatchBasePaths
+
+	// The headers to be matched.
+	MatchHeaders?: #MatchHeaders
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchBasePaths": {
+#MatchBasePaths: {
 	AnyOf!: [...string | fn.#StringExpression] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchHeaderValue": {
+#MatchHeaderValue: {
 	Header!:    string | fn.#StringExpression
 	ValueGlob!: string | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchHeaders": {
-	AnyOf!: [..._#defs."/$defs/Properties/definitions/MatchHeaderValue"] | fn.#ListExpression
+#MatchHeaders: {
+	AnyOf!: [...#MatchHeaderValue] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::RoutingRule"
-	Properties!: #Properties
-}

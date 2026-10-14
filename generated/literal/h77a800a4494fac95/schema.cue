@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"struct"
+	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -37,23 +37,23 @@ import (
 	ResourceGroup?: string
 
 	// LaunchWizard deployment specifications
-	Specifications?: _#defs."/$defs/Properties/definitions/DeploymentSpecifications"
+	Specifications?: #DeploymentSpecifications
 
 	// Status of LaunchWizard deployment
-	Status?: _#defs."/$defs/Properties/definitions/DeploymentStatus"
+	Status?: #DeploymentStatus
 
 	// Tags for LaunchWizard deployment
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags"]
+	Tags?: [...#Tags]
 
 	// Workload Name for LaunchWizard deployment
 	WorkloadName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z][a-zA-Z0-9-_]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/DeploymentSpecifications": struct.MaxFields(100) & struct.MinFields(1) & close({
+#DeploymentSpecifications: struct.MaxFields(100) & struct.MinFields(1) & close({
 
 	{[=~"^[a-zA-Z0-9-:]{3,256}$"]: strings.MaxRunes(1500) & strings.MinRunes(1)}})
 
-_#defs: "/$defs/Properties/definitions/DeploymentStatus": "COMPLETED" |
+#DeploymentStatus: "COMPLETED" |
 	"CREATING" |
 	"DELETE_IN_PROGRESS" |
 	"DELETE_INITIATING" |
@@ -63,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentStatus": "COMPLETED" |
 	"IN_PROGRESS" |
 	"VALIDATING"
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

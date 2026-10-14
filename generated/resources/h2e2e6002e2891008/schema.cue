@@ -9,14 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::ClientVpnAuthorizationRule
-#Properties: close({
-	AccessGroupId?:       string | fn.#StringExpression
-	AuthorizeAllGroups?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ClientVpnEndpointId!: string | fn.#StringExpression
-	Description?:         string | fn.#StringExpression
-	TargetNetworkCidr!:   string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::ClientVpnAuthorizationRule"
-	Properties!: #Properties
+	Type!: "AWS::EC2::ClientVpnAuthorizationRule"
+	Properties!: close({
+		AccessGroupId?:       string | fn.#StringExpression
+		AuthorizeAllGroups?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ClientVpnEndpointId!: string | fn.#StringExpression
+		Description?:         string | fn.#StringExpression
+		TargetNetworkCidr!:   string | fn.#StringExpression
+	})
 }

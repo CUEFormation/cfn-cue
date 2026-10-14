@@ -6,39 +6,39 @@ package schema
 
 // Resource Type definition for AWS::Budgets::Budget
 #Properties: close({
-	Budget!:                       _#defs."/$defs/Properties/definitions/BudgetData"
+	Budget!:                       #BudgetData
 	Id?:                           string
-	NotificationsWithSubscribers?: [..._#defs."/$defs/Properties/definitions/NotificationWithSubscribers"]
-	ResourceTags?:                 [..._#defs."/$defs/Properties/definitions/ResourceTag"]
+	NotificationsWithSubscribers?: [...#NotificationWithSubscribers]
+	ResourceTags?:                 [...#ResourceTag]
 })
 
-_#defs: "/$defs/Properties/definitions/AutoAdjustData": close({
+#AutoAdjustData: close({
 	AutoAdjustType!:    string
-	HistoricalOptions?: _#defs."/$defs/Properties/definitions/HistoricalOptions"
+	HistoricalOptions?: #HistoricalOptions
 })
 
-_#defs: "/$defs/Properties/definitions/BudgetData": close({
-	AutoAdjustData?:      _#defs."/$defs/Properties/definitions/AutoAdjustData"
+#BudgetData: close({
+	AutoAdjustData?:      #AutoAdjustData
 	BillingViewArn?:      string
-	BudgetLimit?:         _#defs."/$defs/Properties/definitions/Spend"
+	BudgetLimit?:         #Spend
 	BudgetName?:          string
 	BudgetType!:          string
 	CostFilters?:         string | {...}
-	CostTypes?:           _#defs."/$defs/Properties/definitions/CostTypes"
-	FilterExpression?:    _#defs."/$defs/Properties/definitions/Expression"
+	CostTypes?:           #CostTypes
+	FilterExpression?:    #Expression
 	Metrics?:             [...string]
 	PlannedBudgetLimits?: string | {...}
-	TimePeriod?:          _#defs."/$defs/Properties/definitions/TimePeriod"
+	TimePeriod?:          #TimePeriod
 	TimeUnit!:            string
 })
 
-_#defs: "/$defs/Properties/definitions/CostCategoryValues": close({
+#CostCategoryValues: close({
 	Key?:          string
 	MatchOptions?: [...string]
 	Values?:       [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/CostTypes": close({
+#CostTypes: close({
 	IncludeCredit?:            bool
 	IncludeDiscount?:          bool
 	IncludeOtherSubscription?: bool
@@ -52,57 +52,57 @@ _#defs: "/$defs/Properties/definitions/CostTypes": close({
 	UseBlended?:               bool
 })
 
-_#defs: "/$defs/Properties/definitions/Expression": close({
-	And?:            [..._#defs."/$defs/Properties/definitions/Expression"]
-	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues"
-	Dimensions?:     _#defs."/$defs/Properties/definitions/ExpressionDimensionValues"
-	Not?:            _#defs."/$defs/Properties/definitions/Expression"
-	Or?:             [..._#defs."/$defs/Properties/definitions/Expression"]
-	Tags?:           _#defs."/$defs/Properties/definitions/TagValues"
+#Expression: close({
+	And?:            [...#Expression]
+	CostCategories?: #CostCategoryValues
+	Dimensions?:     #ExpressionDimensionValues
+	Not?:            #Expression
+	Or?:             [...#Expression]
+	Tags?:           #TagValues
 })
 
-_#defs: "/$defs/Properties/definitions/ExpressionDimensionValues": close({
+#ExpressionDimensionValues: close({
 	Key?:          string
 	MatchOptions?: [...string]
 	Values?:       [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/HistoricalOptions": close({BudgetAdjustmentPeriod!: int})
+#HistoricalOptions: close({BudgetAdjustmentPeriod!: int})
 
-_#defs: "/$defs/Properties/definitions/Notification": close({
+#Notification: close({
 	ComparisonOperator!: string
 	NotificationType!:   string
 	Threshold!:          <=1000000000 & >=0.1
 	ThresholdType?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/NotificationWithSubscribers": close({
-	Notification!: _#defs."/$defs/Properties/definitions/Notification"
-	Subscribers!:  [..._#defs."/$defs/Properties/definitions/Subscriber"]
+#NotificationWithSubscribers: close({
+	Notification!: #Notification
+	Subscribers!:  [...#Subscriber]
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Spend": close({
+#Spend: close({
 	Amount!: number
 	Unit!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/Subscriber": close({
+#Subscriber: close({
 	Address!:          string
 	SubscriptionType!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagValues": close({
+#TagValues: close({
 	Key?:          string
 	MatchOptions?: [...string]
 	Values?:       [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/TimePeriod": close({
+#TimePeriod: close({
 	End?:   string
 	Start?: string
 })

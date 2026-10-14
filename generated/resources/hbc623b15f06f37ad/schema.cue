@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ApplicationFleetAssociation
-#Properties: close({
-	ApplicationArn!: _#defs."/$defs/Properties/definitions/Arn"
-	FleetName!:      string | fn.#StringExpression
-})
-
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::ApplicationFleetAssociation"
-	Properties!: #Properties
+	Type!: "AWS::AppStream::ApplicationFleetAssociation"
+	Properties!: close({
+		ApplicationArn!: #Arn
+		FleetName!:      string | fn.#StringExpression
+	})
 }
+
+#Arn: string | fn.#StringExpression

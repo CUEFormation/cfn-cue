@@ -8,7 +8,7 @@ import "strings"
 
 // This schema is for testing purpose only.
 #Properties: close({
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// The current revision id.
 	CurrentRevisionId?: string
@@ -20,23 +20,23 @@ import "strings"
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]*"
 
 	// The rendering engine for the simulation application.
-	RenderingEngine?: _#defs."/$defs/Properties/definitions/RenderingEngine"
+	RenderingEngine?: #RenderingEngine
 
 	// The robot software suite used by the simulation application.
-	RobotSoftwareSuite!: _#defs."/$defs/Properties/definitions/RobotSoftwareSuite"
+	RobotSoftwareSuite!: #RobotSoftwareSuite
 
 	// The simulation software suite used by the simulation application.
-	SimulationSoftwareSuite!: _#defs."/$defs/Properties/definitions/SimulationSoftwareSuite"
+	SimulationSoftwareSuite!: #SimulationSoftwareSuite
 
 	// The sources of the simulation application.
-	Sources?: [..._#defs."/$defs/Properties/definitions/SourceConfig"]
-	Tags?:    _#defs."/$defs/Properties/definitions/Tags"
+	Sources?: [...#SourceConfig]
+	Tags?:    #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"
 
 // Information about a rendering engine.
-_#defs: "/$defs/Properties/definitions/RenderingEngine": close({
+#RenderingEngine: close({
 	// The name of the rendering engine.
 	Name!: "OGRE"
 
@@ -45,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/RenderingEngine": close({
 })
 
 // Information about a robot software suite.
-_#defs: "/$defs/Properties/definitions/RobotSoftwareSuite": close({
+#RobotSoftwareSuite: close({
 	// The name of the robot software suite.
 	Name!: "ROS" | "ROS2" | "General"
 
@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/RobotSoftwareSuite": close({
 })
 
 // Information about a simulation software suite.
-_#defs: "/$defs/Properties/definitions/SimulationSoftwareSuite": close({
+#SimulationSoftwareSuite: close({
 	// The name of the simulation software suite.
 	Name!: "Gazebo" | "RosbagPlay" | "SimulationRuntime"
 
@@ -63,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/SimulationSoftwareSuite": close({
 })
 
 // Information about a source configuration.
-_#defs: "/$defs/Properties/definitions/SourceConfig": close({
+#SourceConfig: close({
 	// The target processor architecture for the application.
 	Architecture!: "X86_64" | "ARM64" | "ARMHF"
 
@@ -75,6 +75,6 @@ _#defs: "/$defs/Properties/definitions/SourceConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1)}})

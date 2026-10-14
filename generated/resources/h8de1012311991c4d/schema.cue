@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -35,80 +35,133 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // your Identity and Access Management (IAM) policies are updated with
 // appropriate permissions to allow for the authorization of these setting
 // changes.
-#Properties: matchIf({
-	LocalSecondaryIndexes!: list.MinItems(1) | fn.#ListExpression
-	...
-}, {
-	AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
-	KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
-	...
-}, _) & {...} & close({
-	AttributeDefinitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AttributeDefinition"] |
-		fn.#ListExpression
-	BillingMode?: "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
-	ContributorInsightsSpecification?: _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification" |
-		fn.#ObjectExpression
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GlobalSecondaryIndexes?:    [..._#defs."/$defs/Properties/definitions/GlobalSecondaryIndex"] | fn.#ListExpression
-	ImportSourceSpecification?: _#defs."/$defs/Properties/definitions/ImportSourceSpecification" | fn.#ObjectExpression
-	KeySchema!: matchN(1, [
-		_#defs."/$defs/Properties/definitions/KeySchema" &
-		(null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}),
-		string | {...}
-	]) &
-	(null | bool | number | string | list.MinItems(1) | {...}) |
-	fn.#ValueExpression
-	KinesisStreamSpecification?: _#defs."/$defs/Properties/definitions/KinesisStreamSpecification" |
-		fn.#ObjectExpression
-	LocalSecondaryIndexes?: [..._#defs."/$defs/Properties/definitions/LocalSecondaryIndex"] | fn.#ListExpression
-	OnDemandThroughput?:    _#defs."/$defs/Properties/definitions/OnDemandThroughput" | fn.#ObjectExpression
-	PointInTimeRecoverySpecification?: _#defs."/$defs/Properties/definitions/PointInTimeRecoverySpecification" |
-		fn.#ObjectExpression
-	ProvisionedThroughput?:   _#defs."/$defs/Properties/definitions/ProvisionedThroughput" | fn.#ObjectExpression
-	ResourcePolicy?:          _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression
-	SSESpecification?:        _#defs."/$defs/Properties/definitions/SSESpecification" | fn.#ObjectExpression
-	StreamSpecification?:     _#defs."/$defs/Properties/definitions/StreamSpecification" | fn.#ObjectExpression
-	TableClass?:              "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
-	TableName?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeToLiveSpecification?: _#defs."/$defs/Properties/definitions/TimeToLiveSpecification" | fn.#ObjectExpression
-	VectorIndexes?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VectorIndex"] |
-		fn.#ListExpression
-	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DynamoDB::Table"
+	Properties!: matchIf({
+		LocalSecondaryIndexes!: list.MinItems(1) | fn.#ListExpression
+		...
+	}, {
+		AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
+		KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
+		...
+	}, _) & {...} & close({
+		AttributeDefinitions?: list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
+		BillingMode?:          "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeDefinition": close({
+		// The settings used to specify whether to enable CloudWatch Contributor
+		// Insights for the table and define which events to monitor.
+		ContributorInsightsSpecification?: #ContributorInsightsSpecification
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		GlobalSecondaryIndexes?: [...#GlobalSecondaryIndex] | fn.#ListExpression
+
+		// Specifies the properties of data being imported from the S3 bucket source to the" table.
+		// If you specify the ``ImportSourceSpecification`` property, and also specify
+		// either the ``StreamSpecification``, the ``TableClass`` property, the
+		// ``DeletionProtectionEnabled`` property, or the ``WarmThroughput`` property,
+		// the IAM entity creating/updating stack must have ``UpdateTable`` permission.
+		ImportSourceSpecification?: #ImportSourceSpecification
+		KeySchema!: matchN(1, [
+			#KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}),
+			string | {...}
+		]) &
+		(null | bool | number | string | list.MinItems(1) | {...}) |
+		fn.#ValueExpression
+
+		// The Kinesis Data Streams configuration for the specified table.
+		KinesisStreamSpecification?: #KinesisStreamSpecification
+		LocalSecondaryIndexes?:      [...#LocalSecondaryIndex] | fn.#ListExpression
+
+		// Sets the maximum number of read and write units for the specified on-demand
+		// table. If you use this property, you must specify ``MaxReadRequestUnits``,
+		// ``MaxWriteRequestUnits``, or both.
+		OnDemandThroughput?: #OnDemandThroughput
+
+		// The settings used to enable point in time recovery.
+		PointInTimeRecoverySpecification?: #PointInTimeRecoverySpecification
+
+		// Throughput for the specified table, which consists of values for
+		// ``ReadCapacityUnits`` and ``WriteCapacityUnits``. For more information about
+		// the contents of a provisioned throughput structure, see [Amazon DynamoDB
+		// Table
+		// ProvisionedThroughput](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_ProvisionedThroughput.html).
+		// If you set ``BillingMode`` as ``PROVISIONED``, you must specify this
+		// property. If you set ``BillingMode`` as ``PAY_PER_REQUEST``, you cannot
+		// specify this property.
+		ProvisionedThroughput?: #ProvisionedThroughput
+
+		// An AWS resource-based policy document in JSON format that will be attached to the table.
+		// When you attach a resource-based policy while creating a table, the policy
+		// application is *strongly consistent*.
+		// The maximum size supported for a resource-based policy document is 20 KB.
+		// DynamoDB counts whitespaces when calculating the size of a policy against
+		// this limit. For a full list of all considerations that apply for
+		// resource-based policies, see [Resource-based policy
+		// considerations](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/rbac-considerations.html).
+		// You need to specify the ``CreateTable`` and ``PutResourcePolicy`` IAM actions
+		// for authorizing a user to create a table with a resource-based policy.
+		ResourcePolicy?: #ResourcePolicy
+
+		// Specifies the settings to enable server-side encryption.
+		SSESpecification?: #SSESpecification
+
+		// The settings for the DDB table stream, which captures changes to items stored
+		// in the table. Including this property in your CFNlong template automatically
+		// enables streaming.
+		StreamSpecification?: #StreamSpecification
+		TableClass?:          "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
+		TableName?:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                [...#Tag] | fn.#ListExpression
+
+		// Specifies the Time to Live (TTL) settings for the table.
+		// For detailed information about the limits in DynamoDB, see [Limits in Amazon
+		// DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
+		// in the Amazon DynamoDB Developer Guide.
+		TimeToLiveSpecification?: #TimeToLiveSpecification
+		VectorIndexes?:           list.MinItems(1) & list.UniqueItems() & [...#VectorIndex] | fn.#ListExpression
+
+		// Represents the warm throughput (in read units per second and write units per
+		// second) for creating a table.
+		WarmThroughput?: #WarmThroughput
+	})
+}
+
+#AttributeDefinition: close({
 	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	AttributeType!: "B" | "N" | "S" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContributorInsightsSpecification": close({
+#ContributorInsightsSpecification: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Mode?:    "ACCESSED_AND_THROTTLED_KEYS" | "THROTTLED_KEYS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Csv": close({
+#Csv: close({
 	Delimiter?:  string | fn.#StringExpression
 	HeaderList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeprecatedHashKeyElement": close({
+#DeprecatedHashKeyElement: close({
 	AttributeName!: string | fn.#StringExpression
 	AttributeType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeprecatedKeySchema": close(
-	{HashKeyElement!: _#defs."/$defs/Properties/definitions/DeprecatedHashKeyElement"},
-) |
-	fn.#ObjectExpression
+#DeprecatedKeySchema: close({HashKeyElement!: #DeprecatedHashKeyElement}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GlobalSecondaryIndex": close({
-	ContributorInsightsSpecification?: _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification" |
-		fn.#ObjectExpression
+#GlobalSecondaryIndex: close({
+	// The settings used to specify whether to enable CloudWatch Contributor
+	// Insights for the global table and define which events to monitor.
+	ContributorInsightsSpecification?: #ContributorInsightsSpecification
 	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	KeySchema!: list.MinItems(1) & list.UniqueItems() & [...close({
 		AttributeName!: string | fn.#StringExpression
@@ -116,27 +169,55 @@ _#defs: "/$defs/Properties/definitions/GlobalSecondaryIndex": close({
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	OnDemandThroughput?:    _#defs."/$defs/Properties/definitions/OnDemandThroughput" | fn.#ObjectExpression
-	Projection!:            _#defs."/$defs/Properties/definitions/Projection" | fn.#ObjectExpression
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput" | fn.#ObjectExpression
-	WarmThroughput?:        _#defs."/$defs/Properties/definitions/WarmThroughput" | fn.#ObjectExpression
+
+	// The maximum number of read and write units for the specified global secondary
+	// index. If you use this parameter, you must specify ``MaxReadRequestUnits``,
+	// ``MaxWriteRequestUnits``, or both. You must use either
+	// ``OnDemandThroughput`` or ``ProvisionedThroughput`` based on your table's
+	// capacity mode.
+	OnDemandThroughput?: #OnDemandThroughput
+
+	// Represents attributes that are copied (projected) from the table into the
+	// global secondary index. These are in addition to the primary key attributes
+	// and index key attributes, which are automatically projected.
+	Projection!: #Projection
+
+	// Represents the provisioned throughput settings for the specified global
+	// secondary index. You must use either ``OnDemandThroughput`` or
+	// ``ProvisionedThroughput`` based on your table's capacity mode.
+	// For current minimum and maximum provisioned throughput values, see [Service,
+	// Account, and Table
+	// Quotas](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html)
+	// in the *Amazon DynamoDB Developer Guide*.
+	ProvisionedThroughput?: #ProvisionedThroughput
+
+	// Represents the warm throughput value (in read units per second and write
+	// units per second) for the specified secondary index. If you use this
+	// parameter, you must specify ``ReadUnitsPerSecond``, ``WriteUnitsPerSecond``,
+	// or both.
+	WarmThroughput?: #WarmThroughput
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImportSourceSpecification": close({
+#ImportSourceSpecification: close({
 	InputCompressionType?: string | fn.#StringExpression
 	InputFormat!:          string | fn.#StringExpression
-	InputFormatOptions?:   _#defs."/$defs/Properties/definitions/InputFormatOptions" | fn.#ObjectExpression
-	S3BucketSource!:       _#defs."/$defs/Properties/definitions/S3BucketSource" | fn.#ObjectExpression
+
+	// Additional properties that specify how the input is formatted,
+	InputFormatOptions?: #InputFormatOptions
+
+	// The S3 bucket that provides the source for the import.
+	S3BucketSource!: #S3BucketSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputFormatOptions": close(
-	{Csv?: _#defs."/$defs/Properties/definitions/Csv" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#InputFormatOptions: close({
+	// The options for imported source files in CSV format. The values are Delimiter and HeaderList.
+	Csv?: #Csv
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeySchema": list.UniqueItems() & {
+#KeySchema: list.UniqueItems() & {
 	[...]
 	[0]: {
 		KeyType!: "HASH" | fn.#StringExpression
@@ -170,22 +251,25 @@ _#defs: "/$defs/Properties/definitions/KeySchema": list.UniqueItems() & {
 } |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamSpecification": close({
+#KinesisStreamSpecification: close({
 	ApproximateCreationDateTimePrecision?: "MICROSECOND" | "MILLISECOND" | fn.#StringExpression
 	StreamArn!:                            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocalSecondaryIndex": close({
+#LocalSecondaryIndex: close({
 	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	KeySchema!: _#defs."/$defs/Properties/definitions/KeySchema" &
-	(null | bool | number | string | list.MaxItems(2) & list.MinItems(2) | {...}) |
+	KeySchema!: #KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(2) | {...}) |
 	fn.#ListExpression
-	Projection!: _#defs."/$defs/Properties/definitions/Projection" | fn.#ObjectExpression
+
+	// Represents attributes that are copied (projected) from the table into the
+	// local secondary index. These are in addition to the primary key attributes
+	// and index key attributes, which are automatically projected.
+	Projection!: #Projection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandThroughput": close({
+#OnDemandThroughput: close({
 	MaxReadRequestUnits?: int & >=1 |
 		{
 			string &
@@ -219,7 +303,7 @@ _#defs: "/$defs/Properties/definitions/OnDemandThroughput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PointInTimeRecoverySpecification": close({
+#PointInTimeRecoverySpecification: close({
 	RecoveryPeriodInDays?: _
 	if RecoveryPeriodInDays != _|_ {
 		PointInTimeRecoveryEnabled!: _
@@ -245,14 +329,14 @@ _#defs: "/$defs/Properties/definitions/PointInTimeRecoverySpecification": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Projection": close({
+#Projection: close({
 	NonKeyAttributes?: [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	ProjectionType?: "ALL" | "INCLUDE" | "KEYS_ONLY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
+#ProvisionedThroughput: close({
 	ReadCapacityUnits!: int & >=0 |
 		{
 			string &
@@ -286,19 +370,17 @@ _#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close(
-	{PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression},
-) |
+#ResourcePolicy: close({PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3BucketSource": close({
+#S3BucketSource: close({
 	S3Bucket!:      string | fn.#StringExpression
 	S3BucketOwner?: string | fn.#StringExpression
 	S3KeyPrefix?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SSESpecification": close({
+#SSESpecification: close({
 	KMSMasterKeyId?: _
 	if KMSMasterKeyId != _|_ {
 		SSEType!: _
@@ -310,37 +392,52 @@ _#defs: "/$defs/Properties/definitions/SSESpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SearchSchemaElement": close({
+#SearchSchemaElement: close({
 	AttributeName!:           strings.MaxRunes(65535) & strings.MinRunes(0) | fn.#StringExpression
 	SearchSchemaElementType!: "HASH" | "INLINE_FILTER" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamSpecification": close({
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression
+#StreamSpecification: close({
+	// Creates or updates a resource-based policy document that contains the
+	// permissions for DDB resources, such as a table's streams. Resource-based
+	// policies let you define access permissions by specifying who has access to
+	// each resource, and the actions they are allowed to perform on each resource.
+	// When you remove the ``StreamSpecification`` property from the template,
+	// DynamoDB disables the stream but retains any attached resource policy until
+	// the stream is deleted after 24 hours. When you modify the ``StreamViewType``
+	// property, DynamoDB creates a new stream and retains the old stream's
+	// resource policy. The old stream and its resource policy are deleted after
+	// the 24-hour retention period.
+	// In a CFNshort template, you can provide the policy in JSON or YAML format
+	// because CFNshort converts YAML to JSON before submitting it to DDB. For more
+	// information about resource-based policies, see [Using resource-based
+	// policies
+	// for](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/access-control-resource-based.html)
+	// and [Resource-based policy
+	// examples](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/rbac-examples.html).
+	ResourcePolicy?: #ResourcePolicy
 	StreamViewType!: "KEYS_ONLY" | "NEW_AND_OLD_IMAGES" | "NEW_IMAGE" | "OLD_IMAGE" | fn.#StringExpression
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeToLiveSpecification": close({
+#TimeToLiveSpecification: close({
 	AttributeName?: string | fn.#StringExpression
 	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorAttribute": close(
-	{AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#VectorAttribute: close({AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorIndex": close({
+#VectorIndex: close({
 	Dimensions!: int & <=4096 & >=1 |
 		{
 			string &
@@ -359,22 +456,13 @@ _#defs: "/$defs/Properties/definitions/VectorIndex": close({
 		fn.#NumberExpression
 	DistanceFunction!: "COSINE" | "DOT_PRODUCT" | "EUCLIDEAN" | fn.#StringExpression
 	IndexName!:        strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Projection!:       _#defs."/$defs/Properties/definitions/Projection"
-	SearchSchema?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SearchSchemaElement"
-	] |
-		fn.#ListExpression
-	VectorAttribute!: _#defs."/$defs/Properties/definitions/VectorAttribute"
+	Projection!:       #Projection
+	SearchSchema?:     list.MinItems(1) & list.UniqueItems() & [...#SearchSchemaElement] | fn.#ListExpression
+	VectorAttribute!:  #VectorAttribute
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
-	ReadUnitsPerSecond!: _
-	...
-}, {
-	WriteUnitsPerSecond!: _
-	...
-}]) & close({
+#WarmThroughput: close({
 	ReadUnitsPerSecond?: int & >=1 |
 		{
 			string &
@@ -405,9 +493,5 @@ _#defs: "/$defs/Properties/definitions/WarmThroughput": matchN(>=1, [{
 				)
 		} |
 		fn.#NumberExpression
-}) |
+}) & matchN(>=1, [{ReadUnitsPerSecond!: _}, {WriteUnitsPerSecond!: _}]) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DynamoDB::Table"
-	Properties!: #Properties
-}

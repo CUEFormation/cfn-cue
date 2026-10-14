@@ -11,33 +11,33 @@ import (
 
 // Resource Type definition for AWS::WorkspacesInstances::WorkspaceInstance
 #Properties: close({
-	EC2ManagedInstance?: _#defs."/$defs/Properties/definitions/EC2ManagedInstance"
+	EC2ManagedInstance?: #EC2ManagedInstance
 	ManagedInstance?: close({
-		BlockDeviceMappings?:              [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"]
-		CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification"
-		CpuOptions?:                       _#defs."/$defs/Properties/definitions/CpuOptionsRequest"
-		CreditSpecification?:              _#defs."/$defs/Properties/definitions/CreditSpecificationRequest"
+		BlockDeviceMappings?:              [...#BlockDeviceMapping]
+		CapacityReservationSpecification?: #CapacityReservationSpecification
+		CpuOptions?:                       #CpuOptionsRequest
+		CreditSpecification?:              #CreditSpecificationRequest
 		DisableApiStop?:                   bool
 		EbsOptimized?:                     bool
 		EnablePrimaryIpv6?:                bool
-		EnclaveOptions?:                   _#defs."/$defs/Properties/definitions/EnclaveOptionsRequest"
-		HibernationOptions?:               _#defs."/$defs/Properties/definitions/HibernationOptionsRequest"
-		IamInstanceProfile?:               _#defs."/$defs/Properties/definitions/IamInstanceProfileSpecification"
+		EnclaveOptions?:                   #EnclaveOptionsRequest
+		HibernationOptions?:               #HibernationOptionsRequest
+		IamInstanceProfile?:               #IamInstanceProfileSpecification
 		ImageId!:                          =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & =~"^ami-[0-9a-zA-Z]{1,63}$"
 		InstanceType!:                     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([a-z0-9-]+)\\.([a-z0-9]+)$"
 		Ipv6AddressCount?:                 int & >=0
 		KeyName?:                          strings.MaxRunes(64) & strings.MinRunes(0)
-		LicenseSpecifications?:            [..._#defs."/$defs/Properties/definitions/LicenseConfigurationRequest"]
-		MaintenanceOptions?:               _#defs."/$defs/Properties/definitions/InstanceMaintenanceOptionsRequest"
-		MetadataOptions?:                  _#defs."/$defs/Properties/definitions/InstanceMetadataOptionsRequest"
-		Monitoring?:                       _#defs."/$defs/Properties/definitions/RunInstancesMonitoringEnabled"
-		NetworkInterfaces?:         [..._#defs."/$defs/Properties/definitions/InstanceNetworkInterfaceSpecification"]
-		NetworkPerformanceOptions?: _#defs."/$defs/Properties/definitions/InstanceNetworkPerformanceOptionsRequest"
-		Placement?:                 _#defs."/$defs/Properties/definitions/Placement"
-		PrivateDnsNameOptions?:     _#defs."/$defs/Properties/definitions/PrivateDnsNameOptionsRequest"
-		SubnetId?:                  =~"^subnet-[0-9a-zA-Z]{1,63}$"
-		TagSpecifications?:         list.MaxItems(30) & [..._#defs."/$defs/Properties/definitions/TagSpecification"]
-		UserData?:                  strings.MaxRunes(16000) & strings.MinRunes(0)
+		LicenseSpecifications?:            [...#LicenseConfigurationRequest]
+		MaintenanceOptions?:               #InstanceMaintenanceOptionsRequest
+		MetadataOptions?:                  #InstanceMetadataOptionsRequest
+		Monitoring?:                       #RunInstancesMonitoringEnabled
+		NetworkInterfaces?:                [...#InstanceNetworkInterfaceSpecification]
+		NetworkPerformanceOptions?:        #InstanceNetworkPerformanceOptionsRequest
+		Placement?:                        #Placement
+		PrivateDnsNameOptions?:            #PrivateDnsNameOptionsRequest
+		SubnetId?:                         =~"^subnet-[0-9a-zA-Z]{1,63}$"
+		TagSpecifications?:                list.MaxItems(30) & [...#TagSpecification]
+		UserData?:                         strings.MaxRunes(16000) & strings.MinRunes(0)
 	})
 
 	// The current state of the workspace instance
@@ -47,45 +47,45 @@ import (
 		"DEALLOCATED" |
 		"ERROR_ALLOCATING" |
 		"ERROR_DEALLOCATING"
-	Tags?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(30) & [...] & [...#Tag]
 
 	// Unique identifier for the workspace instance
 	WorkspaceInstanceId?: =~"^wsinst-[0-9a-zA-Z]{8,63}$"
 })
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
+#BlockDeviceMapping: close({
 	DeviceName?:  strings.MaxRunes(32) & strings.MinRunes(0)
-	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
+	Ebs?:         #EbsBlockDevice
 	NoDevice?:    strings.MaxRunes(32) & strings.MinRunes(0)
 	VirtualName?: =~"^ephemeral(0|[1-9][0-9]{0,2})$"
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	CapacityReservationPreference?: "capacity-reservations-only" | "open" | "none"
-	CapacityReservationTarget?:     _#defs."/$defs/Properties/definitions/CapacityReservationTarget"
+	CapacityReservationTarget?:     #CapacityReservationTarget
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
+#CapacityReservationTarget: close({
 	CapacityReservationId?:               strings.MaxRunes(128) & strings.MinRunes(0)
 	CapacityReservationResourceGroupArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*"
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecificationRequest": close({
+#ConnectionTrackingSpecificationRequest: close({
 	TcpEstablishedTimeout?: int
 	UdpStreamTimeout?:      int
 	UdpTimeout?:            int
 })
 
-_#defs: "/$defs/Properties/definitions/CpuOptionsRequest": close({
+#CpuOptionsRequest: close({
 	CoreCount?:      int & >=0
 	ThreadsPerCore?: int & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/CreditSpecificationRequest": close({CpuCredits?: "standard" | "unlimited"})
+#CreditSpecificationRequest: close({CpuCredits?: "standard" | "unlimited"})
 
-_#defs: "/$defs/Properties/definitions/EC2ManagedInstance": close({InstanceId?: string})
+#EC2ManagedInstance: close({InstanceId?: string})
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
+#EbsBlockDevice: close({
 	Encrypted?: bool
 	Iops?:      int & >=0
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(128) & strings.MinRunes(0))
@@ -94,32 +94,30 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
 	VolumeType?: "standard" | "io1" | "io2" | "gp2" | "sc1" | "st1" | "gp3"
 })
 
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecificationRequest": close({
+#EnaSrdSpecificationRequest: close({
 	EnaSrdEnabled?:          bool
-	EnaSrdUdpSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdUdpSpecificationRequest"
+	EnaSrdUdpSpecification?: #EnaSrdUdpSpecificationRequest
 })
 
-_#defs: "/$defs/Properties/definitions/EnaSrdUdpSpecificationRequest": close({EnaSrdUdpEnabled?: bool})
+#EnaSrdUdpSpecificationRequest: close({EnaSrdUdpEnabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/EnclaveOptionsRequest": close({Enabled?: bool})
+#EnclaveOptionsRequest: close({Enabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/HibernationOptionsRequest": close({Configured?: bool})
+#HibernationOptionsRequest: close({Configured?: bool})
 
-_#defs: "/$defs/Properties/definitions/IamInstanceProfileSpecification": close({
+#IamInstanceProfileSpecification: close({
 	Arn?:  strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*"
 	Name?: strings.MaxRunes(64) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceIpv6Address": close({
+#InstanceIpv6Address: close({
 	Ipv6Address?:   strings.MaxRunes(128)
 	IsPrimaryIpv6?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceMaintenanceOptionsRequest": close(
-	{AutoRecovery?: "disabled" | "default"},
-)
+#InstanceMaintenanceOptionsRequest: close({AutoRecovery?: "disabled" | "default"})
 
-_#defs: "/$defs/Properties/definitions/InstanceMetadataOptionsRequest": close({
+#InstanceMetadataOptionsRequest: close({
 	HttpEndpoint?:            "enabled" | "disabled"
 	HttpProtocolIpv6?:        "enabled" | "disabled"
 	HttpPutResponseHopLimit?: int & <=64 & >=1
@@ -127,26 +125,24 @@ _#defs: "/$defs/Properties/definitions/InstanceMetadataOptionsRequest": close({
 	InstanceMetadataTags?:    "enabled" | "disabled"
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceNetworkInterfaceSpecification": close({
+#InstanceNetworkInterfaceSpecification: close({
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
 	DeviceIndex?: int & >=0
 	Groups?:      [...=~"^sg-[0-9a-zA-Z]{1,63}$"]
 	SubnetId?:    =~"^subnet-[0-9a-zA-Z]{1,63}$"
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceNetworkPerformanceOptionsRequest": close(
-	{BandwidthWeighting?: "default" | "vpc-1" | "ebs-1"},
-)
+#InstanceNetworkPerformanceOptionsRequest: close({BandwidthWeighting?: "default" | "vpc-1" | "ebs-1"})
 
-_#defs: "/$defs/Properties/definitions/Ipv4PrefixSpecificationRequest": close({Ipv4Prefix?: strings.MaxRunes(128)})
+#Ipv4PrefixSpecificationRequest: close({Ipv4Prefix?: strings.MaxRunes(128)})
 
-_#defs: "/$defs/Properties/definitions/Ipv6PrefixSpecificationRequest": close({Ipv6Prefix?: strings.MaxRunes(128)})
+#Ipv6PrefixSpecificationRequest: close({Ipv6Prefix?: strings.MaxRunes(128)})
 
-_#defs: "/$defs/Properties/definitions/LicenseConfigurationRequest": close(
+#LicenseConfigurationRequest: close(
 	{LicenseConfigurationArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*"},
 )
 
-_#defs: "/$defs/Properties/definitions/Placement": close({
+#Placement: close({
 	AvailabilityZone?: =~"^[a-z]{2}-[a-z]+-\\d[a-z](-[a-z0-9]+)?$"
 	GroupId?:          =~"^pg-[0-9a-zA-Z]{1,63}$"
 	GroupName?:        strings.MaxRunes(255) & strings.MinRunes(0)
@@ -154,25 +150,25 @@ _#defs: "/$defs/Properties/definitions/Placement": close({
 	Tenancy?:          "default" | "dedicated" | "host"
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameOptionsRequest": close({
+#PrivateDnsNameOptionsRequest: close({
 	EnableResourceNameDnsAAAARecord?: bool
 	EnableResourceNameDnsARecord?:    bool
 	HostnameType?:                    "ip-name" | "resource-name"
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
+#PrivateIpAddressSpecification: close({
 	Primary?:          bool
 	PrivateIpAddress?: strings.MaxRunes(128)
 })
 
-_#defs: "/$defs/Properties/definitions/RunInstancesMonitoringEnabled": close({Enabled?: bool})
+#RunInstancesMonitoringEnabled: close({Enabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$"
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType?: "instance" | "volume" | "spot-instances-request" | "network-interface"
-	Tags?:         list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:         list.MaxItems(30) & [...] & [...#Tag]
 })

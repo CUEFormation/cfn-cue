@@ -13,27 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataSync::LocationS3
-#Properties: close({
-	S3BucketArn?: strings.MaxRunes(156) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):s3:[a-z\\-0-9]*:[0-9]*:.*$" |
-	fn.#StringExpression
-	S3Config!: _#defs."/$defs/Properties/definitions/S3Config"
-	S3StorageClass?: "STANDARD" |
-		"STANDARD_IA" |
-		"ONEZONE_IA" |
-		"INTELLIGENT_TIERING" |
-		"GLACIER" |
-		"GLACIER_INSTANT_RETRIEVAL" |
-		"DEEP_ARCHIVE" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::LocationS3"
+	Properties!: close({
+		S3BucketArn?: strings.MaxRunes(156) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):s3:[a-z\\-0-9]*:[0-9]*:.*$" |
 		fn.#StringExpression
-	Subdirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+		S3Config!: #S3Config
+		S3StorageClass?: "STANDARD" |
+			"STANDARD_IA" |
+			"ONEZONE_IA" |
+			"INTELLIGENT_TIERING" |
+			"GLACIER" |
+			"GLACIER_INSTANT_RETRIEVAL" |
+			"DEEP_ARCHIVE" |
+			fn.#StringExpression
+		Subdirectory?: strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/S3Config": close({
+#S3Config: close({
 	BucketAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -42,12 +46,8 @@ _#defs: "/$defs/Properties/definitions/S3Config": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::LocationS3"
-	Properties!: #Properties
-}

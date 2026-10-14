@@ -16,21 +16,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Partition
-#Properties: close({
-	CatalogId!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseName!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	PartitionInput!: _#defs."/$defs/Properties/definitions/PartitionInput"
-	TableName!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Partition"
+	Properties!: close({
+		CatalogId!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DatabaseName!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		PartitionInput!: #PartitionInput
+		TableName!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Column": close({
+#Column: close({
 	Comment?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Type?:    strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Order": close({
+#Order: close({
 	Column!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	SortOrder?: int & <=1 & >=0 |
 		{
@@ -51,14 +54,14 @@ _#defs: "/$defs/Properties/definitions/Order": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionInput": close({
+#PartitionInput: close({
 	Parameters?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-	StorageDescriptor?: _#defs."/$defs/Properties/definitions/StorageDescriptor"
+	StorageDescriptor?: #StorageDescriptor
 	Values!:            [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaId": close({
+#SchemaId: close({
 	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" | fn.#StringExpression
 	SchemaArn?: strings.MaxRunes(10240) & strings.MinRunes(1) & =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:" |
 	fn.#StringExpression
@@ -66,8 +69,8 @@ _#defs: "/$defs/Properties/definitions/SchemaId": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaReference": close({
-	SchemaId?: _#defs."/$defs/Properties/definitions/SchemaId"
+#SchemaReference: close({
+	SchemaId?: #SchemaId
 	SchemaVersionId?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
@@ -91,23 +94,23 @@ _#defs: "/$defs/Properties/definitions/SchemaReference": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SerdeInfo": close({
+#SerdeInfo: close({
 	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	SerializationLibrary?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SkewedInfo": close({
+#SkewedInfo: close({
 	SkewedColumnNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	SkewedColumnValueLocationMaps?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	SkewedColumnValues?:            [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
+#StorageDescriptor: close({
 	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Columns?:       [..._#defs."/$defs/Properties/definitions/Column"] | fn.#ListExpression
+	Columns?:       [...#Column] | fn.#ListExpression
 	Compressed?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InputFormat?:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Location?:      strings.MaxRunes(2056) & strings.MinRunes(0) | fn.#StringExpression
@@ -127,14 +130,10 @@ _#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
 		fn.#NumberExpression
 	OutputFormat?:           strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Parameters?:             fn.#Object & {...} | string | fn.#StringObjectExpression
-	SchemaReference?:        _#defs."/$defs/Properties/definitions/SchemaReference"
-	SerdeInfo?:              _#defs."/$defs/Properties/definitions/SerdeInfo"
-	SkewedInfo?:             _#defs."/$defs/Properties/definitions/SkewedInfo"
-	SortColumns?:            [..._#defs."/$defs/Properties/definitions/Order"] | fn.#ListExpression
+	SchemaReference?:        #SchemaReference
+	SerdeInfo?:              #SerdeInfo
+	SkewedInfo?:             #SkewedInfo
+	SortColumns?:            [...#Order] | fn.#ListExpression
 	StoredAsSubDirectories?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Partition"
-	Properties!: #Properties
-}

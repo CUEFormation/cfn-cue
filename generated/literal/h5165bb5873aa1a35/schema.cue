@@ -14,12 +14,12 @@ import "strings"
 	// Specifies X.509 certificate information to be included in the issued
 	// certificate. An ``APIPassthrough`` or ``APICSRPassthrough`` template variant
 	// must be selected, or else this parameter is ignored.
-	ApiPassthrough?: _#defs."/$defs/Properties/definitions/ApiPassthrough"
-	Arn?:            _#defs."/$defs/Properties/definitions/Arn"
+	ApiPassthrough?: #ApiPassthrough
+	Arn?:            #Arn
 	Certificate?:    string
 
 	// The Amazon Resource Name (ARN) for the private CA issues the certificate.
-	CertificateAuthorityArn!: _#defs."/$defs/Properties/definitions/Arn"
+	CertificateAuthorityArn!: #Arn
 
 	// The certificate signing request (CSR) for the certificate.
 	CertificateSigningRequest!: strings.MinRunes(1)
@@ -36,10 +36,10 @@ import "strings"
 	// ``EndEntityCertificate/V1`` template. For more information about PCAshort
 	// templates, see [Using
 	// Templates](https://docs.aws.amazon.com/privateca/latest/userguide/UsingTemplates.html).
-	TemplateArn?: _#defs."/$defs/Properties/definitions/Arn"
+	TemplateArn?: #Arn
 
 	// The period of time during which the certificate will be valid.
-	Validity!: _#defs."/$defs/Properties/definitions/Validity"
+	Validity!: #Validity
 
 	// Information describing the start of the validity period of the certificate.
 	// This parameter sets the “Not Before" date for the certificate.
@@ -50,7 +50,7 @@ import "strings"
 	// Unlike the ``Validity`` parameter, the ``ValidityNotBefore`` parameter is optional.
 	// The ``ValidityNotBefore`` value is expressed as an explicit date and time,
 	// using the ``Validity`` type value ``ABSOLUTE``.
-	ValidityNotBefore?: _#defs."/$defs/Properties/definitions/Validity"
+	ValidityNotBefore?: #Validity
 })
 
 // Contains X.509 certificate information to be placed in an issued certificate.
@@ -60,9 +60,9 @@ import "strings"
 // sources, AWS Private CA applies [order of operation
 // rules](https://docs.aws.amazon.com/privateca/latest/userguide/UsingTemplates.html#template-order-of-operations)
 // to determine what information is used.
-_#defs: "/$defs/Properties/definitions/ApiPassthrough": close({
+#ApiPassthrough: close({
 	// Specifies X.509 extension information for a certificate.
-	Extensions?: _#defs."/$defs/Properties/definitions/Extensions"
+	Extensions?: #Extensions
 
 	// Contains information about the certificate subject. The Subject field in the
 	// certificate identifies the entity that owns or controls the public key in
@@ -70,20 +70,18 @@ _#defs: "/$defs/Properties/definitions/ApiPassthrough": close({
 	// Subject must contain an X.500 distinguished name (DN). A DN is a sequence of
 	// relative distinguished names (RDNs). The RDNs are separated by commas in the
 	// certificate.
-	Subject?: _#defs."/$defs/Properties/definitions/Subject"
+	Subject?: #Subject
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
-_#defs: "/$defs/Properties/definitions/CertificatePolicyList": [
-	..._#defs."/$defs/Properties/definitions/PolicyInformation"
-]
+#CertificatePolicyList: [...#PolicyInformation]
 
 // Defines the X.500 relative distinguished name (RDN).
-_#defs: "/$defs/Properties/definitions/CustomAttribute": close({
+#CustomAttribute: close({
 	// Specifies the object identifier (OID) of the attribute type of the relative
 	// distinguished name (RDN).
-	ObjectIdentifier!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+	ObjectIdentifier!: #CustomObjectIdentifier
 
 	// Specifies the attribute value of relative distinguished name (RDN).
 	Value!: string
@@ -91,39 +89,39 @@ _#defs: "/$defs/Properties/definitions/CustomAttribute": close({
 
 // Array of X.500 attribute type and value. CustomAttributes cannot be used
 // along with pre-defined attributes.
-_#defs: "/$defs/Properties/definitions/CustomAttributeList": [..._#defs."/$defs/Properties/definitions/CustomAttribute"]
+#CustomAttributeList: [...#CustomAttribute]
 
 // Specifies the X.509 extension information for a certificate.
 // Extensions present in ``CustomExtensions`` follow the
 // ``ApiPassthrough``[template
 // rules](https://docs.aws.amazon.com/privateca/latest/userguide/UsingTemplates.html#template-order-of-operations).
-_#defs: "/$defs/Properties/definitions/CustomExtension": close({
+#CustomExtension: close({
 	// Specifies the critical flag of the X.509 extension.
 	Critical?: bool
 
 	// Specifies the object identifier (OID) of the X.509 extension. For more
 	// information, see the [Global OID reference
 	// database.](https://docs.aws.amazon.com/https://oidref.com/2.5.29)
-	ObjectIdentifier!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+	ObjectIdentifier!: #CustomObjectIdentifier
 
 	// Specifies the base64-encoded value of the X.509 extension.
 	Value!: string
 })
 
 // Array of X.509 extensions for a certificate.
-_#defs: "/$defs/Properties/definitions/CustomExtensionList": [..._#defs."/$defs/Properties/definitions/CustomExtension"]
+#CustomExtensionList: [...#CustomExtension]
 
 // String that contains X.509 ObjectIdentifier information.
-_#defs: "/$defs/Properties/definitions/CustomObjectIdentifier": string
+#CustomObjectIdentifier: string
 
 // String that contains X.509 DnsName information.
-_#defs: "/$defs/Properties/definitions/DnsName": string
+#DnsName: string
 
 // Describes an Electronic Data Interchange (EDI) entity as described in as
 // defined in [Subject Alternative
 // Name](https://docs.aws.amazon.com/https://datatracker.ietf.org/doc/html/rfc5280)
 // in RFC 5280.
-_#defs: "/$defs/Properties/definitions/EdiPartyName": close({
+#EdiPartyName: close({
 	// Specifies the name assigner.
 	NameAssigner!: string
 
@@ -133,21 +131,19 @@ _#defs: "/$defs/Properties/definitions/EdiPartyName": close({
 
 // Specifies additional purposes for which the certified public key may be used
 // other than basic purposes indicated in the ``KeyUsage`` extension.
-_#defs: "/$defs/Properties/definitions/ExtendedKeyUsage": close({
+#ExtendedKeyUsage: close({
 	// Specifies a custom ``ExtendedKeyUsage`` with an object identifier (OID).
-	ExtendedKeyUsageObjectIdentifier?: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+	ExtendedKeyUsageObjectIdentifier?: #CustomObjectIdentifier
 
 	// Specifies a standard ``ExtendedKeyUsage`` as defined as in [RFC
 	// 5280](https://docs.aws.amazon.com/https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.12).
 	ExtendedKeyUsageType?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ExtendedKeyUsageList": [
-	..._#defs."/$defs/Properties/definitions/ExtendedKeyUsage"
-]
+#ExtendedKeyUsageList: [...#ExtendedKeyUsage]
 
 // Contains X.509 extension information for a certificate.
-_#defs: "/$defs/Properties/definitions/Extensions": close({
+#Extensions: close({
 	// Contains a sequence of one or more policy information terms, each of which
 	// consists of an object identifier (OID) and optional qualifiers. For more
 	// information, see NIST's definition of [Object Identifier
@@ -156,33 +152,33 @@ _#defs: "/$defs/Properties/definitions/Extensions": close({
 	// certificate was issued and the purposes for which it may be used. In a CA
 	// certificate, these terms limit the set of policies for certification paths
 	// that include this certificate.
-	CertificatePolicies?: _#defs."/$defs/Properties/definitions/CertificatePolicyList"
+	CertificatePolicies?: #CertificatePolicyList
 
 	// Contains a sequence of one or more X.509 extensions, each of which consists
 	// of an object identifier (OID), a base64-encoded value, and the critical
 	// flag. For more information, see the [Global OID reference
 	// database.](https://docs.aws.amazon.com/https://oidref.com/2.5.29)
-	CustomExtensions?: _#defs."/$defs/Properties/definitions/CustomExtensionList"
+	CustomExtensions?: #CustomExtensionList
 
 	// Specifies additional purposes for which the certified public key may be used
 	// other than basic purposes indicated in the ``KeyUsage`` extension.
-	ExtendedKeyUsage?: _#defs."/$defs/Properties/definitions/ExtendedKeyUsageList"
+	ExtendedKeyUsage?: #ExtendedKeyUsageList
 
 	// Defines one or more purposes for which the key contained in the certificate
 	// can be used. Default value for each option is false.
-	KeyUsage?: _#defs."/$defs/Properties/definitions/KeyUsage"
+	KeyUsage?: #KeyUsage
 
 	// The subject alternative name extension allows identities to be bound to the
 	// subject of the certificate. These identities may be included in addition to
 	// or in place of the identity in the subject field of the certificate.
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/GeneralNameList"
+	SubjectAlternativeNames?: #GeneralNameList
 })
 
 // Describes an ASN.1 X.400 ``GeneralName`` as defined in [RFC
 // 5280](https://docs.aws.amazon.com/https://datatracker.ietf.org/doc/html/rfc5280).
 // Only one of the following naming options should be provided. Providing more
 // than one option results in an ``InvalidArgsException`` error.
-_#defs: "/$defs/Properties/definitions/GeneralName": close({
+#GeneralName: close({
 	// Contains information about the certificate subject. The certificate can be
 	// one issued by your private certificate authority (CA) or it can be your
 	// private CA certificate. The Subject field in the certificate identifies the
@@ -192,40 +188,40 @@ _#defs: "/$defs/Properties/definitions/GeneralName": close({
 	// names (RDNs). The RDNs are separated by commas in the certificate. The DN
 	// must be unique for each entity, but your private CA can issue more than one
 	// certificate with the same DN to the same entity.
-	DirectoryName?: _#defs."/$defs/Properties/definitions/Subject"
+	DirectoryName?: #Subject
 
 	// Represents ``GeneralName`` as a DNS name.
-	DnsName?: _#defs."/$defs/Properties/definitions/DnsName"
+	DnsName?: #DnsName
 
 	// Represents ``GeneralName`` as an ``EdiPartyName`` object.
-	EdiPartyName?: _#defs."/$defs/Properties/definitions/EdiPartyName"
+	EdiPartyName?: #EdiPartyName
 
 	// Represents ``GeneralName`` as an IPv4 or IPv6 address.
-	IpAddress?: _#defs."/$defs/Properties/definitions/IpAddress"
+	IpAddress?: #IpAddress
 
 	// Represents ``GeneralName`` using an ``OtherName`` object.
-	OtherName?: _#defs."/$defs/Properties/definitions/OtherName"
+	OtherName?: #OtherName
 
 	// Represents ``GeneralName`` as an object identifier (OID).
-	RegisteredId?: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+	RegisteredId?: #CustomObjectIdentifier
 
 	// Represents ``GeneralName`` as an [RFC
 	// 822](https://docs.aws.amazon.com/https://datatracker.ietf.org/doc/html/rfc822)
 	// email address.
-	Rfc822Name?: _#defs."/$defs/Properties/definitions/Rfc822Name"
+	Rfc822Name?: #Rfc822Name
 
 	// Represents ``GeneralName`` as a URI.
-	UniformResourceIdentifier?: _#defs."/$defs/Properties/definitions/UniformResourceIdentifier"
+	UniformResourceIdentifier?: #UniformResourceIdentifier
 })
 
-_#defs: "/$defs/Properties/definitions/GeneralNameList": [..._#defs."/$defs/Properties/definitions/GeneralName"]
+#GeneralNameList: [...#GeneralName]
 
 // String that contains X.509 IpAddress information.
-_#defs: "/$defs/Properties/definitions/IpAddress": string
+#IpAddress: string
 
 // Defines one or more purposes for which the key contained in the certificate
 // can be used. Default value for each option is false.
-_#defs: "/$defs/Properties/definitions/KeyUsage": close({
+#KeyUsage: close({
 	// Key can be used to sign CRLs.
 	CRLSign?: bool
 
@@ -258,54 +254,52 @@ _#defs: "/$defs/Properties/definitions/KeyUsage": close({
 // and value. The OID must satisfy the regular expression shown below. For more
 // information, see NIST's definition of [Object Identifier
 // (OID)](https://docs.aws.amazon.com/https://csrc.nist.gov/glossary/term/Object_Identifier).
-_#defs: "/$defs/Properties/definitions/OtherName": close({
+#OtherName: close({
 	// Specifies an OID.
-	TypeId!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+	TypeId!: #CustomObjectIdentifier
 
 	// Specifies an OID value.
 	Value!: string
 })
 
 // Defines the X.509 ``CertificatePolicies`` extension.
-_#defs: "/$defs/Properties/definitions/PolicyInformation": close({
+#PolicyInformation: close({
 	// Specifies the object identifier (OID) of the certificate policy under which
 	// the certificate was issued. For more information, see NIST's definition of
 	// [Object Identifier
 	// (OID)](https://docs.aws.amazon.com/https://csrc.nist.gov/glossary/term/Object_Identifier).
-	CertPolicyId!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+	CertPolicyId!: #CustomObjectIdentifier
 
 	// Modifies the given ``CertPolicyId`` with a qualifier. AWS Private CA supports
 	// the certification practice statement (CPS) qualifier.
-	PolicyQualifiers?: _#defs."/$defs/Properties/definitions/PolicyQualifierInfoList"
+	PolicyQualifiers?: #PolicyQualifierInfoList
 })
 
 // Modifies the ``CertPolicyId`` of a ``PolicyInformation`` object with a
 // qualifier. AWS Private CA supports the certification practice statement
 // (CPS) qualifier.
-_#defs: "/$defs/Properties/definitions/PolicyQualifierInfo": close({
+#PolicyQualifierInfo: close({
 	// Identifies the qualifier modifying a ``CertPolicyId``.
 	PolicyQualifierId!: string
 
 	// Defines the qualifier type. AWS Private CA supports the use of a URI for a
 	// CPS qualifier in this field.
-	Qualifier!: _#defs."/$defs/Properties/definitions/Qualifier"
+	Qualifier!: #Qualifier
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyQualifierInfoList": [
-	..._#defs."/$defs/Properties/definitions/PolicyQualifierInfo"
-]
+#PolicyQualifierInfoList: [...#PolicyQualifierInfo]
 
 // Defines a ``PolicyInformation`` qualifier. AWS Private CA supports the
 // [certification practice statement (CPS)
 // qualifier](https://docs.aws.amazon.com/https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.4)
 // defined in RFC 5280.
-_#defs: "/$defs/Properties/definitions/Qualifier": close({
+#Qualifier: close({
 	// Contains a pointer to a certification practice statement (CPS) published by the CA.
 	CpsUri!: string
 })
 
 // String that contains X.509 Rfc822Name information.
-_#defs: "/$defs/Properties/definitions/Rfc822Name": string
+#Rfc822Name: string
 
 // Contains information about the certificate subject. The ``Subject`` field in
 // the certificate identifies the entity that owns or controls the public key
@@ -313,7 +307,7 @@ _#defs: "/$defs/Properties/definitions/Rfc822Name": string
 // The ``Subject``must contain an X.500 distinguished name (DN). A DN is a
 // sequence of relative distinguished names (RDNs). The RDNs are separated by
 // commas in the certificate.
-_#defs: "/$defs/Properties/definitions/Subject": close({
+#Subject: close({
 	// For CA and end-entity certificates in a private PKI, the common name (CN) can
 	// be any string within the length limit.
 	// Note: In publicly trusted certificates, the common name must be a fully
@@ -328,7 +322,7 @@ _#defs: "/$defs/Properties/definitions/Subject": close({
 	// information, see NIST’s definition of [Object Identifier
 	// (OID)](https://docs.aws.amazon.com/https://csrc.nist.gov/glossary/term/Object_Identifier).
 	// Custom attributes cannot be used in combination with standard attributes.
-	CustomAttributes?: _#defs."/$defs/Properties/definitions/CustomAttributeList"
+	CustomAttributes?: #CustomAttributeList
 
 	// Disambiguating information for the certificate subject.
 	DistinguishedNameQualifier?: string
@@ -376,13 +370,13 @@ _#defs: "/$defs/Properties/definitions/Subject": close({
 })
 
 // String that contains X.509 UniformResourceIdentifier information.
-_#defs: "/$defs/Properties/definitions/UniformResourceIdentifier": string
+#UniformResourceIdentifier: string
 
 // Length of time for which the certificate issued by your private certificate
 // authority (CA), or by the private CA itself, is valid in days, months, or
 // years. You can issue a certificate by calling the ``IssueCertificate``
 // operation.
-_#defs: "/$defs/Properties/definitions/Validity": close({
+#Validity: close({
 	// Specifies whether the ``Value`` parameter represents days, months, or years.
 	Type!: string
 

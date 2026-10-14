@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -16,90 +16,112 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::GraphQLApi
-#Properties: close({
-	AdditionalAuthenticationProviders?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdditionalAuthenticationProvider"
-	] |
-		fn.#ListExpression
-	ApiType?: "GRAPHQL" | "MERGED" | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::GraphQLApi"
+	Properties!: close({
+		AdditionalAuthenticationProviders?: list.UniqueItems() & [...#AdditionalAuthenticationProvider] |
+			fn.#ListExpression
+		ApiType?: "GRAPHQL" | "MERGED" | fn.#StringExpression
+		AuthenticationType!: "AMAZON_COGNITO_USER_POOLS" |
+			"API_KEY" |
+			"AWS_IAM" |
+			"AWS_LAMBDA" |
+			"OPENID_CONNECT" |
+			fn.#StringExpression
+
+		// Enables and controls the enhanced metrics feature. Enhanced metrics emit
+		// granular data on API usage and performance such as AppSync request and error
+		// counts, latency, and cache hits/misses. All enhanced metric data is sent to
+		// your CloudWatch account, and you can configure the types of data that will
+		// be sent.
+		EnhancedMetricsConfig?: #EnhancedMetricsConfig
+		EnvironmentVariables?: close({
+
+			{[=~"^[A-Za-z]+\\w*$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		IntrospectionConfig?: "DISABLED" | "ENABLED" | fn.#StringExpression
+
+		// A LambdaAuthorizerConfig holds configuration on how to authorize AWS AppSync
+		// API access when using the AWS_LAMBDA authorizer mode. Be aware that an AWS
+		// AppSync API may have only one Lambda authorizer configured at a time.
+		LambdaAuthorizerConfig?: #LambdaAuthorizerConfig
+
+		// The Amazon CloudWatch Logs configuration.
+		LogConfig?: #LogConfig
+		MergedApiExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Name!: string | fn.#StringExpression
+
+		// The OpenID Connect configuration.
+		OpenIDConnectConfig?: #OpenIDConnectConfig
+		OwnerContact?:        string | fn.#StringExpression
+		QueryDepthLimit?: int & <=75 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=75 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ResolverCountLimit?: int & <=10000 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10000 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// Optional authorization configuration for using Amazon Cognito user pools with
+		// your GraphQL endpoint.
+		UserPoolConfig?: #UserPoolConfig
+		Visibility?:     "GLOBAL" | "PRIVATE" | fn.#StringExpression
+		XrayEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
+}
+
+#AdditionalAuthenticationProvider: close({
 	AuthenticationType!: "AMAZON_COGNITO_USER_POOLS" |
 		"API_KEY" |
 		"AWS_IAM" |
 		"AWS_LAMBDA" |
 		"OPENID_CONNECT" |
 		fn.#StringExpression
-	EnhancedMetricsConfig?: _#defs."/$defs/Properties/definitions/EnhancedMetricsConfig" | fn.#ObjectExpression
-	EnvironmentVariables?: close({
-
-		{[=~"^[A-Za-z]+\\w*$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	IntrospectionConfig?:    "DISABLED" | "ENABLED" | fn.#StringExpression
-	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig" | fn.#ObjectExpression
-	LogConfig?:              _#defs."/$defs/Properties/definitions/LogConfig" | fn.#ObjectExpression
-	MergedApiExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Name!:                string | fn.#StringExpression
-	OpenIDConnectConfig?: _#defs."/$defs/Properties/definitions/OpenIDConnectConfig" | fn.#ObjectExpression
-	OwnerContact?:        string | fn.#StringExpression
-	QueryDepthLimit?: int & <=75 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=75 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResolverCountLimit?: int & <=10000 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10000 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserPoolConfig?: _#defs."/$defs/Properties/definitions/UserPoolConfig" | fn.#ObjectExpression
-	Visibility?:     "GLOBAL" | "PRIVATE" | fn.#StringExpression
-	XrayEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
-
-_#defs: "/$defs/Properties/definitions/AdditionalAuthenticationProvider": close({
-	AuthenticationType!: "AMAZON_COGNITO_USER_POOLS" |
-		"API_KEY" |
-		"AWS_IAM" |
-		"AWS_LAMBDA" |
-		"OPENID_CONNECT" |
-		fn.#StringExpression
-	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig"
-	OpenIDConnectConfig?:    _#defs."/$defs/Properties/definitions/OpenIDConnectConfig"
-	UserPoolConfig?:         _#defs."/$defs/Properties/definitions/CognitoUserPoolConfig"
+	LambdaAuthorizerConfig?: #LambdaAuthorizerConfig
+	OpenIDConnectConfig?:    #OpenIDConnectConfig
+	UserPoolConfig?:         #CognitoUserPoolConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CognitoUserPoolConfig": close({
+#CognitoUserPoolConfig: close({
 	AppIdClientRegex?: string | fn.#StringExpression
 	AwsRegion?:        string | fn.#StringExpression
 	UserPoolId?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnhancedMetricsConfig": close({
+#EnhancedMetricsConfig: close({
 	DataSourceLevelMetricsBehavior!: "FULL_REQUEST_DATA_SOURCE_METRICS" |
 		"PER_DATA_SOURCE_METRICS" |
 		fn.#StringExpression
@@ -108,7 +130,7 @@ _#defs: "/$defs/Properties/definitions/EnhancedMetricsConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaAuthorizerConfig": close({
+#LambdaAuthorizerConfig: close({
 	AuthorizerResultTtlInSeconds?: int & <=3600 & >=0 |
 		{
 			string &
@@ -130,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/LambdaAuthorizerConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfig": close({
+#LogConfig: close({
 	CloudWatchLogsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	ExcludeVerboseContent?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -138,7 +160,7 @@ _#defs: "/$defs/Properties/definitions/LogConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIDConnectConfig": close({
+#OpenIDConnectConfig: close({
 	AuthTTL?: number |
 		{
 			string &
@@ -182,20 +204,16 @@ _#defs: "/$defs/Properties/definitions/OpenIDConnectConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserPoolConfig": close({
+#UserPoolConfig: close({
 	AppIdClientRegex?: string | fn.#StringExpression
 	AwsRegion?:        string | fn.#StringExpression
 	DefaultAction?:    "ALLOW" | "DENY" | fn.#StringExpression
 	UserPoolId?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::GraphQLApi"
-	Properties!: #Properties
-}

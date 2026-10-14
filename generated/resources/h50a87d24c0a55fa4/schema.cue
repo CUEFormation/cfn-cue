@@ -17,57 +17,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DataSync::LocationObjectStorage.
-#Properties: close({
-	AccessKey?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	AgentArns?: list.MaxItems(8) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
-		strings.MinRunes(0) &
-		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
-	fn.#StringExpression
-	CmkSecretConfig?: close({
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(2048) &
-		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
-	FederatedIdentity?:  _#defs."/$defs/Properties/definitions/ObjectStorageFederatedIdentityConfig"
-	SecretKey?:          strings.MaxRunes(200) & strings.MinRunes(8) & =~"^.+$" | fn.#StringExpression
-	ServerCertificate?:  strings.MaxRunes(32768) | fn.#StringExpression
-	ServerHostname?: strings.MaxRunes(255) &
-	strings.MinRunes(0) &
-	=~"^(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])$" |
-	fn.#StringExpression
-	ServerPort?: int & <=65536 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=65536 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ServerProtocol?: "HTTPS" | "HTTP" | fn.#StringExpression
-	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\p{Zs}]*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::LocationObjectStorage"
+	Properties?: close({
+		AccessKey?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		AgentArns?: list.MaxItems(8) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
+			fn.#StringExpression
+		] |
 		fn.#ListExpression
-})
+		BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		fn.#StringExpression
+		CmkSecretConfig?: close({
+			KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		CustomSecretConfig?: #CustomSecretConfig
+		FederatedIdentity?:  #ObjectStorageFederatedIdentityConfig
+		SecretKey?:          strings.MaxRunes(200) & strings.MinRunes(8) & =~"^.+$" | fn.#StringExpression
+		ServerCertificate?:  strings.MaxRunes(32768) | fn.#StringExpression
+		ServerHostname?: strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])$" |
+		fn.#StringExpression
+		ServerPort?: int & <=65536 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65536 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ServerProtocol?: "HTTPS" | "HTTP" | fn.#StringExpression
+		Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\p{Zs}]*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -80,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	SecretAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -93,7 +97,7 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GoogleOidcConfig": close({
+#GoogleOidcConfig: close({
 	IdentityPoolName!:     strings.MaxRunes(32) & strings.MinRunes(4) | fn.#StringExpression
 	IdentityProviderName!: strings.MaxRunes(32) & strings.MinRunes(4) | fn.#StringExpression
 	ProjectName!: strings.MaxRunes(30) & strings.MinRunes(6) & =~"^[a-z][a-z0-9-]{4,28}[a-z0-9]$" | fn.#StringExpression
@@ -101,32 +105,25 @@ _#defs: "/$defs/Properties/definitions/GoogleOidcConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectStorageExternalIdentityConfig": close(
-	{GoogleOidc?: _#defs."/$defs/Properties/definitions/GoogleOidcConfig"},
-) |
-	fn.#ObjectExpression
+#ObjectStorageExternalIdentityConfig: close({GoogleOidc?: #GoogleOidcConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectStorageFederatedIdentityConfig": close({
+#ObjectStorageFederatedIdentityConfig: close({
 	AwsIamRole?: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" |
 	fn.#StringExpression
-	ExternalIdentity?: _#defs."/$defs/Properties/definitions/ObjectStorageExternalIdentityConfig"
+	ExternalIdentity?: #ObjectStorageExternalIdentityConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::LocationObjectStorage"
-	Properties?: #Properties
-}

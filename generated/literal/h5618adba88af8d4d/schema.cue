@@ -14,7 +14,7 @@ import (
 // which can host multiple game sessions.
 #Properties: close({
 	// Configuration for Anywhere fleet.
-	AnywhereConfiguration?: _#defs."/$defs/Properties/definitions/AnywhereConfiguration"
+	AnywhereConfiguration?: #AnywhereConfiguration
 
 	// Determines when and how to apply fleet or location capacities. Allowed
 	// options are ON_UPDATE (default), ON_CREATE_AND_UPDATE and
@@ -41,7 +41,7 @@ import (
 	// servers running on GameLift. If this parameter is not set, certificate
 	// generation is disabled. This fleet setting cannot be changed once the fleet
 	// is created.
-	CertificateConfiguration?: _#defs."/$defs/Properties/definitions/CertificateConfiguration"
+	CertificateConfiguration?: #CertificateConfiguration
 
 	// ComputeType to differentiate EC2 hardware managed by GameLift and Anywhere
 	// hardware managed by the customer.
@@ -58,7 +58,7 @@ import (
 
 	// A range of IP addresses and port settings that allow inbound traffic to
 	// connect to server processes on an Amazon GameLift server.
-	EC2InboundPermissions?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/IpPermission"]
+	EC2InboundPermissions?: list.MaxItems(50) & [...] & [...#IpPermission]
 
 	// The name of an EC2 instance type that is supported in Amazon GameLift. A
 	// fleet instance type determines the computing resources of each instance in
@@ -93,9 +93,7 @@ import (
 	// Credentials provider implementation that loads credentials from the Amazon
 	// EC2 Instance Metadata Service.
 	InstanceRoleCredentialsProvider?: "SHARED_CREDENTIAL_FILE"
-	Locations?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LocationConfiguration"
-	]
+	Locations?:                       list.MaxItems(100) & list.MinItems(1) & [...#LocationConfiguration]
 
 	// This parameter is no longer used. When hosting a custom game build, specify
 	// where Amazon GameLift should store log files using the Amazon GameLift
@@ -140,14 +138,14 @@ import (
 	PeerVpcId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^vpc-\\S+"
 
 	// Configuration for player gateway.
-	PlayerGatewayConfiguration?: _#defs."/$defs/Properties/definitions/PlayerGatewayConfiguration"
+	PlayerGatewayConfiguration?: #PlayerGatewayConfiguration
 
 	// The player gateway mode for the fleet.
 	PlayerGatewayMode?: "DISABLED" | "ENABLED" | "REQUIRED"
 
 	// A policy that limits the number of game sessions an individual player can
 	// create over a span of time for this fleet.
-	ResourceCreationLimitPolicy?: _#defs."/$defs/Properties/definitions/ResourceCreationLimitPolicy"
+	ResourceCreationLimitPolicy?: #ResourceCreationLimitPolicy
 
 	// Instructions for launching server processes on each instance in the fleet.
 	// Server processes run either a custom game build executable or a Realtime
@@ -160,10 +158,10 @@ import (
 	// This parameter is required unless the parameters ServerLaunchPath and
 	// ServerLaunchParameters are defined. Runtime configuration has replaced these
 	// parameters, but fleets that use them will continue to work.
-	RuntimeConfiguration?: _#defs."/$defs/Properties/definitions/RuntimeConfiguration"
+	RuntimeConfiguration?: #RuntimeConfiguration
 
 	// A list of rules that control how a fleet is scaled.
-	ScalingPolicies?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/ScalingPolicy"]
+	ScalingPolicies?: list.MaxItems(50) & [...#ScalingPolicy]
 
 	// A unique identifier for a Realtime script to be deployed on a new Realtime
 	// Servers fleet. The script must have been successfully uploaded to Amazon
@@ -191,11 +189,11 @@ import (
 	ServerLaunchPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:.+\\/\\\\\\- ]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Configuration for Anywhere fleet.
-_#defs: "/$defs/Properties/definitions/AnywhereConfiguration": null |
+#AnywhereConfiguration: null |
 bool |
 number |
 string |
@@ -211,7 +209,7 @@ close({
 // generated for the fleet. When this feature is enabled, the certificate can
 // be retrieved using the GameLift Server SDK call GetInstanceCertificate. All
 // instances in a fleet share the same certificate.
-_#defs: "/$defs/Properties/definitions/CertificateConfiguration": close({CertificateType!: "DISABLED" | "GENERATED"})
+#CertificateConfiguration: close({CertificateType!: "DISABLED" | "GENERATED"})
 
 // A range of IP addresses and port settings that allow inbound traffic to
 // connect to server processes on an Amazon GameLift hosting resource. New game
@@ -221,7 +219,7 @@ _#defs: "/$defs/Properties/definitions/CertificateConfiguration": close({Certifi
 // game session assignments. For Realtime Servers fleets, Amazon GameLift
 // automatically opens two port ranges, one for TCP messaging and one for UDP,
 // for use by the Realtime servers.
-_#defs: "/$defs/Properties/definitions/IpPermission": close({
+#IpPermission: close({
 	// A starting value for a range of allowed port numbers.
 	FromPort!: int & <=60000 & >=1
 
@@ -239,18 +237,18 @@ _#defs: "/$defs/Properties/definitions/IpPermission": close({
 	ToPort!: int & <=60000 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Location": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+"
+#Location: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+"
 
 // Current resource capacity settings in a specified fleet or location. The
 // location value might refer to a fleet's remote location or its home Region.
-_#defs: "/$defs/Properties/definitions/LocationCapacity": close({
+#LocationCapacity: close({
 	// Defaults to MinSize if not defined. The number of EC2 instances you want to
 	// maintain in the specified fleet location. This value must fall between the
 	// minimum and maximum size limits.
 	DesiredEC2Instances?: int & >=0
 
 	// Configuration options for Amazon GameLift Servers-managed capacity behavior.
-	ManagedCapacityConfiguration?: _#defs."/$defs/Properties/definitions/ManagedCapacityConfiguration"
+	ManagedCapacityConfiguration?: #ManagedCapacityConfiguration
 
 	// The maximum value that is allowed for the fleet's instance count for a
 	// location. When creating a new fleet, GameLift automatically sets this value
@@ -264,16 +262,16 @@ _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
 })
 
 // A remote location where a multi-location fleet can deploy EC2 instances for game hosting.
-_#defs: "/$defs/Properties/definitions/LocationConfiguration": close({
-	Location!:         _#defs."/$defs/Properties/definitions/Location"
-	LocationCapacity?: _#defs."/$defs/Properties/definitions/LocationCapacity"
+#LocationConfiguration: close({
+	Location!:         #Location
+	LocationCapacity?: #LocationCapacity
 
 	// The player gateway status for the location.
 	PlayerGatewayStatus?: "DISABLED" | "ENABLED"
 })
 
 // Configuration options for Amazon GameLift Servers-managed capacity behavior.
-_#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
+#ManagedCapacityConfiguration: close({
 	// Length of time, in minutes, that Amazon GameLift Servers will wait before
 	// scaling in your MinSize and DesiredInstances to 0 after a period with no
 	// game session activity.
@@ -288,7 +286,7 @@ _#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
 })
 
 // Configuration for player gateway.
-_#defs: "/$defs/Properties/definitions/PlayerGatewayConfiguration": close({
+#PlayerGatewayConfiguration: close({
 	// The IP protocol supported by the game server.
 	GameServerIpProtocolSupported?: "IPv4" | "DUAL_STACK"
 })
@@ -304,7 +302,7 @@ _#defs: "/$defs/Properties/definitions/PlayerGatewayConfiguration": close({
 // of 60 minutes. On receiving a CreateGameSession request, Amazon GameLift
 // checks that the player (identified by CreatorId) has created fewer than 10
 // game sessions in the past 60 minutes.
-_#defs: "/$defs/Properties/definitions/ResourceCreationLimitPolicy": close({
+#ResourceCreationLimitPolicy: close({
 	// The maximum number of game sessions that an individual can create during the policy period.
 	NewGameSessionsPerCreator?: int & >=0
 
@@ -332,7 +330,7 @@ _#defs: "/$defs/Properties/definitions/ResourceCreationLimitPolicy": close({
 // To calculate the total number of processes specified in a runtime
 // configuration, add the values of the ConcurrentExecutions parameter for each
 // ServerProcess object in the runtime configuration.
-_#defs: "/$defs/Properties/definitions/RuntimeConfiguration": close({
+#RuntimeConfiguration: close({
 	// The maximum amount of time (in seconds) that a game session can remain in
 	// status ACTIVATING. If the game session is not active before the timeout,
 	// activation is terminated and the game session status is changed to
@@ -346,12 +344,12 @@ _#defs: "/$defs/Properties/definitions/RuntimeConfiguration": close({
 
 	// A collection of server process configurations that describe which server
 	// processes to run on each instance in a fleet.
-	ServerProcesses?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ServerProcess"]
+	ServerProcesses?: list.MaxItems(50) & list.MinItems(1) & [...#ServerProcess]
 })
 
 // Rule that controls how a fleet is scaled. Scaling policies are uniquely
 // identified by the combination of name and fleet ID.
-_#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
+#ScalingPolicy: close({
 	// Comparison operator to use when measuring a metric against the threshold value.
 	ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
 		"GreaterThanThreshold" |
@@ -361,7 +359,7 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 	// Length of time (in minutes) the metric must be at or beyond the threshold
 	// before a scaling event is triggered.
 	EvaluationPeriods?: int & >=1
-	Location?:          _#defs."/$defs/Properties/definitions/Location"
+	Location?:          #Location
 
 	// Name of the Amazon GameLift-defined metric that is used to trigger a scaling
 	// adjustment. This is required for RuleBased and TargetBased policies.
@@ -402,7 +400,7 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 	Status?: "ACTIVE" | "UPDATE_REQUESTED" | "UPDATING" | "DELETE_REQUESTED" | "DELETING" | "DELETED" | "ERROR"
 
 	// An object that contains settings for a target-based scaling policy.
-	TargetConfiguration?: _#defs."/$defs/Properties/definitions/TargetConfiguration"
+	TargetConfiguration?: #TargetConfiguration
 
 	// Metric value used to trigger a scaling event.
 	Threshold?: number
@@ -418,7 +416,7 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 // executable, optional launch parameters, and the number of server processes
 // with this configuration to maintain concurrently on the instance. Server
 // process configurations make up a fleet's RuntimeConfiguration.
-_#defs: "/$defs/Properties/definitions/ServerProcess": close({
+#ServerProcess: close({
 	// The number of server processes that use this configuration to run concurrently on an instance.
 	ConcurrentExecutions!: int & >=1
 
@@ -437,7 +435,7 @@ _#defs: "/$defs/Properties/definitions/ServerProcess": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -451,7 +449,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // that the metric returns to the target value. The target configuration
 // specifies settings as needed for the target based policy, including the
 // target value.
-_#defs: "/$defs/Properties/definitions/TargetConfiguration": close({
+#TargetConfiguration: close({
 	// Desired value to use with a target-based scaling policy. The value must be
 	// relevant for whatever metric the scaling policy is using. For example, in a
 	// policy using the metric PercentAvailableGameSessions, the target value

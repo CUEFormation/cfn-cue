@@ -12,64 +12,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::Stack
-#Properties: close({
-	VpcId?: _
-	if VpcId != _|_ {
-		DefaultSubnetId!: _
-	}
-	{}
-	AgentVersion?: string | fn.#StringExpression
-	Attributes?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
-		...
-	} | fn.#ObjectExpression
-	ChefConfiguration?:         _#defs."/$defs/Properties/definitions/ChefConfiguration"
-	CloneAppIds?:               list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	ClonePermissions?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ConfigurationManager?:      _#defs."/$defs/Properties/definitions/StackConfigurationManager"
-	CustomCookbooksSource?:     _#defs."/$defs/Properties/definitions/Source"
-	CustomJson?:                fn.#Object & {...} | string | fn.#StringObjectExpression
-	DefaultAvailabilityZone?:   string | fn.#StringExpression
-	DefaultInstanceProfileArn!: string | fn.#StringExpression
-	DefaultOs?:                 string | fn.#StringExpression
-	DefaultRootDeviceType?:     string | fn.#StringExpression
-	DefaultSshKeyName?:         string | fn.#StringExpression
-	DefaultSubnetId?:           string | fn.#StringExpression
-	EcsClusterArn?:             string | fn.#StringExpression
-	ElasticIps?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ElasticIp"] | fn.#ListExpression
-	HostnameTheme?:  string | fn.#StringExpression
-	Name!:           string | fn.#StringExpression
-	RdsDbInstances?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RdsDbInstance"] | fn.#ListExpression
-	ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SourceStackId?:             string | fn.#StringExpression
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UseCustomCookbooks?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	UseOpsworksSecurityGroups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	"VpcId"?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpsWorks::Stack"
+	Properties!: close({
+		VpcId?: _
+		if VpcId != _|_ {
+			DefaultSubnetId!: _
+		}
+		{}
+		AgentVersion?: string | fn.#StringExpression
+		Attributes?: {
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			...
+		} | fn.#ObjectExpression
+		ChefConfiguration?:       #ChefConfiguration
+		CloneAppIds?:             list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		ClonePermissions?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ConfigurationManager?:    #StackConfigurationManager
+		CustomCookbooksSource?:   #Source
+		CustomJson?:              fn.#Object & {...} | string | fn.#StringObjectExpression
+		DefaultAvailabilityZone?: string | fn.#StringExpression
+		DefaultInstanceProfileArn!: string | fn.#StringExpression
+		DefaultOs?:                 string | fn.#StringExpression
+		DefaultRootDeviceType?:     string | fn.#StringExpression
+		DefaultSshKeyName?:         string | fn.#StringExpression
+		DefaultSubnetId?:           string | fn.#StringExpression
+		EcsClusterArn?:             string | fn.#StringExpression
+		ElasticIps?:                list.UniqueItems() & [...#ElasticIp] | fn.#ListExpression
+		HostnameTheme?:             string | fn.#StringExpression
+		Name!:                      string | fn.#StringExpression
+		RdsDbInstances?:            list.UniqueItems() & [...#RdsDbInstance] | fn.#ListExpression
+		ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		SourceStackId?:      string | fn.#StringExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+		UseCustomCookbooks?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		UseOpsworksSecurityGroups?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		"VpcId"?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ChefConfiguration": close({
+#ChefConfiguration: close({
 	BerkshelfVersion?: string | fn.#StringExpression
 	ManageBerkshelf?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticIp": close({
+#ElasticIp: close({
 	Ip!:   string | fn.#StringExpression
 	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsDbInstance": close({
+#RdsDbInstance: close({
 	DbPassword!:       string | fn.#StringExpression
 	DbUser!:           string | fn.#StringExpression
 	RdsDbInstanceArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
+#Source: close({
 	Password?: string | fn.#StringExpression
 	Revision?: string | fn.#StringExpression
 	SshKey?:   string | fn.#StringExpression
@@ -79,18 +89,14 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StackConfigurationManager": close({
+#StackConfigurationManager: close({
 	Name?:    string | fn.#StringExpression
 	Version?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpsWorks::Stack"
-	Properties!: #Properties
-}

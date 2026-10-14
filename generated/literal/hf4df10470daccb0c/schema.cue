@@ -11,57 +11,53 @@ import (
 
 // Resource Type definition for AWS::RTBFabric::Link Resource Type
 #Properties: close({
-	Arn?:                     _#defs."/$defs/Properties/definitions/Arn"
-	CreatedTimestamp?:        _#defs."/$defs/Properties/definitions/CreatedTimestamp"
-	GatewayId!:               _#defs."/$defs/Properties/definitions/GatewayId"
-	HttpResponderAllowed?:    _#defs."/$defs/Properties/definitions/HttpResponderAllowed"
-	LinkAttributes?:          _#defs."/$defs/Properties/definitions/LinkAttributes"
-	LinkDirection?:           _#defs."/$defs/Properties/definitions/LinkDirection"
-	LinkId?:                  _#defs."/$defs/Properties/definitions/LinkId"
-	LinkLogSettings!:         _#defs."/$defs/Properties/definitions/LinkLogSettings"
-	LinkStatus?:              _#defs."/$defs/Properties/definitions/LinkStatus"
-	ModuleConfigurationList?: _#defs."/$defs/Properties/definitions/ModuleConfigurationList"
-	PeerGatewayId!:           _#defs."/$defs/Properties/definitions/GatewayId"
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
-	UpdatedTimestamp?:        _#defs."/$defs/Properties/definitions/UpdatedTimestamp"
+	Arn?:                     #Arn
+	CreatedTimestamp?:        #CreatedTimestamp
+	GatewayId!:               #GatewayId
+	HttpResponderAllowed?:    #HttpResponderAllowed
+	LinkAttributes?:          #LinkAttributes
+	LinkDirection?:           #LinkDirection
+	LinkId?:                  #LinkId
+	LinkLogSettings!:         #LinkLogSettings
+	LinkStatus?:              #LinkStatus
+	ModuleConfigurationList?: #ModuleConfigurationList
+	PeerGatewayId!:           #GatewayId
+	Tags?:                    #Tags
+	UpdatedTimestamp?:        #UpdatedTimestamp
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+$"
 
-_#defs: "/$defs/Properties/definitions/CreatedTimestamp": string
+#CreatedTimestamp: string
 
-_#defs: "/$defs/Properties/definitions/Filter": close(
-	{Criteria!: [..._#defs."/$defs/Properties/definitions/FilterCriterion"]},
-)
+#Filter: close({Criteria!: [...#FilterCriterion]})
 
-_#defs: "/$defs/Properties/definitions/FilterCriterion": close({
+#FilterCriterion: close({
 	Path!:   string
 	Values!: list.MinItems(1) & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayId": =~"^rtb-gw-[a-z0-9-]{1,25}$"
+#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$"
 
-_#defs: "/$defs/Properties/definitions/HeaderTagAction": close({
+#HeaderTagAction: close({
 	Name!:  string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpResponderAllowed": bool
+#HttpResponderAllowed: bool
 
-_#defs: "/$defs/Properties/definitions/LinkAttributes": close({
-	CustomerProvidedId?: string
-	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode"
-	]
+#LinkAttributes: close({
+	CustomerProvidedId?:    string
+	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [...#ResponderErrorMaskingForHttpCode]
 })
 
-_#defs: "/$defs/Properties/definitions/LinkDirection": "REQUEST" | "RESPONSE"
+#LinkDirection: "REQUEST" | "RESPONSE"
 
-_#defs: "/$defs/Properties/definitions/LinkId": =~"^link-[a-z0-9-]{1,25}$"
+#LinkId: =~"^link-[a-z0-9-]{1,25}$"
 
-_#defs: "/$defs/Properties/definitions/LinkLogSettings": close({
+#LinkLogSettings: close({
 	ApplicationLogs!: close({
 		LinkApplicationLogSampling!: close({
 			ErrorLog!:  <=100 & >=0
@@ -70,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/LinkLogSettings": close({
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/LinkStatus": "PENDING_CREATION" |
+#LinkStatus: "PENDING_CREATION" |
 	"PENDING_REQUEST" |
 	"REQUESTED" |
 	"ACCEPTED" |
@@ -85,55 +81,45 @@ _#defs: "/$defs/Properties/definitions/LinkStatus": "PENDING_CREATION" |
 	"PENDING_RESTORATION" |
 	"UNKNOWN_TO_SDK_VERSION"
 
-_#defs: "/$defs/Properties/definitions/ModuleConfiguration": close({
+#ModuleConfiguration: close({
 	DependsOn?:        [...=~"^[A-Za-z0-9 -]+$"]
-	ModuleParameters?: _#defs."/$defs/Properties/definitions/ModuleParameters"
+	ModuleParameters?: #ModuleParameters
 	Name!:             =~"^[A-Za-z0-9 -]+$"
 	Version?:          =~"^[a-z0-9]{1,25}$"
 })
 
-_#defs: "/$defs/Properties/definitions/ModuleConfigurationList": [
-	..._#defs."/$defs/Properties/definitions/ModuleConfiguration"
-]
+#ModuleConfigurationList: [...#ModuleConfiguration]
 
-_#defs: "/$defs/Properties/definitions/ModuleParameters": matchN(1, [close(
-	{NoBid!: _#defs."/$defs/Properties/definitions/NoBidModuleParameters"},
-), close(
-	{OpenRtbAttribute!: _#defs."/$defs/Properties/definitions/OpenRtbAttributeModuleParameters"},
-)])
+#ModuleParameters: matchN(1, [
+	close({NoBid!: #NoBidModuleParameters}), close({OpenRtbAttribute!: #OpenRtbAttributeModuleParameters}),
+])
 
-_#defs: "/$defs/Properties/definitions/NoBidAction": close({NoBidReasonCode?: int & >=0})
+#NoBidAction: close({NoBidReasonCode?: int & >=0})
 
-_#defs: "/$defs/Properties/definitions/NoBidModuleParameters": close({
+#NoBidModuleParameters: close({
 	PassThroughPercentage?: <=100 & >=0
 	Reason?:                strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$"
 	ReasonCode?:            int & <=10 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/OpenRtbAttributeModuleParameters": close({
-	Action!: matchN(1, [close(
-		{NoBid!: _#defs."/$defs/Properties/definitions/NoBidAction"},
-	), close(
-		{HeaderTag!: _#defs."/$defs/Properties/definitions/HeaderTagAction"},
-	)])
-	FilterConfiguration!: [..._#defs."/$defs/Properties/definitions/Filter"]
+#OpenRtbAttributeModuleParameters: close({
+	Action!:              matchN(1, [close({NoBid!: #NoBidAction}), close({HeaderTag!: #HeaderTagAction})])
+	FilterConfiguration!: [...#Filter]
 	FilterType!:          "INCLUDE" | "EXCLUDE"
 	HoldbackPercentage!:  <=100 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode": close({
-	Action!:   "NO_BID" | "PASSTHROUGH"
-	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$"
-	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingLoggingType"
-	]
+#ResponderErrorMaskingForHttpCode: close({
+	Action!:       "NO_BID" | "PASSTHROUGH"
+	HttpCode!:     strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$"
+	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#ResponderErrorMaskingLoggingType]
 	ResponseLoggingPercentage?: <=100 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/ResponderErrorMaskingLoggingType": "NONE" | "METRIC" | "RESPONSE"
+#ResponderErrorMaskingLoggingType: "NONE" | "METRIC" | "RESPONSE"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -148,8 +134,6 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Tags to assign to the Link.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string
+#UpdatedTimestamp: string

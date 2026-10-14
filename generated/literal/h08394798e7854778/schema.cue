@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -13,114 +13,110 @@ import (
 // Definition of AWS::B2BI::Transformer Resource Type
 #Properties: close({
 	CreatedAt?:       time.Time
-	EdiType?:         _#defs."/$defs/Properties/definitions/EdiType"
-	FileFormat?:      _#defs."/$defs/Properties/definitions/FileFormat"
-	InputConversion?: _#defs."/$defs/Properties/definitions/InputConversion"
-	Mapping?:         _#defs."/$defs/Properties/definitions/Mapping"
+	EdiType?:         #EdiType
+	FileFormat?:      #FileFormat
+	InputConversion?: #InputConversion
+	Mapping?:         #Mapping
 
 	// This shape is deprecated: This is a legacy trait. Please use input-conversion
 	// or output-conversion.
 	MappingTemplate?:  strings.MaxRunes(350000) & strings.MinRunes(0)
 	ModifiedAt?:       time.Time
 	Name!:             strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,512}$"
-	OutputConversion?: _#defs."/$defs/Properties/definitions/OutputConversion"
+	OutputConversion?: #OutputConversion
 
 	// This shape is deprecated: This is a legacy trait. Please use input-conversion
 	// or output-conversion.
 	SampleDocument?:  strings.MaxRunes(1024) & strings.MinRunes(0)
-	SampleDocuments?: _#defs."/$defs/Properties/definitions/SampleDocuments"
-	Status!:          _#defs."/$defs/Properties/definitions/TransformerStatus"
-	Tags?:            list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	SampleDocuments?: #SampleDocuments
+	Status!:          #TransformerStatus
+	Tags?:            list.MaxItems(200) & [...] & [...#Tag]
 	TransformerArn?:  strings.MaxRunes(255) & strings.MinRunes(1)
 	TransformerId?:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedOptions": close(
-	{X12?: _#defs."/$defs/Properties/definitions/X12AdvancedOptions"},
-)
+#AdvancedOptions: close({X12?: #X12AdvancedOptions})
 
-_#defs: "/$defs/Properties/definitions/EdiType": close({X12Details!: _#defs."/$defs/Properties/definitions/X12Details"})
+#EdiType: close({X12Details!: #X12Details})
 
-_#defs: "/$defs/Properties/definitions/ElementRequirement": "OPTIONAL" | "MANDATORY"
+#ElementRequirement: "OPTIONAL" | "MANDATORY"
 
-_#defs: "/$defs/Properties/definitions/FileFormat": "XML" | "JSON" | "NOT_USED"
+#FileFormat: "XML" | "JSON" | "NOT_USED"
 
-_#defs: "/$defs/Properties/definitions/FormatOptions": close({X12!: _#defs."/$defs/Properties/definitions/X12Details"})
+#FormatOptions: close({X12!: #X12Details})
 
-_#defs: "/$defs/Properties/definitions/FromFormat": "X12"
+#FromFormat: "X12"
 
-_#defs: "/$defs/Properties/definitions/InputConversion": close({
-	AdvancedOptions?: _#defs."/$defs/Properties/definitions/AdvancedOptions"
-	FormatOptions?:   _#defs."/$defs/Properties/definitions/FormatOptions"
-	FromFormat!:      _#defs."/$defs/Properties/definitions/FromFormat"
+#InputConversion: close({
+	AdvancedOptions?: #AdvancedOptions
+	FormatOptions?:   #FormatOptions
+	FromFormat!:      #FromFormat
 })
 
-_#defs: "/$defs/Properties/definitions/Mapping": close({
+#Mapping: close({
 	Template?:         strings.MaxRunes(350000) & strings.MinRunes(0)
-	TemplateLanguage!: _#defs."/$defs/Properties/definitions/MappingTemplateLanguage"
+	TemplateLanguage!: #MappingTemplateLanguage
 })
 
-_#defs: "/$defs/Properties/definitions/MappingTemplateLanguage": "XSLT" | "JSONATA"
+#MappingTemplateLanguage: "XSLT" | "JSONATA"
 
-_#defs: "/$defs/Properties/definitions/OutputConversion": close({
-	AdvancedOptions?: _#defs."/$defs/Properties/definitions/AdvancedOptions"
-	FormatOptions?:   _#defs."/$defs/Properties/definitions/FormatOptions"
-	ToFormat!:        _#defs."/$defs/Properties/definitions/ToFormat"
+#OutputConversion: close({
+	AdvancedOptions?: #AdvancedOptions
+	FormatOptions?:   #FormatOptions
+	ToFormat!:        #ToFormat
 })
 
-_#defs: "/$defs/Properties/definitions/SampleDocumentKeys": close({
+#SampleDocumentKeys: close({
 	Input?:  strings.MaxRunes(1024) & strings.MinRunes(0)
 	Output?: strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/SampleDocuments": close({
+#SampleDocuments: close({
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
-	Keys!:       [..._#defs."/$defs/Properties/definitions/SampleDocumentKeys"]
+	Keys!:       [...#SampleDocumentKeys]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/ToFormat": "X12"
+#ToFormat: "X12"
 
-_#defs: "/$defs/Properties/definitions/TransformerStatus": "active" | "inactive"
+#TransformerStatus: "active" | "inactive"
 
-_#defs: "/$defs/Properties/definitions/X12AdvancedOptions": close({
-	SplitOptions?:      _#defs."/$defs/Properties/definitions/X12SplitOptions"
-	ValidationOptions?: _#defs."/$defs/Properties/definitions/X12ValidationOptions"
+#X12AdvancedOptions: close({
+	SplitOptions?:      #X12SplitOptions
+	ValidationOptions?: #X12ValidationOptions
 })
 
-_#defs: "/$defs/Properties/definitions/X12CodeListValidationRule": close({
+#X12CodeListValidationRule: close({
 	CodesToAdd?:    [...string]
 	CodesToRemove?: [...string]
 	ElementId!:     strings.MaxRunes(4) & strings.MinRunes(4) & =~"^[0-9]{4}$"
 })
 
-_#defs: "/$defs/Properties/definitions/X12Details": close({
-	TransactionSet?: _#defs."/$defs/Properties/definitions/X12TransactionSet"
-	Version?:        _#defs."/$defs/Properties/definitions/X12Version"
+#X12Details: close({
+	TransactionSet?: #X12TransactionSet
+	Version?:        #X12Version
 })
 
-_#defs: "/$defs/Properties/definitions/X12ElementLengthValidationRule": close({
+#X12ElementLengthValidationRule: close({
 	ElementId!: strings.MaxRunes(4) & strings.MinRunes(4) & =~"^[0-9]{4}$"
 	MaxLength!: <=1000000 & >=1
 	MinLength!: <=1000000 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/X12ElementRequirementValidationRule": close({
+#X12ElementRequirementValidationRule: close({
 	ElementPosition!: =~"^[a-zA-Z0-9]+(?:-\\d{2})(?:-\\d{2})?$"
-	Requirement!:     _#defs."/$defs/Properties/definitions/ElementRequirement"
+	Requirement!:     #ElementRequirement
 })
 
-_#defs: "/$defs/Properties/definitions/X12SplitBy": "NONE" | "TRANSACTION"
+#X12SplitBy: "NONE" | "TRANSACTION"
 
-_#defs: "/$defs/Properties/definitions/X12SplitOptions": close(
-	{SplitBy?: _#defs."/$defs/Properties/definitions/X12SplitBy"},
-)
+#X12SplitOptions: close({SplitBy?: #X12SplitBy})
 
-_#defs: "/$defs/Properties/definitions/X12TransactionSet": "X12_100" |
+#X12TransactionSet: "X12_100" |
 	"X12_101" |
 	"X12_102" |
 	"X12_103" |
@@ -463,21 +459,14 @@ _#defs: "/$defs/Properties/definitions/X12TransactionSet": "X12_100" |
 	"X12_837_X298" |
 	"X12_999_X231"
 
-_#defs: "/$defs/Properties/definitions/X12ValidationOptions": close(
-	{ValidationRules?: [..._#defs."/$defs/Properties/definitions/X12ValidationRule"]},
-)
+#X12ValidationOptions: close({ValidationRules?: [...#X12ValidationRule]})
 
-_#defs: "/$defs/Properties/definitions/X12ValidationRule": matchN(1, [close(
-	{CodeListValidationRule!: _#defs."/$defs/Properties/definitions/X12CodeListValidationRule"},
+#X12ValidationRule: matchN(1, [close(
+	{CodeListValidationRule!: #X12CodeListValidationRule},
 ), close(
-	{ElementLengthValidationRule!: _#defs."/$defs/Properties/definitions/X12ElementLengthValidationRule"},
+	{ElementLengthValidationRule!: #X12ElementLengthValidationRule},
 ), close(
-	{ElementRequirementValidationRule!: _#defs."/$defs/Properties/definitions/X12ElementRequirementValidationRule"},
+	{ElementRequirementValidationRule!: #X12ElementRequirementValidationRule},
 )])
 
-_#defs: "/$defs/Properties/definitions/X12Version": "VERSION_4010" |
-	"VERSION_4030" |
-	"VERSION_4050" |
-	"VERSION_4060" |
-	"VERSION_5010" |
-	"VERSION_5010_HIPAA"
+#X12Version: "VERSION_4010" | "VERSION_4030" | "VERSION_4050" | "VERSION_4060" | "VERSION_5010" | "VERSION_5010_HIPAA"

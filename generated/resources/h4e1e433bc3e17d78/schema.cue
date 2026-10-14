@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,30 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::ServerlessCluster
-#Properties: close({
-	ClientAuthentication!: _#defs."/$defs/Properties/definitions/ClientAuthentication"
-	ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::ServerlessCluster"
+	Properties!: close({
+		ClientAuthentication!: #ClientAuthentication
+		ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	VpcConfigs!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VpcConfig"] | fn.#ListExpression
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		VpcConfigs!: list.UniqueItems() & [...#VpcConfig] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ClientAuthentication": close(
-	{Sasl!: _#defs."/$defs/Properties/definitions/Sasl"},
-) |
-	fn.#ObjectExpression
+#ClientAuthentication: close({Sasl!: #Sasl}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Iam": close(
-	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#Iam: close({Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Sasl": close({Iam!: _#defs."/$defs/Properties/definitions/Iam"}) |
-	fn.#ObjectExpression
+#Sasl: close({Iam!: #Iam}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroups?: list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -45,7 +42,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	SubnetIds!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::ServerlessCluster"
-	Properties!: #Properties
-}

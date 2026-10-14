@@ -17,7 +17,7 @@ import (
 	// Property to represent the name servers assoicated with the domain that AVA
 	// manages (say, ['ns1.amazonaws.com', 'ns2.amazonaws.com',
 	// 'ns3.amazonaws.com', 'ns4.amazonaws.com']).
-	CidrEndpointsCustomSubDomainNameServers?: [..._#defs."/$defs/Properties/definitions/Nameserver"]
+	CidrEndpointsCustomSubDomainNameServers?: [...#Nameserver]
 
 	// Time this Verified Access Instance was created.
 	CreationTime?: string
@@ -32,30 +32,26 @@ import (
 	LastUpdatedTime?: string
 
 	// The configuration options for AWS Verified Access instances.
-	LoggingConfigurations?: _#defs."/$defs/Properties/definitions/VerifiedAccessLogs"
+	LoggingConfigurations?: #VerifiedAccessLogs
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The ID of the AWS Verified Access instance.
 	VerifiedAccessInstanceId?: string
 
 	// The IDs of the AWS Verified Access trust providers.
-	VerifiedAccessTrustProviderIds?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VerifiedAccessTrustProviderId"
-	]
+	VerifiedAccessTrustProviderIds?: list.UniqueItems() & [...#VerifiedAccessTrustProviderId]
 
 	// AWS Verified Access trust providers.
-	VerifiedAccessTrustProviders?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VerifiedAccessTrustProvider"
-	]
+	VerifiedAccessTrustProviders?: list.UniqueItems() & [...#VerifiedAccessTrustProvider]
 })
 
 // The value of the name server
-_#defs: "/$defs/Properties/definitions/Nameserver": string
+#Nameserver: string
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -70,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The configuration options for AWS Verified Access instances.
-_#defs: "/$defs/Properties/definitions/VerifiedAccessLogs": close({
+#VerifiedAccessLogs: close({
 	// Sends Verified Access logs to CloudWatch Logs.
 	CloudWatchLogs?: close({
 		// Indicates whether logging is enabled.
@@ -112,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/VerifiedAccessLogs": close({
 })
 
 // A Verified Access Trust Provider.
-_#defs: "/$defs/Properties/definitions/VerifiedAccessTrustProvider": close({
+#VerifiedAccessTrustProvider: close({
 	// The description of trust provider.
 	Description?: string
 
@@ -130,4 +126,4 @@ _#defs: "/$defs/Properties/definitions/VerifiedAccessTrustProvider": close({
 })
 
 // The ID of the AWS Verified Access trust provider.
-_#defs: "/$defs/Properties/definitions/VerifiedAccessTrustProviderId": string
+#VerifiedAccessTrustProviderId: string

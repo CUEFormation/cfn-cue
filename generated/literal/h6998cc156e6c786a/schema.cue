@@ -25,7 +25,7 @@ import (
 	AutoMinorVersionUpgrade?: bool
 
 	// The cluster endpoint.
-	ClusterEndpoint?: _#defs."/$defs/Properties/definitions/Endpoint"
+	ClusterEndpoint?: #Endpoint
 
 	// The name of the cluster. This value must be unique as it also serves as the cluster identifier.
 	ClusterName!: =~"[a-z][a-z0-9\\-]*"
@@ -130,12 +130,12 @@ import (
 	TLSEnabled?: bool
 
 	// An array of key-value pairs to apply to this cluster.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/DataTieringStatus": "true" | "false"
+#DataTieringStatus: "true" | "false"
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	// The DNS address of the primary read-write node.
 	Address?: string
 
@@ -143,12 +143,12 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 	Port?: int
 })
 
-_#defs: "/$defs/Properties/definitions/SupportedIpDiscoveryTypes": "ipv4" | "ipv6"
+#SupportedIpDiscoveryTypes: "ipv4" | "ipv6"
 
-_#defs: "/$defs/Properties/definitions/SupportedNetworkTypes": "ipv4" | "ipv6" | "dual_stack"
+#SupportedNetworkTypes: "ipv4" | "ipv6" | "dual_stack"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for the tag. May not be null.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

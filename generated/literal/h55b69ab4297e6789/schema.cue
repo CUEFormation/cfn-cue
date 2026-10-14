@@ -11,35 +11,33 @@ import (
 
 // Resource Type definition for AWS::Config::ConfigurationAggregator
 #Properties: close({
-	AccountAggregationSources?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AccountAggregationSource"
-	]
+	AccountAggregationSources?: list.MaxItems(1) & [...] & [...#AccountAggregationSource]
 
 	// The Amazon Resource Name (ARN) of the aggregator.
 	ConfigurationAggregatorArn?: string
 
 	// The name of the aggregator.
 	ConfigurationAggregatorName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+"
-	OrganizationAggregationSource?: _#defs."/$defs/Properties/definitions/OrganizationAggregationSource"
+	OrganizationAggregationSource?: #OrganizationAggregationSource
 
 	// The tags for the configuration aggregator.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AccountAggregationSource": close({
+#AccountAggregationSource: close({
 	AccountIds!:    list.MinItems(1) & [...=~"^\\d{12}$"]
 	AllAwsRegions?: bool
 	AwsRegions?:    list.MinItems(1) & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/OrganizationAggregationSource": close({
+#OrganizationAggregationSource: close({
 	AllAwsRegions?: bool
 	AwsRegions?:    list.MinItems(1) & [...string]
 	RoleArn!:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

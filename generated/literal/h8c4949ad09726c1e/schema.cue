@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,55 +20,49 @@ import (
 	AppImageConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}"
 
 	// The CodeEditorAppImageConfig.
-	CodeEditorAppImageConfig?: _#defs."/$defs/Properties/definitions/CodeEditorAppImageConfig"
+	CodeEditorAppImageConfig?: #CodeEditorAppImageConfig
 
 	// The JupyterLabAppImageConfig.
-	JupyterLabAppImageConfig?: _#defs."/$defs/Properties/definitions/JupyterLabAppImageConfig"
+	JupyterLabAppImageConfig?: #JupyterLabAppImageConfig
 
 	// The KernelGatewayImageConfig.
-	KernelGatewayImageConfig?: _#defs."/$defs/Properties/definitions/KernelGatewayImageConfig"
+	KernelGatewayImageConfig?: #KernelGatewayImageConfig
 
 	// A list of tags to apply to the AppImageConfig.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // The configuration for the kernels in a SageMaker image running as a CodeEditor app.
-_#defs: "/$defs/Properties/definitions/CodeEditorAppImageConfig": close({
+#CodeEditorAppImageConfig: close({
 	// The container configuration for a SageMaker image.
-	ContainerConfig?: _#defs."/$defs/Properties/definitions/ContainerConfig"
+	ContainerConfig?: #ContainerConfig
 })
 
 // The container configuration for a SageMaker image.
-_#defs: "/$defs/Properties/definitions/ContainerConfig": close({
+#ContainerConfig: close({
 	// A list of arguments to apply to the container.
-	ContainerArguments?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImageContainerArguments"
-	]
+	ContainerArguments?: list.MaxItems(50) & [...] & [...#CustomImageContainerArguments]
 
 	// The custom entry point to use on container.
-	ContainerEntrypoint?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImageContainerEntrypoint"
-	]
+	ContainerEntrypoint?: list.MaxItems(1) & [...] & [...#CustomImageContainerEntrypoint]
 
 	// A list of variables to apply to the custom container.
-	ContainerEnvironmentVariables?: list.MaxItems(25) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImageContainerEnvironmentVariable"
-	]
+	ContainerEnvironmentVariables?: list.MaxItems(25) & [...] & [...#CustomImageContainerEnvironmentVariable]
 })
 
 // The container image arguments
-_#defs: "/$defs/Properties/definitions/CustomImageContainerArguments": strings.MaxRunes(64) & strings.MinRunes(1)
+#CustomImageContainerArguments: strings.MaxRunes(64) & strings.MinRunes(1)
 
 // The container entry point
-_#defs: "/$defs/Properties/definitions/CustomImageContainerEntrypoint": strings.MaxRunes(256) & strings.MinRunes(1)
+#CustomImageContainerEntrypoint: strings.MaxRunes(256) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/CustomImageContainerEnvironmentVariable": close({
+#CustomImageContainerEnvironmentVariable: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
 // The Amazon Elastic File System (EFS) storage configuration for a SageMaker image.
-_#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
+#FileSystemConfig: close({
 	// The default POSIX group ID (GID). If not specified, defaults to 100.
 	DefaultGid?: int & <=65535 & >=0
 
@@ -82,22 +76,22 @@ _#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
 })
 
 // The configuration for the kernels in a SageMaker image running as a JupyterLab app.
-_#defs: "/$defs/Properties/definitions/JupyterLabAppImageConfig": close({
+#JupyterLabAppImageConfig: close({
 	// The container configuration for a SageMaker image.
-	ContainerConfig?: _#defs."/$defs/Properties/definitions/ContainerConfig"
+	ContainerConfig?: #ContainerConfig
 })
 
 // The configuration for the file system and kernels in a SageMaker image
 // running as a KernelGateway app.
-_#defs: "/$defs/Properties/definitions/KernelGatewayImageConfig": close({
+#KernelGatewayImageConfig: close({
 	// The Amazon Elastic File System (EFS) storage configuration for a SageMaker image.
-	FileSystemConfig?: _#defs."/$defs/Properties/definitions/FileSystemConfig"
+	FileSystemConfig?: #FileSystemConfig
 
 	// The specification of the Jupyter kernels in the image.
-	KernelSpecs!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/KernelSpec"]
+	KernelSpecs!: list.MaxItems(1) & list.MinItems(1) & [...#KernelSpec]
 })
 
-_#defs: "/$defs/Properties/definitions/KernelSpec": close({
+#KernelSpec: close({
 	// The display name of the kernel.
 	DisplayName?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
@@ -105,7 +99,7 @@ _#defs: "/$defs/Properties/definitions/KernelSpec": close({
 	Name!: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

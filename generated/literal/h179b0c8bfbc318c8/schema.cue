@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,24 +16,24 @@ import (
 	Arn?:           string
 	AwsAccountId!:  strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 	BaseThemeId!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
-	Configuration!: _#defs."/$defs/Properties/definitions/ThemeConfiguration"
+	Configuration!: #ThemeConfiguration
 
 	// <p>The date and time that the theme was created.</p>
 	CreatedTime?: time.Time
 
 	// <p>The date and time that the theme was last updated.</p>
-	LastUpdatedTime?: time.Time
-	Name!:            strings.MaxRunes(2048) & strings.MinRunes(1)
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"]
-	Tags?:        list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	ThemeId!:     strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
-	Type?:        _#defs."/$defs/Properties/definitions/ThemeType"
-	Version?:     _#defs."/$defs/Properties/definitions/ThemeVersion"
+	LastUpdatedTime?:    time.Time
+	Name!:               strings.MaxRunes(2048) & strings.MinRunes(1)
+	Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission]
+	Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag]
+	ThemeId!:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
+	Type?:               #ThemeType
+	Version?:            #ThemeVersion
 	VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1)
 })
 
 // <p>The display options for tile borders for visuals.</p>
-_#defs: "/$defs/Properties/definitions/BorderStyle": close({
+#BorderStyle: close({
 	// String to encapsulate the most generic way Color can be formatted (words, hexStrings etc)
 	Color?: string
 
@@ -48,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/BorderStyle": close({
 // <p>The theme colors that are used for data colors in charts. The colors description is a
 // hexadecimal color code that consists of six alphanumerical characters, prefixed with
 // <code>#</code>, for example #37BFF5. </p>
-_#defs: "/$defs/Properties/definitions/DataColorPalette": close({
+#DataColorPalette: close({
 	// <p>The hexadecimal codes for the colors.</p>
 	Colors?: list.MaxItems(100) & [...] & [...=~"^#[A-F0-9]{6}$"]
 
@@ -60,51 +60,49 @@ _#defs: "/$defs/Properties/definitions/DataColorPalette": close({
 	MinMaxGradient?: list.MaxItems(100) & [...] & [...=~"^#[A-F0-9]{6}$"]
 })
 
-_#defs: "/$defs/Properties/definitions/Font": close({FontFamily?: strings.MaxRunes(256) & strings.MinRunes(0)})
+#Font: close({FontFamily?: strings.MaxRunes(256) & strings.MinRunes(0)})
 
-_#defs: "/$defs/Properties/definitions/FontConfiguration": close({
+#FontConfiguration: close({
 	FontColor?:      =~"^#[A-F0-9]{6}$"
-	FontDecoration?: _#defs."/$defs/Properties/definitions/FontDecoration"
+	FontDecoration?: #FontDecoration
 
 	// <p>The font family that you want to use.</p>
 	FontFamily?: strings.MaxRunes(256) & strings.MinRunes(0)
-	FontSize?:   _#defs."/$defs/Properties/definitions/FontSize"
-	FontStyle?:  _#defs."/$defs/Properties/definitions/FontStyle"
-	FontWeight?: _#defs."/$defs/Properties/definitions/FontWeight"
+	FontSize?:   #FontSize
+	FontStyle?:  #FontStyle
+	FontWeight?: #FontWeight
 })
 
-_#defs: "/$defs/Properties/definitions/FontDecoration": "UNDERLINE" | "NONE"
+#FontDecoration: "UNDERLINE" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/FontSize": close({
+#FontSize: close({
 	// <p>The font size that you want to use in px.</p>
 	Absolute?: string
 })
 
-_#defs: "/$defs/Properties/definitions/FontStyle": "NORMAL" | "ITALIC"
+#FontStyle: "NORMAL" | "ITALIC"
 
-_#defs: "/$defs/Properties/definitions/FontWeight": close(
-	{Name?: _#defs."/$defs/Properties/definitions/FontWeightName"},
-)
+#FontWeight: close({Name?: #FontWeightName})
 
-_#defs: "/$defs/Properties/definitions/FontWeightName": "NORMAL" | "BOLD"
+#FontWeightName: "NORMAL" | "BOLD"
 
 // <p>The display options for gutter spacing between tiles on a sheet.</p>
-_#defs: "/$defs/Properties/definitions/GutterStyle": close({
+#GutterStyle: close({
 	// <p>This Boolean value controls whether to display a gutter space between sheet tiles.
 	// </p>
 	Show?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/HorizontalTextAlignment": "LEFT" | "CENTER" | "RIGHT" | "AUTO"
+#HorizontalTextAlignment: "LEFT" | "CENTER" | "RIGHT" | "AUTO"
 
 // <p>The display options for margins around the outside edge of sheets.</p>
-_#defs: "/$defs/Properties/definitions/MarginStyle": close({
+#MarginStyle: close({
 	// <p>This Boolean value controls whether to display sheet margins.</p>
 	Show?: bool
 })
 
 // <p>Permission for the resource.</p>
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	// <p>The IAM action to grant or revoke permissions on.</p>
 	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string]
 
@@ -128,7 +126,7 @@ _#defs: "/$defs/Properties/definitions/ResourcePermission": close({
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceStatus": "CREATION_IN_PROGRESS" |
+#ResourceStatus: "CREATION_IN_PROGRESS" |
 	"CREATION_SUCCESSFUL" |
 	"CREATION_FAILED" |
 	"UPDATE_IN_PROGRESS" |
@@ -137,22 +135,22 @@ _#defs: "/$defs/Properties/definitions/ResourceStatus": "CREATION_IN_PROGRESS" |
 	"PENDING_UPDATE" |
 	"DELETED"
 
-_#defs: "/$defs/Properties/definitions/SheetBackgroundStyle": close({
+#SheetBackgroundStyle: close({
 	// String to encapsulate the most generic way Color can be formatted (words, hexStrings etc)
 	Color?:    string
 	Gradient?: string
 })
 
 // <p>The theme display options for sheets. </p>
-_#defs: "/$defs/Properties/definitions/SheetStyle": close({
-	Background?: _#defs."/$defs/Properties/definitions/SheetBackgroundStyle"
-	Tile?:       _#defs."/$defs/Properties/definitions/TileStyle"
-	TileLayout?: _#defs."/$defs/Properties/definitions/TileLayoutStyle"
+#SheetStyle: close({
+	Background?: #SheetBackgroundStyle
+	Tile?:       #TileStyle
+	TileLayout?: #TileLayoutStyle
 })
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -160,37 +158,37 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TextTransform": "CAPITALIZE"
+#TextTransform: "CAPITALIZE"
 
 // <p>The theme configuration. This configuration contains all of the display properties for
 // a theme.</p>
-_#defs: "/$defs/Properties/definitions/ThemeConfiguration": close({
-	DataColorPalette?: _#defs."/$defs/Properties/definitions/DataColorPalette"
-	Sheet?:            _#defs."/$defs/Properties/definitions/SheetStyle"
-	Typography?:       _#defs."/$defs/Properties/definitions/Typography"
-	UIColorPalette?:   _#defs."/$defs/Properties/definitions/UIColorPalette"
+#ThemeConfiguration: close({
+	DataColorPalette?: #DataColorPalette
+	Sheet?:            #SheetStyle
+	Typography?:       #Typography
+	UIColorPalette?:   #UIColorPalette
 })
 
 // <p>Theme error.</p>
-_#defs: "/$defs/Properties/definitions/ThemeError": close({
+#ThemeError: close({
 	// <p>The error message.</p>
 	Message?: =~"\\S"
-	Type?:    _#defs."/$defs/Properties/definitions/ThemeErrorType"
+	Type?:    #ThemeErrorType
 })
 
-_#defs: "/$defs/Properties/definitions/ThemeErrorType": "INTERNAL_FAILURE"
+#ThemeErrorType: "INTERNAL_FAILURE"
 
-_#defs: "/$defs/Properties/definitions/ThemeType": "QUICKSIGHT" | "CUSTOM" | "ALL"
+#ThemeType: "QUICKSIGHT" | "CUSTOM" | "ALL"
 
 // <p>A version of a theme.</p>
-_#defs: "/$defs/Properties/definitions/ThemeVersion": close({
+#ThemeVersion: close({
 	// <p>The Amazon Resource Name (ARN) of the resource.</p>
 	Arn?: string
 
 	// <p>The Amazon Quick-defined ID of the theme that a custom theme inherits from. All
 	// themes initially inherit from a default Quick theme.</p>
 	BaseThemeId?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
-	Configuration?: _#defs."/$defs/Properties/definitions/ThemeConfiguration"
+	Configuration?: #ThemeConfiguration
 
 	// <p>The date and time that this theme version was created.</p>
 	CreatedTime?: time.Time
@@ -199,37 +197,37 @@ _#defs: "/$defs/Properties/definitions/ThemeVersion": close({
 	Description?: strings.MaxRunes(512) & strings.MinRunes(1)
 
 	// <p>Errors associated with the theme.</p>
-	Errors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ThemeError"]
-	Status?: _#defs."/$defs/Properties/definitions/ResourceStatus"
+	Errors?: list.MinItems(1) & [...#ThemeError]
+	Status?: #ResourceStatus
 
 	// <p>The version number of the theme.</p>
 	VersionNumber?: >=1
 })
 
 // <p>The display options for the layout of tiles on a sheet.</p>
-_#defs: "/$defs/Properties/definitions/TileLayoutStyle": close({
-	Gutter?: _#defs."/$defs/Properties/definitions/GutterStyle"
-	Margin?: _#defs."/$defs/Properties/definitions/MarginStyle"
+#TileLayoutStyle: close({
+	Gutter?: #GutterStyle
+	Margin?: #MarginStyle
 })
 
 // <p>Display options related to tiles on a sheet.</p>
-_#defs: "/$defs/Properties/definitions/TileStyle": close({
+#TileStyle: close({
 	// String to encapsulate the most generic way Color can be formatted (words, hexStrings etc)
 	BackgroundColor?: string
-	Border?:          _#defs."/$defs/Properties/definitions/BorderStyle"
+	Border?:          #BorderStyle
 	BorderRadius?:    strings.MaxRunes(50) & strings.MinRunes(0)
 	Padding?:         strings.MaxRunes(200) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Typography": close({
-	AxisLabelFontConfiguration?:      _#defs."/$defs/Properties/definitions/FontConfiguration"
-	AxisTitleFontConfiguration?:      _#defs."/$defs/Properties/definitions/FontConfiguration"
-	DataLabelFontConfiguration?:      _#defs."/$defs/Properties/definitions/FontConfiguration"
-	FontFamilies?:                    list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Font"]
-	LegendTitleFontConfiguration?:    _#defs."/$defs/Properties/definitions/FontConfiguration"
-	LegendValueFontConfiguration?:    _#defs."/$defs/Properties/definitions/FontConfiguration"
-	VisualSubtitleFontConfiguration?: _#defs."/$defs/Properties/definitions/VisualSubtitleFontConfiguration"
-	VisualTitleFontConfiguration?:    _#defs."/$defs/Properties/definitions/VisualTitleFontConfiguration"
+#Typography: close({
+	AxisLabelFontConfiguration?:      #FontConfiguration
+	AxisTitleFontConfiguration?:      #FontConfiguration
+	DataLabelFontConfiguration?:      #FontConfiguration
+	FontFamilies?:                    list.MaxItems(5) & [...] & [...#Font]
+	LegendTitleFontConfiguration?:    #FontConfiguration
+	LegendValueFontConfiguration?:    #FontConfiguration
+	VisualSubtitleFontConfiguration?: #VisualSubtitleFontConfiguration
+	VisualTitleFontConfiguration?:    #VisualTitleFontConfiguration
 })
 
 // <p>The theme colors that apply to UI and to charts, excluding data colors. The colors
@@ -240,7 +238,7 @@ _#defs: "/$defs/Properties/definitions/Typography": close({
 // Themes in Amazon Quick</a> in the <i>Amazon Quick User
 // Guide.</i>
 // </p>
-_#defs: "/$defs/Properties/definitions/UIColorPalette": close({
+#UIColorPalette: close({
 	// <p>This color is that applies to selected states and buttons.</p>
 	Accent?: =~"^#[A-F0-9]{6}$"
 
@@ -300,14 +298,14 @@ _#defs: "/$defs/Properties/definitions/UIColorPalette": close({
 	WarningForeground?: =~"^#[A-F0-9]{6}$"
 })
 
-_#defs: "/$defs/Properties/definitions/VisualSubtitleFontConfiguration": close({
-	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
-	TextAlignment?:     _#defs."/$defs/Properties/definitions/HorizontalTextAlignment"
-	TextTransform?:     _#defs."/$defs/Properties/definitions/TextTransform"
+#VisualSubtitleFontConfiguration: close({
+	FontConfiguration?: #FontConfiguration
+	TextAlignment?:     #HorizontalTextAlignment
+	TextTransform?:     #TextTransform
 })
 
-_#defs: "/$defs/Properties/definitions/VisualTitleFontConfiguration": close({
-	FontConfiguration?: _#defs."/$defs/Properties/definitions/FontConfiguration"
-	TextAlignment?:     _#defs."/$defs/Properties/definitions/HorizontalTextAlignment"
-	TextTransform?:     _#defs."/$defs/Properties/definitions/TextTransform"
+#VisualTitleFontConfiguration: close({
+	FontConfiguration?: #FontConfiguration
+	TextAlignment?:     #HorizontalTextAlignment
+	TextTransform?:     #TextTransform
 })

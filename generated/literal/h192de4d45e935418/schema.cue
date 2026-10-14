@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,7 +14,7 @@ import (
 	// Can be either AWS_IAM if the requests are authorized via IAM, or NONE if no
 	// authorization is configured on the Function URL.
 	AuthType!: "AWS_IAM" | "NONE"
-	Cors?:     _#defs."/$defs/Properties/definitions/Cors"
+	Cors?:     #Cors
 
 	// The full Amazon Resource Name (ARN) of the function associated with the Function URL.
 	FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
@@ -36,36 +36,30 @@ import (
 	TargetFunctionArn!: string
 })
 
-_#defs: "/$defs/Properties/definitions/AllowHeaders": list.MaxItems(100) & list.MinItems(1) & [
-	...strings.MaxRunes(1024) & strings.MinRunes(1)
-]
+#AllowHeaders: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(1024) & strings.MinRunes(1)]
 
-_#defs: "/$defs/Properties/definitions/AllowMethods": list.MaxItems(6) & list.MinItems(1) & [
+#AllowMethods: list.MaxItems(6) & list.MinItems(1) & [
 	...("GET" | "PUT" | "HEAD" | "POST" | "PATCH" | "DELETE" | "*") & (strings.MaxRunes(6) & strings.MinRunes(0))
 ]
 
-_#defs: "/$defs/Properties/definitions/AllowOrigins": list.MaxItems(100) & list.MinItems(1) & [
-	...strings.MaxRunes(253) & strings.MinRunes(1)
-]
+#AllowOrigins: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(253) & strings.MinRunes(1)]
 
-_#defs: "/$defs/Properties/definitions/Cors": close({
+#Cors: close({
 	// Specifies whether credentials are included in the CORS request.
 	AllowCredentials?: bool
 
 	// Represents a collection of allowed headers.
-	AllowHeaders?: _#defs."/$defs/Properties/definitions/AllowHeaders"
+	AllowHeaders?: #AllowHeaders
 
 	// Represents a collection of allowed HTTP methods.
-	AllowMethods?: _#defs."/$defs/Properties/definitions/AllowMethods"
+	AllowMethods?: #AllowMethods
 
 	// Represents a collection of allowed origins.
-	AllowOrigins?: _#defs."/$defs/Properties/definitions/AllowOrigins"
+	AllowOrigins?: #AllowOrigins
 
 	// Represents a collection of exposed headers.
-	ExposeHeaders?: _#defs."/$defs/Properties/definitions/ExposeHeaders"
+	ExposeHeaders?: #ExposeHeaders
 	MaxAge?:        int & <=86400 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/ExposeHeaders": list.MaxItems(100) & list.MinItems(1) & [
-	...strings.MaxRunes(1024) & strings.MinRunes(1)
-]
+#ExposeHeaders: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(1024) & strings.MinRunes(1)]

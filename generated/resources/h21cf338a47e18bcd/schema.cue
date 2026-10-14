@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,43 +17,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Channel
-#Properties: close({
-	ChannelName!:                     _#defs."/$defs/Properties/definitions/ChannelName"
-	ClusterArn?:                      string | fn.#StringExpression
-	EncryptionConfiguration?:         _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	IcebergDestinationConfiguration?: _#defs."/$defs/Properties/definitions/IcebergDestinationConfiguration"
-	LoggingInfo?:                     _#defs."/$defs/Properties/definitions/ChannelLoggingInfo"
-	S3DestinationConfiguration?:      _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	Tags?:                            _#defs."/$defs/Properties/definitions/Tags"
-	TopicConfigurationList!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TopicConfiguration"
-	] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::Channel"
+	Properties!: close({
+		ChannelName!:                     #ChannelName
+		ClusterArn?:                      string | fn.#StringExpression
+		EncryptionConfiguration?:         #EncryptionConfiguration
+		IcebergDestinationConfiguration?: #IcebergDestinationConfiguration
+		LoggingInfo?:                     #ChannelLoggingInfo
+		S3DestinationConfiguration?:      #S3DestinationConfiguration
+		Tags?:                            #Tags
+		TopicConfigurationList!: list.MaxItems(1) & list.MinItems(1) & [...#TopicConfiguration] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Catalog": close({
+#Catalog: close({
 	CatalogArn?:        string | fn.#StringExpression
 	WarehouseLocation?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelLoggingInfo": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogDestination"
-	Firehose?:       _#defs."/$defs/Properties/definitions/FirehoseLogDestination"
-	S3?:             _#defs."/$defs/Properties/definitions/S3LogDestination"
+#ChannelLoggingInfo: close({
+	CloudWatchLogs?: #CloudWatchLogsLogDestination
+	Firehose?:       #FirehoseLogDestination
+	S3?:             #S3LogDestination
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" |
-fn.#StringExpression
+#ChannelName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelStateInfo": close({
+#ChannelStateInfo: close({
 	Code?:    string | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelStatus": "CREATING" |
+#ChannelStatus: "CREATING" |
 	"ACTIVE" |
 	"UPDATING" |
 	"DELETING" |
@@ -62,44 +61,44 @@ _#defs: "/$defs/Properties/definitions/ChannelStatus": "CREATING" |
 	"SUSPENDED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsLogDestination": close({
+#CloudWatchLogsLogDestination: close({
 	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroup?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeadLetterQueueS3": close({
+#DeadLetterQueueS3: close({
 	BucketArn!:           string | fn.#StringExpression
 	ErrorOutputPrefix!:   string | fn.#StringExpression
 	ExpectedBucketOwner?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationTable": close({
+#DestinationTable: close({
 	DestinationDatabaseName!: string | fn.#StringExpression
 	DestinationTableName!:    string | fn.#StringExpression
-	PartitionSpec?:           _#defs."/$defs/Properties/definitions/PartitionSpec"
+	PartitionSpec?:           #PartitionSpec
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsKeyArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirehoseLogDestination": close({
+#FirehoseLogDestination: close({
 	DeliveryStream?: string | fn.#StringExpression
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergCompressionType": "ZSTD" | "SNAPPY" | fn.#StringExpression
+#IcebergCompressionType: "ZSTD" | "SNAPPY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergDestinationConfiguration": close({
+#IcebergDestinationConfiguration: close({
 	AppendOnly!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Catalog?:         _#defs."/$defs/Properties/definitions/Catalog"
-	CompressionType?: _#defs."/$defs/Properties/definitions/IcebergCompressionType"
+	Catalog?:         #Catalog
+	CompressionType?: #IcebergCompressionType
 	DataFreshnessInSeconds?: int & <=900 & >=60 |
 		{
 			string &
@@ -116,40 +115,32 @@ _#defs: "/$defs/Properties/definitions/IcebergDestinationConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	DeadLetterQueueS3!: _#defs."/$defs/Properties/definitions/DeadLetterQueueS3"
-	DestinationTableList!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DestinationTable"
-	] |
-		fn.#ListExpression
-	SchemaEvolution!: _#defs."/$defs/Properties/definitions/SchemaEvolution"
+	DeadLetterQueueS3!:    #DeadLetterQueueS3
+	DestinationTableList!: list.MaxItems(1) & list.MinItems(1) & [...#DestinationTable] | fn.#ListExpression
+	SchemaEvolution!:      #SchemaEvolution
 	ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	TableCreation!: _#defs."/$defs/Properties/definitions/TableCreation"
+	TableCreation!: #TableCreation
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionSource": close({SourceName?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#PartitionSource: close({SourceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionSpec": close({
-	PartitionStrategy!: _#defs."/$defs/Properties/definitions/PartitionStrategy"
-	SourceList?:        [..._#defs."/$defs/Properties/definitions/PartitionSource"] | fn.#ListExpression
+#PartitionSpec: close({
+	PartitionStrategy!: #PartitionStrategy
+	SourceList?:        [...#PartitionSource] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionStrategy": "TIME_HOUR" | fn.#StringExpression
+#PartitionStrategy: "TIME_HOUR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RecordConverter": close(
-	{ValueConverter!: _#defs."/$defs/Properties/definitions/ValueConverter"},
-) |
-	fn.#ObjectExpression
+#RecordConverter: close({ValueConverter!: #ValueConverter}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordSchema": close({GsrArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#RecordSchema: close({GsrArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3CompressionType": "NONE" | "GZIP" | "ZSTD" | fn.#StringExpression
+#S3CompressionType: "NONE" | "GZIP" | "ZSTD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
+#S3DestinationConfiguration: close({
 	DataFreshnessInSeconds?: int & <=900 & >=60 |
 		{
 			string &
@@ -166,63 +157,52 @@ _#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	DeadLetterQueueS3!: _#defs."/$defs/Properties/definitions/DeadLetterQueueS3"
+	DeadLetterQueueS3!: #DeadLetterQueueS3
 	ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	Storage!: _#defs."/$defs/Properties/definitions/S3Storage"
+	Storage!: #S3Storage
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3LogDestination": close({
+#S3LogDestination: close({
 	Bucket?:  string | fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Storage": close({
+#S3Storage: close({
 	BucketArn!:           string | fn.#StringExpression
-	CompressionType!:     _#defs."/$defs/Properties/definitions/S3CompressionType"
+	CompressionType!:     #S3CompressionType
 	ExpectedBucketOwner?: string | fn.#StringExpression
 	OutputKeyTemplate?:   string | fn.#StringExpression
 	OutputPrefix?:        string | fn.#StringExpression
-	StorageClass!:        _#defs."/$defs/Properties/definitions/S3StorageClass"
+	StorageClass!:        #S3StorageClass
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3StorageClass": "STANDARD" |
-	"INTELLIGENT_TIERING" |
-	"GLACIER_IR" |
-	fn.#StringExpression
+#S3StorageClass: "STANDARD" | "INTELLIGENT_TIERING" | "GLACIER_IR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaEvolution": close(
+#SchemaEvolution: close(
 	{EnableSchemaEvolution!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableCreation": close(
+#TableCreation: close(
 	{EnableTableCreation!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TopicConfiguration": close({
-	RecordConverter!: _#defs."/$defs/Properties/definitions/RecordConverter"
-	RecordSchema?:    _#defs."/$defs/Properties/definitions/RecordSchema"
+#TopicConfiguration: close({
+	RecordConverter!: #RecordConverter
+	RecordSchema?:    #RecordSchema
 	TopicArn!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ValueConverter": "BYTE_ARRAY" |
-	"JSON" |
-	"JSON_SCHEMA_GSR" |
-	"STRING" |
-	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::Channel"
-	Properties!: #Properties
-}
+#ValueConverter: "BYTE_ARRAY" | "JSON" | "JSON_SCHEMA_GSR" | "STRING" | fn.#StringExpression

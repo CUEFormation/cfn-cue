@@ -9,14 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::GCMChannel
-#Properties: close({
-	ApiKey?:                      string | fn.#StringExpression
-	ApplicationId!:               string | fn.#StringExpression
-	DefaultAuthenticationMethod?: string | fn.#StringExpression
-	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ServiceJson?:                 string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::GCMChannel"
-	Properties!: #Properties
+	Type!: "AWS::Pinpoint::GCMChannel"
+	Properties!: close({
+		ApiKey?:                      string | fn.#StringExpression
+		ApplicationId!:               string | fn.#StringExpression
+		DefaultAuthenticationMethod?: string | fn.#StringExpression
+		Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ServiceJson?: string | fn.#StringExpression
+	})
 }

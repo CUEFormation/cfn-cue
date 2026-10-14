@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,42 +12,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BackupGateway::Hypervisor Resource Type
-#Properties: close({
-	Host?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^.+$" | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(500) &
-	strings.MinRunes(50) &
-	=~"^(^arn:(aws|aws-cn|aws-us-gov):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
-	fn.#StringExpression
-	LogGroupArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^$|^arn:(aws|aws-cn|aws-us-gov):logs:([a-zA-Z0-9-]+):([0-9]+):log-group:[a-zA-Z0-9_\\-\\/\\.]+:\\*$" |
-	fn.#StringExpression
-	Name?:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
-	Password?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -~]+$" | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Username?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BackupGateway::Hypervisor"
+	Properties?: close({
+		Host?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^.+$" | fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(500) &
+		strings.MinRunes(50) &
+		=~"^(^arn:(aws|aws-cn|aws-us-gov):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
+		fn.#StringExpression
+		LogGroupArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^$|^arn:(aws|aws-cn|aws-us-gov):logs:([a-zA-Z0-9-]+):([0-9]+):log-group:[a-zA-Z0-9_\\-\\/\\.]+:\\*$" |
+		fn.#StringExpression
+		Name?:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
+		Password?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -~]+$" | fn.#StringExpression
+		Tags?:     [...#Tag] | fn.#ListExpression
+		Username?: strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/HypervisorState": "PENDING" |
-	"ONLINE" |
-	"OFFLINE" |
-	"ERROR" |
-	fn.#StringExpression
+#HypervisorState: "PENDING" | "ONLINE" | "OFFLINE" | "ERROR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SyncMetadataStatus": "PENDING" |
-	"IN_PROGRESS" |
-	"FAILED" |
-	"SUCCEEDED" |
-	fn.#StringExpression
+#SyncMetadataStatus: "PENDING" | "IN_PROGRESS" | "FAILED" | "SUCCEEDED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BackupGateway::Hypervisor"
-	Properties?: #Properties
-}

@@ -14,7 +14,7 @@ package schema
 
 	// The ID of the Cluster that the Node belongs to.
 	ClusterId!:       string
-	ConnectionState?: _#defs."/$defs/Properties/definitions/NodeConnectionState"
+	ConnectionState?: #NodeConnectionState
 
 	// The unique ID of the Node. Unique in the Cluster. The ID is the resource-id portion of the ARN.
 	Id?: string
@@ -26,22 +26,22 @@ package schema
 	Name?: string
 
 	// An array of interface mappings for the Node.
-	NodeInterfaceMappings?: [..._#defs."/$defs/Properties/definitions/NodeInterfaceMapping"]
-	Role?:                  _#defs."/$defs/Properties/definitions/NodeRole"
+	NodeInterfaceMappings?: [...#NodeInterfaceMapping]
+	Role?:                  #NodeRole
 
 	// An array of SDI source mappings.
-	SdiSourceMappings?: [..._#defs."/$defs/Properties/definitions/SdiSourceMapping"]
-	State?:             _#defs."/$defs/Properties/definitions/NodeState"
+	SdiSourceMappings?: [...#SdiSourceMapping]
+	State?:             #NodeState
 
 	// A collection of key-value pairs.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The current connection state of the Node.
-_#defs: "/$defs/Properties/definitions/NodeConnectionState": "CONNECTED" | "DISCONNECTED"
+#NodeConnectionState: "CONNECTED" | "DISCONNECTED"
 
 // Node interface mapping.
-_#defs: "/$defs/Properties/definitions/NodeInterfaceMapping": close({
+#NodeInterfaceMapping: close({
 	// The logical name for this interface.
 	LogicalInterfaceName?: string
 
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/NodeInterfaceMapping": close({
 })
 
 // Node interface mapping create request.
-_#defs: "/$defs/Properties/definitions/NodeInterfaceMappingCreateRequest": close({
+#NodeInterfaceMappingCreateRequest: close({
 	// The logical name for this interface.
 	LogicalInterfaceName?: string
 
@@ -67,10 +67,10 @@ _#defs: "/$defs/Properties/definitions/NodeInterfaceMappingCreateRequest": close
 // The role of the Node in the Cluster. ACTIVE means the Node is available for
 // encoding. BACKUP means the Node is a redundant Node and might get used if an
 // ACTIVE Node fails.
-_#defs: "/$defs/Properties/definitions/NodeRole": "BACKUP" | "ACTIVE"
+#NodeRole: "BACKUP" | "ACTIVE"
 
 // The current state of the Node.
-_#defs: "/$defs/Properties/definitions/NodeState": "CREATED" |
+#NodeState: "CREATED" |
 	"REGISTERING" |
 	"READY_TO_ACTIVATE" |
 	"REGISTRATION_FAILED" |
@@ -84,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/NodeState": "CREATED" |
 	"DEREGISTERED"
 
 // SDI source mapping.
-_#defs: "/$defs/Properties/definitions/SdiSourceMapping": close({
+#SdiSourceMapping: close({
 	// The card number.
 	CardNumber?: int
 
@@ -96,7 +96,7 @@ _#defs: "/$defs/Properties/definitions/SdiSourceMapping": close({
 })
 
 // A key-value pair to associate with the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: string
 

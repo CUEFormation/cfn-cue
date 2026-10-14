@@ -19,7 +19,7 @@ import (
 	AttachmentType!: "vpc"
 
 	// The options for cidr type endpoint.
-	CidrOptions?: _#defs."/$defs/Properties/definitions/CidrOptions"
+	CidrOptions?: #CidrOptions
 
 	// The creation time.
 	CreationTime?: string
@@ -50,10 +50,10 @@ import (
 	LastUpdatedTime?: string
 
 	// The load balancer details if creating the AWS Verified Access endpoint as load-balancer type.
-	LoadBalancerOptions?: _#defs."/$defs/Properties/definitions/LoadBalancerOptions"
+	LoadBalancerOptions?: #LoadBalancerOptions
 
 	// The options for network-interface type endpoint.
-	NetworkInterfaceOptions?: _#defs."/$defs/Properties/definitions/NetworkInterfaceOptions"
+	NetworkInterfaceOptions?: #NetworkInterfaceOptions
 
 	// The AWS Verified Access policy document.
 	PolicyDocument?: string
@@ -62,19 +62,19 @@ import (
 	PolicyEnabled?: bool
 
 	// The options for rds type endpoint.
-	RdsOptions?: _#defs."/$defs/Properties/definitions/RdsOptions"
+	RdsOptions?: #RdsOptions
 
 	// The IDs of the security groups for the endpoint.
-	SecurityGroupIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SecurityGroupId"]
+	SecurityGroupIds?: list.UniqueItems() & [...#SecurityGroupId]
 
 	// The configuration options for customer provided KMS encryption.
-	SseSpecification?: _#defs."/$defs/Properties/definitions/SseSpecification"
+	SseSpecification?: #SseSpecification
 
 	// The endpoint status.
 	Status?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The ID of the AWS Verified Access endpoint.
 	VerifiedAccessEndpointId?: string
@@ -87,22 +87,22 @@ import (
 })
 
 // The options for cidr type endpoint.
-_#defs: "/$defs/Properties/definitions/CidrOptions": close({
+#CidrOptions: close({
 	// The IP address range, in CIDR notation.
 	Cidr?: string
 
 	// The list of port range.
-	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange"]
+	PortRanges?: list.UniqueItems() & [...#PortRange]
 
 	// The IP protocol.
 	Protocol?: "http" | "https" | "tcp"
 
 	// The IDs of the subnets.
-	SubnetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId"]
+	SubnetIds?: list.UniqueItems() & [...#SubnetId]
 })
 
 // The load balancer details if creating the AWS Verified Access endpoint as load-balancertype.
-_#defs: "/$defs/Properties/definitions/LoadBalancerOptions": close({
+#LoadBalancerOptions: close({
 	// The ARN of the load balancer.
 	LoadBalancerArn?: string
 
@@ -110,17 +110,17 @@ _#defs: "/$defs/Properties/definitions/LoadBalancerOptions": close({
 	Port?: int & <=65535 & >=1
 
 	// The list of port range.
-	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange"]
+	PortRanges?: list.UniqueItems() & [...#PortRange]
 
 	// The IP protocol.
 	Protocol?: "http" | "https" | "tcp"
 
 	// The IDs of the subnets.
-	SubnetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId"]
+	SubnetIds?: list.UniqueItems() & [...#SubnetId]
 })
 
 // The options for network-interface type endpoint.
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceOptions": close({
+#NetworkInterfaceOptions: close({
 	// The ID of the network interface.
 	NetworkInterfaceId?: string
 
@@ -128,14 +128,14 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceOptions": close({
 	Port?: int & <=65535 & >=1
 
 	// The list of port ranges.
-	PortRanges?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortRange"]
+	PortRanges?: list.UniqueItems() & [...#PortRange]
 
 	// The IP protocol.
 	Protocol?: "http" | "https" | "tcp"
 })
 
 // The IP port range.
-_#defs: "/$defs/Properties/definitions/PortRange": close({
+#PortRange: close({
 	// The first port in the range.
 	FromPort?: int & <=65535 & >=1
 
@@ -144,7 +144,7 @@ _#defs: "/$defs/Properties/definitions/PortRange": close({
 })
 
 // The options for rds type endpoint.
-_#defs: "/$defs/Properties/definitions/RdsOptions": close({
+#RdsOptions: close({
 	// The IP port number.
 	Port?: int & <=65535 & >=1
 
@@ -164,14 +164,14 @@ _#defs: "/$defs/Properties/definitions/RdsOptions": close({
 	RdsEndpoint?: string
 
 	// The IDs of the subnets.
-	SubnetIds?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetId"]
+	SubnetIds?: list.UniqueItems() & [...#SubnetId]
 })
 
 // The ID of a security group for the endpoint.
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 // The configuration options for customer provided KMS encryption.
-_#defs: "/$defs/Properties/definitions/SseSpecification": close({
+#SseSpecification: close({
 	// Whether to encrypt the policy with the provided key or disable encryption
 	CustomerManagedKeyEnabled?: bool
 
@@ -180,10 +180,10 @@ _#defs: "/$defs/Properties/definitions/SseSpecification": close({
 })
 
 // The IDs of the subnet.
-_#defs: "/$defs/Properties/definitions/SubnetId": string
+#SubnetId: string
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

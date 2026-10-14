@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -20,21 +20,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // activities that aren't included in the CodePipeline default actions, such as
 // running an internally developed build process or a test suite. You can use
 // these custom actions in the stage of a pipeline.
-#Properties: close({
-	Category!: "Approval" | "Build" | "Compute" | "Deploy" | "Invoke" | "Source" | "Test" | fn.#StringExpression
-	ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConfigurationProperties"
-	] |
-		fn.#ListExpression
-	InputArtifactDetails!:  _#defs."/$defs/Properties/definitions/ArtifactDetails" | fn.#ObjectExpression
-	OutputArtifactDetails!: _#defs."/$defs/Properties/definitions/ArtifactDetails" | fn.#ObjectExpression
-	Provider!:              strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
-	Settings?:              _#defs."/$defs/Properties/definitions/Settings" | fn.#ObjectExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Version!:               strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodePipeline::CustomActionType"
+	Properties!: close({
+		Category!: "Approval" | "Build" | "Compute" | "Deploy" | "Invoke" | "Source" | "Test" | fn.#StringExpression
+		ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ConfigurationProperties] |
+			fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ArtifactDetails": close({
+		// The details of the input artifact for the action, such as its commit ID.
+		InputArtifactDetails!: #ArtifactDetails
+
+		// The details of the output artifact of the action, such as its commit ID.
+		OutputArtifactDetails!: #ArtifactDetails
+		Provider!:              strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+
+		// URLs that provide users information about this custom action.
+		Settings?: #Settings
+		Tags?:     [...#Tag] | fn.#ListExpression
+		Version!:  strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+	})
+}
+
+#ArtifactDetails: close({
 	MaximumCount!: int & <=5 & >=0 |
 		{
 			string &
@@ -70,7 +77,7 @@ _#defs: "/$defs/Properties/definitions/ArtifactDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationProperties": close({
+#ConfigurationProperties: close({
 	Description?: strings.MaxRunes(160) & strings.MinRunes(1) | fn.#StringExpression
 	Key!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:        strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
@@ -81,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/ConfigurationProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Settings": close({
+#Settings: close({
 	EntityUrlTemplate?:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	ExecutionUrlTemplate?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	RevisionUrlTemplate?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -89,12 +96,8 @@ _#defs: "/$defs/Properties/definitions/Settings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodePipeline::CustomActionType"
-	Properties!: #Properties
-}

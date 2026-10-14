@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,34 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage NetworkAnalyzerConfiguration resource.
-#Properties: close({
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::NetworkAnalyzerConfiguration"
+	Properties!: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TraceContent?: close({
+			LogLevel?:                #LogLevel
+			WirelessDeviceFrameInfo?: #WirelessDeviceFrameInfo
+		}) |
+		fn.#ObjectExpression
+		WirelessDevices?: list.MaxItems(250) & [...] & [
+			...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	TraceContent?: close({
-		LogLevel?:                _#defs."/$defs/Properties/definitions/LogLevel"
-		WirelessDeviceFrameInfo?: _#defs."/$defs/Properties/definitions/WirelessDeviceFrameInfo"
-	}) |
-	fn.#ObjectExpression
-	WirelessDevices?: list.MaxItems(250) & [...] & [
-		...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	WirelessGateways?: list.MaxItems(250) & [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] |
-	fn.#ListExpression
-})
+		WirelessGateways?: list.MaxItems(250) & [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] |
+		fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/LogLevel": "INFO" | "ERROR" | "DISABLED" | fn.#StringExpression
+#LogLevel: "INFO" | "ERROR" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WirelessDeviceFrameInfo": "ENABLED" | "DISABLED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::NetworkAnalyzerConfiguration"
-	Properties!: #Properties
-}
+#WirelessDeviceFrameInfo: "ENABLED" | "DISABLED" | fn.#StringExpression

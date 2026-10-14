@@ -18,7 +18,7 @@ import (
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The distributions of the distribution configuration.
-	Distributions!: [..._#defs."/$defs/Properties/definitions/Distribution"]
+	Distributions!: [...#Distribution]
 
 	// The name of the distribution configuration.
 	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$"
@@ -30,7 +30,7 @@ import (
 })
 
 // The specific AMI settings (for example, launch permissions, AMI tags).
-_#defs: "/$defs/Properties/definitions/AmiDistributionConfiguration": close({
+#AmiDistributionConfiguration: close({
 	// The tags to apply to AMIs distributed to this Region.
 	AmiTags?: close({
 
@@ -41,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/AmiDistributionConfiguration": close({
 
 	// The KMS key identifier used to encrypt the distributed image.
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
-	LaunchPermissionConfiguration?: _#defs."/$defs/Properties/definitions/LaunchPermissionConfiguration"
+	LaunchPermissionConfiguration?: #LaunchPermissionConfiguration
 
 	// The name of the AMI distribution configuration.
 	Name?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[-_A-Za-z0-9{][-_A-Za-z0-9\\s:{}\\.]+[-_A-Za-z0-9}]$"
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/AmiDistributionConfiguration": close({
 })
 
 // Container distribution settings for encryption, licensing, and sharing in a specific Region.
-_#defs: "/$defs/Properties/definitions/ContainerDistributionConfiguration": close({
+#ContainerDistributionConfiguration: close({
 	// Tags that are attached to the container distribution configuration.
 	ContainerTags?: [...strings.MaxRunes(1024) & strings.MinRunes(1)]
 
@@ -59,38 +59,32 @@ _#defs: "/$defs/Properties/definitions/ContainerDistributionConfiguration": clos
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The destination repository for the container distribution configuration.
-	TargetRepository?: _#defs."/$defs/Properties/definitions/TargetContainerRepository"
+	TargetRepository?: #TargetContainerRepository
 })
 
 // The distributions of the distribution configuration.
-_#defs: "/$defs/Properties/definitions/Distribution": close({
-	AmiDistributionConfiguration?:       _#defs."/$defs/Properties/definitions/AmiDistributionConfiguration"
-	ContainerDistributionConfiguration?: _#defs."/$defs/Properties/definitions/ContainerDistributionConfiguration"
+#Distribution: close({
+	AmiDistributionConfiguration?:       #AmiDistributionConfiguration
+	ContainerDistributionConfiguration?: #ContainerDistributionConfiguration
 
 	// The Windows faster-launching configurations to use for AMI distribution.
-	FastLaunchConfigurations?: list.MaxItems(1000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FastLaunchConfiguration"
-	]
+	FastLaunchConfigurations?: list.MaxItems(1000) & list.MinItems(1) & [...#FastLaunchConfiguration]
 
 	// A group of launchTemplateConfiguration settings that apply to image distribution.
-	LaunchTemplateConfigurations?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LaunchTemplateConfiguration"
-	]
+	LaunchTemplateConfigurations?: list.MaxItems(100) & list.MinItems(1) & [...#LaunchTemplateConfiguration]
 
 	// The License Manager Configuration to associate with the AMI in the specified Region.
-	LicenseConfigurationArns?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LicenseConfigurationArn"
-	]
+	LicenseConfigurationArns?: list.MaxItems(50) & list.MinItems(1) & [...#LicenseConfigurationArn]
 
 	// region
 	Region!: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The SSM parameter configurations to use for AMI distribution.
-	SsmParameterConfigurations?: [..._#defs."/$defs/Properties/definitions/SsmParameterConfiguration"]
+	SsmParameterConfigurations?: [...#SsmParameterConfiguration]
 })
 
 // The Windows faster-launching configuration to use for AMI distribution.
-_#defs: "/$defs/Properties/definitions/FastLaunchConfiguration": close({
+#FastLaunchConfiguration: close({
 	// The owner account ID for the fast-launch enabled Windows AMI.
 	AccountId?: =~"^[0-9]{12}$"
 
@@ -101,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/FastLaunchConfiguration": close({
 
 	// The launch template that the fast-launch enabled Windows AMI uses when it
 	// launches Windows instances to create pre-provisioned snapshots.
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/FastLaunchLaunchTemplateSpecification"
+	LaunchTemplate?: #FastLaunchLaunchTemplateSpecification
 
 	// The maximum number of parallel instances that are launched for creating resources.
 	MaxParallelLaunches?: int & >=1
@@ -109,12 +103,12 @@ _#defs: "/$defs/Properties/definitions/FastLaunchConfiguration": close({
 	// Configuration settings for managing the number of snapshots that are created
 	// from pre-provisioned instances for the Windows AMI when faster launching is
 	// enabled.
-	SnapshotConfiguration?: _#defs."/$defs/Properties/definitions/FastLaunchSnapshotConfiguration"
+	SnapshotConfiguration?: #FastLaunchSnapshotConfiguration
 })
 
 // The launch template that the fast-launch enabled Windows AMI uses when it
 // launches Windows instances to create pre-provisioned snapshots.
-_#defs: "/$defs/Properties/definitions/FastLaunchLaunchTemplateSpecification": close({
+#FastLaunchLaunchTemplateSpecification: close({
 	// The ID of the launch template to use for faster launching for a Windows AMI.
 	LaunchTemplateId?: =~"^lt-[a-z0-9-_]{17}$"
 
@@ -128,14 +122,14 @@ _#defs: "/$defs/Properties/definitions/FastLaunchLaunchTemplateSpecification": c
 // Configuration settings for managing the number of snapshots that are created
 // from pre-provisioned instances for the Windows AMI when faster launching is
 // enabled.
-_#defs: "/$defs/Properties/definitions/FastLaunchSnapshotConfiguration": close({
+#FastLaunchSnapshotConfiguration: close({
 	// The number of pre-provisioned snapshots to keep on hand for a fast-launch enabled Windows AMI.
 	TargetResourceCount?: int & <=10000 & >=1
 })
 
 // Launch permissions can be used to configure which AWS accounts can use the
 // AMI to launch instances.
-_#defs: "/$defs/Properties/definitions/LaunchPermissionConfiguration": close({
+#LaunchPermissionConfiguration: close({
 	// The ARN for an Amazon Web Services Organization that you want to share your AMI with.
 	OrganizationArns?: [...string]
 
@@ -150,7 +144,7 @@ _#defs: "/$defs/Properties/definitions/LaunchPermissionConfiguration": close({
 })
 
 // launchTemplateConfiguration settings that apply to image distribution.
-_#defs: "/$defs/Properties/definitions/LaunchTemplateConfiguration": close({
+#LaunchTemplateConfiguration: close({
 	// The account ID that this configuration applies to.
 	AccountId?: =~"^[0-9]{12}$"
 
@@ -162,10 +156,10 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateConfiguration": close({
 })
 
 // The Amazon Resource Name (ARN) of the License Manager configuration.
-_#defs: "/$defs/Properties/definitions/LicenseConfigurationArn": =~"^arn:aws[^:]*:license-manager:[^:]+:[0-9]{12}:license-configuration:lic-[a-z0-9-_]{32}$"
+#LicenseConfigurationArn: =~"^arn:aws[^:]*:license-manager:[^:]+:[0-9]{12}:license-configuration:lic-[a-z0-9-_]{32}$"
 
 // The SSM parameter configuration for AMI distribution.
-_#defs: "/$defs/Properties/definitions/SsmParameterConfiguration": close({
+#SsmParameterConfiguration: close({
 	// The account ID for the AMI to update the parameter with.
 	AmiAccountId?: =~"^[0-9]{12}$"
 
@@ -177,7 +171,7 @@ _#defs: "/$defs/Properties/definitions/SsmParameterConfiguration": close({
 })
 
 // The destination repository for the container image.
-_#defs: "/$defs/Properties/definitions/TargetContainerRepository": close({
+#TargetContainerRepository: close({
 	// The repository name of target container repository.
 	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1)
 

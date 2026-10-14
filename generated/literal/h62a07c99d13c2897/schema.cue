@@ -8,7 +8,7 @@ import "strings"
 
 // Definition of AWS::PCAConnectorAD::TemplateGroupAccessControlEntry Resource Type
 #Properties: close({
-	AccessRights!:            _#defs."/$defs/Properties/definitions/AccessRights"
+	AccessRights!:            #AccessRights
 	GroupDisplayName!:        strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\x20-\\x7E]+$"
 	GroupSecurityIdentifier!: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^S-[0-9]-([0-9]+-){1,14}[0-9]+$"
 	TemplateArn!: strings.MaxRunes(200) &
@@ -16,9 +16,9 @@ import "strings"
 	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector(\\/[\\w-]+)\\/template(\\/[\\w-]+)$"
 })
 
-_#defs: "/$defs/Properties/definitions/AccessRight": "ALLOW" | "DENY"
+#AccessRight: "ALLOW" | "DENY"
 
-_#defs: "/$defs/Properties/definitions/AccessRights": close({
-	AutoEnroll?: _#defs."/$defs/Properties/definitions/AccessRight"
-	Enroll?:     _#defs."/$defs/Properties/definitions/AccessRight"
+#AccessRights: close({
+	AutoEnroll?: #AccessRight
+	Enroll?:     #AccessRight
 })

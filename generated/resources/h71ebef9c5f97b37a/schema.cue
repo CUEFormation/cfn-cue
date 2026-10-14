@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,52 +12,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RefactorSpaces::Route Resource Type
-#Properties: close({
-	ApplicationIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" |
-	fn.#StringExpression
-	DefaultRoute?: _#defs."/$defs/Properties/definitions/DefaultRouteInput"
-	EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
-	fn.#StringExpression
-	RouteType!:         _#defs."/$defs/Properties/definitions/RouteType"
-	ServiceIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^svc-([0-9A-Za-z]{10}$)" | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UriPathRoute?:      _#defs."/$defs/Properties/definitions/UriPathRouteInput"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RefactorSpaces::Route"
+	Properties!: close({
+		ApplicationIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" |
+		fn.#StringExpression
+		DefaultRoute?: #DefaultRouteInput
+		EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
+		fn.#StringExpression
+		RouteType!: #RouteType
+		ServiceIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^svc-([0-9A-Za-z]{10}$)" |
+		fn.#StringExpression
+		Tags?:         [...#Tag] | fn.#ListExpression
+		UriPathRoute?: #UriPathRouteInput
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DefaultRouteInput": close(
-	{ActivationState!: _#defs."/$defs/Properties/definitions/RouteActivationState"},
-) |
-	fn.#ObjectExpression
+#DefaultRouteInput: close({ActivationState!: #RouteActivationState}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Method": "DELETE" |
-	"GET" |
-	"HEAD" |
-	"OPTIONS" |
-	"PATCH" |
-	"POST" |
-	"PUT" |
-	fn.#StringExpression
+#Method: "DELETE" | "GET" | "HEAD" | "OPTIONS" | "PATCH" | "POST" | "PUT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouteActivationState": "INACTIVE" | "ACTIVE" | fn.#StringExpression
+#RouteActivationState: "INACTIVE" | "ACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouteType": "DEFAULT" | "URI_PATH" | fn.#StringExpression
+#RouteType: "DEFAULT" | "URI_PATH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UriPathRouteInput": close({
-	ActivationState!:   _#defs."/$defs/Properties/definitions/RouteActivationState"
+#UriPathRouteInput: close({
+	ActivationState!:   #RouteActivationState
 	AppendSourcePath?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeChildPaths?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Methods?:           [..._#defs."/$defs/Properties/definitions/Method"] | fn.#ListExpression
+	Methods?:           [...#Method] | fn.#ListExpression
 	SourcePath?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(/([a-zA-Z0-9._:-]+|\\{[a-zA-Z0-9._:-]+\\}))+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RefactorSpaces::Route"
-	Properties!: #Properties
-}

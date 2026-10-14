@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,49 +20,49 @@ import (
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
 
 	// Rules that define how Amazon S3Outposts manages objects during their lifetime.
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
+	LifecycleConfiguration?: #LifecycleConfiguration
 
 	// The id of the customer outpost on which the bucket resides.
 	OutpostId!: =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$"
 
 	// An arbitrary set of tags (key-value pairs) for this S3Outposts bucket.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Specifies the days since the initiation of an incomplete multipart upload
 // that Amazon S3Outposts will wait before permanently removing all parts of
 // the upload.
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+#AbortIncompleteMultipartUpload: close({
 	// Specifies the number of days after which Amazon S3Outposts aborts an incomplete multipart upload.
 	DaysAfterInitiation!: int & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/FilterAndOperator": close({
+#FilterAndOperator: close({
 	// Prefix identifies one or more objects to which the rule applies.
-	Prefix?: _#defs."/$defs/Properties/definitions/FilterPrefix"
+	Prefix?: #FilterPrefix
 
 	// All of these tags must exist in the object's tag set in order for the rule to apply.
-	Tags!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FilterTag"]
+	Tags!: list.MinItems(1) & list.UniqueItems() & [...#FilterTag]
 })
 
 // Prefix identifies one or more objects to which the rule applies.
-_#defs: "/$defs/Properties/definitions/FilterPrefix": string
+#FilterPrefix: string
 
 // Tag used to identify a subset of objects for an Amazon S3Outposts bucket.
-_#defs: "/$defs/Properties/definitions/FilterTag": close({
+#FilterTag: close({
 	Key!:   strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$"
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
+#LifecycleConfiguration: close({
 	// A list of lifecycle rules for individual objects in an Amazon S3Outposts bucket.
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"]
+	Rules!: list.UniqueItems() & [...#Rule]
 })
 
 // Specifies lifecycle rules for an Amazon S3Outposts bucket. You must specify
 // at least one of the following: AbortIncompleteMultipartUpload,
 // ExpirationDate, ExpirationInDays.
-_#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
+#Rule: matchN(>=1, [{
 	Status!:                         _
 	AbortIncompleteMultipartUpload!: _
 	...
@@ -77,46 +77,50 @@ _#defs: "/$defs/Properties/definitions/Rule": matchN(>=1, [{
 }]) & close({
 	// Specifies a lifecycle rule that stops incomplete multipart uploads to an
 	// Amazon S3Outposts bucket.
-	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload"
+	AbortIncompleteMultipartUpload?: #AbortIncompleteMultipartUpload
 
 	// Indicates when objects are deleted from Amazon S3Outposts. The date value
 	// must be in ISO 8601 format. The time is always midnight UTC.
-	ExpirationDate?: _#defs."/$defs/Properties/definitions/iso8601UTC"
+	ExpirationDate?: #iso8601UTC
 
 	// Indicates the number of days after creation when objects are deleted from Amazon S3Outposts.
 	ExpirationInDays?: int & >=1
 
 	// The container for the filter of the lifecycle rule.
-	Filter?: matchN(1, [{
-		Prefix!: _
-		...
-	}, {
-		Tag!: _
-		...
-	}, {
-		AndOperator!: _
-		...
-	}]) & close({
+	Filter?: close({
 		// The container for the AND condition for the lifecycle rule. A combination of
 		// Prefix and 1 or more Tags OR a minimum of 2 or more tags.
-		AndOperator?: _#defs."/$defs/Properties/definitions/FilterAndOperator"
+		AndOperator?: #FilterAndOperator
 
 		// Object key prefix that identifies one or more objects to which this rule applies.
-		Prefix?: _#defs."/$defs/Properties/definitions/FilterPrefix"
+		Prefix?: #FilterPrefix
 
 		// Specifies a tag used to identify a subset of objects for an Amazon S3Outposts bucket.
-		Tag?: _#defs."/$defs/Properties/definitions/FilterTag"
-	})
+		Tag?: #FilterTag
+		if Prefix != _|_ if Prefix."Fn::If" == _|_ {
+			Tag?: close({"Fn::If": _}) | error(
+				"Tag cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator",
+			)
+			AndOperator?: close({"Fn::If": _}) | error(
+				"AndOperator cannot be used with Prefix; set exactly one of Prefix, Tag, AndOperator",
+			)
+		}
+		if Tag != _|_ if Tag."Fn::If" == _|_ {
+			AndOperator?: close({"Fn::If": _}) | error(
+				"AndOperator cannot be used with Tag; set exactly one of Prefix, Tag, AndOperator",
+			)
+		}
+	}) & matchN(>=1, [{Prefix!: _}, {Tag!: _}, {AndOperator!: _}])
 
 	// Unique identifier for the lifecycle rule. The value can't be longer than 255 characters.
 	Id?:     strings.MaxRunes(255)
 	Status?: "Enabled" | "Disabled"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(1024) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$"
 })
 
 // The date value in ISO 8601 format. The timezone is always UTC. (YYYY-MM-DDThh:mm:ssZ)
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"

@@ -9,24 +9,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::ConnectorDefinition
-#Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/ConnectorDefinitionVersion"
-	Name!:           string | fn.#StringExpression
-	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::ConnectorDefinition"
+	Properties!: close({
+		InitialVersion?: #ConnectorDefinitionVersion
+		Name!:           string | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Connector": close({
+#Connector: close({
 	ConnectorArn!: string | fn.#StringExpression
 	Id!:           string | fn.#StringExpression
 	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorDefinitionVersion": close(
-	{Connectors!: [..._#defs."/$defs/Properties/definitions/Connector"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::ConnectorDefinition"
-	Properties!: #Properties
-}
+#ConnectorDefinitionVersion: close({Connectors!: [...#Connector] | fn.#ListExpression}) | fn.#ObjectExpression

@@ -19,7 +19,7 @@ import (
 	AuthorizationUrl?: string
 
 	// Create Integration Details
-	CreateIntegrationDetails?: _#defs."/$defs/Properties/definitions/CreateDetails"
+	CreateIntegrationDetails?: #CreateDetails
 
 	// Creation timestamp
 	CreatedAt?: time.Time
@@ -31,56 +31,48 @@ import (
 	Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$"
 
 	// Integration Status
-	Status?: _#defs."/$defs/Properties/definitions/IntegrationStatus"
+	Status?: #IntegrationStatus
 
 	// Reason for the current status
 	StatusReason?: string
-	Tags?:         _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:         #TagMap
 
 	// Integration Type
-	Type?: _#defs."/$defs/Properties/definitions/IntegrationType"
+	Type?: #IntegrationType
 
 	// Update Integration Details
-	UpdateIntegrationDetails?: _#defs."/$defs/Properties/definitions/UpdateDetails"
+	UpdateIntegrationDetails?: #UpdateDetails
 })
 
-_#defs: "/$defs/Properties/definitions/CreateDetails": close(
-	{gitlabSelfManaged!: _#defs."/$defs/Properties/definitions/CreateGitLabSelfManagedIntegrationDetail"},
-)
+#CreateDetails: close({gitlabSelfManaged!: #CreateGitLabSelfManagedIntegrationDetail})
 
-_#defs: "/$defs/Properties/definitions/CreateGitLabSelfManagedIntegrationDetail": close({
+#CreateGitLabSelfManagedIntegrationDetail: close({
 	accessToken!: string
 	instanceUrl!: string
 })
 
-_#defs: "/$defs/Properties/definitions/IntegrationStatus": "PENDING" |
-	"IN_PROGRESS" |
-	"ACTIVE" |
-	"INACTIVE" |
-	"DISABLING"
+#IntegrationStatus: "PENDING" | "IN_PROGRESS" | "ACTIVE" | "INACTIVE" | "DISABLING"
 
-_#defs: "/$defs/Properties/definitions/IntegrationType": "GITLAB_SELF_MANAGED" | "GITHUB"
+#IntegrationType: "GITLAB_SELF_MANAGED" | "GITHUB"
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~"^.{2,127}$"]: =~"^.{1,255}$"}})
 
-_#defs: "/$defs/Properties/definitions/UpdateDetails": matchN(1, [{
+#UpdateDetails: matchN(1, [{
 	gitlabSelfManaged!: _
 	...
 }, {
 	github!: _
 	...
 }]) & close({
-	github?:            _#defs."/$defs/Properties/definitions/UpdateGitHubIntegrationDetail"
-	gitlabSelfManaged?: _#defs."/$defs/Properties/definitions/UpdateGitLabSelfManagedIntegrationDetail"
+	github?:            #UpdateGitHubIntegrationDetail
+	gitlabSelfManaged?: #UpdateGitLabSelfManagedIntegrationDetail
 })
 
-_#defs: "/$defs/Properties/definitions/UpdateGitHubIntegrationDetail": close({
+#UpdateGitHubIntegrationDetail: close({
 	code!:           strings.MaxRunes(1024) & strings.MinRunes(1)
 	installationId!: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/UpdateGitLabSelfManagedIntegrationDetail": close(
-	{authCode!: strings.MaxRunes(1024) & strings.MinRunes(1)},
-)
+#UpdateGitLabSelfManagedIntegrationDetail: close({authCode!: strings.MaxRunes(1024) & strings.MinRunes(1)})

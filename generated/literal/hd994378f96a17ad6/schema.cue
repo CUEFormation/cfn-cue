@@ -10,8 +10,8 @@ import "strings"
 #Properties: close({
 	DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
 	DataTableRecord!: close({
-		PrimaryValues?: [..._#defs."/$defs/Properties/definitions/Value"]
-		Values!:        [..._#defs."/$defs/Properties/definitions/Value"]
+		PrimaryValues?: [...#Value]
+		Values!:        [...#Value]
 	})
 	InstanceArn!: strings.MaxRunes(100) &
 	strings.MinRunes(1) &
@@ -19,9 +19,9 @@ import "strings"
 	RecordId?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeId": strings.MaxRunes(256) & strings.MinRunes(1)
+#AttributeId: strings.MaxRunes(256) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Value": close({
-	AttributeId?:    _#defs."/$defs/Properties/definitions/AttributeId"
+#Value: close({
+	AttributeId?:    #AttributeId
 	AttributeValue?: string
 })

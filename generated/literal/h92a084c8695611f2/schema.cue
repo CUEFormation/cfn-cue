@@ -14,7 +14,7 @@ import (
 // resource can be used to associate tags with Lake Formation entities.
 #Properties: close({
 	// List of Lake Formation Tags to associate with the Lake Formation Resource
-	LFTags!: _#defs."/$defs/Properties/definitions/LFTagsList"
+	LFTags!: #LFTagsList
 
 	// Resource to tag with the Lake Formation Tags
 	Resource!: _#defs."/$defs/Properties/definitions/Resource"
@@ -28,68 +28,58 @@ import (
 	TagsIdentifier?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(12) & strings.MinRunes(12)
+#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12)
 
-_#defs: "/$defs/Properties/definitions/CatalogResource": string
+#CatalogResource: string
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"]
+#ColumnNames: [...#NameString]
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close(
-	{DataLakePrincipalIdentifier?: _#defs."/$defs/Properties/definitions/DataLakePrincipalString"},
-)
+#DataLakePrincipal: close({DataLakePrincipalIdentifier?: #DataLakePrincipalString})
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipalString": strings.MaxRunes(255) & strings.MinRunes(1)
+#DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/DatabaseResource": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
-	Name!:      _#defs."/$defs/Properties/definitions/NameString"
+#DatabaseResource: close({
+	CatalogId!: #CatalogIdString
+	Name!:      #NameString
 })
 
-_#defs: "/$defs/Properties/definitions/LFTagKey": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*)$"
+#LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*)$"
 
-_#defs: "/$defs/Properties/definitions/LFTagPair": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString"
-	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey"
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList"
+#LFTagPair: close({
+	CatalogId!: #CatalogIdString
+	TagKey!:    #LFTagKey
+	TagValues!: #TagValueList
 })
 
-_#defs: "/$defs/Properties/definitions/LFTagValue": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:\\*\\/=+\\-@%]*)$"
+#LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:\\*\\/=+\\-@%]*)$"
 
-_#defs: "/$defs/Properties/definitions/LFTagsList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagPair"
-]
+#LFTagsList: list.MaxItems(50) & list.MinItems(1) & [...#LFTagPair]
 
-_#defs: "/$defs/Properties/definitions/NameString": strings.MaxRunes(255) & strings.MinRunes(1)
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1)
+
+#ResourceType: "DATABASE" | "TABLE"
+
+#TableResource: close({
+	CatalogId!:     #CatalogIdString
+	DatabaseName!:  #NameString
+	Name?:          #NameString
+	TableWildcard?: #TableWildcard
+})
+
+#TableWildcard: string | {...}
+
+#TableWithColumnsResource: close({
+	CatalogId!:    #CatalogIdString
+	ColumnNames!:  #ColumnNames
+	DatabaseName!: #NameString
+	Name!:         #NameString
+})
+
+#TagValueList: list.MaxItems(50) & list.MinItems(1) & [...#LFTagValue]
 
 _#defs: "/$defs/Properties/definitions/Resource": close({
-	Catalog?:          _#defs."/$defs/Properties/definitions/CatalogResource"
-	Database?:         _#defs."/$defs/Properties/definitions/DatabaseResource"
-	Table?:            _#defs."/$defs/Properties/definitions/TableResource"
-	TableWithColumns?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource"
+	Catalog?:          #CatalogResource
+	Database?:         #DatabaseResource
+	Table?:            #TableResource
+	TableWithColumns?: #TableWithColumnsResource
 })
-
-_#defs: "/$defs/Properties/definitions/ResourceType": "DATABASE" | "TABLE"
-
-_#defs: "/$defs/Properties/definitions/TableResource": close({
-	CatalogId!:     _#defs."/$defs/Properties/definitions/CatalogIdString"
-	DatabaseName!:  _#defs."/$defs/Properties/definitions/NameString"
-	Name?:          _#defs."/$defs/Properties/definitions/NameString"
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard"
-})
-
-_#defs: "/$defs/Properties/definitions/TableWildcard": string | {...}
-
-_#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
-	CatalogId!:    _#defs."/$defs/Properties/definitions/CatalogIdString"
-	ColumnNames!:  _#defs."/$defs/Properties/definitions/ColumnNames"
-	DatabaseName!: _#defs."/$defs/Properties/definitions/NameString"
-	Name!:         _#defs."/$defs/Properties/definitions/NameString"
-})
-
-_#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue"
-]

@@ -12,87 +12,77 @@ import (
 // Resource type definition for AWS::NetworkFirewall::FirewallPolicy
 #Properties: close({
 	Description?:       strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$"
-	FirewallPolicy!:    _#defs."/$defs/Properties/definitions/FirewallPolicy"
-	FirewallPolicyArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
+	FirewallPolicy!:    #FirewallPolicy
+	FirewallPolicyArn?: #ResourceArn
 	FirewallPolicyId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$"
 	FirewallPolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:               list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ActionDefinition": close(
-	{PublishMetricAction?: _#defs."/$defs/Properties/definitions/PublishMetricAction"},
-)
+#ActionDefinition: close({PublishMetricAction?: #PublishMetricAction})
 
-_#defs: "/$defs/Properties/definitions/CustomAction": close({
-	ActionDefinition!: _#defs."/$defs/Properties/definitions/ActionDefinition"
+#CustomAction: close({
+	ActionDefinition!: #ActionDefinition
 	ActionName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Dimension": close(
-	{Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$"},
-)
+#Dimension: close({Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$"})
 
-_#defs: "/$defs/Properties/definitions/FirewallPolicy": close({
+#FirewallPolicy: close({
 	EnableTLSSessionHolding?:         bool
-	PolicyVariables?:                 close({RuleVariables?: _#defs."/$defs/Properties/definitions/RuleVariables"})
+	PolicyVariables?:                 close({RuleVariables?: #RuleVariables})
 	StatefulDefaultActions?:          [...string]
-	StatefulEngineOptions?:           _#defs."/$defs/Properties/definitions/StatefulEngineOptions"
-	StatefulRuleGroupReferences?:     [..._#defs."/$defs/Properties/definitions/StatefulRuleGroupReference"]
-	StatelessCustomActions?:          [..._#defs."/$defs/Properties/definitions/CustomAction"]
+	StatefulEngineOptions?:           #StatefulEngineOptions
+	StatefulRuleGroupReferences?:     [...#StatefulRuleGroupReference]
+	StatelessCustomActions?:          [...#CustomAction]
 	StatelessDefaultActions!:         [...string]
 	StatelessFragmentDefaultActions!: [...string]
-	StatelessRuleGroupReferences?:    [..._#defs."/$defs/Properties/definitions/StatelessRuleGroupReference"]
-	TLSInspectionConfigurationArn?:   _#defs."/$defs/Properties/definitions/ResourceArn"
+	StatelessRuleGroupReferences?:    [...#StatelessRuleGroupReference]
+	TLSInspectionConfigurationArn?:   #ResourceArn
 })
 
-_#defs: "/$defs/Properties/definitions/IPSet": close(
-	{Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition"]},
-)
+#IPSet: close({Definition?: [...#VariableDefinition]})
 
-_#defs: "/$defs/Properties/definitions/OverrideAction": "DROP_TO_ALERT"
+#OverrideAction: "DROP_TO_ALERT"
 
-_#defs: "/$defs/Properties/definitions/Priority": int & <=65535 & >=1
+#Priority: int & <=65535 & >=1
 
-_#defs: "/$defs/Properties/definitions/PublishMetricAction": close(
-	{Dimensions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Dimension"]},
-)
+#PublishMetricAction: close({Dimensions!: list.MaxItems(1) & list.MinItems(1) & [...#Dimension]})
 
 // A resource ARN.
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$"
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$"
 
-_#defs: "/$defs/Properties/definitions/RuleOrder": "DEFAULT_ACTION_ORDER" | "STRICT_ORDER"
+#RuleOrder: "DEFAULT_ACTION_ORDER" | "STRICT_ORDER"
 
-_#defs: "/$defs/Properties/definitions/RuleVariables": close({
+#RuleVariables: close({
 
-	{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSet"}})
+	{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSet}})
 
-_#defs: "/$defs/Properties/definitions/StatefulEngineOptions": close({
+#StatefulEngineOptions: close({
 	FlowTimeouts?:          close({TcpIdleTimeoutSeconds?: int & <=6000 & >=60})
-	RuleOrder?:             _#defs."/$defs/Properties/definitions/RuleOrder"
-	StreamExceptionPolicy?: _#defs."/$defs/Properties/definitions/StreamExceptionPolicy"
+	RuleOrder?:             #RuleOrder
+	StreamExceptionPolicy?: #StreamExceptionPolicy
 })
 
-_#defs: "/$defs/Properties/definitions/StatefulRuleGroupOverride": close(
-	{Action?: _#defs."/$defs/Properties/definitions/OverrideAction"},
-)
+#StatefulRuleGroupOverride: close({Action?: #OverrideAction})
 
-_#defs: "/$defs/Properties/definitions/StatefulRuleGroupReference": close({
+#StatefulRuleGroupReference: close({
 	DeepThreatInspection?: bool
-	Override?:             _#defs."/$defs/Properties/definitions/StatefulRuleGroupOverride"
-	Priority?:             _#defs."/$defs/Properties/definitions/Priority"
-	ResourceArn!:          _#defs."/$defs/Properties/definitions/ResourceArn"
+	Override?:             #StatefulRuleGroupOverride
+	Priority?:             #Priority
+	ResourceArn!:          #ResourceArn
 })
 
-_#defs: "/$defs/Properties/definitions/StatelessRuleGroupReference": close({
-	Priority!:    _#defs."/$defs/Properties/definitions/Priority"
-	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArn"
+#StatelessRuleGroupReference: close({
+	Priority!:    #Priority
+	ResourceArn!: #ResourceArn
 })
 
-_#defs: "/$defs/Properties/definitions/StreamExceptionPolicy": "DROP" | "CONTINUE" | "REJECT"
+#StreamExceptionPolicy: "DROP" | "CONTINUE" | "REJECT"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$"
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/VariableDefinition": strings.MinRunes(1) & =~"^.*$"
+#VariableDefinition: strings.MinRunes(1) & =~"^.*$"

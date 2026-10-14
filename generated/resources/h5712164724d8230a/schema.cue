@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,21 +16,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::TableOptimizer
-#Properties: close({
-	CatalogId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TableName!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TableOptimizerConfiguration!: _#defs."/$defs/Properties/definitions/TableOptimizerConfiguration" |
-		fn.#ObjectExpression
-	Type!: "compaction" | "orphan_file_deletion" | "retention" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::TableOptimizer"
+	Properties!: close({
+		CatalogId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		TableName!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CompactionConfiguration": close({
-	IcebergConfiguration?: _#defs."/$defs/Properties/definitions/IcebergCompactionConfiguration" | fn.#ObjectExpression
+		// Specifies configuration details of a table optimizer.
+		TableOptimizerConfiguration!: #TableOptimizerConfiguration
+		Type!:                        "compaction" | "orphan_file_deletion" | "retention" | fn.#StringExpression
+	})
+}
+
+#CompactionConfiguration: close({
+	// The configuration for an Iceberg compaction optimizer.
+	IcebergConfiguration?: #IcebergCompactionConfiguration
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergCompactionConfiguration": close({
+#IcebergCompactionConfiguration: close({
 	DeleteFileThreshold?: int |
 		{
 			string &
@@ -63,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/IcebergCompactionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergConfiguration": close({
+#IcebergConfiguration: close({
 	Location?: string | fn.#StringExpression
 	OrphanFileRetentionPeriodInDays?: int |
 		{
@@ -82,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/IcebergConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergRetentionConfiguration": close({
+#IcebergRetentionConfiguration: close({
 	CleanExpiredFiles?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NumberOfSnapshotsToRetain?: int |
 		{
@@ -115,31 +120,43 @@ _#defs: "/$defs/Properties/definitions/IcebergRetentionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrphanFileDeletionConfiguration": close(
-	{IcebergConfiguration?: _#defs."/$defs/Properties/definitions/IcebergConfiguration" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/RetentionConfiguration": close(
-	{IcebergConfiguration?: _#defs."/$defs/Properties/definitions/IcebergRetentionConfiguration" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TableOptimizerConfiguration": close({
-	CompactionConfiguration?: _#defs."/$defs/Properties/definitions/CompactionConfiguration" | fn.#ObjectExpression
-	Enabled!:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OrphanFileDeletionConfiguration?: _#defs."/$defs/Properties/definitions/OrphanFileDeletionConfiguration" |
-		fn.#ObjectExpression
-	RetentionConfiguration?: _#defs."/$defs/Properties/definitions/RetentionConfiguration" | fn.#ObjectExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
+#OrphanFileDeletionConfiguration: close({
+	// The IcebergConfiguration property helps optimize your Iceberg tables in AWS
+	// Glue by allowing you to specify format-specific settings that control how
+	// data is stored, compressed, and managed.
+	IcebergConfiguration?: #IcebergConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({GlueConnectionName?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::TableOptimizer"
-	Properties!: #Properties
-}
+#RetentionConfiguration: close({
+	// The configuration for an Iceberg snapshot retention optimizer.
+	IcebergConfiguration?: #IcebergRetentionConfiguration
+}) |
+fn.#ObjectExpression
+
+#TableOptimizerConfiguration: close({
+	// The configuration for a compaction optimizer. This configuration defines how
+	// data files in your table will be compacted to improve query performance and
+	// reduce storage costs.
+	CompactionConfiguration?: #CompactionConfiguration
+	Enabled!:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// OrphanFileDeletionConfiguration is a property that can be included within the
+	// TableOptimizer resource. It controls the automatic deletion of orphaned
+	// files - files that are not tracked by the table metadata, and older than the
+	// configured age limit.
+	OrphanFileDeletionConfiguration?: #OrphanFileDeletionConfiguration
+
+	// The configuration for a snapshot retention optimizer for Apache Iceberg tables.
+	RetentionConfiguration?: #RetentionConfiguration
+	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	fn.#StringExpression
+
+	// An object that describes the VPC configuration for a table optimizer. This
+	// configuration is necessary to perform optimization on tables that are in a
+	// customer VPC.
+	VpcConfiguration?: #VpcConfiguration
+}) |
+fn.#ObjectExpression
+
+#VpcConfiguration: close({GlueConnectionName?: string | fn.#StringExpression}) | fn.#ObjectExpression

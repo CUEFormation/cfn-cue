@@ -15,29 +15,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Attaches an elastic network interface (ENI) to an Amazon EC2 instance. You
 // can use this resource type to attach additional network interfaces to an
 // instance without interruption.
-#Properties: close({
-	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DeviceIndex!:         string | fn.#StringExpression
-	EnaQueueCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EnaSrdSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdSpecification" | fn.#ObjectExpression
-	InstanceId!:          string | fn.#StringExpression
-	NetworkInterfaceId!:  string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::NetworkInterfaceAttachment"
+	Properties!: close({
+		DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DeviceIndex!:         string | fn.#StringExpression
+		EnaQueueCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
+		// Configures ENA Express for the network interface that this action attaches to the instance.
+		EnaSrdSpecification?: #EnaSrdSpecification
+		InstanceId!:          string | fn.#StringExpression
+		NetworkInterfaceId!:  string | fn.#StringExpression
+	})
+}
+
+#EnaSrdSpecification: close({
 	EnaSrdEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnaSrdUdpSpecification?: close(
 		{EnaSrdUdpEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -45,7 +52,3 @@ _#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
 		fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::NetworkInterfaceAttachment"
-	Properties!: #Properties
-}

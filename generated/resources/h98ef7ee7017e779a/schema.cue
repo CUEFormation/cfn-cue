@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,53 +13,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Amazon OpenSearchServerless collection resource
-#Properties: close({
-	CollectionGroupName?: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]+$" | fn.#StringExpression
-	DeletionProtection?:  _#defs."/$defs/Properties/definitions/DeletionProtection"
-	Description?:         strings.MaxRunes(1000) | fn.#StringExpression
-	EncryptionConfig?:    _#defs."/$defs/Properties/definitions/EncryptionConfig"
-	Name!:                strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,63}$" | fn.#StringExpression
-	StandbyReplicas?:     _#defs."/$defs/Properties/definitions/StandbyReplicas"
-	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type?:          _#defs."/$defs/Properties/definitions/CollectionType"
-	VectorOptions?: _#defs."/$defs/Properties/definitions/VectorOptions"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpenSearchServerless::Collection"
+	Properties!: close({
+		CollectionGroupName?: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]+$" | fn.#StringExpression
+		DeletionProtection?:  #DeletionProtection
+		Description?:         strings.MaxRunes(1000) | fn.#StringExpression
+		EncryptionConfig?:    #EncryptionConfig
+		Name!:            strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,63}$" | fn.#StringExpression
+		StandbyReplicas?: #StandbyReplicas
+		Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type?:            #CollectionType
+		VectorOptions?:   #VectorOptions
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CollectionType": "SEARCH" | "TIMESERIES" | "VECTORSEARCH" | fn.#StringExpression
+#CollectionType: "SEARCH" | "TIMESERIES" | "VECTORSEARCH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeletionProtection": "ENABLED" | "DISABLED" | fn.#StringExpression
+#DeletionProtection: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
+#EncryptionConfig: close({
 	AWSOwnedKey?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FipsEndpoints": close({
+#FipsEndpoints: close({
 	CollectionEndpoint?: string | fn.#StringExpression
 	DashboardEndpoint?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerlessVectorAcceleration": "ENABLED" |
-	"DISABLED" |
-	"ALLOWED" |
-	fn.#StringExpression
+#ServerlessVectorAcceleration: "ENABLED" | "DISABLED" | "ALLOWED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StandbyReplicas": "ENABLED" | "DISABLED" | fn.#StringExpression
+#StandbyReplicas: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorOptions": close(
-	{ServerlessVectorAcceleration?: _#defs."/$defs/Properties/definitions/ServerlessVectorAcceleration"},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearchServerless::Collection"
-	Properties!: #Properties
-}
+#VectorOptions: close({ServerlessVectorAcceleration?: #ServerlessVectorAcceleration}) | fn.#ObjectExpression

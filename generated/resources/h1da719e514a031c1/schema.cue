@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,152 +17,141 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppFlow::ConnectorProfile
-#Properties: close({
-	ConnectionMode!:         "Public" | "Private" | fn.#StringExpression
-	ConnectorLabel?:         strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w!@#.-]+" | fn.#StringExpression
-	ConnectorProfileConfig?: _#defs."/$defs/Properties/definitions/ConnectorProfileConfig" | fn.#ObjectExpression
-	ConnectorProfileName!:   strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
-	ConnectorType!:          _#defs."/$defs/Properties/definitions/ConnectorType" | fn.#StringExpression
-	KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"arn:aws:kms:.*:[0-9]+:.*" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppFlow::ConnectorProfile"
+	Properties!: close({
+		ConnectionMode!: "Public" | "Private" | fn.#StringExpression
+		ConnectorLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w!@#.-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccessKeyId": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+		// Connector specific configurations needed to create connector profile
+		ConnectorProfileConfig?: #ConnectorProfileConfig
+		ConnectorProfileName!:   strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccessToken": strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+		// List of Saas providers that need connector profile to be created
+		ConnectorType!: #ConnectorType
+		KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws:kms:.*:[0-9]+:.*" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccountName": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#AccessKeyId: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AmplitudeConnectorProfileCredentials": {
-	ApiKey!:    _#defs."/$defs/Properties/definitions/ApiKey" | fn.#StringExpression
-	SecretKey!: _#defs."/$defs/Properties/definitions/SecretKey"
+#AccessToken: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+
+#AccountName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+
+#AmplitudeConnectorProfileCredentials: {
+	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
+	// calling program to your API.
+	ApiKey!:    #ApiKey
+	SecretKey!: #SecretKey
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApiKey": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#ApiKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApiKeyCredentials": close({
-	ApiKey!:       _#defs."/$defs/Properties/definitions/ApiKey"
-	ApiSecretKey?: _#defs."/$defs/Properties/definitions/ApiSecretKey"
+#ApiKeyCredentials: close({
+	ApiKey!:       #ApiKey
+	ApiSecretKey?: #ApiSecretKey
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApiSecretKey": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#ApiSecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApiToken": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#ApiToken: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationHostUrl": strings.MaxRunes(256) &
+#ApplicationHostUrl: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationKey": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#ApplicationKey: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationServicePath": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#ApplicationServicePath: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AuthCode": strings.MaxRunes(4096) & =~"\\S+" | fn.#StringExpression
+#AuthCode: strings.MaxRunes(4096) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "OAUTH2" |
-	"APIKEY" |
-	"BASIC" |
-	"CUSTOM" |
-	fn.#StringExpression
+#AuthenticationType: "OAUTH2" | "APIKEY" | "BASIC" | "CUSTOM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BasicAuthCredentials": close({
-	Password!: _#defs."/$defs/Properties/definitions/Password"
-	Username!: _#defs."/$defs/Properties/definitions/Username"
+#BasicAuthCredentials: close({
+	Password!: #Password
+	Username!: #Username
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BucketName": strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+" |
+#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+" | fn.#StringExpression
+
+#BucketPrefix: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+
+#BusinessUnitId: strings.MaxRunes(18) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+
+#ClientCredentialsArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws:secretsmanager:.*:[0-9]+:.*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BucketPrefix": strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+#ClientId: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BusinessUnitId": strings.MaxRunes(18) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#ClientNumber: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^\\d{3}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClientCredentialsArn": strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"arn:aws:secretsmanager:.*:[0-9]+:.*" |
-fn.#StringExpression
+#ClientSecret: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClientId": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#ClusterIdentifier: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClientNumber": strings.MaxRunes(3) & strings.MinRunes(3) & =~"^\\d{3}$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ClientSecret": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ClusterIdentifier": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ConnectorOAuthRequest": {
+#ConnectorOAuthRequest: {
 	AuthCode?:    strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
 	RedirectUri?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorProfileConfig": {
-	ConnectorProfileCredentials?: _#defs."/$defs/Properties/definitions/ConnectorProfileCredentials"
-	ConnectorProfileProperties?:  _#defs."/$defs/Properties/definitions/ConnectorProfileProperties"
+#ConnectorProfileConfig: {
+	ConnectorProfileCredentials?: #ConnectorProfileCredentials
+	ConnectorProfileProperties?:  #ConnectorProfileProperties
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorProfileCredentials": {
-	Amplitude?:       _#defs."/$defs/Properties/definitions/AmplitudeConnectorProfileCredentials"
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorProfileCredentials"
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorProfileCredentials"
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorProfileCredentials"
-	GoogleAnalytics?: _#defs."/$defs/Properties/definitions/GoogleAnalyticsConnectorProfileCredentials"
-	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusConnectorProfileCredentials"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoConnectorProfileCredentials"
-	Pardot?:          _#defs."/$defs/Properties/definitions/PardotConnectorProfileCredentials"
-	Redshift?:        _#defs."/$defs/Properties/definitions/RedshiftConnectorProfileCredentials"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataConnectorProfileCredentials"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceConnectorProfileCredentials"
-	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowConnectorProfileCredentials"
-	Singular?:        _#defs."/$defs/Properties/definitions/SingularConnectorProfileCredentials"
-	Slack?:           _#defs."/$defs/Properties/definitions/SlackConnectorProfileCredentials"
-	Snowflake?:       _#defs."/$defs/Properties/definitions/SnowflakeConnectorProfileCredentials"
-	Trendmicro?:      _#defs."/$defs/Properties/definitions/TrendmicroConnectorProfileCredentials"
-	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaConnectorProfileCredentials"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskConnectorProfileCredentials"
+#ConnectorProfileCredentials: {
+	Amplitude?:       #AmplitudeConnectorProfileCredentials
+	CustomConnector?: #CustomConnectorProfileCredentials
+	Datadog?:         #DatadogConnectorProfileCredentials
+	Dynatrace?:       #DynatraceConnectorProfileCredentials
+	GoogleAnalytics?: #GoogleAnalyticsConnectorProfileCredentials
+	InforNexus?:      #InforNexusConnectorProfileCredentials
+	Marketo?:         #MarketoConnectorProfileCredentials
+	Pardot?:          #PardotConnectorProfileCredentials
+	Redshift?:        #RedshiftConnectorProfileCredentials
+	SAPOData?:        #SAPODataConnectorProfileCredentials
+	Salesforce?:      #SalesforceConnectorProfileCredentials
+	ServiceNow?:      #ServiceNowConnectorProfileCredentials
+	Singular?:        #SingularConnectorProfileCredentials
+	Slack?:           #SlackConnectorProfileCredentials
+	Snowflake?:       #SnowflakeConnectorProfileCredentials
+	Trendmicro?:      #TrendmicroConnectorProfileCredentials
+	Veeva?:           #VeevaConnectorProfileCredentials
+	Zendesk?:         #ZendeskConnectorProfileCredentials
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorProfileProperties": {
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorProfileProperties"
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorProfileProperties"
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorProfileProperties"
-	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusConnectorProfileProperties"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoConnectorProfileProperties"
-	Pardot?:          _#defs."/$defs/Properties/definitions/PardotConnectorProfileProperties"
-	Redshift?:        _#defs."/$defs/Properties/definitions/RedshiftConnectorProfileProperties"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataConnectorProfileProperties"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceConnectorProfileProperties"
-	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowConnectorProfileProperties"
-	Slack?:           _#defs."/$defs/Properties/definitions/SlackConnectorProfileProperties"
-	Snowflake?:       _#defs."/$defs/Properties/definitions/SnowflakeConnectorProfileProperties"
-	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaConnectorProfileProperties"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskConnectorProfileProperties"
+#ConnectorProfileProperties: {
+	CustomConnector?: #CustomConnectorProfileProperties
+	Datadog?:         #DatadogConnectorProfileProperties
+	Dynatrace?:       #DynatraceConnectorProfileProperties
+	InforNexus?:      #InforNexusConnectorProfileProperties
+	Marketo?:         #MarketoConnectorProfileProperties
+	Pardot?:          #PardotConnectorProfileProperties
+	Redshift?:        #RedshiftConnectorProfileProperties
+	SAPOData?:        #SAPODataConnectorProfileProperties
+	Salesforce?:      #SalesforceConnectorProfileProperties
+	ServiceNow?:      #ServiceNowConnectorProfileProperties
+	Slack?:           #SlackConnectorProfileProperties
+	Snowflake?:       #SnowflakeConnectorProfileProperties
+	Veeva?:           #VeevaConnectorProfileProperties
+	Zendesk?:         #ZendeskConnectorProfileProperties
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectorType": "Salesforce" |
+#ConnectorType: "Salesforce" |
 	"Pardot" |
 	"Singular" |
 	"Slack" |
@@ -182,142 +171,166 @@ _#defs: "/$defs/Properties/definitions/ConnectorType": "Salesforce" |
 	"CustomConnector" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CredentialsMap": close({
+#CredentialsMap: close({
 
 	{[=~"^[\\w]{1,128}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAuthCredentials": close({
-	CredentialsMap?:           _#defs."/$defs/Properties/definitions/CredentialsMap"
-	CustomAuthenticationType!: _#defs."/$defs/Properties/definitions/CustomAuthenticationType"
+#CustomAuthCredentials: close({
+	CredentialsMap?:           #CredentialsMap
+	CustomAuthenticationType!: #CustomAuthenticationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAuthenticationType": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#CustomAuthenticationType: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomConnectorProfileCredentials": close({
-	ApiKey?:             _#defs."/$defs/Properties/definitions/ApiKeyCredentials"
-	AuthenticationType!: _#defs."/$defs/Properties/definitions/AuthenticationType"
-	Basic?:              _#defs."/$defs/Properties/definitions/BasicAuthCredentials"
-	Custom?:             _#defs."/$defs/Properties/definitions/CustomAuthCredentials"
-	Oauth2?:             _#defs."/$defs/Properties/definitions/OAuth2Credentials"
+#CustomConnectorProfileCredentials: close({
+	ApiKey?:             #ApiKeyCredentials
+	AuthenticationType!: #AuthenticationType
+	Basic?:              #BasicAuthCredentials
+	Custom?:             #CustomAuthCredentials
+	Oauth2?:             #OAuth2Credentials
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomConnectorProfileProperties": close({
-	OAuth2Properties?:  _#defs."/$defs/Properties/definitions/OAuth2Properties"
-	ProfileProperties?: _#defs."/$defs/Properties/definitions/ProfileProperties"
+#CustomConnectorProfileProperties: close({
+	OAuth2Properties?:  #OAuth2Properties
+	ProfileProperties?: #ProfileProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataApiRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#DataApiRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseName": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+#DatabaseName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+
+#DatabaseUrl: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+
+#DatadogConnectorProfileCredentials: {
+	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
+	// calling program to your API.
+	ApiKey!: #ApiKey
+
+	// Application keys, in conjunction with your API key, give you full access to
+	// Datadog’s programmatic API. Application keys are associated with the user
+	// account that created them. The application key is used to log all requests
+	// made to the API.
+	ApplicationKey!: #ApplicationKey
+	...
+} | fn.#ObjectExpression
+
+#DatadogConnectorProfileProperties: {
+	// The location of the Datadog resource
+	InstanceUrl!: #InstanceUrl
+	...
+} | fn.#ObjectExpression
+
+#DynatraceConnectorProfileCredentials: {
+	// The API tokens used by Dynatrace API to authenticate various API calls.
+	ApiToken!: #ApiToken
+	...
+} | fn.#ObjectExpression
+
+#DynatraceConnectorProfileProperties: {
+	// The location of the Dynatrace resource
+	InstanceUrl!: #InstanceUrl
+	...
+} | fn.#ObjectExpression
+
+#GoogleAnalyticsConnectorProfileCredentials: {
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The identiﬁer for the desired client.
+	ClientId!: #ClientId
+
+	// The client secret used by the oauth client to authenticate to the authorization server.
+	ClientSecret!: #ClientSecret
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
+
+	// The credentials used to acquire new access tokens.
+	RefreshToken?: #RefreshToken
+	...
+} | fn.#ObjectExpression
+
+#InforNexusConnectorProfileCredentials: {
+	// The Access Key portion of the credentials.
+	AccessKeyId!: #AccessKeyId
+
+	// The encryption keys used to encrypt data.
+	Datakey!: #Key
+
+	// The secret key used to sign requests.
+	SecretAccessKey!: #Key
+
+	// The identiﬁer for the user.
+	UserId!: #Username
+	...
+} | fn.#ObjectExpression
+
+#InforNexusConnectorProfileProperties: {
+	// The location of the InforNexus resource
+	InstanceUrl!: #InstanceUrl
+	...
+} | fn.#ObjectExpression
+
+#InstanceUrl: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+
+#JwtToken: strings.MaxRunes(8000) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseUrl": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#Key: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatadogConnectorProfileCredentials": {
-	ApiKey!:         _#defs."/$defs/Properties/definitions/ApiKey" | fn.#StringExpression
-	ApplicationKey!: _#defs."/$defs/Properties/definitions/ApplicationKey" | fn.#StringExpression
+#LogonLanguage: strings.MaxRunes(2) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_]*$" | fn.#StringExpression
+
+#MarketoConnectorProfileCredentials: {
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The identiﬁer for the desired client.
+	ClientId!: #ClientId
+
+	// The client secret used by the oauth client to authenticate to the authorization server.
+	ClientSecret!: #ClientSecret
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatadogConnectorProfileProperties": {
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
+#MarketoConnectorProfileProperties: {
+	// The location of the Marketo resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynatraceConnectorProfileCredentials": {
-	ApiToken!: _#defs."/$defs/Properties/definitions/ApiToken" | fn.#StringExpression
-	...
-} | fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/DynatraceConnectorProfileProperties": {
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
-	...
-} | fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/GoogleAnalyticsConnectorProfileCredentials": {
-	AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken" | fn.#StringExpression
-	ClientId!:              _#defs."/$defs/Properties/definitions/ClientId" | fn.#StringExpression
-	ClientSecret!:          _#defs."/$defs/Properties/definitions/ClientSecret" | fn.#StringExpression
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest" | fn.#ObjectExpression
-	RefreshToken?:          _#defs."/$defs/Properties/definitions/RefreshToken" | fn.#StringExpression
-	...
-} | fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/InforNexusConnectorProfileCredentials": {
-	AccessKeyId!:     _#defs."/$defs/Properties/definitions/AccessKeyId" | fn.#StringExpression
-	Datakey!:         _#defs."/$defs/Properties/definitions/Key" | fn.#StringExpression
-	SecretAccessKey!: _#defs."/$defs/Properties/definitions/Key" | fn.#StringExpression
-	UserId!:          _#defs."/$defs/Properties/definitions/Username" | fn.#StringExpression
-	...
-} | fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/InforNexusConnectorProfileProperties": {
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
-	...
-} | fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/InstanceUrl": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/JwtToken": strings.MaxRunes(8000) &
-strings.MinRunes(0) &
-=~"^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/LogonLanguage": strings.MaxRunes(2) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_]*$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/MarketoConnectorProfileCredentials": {
-	AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken" | fn.#StringExpression
-	ClientId!:              _#defs."/$defs/Properties/definitions/ClientId" | fn.#StringExpression
-	ClientSecret!:          _#defs."/$defs/Properties/definitions/ClientSecret" | fn.#StringExpression
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest" | fn.#ObjectExpression
-	...
-} | fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/MarketoConnectorProfileProperties": {
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
-	...
-} | fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/OAuth2Credentials": close({
-	AccessToken?:  _#defs."/$defs/Properties/definitions/AccessToken"
-	ClientId?:     _#defs."/$defs/Properties/definitions/ClientId"
-	ClientSecret?: _#defs."/$defs/Properties/definitions/ClientSecret"
-	OAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
-	RefreshToken?: _#defs."/$defs/Properties/definitions/RefreshToken"
+#OAuth2Credentials: close({
+	AccessToken?:  #AccessToken
+	ClientId?:     #ClientId
+	ClientSecret?: #ClientSecret
+	OAuthRequest?: #ConnectorOAuthRequest
+	RefreshToken?: #RefreshToken
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OAuth2GrantType": "CLIENT_CREDENTIALS" |
-	"AUTHORIZATION_CODE" |
-	"JWT_BEARER" |
-	fn.#StringExpression
+#OAuth2GrantType: "CLIENT_CREDENTIALS" | "AUTHORIZATION_CODE" | "JWT_BEARER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
-	OAuth2GrantType?: _#defs."/$defs/Properties/definitions/OAuth2GrantType"
+#OAuth2Properties: close({
+	OAuth2GrantType?: #OAuth2GrantType
 	TokenUrl?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" |
 	fn.#StringExpression
-	TokenUrlCustomProperties?: _#defs."/$defs/Properties/definitions/TokenUrlCustomProperties"
+	TokenUrlCustomProperties?: #TokenUrlCustomProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OAuthProperties": {
+#OAuthProperties: {
 	AuthCodeUrl?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" |
@@ -333,25 +346,34 @@ _#defs: "/$defs/Properties/definitions/OAuthProperties": {
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PardotConnectorProfileCredentials": {
-	AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken" | fn.#StringExpression
-	ClientCredentialsArn?:  _#defs."/$defs/Properties/definitions/ClientCredentialsArn" | fn.#StringExpression
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest" | fn.#ObjectExpression
-	RefreshToken?:          _#defs."/$defs/Properties/definitions/RefreshToken" | fn.#StringExpression
+#PardotConnectorProfileCredentials: {
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The client credentials to fetch access token and refresh token.
+	ClientCredentialsArn?: #ClientCredentialsArn
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
+
+	// The credentials used to acquire new access tokens.
+	RefreshToken?: #RefreshToken
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PardotConnectorProfileProperties": {
-	BusinessUnitId!:       _#defs."/$defs/Properties/definitions/BusinessUnitId" | fn.#StringExpression
-	InstanceUrl?:          _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
+#PardotConnectorProfileProperties: {
+	// The Business unit id of Salesforce Pardot instance to be connected
+	BusinessUnitId!: #BusinessUnitId
+
+	// The location of the Salesforce Pardot resource
+	InstanceUrl?:          #InstanceUrl
 	IsSandboxEnvironment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Password": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#Password: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PortNumber": int & <=65535 & >=1 |
+#PortNumber: int & <=65535 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -368,82 +390,110 @@ _#defs: "/$defs/Properties/definitions/PortNumber": int & <=65535 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateLinkServiceName": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#PrivateLinkServiceName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileProperties": close({
+#ProfileProperties: close({
 
 	{[=~"^[\\w]{1,256}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftConnectorProfileCredentials": {
-	Password?: _#defs."/$defs/Properties/definitions/Password" | fn.#StringExpression
-	Username?: _#defs."/$defs/Properties/definitions/Username" | fn.#StringExpression
+#RedshiftConnectorProfileCredentials: {
+	// The password that corresponds to the username.
+	Password?: #Password
+
+	// The name of the user.
+	Username?: #Username
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftConnectorProfileProperties": {
-	BucketName!:           _#defs."/$defs/Properties/definitions/BucketName" | fn.#StringExpression
-	BucketPrefix?:         _#defs."/$defs/Properties/definitions/BucketPrefix" | fn.#StringExpression
-	ClusterIdentifier?:    _#defs."/$defs/Properties/definitions/ClusterIdentifier" | fn.#StringExpression
-	DataApiRoleArn?:       _#defs."/$defs/Properties/definitions/DataApiRoleArn" | fn.#StringExpression
-	DatabaseName?:         _#defs."/$defs/Properties/definitions/DatabaseName" | fn.#StringExpression
-	DatabaseUrl?:          _#defs."/$defs/Properties/definitions/DatabaseUrl" | fn.#StringExpression
+#RedshiftConnectorProfileProperties: {
+	// The name of the Amazon S3 bucket associated with Redshift.
+	BucketName!: #BucketName
+
+	// The object key for the destination bucket in which Amazon AppFlow will place the ﬁles.
+	BucketPrefix?: #BucketPrefix
+
+	// The unique identifier of the Amazon Redshift cluster.
+	ClusterIdentifier?: #ClusterIdentifier
+
+	// The Amazon Resource Name (ARN) of the IAM role that grants Amazon AppFlow
+	// access to the data through the Amazon Redshift Data API.
+	DataApiRoleArn?: #DataApiRoleArn
+
+	// The name of the Amazon Redshift database that will store the transferred data.
+	DatabaseName?: #DatabaseName
+
+	// The JDBC URL of the Amazon Redshift cluster.
+	DatabaseUrl?:          #DatabaseUrl
 	IsRedshiftServerless?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleArn!:              _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	WorkgroupName?:        _#defs."/$defs/Properties/definitions/WorkgroupName" | fn.#StringExpression
+
+	// The Amazon Resource Name (ARN) of the IAM role.
+	RoleArn!: #RoleArn
+
+	// The name of the Amazon Redshift serverless workgroup
+	WorkgroupName?: #WorkgroupName
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RefreshToken": strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#RefreshToken: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(64) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#Region: strings.MaxRunes(64) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SAPODataConnectorProfileCredentials": {
-	BasicAuthCredentials?: _#defs."/$defs/Properties/definitions/BasicAuthCredentials"
+#SAPODataConnectorProfileCredentials: {
+	BasicAuthCredentials?: #BasicAuthCredentials
 	OAuthCredentials?: {
-		AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken"
-		ClientId?:              _#defs."/$defs/Properties/definitions/ClientId"
-		ClientSecret?:          _#defs."/$defs/Properties/definitions/ClientSecret"
-		ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
-		RefreshToken?:          _#defs."/$defs/Properties/definitions/RefreshToken"
+		AccessToken?:           #AccessToken
+		ClientId?:              #ClientId
+		ClientSecret?:          #ClientSecret
+		ConnectorOAuthRequest?: #ConnectorOAuthRequest
+		RefreshToken?:          #RefreshToken
 		...
 	} | fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SAPODataConnectorProfileProperties": {
-	ApplicationHostUrl?:     _#defs."/$defs/Properties/definitions/ApplicationHostUrl"
-	ApplicationServicePath?: _#defs."/$defs/Properties/definitions/ApplicationServicePath"
-	ClientNumber?:           _#defs."/$defs/Properties/definitions/ClientNumber"
+#SAPODataConnectorProfileProperties: {
+	ApplicationHostUrl?:     #ApplicationHostUrl
+	ApplicationServicePath?: #ApplicationServicePath
+	ClientNumber?:           #ClientNumber
 	DisableSSO?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogonLanguage?:          _#defs."/$defs/Properties/definitions/LogonLanguage"
-	OAuthProperties?:        _#defs."/$defs/Properties/definitions/OAuthProperties"
-	PortNumber?:             _#defs."/$defs/Properties/definitions/PortNumber"
-	PrivateLinkServiceName?: _#defs."/$defs/Properties/definitions/PrivateLinkServiceName"
+	LogonLanguage?:          #LogonLanguage
+	OAuthProperties?:        #OAuthProperties
+	PortNumber?:             #PortNumber
+	PrivateLinkServiceName?: #PrivateLinkServiceName
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceConnectorProfileCredentials": {
-	AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken" | fn.#StringExpression
-	ClientCredentialsArn?:  _#defs."/$defs/Properties/definitions/ClientCredentialsArn" | fn.#StringExpression
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest" | fn.#ObjectExpression
-	JwtToken?:              _#defs."/$defs/Properties/definitions/JwtToken" | fn.#StringExpression
-	OAuth2GrantType?:       _#defs."/$defs/Properties/definitions/OAuth2GrantType" | fn.#StringExpression
-	RefreshToken?:          _#defs."/$defs/Properties/definitions/RefreshToken" | fn.#StringExpression
+#SalesforceConnectorProfileCredentials: {
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The client credentials to fetch access token and refresh token.
+	ClientCredentialsArn?: #ClientCredentialsArn
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
+
+	// The credentials used to access your Salesforce records
+	JwtToken?: #JwtToken
+
+	// The grant types to fetch an access token
+	OAuth2GrantType?: #OAuth2GrantType
+
+	// The credentials used to acquire new access tokens.
+	RefreshToken?: #RefreshToken
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceConnectorProfileProperties": {
-	InstanceUrl?:          _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
+#SalesforceConnectorProfileProperties: {
+	// The location of the Salesforce resource
+	InstanceUrl?:          #InstanceUrl
 	isSandboxEnvironment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	usePrivateLinkForMetadataAndAuthorization?: bool |
 		"true" |
@@ -456,102 +506,139 @@ _#defs: "/$defs/Properties/definitions/SalesforceConnectorProfileProperties": {
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretKey": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#SecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConnectorProfileCredentials": {
-	OAuth2Credentials?: _#defs."/$defs/Properties/definitions/OAuth2Credentials" | fn.#ObjectExpression
-	Password?:          _#defs."/$defs/Properties/definitions/Password" | fn.#StringExpression
-	Username?:          _#defs."/$defs/Properties/definitions/Username" | fn.#StringExpression
+#ServiceNowConnectorProfileCredentials: {
+	// The OAuth 2.0 credentials required to authenticate the user.
+	OAuth2Credentials?: #OAuth2Credentials
+
+	// The password that corresponds to the username.
+	Password?: #Password
+
+	// The name of the user.
+	Username?: #Username
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConnectorProfileProperties": {
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
+#ServiceNowConnectorProfileProperties: {
+	// The location of the ServiceNow resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SingularConnectorProfileCredentials": {
-	ApiKey!: _#defs."/$defs/Properties/definitions/ApiKey" | fn.#StringExpression
+#SingularConnectorProfileCredentials: {
+	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
+	// calling program to your API.
+	ApiKey!: #ApiKey
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlackConnectorProfileCredentials": {
-	AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken" | fn.#StringExpression
-	ClientId!:              _#defs."/$defs/Properties/definitions/ClientId" | fn.#StringExpression
-	ClientSecret!:          _#defs."/$defs/Properties/definitions/ClientSecret" | fn.#StringExpression
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest" | fn.#ObjectExpression
+#SlackConnectorProfileCredentials: {
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The identiﬁer for the desired client.
+	ClientId!: #ClientId
+
+	// The client secret used by the oauth client to authenticate to the authorization server.
+	ClientSecret!: #ClientSecret
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlackConnectorProfileProperties": {
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
+#SlackConnectorProfileProperties: {
+	// The location of the Slack resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeConnectorProfileCredentials": {
-	Password!: _#defs."/$defs/Properties/definitions/Password" | fn.#StringExpression
-	Username!: _#defs."/$defs/Properties/definitions/Username" | fn.#StringExpression
+#SnowflakeConnectorProfileCredentials: {
+	// The password that corresponds to the username.
+	Password!: #Password
+
+	// The name of the user.
+	Username!: #Username
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeConnectorProfileProperties": {
-	AccountName?:            _#defs."/$defs/Properties/definitions/AccountName" | fn.#StringExpression
-	BucketName!:             _#defs."/$defs/Properties/definitions/BucketName" | fn.#StringExpression
-	BucketPrefix?:           _#defs."/$defs/Properties/definitions/BucketPrefix" | fn.#StringExpression
-	PrivateLinkServiceName?: _#defs."/$defs/Properties/definitions/PrivateLinkServiceName" | fn.#StringExpression
-	Region?:                 _#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression
-	Stage!:                  _#defs."/$defs/Properties/definitions/Stage" | fn.#StringExpression
-	Warehouse!:              _#defs."/$defs/Properties/definitions/Warehouse" | fn.#StringExpression
+#SnowflakeConnectorProfileProperties: {
+	// The name of the account.
+	AccountName?: #AccountName
+
+	// The name of the Amazon S3 bucket associated with Snowﬂake.
+	BucketName!: #BucketName
+
+	// The bucket prefix that refers to the Amazon S3 bucket associated with Snowﬂake.
+	BucketPrefix?: #BucketPrefix
+
+	// The Snowﬂake Private Link service name to be used for private data transfers.
+	PrivateLinkServiceName?: #PrivateLinkServiceName
+
+	// The region of the Snowﬂake account.
+	Region?: #Region
+
+	// The name of the Amazon S3 stage that was created while setting up an Amazon S3 stage in the
+	// Snowﬂake account. This is written in the following format: < Database>< Schema><Stage Name>.
+	Stage!: #Stage
+
+	// The name of the Snowﬂake warehouse.
+	Warehouse!: #Warehouse
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Stage": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#Stage: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TokenUrlCustomProperties": close({
+#TokenUrlCustomProperties: close({
 
 	{[=~"^[\\w]{1,128}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrendmicroConnectorProfileCredentials": {
-	ApiSecretKey!: _#defs."/$defs/Properties/definitions/ApiSecretKey" | fn.#StringExpression
+#TrendmicroConnectorProfileCredentials: {
+	// The Secret Access Key portion of the credentials.
+	ApiSecretKey!: #ApiSecretKey
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Username": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#Username: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VeevaConnectorProfileCredentials": {
-	Password!: _#defs."/$defs/Properties/definitions/Password" | fn.#StringExpression
-	Username!: _#defs."/$defs/Properties/definitions/Username" | fn.#StringExpression
+#VeevaConnectorProfileCredentials: {
+	// The password that corresponds to the username.
+	Password!: #Password
+
+	// The name of the user.
+	Username!: #Username
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VeevaConnectorProfileProperties": {
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
+#VeevaConnectorProfileProperties: {
+	// The location of the Veeva resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Warehouse": strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" |
-fn.#StringExpression
+#Warehouse: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkgroupName": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
-fn.#StringExpression
+#WorkgroupName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ZendeskConnectorProfileCredentials": {
-	AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken" | fn.#StringExpression
-	ClientId!:              _#defs."/$defs/Properties/definitions/ClientId" | fn.#StringExpression
-	ClientSecret!:          _#defs."/$defs/Properties/definitions/ClientSecret" | fn.#StringExpression
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest" | fn.#ObjectExpression
+#ZendeskConnectorProfileCredentials: {
+	// The credentials used to access protected resources.
+	AccessToken?: #AccessToken
+
+	// The identiﬁer for the desired client.
+	ClientId!: #ClientId
+
+	// The client secret used by the oauth client to authenticate to the authorization server.
+	ClientSecret!: #ClientSecret
+
+	// The oauth needed to request security tokens from the connector endpoint.
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZendeskConnectorProfileProperties": {
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl" | fn.#StringExpression
+#ZendeskConnectorProfileProperties: {
+	// The location of the Zendesk resource
+	InstanceUrl!: #InstanceUrl
 	...
 } | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppFlow::ConnectorProfile"
-	Properties!: #Properties
-}

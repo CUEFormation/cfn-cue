@@ -14,36 +14,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::S3::AccessGrant resource is an Amazon S3 resource type representing
 // permissions to a specific S3 bucket or prefix hosted in an S3 Access Grants
 // instance.
-#Properties: close({
-	AccessGrantsLocationConfiguration?: _#defs."/$defs/Properties/definitions/AccessGrantsLocationConfiguration" |
-		fn.#ObjectExpression
-	AccessGrantsLocationId!: string | fn.#StringExpression
-	ApplicationArn?:         string | fn.#StringExpression
-	Grantee!:                _#defs."/$defs/Properties/definitions/Grantee" | fn.#ObjectExpression
-	Permission!:             "READ" | "WRITE" | "READWRITE" | fn.#StringExpression
-	S3PrefixType?:           "Object" | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::AccessGrant"
+	Properties!: close({
+		// The configuration options of the grant location, which is the S3 path to the
+		// data to which you are granting access.
+		AccessGrantsLocationConfiguration?: #AccessGrantsLocationConfiguration
+		AccessGrantsLocationId!:            string | fn.#StringExpression
+		ApplicationArn?:                    string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccessGrantArn": string | fn.#StringExpression
+		// The principal who will be granted permission to access S3.
+		Grantee!:      #Grantee
+		Permission!:   "READ" | "WRITE" | "READWRITE" | fn.#StringExpression
+		S3PrefixType?: "Object" | fn.#StringExpression
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccessGrantsLocationConfiguration": close(
-	{S3SubPrefix!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#AccessGrantArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Grantee": close({
+#AccessGrantsLocationConfiguration: close({S3SubPrefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#Grantee: close({
 	GranteeIdentifier!: string | fn.#StringExpression
 	GranteeType!:       "IAM" | "DIRECTORY_USER" | "DIRECTORY_GROUP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::AccessGrant"
-	Properties!: #Properties
-}

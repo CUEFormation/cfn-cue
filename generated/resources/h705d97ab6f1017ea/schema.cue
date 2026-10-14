@@ -12,17 +12,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Outposts::Site Resource Type
-#Properties: close({
-	Description?:            strings.MaxRunes(1001) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
-	Name!:                   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
-	Notes?:                  strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^[\\S \\n]+$" | fn.#StringExpression
-	OperatingAddress?:       _#defs."/$defs/Properties/definitions/Address"
-	RackPhysicalProperties?: _#defs."/$defs/Properties/definitions/RackPhysicalProperties"
-	ShippingAddress?:        _#defs."/$defs/Properties/definitions/Address"
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Outposts::Site"
+	Properties!: close({
+		Description?:            strings.MaxRunes(1001) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
+		Name!:                   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
+		Notes?:                  strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^[\\S \\n]+$" | fn.#StringExpression
+		OperatingAddress?:       #Address
+		RackPhysicalProperties?: #RackPhysicalProperties
+		ShippingAddress?:        #Address
+		Tags?:                   [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Address": close({
+#Address: close({
 	AddressLine1!:       strings.MaxRunes(180) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" | fn.#StringExpression
 	AddressLine2?:       strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" | fn.#StringExpression
 	AddressLine3?:       strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" | fn.#StringExpression
@@ -37,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/Address": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RackPhysicalProperties": close({
+#RackPhysicalProperties: close({
 	FiberOpticCableType?: "SINGLE_MODE" | "MULTI_MODE" | fn.#StringExpression
 	MaximumSupportedWeightLbs?: "NO_LIMIT" |
 		"MAX_1400_LBS" |
@@ -78,12 +81,8 @@ _#defs: "/$defs/Properties/definitions/RackPhysicalProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Outposts::Site"
-	Properties!: #Properties
-}

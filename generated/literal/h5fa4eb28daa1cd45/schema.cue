@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -20,30 +20,28 @@ import (
 	DomainIdentifier?:               =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$"
 	DomainUnitId?:                   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$"
 	DomainUnitIdentifier?:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$"
-	EnvironmentConfigurations?:      [..._#defs."/$defs/Properties/definitions/EnvironmentConfiguration"]
+	EnvironmentConfigurations?:      [...#EnvironmentConfiguration]
 	Id?:                             =~"^[a-zA-Z0-9_-]{1,36}$"
 	Identifier?:                     =~"^[a-zA-Z0-9_-]{1,36}$"
 	LastUpdatedAt?:                  time.Time
 	Name!:                           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$"
-	ProjectResourceTags?: list.MaxItems(25) & [..._#defs."/$defs/Properties/definitions/ResourceTagParameter"]
+	ProjectResourceTags?:            list.MaxItems(25) & [...#ResourceTagParameter]
 	ProjectResourceTagsDescription?: strings.MaxRunes(2048)
-	Status?:                         _#defs."/$defs/Properties/definitions/Status"
+	Status?:                         #Status
 	UseDefaultConfigurations?:       bool
 })
 
-_#defs: "/$defs/Properties/definitions/AwsAccount": close({AwsAccountId!: =~"^\\d{12}$"})
+#AwsAccount: close({AwsAccountId!: =~"^\\d{12}$"})
 
-_#defs: "/$defs/Properties/definitions/DeploymentMode": "ON_CREATE" | "ON_DEMAND"
+#DeploymentMode: "ON_CREATE" | "ON_DEMAND"
 
-_#defs: "/$defs/Properties/definitions/DesignationConfiguration": close(
-	{DesignationId!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"},
-)
+#DesignationConfiguration: close({DesignationId!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"})
 
-_#defs: "/$defs/Properties/definitions/EnvironmentConfiguration": close({
-	AwsAccount?:                 _#defs."/$defs/Properties/definitions/AwsAccount"
-	AwsRegion!:                  _#defs."/$defs/Properties/definitions/Region"
-	ConfigurationParameters?:    _#defs."/$defs/Properties/definitions/EnvironmentConfigurationParametersDetails"
-	DeploymentMode?:             _#defs."/$defs/Properties/definitions/DeploymentMode"
+#EnvironmentConfiguration: close({
+	AwsAccount?:                 #AwsAccount
+	AwsRegion!:                  #Region
+	ConfigurationParameters?:    #EnvironmentConfigurationParametersDetails
+	DeploymentMode?:             #DeploymentMode
 	DeploymentOrder?:            <=16 & >=0
 	Description?:                strings.MaxRunes(2048)
 	EnvironmentBlueprintId!:     =~"^[a-zA-Z0-9_-]{1,36}$"
@@ -51,31 +49,31 @@ _#defs: "/$defs/Properties/definitions/EnvironmentConfiguration": close({
 	Name!:                       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentConfigurationParameter": close({
+#EnvironmentConfigurationParameter: close({
 	IsEditable?: bool
 	Name?:       =~"^[a-zA-Z_][a-zA-Z0-9_]*$"
 	Value?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentConfigurationParametersDetails": close({
-	ParameterOverrides?: [..._#defs."/$defs/Properties/definitions/EnvironmentConfigurationParameter"]
-	ResolvedParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentConfigurationParameter"]
+#EnvironmentConfigurationParametersDetails: close({
+	ParameterOverrides?: [...#EnvironmentConfigurationParameter]
+	ResolvedParameters?: [...#EnvironmentConfigurationParameter]
 	SsmPath?:            strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ProjectScope": close({
+#ProjectScope: close({
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$"
 	Policy?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Region": close(
+#Region: close(
 	{RegionName!: strings.MaxRunes(16) & strings.MinRunes(4) & =~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$"},
 )
 
-_#defs: "/$defs/Properties/definitions/ResourceTagParameter": close({
+#ResourceTagParameter: close({
 	IsValueEditable!: bool
 	Key!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$"
 	Value!:           strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Status": "ENABLED" | "DISABLED"
+#Status: "ENABLED" | "DISABLED"

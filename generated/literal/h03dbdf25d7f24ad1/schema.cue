@@ -13,37 +13,31 @@ import (
 #Properties: close({
 	Capacity!:      int
 	Description?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$"
-	RuleGroup?:     _#defs."/$defs/Properties/definitions/RuleGroup"
-	RuleGroupArn?:  _#defs."/$defs/Properties/definitions/ResourceArn"
+	RuleGroup?:     #RuleGroup
+	RuleGroupArn?:  #ResourceArn
 	RuleGroupId?:   strings.MaxRunes(36) & strings.MinRunes(36) & =~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$"
 	RuleGroupName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
-	SummaryConfiguration?: close({RuleOptions?: [..._#defs."/$defs/Properties/definitions/SummaryRuleOption"]})
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type!: "STATELESS" | "STATEFUL"
+	SummaryConfiguration?: close({RuleOptions?: [...#SummaryRuleOption]})
+	Tags?:                 list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
+	Type!:                 "STATELESS" | "STATEFUL"
 })
 
-_#defs: "/$defs/Properties/definitions/ActionDefinition": close(
-	{PublishMetricAction?: _#defs."/$defs/Properties/definitions/PublishMetricAction"},
-)
+#ActionDefinition: close({PublishMetricAction?: #PublishMetricAction})
 
-_#defs: "/$defs/Properties/definitions/Address": close(
-	{AddressDefinition!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-fA-F\\d:\\.]+/\\d{1,3})$"},
-)
+#Address: close({AddressDefinition!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-fA-F\\d:\\.]+/\\d{1,3})$"})
 
-_#defs: "/$defs/Properties/definitions/CustomAction": close({
-	ActionDefinition!: _#defs."/$defs/Properties/definitions/ActionDefinition"
+#CustomAction: close({
+	ActionDefinition!: #ActionDefinition
 	ActionName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Dimension": close(
-	{Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$"},
-)
+#Dimension: close({Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$"})
 
-_#defs: "/$defs/Properties/definitions/GeneratedRulesType": "ALLOWLIST" | "DENYLIST" | "ALERTLIST" | "REJECTLIST"
+#GeneratedRulesType: "ALLOWLIST" | "DENYLIST" | "ALERTLIST" | "REJECTLIST"
 
-_#defs: "/$defs/Properties/definitions/Header": close({
+#Header: close({
 	Destination!:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$"
-	DestinationPort!: _#defs."/$defs/Properties/definitions/Port"
+	DestinationPort!: #Port
 	Direction!:       "FORWARD" | "ANY"
 	Protocol!: "IP" |
 		"TCP" |
@@ -65,133 +59,123 @@ _#defs: "/$defs/Properties/definitions/Header": close({
 		"NTP" |
 		"DHCP"
 	Source!:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$"
-	SourcePort!: _#defs."/$defs/Properties/definitions/Port"
+	SourcePort!: #Port
 })
 
-_#defs: "/$defs/Properties/definitions/IPSet": close(
-	{Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition"]},
-)
+#IPSet: close({Definition?: [...#VariableDefinition]})
 
-_#defs: "/$defs/Properties/definitions/IPSetReference": close(
-	{ReferenceArn?: _#defs."/$defs/Properties/definitions/ResourceArn"},
-)
+#IPSetReference: close({ReferenceArn?: #ResourceArn})
 
-_#defs: "/$defs/Properties/definitions/MatchAttributes": close({
-	DestinationPorts?: [..._#defs."/$defs/Properties/definitions/PortRange"]
-	Destinations?:     [..._#defs."/$defs/Properties/definitions/Address"]
-	Protocols?:        [..._#defs."/$defs/Properties/definitions/ProtocolNumber"]
-	SourcePorts?:      [..._#defs."/$defs/Properties/definitions/PortRange"]
-	Sources?:          [..._#defs."/$defs/Properties/definitions/Address"]
-	TCPFlags?:         [..._#defs."/$defs/Properties/definitions/TCPFlagField"]
+#MatchAttributes: close({
+	DestinationPorts?: [...#PortRange]
+	Destinations?:     [...#Address]
+	Protocols?:        [...#ProtocolNumber]
+	SourcePorts?:      [...#PortRange]
+	Sources?:          [...#Address]
+	TCPFlags?:         [...#TCPFlagField]
 })
 
-_#defs: "/$defs/Properties/definitions/Port": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$"
+#Port: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$"
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
-	FromPort!: _#defs."/$defs/Properties/definitions/PortRangeBound"
-	ToPort!:   _#defs."/$defs/Properties/definitions/PortRangeBound"
+#PortRange: close({
+	FromPort!: #PortRangeBound
+	ToPort!:   #PortRangeBound
 })
 
-_#defs: "/$defs/Properties/definitions/PortRangeBound": int & <=65535 & >=0
+#PortRangeBound: int & <=65535 & >=0
 
-_#defs: "/$defs/Properties/definitions/PortSet": close(
-	{Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition"]},
-)
+#PortSet: close({Definition?: [...#VariableDefinition]})
 
-_#defs: "/$defs/Properties/definitions/ProtocolNumber": int & <=255 & >=0
+#ProtocolNumber: int & <=255 & >=0
 
-_#defs: "/$defs/Properties/definitions/PublishMetricAction": close(
-	{Dimensions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Dimension"]},
-)
+#PublishMetricAction: close({Dimensions!: list.MaxItems(1) & list.MinItems(1) & [...#Dimension]})
 
-_#defs: "/$defs/Properties/definitions/ReferenceSets": close({
+#ReferenceSets: close({
 	IPSetReferences?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSetReference"}})
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSetReference}})
 })
 
 // A resource ARN.
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$"
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$"
 
-_#defs: "/$defs/Properties/definitions/RuleDefinition": close({
+#RuleDefinition: close({
 	Actions!:         [...string]
-	MatchAttributes!: _#defs."/$defs/Properties/definitions/MatchAttributes"
+	MatchAttributes!: #MatchAttributes
 })
 
-_#defs: "/$defs/Properties/definitions/RuleGroup": close({
-	ReferenceSets?:       _#defs."/$defs/Properties/definitions/ReferenceSets"
-	RuleVariables?:       _#defs."/$defs/Properties/definitions/RuleVariables"
-	RulesSource!:         _#defs."/$defs/Properties/definitions/RulesSource"
-	StatefulRuleOptions?: _#defs."/$defs/Properties/definitions/StatefulRuleOptions"
+#RuleGroup: close({
+	ReferenceSets?:       #ReferenceSets
+	RuleVariables?:       #RuleVariables
+	RulesSource!:         #RulesSource
+	StatefulRuleOptions?: #StatefulRuleOptions
 })
 
-_#defs: "/$defs/Properties/definitions/RuleOption": close({
+#RuleOption: close({
 	Keyword!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$"
-	Settings?: [..._#defs."/$defs/Properties/definitions/Setting"]
+	Settings?: [...#Setting]
 })
 
-_#defs: "/$defs/Properties/definitions/RuleOrder": "DEFAULT_ACTION_ORDER" | "STRICT_ORDER"
+#RuleOrder: "DEFAULT_ACTION_ORDER" | "STRICT_ORDER"
 
-_#defs: "/$defs/Properties/definitions/RuleVariables": close({
+#RuleVariables: close({
 	IPSets?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSet"}})
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSet}})
 	PortSets?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/PortSet"}})
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: #PortSet}})
 })
 
-_#defs: "/$defs/Properties/definitions/RulesSource": close({
-	RulesSourceList?:                _#defs."/$defs/Properties/definitions/RulesSourceList"
-	RulesString?:                    _#defs."/$defs/Properties/definitions/RulesString"
-	StatefulRules?:                  [..._#defs."/$defs/Properties/definitions/StatefulRule"]
-	StatelessRulesAndCustomActions?: _#defs."/$defs/Properties/definitions/StatelessRulesAndCustomActions"
+#RulesSource: close({
+	RulesSourceList?:                #RulesSourceList
+	RulesString?:                    #RulesString
+	StatefulRules?:                  [...#StatefulRule]
+	StatelessRulesAndCustomActions?: #StatelessRulesAndCustomActions
 })
 
-_#defs: "/$defs/Properties/definitions/RulesSourceList": close({
-	GeneratedRulesType!: _#defs."/$defs/Properties/definitions/GeneratedRulesType"
-	TargetTypes!:        [..._#defs."/$defs/Properties/definitions/TargetType"]
+#RulesSourceList: close({
+	GeneratedRulesType!: #GeneratedRulesType
+	TargetTypes!:        [...#TargetType]
 	Targets!:            [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/RulesString": strings.MaxRunes(1000000) & strings.MinRunes(0)
+#RulesString: strings.MaxRunes(1000000) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/Setting": strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^.*$"
+#Setting: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^.*$"
 
-_#defs: "/$defs/Properties/definitions/StatefulRule": close({
+#StatefulRule: close({
 	Action!:      "PASS" | "DROP" | "ALERT" | "REJECT"
-	Header!:      _#defs."/$defs/Properties/definitions/Header"
-	RuleOptions!: [..._#defs."/$defs/Properties/definitions/RuleOption"]
+	Header!:      #Header
+	RuleOptions!: [...#RuleOption]
 })
 
-_#defs: "/$defs/Properties/definitions/StatefulRuleOptions": close(
-	{RuleOrder?: _#defs."/$defs/Properties/definitions/RuleOrder"},
-)
+#StatefulRuleOptions: close({RuleOrder?: #RuleOrder})
 
-_#defs: "/$defs/Properties/definitions/StatelessRule": close({
+#StatelessRule: close({
 	Priority!:       int & <=65535 & >=1
-	RuleDefinition!: _#defs."/$defs/Properties/definitions/RuleDefinition"
+	RuleDefinition!: #RuleDefinition
 })
 
-_#defs: "/$defs/Properties/definitions/StatelessRulesAndCustomActions": close({
-	CustomActions?:  [..._#defs."/$defs/Properties/definitions/CustomAction"]
-	StatelessRules!: [..._#defs."/$defs/Properties/definitions/StatelessRule"]
+#StatelessRulesAndCustomActions: close({
+	CustomActions?:  [...#CustomAction]
+	StatelessRules!: [...#StatelessRule]
 })
 
-_#defs: "/$defs/Properties/definitions/SummaryRuleOption": "SID" | "MSG" | "METADATA"
+#SummaryRuleOption: "SID" | "MSG" | "METADATA"
 
-_#defs: "/$defs/Properties/definitions/TCPFlag": "FIN" | "SYN" | "RST" | "PSH" | "ACK" | "URG" | "ECE" | "CWR"
+#TCPFlag: "FIN" | "SYN" | "RST" | "PSH" | "ACK" | "URG" | "ECE" | "CWR"
 
-_#defs: "/$defs/Properties/definitions/TCPFlagField": close({
-	Flags!: [..._#defs."/$defs/Properties/definitions/TCPFlag"]
-	Masks?: [..._#defs."/$defs/Properties/definitions/TCPFlag"]
+#TCPFlagField: close({
+	Flags!: [...#TCPFlag]
+	Masks?: [...#TCPFlag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$"
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/TargetType": "TLS_SNI" | "HTTP_HOST"
+#TargetType: "TLS_SNI" | "HTTP_HOST"
 
-_#defs: "/$defs/Properties/definitions/VariableDefinition": strings.MinRunes(1) & =~"^.*$"
+#VariableDefinition: strings.MinRunes(1) & =~"^.*$"

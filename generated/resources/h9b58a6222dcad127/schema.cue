@@ -12,12 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Kinesis::ResourcePolicy
-#Properties: close({
-	ResourceArn!: string & strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+" |
-	fn.#StringExpression
-	ResourcePolicy!: fn.#Object & {...} | fn.#ObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Kinesis::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::Kinesis::ResourcePolicy"
+	Properties!: close({
+		ResourceArn!: string &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+" |
+		fn.#StringExpression
+		ResourcePolicy!: fn.#Object & {...} | fn.#ObjectExpression
+	})
 }

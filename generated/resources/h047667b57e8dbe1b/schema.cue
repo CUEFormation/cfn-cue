@@ -14,31 +14,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Cases::RelatedItem. Creates a related item
 // (comments) and associates it with a case.
-#Properties: close({
-	CaseId!:   strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Content!:  _#defs."/$defs/Properties/definitions/RelatedItemContent" | fn.#ObjectExpression
-	DomainId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:     list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!:     "Contact" | "Comment" | "File" | "Sla" | "ConnectCase" | "Custom" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cases::RelatedItem"
+	Properties!: close({
+		CaseId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CommentContent": close({
+		// The content of a related item to be created.
+		Content!:  #RelatedItemContent
+		DomainId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		Type!:     "Contact" | "Comment" | "File" | "Sla" | "ConnectCase" | "Custom" | fn.#StringExpression
+	})
+}
+
+#CommentContent: close({
 	Body!:        strings.MaxRunes(15000) & strings.MinRunes(1) | fn.#StringExpression
 	ContentType!: "Text/Plain" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RelatedItemContent": close(
-	{Comment?: _#defs."/$defs/Properties/definitions/CommentContent"},
-) |
-	fn.#ObjectExpression
+#RelatedItemContent: close({Comment?: #CommentContent}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cases::RelatedItem"
-	Properties!: #Properties
-}

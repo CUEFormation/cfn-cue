@@ -12,154 +12,148 @@ package schema
 	MeshOwner?:         string
 	ResourceOwner?:     string
 	RouteName?:         string
-	Spec!:              _#defs."/$defs/Properties/definitions/RouteSpec"
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"]
+	Spec!:              #RouteSpec
+	Tags?:              [...#Tag]
 	Uid?:               string
 	VirtualRouterName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Duration": close({
+#Duration: close({
 	Unit!:  string
 	Value!: int
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcRetryPolicy": close({
+#GrpcRetryPolicy: close({
 	GrpcRetryEvents?: [...string]
 	HttpRetryEvents?: [...string]
 	MaxRetries!:      int
-	PerRetryTimeout!: _#defs."/$defs/Properties/definitions/Duration"
+	PerRetryTimeout!: #Duration
 	TcpRetryEvents?:  [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcRoute": close({
-	Action!:      _#defs."/$defs/Properties/definitions/GrpcRouteAction"
-	Match!:       _#defs."/$defs/Properties/definitions/GrpcRouteMatch"
-	RetryPolicy?: _#defs."/$defs/Properties/definitions/GrpcRetryPolicy"
-	Timeout?:     _#defs."/$defs/Properties/definitions/GrpcTimeout"
+#GrpcRoute: close({
+	Action!:      #GrpcRouteAction
+	Match!:       #GrpcRouteMatch
+	RetryPolicy?: #GrpcRetryPolicy
+	Timeout?:     #GrpcTimeout
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcRouteAction": close(
-	{WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget"]},
-)
+#GrpcRouteAction: close({WeightedTargets!: [...#WeightedTarget]})
 
-_#defs: "/$defs/Properties/definitions/GrpcRouteMatch": close({
-	Metadata?:    [..._#defs."/$defs/Properties/definitions/GrpcRouteMetadata"]
+#GrpcRouteMatch: close({
+	Metadata?:    [...#GrpcRouteMetadata]
 	MethodName?:  string
 	Port?:        int
 	ServiceName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcRouteMetadata": close({
+#GrpcRouteMetadata: close({
 	Invert?: bool
-	Match?:  _#defs."/$defs/Properties/definitions/GrpcRouteMetadataMatchMethod"
+	Match?:  #GrpcRouteMetadataMatchMethod
 	Name!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcRouteMetadataMatchMethod": close({
+#GrpcRouteMetadataMatchMethod: close({
 	Exact?:  string
 	Prefix?: string
-	Range?:  _#defs."/$defs/Properties/definitions/MatchRange"
+	Range?:  #MatchRange
 	Regex?:  string
 	Suffix?: string
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
+#GrpcTimeout: close({
+	Idle?:       #Duration
+	PerRequest?: #Duration
 })
 
-_#defs: "/$defs/Properties/definitions/HeaderMatchMethod": close({
+#HeaderMatchMethod: close({
 	Exact?:  string
 	Prefix?: string
-	Range?:  _#defs."/$defs/Properties/definitions/MatchRange"
+	Range?:  #MatchRange
 	Regex?:  string
 	Suffix?: string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpPathMatch": close({
+#HttpPathMatch: close({
 	Exact?: string
 	Regex?: string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpQueryParameterMatch": close({Exact?: string})
+#HttpQueryParameterMatch: close({Exact?: string})
 
-_#defs: "/$defs/Properties/definitions/HttpRetryPolicy": close({
+#HttpRetryPolicy: close({
 	HttpRetryEvents?: [...string]
 	MaxRetries!:      int
-	PerRetryTimeout!: _#defs."/$defs/Properties/definitions/Duration"
+	PerRetryTimeout!: #Duration
 	TcpRetryEvents?:  [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/HttpRoute": close({
-	Action!:      _#defs."/$defs/Properties/definitions/HttpRouteAction"
-	Match!:       _#defs."/$defs/Properties/definitions/HttpRouteMatch"
-	RetryPolicy?: _#defs."/$defs/Properties/definitions/HttpRetryPolicy"
-	Timeout?:     _#defs."/$defs/Properties/definitions/HttpTimeout"
+#HttpRoute: close({
+	Action!:      #HttpRouteAction
+	Match!:       #HttpRouteMatch
+	RetryPolicy?: #HttpRetryPolicy
+	Timeout?:     #HttpTimeout
 })
 
-_#defs: "/$defs/Properties/definitions/HttpRouteAction": close(
-	{WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget"]},
-)
+#HttpRouteAction: close({WeightedTargets!: [...#WeightedTarget]})
 
-_#defs: "/$defs/Properties/definitions/HttpRouteHeader": close({
+#HttpRouteHeader: close({
 	Invert?: bool
-	Match?:  _#defs."/$defs/Properties/definitions/HeaderMatchMethod"
+	Match?:  #HeaderMatchMethod
 	Name!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpRouteMatch": close({
-	Headers?:         [..._#defs."/$defs/Properties/definitions/HttpRouteHeader"]
+#HttpRouteMatch: close({
+	Headers?:         [...#HttpRouteHeader]
 	Method?:          string
-	Path?:            _#defs."/$defs/Properties/definitions/HttpPathMatch"
+	Path?:            #HttpPathMatch
 	Port?:            int
 	Prefix?:          string
-	QueryParameters?: [..._#defs."/$defs/Properties/definitions/QueryParameter"]
+	QueryParameters?: [...#QueryParameter]
 	Scheme?:          string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
+#HttpTimeout: close({
+	Idle?:       #Duration
+	PerRequest?: #Duration
 })
 
-_#defs: "/$defs/Properties/definitions/MatchRange": close({
+#MatchRange: close({
 	End!:   int
 	Start!: int
 })
 
-_#defs: "/$defs/Properties/definitions/QueryParameter": close({
-	Match?: _#defs."/$defs/Properties/definitions/HttpQueryParameterMatch"
+#QueryParameter: close({
+	Match?: #HttpQueryParameterMatch
 	Name!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/RouteSpec": close({
-	GrpcRoute?:  _#defs."/$defs/Properties/definitions/GrpcRoute"
-	Http2Route?: _#defs."/$defs/Properties/definitions/HttpRoute"
-	HttpRoute?:  _#defs."/$defs/Properties/definitions/HttpRoute"
+#RouteSpec: close({
+	GrpcRoute?:  #GrpcRoute
+	Http2Route?: #HttpRoute
+	HttpRoute?:  #HttpRoute
 	Priority?:   int
-	TcpRoute?:   _#defs."/$defs/Properties/definitions/TcpRoute"
+	TcpRoute?:   #TcpRoute
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TcpRoute": close({
-	Action!:  _#defs."/$defs/Properties/definitions/TcpRouteAction"
-	Match?:   _#defs."/$defs/Properties/definitions/TcpRouteMatch"
-	Timeout?: _#defs."/$defs/Properties/definitions/TcpTimeout"
+#TcpRoute: close({
+	Action!:  #TcpRouteAction
+	Match?:   #TcpRouteMatch
+	Timeout?: #TcpTimeout
 })
 
-_#defs: "/$defs/Properties/definitions/TcpRouteAction": close(
-	{WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget"]},
-)
+#TcpRouteAction: close({WeightedTargets!: [...#WeightedTarget]})
 
-_#defs: "/$defs/Properties/definitions/TcpRouteMatch": close({Port?: int})
+#TcpRouteMatch: close({Port?: int})
 
-_#defs: "/$defs/Properties/definitions/TcpTimeout": close({Idle?: _#defs."/$defs/Properties/definitions/Duration"})
+#TcpTimeout: close({Idle?: #Duration})
 
-_#defs: "/$defs/Properties/definitions/WeightedTarget": close({
+#WeightedTarget: close({
 	Port?:        int
 	VirtualNode!: string
 	Weight!:      int

@@ -21,11 +21,11 @@ import "strings"
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// Sample
-	Sample?: _#defs."/$defs/Properties/definitions/Sample"
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"]
+	Sample?: #Sample
+	Tags?:   [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Sample": close({
+#Sample: close({
 	// Sample size
 	Size?: int & <=5000 & >=1
 
@@ -34,7 +34,7 @@ _#defs: "/$defs/Properties/definitions/Sample": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

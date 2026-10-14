@@ -36,15 +36,15 @@ import (
 
 	// The ARN of the recipe to use for model training. Only specified when performAutoML is false.
 	RecipeArn?:      strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+"
-	SolutionArn?:    _#defs."/$defs/Properties/definitions/SolutionArn"
-	SolutionConfig?: _#defs."/$defs/Properties/definitions/SolutionConfig"
+	SolutionArn?:    #SolutionArn
+	SolutionConfig?: #SolutionConfig
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // Provides the name and values of a Categorical hyperparameter.
-_#defs: "/$defs/Properties/definitions/CategoricalHyperParameterRange": close({
+#CategoricalHyperParameterRange: close({
 	// The name of the hyperparameter.
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0)
 
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/CategoricalHyperParameterRange": close({
 })
 
 // Provides the name and range of a continuous hyperparameter.
-_#defs: "/$defs/Properties/definitions/ContinuousHyperParameterRange": close({
+#ContinuousHyperParameterRange: close({
 	// The maximum allowable value for the hyperparameter.
 	MaxValue?: >=-1000000
 
@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/ContinuousHyperParameterRange": close({
 })
 
 // Provides the name and range of an integer-valued hyperparameter.
-_#defs: "/$defs/Properties/definitions/IntegerHyperParameterRange": close({
+#IntegerHyperParameterRange: close({
 	// The maximum allowable value for the hyperparameter.
 	MaxValue?: int & <=1000000
 
@@ -77,12 +77,12 @@ _#defs: "/$defs/Properties/definitions/IntegerHyperParameterRange": close({
 })
 
 // The ARN of the solution
-_#defs: "/$defs/Properties/definitions/SolutionArn": strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+"
+#SolutionArn: strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+"
 
 // The configuration to use with the solution. When performAutoML is set to
 // true, Amazon Personalize only evaluates the autoMLConfig section of the
 // solution configuration.
-_#defs: "/$defs/Properties/definitions/SolutionConfig": close({
+#SolutionConfig: close({
 	// Lists the hyperparameter names and ranges.
 	AlgorithmHyperParameters?: struct.MaxFields(100) & close({
 
@@ -112,19 +112,13 @@ _#defs: "/$defs/Properties/definitions/SolutionConfig": close({
 		// The hyperparameters and their allowable ranges
 		AlgorithmHyperParameterRanges?: close({
 			// The categorical hyperparameters and their ranges.
-			CategoricalHyperParameterRanges?: list.MaxItems(100) & [...] & [
-				..._#defs."/$defs/Properties/definitions/CategoricalHyperParameterRange"
-			]
+			CategoricalHyperParameterRanges?: list.MaxItems(100) & [...] & [...#CategoricalHyperParameterRange]
 
 			// The continuous hyperparameters and their ranges.
-			ContinuousHyperParameterRanges?: list.MaxItems(100) & [...] & [
-				..._#defs."/$defs/Properties/definitions/ContinuousHyperParameterRange"
-			]
+			ContinuousHyperParameterRanges?: list.MaxItems(100) & [...] & [...#ContinuousHyperParameterRange]
 
 			// The integer hyperparameters and their ranges.
-			IntegerHyperParameterRanges?: list.MaxItems(100) & [...] & [
-				..._#defs."/$defs/Properties/definitions/IntegerHyperParameterRange"
-			]
+			IntegerHyperParameterRanges?: list.MaxItems(100) & [...] & [...#IntegerHyperParameterRange]
 		})
 
 		// The metric to optimize during HPO.
@@ -152,7 +146,7 @@ _#defs: "/$defs/Properties/definitions/SolutionConfig": close({
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

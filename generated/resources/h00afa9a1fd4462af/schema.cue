@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"math"
+	"list"
 	"strings"
 )
 
@@ -87,65 +87,105 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // actions listed above.
 // If you are experiencing active production issues related to this change,
 // contact AWS Support or your Technical Account Manager.
-#Properties: close({
-	AvailabilityZoneRebalancing?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	CapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"] |
-		fn.#ListExpression
-	Cluster?:                 string | fn.#StringExpression
-	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentConfiguration" | fn.#ObjectExpression
-	DeploymentController?:    _#defs."/$defs/Properties/definitions/DeploymentController" | fn.#ObjectExpression
-	DesiredCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ForceNewDeployment?:   _#defs."/$defs/Properties/definitions/ForceNewDeployment" | fn.#ObjectExpression
-	HealthCheckGracePeriodSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	LaunchType?:           "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
-	LoadBalancers?:        [..._#defs."/$defs/Properties/definitions/LoadBalancer"] | fn.#ListExpression
-	Monitoring?:           _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
-	PlacementConstraints?: [..._#defs."/$defs/Properties/definitions/PlacementConstraint"] | fn.#ListExpression
-	PlacementStrategies?:  [..._#defs."/$defs/Properties/definitions/PlacementStrategy"] | fn.#ListExpression
-	PlatformVersion?:      string | fn.#StringExpression
-	PropagateTags?:        "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
-	Role?:                 string | fn.#StringExpression
-	SchedulingStrategy?:   "DAEMON" | "REPLICA" | fn.#StringExpression
-	ServiceConnectConfiguration?: _#defs."/$defs/Properties/definitions/ServiceConnectConfiguration" |
-		fn.#ObjectExpression
-	ServiceName?:       string | fn.#StringExpression
-	ServiceRegistries?: [..._#defs."/$defs/Properties/definitions/ServiceRegistry"] | fn.#ListExpression
-	Tags?:              list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TaskDefinition?:    string | fn.#StringExpression
-	VolumeConfigurations?: [..._#defs."/$defs/Properties/definitions/ServiceVolumeConfiguration"] | fn.#ListExpression
-	VpcLatticeConfigurations?: [..._#defs."/$defs/Properties/definitions/VpcLatticeConfiguration"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::Service"
+	Properties?: close({
+		AvailabilityZoneRebalancing?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		CapacityProviderStrategy?:    [...#CapacityProviderStrategyItem] | fn.#ListExpression
+		Cluster?:                     string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AdvancedConfiguration": close({
+		// Optional deployment parameters that control how many tasks run during the
+		// deployment and the ordering of stopping and starting tasks.
+		DeploymentConfiguration?: #DeploymentConfiguration
+
+		// The deployment controller to use for the service.
+		DeploymentController?: #DeploymentController
+		DesiredCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// Determines whether to force a new deployment of the service. By default,
+		// deployments aren't forced. You can use this option to start a new deployment
+		// with no service definition changes. For example, you can update a service's
+		// tasks to use a newer Docker image with the same image/tag combination
+		// (``my_image:latest``) or to roll Fargate tasks onto a newer platform
+		// version.
+		ForceNewDeployment?: #ForceNewDeployment
+		HealthCheckGracePeriodSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		LaunchType?:    "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
+		LoadBalancers?: [...#LoadBalancer] | fn.#ListExpression
+
+		// The optional monitoring configuration for the service, which defines the
+		// resolution for the service-level ``CPUUtilization`` and
+		// ``MemoryUtilization`` Amazon CloudWatch metrics. When not specified, Amazon
+		// ECS uses the default resolution of ``60`` seconds.
+		Monitoring?: #MonitoringConfiguration
+
+		// The network configuration for the service. This parameter is required for
+		// task definitions that use the ``awsvpc`` network mode to receive their own
+		// elastic network interface, and it is not supported for other network modes.
+		// For more information, see [Task
+		// Networking](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html)
+		// in the *Amazon Elastic Container Service Developer Guide*.
+		NetworkConfiguration?: #NetworkConfiguration
+		PlacementConstraints?: [...#PlacementConstraint] | fn.#ListExpression
+		PlacementStrategies?:  [...#PlacementStrategy] | fn.#ListExpression
+		PlatformVersion?:      string | fn.#StringExpression
+		PropagateTags?:        "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
+		Role?:                 string | fn.#StringExpression
+		SchedulingStrategy?:   "DAEMON" | "REPLICA" | fn.#StringExpression
+
+		// The configuration for this service to discover and connect to services, and
+		// be discovered by, and connected from, other services within a namespace.
+		// Tasks that run in a namespace can use short names to connect to services in
+		// the namespace. Tasks can connect to services across all of the clusters in
+		// the namespace. Tasks connect through a managed proxy container that collects
+		// logs and metrics for increased visibility. Only the tasks that Amazon ECS
+		// services create are supported with Service Connect. For more information,
+		// see [Service
+		// Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
+		// in the *Amazon Elastic Container Service Developer Guide*.
+		ServiceConnectConfiguration?: #ServiceConnectConfiguration
+		ServiceName?:                 string | fn.#StringExpression
+		ServiceRegistries?:           [...#ServiceRegistry] | fn.#ListExpression
+		Tags?:                        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TaskDefinition?:              string | fn.#StringExpression
+		VolumeConfigurations?:        [...#ServiceVolumeConfiguration] | fn.#ListExpression
+		VpcLatticeConfigurations?:    [...#VpcLatticeConfiguration] | fn.#ListExpression
+	})
+}
+
+#AdvancedConfiguration: close({
 	AlternateTargetGroupArn!: string | fn.#StringExpression
 	ProductionListenerRule?:  string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -154,7 +194,7 @@ _#defs: "/$defs/Properties/definitions/AdvancedConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
+#AwsVpcConfiguration: close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
 	SecurityGroups?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -165,7 +205,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CanaryConfiguration": close({
+#CanaryConfiguration: close({
 	CanaryBakeTimeInMinutes?: int & <=1440 & >=0 |
 		{
 			string &
@@ -186,7 +226,7 @@ _#defs: "/$defs/Properties/definitions/CanaryConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?: int & <=100000 & >=0 |
 		{
 			string &
@@ -223,23 +263,28 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentAlarms": close({
+#DeploymentAlarms: close({
 	AlarmNames!: [...string | fn.#StringExpression] | fn.#ListExpression
 	Enable!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Rollback!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentCircuitBreaker": close({
-	Enable!:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResetOnHealthyTask?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Rollback!:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ThresholdConfiguration?: _#defs."/$defs/Properties/definitions/ThresholdConfiguration" | fn.#ObjectExpression
+#DeploymentCircuitBreaker: close({
+	Enable!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResetOnHealthyTask?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Rollback!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The threshold configuration that controls when the deployment circuit breaker
+	// triggers. The ``type`` and ``value`` together determine how many task
+	// failures are tolerated before the circuit breaker activates.
+	ThresholdConfiguration?: #ThresholdConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
-	Alarms?: _#defs."/$defs/Properties/definitions/DeploymentAlarms" | fn.#ObjectExpression
+#DeploymentConfiguration: close({
+	// Information about the CloudWatch alarms.
+	Alarms?: #DeploymentAlarms
 	BakeTimeInMinutes?: int & <=1440 & >=0 |
 		{
 			string &
@@ -256,11 +301,37 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	CanaryConfiguration?:      _#defs."/$defs/Properties/definitions/CanaryConfiguration" | fn.#ObjectExpression
-	DeploymentCircuitBreaker?: _#defs."/$defs/Properties/definitions/DeploymentCircuitBreaker" | fn.#ObjectExpression
-	EarlySuccessCriteria?: _#defs."/$defs/Properties/definitions/DeploymentEarlySuccessCriteria" | fn.#ObjectExpression
-	LifecycleHooks?:       [..._#defs."/$defs/Properties/definitions/DeploymentLifecycleHook"] | fn.#ListExpression
-	LinearConfiguration?:  _#defs."/$defs/Properties/definitions/LinearConfiguration" | fn.#ObjectExpression
+
+	// Configuration for canary deployment strategy. Only valid when the deployment
+	// strategy is ``CANARY``. This configuration enables shifting a fixed
+	// percentage of traffic for testing, followed by shifting the remaining
+	// traffic after a bake period.
+	CanaryConfiguration?: #CanaryConfiguration
+
+	// The deployment circuit breaker can only be used for services using the
+	// rolling update (``ECS``) deployment type.
+	// The *deployment circuit breaker* determines whether a service deployment will
+	// fail if the service can't reach a steady state. If you use the deployment
+	// circuit breaker, a service deployment will transition to a failed state and
+	// stop launching new tasks. If you use the rollback option, when a service
+	// deployment fails, the service is rolled back to the last deployment that
+	// completed successfully. For more information, see [Rolling
+	// update](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-ecs.html)
+	// in the *Amazon Elastic Container Service Developer Guide*
+	DeploymentCircuitBreaker?: #DeploymentCircuitBreaker
+
+	// The early success criteria configuration for a rolling deployment. With early
+	// success criteria, you can configure an Amazon ECS deployment to complete
+	// faster. Amazon ECS declares a deployment successful once a target percentage
+	// of tasks are healthy, instead of waiting for the service to fully stabilize.
+	EarlySuccessCriteria?: #DeploymentEarlySuccessCriteria
+	LifecycleHooks?:       [...#DeploymentLifecycleHook] | fn.#ListExpression
+
+	// Configuration for linear deployment strategy. Only valid when the deployment
+	// strategy is ``LINEAR``. This configuration enables progressive traffic
+	// shifting in equal percentage increments with configurable bake times between
+	// each step.
+	LinearConfiguration?: #LinearConfiguration
 	MaximumPercent?: int |
 		{
 			string &
@@ -293,12 +364,9 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentController": close(
-	{Type?: "CODE_DEPLOY" | "ECS" | "EXTERNAL" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DeploymentController: close({Type?: "CODE_DEPLOY" | "ECS" | "EXTERNAL" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentEarlySuccessCriteria": close({
+#DeploymentEarlySuccessCriteria: close({
 	Enable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HealthyPercent?: int & <=100 & >=0 |
 		{
@@ -320,7 +388,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentEarlySuccessCriteria": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentLifecycleHook": close({
+#DeploymentLifecycleHook: close({
 	HookDetails?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 	HookTargetArn?: string | fn.#StringExpression
 	LifecycleStages!: list.MinItems(1) & [
@@ -337,25 +405,29 @@ _#defs: "/$defs/Properties/definitions/DeploymentLifecycleHook": close({
 		fn.#ListExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	TargetType?:           "AWS_LAMBDA" | "PAUSE" | fn.#StringExpression
-	TimeoutConfiguration?: _#defs."/$defs/Properties/definitions/HookTimeoutConfig" | fn.#ObjectExpression
+	TargetType?: "AWS_LAMBDA" | "PAUSE" | fn.#StringExpression
+
+	// The timeout configuration for the lifecycle hook. This specifies how long
+	// Amazon ECS waits before taking the timeout action if the hook is not
+	// resolved.
+	TimeoutConfiguration?: #HookTimeoutConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EBSTagSpecification": close({
+#EBSTagSpecification: close({
 	PropagateTags?: "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
 	ResourceType!:  "volume" | fn.#StringExpression
-	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:          list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ForceNewDeployment": close({
+#ForceNewDeployment: close({
 	EnableForceNewDeployment!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ForceNewDeploymentNonce?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HookTimeoutConfig": close({
+#HookTimeoutConfig: close({
 	Action?: "ROLLBACK" | "CONTINUE" | fn.#StringExpression
 	TimeoutInMinutes?: int & <=20160 & >=1 |
 		{
@@ -376,7 +448,7 @@ _#defs: "/$defs/Properties/definitions/HookTimeoutConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinearConfiguration": close({
+#LinearConfiguration: close({
 	StepBakeTimeInMinutes?: int & <=1440 & >=0 |
 		{
 			string &
@@ -397,8 +469,11 @@ _#defs: "/$defs/Properties/definitions/LinearConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoadBalancer": close({
-	AdvancedConfiguration?: _#defs."/$defs/Properties/definitions/AdvancedConfiguration" | fn.#ObjectExpression
+#LoadBalancer: close({
+	// The advanced settings for the load balancer used in blue/green deployments.
+	// Specify the alternate target group, listener rules, and IAM role required
+	// for traffic shifting during blue/green deployments.
+	AdvancedConfiguration?: #AdvancedConfiguration
 	ContainerName?:         string | fn.#StringExpression
 	ContainerPort?: int |
 		{
@@ -419,17 +494,17 @@ _#defs: "/$defs/Properties/definitions/LoadBalancer": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	LogDriver?: string | fn.#StringExpression
 	Options?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	SecretOptions?: [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricConfiguration": close({
+#MetricConfiguration: close({
 	MetricNames!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
 		...("CPUUtilization" | "MemoryUtilization") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 		fn.#StringExpression
@@ -439,44 +514,43 @@ _#defs: "/$defs/Properties/definitions/MetricConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
-	MetricConfigurations!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MetricConfiguration"
-	] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsvpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration" | fn.#ObjectExpression},
+#MonitoringConfiguration: close(
+	{MetricConfigurations!: list.MaxItems(2) & list.MinItems(1) & [...#MetricConfiguration] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
+#NetworkConfiguration: close({
+	// The VPC subnets and security groups that are associated with a task.
+	// All specified subnets and security groups must be from the same VPC.
+	AwsvpcConfiguration?: #AwsVpcConfiguration
+}) |
+fn.#ObjectExpression
+
+#PlacementConstraint: close({
 	Expression?: string | fn.#StringExpression
 	Type!:       "distinctInstance" | "memberOf" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
+#PlacementStrategy: close({
 	Field?: string | fn.#StringExpression
 	Type!:  "binpack" | "random" | "spread" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	Name!:      string | fn.#StringExpression
 	ValueFrom!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectAccessLogConfiguration": close({
+#ServiceConnectAccessLogConfiguration: close({
 	Format!:                 "TEXT" | "JSON" | fn.#StringExpression
 	IncludeQueryParameters?: "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectClientAlias": close({
+#ServiceConnectClientAlias: close({
 	DnsName?: string | fn.#StringExpression
 	Port!: int & <=65535 & >=0 |
 		{
@@ -494,22 +568,63 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectClientAlias": close({
 				)
 		} |
 		fn.#NumberExpression
-	TestTrafficRules?: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRules" | fn.#ObjectExpression
+
+	// The configuration for test traffic routing rules used during blue/green
+	// deployments with Amazon ECS Service Connect. This allows you to route a
+	// portion of traffic to the new service revision of your service for testing
+	// before shifting all production traffic.
+	TestTrafficRules?: #ServiceConnectTestTrafficRules
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectConfiguration": close({
-	AccessLogConfiguration?: _#defs."/$defs/Properties/definitions/ServiceConnectAccessLogConfiguration" |
-		fn.#ObjectExpression
-	Enabled!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
+#ServiceConnectConfiguration: close({
+	// The configuration for Service Connect access logging. Access logs capture
+	// detailed information about requests made to your service, including request
+	// patterns, response codes, and timing data. They can be useful for debugging
+	// connectivity issues, monitoring service performance, and auditing
+	// service-to-service communication for security and compliance purposes.
+	// To enable access logs, you must also specify a ``logConfiguration`` in the
+	// ``serviceConnectConfiguration``.
+	AccessLogConfiguration?: #ServiceConnectAccessLogConfiguration
+	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The log configuration for the container. This parameter maps to ``LogConfig``
+	// in the docker container create command and the ``--log-driver`` option to
+	// docker run.
+	// By default, containers use the same logging driver that the Docker daemon
+	// uses. However, the container might use a different logging driver than the
+	// Docker daemon by specifying a log driver configuration in the container
+	// definition.
+	// Understand the following when specifying a log configuration for your containers.
+	// + Amazon ECS currently supports a subset of the logging drivers available to
+	// the Docker daemon. Additional log drivers may be available in future
+	// releases of the Amazon ECS container agent.
+	// For tasks on FARGATElong, the supported log drivers are ``awslogs``,
+	// ``splunk``, and ``awsfirelens``.
+	// For tasks hosted on Amazon EC2 instances, the supported log drivers are
+	// ``awslogs``, ``fluentd``, ``gelf``, ``json-file``, ``journald``,``syslog``,
+	// ``splunk``, and ``awsfirelens``.
+	// + This parameter requires version 1.18 of the Docker Remote API or greater on
+	// your container instance.
+	// + For tasks that are hosted on Amazon EC2 instances, the Amazon ECS container
+	// agent must register the available logging drivers with the
+	// ``ECS_AVAILABLE_LOGGING_DRIVERS`` environment variable before containers
+	// placed on that instance can use these log configuration options. For more
+	// information, see [Amazon ECS container agent
+	// configuration](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-config.html)
+	// in the *Amazon Elastic Container Service Developer Guide*.
+	// + For tasks that are on FARGATElong, because you don't have access to the
+	// underlying infrastructure your tasks are hosted on, any additional software
+	// needed must be installed outside of the task. For example, the Fluentd
+	// output aggregators or a remote host running Logstash to send Gelf logs to.
+	LogConfiguration?: #LogConfiguration
 	Namespace?:        string | fn.#StringExpression
-	Services?:         [..._#defs."/$defs/Properties/definitions/ServiceConnectService"] | fn.#ListExpression
+	Services?:         [...#ServiceConnectService] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectService": close({
-	ClientAliases?: [..._#defs."/$defs/Properties/definitions/ServiceConnectClientAlias"] | fn.#ListExpression
+#ServiceConnectService: close({
+	ClientAliases?: [...#ServiceConnectClientAlias] | fn.#ListExpression
 	DiscoveryName?: string | fn.#StringExpression
 	IngressPortOverride?: int & <=65535 & >=0 |
 		{
@@ -528,42 +643,45 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectService": close({
 		} |
 		fn.#NumberExpression
 	PortName!: string | fn.#StringExpression
-	Timeout?:  _#defs."/$defs/Properties/definitions/TimeoutConfiguration" | fn.#ObjectExpression
-	Tls?:      _#defs."/$defs/Properties/definitions/ServiceConnectTlsConfiguration" | fn.#ObjectExpression
+
+	// A reference to an object that represents the configured timeouts for Service Connect.
+	Timeout?: #TimeoutConfiguration
+
+	// A reference to an object that represents a Transport Layer Security (TLS) configuration.
+	Tls?: #ServiceConnectTlsConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTestTrafficRules": close(
-	{Header!: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeader" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#ServiceConnectTestTrafficRules: close({
+	// The HTTP header-based routing rules that determine which requests should be
+	// routed to the new service version during blue/green deployment testing.
+	// These rules provide fine-grained control over test traffic routing based on
+	// request headers.
+	Header!: #ServiceConnectTestTrafficRulesHeader
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeader": close({
+#ServiceConnectTestTrafficRulesHeader: close({
 	Name!:  string | fn.#StringExpression
-	Value?: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeaderValue" | fn.#ObjectExpression
+	Value?: #ServiceConnectTestTrafficRulesHeaderValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeaderValue": close(
-	{Exact!: string | fn.#StringExpression},
-) |
+#ServiceConnectTestTrafficRulesHeaderValue: close({Exact!: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#ServiceConnectTlsCertificateAuthority: close({AwsPcaAuthorityArn?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTlsCertificateAuthority": close(
-	{AwsPcaAuthorityArn?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ServiceConnectTlsConfiguration": close({
-	IssuerCertificateAuthority!: _#defs."/$defs/Properties/definitions/ServiceConnectTlsCertificateAuthority" |
-		fn.#ObjectExpression
-	KmsKey?: string | fn.#StringExpression
+#ServiceConnectTlsConfiguration: close({
+	// The signer certificate authority.
+	IssuerCertificateAuthority!: #ServiceConnectTlsCertificateAuthority
+	KmsKey?:                     string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": close({
+#ServiceManagedEBSVolumeConfiguration: close({
 	Encrypted?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FilesystemType?: "ext3" | "ext4" | "ntfs" | "xfs" | fn.#StringExpression
 	Iops?: int |
@@ -600,7 +718,7 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": cl
 		} |
 		fn.#NumberExpression
 	SnapshotId?:        string | fn.#StringExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/EBSTagSpecification"] | fn.#ListExpression
+	TagSpecifications?: [...#EBSTagSpecification] | fn.#ListExpression
 	Throughput?: int |
 		{
 			string &
@@ -633,7 +751,7 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
+#ServiceRegistry: close({
 	ContainerName?: string | fn.#StringExpression
 	ContainerPort?: int |
 		{
@@ -667,20 +785,24 @@ _#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceVolumeConfiguration": close({
-	ManagedEBSVolume?: _#defs."/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration" |
-		fn.#ObjectExpression
-	Name!: string | fn.#StringExpression
+#ServiceVolumeConfiguration: close({
+	// The configuration for the Amazon EBS volume that Amazon ECS creates and
+	// manages on your behalf. These settings are used to create each Amazon EBS
+	// volume, with one volume created for each task in the service. The Amazon EBS
+	// volumes are visible in your account in the Amazon EC2 console once they are
+	// created.
+	ManagedEBSVolume?: #ServiceManagedEBSVolumeConfiguration
+	Name!:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdConfiguration": close({
+#ThresholdConfiguration: close({
 	Type!: "COUNT" | "BOUNDED_PERCENT" | "UNBOUNDED_PERCENT" | fn.#StringExpression
 	Value!: int |
 		{
@@ -699,7 +821,7 @@ _#defs: "/$defs/Properties/definitions/ThresholdConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeoutConfiguration": close({
+#TimeoutConfiguration: close({
 	IdleTimeoutSeconds?: int & <=2147483647 & >=0 |
 		{
 			string &
@@ -735,23 +857,18 @@ _#defs: "/$defs/Properties/definitions/TimeoutConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcLatticeAdvancedConfiguration": close({
+#VpcLatticeAdvancedConfiguration: close({
 	AlternateTargetGroupArn?: string | fn.#StringExpression
 	ProductionListenerRule?:  string | fn.#StringExpression
 	TestListenerRule?:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcLatticeConfiguration": close({
-	AdvancedConfiguration?: _#defs."/$defs/Properties/definitions/VpcLatticeAdvancedConfiguration" |
-		fn.#ObjectExpression
-	PortName!: string | fn.#StringExpression
+#VpcLatticeConfiguration: close({
+	AdvancedConfiguration?: #VpcLatticeAdvancedConfiguration
+	PortName!:              string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	TargetGroupArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::Service"
-	Properties?: #Properties
-}

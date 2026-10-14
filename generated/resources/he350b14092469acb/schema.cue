@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,54 +13,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ODB::OdbNetwork resource creates an ODB Network
-#Properties: close({
-	AvailabilityZone?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	AvailabilityZoneId?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	BackupSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	CrossRegionS3RestoreSources?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CustomDomainName?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DefaultDnsPrefix?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DeleteAssociatedResources?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisplayName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	KmsAccess?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
-	KmsPolicyDocument?:           strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-	S3Access?:                    "ENABLED" | "DISABLED" | fn.#StringExpression
-	S3PolicyDocument?:            strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-	StsAccess?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
-	StsPolicyDocument?:           strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	ZeroEtlAccess?:               "ENABLED" | "DISABLED" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ODB::OdbNetwork"
+	Properties?: close({
+		AvailabilityZone?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		AvailabilityZoneId?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		BackupSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ClientSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		CrossRegionS3RestoreSources?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		CustomDomainName?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DefaultDnsPrefix?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DeleteAssociatedResources?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DisplayName?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		KmsAccess?:         "ENABLED" | "DISABLED" | fn.#StringExpression
+		KmsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
+		S3Access?:          "ENABLED" | "DISABLED" | fn.#StringExpression
+		S3PolicyDocument?:  strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
+		StsAccess?:         "ENABLED" | "DISABLED" | fn.#StringExpression
+		StsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+		ZeroEtlAccess?:     "ENABLED" | "DISABLED" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess": close({
+#CrossRegionS3RestoreSourcesAccess: close({
 	Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Region?:        string | fn.#StringExpression
-	Status?:        _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+
+	// The current status of the cross-Region Amazon S3 restore access configuration.
+	Status?: #ManagedResourceStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedResourceStatus": "ENABLED" |
-	"ENABLING" |
-	"DISABLED" |
-	"DISABLING" |
-	fn.#StringExpression
+#ManagedResourceStatus: "ENABLED" | "ENABLING" | "DISABLED" | "DISABLING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedServices": close({
-	CrossRegionS3RestoreSourcesAccess?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess"
-	] |
+#ManagedServices: close({
+	CrossRegionS3RestoreSourcesAccess?: list.UniqueItems() & [...#CrossRegionS3RestoreSourcesAccess] |
 		fn.#ListExpression
 	KmsAccess?: close({
 		DomainName?:        string | fn.#StringExpression
 		Ipv4Addresses?:     [...string | fn.#StringExpression] | fn.#ListExpression
 		KmsPolicyDocument?: string | fn.#StringExpression
-		Status?:            _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+
+		// The status of the AWS KMS access.
+		Status?: #ManagedResourceStatus
 	}) |
 	fn.#ObjectExpression
 	ManagedS3BackupAccess?: close({
 		Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
-		Status?:        _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+
+		// The status of the managed Amazon S3 backup access.
+		Status?: #ManagedResourceStatus
 	}) |
 	fn.#ObjectExpression
 	ManagedServicesIpv4Cidrs?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -69,7 +79,9 @@ _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 		DomainName?:       string | fn.#StringExpression
 		Ipv4Addresses?:    [...string | fn.#StringExpression] | fn.#ListExpression
 		S3PolicyDocument?: string | fn.#StringExpression
-		Status?:           _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+
+		// The status of the Amazon S3 access.
+		Status?: #ManagedResourceStatus
 	}) |
 	fn.#ObjectExpression
 	ServiceNetworkArn?: string | fn.#StringExpression
@@ -79,26 +91,26 @@ _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 	}) |
 	fn.#ObjectExpression
 	StsAccess?: close({
-		DomainName?:        string | fn.#StringExpression
-		Ipv4Addresses?:     [...string | fn.#StringExpression] | fn.#ListExpression
-		Status?:            _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+		DomainName?:    string | fn.#StringExpression
+		Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
+
+		// The status of the AWS STS access.
+		Status?:            #ManagedResourceStatus
 		StsPolicyDocument?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	ZeroEtlAccess?: close({
-		Cidr?:   string | fn.#StringExpression
-		Status?: _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+		Cidr?: string | fn.#StringExpression
+
+		// The status of the Zero-ETL access.
+		Status?: #ManagedResourceStatus
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ODB::OdbNetwork"
-	Properties?: #Properties
-}

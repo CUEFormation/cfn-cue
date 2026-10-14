@@ -13,20 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGatewayV2::ApiGatewayManagedOverrides
-#Properties: close({
-	ApiId!:       string | fn.#StringExpression
-	Integration?: _#defs."/$defs/Properties/definitions/IntegrationOverrides" | fn.#ObjectExpression
-	Route?:       _#defs."/$defs/Properties/definitions/RouteOverrides" | fn.#ObjectExpression
-	Stage?:       _#defs."/$defs/Properties/definitions/StageOverrides" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::ApiGatewayManagedOverrides"
+	Properties!: close({
+		ApiId!: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccessLogSettings": close({
+		// Overrides the integration configuration for an API Gateway-managed integration.
+		Integration?: #IntegrationOverrides
+
+		// Overrides the route configuration for an API Gateway-managed route.
+		Route?: #RouteOverrides
+
+		// Overrides the stage configuration for an API Gateway-managed stage.
+		Stage?: #StageOverrides
+	})
+}
+
+#AccessLogSettings: close({
 	DestinationArn?: string | fn.#StringExpression
 	Format?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationOverrides": close({
+#IntegrationOverrides: close({
 	Description?:          string | fn.#StringExpression
 	IntegrationMethod?:    string | fn.#StringExpression
 	PayloadFormatVersion?: string | fn.#StringExpression
@@ -47,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/IntegrationOverrides": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouteOverrides": close({
+#RouteOverrides: close({
 	AuthorizationScopes?: [...string | fn.#StringExpression] | fn.#ListExpression
 	AuthorizationType?:   string | fn.#StringExpression
 	AuthorizerId?:        string | fn.#StringExpression
@@ -56,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/RouteOverrides": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouteSettings": close({
+#RouteSettings: close({
 	DetailedMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ThrottlingBurstLimit?: int |
 		{
@@ -94,16 +103,15 @@ _#defs: "/$defs/Properties/definitions/RouteSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StageOverrides": close({
-	AccessLogSettings?:    _#defs."/$defs/Properties/definitions/AccessLogSettings" | fn.#ObjectExpression
-	AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DefaultRouteSettings?: _#defs."/$defs/Properties/definitions/RouteSettings" | fn.#ObjectExpression
+#StageOverrides: close({
+	// Settings for logging access in a stage.
+	AccessLogSettings?: #AccessLogSettings
+	AutoDeploy?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The default route settings for the stage.
+	DefaultRouteSettings?: #RouteSettings
 	Description?:          string | fn.#StringExpression
 	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::ApiGatewayManagedOverrides"
-	Properties!: #Properties
-}

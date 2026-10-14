@@ -14,7 +14,7 @@ import (
 	ContainerArn?: string
 
 	// Describes a container deployment configuration of an Amazon Lightsail container service.
-	ContainerServiceDeployment?: _#defs."/$defs/Properties/definitions/ContainerServiceDeployment"
+	ContainerServiceDeployment?: #ContainerServiceDeployment
 
 	// A Boolean value to indicate whether the container service is disabled.
 	IsDisabled?: bool
@@ -28,11 +28,11 @@ import (
 	// A Boolean value to indicate whether the container service has access to
 	// private container image repositories, such as Amazon Elastic Container
 	// Registry (Amazon ECR) private repositories.
-	PrivateRegistryAccess?: _#defs."/$defs/Properties/definitions/PrivateRegistryAccess"
+	PrivateRegistryAccess?: #PrivateRegistryAccess
 
 	// The public domain names to use with the container service, such as
 	// example.com and www.example.com.
-	PublicDomainNames?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PublicDomainName"]
+	PublicDomainNames?: list.UniqueItems() & [...#PublicDomainName]
 
 	// The scale specification for the container service.
 	Scale!: int & <=20 & >=1
@@ -41,7 +41,7 @@ import (
 	ServiceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]{1,2}|[a-z0-9][a-z0-9-]+[a-z0-9]$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The publicly accessible URL of the container service.
 	Url?: string
@@ -49,7 +49,7 @@ import (
 
 // Describes the settings of a container that will be launched, or that is
 // launched, to an Amazon Lightsail container service.
-_#defs: "/$defs/Properties/definitions/Container": close({
+#Container: close({
 	// The launch command for the container.
 	Command?: list.UniqueItems() & [...string]
 
@@ -57,31 +57,31 @@ _#defs: "/$defs/Properties/definitions/Container": close({
 	ContainerName?: string
 
 	// The environment variables of the container.
-	Environment?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"]
+	Environment?: list.UniqueItems() & [...#EnvironmentVariable]
 
 	// The name of the image used for the container.
 	Image?: string
 
 	// The open firewall ports of the container.
-	Ports?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PortInfo"]
+	Ports?: list.UniqueItems() & [...#PortInfo]
 })
 
 // Describes a container deployment configuration of an Amazon Lightsail container service.
-_#defs: "/$defs/Properties/definitions/ContainerServiceDeployment": close({
+#ContainerServiceDeployment: close({
 	// An object that describes the configuration for the containers of the deployment.
-	Containers?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Container"]
+	Containers?: list.UniqueItems() & [...#Container]
 
 	// An object that describes the endpoint of the deployment.
-	PublicEndpoint?: _#defs."/$defs/Properties/definitions/PublicEndpoint"
+	PublicEndpoint?: #PublicEndpoint
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Value?:    string
 	Variable?: string
 })
 
 // Describes the health check configuration of an Amazon Lightsail container service.
-_#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
+#HealthCheckConfig: close({
 	// The number of consecutive health checks successes required before moving the
 	// container to the Healthy state. The default value is 2.
 	HealthyThreshold?: int
@@ -110,7 +110,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
 	UnhealthyThreshold?: int
 })
 
-_#defs: "/$defs/Properties/definitions/PortInfo": close({
+#PortInfo: close({
 	Port?:     string
 	Protocol?: string
 })
@@ -118,7 +118,7 @@ _#defs: "/$defs/Properties/definitions/PortInfo": close({
 // An object to describe the configuration for the container service to access
 // private container image repositories, such as Amazon Elastic Container
 // Registry (Amazon ECR) private repositories.
-_#defs: "/$defs/Properties/definitions/PrivateRegistryAccess": close({
+#PrivateRegistryAccess: close({
 	// An object to describe a request to activate or deactivate the role that you
 	// can use to grant an Amazon Lightsail container service access to Amazon
 	// Elastic Container Registry (Amazon ECR) private repositories.
@@ -133,7 +133,7 @@ _#defs: "/$defs/Properties/definitions/PrivateRegistryAccess": close({
 
 // The public domain name to use with the container service, such as example.com
 // and www.example.com.
-_#defs: "/$defs/Properties/definitions/PublicDomainName": close({
+#PublicDomainName: close({
 	CertificateName?: string
 
 	// An object that describes the configuration for the containers of the deployment.
@@ -141,7 +141,7 @@ _#defs: "/$defs/Properties/definitions/PublicDomainName": close({
 })
 
 // Describes the settings of a public endpoint for an Amazon Lightsail container service.
-_#defs: "/$defs/Properties/definitions/PublicEndpoint": close({
+#PublicEndpoint: close({
 	// The name of the container for the endpoint.
 	ContainerName?: string
 
@@ -149,11 +149,11 @@ _#defs: "/$defs/Properties/definitions/PublicEndpoint": close({
 	ContainerPort?: int
 
 	// An object that describes the health check configuration of the container.
-	HealthCheckConfig?: _#defs."/$defs/Properties/definitions/HealthCheckConfig"
+	HealthCheckConfig?: #HealthCheckConfig
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

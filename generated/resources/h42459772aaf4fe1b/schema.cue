@@ -13,35 +13,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IVS::Channel
-#Properties: close({
-	Authorized?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ContainerFormat?:              "TS" | "FRAGMENTED_MP4" | fn.#StringExpression
-	InsecureIngest?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LatencyMode?:                  "NORMAL" | "LOW" | fn.#StringExpression
-	MultitrackInputConfiguration?: _#defs."/$defs/Properties/definitions/MultitrackInputConfiguration"
-	Name?:   strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	Preset?: "" | "HIGHER_BANDWIDTH_DELIVERY" | "CONSTRAINED_BANDWIDTH_DELIVERY" | fn.#StringExpression
-	RecordingConfigurationArn?: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^$|arn:aws:ivs:[a-z0-9-]+:[0-9]+:recording-configuration/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type?: "STANDARD" | "BASIC" | "ADVANCED_SD" | "ADVANCED_HD" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IVS::Channel"
+	Properties?: close({
+		Authorized?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ContainerFormat?: "TS" | "FRAGMENTED_MP4" | fn.#StringExpression
+		InsecureIngest?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		LatencyMode?:     "NORMAL" | "LOW" | fn.#StringExpression
+		MultitrackInputConfiguration?: #MultitrackInputConfiguration
+		Name?:   strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+		Preset?: "" | "HIGHER_BANDWIDTH_DELIVERY" | "CONSTRAINED_BANDWIDTH_DELIVERY" | fn.#StringExpression
+		RecordingConfigurationArn?: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^$|arn:aws:ivs:[a-z0-9-]+:[0-9]+:recording-configuration/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type?: "STANDARD" | "BASIC" | "ADVANCED_SD" | "ADVANCED_HD" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/MultitrackInputConfiguration": close({
+#MultitrackInputConfiguration: close({
 	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaximumResolution?: "SD" | "HD" | "FULL_HD" | fn.#StringExpression
 	Policy?:            "ALLOW" | "REQUIRE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IVS::Channel"
-	Properties?: #Properties
-}

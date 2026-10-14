@@ -13,33 +13,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::ConsumableResource
-#Properties: close({
-	ConsumableResourceName?: =~"" | fn.#StringExpression
-	ResourceType!:           _#defs."/$defs/Properties/definitions/ResourceType"
-	Tags?: close({
-
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	TotalQuantity!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
-
-_#defs: "/$defs/Properties/definitions/ResourceArn": string | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ResourceType": "REPLENISHABLE" | "NON_REPLENISHABLE" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Batch::ConsumableResource"
-	Properties!: #Properties
+	Type!: "AWS::Batch::ConsumableResource"
+	Properties!: close({
+		ConsumableResourceName?: =~"" | fn.#StringExpression
+		ResourceType!:           #ResourceType
+		Tags?: close({
+
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		TotalQuantity!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
 }
+
+#ResourceArn: string | fn.#StringExpression
+
+#ResourceType: "REPLENISHABLE" | "NON_REPLENISHABLE" | fn.#StringExpression

@@ -29,8 +29,8 @@ package schema
 
 	// The date and time when Security Hub was enabled in the account.
 	SubscribedAt?: string
-	Tags?:         _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:         #Tags
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}

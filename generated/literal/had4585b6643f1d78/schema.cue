@@ -33,13 +33,13 @@ import (
 	LastUpdatedAt?: string
 
 	// The list of mandatory parameters for the command.
-	MandatoryParameters?: _#defs."/$defs/Properties/definitions/CommandParameterList"
+	MandatoryParameters?: #CommandParameterList
 
 	// The namespace to which the command belongs.
 	Namespace?: "AWS-IoT" | "AWS-IoT-FleetWise"
 
 	// The payload associated with the command.
-	Payload?: _#defs."/$defs/Properties/definitions/CommandPayload"
+	Payload?: #CommandPayload
 
 	// The payload template associated with the command.
 	PayloadTemplate?: strings.MaxRunes(32768) & strings.MinRunes(0)
@@ -48,49 +48,35 @@ import (
 	PendingDeletion?: bool
 
 	// The command preprocessor configuration.
-	Preprocessor?: _#defs."/$defs/Properties/definitions/CommandPreprocessor"
+	Preprocessor?: #CommandPreprocessor
 
 	// The customer role associated with the command.
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2028) & strings.MinRunes(20))
 
 	// The tags to be associated with the command.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AwsJsonSubstitutionCommandPreprocessorConfig": close(
-	{OutputFormat!: _#defs."/$defs/Properties/definitions/OutputFormat"},
-)
+#AwsJsonSubstitutionCommandPreprocessorConfig: close({OutputFormat!: #OutputFormat})
 
-_#defs: "/$defs/Properties/definitions/CommandParameter": close({
-	DefaultValue?:    _#defs."/$defs/Properties/definitions/CommandParameterValue"
-	Description?:     _#defs."/$defs/Properties/definitions/CommandParameterDescription"
-	Name!:            _#defs."/$defs/Properties/definitions/CommandParameterName"
-	Type?:            _#defs."/$defs/Properties/definitions/CommandParameterType"
-	Value?:           _#defs."/$defs/Properties/definitions/CommandParameterValue"
-	ValueConditions?: _#defs."/$defs/Properties/definitions/CommandParameterValueConditionList"
+#CommandParameter: close({
+	DefaultValue?:    #CommandParameterValue
+	Description?:     #CommandParameterDescription
+	Name!:            #CommandParameterName
+	Type?:            #CommandParameterType
+	Value?:           #CommandParameterValue
+	ValueConditions?: #CommandParameterValueConditionList
 })
 
-_#defs: "/$defs/Properties/definitions/CommandParameterDescription": strings.MaxRunes(2028) &
-strings.MinRunes(0) &
-=~"^[^\\p{C}]*$"
+#CommandParameterDescription: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$"
 
-_#defs: "/$defs/Properties/definitions/CommandParameterList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/CommandParameter"
-]
+#CommandParameterList: list.MinItems(1) & [...#CommandParameter]
 
-_#defs: "/$defs/Properties/definitions/CommandParameterName": strings.MaxRunes(192) &
-strings.MinRunes(1) &
-=~"^[.$a-zA-Z0-9_-]+$"
+#CommandParameterName: strings.MaxRunes(192) & strings.MinRunes(1) & =~"^[.$a-zA-Z0-9_-]+$"
 
-_#defs: "/$defs/Properties/definitions/CommandParameterType": "STRING" |
-	"INTEGER" |
-	"DOUBLE" |
-	"LONG" |
-	"UNSIGNEDLONG" |
-	"BOOLEAN" |
-	"BINARY"
+#CommandParameterType: "STRING" | "INTEGER" | "DOUBLE" | "LONG" | "UNSIGNEDLONG" | "BOOLEAN" | "BINARY"
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValue": close({
+#CommandParameterValue: close({
 	B?:   bool
 	BIN?: strings.MinRunes(1)
 	D?:   number
@@ -100,15 +86,15 @@ _#defs: "/$defs/Properties/definitions/CommandParameterValue": close({
 	UL?:  strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueComparisonOperand": close({
+#CommandParameterValueComparisonOperand: close({
 	Number?:      strings.MinRunes(1)
-	NumberRange?: _#defs."/$defs/Properties/definitions/CommandParameterValueNumberRange"
-	Numbers?:     _#defs."/$defs/Properties/definitions/CommandParameterValueStringList"
+	NumberRange?: #CommandParameterValueNumberRange
+	Numbers?:     #CommandParameterValueStringList
 	String?:      strings.MinRunes(1)
-	Strings?:     _#defs."/$defs/Properties/definitions/CommandParameterValueStringList"
+	Strings?:     #CommandParameterValueStringList
 })
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueComparisonOperator": "EQUALS" |
+#CommandParameterValueComparisonOperator: "EQUALS" |
 	"NOT_EQUALS" |
 	"LESS_THAN" |
 	"LESS_THAN_EQUALS" |
@@ -119,41 +105,35 @@ _#defs: "/$defs/Properties/definitions/CommandParameterValueComparisonOperator":
 	"IN_RANGE" |
 	"NOT_IN_RANGE"
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueCondition": close({
-	ComparisonOperator!: _#defs."/$defs/Properties/definitions/CommandParameterValueComparisonOperator"
-	Operand!:            _#defs."/$defs/Properties/definitions/CommandParameterValueComparisonOperand"
+#CommandParameterValueCondition: close({
+	ComparisonOperator!: #CommandParameterValueComparisonOperator
+	Operand!:            #CommandParameterValueComparisonOperand
 })
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueConditionList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/CommandParameterValueCondition"
-]
+#CommandParameterValueConditionList: list.MinItems(1) & [...#CommandParameterValueCondition]
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueNumberRange": close({
+#CommandParameterValueNumberRange: close({
 	Max!: strings.MinRunes(1)
 	Min!: strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/CommandParameterValueStringList": list.MaxItems(10) & list.MinItems(1) & [
-	...strings.MinRunes(1)
-]
+#CommandParameterValueStringList: list.MaxItems(10) & list.MinItems(1) & [...strings.MinRunes(1)]
 
-_#defs: "/$defs/Properties/definitions/CommandPayload": close({
-	Content?:     _#defs."/$defs/Properties/definitions/CommandPayloadContent"
-	ContentType?: _#defs."/$defs/Properties/definitions/MimeType"
+#CommandPayload: close({
+	Content?:     #CommandPayloadContent
+	ContentType?: #MimeType
 })
 
-_#defs: "/$defs/Properties/definitions/CommandPayloadContent": string
+#CommandPayloadContent: string
 
-_#defs: "/$defs/Properties/definitions/CommandPreprocessor": close(
-	{AwsJsonSubstitution?: _#defs."/$defs/Properties/definitions/AwsJsonSubstitutionCommandPreprocessorConfig"},
-)
+#CommandPreprocessor: close({AwsJsonSubstitution?: #AwsJsonSubstitutionCommandPreprocessorConfig})
 
-_#defs: "/$defs/Properties/definitions/MimeType": strings.MinRunes(1)
+#MimeType: strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/OutputFormat": "JSON" | "CBOR"
+#OutputFormat: "JSON" | "CBOR"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

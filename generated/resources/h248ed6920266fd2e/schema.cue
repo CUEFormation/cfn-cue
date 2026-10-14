@@ -22,20 +22,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information about ASH standards, see [standards
 // reference](https://docs.aws.amazon.com/securityhub/latest/userguide/standards-reference.html)
 // in the *User Guide*.
-#Properties: close({
-	DisabledStandardsControls?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/StandardsControl"
-	] |
-		fn.#ListExpression
-	StandardsArn!: =~"arn:aws\\S*:securityhub:\\S" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::Standard"
+	Properties!: close({
+		DisabledStandardsControls?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#StandardsControl] |
+			fn.#ListExpression
+		StandardsArn!: =~"arn:aws\\S*:securityhub:\\S" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/StandardsControl": close({
+#StandardsControl: close({
 	Reason?:              string | fn.#StringExpression
 	StandardsControlArn!: =~"arn:aws\\S*:securityhub:\\S*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::Standard"
-	Properties!: #Properties
-}

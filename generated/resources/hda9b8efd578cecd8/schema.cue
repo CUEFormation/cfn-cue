@@ -20,123 +20,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Subnets for your
 // VPC](https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html)
 // in the *Amazon VPC User Guide*.
-#Properties: matchN(7, [
-	matchN(0, [null | bool | number | string | [...] | {
-		AvailabilityZone!:   _
-		AvailabilityZoneId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		AvailabilityZoneId!: _
-		AvailabilityZone!:   _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		CidrBlock!:      _
-		Ipv4IpamPoolId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv4IpamPoolId!: _
-		CidrBlock!:      _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6CidrBlock!:  _
-		Ipv6IpamPoolId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Ipv6IpamPoolId!: _
-		Ipv6CidrBlock!:  _
-		...
-	}]) & {...},
-	matchN(>=1, [{
-		CidrBlock!: _
-		...
-	}, {
-		Ipv4IpamPoolId!: _
-		...
-	}, {
-		Ipv6IpamPoolId!: _
-		...
-	}, {
-		Ipv6CidrBlock!: _
-		...
-	}])
-]) & close({
-	Ipv4IpamPoolId?: _
-	if Ipv4IpamPoolId != _|_ {
-		Ipv4NetmaskLength!: _
-	}
-	Ipv4NetmaskLength?: _
-	if Ipv4NetmaskLength != _|_ {
-		Ipv4IpamPoolId!: _
-	}
-	Ipv6IpamPoolId?: _
-	if Ipv6IpamPoolId != _|_ {
-		Ipv6NetmaskLength!: _
-	}
-	Ipv6NetmaskLength?: _
-	if Ipv6NetmaskLength != _|_ {
-		Ipv6IpamPoolId!: _
-	}
-	{}
-	AssignIpv6AddressOnCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AvailabilityZone?:            string | fn.#StringExpression
-	AvailabilityZoneId?:          string | fn.#StringExpression
-	CidrBlock?:                   string | fn.#StringExpression
-	EnableDns64?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableLniAtDeviceIndex?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	"Ipv4IpamPoolId"?: string | fn.#StringExpression
-	"Ipv4NetmaskLength"?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Ipv6CidrBlock?:    string | fn.#StringExpression
-	"Ipv6IpamPoolId"?: string | fn.#StringExpression
-	Ipv6Native?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	"Ipv6NetmaskLength"?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MapPublicIpOnLaunch?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OutpostArn?:          string | fn.#StringExpression
-	PrivateDnsNameOptionsOnLaunch?: close({
-		EnableResourceNameDnsAAAARecord?: bool |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::Subnet"
+	Properties!: close({
+		Ipv4IpamPoolId?: _
+		if Ipv4IpamPoolId != _|_ {
+			Ipv4NetmaskLength!: _
+		}
+		Ipv4NetmaskLength?: _
+		if Ipv4NetmaskLength != _|_ {
+			Ipv4IpamPoolId!: _
+		}
+		Ipv6IpamPoolId?: _
+		if Ipv6IpamPoolId != _|_ {
+			Ipv6NetmaskLength!: _
+		}
+		Ipv6NetmaskLength?: _
+		if Ipv6NetmaskLength != _|_ {
+			Ipv6IpamPoolId!: _
+		}
+		{}
+		AssignIpv6AddressOnCreation?: bool |
 			"true" |
 			"True" |
 			"TRUE" |
@@ -144,28 +48,101 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		EnableResourceNameDnsARecord?: bool |
-			"true" |
-			"True" |
-			"TRUE" |
-			"false" |
-			"False" |
-			"FALSE" |
-			fn.#BooleanExpression
-		HostnameType?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
+		AvailabilityZone?:   string | fn.#StringExpression
+		AvailabilityZoneId?: string | fn.#StringExpression
+		CidrBlock?:          string | fn.#StringExpression
+		EnableDns64?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableLniAtDeviceIndex?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Ipv4IpamPoolId?: string | fn.#StringExpression
+		"Ipv4NetmaskLength"?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Ipv6CidrBlock?:  string | fn.#StringExpression
+		Ipv6IpamPoolId?: string | fn.#StringExpression
+		Ipv6Native?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		"Ipv6NetmaskLength"?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MapPublicIpOnLaunch?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		OutpostArn?:          string | fn.#StringExpression
+		PrivateDnsNameOptionsOnLaunch?: close({
+			EnableResourceNameDnsAAAARecord?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+			EnableResourceNameDnsARecord?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+			HostnameType?: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		if AvailabilityZone != _|_ if AvailabilityZone."Fn::If" == _|_ {
+			AvailabilityZoneId?: close({"Fn::If": _}) | error("AvailabilityZoneId cannot be used with AvailabilityZone")
+		}
+		if CidrBlock != _|_ if CidrBlock."Fn::If" == _|_ {
+			Ipv4IpamPoolId?: close({"Fn::If": _}) | error("Ipv4IpamPoolId cannot be used with CidrBlock")
+		}
+		if Ipv6CidrBlock != _|_ if Ipv6CidrBlock."Fn::If" == _|_ {
+			Ipv6IpamPoolId?: close({"Fn::If": _}) | error("Ipv6IpamPoolId cannot be used with Ipv6CidrBlock")
+		}
+	}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}, {Ipv6IpamPoolId!: _}, {Ipv6CidrBlock!: _}])
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::Subnet"
-	Properties!: #Properties
-}

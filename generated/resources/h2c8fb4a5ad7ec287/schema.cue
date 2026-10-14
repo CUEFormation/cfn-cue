@@ -20,20 +20,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // defines a recurring set of time ranges, or a cron expression, during which
 // AWS-initiated maintenance events may be scheduled for the associated Amazon
 // EC2 instances or Dedicated Hosts.
-#Properties: close({
-	CronExpression?: string | fn.#StringExpression
-	Name?:           string | fn.#StringExpression
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeRanges?:     [..._#defs."/$defs/Properties/definitions/TimeRange"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::InstanceEventWindow"
+	Properties?: close({
+		CronExpression?: string | fn.#StringExpression
+		Name?:           string | fn.#StringExpression
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TimeRanges?:     [...#TimeRange] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeRange": close({
+#TimeRange: close({
 	EndHour?: int & <=23 & >=0 |
 		{
 			string &
@@ -84,7 +87,3 @@ _#defs: "/$defs/Properties/definitions/TimeRange": close({
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::InstanceEventWindow"
-	Properties?: #Properties
-}

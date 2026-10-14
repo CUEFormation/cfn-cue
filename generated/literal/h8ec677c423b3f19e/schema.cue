@@ -17,47 +17,41 @@ import (
 	// Scraper ARN.
 	Arn?:
 		=~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:scraper/s-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$"
-	Destination!: _#defs."/$defs/Properties/definitions/Destination"
+	Destination!: #Destination
 
 	// IAM role ARN for the scraper.
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):iam::[0-9]{12}:role/[a-zA-Z0-9-]+$"
-	RoleConfiguration?:   _#defs."/$defs/Properties/definitions/RoleConfiguration"
-	ScrapeConfiguration!: _#defs."/$defs/Properties/definitions/ScrapeConfiguration"
+	RoleConfiguration?:   #RoleConfiguration
+	ScrapeConfiguration!: #ScrapeConfiguration
 
 	// Required to identify a specific scraper.
 	ScraperId?: strings.MaxRunes(64) &
 	strings.MinRunes(1) &
 	=~"^s-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$"
-	ScraperLoggingConfiguration?: _#defs."/$defs/Properties/definitions/ScraperLoggingConfiguration"
-	Source!:                      _#defs."/$defs/Properties/definitions/Source"
+	ScraperLoggingConfiguration?: #ScraperLoggingConfiguration
+	Source!:                      #Source
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Represents a cloudwatch logs destination for scraper logging
-_#defs: "/$defs/Properties/definitions/CloudWatchLogDestination": close({
+#CloudWatchLogDestination: close({
 	// ARN of the CloudWatch log group
 	LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentConfig": close({
+#ComponentConfig: close({
 	Options?: close({
 
 		{[=~"^[A-Za-z0-9]+$"]: string}})
 })
 
 // Scraper metrics destination
-_#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
-	AmpConfiguration!: _
-	...
-}, {
-	CloudWatchConfiguration!: _
-	...
-}]) & close({
+#Destination: close({
 	// Configuration for Amazon Managed Prometheus metrics destination
 	AmpConfiguration?: close({
 		// ARN of an Amazon Managed Prometheus workspace
@@ -69,10 +63,15 @@ _#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
 		// ARN of a CloudWatch dataset
 		DatasetArn!: =~"^arn:aws[-a-z]*:cloudwatch:[-a-z0-9]+:[0-9]{12}:dataset\\/.+$"
 	})
-})
+	if AmpConfiguration != _|_ if AmpConfiguration."Fn::If" == _|_ {
+		CloudWatchConfiguration?: close({"Fn::If": _}) | error(
+			"CloudWatchConfiguration cannot be used with AmpConfiguration; set exactly one of AmpConfiguration, CloudWatchConfiguration",
+		)
+	}
+}) & matchN(>=1, [{AmpConfiguration!: _}, {CloudWatchConfiguration!: _}])
 
 // Role configuration
-_#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
+#RoleConfiguration: close({
 	// IAM Role in source account
 	SourceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
@@ -81,74 +80,65 @@ _#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
 })
 
 // Scraper configuration
-_#defs: "/$defs/Properties/definitions/ScrapeConfiguration": {
-	ConfigurationBlob!: _
-	...
-} & close({
+#ScrapeConfiguration: close({
 	// Prometheus compatible scrape configuration in base64 encoded blob format
 	ConfigurationBlob?: string
-})
+}) & matchN(>=1, [{ConfigurationBlob!: _}])
 
-_#defs: "/$defs/Properties/definitions/ScraperComponent": close({
-	Config?: _#defs."/$defs/Properties/definitions/ComponentConfig"
-	Type!:   _#defs."/$defs/Properties/definitions/ScraperComponentType"
+#ScraperComponent: close({
+	Config?: #ComponentConfig
+	Type!:   #ScraperComponentType
 })
 
 // Type of scraper component
-_#defs: "/$defs/Properties/definitions/ScraperComponentType": "SERVICE_DISCOVERY" | "COLLECTOR" | "EXPORTER"
+#ScraperComponentType: "SERVICE_DISCOVERY" | "COLLECTOR" | "EXPORTER"
 
 // Configuration for scraper logging
-_#defs: "/$defs/Properties/definitions/ScraperLoggingConfiguration": close({
-	LoggingDestination!: _#defs."/$defs/Properties/definitions/ScraperLoggingDestination"
-	ScraperComponents!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ScraperComponent"
-	]
+#ScraperLoggingConfiguration: close({
+	LoggingDestination!: #ScraperLoggingDestination
+	ScraperComponents!:  list.MinItems(1) & list.UniqueItems() & [...#ScraperComponent]
 })
 
 // Destination for scraper logging
-_#defs: "/$defs/Properties/definitions/ScraperLoggingDestination": close(
-	{CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogDestination"},
-)
+#ScraperLoggingDestination: close({CloudWatchLogs?: #CloudWatchLogDestination})
 
 // ID of a security group
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
-	=~"^sg-[0-9a-z]+$"
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-z]+$"
 
 // Scraper metrics source
-_#defs: "/$defs/Properties/definitions/Source": matchN(1, [{
-	EksConfiguration!: _
-	...
-}, {
-	VpcConfiguration!: _
-	...
-}]) & close({
+#Source: close({
 	// Configuration for EKS metrics source
 	EksConfiguration?: close({
 		// ARN of an EKS cluster
 		ClusterArn!: =~"^arn:aws[-a-z]*:eks:[-a-z0-9]+:[0-9]{12}:cluster/.+$"
 
 		// List of security group IDs
-		SecurityGroupIds?: [..._#defs."/$defs/Properties/definitions/SecurityGroupId"]
+		SecurityGroupIds?: [...#SecurityGroupId]
 
 		// List of subnet IDs
-		SubnetIds!: [..._#defs."/$defs/Properties/definitions/SubnetId"]
+		SubnetIds!: [...#SubnetId]
 	})
 
 	// Configuration for VPC metrics source
 	VpcConfiguration?: close({
 		// List of security group IDs
-		SecurityGroupIds!: [..._#defs."/$defs/Properties/definitions/SecurityGroupId"]
+		SecurityGroupIds!: [...#SecurityGroupId]
 
 		// List of subnet IDs
-		SubnetIds!: [..._#defs."/$defs/Properties/definitions/SubnetId"]
+		SubnetIds!: [...#SubnetId]
 	})
-})
+	if EksConfiguration != _|_ if EksConfiguration."Fn::If" == _|_ {
+		VpcConfiguration?: close({"Fn::If": _}) | error(
+			"VpcConfiguration cannot be used with EksConfiguration; set exactly one of EksConfiguration, VpcConfiguration",
+		)
+	}
+}) & matchN(>=1, [{EksConfiguration!: _}, {VpcConfiguration!: _}])
 
 // ID of a subnet
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-z]+$"
+#SubnetId: =~"^subnet-[0-9a-z]+$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

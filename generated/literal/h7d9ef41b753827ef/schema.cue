@@ -16,7 +16,7 @@ import (
 	CreatedAt?:    time.Time
 	Email?:        strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$"
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1)
-	Logging!:      _#defs."/$defs/Properties/definitions/Logging"
+	Logging!:      #Logging
 	ModifiedAt?:   time.Time
 	Name!:         strings.MaxRunes(254) & strings.MinRunes(1)
 	Phone!: strings.MaxRunes(22) &
@@ -24,12 +24,12 @@ import (
 	=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$"
 	ProfileArn?: strings.MaxRunes(255) & strings.MinRunes(1)
 	ProfileId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	Tags?:       list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:       list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Logging": "ENABLED" | "DISABLED"
+#Logging: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

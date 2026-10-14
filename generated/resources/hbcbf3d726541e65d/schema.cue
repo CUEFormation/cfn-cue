@@ -17,60 +17,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Ground Station DataflowEndpointGroup schema for CloudFormation
-#Properties: close({
-	ContactPostPassDurationSeconds?: int & <=480 & >=30 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=480 &
-							>=30,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ContactPrePassDurationSeconds?: int & <=480 & >=30 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=480 &
-							>=30,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EndpointDetails!: list.MaxItems(500) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EndpointDetails"
-	] |
-		fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GroundStation::DataflowEndpointGroup"
+	Properties!: close({
+		ContactPostPassDurationSeconds?: int & <=480 & >=30 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=480 &
+								>=30,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ContactPrePassDurationSeconds?: int & <=480 & >=30 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=480 &
+								>=30,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EndpointDetails!: list.MaxItems(500) & list.MinItems(1) & [...#EndpointDetails] | fn.#ListExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AgentStatus": "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE" | fn.#StringExpression
+#AgentStatus: "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AuditResults": "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
+#AuditResults: "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AwsGroundStationAgentEndpoint": close({
-	AgentStatus?:    _#defs."/$defs/Properties/definitions/AgentStatus"
-	AuditResults?:   _#defs."/$defs/Properties/definitions/AuditResults"
-	EgressAddress?:  _#defs."/$defs/Properties/definitions/ConnectionDetails"
-	IngressAddress?: _#defs."/$defs/Properties/definitions/RangedConnectionDetails"
+#AwsGroundStationAgentEndpoint: close({
+	AgentStatus?:    #AgentStatus
+	AuditResults?:   #AuditResults
+	EgressAddress?:  #ConnectionDetails
+	IngressAddress?: #RangedConnectionDetails
 	Name?:           =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionDetails": close({
+#ConnectionDetails: close({
 	Mtu?: int |
 		{
 			string &
@@ -85,12 +89,12 @@ _#defs: "/$defs/Properties/definitions/ConnectionDetails": close({
 				)
 		} |
 		fn.#NumberExpression
-	SocketAddress?: _#defs."/$defs/Properties/definitions/SocketAddress"
+	SocketAddress?: #SocketAddress
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataflowEndpoint": close({
-	Address?: _#defs."/$defs/Properties/definitions/SocketAddress"
+#DataflowEndpoint: close({
+	Address?: #SocketAddress
 	Mtu?: int |
 		{
 			string &
@@ -109,7 +113,7 @@ _#defs: "/$defs/Properties/definitions/DataflowEndpoint": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": matchN(1, [{
+#EndpointDetails: matchN(1, [{
 	Endpoint!:        _
 	SecurityDetails!: _
 	...
@@ -117,13 +121,13 @@ _#defs: "/$defs/Properties/definitions/EndpointDetails": matchN(1, [{
 	AwsGroundStationAgentEndpoint!: _
 	...
 }]) & close({
-	AwsGroundStationAgentEndpoint?: _#defs."/$defs/Properties/definitions/AwsGroundStationAgentEndpoint"
-	Endpoint?:                      _#defs."/$defs/Properties/definitions/DataflowEndpoint"
-	SecurityDetails?:               _#defs."/$defs/Properties/definitions/SecurityDetails"
+	AwsGroundStationAgentEndpoint?: #AwsGroundStationAgentEndpoint
+	Endpoint?:                      #DataflowEndpoint
+	SecurityDetails?:               #SecurityDetails
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegerRange": close({
+#IntegerRange: close({
 	Maximum?: int |
 		{
 			string &
@@ -155,7 +159,7 @@ _#defs: "/$defs/Properties/definitions/IntegerRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RangedConnectionDetails": close({
+#RangedConnectionDetails: close({
 	Mtu?: int |
 		{
 			string &
@@ -170,18 +174,20 @@ _#defs: "/$defs/Properties/definitions/RangedConnectionDetails": close({
 				)
 		} |
 		fn.#NumberExpression
-	SocketAddress?: _#defs."/$defs/Properties/definitions/RangedSocketAddress"
+	SocketAddress?: #RangedSocketAddress
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RangedSocketAddress": close({
+#RangedSocketAddress: close({
 	Name?: strings.MaxRunes(16) & strings.MinRunes(7) & =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" |
 	fn.#StringExpression
-	PortRange?: _#defs."/$defs/Properties/definitions/IntegerRange" | fn.#ObjectExpression
+
+	// Port range of a socket address.
+	PortRange?: #IntegerRange
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityDetails": close({
+#SecurityDetails: close({
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(165) &
 	strings.MinRunes(30) &
@@ -196,7 +202,7 @@ _#defs: "/$defs/Properties/definitions/SecurityDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SocketAddress": close({
+#SocketAddress: close({
 	Name?: string | fn.#StringExpression
 	Port?: int |
 		{
@@ -215,12 +221,8 @@ _#defs: "/$defs/Properties/definitions/SocketAddress": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" | fn.#StringExpression
 	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GroundStation::DataflowEndpointGroup"
-	Properties!: #Properties
-}

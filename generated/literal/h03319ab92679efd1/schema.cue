@@ -8,10 +8,10 @@ package schema
 #Properties: close({
 	Id?:                 string
 	LoggerDefinitionId!: string
-	Loggers!:            [..._#defs."/$defs/Properties/definitions/Logger"]
+	Loggers!:            [...#Logger]
 })
 
-_#defs: "/$defs/Properties/definitions/Logger": close({
+#Logger: close({
 	Component!: string
 	Id!:        string
 	Level!:     string

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"time"
 	"strings"
 	"list"
 )
@@ -14,32 +14,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BcmPricingCalculator::WorkloadEstimate
-#Properties: close({
-	ExpiresAt?: time.Time | fn.#StringExpression
-	Name!:      strings.MaxRunes(64) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	RateType?:  _#defs."/$defs/Properties/definitions/WorkloadEstimateRateType" | fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BcmPricingCalculator::WorkloadEstimate"
+	Properties!: close({
+		ExpiresAt?: time.Time | fn.#StringExpression
+		Name!:      strings.MaxRunes(64) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CurrencyCode": "USD" | fn.#StringExpression
+		// The type of pricing rates used for the estimate.
+		RateType?: #WorkloadEstimateRateType
+		Tags?:     list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#CurrencyCode: "USD" | fn.#StringExpression
+
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadEstimateRateType": "BEFORE_DISCOUNTS" |
+#WorkloadEstimateRateType: "BEFORE_DISCOUNTS" |
 	"AFTER_DISCOUNTS" |
 	"AFTER_DISCOUNTS_AND_COMMITMENTS" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadEstimateStatus": "UPDATING" |
-	"VALID" |
-	"INVALID" |
-	"ACTION_NEEDED" |
-	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BcmPricingCalculator::WorkloadEstimate"
-	Properties!: #Properties
-}
+#WorkloadEstimateStatus: "UPDATING" | "VALID" | "INVALID" | "ACTION_NEEDED" | fn.#StringExpression

@@ -12,18 +12,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A WAFv2 Logging Configuration Resource Provider
-#Properties: close({
-	LogDestinationConfigs!: [...string | fn.#StringExpression] | fn.#ListExpression
-	LoggingFilter?: close({
-		DefaultBehavior!: "KEEP" | "DROP" | fn.#StringExpression
-		Filters!:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	RedactedFields?: [..._#defs."/$defs/Properties/definitions/FieldToMatch"] | fn.#ListExpression
-	ResourceArn!:    string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFv2::LoggingConfiguration"
+	Properties!: close({
+		LogDestinationConfigs!: [...string | fn.#StringExpression] | fn.#ListExpression
+		LoggingFilter?: close({
+			DefaultBehavior!: "KEEP" | "DROP" | fn.#StringExpression
+			Filters!:         list.MinItems(1) & [...#Filter] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		RedactedFields?: [...#FieldToMatch] | fn.#ListExpression
+		ResourceArn!:    string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	ActionCondition?: close({
 		Action!: "ALLOW" |
 			"BLOCK" |
@@ -39,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Method?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 	QueryString?:  fn.#Object & {...} | string | fn.#StringObjectExpression
 	SingleHeader?: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
@@ -47,13 +50,9 @@ _#defs: "/$defs/Properties/definitions/FieldToMatch": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	Behavior!:    "KEEP" | "DROP" | fn.#StringExpression
-	Conditions!:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
+	Conditions!:  list.MinItems(1) & [...#Condition] | fn.#ListExpression
 	Requirement!: "MEETS_ALL" | "MEETS_ANY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFv2::LoggingConfiguration"
-	Properties!: #Properties
-}

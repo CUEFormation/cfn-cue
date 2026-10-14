@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,37 +13,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::IdentityPool
-#Properties: close({
-	AllowClassicFlow?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AllowUnauthenticatedIdentities!: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	CognitoEvents?:            fn.#Object & {...} | string | fn.#StringObjectExpression
-	CognitoIdentityProviders?: [..._#defs."/$defs/Properties/definitions/CognitoIdentityProvider"] | fn.#ListExpression
-	CognitoStreams?:           _#defs."/$defs/Properties/definitions/CognitoStreams"
-	DeveloperProviderName?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._-]+$" | fn.#StringExpression
-	IdentityPoolName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
-	IdentityPoolTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	OpenIdConnectProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
-	fn.#ListExpression
-	PushSync?:         _#defs."/$defs/Properties/definitions/PushSync"
-	SamlProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
-	SupportedLoginProviders?: fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::IdentityPool"
+	Properties!: close({
+		AllowClassicFlow?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AllowUnauthenticatedIdentities!: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		CognitoEvents?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+		CognitoIdentityProviders?: [...#CognitoIdentityProvider] | fn.#ListExpression
+		CognitoStreams?:           #CognitoStreams
+		DeveloperProviderName?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._-]+$" | fn.#StringExpression
+		IdentityPoolName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
+		IdentityPoolTags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		OpenIdConnectProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
+		fn.#ListExpression
+		PushSync?: #PushSync
+		SamlProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
+		fn.#ListExpression
+		SupportedLoginProviders?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CognitoIdentityProvider": close({
+#CognitoIdentityProvider: close({
 	ClientId!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w_]+$" | fn.#StringExpression
 	ProviderName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._:/-]+$" | fn.#StringExpression
 	ServerSideTokenCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CognitoStreams": close({
+#CognitoStreams: close({
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	StreamName?:      string | fn.#StringExpression
@@ -51,19 +55,15 @@ _#defs: "/$defs/Properties/definitions/CognitoStreams": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PushSync": close({
+#PushSync: close({
 	ApplicationArns?: [...string | fn.#StringExpression] | fn.#ListExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::IdentityPool"
-	Properties!: #Properties
-}

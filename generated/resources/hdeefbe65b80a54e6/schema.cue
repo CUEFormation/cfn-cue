@@ -10,14 +10,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The ``AWS::ApiGateway::Model`` resource defines the structure of a request or
 // response payload for an API method.
-#Properties: close({
-	ContentType?: string | fn.#StringExpression
-	Description?: string | fn.#StringExpression
-	Name?:        string | fn.#StringExpression
-	RestApiId!:   string | fn.#StringExpression
-	Schema?:      fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::Model"
-	Properties!: #Properties
+	Type!: "AWS::ApiGateway::Model"
+	Properties!: close({
+		ContentType?: string | fn.#StringExpression
+		Description?: string | fn.#StringExpression
+		Name?:        string | fn.#StringExpression
+		RestApiId!:   string | fn.#StringExpression
+		Schema?:      fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

@@ -30,13 +30,13 @@ import (
 	// https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html#access-control-block-public-access-policy-status
 	// 'The Meaning of Public' in the Amazon Simple Storage Service Developer
 	// Guide.
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration"
+	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
 
 	// The list of buckets that you want to associate this Multi Region Access Point with.
-	Regions!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Region"]
+	Regions!: list.MinItems(1) & list.UniqueItems() & [...#Region]
 })
 
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
+#PublicAccessBlockConfiguration: close({
 	// Specifies whether Amazon S3 should block public access control lists (ACLs)
 	// for buckets in this account. Setting this element to TRUE causes the
 	// following behavior:
@@ -69,7 +69,7 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
 	RestrictPublicBuckets?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/Region": close({
+#Region: close({
 	Bucket!:          strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$"
 	BucketAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 })

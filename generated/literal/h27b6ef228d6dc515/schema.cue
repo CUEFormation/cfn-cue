@@ -9,22 +9,22 @@ import "strings"
 // Resource Type definition for a resource policy with specified policy
 // statements that attaches to a Lex bot or bot alias.
 #Properties: close({
-	Id?:          _#defs."/$defs/Properties/definitions/PhysicalId"
-	Policy!:      _#defs."/$defs/Properties/definitions/Policy"
-	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArn"
-	RevisionId?:  _#defs."/$defs/Properties/definitions/RevisionId"
+	Id?:          #PhysicalId
+	Policy!:      #Policy
+	ResourceArn!: #ResourceArn
+	RevisionId?:  #RevisionId
 })
 
 // The Physical ID of the resource policy.
-_#defs: "/$defs/Properties/definitions/PhysicalId": string
+#PhysicalId: string
 
-_#defs: "/$defs/Properties/definitions/Policy": string | {...}
+#Policy: string | {...}
 
 // The Amazon Resource Name (ARN) of the bot or bot alias that the resource policy is attached to.
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(1011) & strings.MinRunes(1)
+#ResourceArn: strings.MaxRunes(1011) & strings.MinRunes(1)
 
 // The current revision of the resource policy. Use the revision ID to make sure
 // that you are updating the most current version of a resource policy when you
 // add a policy statement to a resource, delete a resource, or update a
 // resource.
-_#defs: "/$defs/Properties/definitions/RevisionId": strings.MaxRunes(5) & strings.MinRunes(1) & =~"^[0-9]+$"
+#RevisionId: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^[0-9]+$"

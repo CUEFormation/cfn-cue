@@ -13,19 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::OrganizationConfigRule
-#Properties: close({
-	ExcludedAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
-	OrganizationConfigRuleName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
-	fn.#StringExpression
-	OrganizationCustomPolicyRuleMetadata?: _#defs."/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata" |
-		fn.#ObjectExpression
-	OrganizationCustomRuleMetadata?: _#defs."/$defs/Properties/definitions/OrganizationCustomRuleMetadata" |
-		fn.#ObjectExpression
-	OrganizationManagedRuleMetadata?: _#defs."/$defs/Properties/definitions/OrganizationManagedRuleMetadata" |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::OrganizationConfigRule"
+	Properties!: close({
+		ExcludedAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
+		OrganizationConfigRuleName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata": close({
+		// This object specifies metadata for your organization's AWS Config Custom Policy rule.
+		OrganizationCustomPolicyRuleMetadata?: #OrganizationCustomPolicyRuleMetadata
+
+		// This object specifies organization custom rule metadata such as resource
+		// type, resource ID of AWS resource, Lambda function ARN, and organization
+		// trigger types that trigger AWS Config to evaluate your AWS resources against
+		// a rule.
+		OrganizationCustomRuleMetadata?: #OrganizationCustomRuleMetadata
+
+		// This object specifies organization managed rule metadata such as resource
+		// type and ID of AWS resource along with the rule identifier.
+		OrganizationManagedRuleMetadata?: #OrganizationManagedRuleMetadata
+	})
+}
+
+#OrganizationCustomPolicyRuleMetadata: close({
 	DebugLogDeliveryAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] |
 		fn.#ListExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
@@ -46,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrganizationCustomRuleMetadata": close({
+#OrganizationCustomRuleMetadata: close({
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	LambdaFunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
@@ -74,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/OrganizationCustomRuleMetadata": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrganizationManagedRuleMetadata": close({
+#OrganizationManagedRuleMetadata: close({
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	MaximumExecutionFrequency?: "One_Hour" |
@@ -93,7 +103,3 @@ _#defs: "/$defs/Properties/definitions/OrganizationManagedRuleMetadata": close({
 	TagValueScope?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::OrganizationConfigRule"
-	Properties!: #Properties
-}

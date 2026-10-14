@@ -13,36 +13,34 @@ import (
 #Properties: close({
 	Enabled?:              bool
 	Name!:                 strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$"
-	NotificationSettings?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/NotificationSetting"]
-	Source!:               _#defs."/$defs/Properties/definitions/Source"
-	Tags?:                 list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	NotificationSettings?: list.MaxItems(50) & [...] & [...#NotificationSetting]
+	Source!:               #Source
+	Tags?:                 list.MaxItems(200) & [...] & [...#Tag]
 	TrustAnchorArn?:       =~"[a-f0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}"
 	TrustAnchorId?:        =~"[a-f0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}"
 })
 
-_#defs: "/$defs/Properties/definitions/NotificationChannel": "ALL"
+#NotificationChannel: "ALL"
 
-_#defs: "/$defs/Properties/definitions/NotificationEvent": "CA_CERTIFICATE_EXPIRY" | "END_ENTITY_CERTIFICATE_EXPIRY"
+#NotificationEvent: "CA_CERTIFICATE_EXPIRY" | "END_ENTITY_CERTIFICATE_EXPIRY"
 
-_#defs: "/$defs/Properties/definitions/NotificationSetting": close({
-	Channel?:   _#defs."/$defs/Properties/definitions/NotificationChannel"
+#NotificationSetting: close({
+	Channel?:   #NotificationChannel
 	Enabled!:   bool
-	Event!:     _#defs."/$defs/Properties/definitions/NotificationEvent"
+	Event!:     #NotificationEvent
 	Threshold?: <=360 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Source": close({
-	SourceData!: _#defs."/$defs/Properties/definitions/SourceData"
-	SourceType!: _#defs."/$defs/Properties/definitions/TrustAnchorType"
+#Source: close({
+	SourceData!: #SourceData
+	SourceType!: #TrustAnchorType
 })
 
-_#defs: "/$defs/Properties/definitions/SourceData": matchN(1, [
-	close({X509CertificateData!: string}), close({AcmPcaArn!: string}),
-])
+#SourceData: matchN(1, [close({X509CertificateData!: string}), close({AcmPcaArn!: string})])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_.:/=+@-]*$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[ a-zA-Z0-9_.:/=+@-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/TrustAnchorType": "AWS_ACM_PCA" | "CERTIFICATE_BUNDLE"
+#TrustAnchorType: "AWS_ACM_PCA" | "CERTIFICATE_BUNDLE"

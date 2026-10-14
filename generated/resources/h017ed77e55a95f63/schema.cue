@@ -13,38 +13,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An AWS Audit Manager Control resource for creating custom controls
-#Properties: close({
-	ActionPlanInstructions?: string | fn.#StringExpression
-	ActionPlanTitle?:        string | fn.#StringExpression
-	ControlMappingSources!: [...close({
-		SourceDescription?: string | fn.#StringExpression
-		SourceFrequency?:   "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
-		SourceKeyword?:     _#defs."/$defs/Properties/definitions/SourceKeyword"
-		SourceName?:        string | fn.#StringExpression
-		SourceSetUpOption?: "System_Controls_Mapping" | "Procedural_Controls_Mapping" | fn.#StringExpression
-		SourceType?: "AWS_Cloudtrail" |
-			"AWS_Config" |
-			"AWS_Security_Hub" |
-			"AWS_API_Call" |
-			"MANUAL" |
-			"Common_Control" |
-			"Core_Control" |
-			fn.#StringExpression
-		TroubleshootingText?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Description?:        string | fn.#StringExpression
-	Name!:               string | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TestingInformation?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AuditManager::Control"
+	Properties!: close({
+		ActionPlanInstructions?: string | fn.#StringExpression
+		ActionPlanTitle?:        string | fn.#StringExpression
+		ControlMappingSources!: [...close({
+			SourceDescription?: string | fn.#StringExpression
+			SourceFrequency?:   "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
+			SourceKeyword?:     #SourceKeyword
+			SourceName?:        string | fn.#StringExpression
+			SourceSetUpOption?: "System_Controls_Mapping" | "Procedural_Controls_Mapping" | fn.#StringExpression
+			SourceType?: "AWS_Cloudtrail" |
+				"AWS_Config" |
+				"AWS_Security_Hub" |
+				"AWS_API_Call" |
+				"MANUAL" |
+				"Common_Control" |
+				"Core_Control" |
+				fn.#StringExpression
+			TroubleshootingText?: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Description?:        string | fn.#StringExpression
+		Name!:               string | fn.#StringExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TestingInformation?: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ControlMappingSource": close({
+#ControlMappingSource: close({
 	SourceDescription?: string | fn.#StringExpression
 	SourceFrequency?:   "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
 	SourceId?:          string | fn.#StringExpression
-	SourceKeyword?:     _#defs."/$defs/Properties/definitions/SourceKeyword"
+	SourceKeyword?:     #SourceKeyword
 	SourceName?:        string | fn.#StringExpression
 	SourceSetUpOption?: "System_Controls_Mapping" | "Procedural_Controls_Mapping" | fn.#StringExpression
 	SourceType?: "AWS_Cloudtrail" |
@@ -59,18 +62,14 @@ _#defs: "/$defs/Properties/definitions/ControlMappingSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceKeyword": close({
+#SourceKeyword: close({
 	KeywordInputType?: "SELECT_FROM_LIST" | "UPLOAD_FILE" | "INPUT_TEXT" | fn.#StringExpression
 	KeywordValue?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AuditManager::Control"
-	Properties!: #Properties
-}

@@ -13,37 +13,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisAnalytics::Application
-#Properties: close({
-	ApplicationCode?:        string | fn.#StringExpression
-	ApplicationDescription?: string | fn.#StringExpression
-	ApplicationName?:        string | fn.#StringExpression
-	Inputs!:                 [..._#defs."/$defs/Properties/definitions/Input"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KinesisAnalytics::Application"
+	Properties!: close({
+		ApplicationCode?:        string | fn.#StringExpression
+		ApplicationDescription?: string | fn.#StringExpression
+		ApplicationName?:        string | fn.#StringExpression
+		Inputs!:                 [...#Input] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CSVMappingParameters": close({
+#CSVMappingParameters: close({
 	RecordColumnDelimiter!: string | fn.#StringExpression
 	RecordRowDelimiter!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Input": close({
-	InputParallelism?:             _#defs."/$defs/Properties/definitions/InputParallelism"
-	InputProcessingConfiguration?: _#defs."/$defs/Properties/definitions/InputProcessingConfiguration"
-	InputSchema!:                  _#defs."/$defs/Properties/definitions/InputSchema"
-	KinesisFirehoseInput?:         _#defs."/$defs/Properties/definitions/KinesisFirehoseInput"
-	KinesisStreamsInput?:          _#defs."/$defs/Properties/definitions/KinesisStreamsInput"
+#Input: close({
+	InputParallelism?:             #InputParallelism
+	InputProcessingConfiguration?: #InputProcessingConfiguration
+	InputSchema!:                  #InputSchema
+	KinesisFirehoseInput?:         #KinesisFirehoseInput
+	KinesisStreamsInput?:          #KinesisStreamsInput
 	NamePrefix!:                   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputLambdaProcessor": close({
+#InputLambdaProcessor: close({
 	ResourceARN!: string | fn.#StringExpression
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputParallelism": close({
+#InputParallelism: close({
 	Count?: int |
 		{
 			string &
@@ -61,54 +64,46 @@ _#defs: "/$defs/Properties/definitions/InputParallelism": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputProcessingConfiguration": close(
-	{InputLambdaProcessor?: _#defs."/$defs/Properties/definitions/InputLambdaProcessor"},
-) |
-	fn.#ObjectExpression
+#InputProcessingConfiguration: close({InputLambdaProcessor?: #InputLambdaProcessor}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputSchema": close({
-	RecordColumns!:  [..._#defs."/$defs/Properties/definitions/RecordColumn"] | fn.#ListExpression
+#InputSchema: close({
+	RecordColumns!:  [...#RecordColumn] | fn.#ListExpression
 	RecordEncoding?: string | fn.#StringExpression
-	RecordFormat!:   _#defs."/$defs/Properties/definitions/RecordFormat"
+	RecordFormat!:   #RecordFormat
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JSONMappingParameters": close({RecordRowPath!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#JSONMappingParameters: close({RecordRowPath!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseInput": close({
+#KinesisFirehoseInput: close({
 	ResourceARN!: string | fn.#StringExpression
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamsInput": close({
+#KinesisStreamsInput: close({
 	ResourceARN!: string | fn.#StringExpression
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MappingParameters": close({
-	CSVMappingParameters?:  _#defs."/$defs/Properties/definitions/CSVMappingParameters"
-	JSONMappingParameters?: _#defs."/$defs/Properties/definitions/JSONMappingParameters"
+#MappingParameters: close({
+	CSVMappingParameters?:  #CSVMappingParameters
+	JSONMappingParameters?: #JSONMappingParameters
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordColumn": close({
+#RecordColumn: close({
 	Mapping?: string | fn.#StringExpression
 	Name!:    string | fn.#StringExpression
 	SqlType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordFormat": close({
-	MappingParameters?: _#defs."/$defs/Properties/definitions/MappingParameters"
+#RecordFormat: close({
+	MappingParameters?: #MappingParameters
 	RecordFormatType!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KinesisAnalytics::Application"
-	Properties!: #Properties
-}

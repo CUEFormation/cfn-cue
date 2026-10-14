@@ -14,38 +14,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Schema describing various properties for AWS Proton Environment
 // Account Connections resources.
-#Properties: close({
-	CodebuildRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(200) &
-	strings.MinRunes(1) &
-	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$" |
-	fn.#StringExpression
-	ComponentRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(200) &
-	strings.MinRunes(1) &
-	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$" |
-	fn.#StringExpression
-	EnvironmentAccountId?: =~"^\\d{12}$" | fn.#StringExpression
-	EnvironmentName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+[0-9A-Za-z_\\-]*$" |
-	fn.#StringExpression
-	ManagementAccountId?: =~"^\\d{12}$" | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(200) &
-	strings.MinRunes(1) &
-	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Proton::EnvironmentAccountConnection"
+	Properties?: close({
+		CodebuildRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$" |
+		fn.#StringExpression
+		ComponentRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$" |
+		fn.#StringExpression
+		EnvironmentAccountId?: =~"^\\d{12}$" | fn.#StringExpression
+		EnvironmentName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+[0-9A-Za-z_\\-]*$" |
+		fn.#StringExpression
+		ManagementAccountId?: =~"^\\d{12}$" | fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Status": "PENDING" | "CONNECTED" | "REJECTED" | fn.#StringExpression
+#Status: "PENDING" | "CONNECTED" | "REJECTED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Proton::EnvironmentAccountConnection"
-	Properties?: #Properties
-}

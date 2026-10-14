@@ -49,7 +49,7 @@ import (
 	Status?: "PENDING" | "ACTIVE" | "REJECTED" | "REQUIRES_VERIFICATION"
 
 	// An array of tags (key and value pairs) associated with the notify configuration.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 
 	// The tier of the notify configuration.
 	Tier?: "BASIC" | "ADVANCED"
@@ -61,7 +61,7 @@ import (
 	UseCase!: "CODE_VERIFICATION"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key identifier, or name, of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$"
 

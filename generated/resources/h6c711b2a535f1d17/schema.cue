@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // <p>Represents a resource-based policy that allows or denies access to a channel.</p>
-#Properties: close({
-	ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Policy!:           fn.#Object & {...} | strings.MaxRunes(6144) | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackageV2::ChannelPolicy"
-	Properties!: #Properties
+	Type!: "AWS::MediaPackageV2::ChannelPolicy"
+	Properties!: close({
+		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Policy!:           fn.#Object & {...} | strings.MaxRunes(6144) | fn.#StringObjectExpression
+	})
 }

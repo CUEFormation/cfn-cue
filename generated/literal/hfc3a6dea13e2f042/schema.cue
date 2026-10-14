@@ -16,10 +16,10 @@ import (
 	ApiKey?: strings.MaxRunes(65536) & strings.MinRunes(1)
 
 	// The ARN of the API key secret in AWS Secrets Manager
-	ApiKeySecretArn?: _#defs."/$defs/Properties/definitions/ApiKeySecretArn"
+	ApiKeySecretArn?: #ApiKeySecretArn
 
 	// Configuration for a customer-provided secret containing the API key
-	ApiKeySecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ApiKeySecretConfig?: #SecretReference
 
 	// The JSON key within the secret that contains the API key value
 	ApiKeySecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -42,17 +42,17 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$"
 
 	// Tags to assign to the API key credential provider
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 })
 
 // Contains information about the API key secret in AWS Secrets Manager
-_#defs: "/$defs/Properties/definitions/ApiKeySecretArn": close({
+#ApiKeySecretArn: close({
 	// The ARN of the secret in AWS Secrets Manager
 	SecretArn!: =~"^arn:(aws|aws-us-gov):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$"
 })
 
 // A reference to a customer-provided secret stored in AWS Secrets Manager
-_#defs: "/$defs/Properties/definitions/SecretReference": close({
+#SecretReference: close({
 	// The JSON key within the secret that contains the credential value
 	JsonKey!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -60,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/SecretReference": close({
 	SecretId!: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 })

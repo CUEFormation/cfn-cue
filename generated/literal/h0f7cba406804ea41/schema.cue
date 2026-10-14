@@ -13,23 +13,23 @@ import (
 #Properties: close({
 	// The Amazon Resource Name (ARN) assigned to the OriginEndpoint.
 	Arn?:           string
-	Authorization?: _#defs."/$defs/Properties/definitions/Authorization"
+	Authorization?: #Authorization
 
 	// The ID of the Channel the OriginEndpoint is associated with.
 	ChannelId!:   string
-	CmafPackage?: _#defs."/$defs/Properties/definitions/CmafPackage"
-	DashPackage?: _#defs."/$defs/Properties/definitions/DashPackage"
+	CmafPackage?: #CmafPackage
+	DashPackage?: #DashPackage
 
 	// A short text description of the OriginEndpoint.
 	Description?: string
-	HlsPackage?:  _#defs."/$defs/Properties/definitions/HlsPackage"
+	HlsPackage?:  #HlsPackage
 
 	// The ID of the OriginEndpoint.
 	Id!: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// A short string appended to the end of the OriginEndpoint URL.
 	ManifestName?: string
-	MssPackage?:   _#defs."/$defs/Properties/definitions/MssPackage"
+	MssPackage?:   #MssPackage
 
 	// Control whether origination of video is allowed for this OriginEndpoint. If
 	// set to ALLOW, the OriginEndpoint may by requested, pursuant to any other
@@ -43,7 +43,7 @@ import (
 	StartoverWindowSeconds?: int
 
 	// A collection of tags associated with a resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Amount of delay (seconds) to enforce on the playback of live content. If not
 	// specified, there will be no time delay in effect for the OriginEndpoint.
@@ -66,10 +66,10 @@ import (
 // messages of the types specified in AdTriggers will be treated as ads. Note
 // that Splice Insert messages do not have these flags and are always treated
 // as ads if specified in AdTriggers.
-_#defs: "/$defs/Properties/definitions/AdsOnDeliveryRestrictions": "NONE" | "RESTRICTED" | "UNRESTRICTED" | "BOTH"
+#AdsOnDeliveryRestrictions: "NONE" | "RESTRICTED" | "UNRESTRICTED" | "BOTH"
 
 // CDN Authorization credentials
-_#defs: "/$defs/Properties/definitions/Authorization": close({
+#Authorization: close({
 	// The Amazon Resource Name (ARN) for the secret in Secrets Manager that your
 	// Content Distribution Network (CDN) uses for authorization to access your
 	// endpoint.
@@ -81,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/Authorization": close({
 })
 
 // A Common Media Application Format (CMAF) encryption configuration.
-_#defs: "/$defs/Properties/definitions/CmafEncryption": close({
+#CmafEncryption: close({
 	// An optional 128-bit, 16-byte hex value represented by a 32-character string,
 	// used in conjunction with the key for encrypting blocks. If you don't specify
 	// a value, then MediaPackage creates the constant initialization vector (IV).
@@ -92,15 +92,15 @@ _#defs: "/$defs/Properties/definitions/CmafEncryption": close({
 
 	// Time (in seconds) between each encryption key rotation.
 	KeyRotationIntervalSeconds?: int
-	SpekeKeyProvider!:           _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!:           #SpekeKeyProvider
 })
 
 // A Common Media Application Format (CMAF) packaging configuration.
-_#defs: "/$defs/Properties/definitions/CmafPackage": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/CmafEncryption"
+#CmafPackage: close({
+	Encryption?: #CmafEncryption
 
 	// A list of HLS manifest configurations
-	HlsManifests?: [..._#defs."/$defs/Properties/definitions/HlsManifest"]
+	HlsManifests?: [...#HlsManifest]
 
 	// Duration (in seconds) of each segment. Actual segments will be rounded to the
 	// nearest multiple of the source segment duration.
@@ -109,18 +109,18 @@ _#defs: "/$defs/Properties/definitions/CmafPackage": close({
 	// An optional custom string that is prepended to the name of each segment. If
 	// not specified, it defaults to the ChannelId.
 	SegmentPrefix?:   string
-	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?: #StreamSelection
 })
 
 // A Dynamic Adaptive Streaming over HTTP (DASH) encryption configuration.
-_#defs: "/$defs/Properties/definitions/DashEncryption": close({
+#DashEncryption: close({
 	// Time (in seconds) between each encryption key rotation.
 	KeyRotationIntervalSeconds?: int
-	SpekeKeyProvider!:           _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!:           #SpekeKeyProvider
 })
 
 // A Dynamic Adaptive Streaming over HTTP (DASH) packaging configuration.
-_#defs: "/$defs/Properties/definitions/DashPackage": close({
+#DashPackage: close({
 	// A list of SCTE-35 message types that are treated as ad markers in the output.
 	// If empty, no ad markers are output. Specify multiple items to create ad
 	// markers for all of the included message types.
@@ -134,8 +134,8 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 			"PROVIDER_OVERLAY_PLACEMENT_OPPORTUNITY" |
 			"DISTRIBUTOR_OVERLAY_PLACEMENT_OPPORTUNITY"
 	]
-	AdsOnDeliveryRestrictions?: _#defs."/$defs/Properties/definitions/AdsOnDeliveryRestrictions"
-	Encryption?:                _#defs."/$defs/Properties/definitions/DashEncryption"
+	AdsOnDeliveryRestrictions?: #AdsOnDeliveryRestrictions
+	Encryption?:                #DashEncryption
 
 	// When enabled, an I-Frame only stream will be included in the output.
 	IncludeIframeOnlyStream?: bool
@@ -178,7 +178,7 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 	// with $Time$ media URLs. When set to NUMBER_WITH_DURATION, only a duration is
 	// included in each SegmentTemplate, with $Number$ media URLs.
 	SegmentTemplateFormat?: "NUMBER_WITH_TIMELINE" | "TIME_WITH_TIMELINE" | "NUMBER_WITH_DURATION"
-	StreamSelection?:       _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?:       #StreamSelection
 
 	// Duration (in seconds) to delay live content before presentation.
 	SuggestedPresentationDelaySeconds?: int
@@ -193,7 +193,7 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 
 // The configuration to use for encrypting one or more content tracks separately
 // for endpoints that use SPEKE 2.0.
-_#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
+#EncryptionContractConfiguration: close({
 	// A collection of audio encryption presets.
 	PresetSpeke20Audio!: "PRESET-AUDIO-1" | "PRESET-AUDIO-2" | "PRESET-AUDIO-3" | "SHARED" | "UNENCRYPTED"
 
@@ -211,7 +211,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
 })
 
 // An HTTP Live Streaming (HLS) encryption configuration.
-_#defs: "/$defs/Properties/definitions/HlsEncryption": close({
+#HlsEncryption: close({
 	// A constant initialization vector for encryption (optional). When not
 	// specified the initialization vector will be periodically rotated.
 	ConstantInitializationVector?: string
@@ -224,11 +224,11 @@ _#defs: "/$defs/Properties/definitions/HlsEncryption": close({
 
 	// When enabled, the EXT-X-KEY tag will be repeated in output manifests.
 	RepeatExtXKey?:    bool
-	SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!: #SpekeKeyProvider
 })
 
 // A HTTP Live Streaming (HLS) manifest configuration.
-_#defs: "/$defs/Properties/definitions/HlsManifest": close({
+#HlsManifest: close({
 	// This setting controls how ad markers are included in the packaged
 	// OriginEndpoint. "NONE" will omit all SCTE-35 ad markers from the output.
 	// "PASSTHROUGH" causes the manifest to contain a copy of the SCTE-35 ad
@@ -253,7 +253,7 @@ _#defs: "/$defs/Properties/definitions/HlsManifest": close({
 			"PROVIDER_OVERLAY_PLACEMENT_OPPORTUNITY" |
 			"DISTRIBUTOR_OVERLAY_PLACEMENT_OPPORTUNITY"
 	]
-	AdsOnDeliveryRestrictions?: _#defs."/$defs/Properties/definitions/AdsOnDeliveryRestrictions"
+	AdsOnDeliveryRestrictions?: #AdsOnDeliveryRestrictions
 
 	// The ID of the manifest. The ID must be unique within the OriginEndpoint and
 	// it cannot be changed after it is created.
@@ -289,7 +289,7 @@ _#defs: "/$defs/Properties/definitions/HlsManifest": close({
 })
 
 // An HTTP Live Streaming (HLS) packaging configuration.
-_#defs: "/$defs/Properties/definitions/HlsPackage": close({
+#HlsPackage: close({
 	// This setting controls how ad markers are included in the packaged
 	// OriginEndpoint. "NONE" will omit all SCTE-35 ad markers from the output.
 	// "PASSTHROUGH" causes the manifest to contain a copy of the SCTE-35 ad
@@ -314,8 +314,8 @@ _#defs: "/$defs/Properties/definitions/HlsPackage": close({
 			"PROVIDER_OVERLAY_PLACEMENT_OPPORTUNITY" |
 			"DISTRIBUTOR_OVERLAY_PLACEMENT_OPPORTUNITY"
 	]
-	AdsOnDeliveryRestrictions?: _#defs."/$defs/Properties/definitions/AdsOnDeliveryRestrictions"
-	Encryption?:                _#defs."/$defs/Properties/definitions/HlsEncryption"
+	AdsOnDeliveryRestrictions?: #AdsOnDeliveryRestrictions
+	Encryption?:                #HlsEncryption
 
 	// When enabled, MediaPackage passes through digital video broadcasting (DVB)
 	// subtitles into the output.
@@ -345,37 +345,35 @@ _#defs: "/$defs/Properties/definitions/HlsPackage": close({
 	// Duration (in seconds) of each fragment. Actual fragments will be rounded to
 	// the nearest multiple of the source fragment duration.
 	SegmentDurationSeconds?: int
-	StreamSelection?:        _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?:        #StreamSelection
 
 	// When enabled, audio streams will be placed in rendition groups in the output.
 	UseAudioRenditionGroup?: bool
 })
 
 // A Microsoft Smooth Streaming (MSS) encryption configuration.
-_#defs: "/$defs/Properties/definitions/MssEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
-)
+#MssEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider})
 
 // A Microsoft Smooth Streaming (MSS) packaging configuration.
-_#defs: "/$defs/Properties/definitions/MssPackage": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/MssEncryption"
+#MssPackage: close({
+	Encryption?: #MssEncryption
 
 	// The time window (in seconds) contained in each manifest.
 	ManifestWindowSeconds?: int
 
 	// The duration (in seconds) of each segment.
 	SegmentDurationSeconds?: int
-	StreamSelection?:        _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?:        #StreamSelection
 })
 
 // A configuration for accessing an external Secure Packager and Encoder Key
 // Exchange (SPEKE) service that will provide encryption keys.
-_#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
+#SpekeKeyProvider: close({
 	// An Amazon Resource Name (ARN) of a Certificate Manager certificate that
 	// MediaPackage will use for enforcing secure end-to-end data transfer with the
 	// key provider service.
 	CertificateArn?:                  string
-	EncryptionContractConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration"
+	EncryptionContractConfiguration?: #EncryptionContractConfiguration
 
 	// The resource ID to include in key requests.
 	ResourceId!: string
@@ -392,7 +390,7 @@ _#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
 })
 
 // A StreamSelection configuration.
-_#defs: "/$defs/Properties/definitions/StreamSelection": close({
+#StreamSelection: close({
 	// The maximum video bitrate (bps) to include in output.
 	MaxVideoBitsPerSecond?: int
 
@@ -403,7 +401,7 @@ _#defs: "/$defs/Properties/definitions/StreamSelection": close({
 	StreamOrder?: "ORIGINAL" | "VIDEO_BITRATE_ASCENDING" | "VIDEO_BITRATE_DESCENDING"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

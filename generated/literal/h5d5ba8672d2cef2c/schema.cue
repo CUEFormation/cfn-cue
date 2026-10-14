@@ -9,14 +9,14 @@ import "strings"
 // Resource Schema for AWS::ServiceCatalog::ServiceAction
 #Properties: close({
 	AcceptLanguage?: ("en" | "jp" | "zh") & (strings.MaxRunes(100) & strings.MinRunes(0))
-	Definition!:     [..._#defs."/$defs/Properties/definitions/DefinitionParameter"]
+	Definition!:     [...#DefinitionParameter]
 	DefinitionType!: "SSM_AUTOMATION"
 	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0)
 	Id?:             strings.MaxRunes(100) & strings.MinRunes(1)
 	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-.]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/DefinitionParameter": close({
+#DefinitionParameter: close({
 	Key!:   strings.MaxRunes(1000) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(4096)
 })

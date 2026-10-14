@@ -13,12 +13,12 @@ import (
 // and the details about how to track and manage content delivery.
 #Properties: close({
 	// The distribution's configuration.
-	DistributionConfig!: _#defs."/$defs/Properties/definitions/DistributionConfig"
+	DistributionConfig!: #DistributionConfig
 	DomainName?:         string
 	Id?:                 string
 
 	// A complex type that contains zero or more ``Tag`` elements.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // A complex type that describes how CloudFront processes requests.
@@ -50,7 +50,7 @@ import (
 // For more information about cache behaviors, see [Cache Behavior
 // Settings](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-web-values-specify.html#DownloadDistValuesCacheBehavior)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/CacheBehavior": close({
+#CacheBehavior: close({
 	// A complex type that controls which HTTP methods CloudFront processes and
 	// forwards to your Amazon S3 bucket or your custom origin. There are three
 	// choices:
@@ -139,18 +139,18 @@ _#defs: "/$defs/Properties/definitions/CacheBehavior": close({
 	// A ``CacheBehavior`` must include either a ``CachePolicyId`` or
 	// ``ForwardedValues``. We recommend that you use a ``CachePolicyId``.
 	// A complex type that specifies how CloudFront handles query strings, cookies, and HTTP headers.
-	ForwardedValues?: _#defs."/$defs/Properties/definitions/ForwardedValues"
+	ForwardedValues?: #ForwardedValues
 
 	// A list of CloudFront functions that are associated with this cache behavior.
 	// CloudFront functions must be published to the ``LIVE`` stage to associate
 	// them with a cache behavior.
-	FunctionAssociations?: [..._#defs."/$defs/Properties/definitions/FunctionAssociation"]
+	FunctionAssociations?: [...#FunctionAssociation]
 
 	// The gRPC configuration for your cache behavior.
-	GrpcConfig?: _#defs."/$defs/Properties/definitions/GrpcConfig"
+	GrpcConfig?: #GrpcConfig
 
 	// A complex type that contains zero or more Lambda@Edge function associations for a cache behavior.
-	LambdaFunctionAssociations?: [..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation"]
+	LambdaFunctionAssociations?: [...#LambdaFunctionAssociation]
 
 	// This field only supports standard distributions. You can't specify this field
 	// for multi-tenant distributions. For more information, see [Unsupported
@@ -308,7 +308,7 @@ _#defs: "/$defs/Properties/definitions/CacheBehavior": close({
 // responses, parses the comma-separated tag values, and stores them with the
 // cached object. You can then invalidate cached objects by tag using the
 // ``CreateInvalidation`` API.
-_#defs: "/$defs/Properties/definitions/CacheTagConfig": close({
+#CacheTagConfig: close({
 	// The name of the HTTP header that your origin includes in responses.
 	// CloudFront uses this header to extract cache tags. The header value must
 	// contain comma-separated tag values (for example, ``product:electronics,
@@ -317,12 +317,12 @@ _#defs: "/$defs/Properties/definitions/CacheTagConfig": close({
 })
 
 // A connection function association.
-_#defs: "/$defs/Properties/definitions/ConnectionFunctionAssociation": close({
+#ConnectionFunctionAssociation: close({
 	// The association's ID.
 	Id!: strings.MaxRunes(64) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionMode": "direct" | "tenant-only"
+#ConnectionMode: "direct" | "tenant-only"
 
 // This field is deprecated. We recommend that you use a cache policy or an
 // origin request policy instead of this field.
@@ -340,7 +340,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionMode": "direct" | "tenant-only"
 // cookies to the origin, see [How CloudFront Forwards, Caches, and Logs
 // Cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Cookies.html)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/Cookies": close({
+#Cookies: close({
 	// This field is deprecated. We recommend that you use a cache policy or an
 	// origin request policy instead of this field.
 	// If you want to include cookies in the cache key, use a cache policy. For more
@@ -394,7 +394,7 @@ _#defs: "/$defs/Properties/definitions/Cookies": close({
 // For more information about custom error pages, see [Customizing Error
 // Responses](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/custom-error-pages.html)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/CustomErrorResponse": close({
+#CustomErrorResponse: close({
 	ResponseCode?: _
 	if ResponseCode != _|_ {
 		ResponsePagePath!: _
@@ -462,7 +462,7 @@ _#defs: "/$defs/Properties/definitions/CustomErrorResponse": close({
 // static website
 // hosting](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)*is*
 // a custom origin.
-_#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
+#CustomOriginConfig: close({
 	// The HTTP port that CloudFront uses to connect to the origin. Specify the HTTP
 	// port that the origin listens on.
 	HTTPPort?: int
@@ -485,7 +485,7 @@ _#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
 	OriginKeepaliveTimeout?: int
 
 	// Configures mutual TLS authentication between CloudFront and your origin server.
-	OriginMtlsConfig?: _#defs."/$defs/Properties/definitions/OriginMtlsConfig"
+	OriginMtlsConfig?: #OriginMtlsConfig
 
 	// Specifies the protocol (HTTP or HTTPS) that CloudFront uses to connect to the
 	// origin. Valid values are:
@@ -521,7 +521,7 @@ _#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
 // least the duration specified in the cache policy's minimum TTL, even if the
 // ``Cache-Control: no-cache``, ``no-store``, or ``private`` directives are
 // present in the origin headers.
-_#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
+#DefaultCacheBehavior: close({
 	// A complex type that controls which HTTP methods CloudFront processes and
 	// forwards to your Amazon S3 bucket or your custom origin. There are three
 	// choices:
@@ -610,18 +610,18 @@ _#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
 	// A ``DefaultCacheBehavior`` must include either a ``CachePolicyId`` or
 	// ``ForwardedValues``. We recommend that you use a ``CachePolicyId``.
 	// A complex type that specifies how CloudFront handles query strings, cookies, and HTTP headers.
-	ForwardedValues?: _#defs."/$defs/Properties/definitions/ForwardedValues"
+	ForwardedValues?: #ForwardedValues
 
 	// A list of CloudFront functions that are associated with this cache behavior.
 	// Your functions must be published to the ``LIVE`` stage to associate them
 	// with a cache behavior.
-	FunctionAssociations?: [..._#defs."/$defs/Properties/definitions/FunctionAssociation"]
+	FunctionAssociations?: [...#FunctionAssociation]
 
 	// The gRPC configuration for your cache behavior.
-	GrpcConfig?: _#defs."/$defs/Properties/definitions/GrpcConfig"
+	GrpcConfig?: #GrpcConfig
 
 	// A complex type that contains zero or more Lambda@Edge function associations for a cache behavior.
-	LambdaFunctionAssociations?: [..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation"]
+	LambdaFunctionAssociations?: [...#LambdaFunctionAssociation]
 
 	// This field only supports standard distributions. You can't specify this field
 	// for multi-tenant distributions. For more information, see [Unsupported
@@ -758,7 +758,7 @@ _#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
 })
 
 // A distribution configuration.
-_#defs: "/$defs/Properties/definitions/DistributionConfig": close({
+#DistributionConfig: close({
 	// This field only supports standard distributions. You can't specify this field
 	// for multi-tenant distributions. For more information, see [Unsupported
 	// features for SaaS Manager for Amazon
@@ -781,7 +781,7 @@ _#defs: "/$defs/Properties/definitions/DistributionConfig": close({
 	CNAMEs?: [...string]
 
 	// A complex type that contains zero or more ``CacheBehavior`` elements.
-	CacheBehaviors?: [..._#defs."/$defs/Properties/definitions/CacheBehavior"]
+	CacheBehaviors?: [...#CacheBehavior]
 
 	// Configuration for cache tag extraction from origin responses. When specified,
 	// CloudFront reads the header named in ``HeaderName`` from origin responses
@@ -795,18 +795,18 @@ _#defs: "/$defs/Properties/definitions/DistributionConfig": close({
 	// not apply to objects already cached using a previous header. To ensure tag
 	// invalidations function after updating the header name, use path-based
 	// invalidations to recache all objects that use cache tags.
-	CacheTagConfig?: _#defs."/$defs/Properties/definitions/CacheTagConfig"
+	CacheTagConfig?: #CacheTagConfig
 
 	// A comment to describe the distribution. The comment cannot be longer than 128 characters.
 	Comment?: string
 
 	// The distribution's connection function association.
-	ConnectionFunctionAssociation?: _#defs."/$defs/Properties/definitions/ConnectionFunctionAssociation"
+	ConnectionFunctionAssociation?: #ConnectionFunctionAssociation
 
 	// This field specifies whether the connection mode is through a standard
 	// distribution (direct) or a multi-tenant distribution with distribution
 	// tenants (tenant-only).
-	ConnectionMode?: _#defs."/$defs/Properties/definitions/ConnectionMode"
+	ConnectionMode?: #ConnectionMode
 
 	// This field only supports standard distributions. You can't specify this field
 	// for multi-tenant distributions. For more information, see [Unsupported
@@ -825,19 +825,19 @@ _#defs: "/$defs/Properties/definitions/DistributionConfig": close({
 	// For more information about custom error pages, see [Customizing Error
 	// Responses](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/custom-error-pages.html)
 	// in the *Amazon CloudFront Developer Guide*.
-	CustomErrorResponses?: [..._#defs."/$defs/Properties/definitions/CustomErrorResponse"]
+	CustomErrorResponses?: [...#CustomErrorResponse]
 
 	// The user-defined HTTP server that serves as the origin for content that CF distributes.
 	// This property is legacy. We recommend that you use
 	// [Origin](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-origin.html)
 	// instead.
-	CustomOrigin?: _#defs."/$defs/Properties/definitions/LegacyCustomOrigin"
+	CustomOrigin?: #LegacyCustomOrigin
 
 	// A complex type that describes the default cache behavior if you don't specify
 	// a ``CacheBehavior`` element or if files don't match any of the values of
 	// ``PathPattern`` in ``CacheBehavior`` elements. You must create exactly one
 	// default cache behavior.
-	DefaultCacheBehavior!: _#defs."/$defs/Properties/definitions/DefaultCacheBehavior"
+	DefaultCacheBehavior!: #DefaultCacheBehavior
 
 	// When a viewer requests the root URL for your distribution, the default root
 	// object is the object that you want CloudFront to request from your origin.
@@ -920,15 +920,15 @@ _#defs: "/$defs/Properties/definitions/DistributionConfig": close({
 	// For more information about logging, see [Access
 	// Logs](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html)
 	// in the *Amazon CloudFront Developer Guide*.
-	Logging?: _#defs."/$defs/Properties/definitions/Logging"
+	Logging?: #Logging
 
 	// A complex type that contains information about origin groups for this distribution.
 	// Specify a value for either the ``Origins`` or ``OriginGroups`` property.
-	OriginGroups?: _#defs."/$defs/Properties/definitions/OriginGroups"
+	OriginGroups?: #OriginGroups
 
 	// A complex type that contains information about origins for this distribution.
 	// Specify a value for either the ``Origins`` or ``OriginGroups`` property.
-	Origins?: [..._#defs."/$defs/Properties/definitions/Origin"]
+	Origins?: [...#Origin]
 
 	// This field only supports standard distributions. You can't specify this field
 	// for multi-tenant distributions. For more information, see [Unsupported
@@ -953,13 +953,13 @@ _#defs: "/$defs/Properties/definitions/DistributionConfig": close({
 	PriceClass?: "None" | "PriceClass_100" | "PriceClass_200" | "PriceClass_All"
 
 	// A complex type that identifies ways in which you want to restrict distribution of your content.
-	Restrictions?: _#defs."/$defs/Properties/definitions/Restrictions"
+	Restrictions?: #Restrictions
 
 	// The origin as an S3 bucket.
 	// This property is legacy. We recommend that you use
 	// [Origin](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-origin.html)
 	// instead.
-	S3Origin?: _#defs."/$defs/Properties/definitions/LegacyS3Origin"
+	S3Origin?: #LegacyS3Origin
 
 	// This field only supports standard distributions. You can't specify this field
 	// for multi-tenant distributions. For more information, see [Unsupported
@@ -977,14 +977,14 @@ _#defs: "/$defs/Properties/definitions/DistributionConfig": close({
 	// CloudFront](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-config-options.html#unsupported-saas)
 	// in the *Amazon CloudFront Developer Guide*.
 	// A distribution tenant configuration.
-	TenantConfig?: close({ParameterDefinitions?: [..._#defs."/$defs/Properties/definitions/ParameterDefinition"]})
+	TenantConfig?: close({ParameterDefinitions?: [...#ParameterDefinition]})
 
 	// A complex type that determines the distribution's SSL/TLS configuration for
 	// communicating with viewers.
-	ViewerCertificate?: _#defs."/$defs/Properties/definitions/ViewerCertificate"
+	ViewerCertificate?: #ViewerCertificate
 
 	// The distribution's viewer mTLS configuration.
-	ViewerMtlsConfig?: _#defs."/$defs/Properties/definitions/ViewerMtlsConfig"
+	ViewerMtlsConfig?: #ViewerMtlsConfig
 
 	// Multi-tenant distributions only support WAF V2 web ACLs.
 	// A unique identifier that specifies the WAF web ACL, if any, to associate with
@@ -1022,7 +1022,7 @@ _#defs: "/$defs/Properties/definitions/DistributionConfig": close({
 // policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy)
 // in the *Amazon CloudFront Developer Guide*.
 // A complex type that specifies how CloudFront handles query strings, cookies, and HTTP headers.
-_#defs: "/$defs/Properties/definitions/ForwardedValues": close({
+#ForwardedValues: close({
 	// This field is deprecated. We recommend that you use a cache policy or an
 	// origin request policy instead of this field.
 	// If you want to include cookies in the cache key, use a cache policy. For more
@@ -1039,7 +1039,7 @@ _#defs: "/$defs/Properties/definitions/ForwardedValues": close({
 	// cookies to the origin, see [How CloudFront Forwards, Caches, and Logs
 	// Cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Cookies.html)
 	// in the *Amazon CloudFront Developer Guide*.
-	Cookies?: _#defs."/$defs/Properties/definitions/Cookies"
+	Cookies?: #Cookies
 
 	// This field is deprecated. We recommend that you use a cache policy or an
 	// origin request policy instead of this field.
@@ -1113,7 +1113,7 @@ _#defs: "/$defs/Properties/definitions/ForwardedValues": close({
 })
 
 // A CloudFront function that is associated with a cache behavior in a CloudFront distribution.
-_#defs: "/$defs/Properties/definitions/FunctionAssociation": close({
+#FunctionAssociation: close({
 	// The event type of the function, either ``viewer-request`` or
 	// ``viewer-response``. You cannot use origin-facing event types
 	// (``origin-request`` and ``origin-response``) with a CloudFront function.
@@ -1128,7 +1128,7 @@ _#defs: "/$defs/Properties/definitions/FunctionAssociation": close({
 // GeoIP databases. To disable geo restriction, remove the
 // [Restrictions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-distributionconfig.html#cfn-cloudfront-distribution-distributionconfig-restrictions)
 // property from your stack template.
-_#defs: "/$defs/Properties/definitions/GeoRestriction": close({
+#GeoRestriction: close({
 	// A complex type that contains a ``Location`` element for each country in which
 	// you want CloudFront either to distribute your content (``whitelist``) or not
 	// distribute your content (``blacklist``).
@@ -1412,14 +1412,14 @@ _#defs: "/$defs/Properties/definitions/GeoRestriction": close({
 // For more information, see [Using gRPC with CloudFront
 // distributions](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-using-grpc.html)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/GrpcConfig": close({
+#GrpcConfig: close({
 	// Enables your CloudFront distribution to receive gRPC requests and to proxy
 	// them directly to your origins.
 	Enabled!: bool
 })
 
 // A complex type that contains a Lambda@Edge function association.
-_#defs: "/$defs/Properties/definitions/LambdaFunctionAssociation": close({
+#LambdaFunctionAssociation: close({
 	// Specifies the event type that triggers a Lambda@Edge function invocation. You
 	// can specify the following values:
 	// + ``viewer-request``: The function executes when CloudFront receives a
@@ -1457,7 +1457,7 @@ _#defs: "/$defs/Properties/definitions/LambdaFunctionAssociation": close({
 // This property is legacy. We recommend that you use
 // [Origin](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-origin.html)
 // instead.
-_#defs: "/$defs/Properties/definitions/LegacyCustomOrigin": close({
+#LegacyCustomOrigin: close({
 	// The domain name assigned to your CF distribution.
 	DNSName!: string
 
@@ -1484,7 +1484,7 @@ _#defs: "/$defs/Properties/definitions/LegacyCustomOrigin": close({
 // This property is legacy. We recommend that you use
 // [Origin](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-origin.html)
 // instead.
-_#defs: "/$defs/Properties/definitions/LegacyS3Origin": close({
+#LegacyS3Origin: close({
 	// The domain name assigned to your CF distribution.
 	DNSName!: string
 
@@ -1507,7 +1507,7 @@ _#defs: "/$defs/Properties/definitions/LegacyS3Origin": close({
 // information, see [Standard logging (access
 // logs)](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/Logging": close({
+#Logging: close({
 	// The Amazon S3 bucket to store the access logs in, for example,
 	// ``amzn-s3-demo-bucket.s3.amazonaws.com``.
 	Bucket?: string
@@ -1546,18 +1546,7 @@ _#defs: "/$defs/Properties/definitions/Logging": close({
 // Distributions](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-limits.html#limits-web-distributions)
 // in the *Amazon CloudFront Developer Guide* (quotas were formerly referred to
 // as limits).
-_#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		CustomOriginConfig!: _
-		S3OriginConfig!:     _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		S3OriginConfig!:     _
-		CustomOriginConfig!: _
-		...
-	}]) & {...}
-]) & close({
+#Origin: close({
 	// The number of times that CloudFront attempts to connect to the origin. The
 	// minimum number is 1, the maximum is 3, and the default (if you don't specify
 	// otherwise) is 3.
@@ -1583,7 +1572,7 @@ _#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
 	// exception. If the Amazon S3 bucket is configured with static website
 	// hosting, use this type. If the Amazon S3 bucket is not configured with
 	// static website hosting, use the ``S3OriginConfig`` type instead.
-	CustomOriginConfig?: _#defs."/$defs/Properties/definitions/CustomOriginConfig"
+	CustomOriginConfig?: #CustomOriginConfig
 
 	// The domain name for the origin.
 	// For more information, see [Origin Domain
@@ -1607,7 +1596,7 @@ _#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
 	// For more information, see [Adding Custom Headers to Origin
 	// Requests](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/add-origin-custom-headers.html)
 	// in the *Amazon CloudFront Developer Guide*.
-	OriginCustomHeaders?: [..._#defs."/$defs/Properties/definitions/OriginCustomHeader"]
+	OriginCustomHeaders?: [...#OriginCustomHeader]
 
 	// An optional path that CloudFront appends to the origin domain name when
 	// CloudFront requests content from the origin.
@@ -1620,7 +1609,7 @@ _#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
 	// For more information, see [Using Origin
 	// Shield](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html)
 	// in the *Amazon CloudFront Developer Guide*.
-	OriginShield?: _#defs."/$defs/Properties/definitions/OriginShield"
+	OriginShield?: #OriginShield
 
 	// The time (in seconds) that a request from CloudFront to the origin can stay
 	// open and wait for a response. If the complete response isn't received from
@@ -1637,15 +1626,18 @@ _#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
 	// configured with static website hosting. To specify any other type of origin,
 	// including an Amazon S3 bucket that is configured with static website
 	// hosting, use the ``CustomOriginConfig`` type instead.
-	S3OriginConfig?: _#defs."/$defs/Properties/definitions/S3OriginConfig"
+	S3OriginConfig?: #S3OriginConfig
 
 	// The VPC origin configuration.
-	VpcOriginConfig?: _#defs."/$defs/Properties/definitions/VpcOriginConfig"
+	VpcOriginConfig?: #VpcOriginConfig
+	if CustomOriginConfig != _|_ if CustomOriginConfig."Fn::If" == _|_ {
+		S3OriginConfig?: close({"Fn::If": _}) | error("S3OriginConfig cannot be used with CustomOriginConfig")
+	}
 })
 
 // A complex type that contains ``HeaderName`` and ``HeaderValue`` elements, if
 // any, for this distribution.
-_#defs: "/$defs/Properties/definitions/OriginCustomHeader": close({
+#OriginCustomHeader: close({
 	// The name of a header that you want CloudFront to send to your origin. For
 	// more information, see [Adding Custom Headers to Origin
 	// Requests](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/forward-custom-headers.html)
@@ -1665,60 +1657,60 @@ _#defs: "/$defs/Properties/definitions/OriginCustomHeader": close({
 // Optionally, you can choose selection criteria for your origin group to
 // specify how your origins are selected when your distribution routes viewer
 // requests.
-_#defs: "/$defs/Properties/definitions/OriginGroup": close({
+#OriginGroup: close({
 	// A complex type that contains information about the failover criteria for an origin group.
-	FailoverCriteria!: _#defs."/$defs/Properties/definitions/OriginGroupFailoverCriteria"
+	FailoverCriteria!: #OriginGroupFailoverCriteria
 
 	// The origin group's ID.
 	Id!: string
 
 	// A complex type that contains information about the origins in an origin group.
-	Members!: _#defs."/$defs/Properties/definitions/OriginGroupMembers"
+	Members!: #OriginGroupMembers
 
 	// The selection criteria for the origin group. For more information, see
 	// [Create an origin
 	// group](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/high_availability_origin_failover.html#concept_origin_groups.creating)
 	// in the *Amazon CloudFront Developer Guide*.
-	SelectionCriteria?: _#defs."/$defs/Properties/definitions/OriginGroupSelectionCriteria"
+	SelectionCriteria?: #OriginGroupSelectionCriteria
 })
 
 // A complex data type that includes information about the failover criteria for
 // an origin group, including the status codes for which CloudFront will
 // failover from the primary origin to the second origin.
-_#defs: "/$defs/Properties/definitions/OriginGroupFailoverCriteria": close({
+#OriginGroupFailoverCriteria: close({
 	// The status codes that, when returned from the primary origin, will trigger
 	// CloudFront to failover to the second origin.
-	StatusCodes!: _#defs."/$defs/Properties/definitions/StatusCodes"
+	StatusCodes!: #StatusCodes
 })
 
 // An origin in an origin group.
-_#defs: "/$defs/Properties/definitions/OriginGroupMember": close({
+#OriginGroupMember: close({
 	// The ID for an origin in an origin group.
 	OriginId!: string
 })
 
 // A complex data type for the origins included in an origin group.
-_#defs: "/$defs/Properties/definitions/OriginGroupMembers": close({
+#OriginGroupMembers: close({
 	// Items (origins) in an origin group.
-	Items!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/OriginGroupMember"]
+	Items!: list.MaxItems(2) & list.MinItems(2) & [...#OriginGroupMember]
 
 	// The number of origins in an origin group.
 	Quantity!: int
 })
 
-_#defs: "/$defs/Properties/definitions/OriginGroupSelectionCriteria": "default" | "media-quality-based"
+#OriginGroupSelectionCriteria: "default" | "media-quality-based"
 
 // A complex data type for the origin groups specified for a distribution.
-_#defs: "/$defs/Properties/definitions/OriginGroups": close({
+#OriginGroups: close({
 	// The items (origin groups) in a distribution.
-	Items?: [..._#defs."/$defs/Properties/definitions/OriginGroup"]
+	Items?: [...#OriginGroup]
 
 	// The number of origin groups.
 	Quantity!: int
 })
 
 // Configures mutual TLS authentication between CloudFront and your origin server.
-_#defs: "/$defs/Properties/definitions/OriginMtlsConfig": close({
+#OriginMtlsConfig: close({
 	// The Amazon Resource Name (ARN) of the client certificate stored in AWS
 	// Certificate Manager (ACM) that CloudFront uses to authenticate with your
 	// origin using Mutual TLS.
@@ -1730,7 +1722,7 @@ _#defs: "/$defs/Properties/definitions/OriginMtlsConfig": close({
 // information, see [Using Origin
 // Shield](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/OriginShield": close({
+#OriginShield: close({
 	// A flag that specifies whether Origin Shield is enabled.
 	// When it's enabled, CloudFront routes all requests through Origin Shield,
 	// which can help protect your origin. When it's disabled, CloudFront might
@@ -1753,7 +1745,7 @@ _#defs: "/$defs/Properties/definitions/OriginShield": close({
 // A list of parameter values to add to the resource. A parameter is specified
 // as a key-value pair. A valid parameter value must exist for any parameter
 // that is marked as required in the multi-tenant distribution.
-_#defs: "/$defs/Properties/definitions/ParameterDefinition": close({
+#ParameterDefinition: close({
 	// The value that you assigned to the parameter.
 	Definition!: close({
 		StringSchema?: close({
@@ -1768,19 +1760,19 @@ _#defs: "/$defs/Properties/definitions/ParameterDefinition": close({
 })
 
 // A complex type that identifies ways in which you want to restrict distribution of your content.
-_#defs: "/$defs/Properties/definitions/Restrictions": close({
+#Restrictions: close({
 	// A complex type that controls the countries in which your content is
 	// distributed. CF determines the location of your users using ``MaxMind``
 	// GeoIP databases. To disable geo restriction, remove the
 	// [Restrictions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-distributionconfig.html#cfn-cloudfront-distribution-distributionconfig-restrictions)
 	// property from your stack template.
-	GeoRestriction!: _#defs."/$defs/Properties/definitions/GeoRestriction"
+	GeoRestriction!: #GeoRestriction
 })
 
 // A complex type that contains information about the Amazon S3 origin. If the
 // origin is a custom origin or an S3 bucket that is configured as a website
 // endpoint, use the ``CustomOriginConfig`` element instead.
-_#defs: "/$defs/Properties/definitions/S3OriginConfig": close({
+#S3OriginConfig: close({
 	// If you're using origin access control (OAC) instead of origin access
 	// identity, specify an empty ``OriginAccessIdentity`` element. For more
 	// information, see [Restricting access to
@@ -1818,7 +1810,7 @@ _#defs: "/$defs/Properties/definitions/S3OriginConfig": close({
 
 // A complex data type for the status codes that you specify that, when returned
 // by a primary origin, trigger CloudFront to failover to a second origin.
-_#defs: "/$defs/Properties/definitions/StatusCodes": close({
+#StatusCodes: close({
 	// The items (status codes) for an origin group.
 	Items!: list.MinItems(1) & [...int]
 
@@ -1827,7 +1819,7 @@ _#defs: "/$defs/Properties/definitions/StatusCodes": close({
 })
 
 // A complex type that contains ``Tag`` key and ``Tag`` value.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that contains ``Tag`` key.
 	// The string length should be between 1 and 128 characters. Valid characters
 	// include ``a-z``, ``A-Z``, ``0-9``, space, and the special characters ``_ - .
@@ -1842,7 +1834,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A trust store configuration.
-_#defs: "/$defs/Properties/definitions/TrustStoreConfig": close({
+#TrustStoreConfig: close({
 	// The configuration to use to advertise trust store CA names.
 	AdvertiseTrustStoreCaNames?: bool
 
@@ -1903,16 +1895,7 @@ _#defs: "/$defs/Properties/definitions/TrustStoreConfig": close({
 // and [Using Alternate Domain Names and
 // HTTPS](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-https-alternate-domain-names.html)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
-	AcmCertificateArn!: _
-	...
-}, {
-	CloudFrontDefaultCertificate!: _
-	...
-}, {
-	IamCertificateId!: _
-	...
-}]) & close({
+#ViewerCertificate: close({
 	AcmCertificateArn?: _
 	if AcmCertificateArn != _|_ {
 		SslSupportMethod!: _
@@ -1933,7 +1916,7 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 	// If you specify an ACM certificate ARN, you must also specify values for
 	// ``MinimumProtocolVersion`` and ``SSLSupportMethod``. (In CloudFormation, the
 	// field name is ``SslSupportMethod``. Note the different capitalization.)
-	"AcmCertificateArn"?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
+	AcmCertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 
 	// If the distribution uses the CloudFront domain name such as
 	// ``d111111abcdef8.cloudfront.net``, set this field to ``true``.
@@ -1957,7 +1940,7 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 	// If you specify an IAM certificate ID, you must also specify values for
 	// ``MinimumProtocolVersion`` and ``SSLSupportMethod``. (In CloudFormation, the
 	// field name is ``SslSupportMethod``. Note the different capitalization.)
-	"IamCertificateId"?: strings.MaxRunes(32)
+	IamCertificateId?: strings.MaxRunes(32)
 
 	// If the distribution uses ``Aliases`` (alternate domain names or CNAMEs),
 	// specify the security policy that you want CloudFront to use for HTTPS
@@ -2006,21 +1989,34 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 	// If the distribution uses the CloudFront domain name such as
 	// ``d111111abcdef8.cloudfront.net``, don't set a value for this field.
 	SslSupportMethod?: "sni-only" | "static-ip" | "vip"
-})
+	if AcmCertificateArn != _|_ if AcmCertificateArn."Fn::If" == _|_ {
+		CloudFrontDefaultCertificate?: close({"Fn::If": _}) | error(
+			"CloudFrontDefaultCertificate cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+		IamCertificateId?: close({"Fn::If": _}) | error(
+			"IamCertificateId cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+	}
+	if CloudFrontDefaultCertificate != _|_ if CloudFrontDefaultCertificate."Fn::If" == _|_ {
+		IamCertificateId?: close({"Fn::If": _}) | error(
+			"IamCertificateId cannot be used with CloudFrontDefaultCertificate; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+	}
+}) & matchN(>=1, [{AcmCertificateArn!: _}, {CloudFrontDefaultCertificate!: _}, {IamCertificateId!: _}])
 
 // A viewer mTLS configuration.
-_#defs: "/$defs/Properties/definitions/ViewerMtlsConfig": close({
+#ViewerMtlsConfig: close({
 	// The viewer mTLS mode.
-	Mode?: _#defs."/$defs/Properties/definitions/ViewerMtlsMode"
+	Mode?: #ViewerMtlsMode
 
 	// The trust store configuration associated with the viewer mTLS configuration.
-	TrustStoreConfig?: _#defs."/$defs/Properties/definitions/TrustStoreConfig"
+	TrustStoreConfig?: #TrustStoreConfig
 })
 
-_#defs: "/$defs/Properties/definitions/ViewerMtlsMode": "required" | "optional" | "passthrough"
+#ViewerMtlsMode: "required" | "optional" | "passthrough"
 
 // An Amazon CloudFront VPC origin configuration.
-_#defs: "/$defs/Properties/definitions/VpcOriginConfig": close({
+#VpcOriginConfig: close({
 	// Specifies how long, in seconds, CloudFront persists its connection to the
 	// origin. The minimum timeout is 1 second, the maximum is 300 seconds, and the
 	// default (if you don't specify otherwise) is 5 seconds.

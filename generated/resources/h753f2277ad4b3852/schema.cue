@@ -15,22 +15,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Schema for AWS::CodeStarConnections::RepositoryLink resource which is used to
 // aggregate repository metadata relevant to synchronizing source provider
 // content to AWS Resources.
-#Properties: close({
-	ConnectionArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:(aws|aws-us-gov|aws-cn):.+:.+:[0-9]{12}:.+" |
-	fn.#StringExpression
-	EncryptionKeyArn?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"arn:(aws|aws-us-gov|aws-cn):.+:.+:[0-9]{12}:.+" |
-	fn.#StringExpression
-	OwnerId!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-za-z0-9_\\.-]+" | fn.#StringExpression
-	RepositoryName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-za-z0-9_\\.-]+" | fn.#StringExpression
-	Tags?:           list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeStarConnections::RepositoryLink"
+	Properties!: close({
+		ConnectionArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:(aws|aws-us-gov|aws-cn):.+:.+:[0-9]{12}:.+" |
+		fn.#StringExpression
+		EncryptionKeyArn?: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"arn:(aws|aws-us-gov|aws-cn):.+:.+:[0-9]{12}:.+" |
+		fn.#StringExpression
+		OwnerId!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-za-z0-9_\\.-]+" | fn.#StringExpression
+		RepositoryName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-za-z0-9_\\.-]+" | fn.#StringExpression
+		Tags?:           list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeStarConnections::RepositoryLink"
-	Properties!: #Properties
-}

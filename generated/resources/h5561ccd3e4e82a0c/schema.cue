@@ -17,84 +17,88 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::FeatureGroup
-#Properties: close({
-	Description?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	EventTimeFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
-	fn.#StringExpression
-	FeatureDefinitions!: list.MaxItems(2500) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FeatureDefinition"
-	] |
-		fn.#ListExpression
-	FeatureGroupName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
-	fn.#StringExpression
-	OfflineStoreConfig?: close({
-		DataCatalogConfig?:        _#defs."/$defs/Properties/definitions/DataCatalogConfig"
-		DisableGlueTableCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		S3StorageConfig!:          _#defs."/$defs/Properties/definitions/S3StorageConfig"
-		TableFormat?:              _#defs."/$defs/Properties/definitions/TableFormat"
-	}) |
-	fn.#ObjectExpression
-	OnlineStoreConfig?: close({
-		EnableOnlineStore?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SecurityConfig?:    _#defs."/$defs/Properties/definitions/OnlineStoreSecurityConfig"
-		StorageType?:       _#defs."/$defs/Properties/definitions/StorageType"
-		TtlDuration?:       _#defs."/$defs/Properties/definitions/TtlDuration"
-	}) |
-	fn.#ObjectExpression
-	RecordIdentifierFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
-	fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Tags?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	ThroughputConfig?: _#defs."/$defs/Properties/definitions/ThroughputConfig"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::FeatureGroup"
+	Properties!: close({
+		Description?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		EventTimeFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+		fn.#StringExpression
+		FeatureDefinitions!: list.MaxItems(2500) & list.MinItems(1) & [...#FeatureDefinition] | fn.#ListExpression
+		FeatureGroupName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+		fn.#StringExpression
+		OfflineStoreConfig?: close({
+			DataCatalogConfig?: #DataCatalogConfig
+			DisableGlueTableCreation?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+			S3StorageConfig!: #S3StorageConfig
+			TableFormat?:     #TableFormat
+		}) |
+		fn.#ObjectExpression
+		OnlineStoreConfig?: close({
+			EnableOnlineStore?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			SecurityConfig?:    #OnlineStoreSecurityConfig
+			StorageType?:       #StorageType
+			TtlDuration?:       #TtlDuration
+		}) |
+		fn.#ObjectExpression
+		RecordIdentifierFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+		fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		ThroughputConfig?: #ThroughputConfig
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DataCatalogConfig": close({
+#DataCatalogConfig: close({
 	Catalog!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Database!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	TableName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FeatureDefinition": close({
+#FeatureDefinition: close({
 	FeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
 	fn.#StringExpression
 	FeatureType!: "Integral" | "Fractional" | "String" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(0) &
 =~"^[a-zA-Z0-9:/_-]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OnlineStoreSecurityConfig": close(
-	{KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"},
-) |
-	fn.#ObjectExpression
+#OnlineStoreSecurityConfig: close({KmsKeyId?: #KmsKeyId}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3StorageConfig": close({
-	KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
+#S3StorageConfig: close({
+	KmsKeyId?: #KmsKeyId
 	S3Uri!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageType": "Standard" | "InMemory" | fn.#StringExpression
+#StorageType: "Standard" | "InMemory" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableFormat": "Iceberg" | "Glue" | fn.#StringExpression
+#TableFormat: "Iceberg" | "Glue" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThroughputConfig": close({
+#ThroughputConfig: close({
 	ProvisionedReadCapacityUnits?: int & <=10000000 & >=0 |
 		{
 			string &
@@ -127,21 +131,21 @@ _#defs: "/$defs/Properties/definitions/ThroughputConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	ThroughputMode!: _#defs."/$defs/Properties/definitions/ThroughputMode"
+	ThroughputMode!: #ThroughputMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThroughputMode": "OnDemand" | "Provisioned" | fn.#StringExpression
+#ThroughputMode: "OnDemand" | "Provisioned" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TtlDuration": close({
-	Unit?:  _#defs."/$defs/Properties/definitions/Unit"
-	Value?: _#defs."/$defs/Properties/definitions/Value"
+#TtlDuration: close({
+	Unit?:  #Unit
+	Value?: #Value
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": "Seconds" | "Minutes" | "Hours" | "Days" | "Weeks" | fn.#StringExpression
+#Unit: "Seconds" | "Minutes" | "Hours" | "Days" | "Weeks" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Value": int & >=1 |
+#Value: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -156,7 +160,3 @@ _#defs: "/$defs/Properties/definitions/Value": int & >=1 |
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::FeatureGroup"
-	Properties!: #Properties
-}

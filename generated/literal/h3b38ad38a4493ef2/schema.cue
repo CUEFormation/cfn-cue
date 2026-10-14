@@ -10,17 +10,17 @@ import "list"
 #Properties: close({
 	Id?:              string
 	Name!:            string
-	SizeConstraints!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SizeConstraint"]
+	SizeConstraints!: list.UniqueItems() & [...#SizeConstraint]
 })
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string
 	Type!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SizeConstraint": close({
+#SizeConstraint: close({
 	ComparisonOperator!: string
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
+	FieldToMatch!:       #FieldToMatch
 	Size!:               int
 	TextTransformation!: string
 })

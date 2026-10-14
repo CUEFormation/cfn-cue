@@ -39,13 +39,13 @@ import (
 	SystemId?: =~"^\\S{1,255}$"
 
 	// Tags assigned to the system.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The timestamp when the system was last updated.
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

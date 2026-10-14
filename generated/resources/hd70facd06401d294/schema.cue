@@ -18,85 +18,72 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ModelPackage
-#Properties: close({
-	AdditionalInferenceSpecifications?:      _#defs."/$defs/Properties/definitions/AdditionalInferenceSpecifications"
-	AdditionalInferenceSpecificationsToAdd?: _#defs."/$defs/Properties/definitions/AdditionalInferenceSpecifications"
-	ApprovalDescription?:                    _#defs."/$defs/Properties/definitions/ApprovalDescription"
-	CertifyForMarketplace?:                  _#defs."/$defs/Properties/definitions/CertifyForMarketplace"
-	ClientToken?:                            _#defs."/$defs/Properties/definitions/ClientToken"
-	CustomerMetadataProperties?:             _#defs."/$defs/Properties/definitions/CustomerMetadataProperties"
-	Domain?:                                 _#defs."/$defs/Properties/definitions/Domain"
-	DriftCheckBaselines?:                    _#defs."/$defs/Properties/definitions/DriftCheckBaselines"
-	InferenceSpecification?:                 _#defs."/$defs/Properties/definitions/InferenceSpecification"
-	MetadataProperties?:                     _#defs."/$defs/Properties/definitions/MetadataProperties"
-	ModelApprovalStatus?:                    _#defs."/$defs/Properties/definitions/ModelApprovalStatus"
-	ModelCard?:                              _#defs."/$defs/Properties/definitions/ModelCard"
-	ModelMetrics?:                           _#defs."/$defs/Properties/definitions/ModelMetrics"
-	ModelPackageDescription?:                _#defs."/$defs/Properties/definitions/ModelPackageDescription"
-	ModelPackageGroupName?:                  _#defs."/$defs/Properties/definitions/ModelPackageGroupName"
-	ModelPackageName?:                       _#defs."/$defs/Properties/definitions/ModelPackageName"
-	ModelPackageStatusDetails?:              _#defs."/$defs/Properties/definitions/ModelPackageStatusDetails"
-	ModelPackageVersion?:                    _#defs."/$defs/Properties/definitions/ModelPackageVersion"
-	SamplePayloadUrl?:                       _#defs."/$defs/Properties/definitions/SamplePayloadUrl"
-	SecurityConfig?:                         _#defs."/$defs/Properties/definitions/SecurityConfig"
-	SkipModelValidation?:                    _#defs."/$defs/Properties/definitions/SkipModelValidation"
-	SourceAlgorithmSpecification?:           _#defs."/$defs/Properties/definitions/SourceAlgorithmSpecification"
-	SourceUri?:                              _#defs."/$defs/Properties/definitions/SourceUri"
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Task?: _#defs."/$defs/Properties/definitions/Task"
-	ValidationSpecification?: _#defs."/$defs/Properties/definitions/ValidationSpecification"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::ModelPackage"
+	Properties?: close({
+		AdditionalInferenceSpecifications?:      #AdditionalInferenceSpecifications
+		AdditionalInferenceSpecificationsToAdd?: #AdditionalInferenceSpecifications
+		ApprovalDescription?:                    #ApprovalDescription
+		CertifyForMarketplace?:                  #CertifyForMarketplace
+		ClientToken?:                            #ClientToken
+		CustomerMetadataProperties?:             #CustomerMetadataProperties
+		Domain?:                                 #Domain
+		DriftCheckBaselines?:                    #DriftCheckBaselines
+		InferenceSpecification?:                 #InferenceSpecification
+		MetadataProperties?:                     #MetadataProperties
+		ModelApprovalStatus?:                    #ModelApprovalStatus
+		ModelCard?:                              #ModelCard
+		ModelMetrics?:                           #ModelMetrics
+		ModelPackageDescription?:                #ModelPackageDescription
+		ModelPackageGroupName?:                  #ModelPackageGroupName
+		ModelPackageName?:                       #ModelPackageName
+		ModelPackageStatusDetails?:              #ModelPackageStatusDetails
+		ModelPackageVersion?:                    #ModelPackageVersion
+		SamplePayloadUrl?:                       #SamplePayloadUrl
+		SecurityConfig?:                         #SecurityConfig
+		SkipModelValidation?:                    #SkipModelValidation
+		SourceAlgorithmSpecification?:           #SourceAlgorithmSpecification
+		SourceUri?:                              #SourceUri
+		Tags?:                                   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Task?:                                   #Task
+		ValidationSpecification?:                #ValidationSpecification
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AdditionalInferenceSpecificationDefinition": close({
-	Containers!: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ModelPackageContainerDefinition"
-	] |
-		fn.#ListExpression
+#AdditionalInferenceSpecificationDefinition: close({
+	Containers!:  list.MaxItems(15) & list.MinItems(1) & [...#ModelPackageContainerDefinition] | fn.#ListExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
-	SupportedContentTypes?: [..._#defs."/$defs/Properties/definitions/ContentType"] | fn.#ListExpression
-	SupportedRealtimeInferenceInstanceTypes?: [..._#defs."/$defs/Properties/definitions/InferenceInstanceType"] |
-		fn.#ListExpression
-	SupportedResponseMIMETypes?: [..._#defs."/$defs/Properties/definitions/ResponseMIMEType"] | fn.#ListExpression
-	SupportedTransformInstanceTypes?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TransformInstanceType"
-	] |
-		fn.#ListExpression
+	SupportedContentTypes?:                   [...#ContentType] | fn.#ListExpression
+	SupportedRealtimeInferenceInstanceTypes?: [...#InferenceInstanceType] | fn.#ListExpression
+	SupportedResponseMIMETypes?:              [...#ResponseMIMEType] | fn.#ListExpression
+	SupportedTransformInstanceTypes?:         list.MinItems(1) & [...#TransformInstanceType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdditionalInferenceSpecifications": list.MaxItems(15) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AdditionalInferenceSpecificationDefinition"
+#AdditionalInferenceSpecifications: list.MaxItems(15) & list.MinItems(1) & [
+	...#AdditionalInferenceSpecificationDefinition
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ApprovalDescription": strings.MaxRunes(1024) & =~".*" | fn.#StringExpression
+#ApprovalDescription: strings.MaxRunes(1024) & =~".*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Bias": close({
-	PostTrainingReport?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	PreTrainingReport?:  _#defs."/$defs/Properties/definitions/MetricsSource"
-	Report?:             _#defs."/$defs/Properties/definitions/MetricsSource"
+#Bias: close({
+	PostTrainingReport?: #MetricsSource
+	PreTrainingReport?:  #MetricsSource
+	Report?:             #MetricsSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CertifyForMarketplace": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#CertifyForMarketplace: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/ClientToken": strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
-fn.#StringExpression
+#ClientToken: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ContentType": strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
-fn.#StringExpression
+#ContentType: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CreationTime": string | fn.#StringExpression
+#CreationTime: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerMetadataProperties": struct.MaxFields(50) & struct.MinFields(1) & close({
+#CustomerMetadataProperties: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,128}"]: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
@@ -108,47 +95,44 @@ _#defs: "/$defs/Properties/definitions/CustomerMetadataProperties": struct.MaxFi
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSource": close(
-	{S3DataSource!: _#defs."/$defs/Properties/definitions/S3DataSource"},
-) |
-	fn.#ObjectExpression
+#DataSource: close({S3DataSource!: #S3DataSource}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Domain": string | fn.#StringExpression
+#Domain: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DriftCheckBaselines": close({
-	Bias?:             _#defs."/$defs/Properties/definitions/DriftCheckBias"
-	Explainability?:   _#defs."/$defs/Properties/definitions/DriftCheckExplainability"
-	ModelDataQuality?: _#defs."/$defs/Properties/definitions/DriftCheckModelDataQuality"
-	ModelQuality?:     _#defs."/$defs/Properties/definitions/DriftCheckModelQuality"
+#DriftCheckBaselines: close({
+	Bias?:             #DriftCheckBias
+	Explainability?:   #DriftCheckExplainability
+	ModelDataQuality?: #DriftCheckModelDataQuality
+	ModelQuality?:     #DriftCheckModelQuality
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DriftCheckBias": close({
-	ConfigFile?:              _#defs."/$defs/Properties/definitions/FileSource"
-	PostTrainingConstraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	PreTrainingConstraints?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#DriftCheckBias: close({
+	ConfigFile?:              #FileSource
+	PostTrainingConstraints?: #MetricsSource
+	PreTrainingConstraints?:  #MetricsSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DriftCheckExplainability": close({
-	ConfigFile?:  _#defs."/$defs/Properties/definitions/FileSource"
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
+#DriftCheckExplainability: close({
+	ConfigFile?:  #FileSource
+	Constraints?: #MetricsSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DriftCheckModelDataQuality": close({
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	Statistics?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#DriftCheckModelDataQuality: close({
+	Constraints?: #MetricsSource
+	Statistics?:  #MetricsSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DriftCheckModelQuality": close({
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	Statistics?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#DriftCheckModelQuality: close({
+	Constraints?: #MetricsSource
+	Statistics?:  #MetricsSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Environment": struct.MaxFields(16) & close({
+#Environment: struct.MaxFields(16) & close({
 
 	{[=~"[\\S\\s]*"]: strings.MaxRunes(1024) | fn.#StringExpression}
 
@@ -156,12 +140,9 @@ _#defs: "/$defs/Properties/definitions/Environment": struct.MaxFields(16) & clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Explainability": close(
-	{Report?: _#defs."/$defs/Properties/definitions/MetricsSource"},
-) |
-	fn.#ObjectExpression
+#Explainability: close({Report?: #MetricsSource}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileSource": close({
+#FileSource: close({
 	ContentDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
 	fn.#StringExpression
 	ContentType?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
@@ -169,27 +150,21 @@ _#defs: "/$defs/Properties/definitions/FileSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceInstanceType": string | fn.#StringExpression
+#InferenceInstanceType: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceSpecification": close({
-	Containers!: list.MaxItems(15) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ModelPackageContainerDefinition"
-	] |
+#InferenceSpecification: close({
+	Containers!: list.MaxItems(15) & list.MinItems(1) & list.UniqueItems() & [...#ModelPackageContainerDefinition] |
 		fn.#ListExpression
-	SupportedContentTypes!: [..._#defs."/$defs/Properties/definitions/ContentType"] | fn.#ListExpression
-	SupportedRealtimeInferenceInstanceTypes?: [..._#defs."/$defs/Properties/definitions/InferenceInstanceType"] |
-		fn.#ListExpression
-	SupportedResponseMIMETypes!: [..._#defs."/$defs/Properties/definitions/ResponseMIMEType"] | fn.#ListExpression
-	SupportedTransformInstanceTypes?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TransformInstanceType"
-	] |
-		fn.#ListExpression
+	SupportedContentTypes!:                   [...#ContentType] | fn.#ListExpression
+	SupportedRealtimeInferenceInstanceTypes?: [...#InferenceInstanceType] | fn.#ListExpression
+	SupportedResponseMIMETypes!:              [...#ResponseMIMEType] | fn.#ListExpression
+	SupportedTransformInstanceTypes?:         list.MinItems(1) & [...#TransformInstanceType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LastModifiedTime": string | fn.#StringExpression
+#LastModifiedTime: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	ProjectId?:   strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
@@ -197,7 +172,7 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsSource": close({
+#MetricsSource: close({
 	ContentDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
 	fn.#StringExpression
 	ContentType!: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
@@ -205,53 +180,46 @@ _#defs: "/$defs/Properties/definitions/MetricsSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelAccessConfig": close(
+#ModelAccessConfig: close(
 	{AcceptEula!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelApprovalStatus": "Approved" |
-	"Rejected" |
-	"PendingManualApproval" |
-	fn.#StringExpression
+#ModelApprovalStatus: "Approved" | "Rejected" | "PendingManualApproval" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModelCard": close({
+#ModelCard: close({
 	ModelCardContent!: strings.MaxRunes(100000) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	ModelCardStatus!:  "Draft" | "PendingReview" | "Approved" | "Archived" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelDataQuality": close({
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	Statistics?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#ModelDataQuality: close({
+	Constraints?: #MetricsSource
+	Statistics?:  #MetricsSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelDataSource": close(
-	{S3DataSource?: _#defs."/$defs/Properties/definitions/S3ModelDataSource"},
-) |
-	fn.#ObjectExpression
+#ModelDataSource: close({S3DataSource?: #S3ModelDataSource}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelMetrics": close({
-	Bias?:             _#defs."/$defs/Properties/definitions/Bias"
-	Explainability?:   _#defs."/$defs/Properties/definitions/Explainability"
-	ModelDataQuality?: _#defs."/$defs/Properties/definitions/ModelDataQuality"
-	ModelQuality?:     _#defs."/$defs/Properties/definitions/ModelQuality"
+#ModelMetrics: close({
+	Bias?:             #Bias
+	Explainability?:   #Explainability
+	ModelDataQuality?: #ModelDataQuality
+	ModelQuality?:     #ModelQuality
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageArn": strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
+#ModelPackageArn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
+#ModelPackageContainerDefinition: close({
 	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
-	Environment?:       _#defs."/$defs/Properties/definitions/Environment"
+	Environment?:       #Environment
 	Framework?:         string | fn.#StringExpression
 	FrameworkVersion?:  strings.MaxRunes(10) & strings.MinRunes(3) & =~"[0-9]\\.[A-Za-z0-9.]+" | fn.#StringExpression
 	Image!:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\S]{1,255}" | fn.#StringExpression
 	ImageDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
 	fn.#StringExpression
-	ModelDataSource?: _#defs."/$defs/Properties/definitions/ModelDataSource"
+	ModelDataSource?: #ModelDataSource
 	ModelDataUrl?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
 	fn.#StringExpression
 	ModelInput?: close(
@@ -262,39 +230,27 @@ _#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageDescription": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*" |
+#ModelPackageDescription: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageGroupName": strings.MaxRunes(170) & strings.MinRunes(1) |
+#ModelPackageGroupName: strings.MaxRunes(170) & strings.MinRunes(1) | fn.#StringExpression
+
+#ModelPackageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-fn.#StringExpression
+#ModelPackageStatus: "Pending" | "Deleting" | "InProgress" | "Completed" | "Failed" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageStatus": "Pending" |
-	"Deleting" |
-	"InProgress" |
-	"Completed" |
-	"Failed" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ModelPackageStatusDetails": close(
-	{ValidationStatuses?: [..._#defs."/$defs/Properties/definitions/ModelPackageStatusItem"] | fn.#ListExpression},
-) |
+#ModelPackageStatusDetails: close({ValidationStatuses?: [...#ModelPackageStatusItem] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageStatusItem": close({
+#ModelPackageStatusItem: close({
 	FailureReason?: string | fn.#StringExpression
 	Name!:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
 	Status!: "NotStarted" | "Failed" | "InProgress" | "Completed" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageVersion": int & >=1 |
+#ModelPackageVersion: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -310,37 +266,32 @@ _#defs: "/$defs/Properties/definitions/ModelPackageVersion": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ModelQuality": close({
-	Constraints?: _#defs."/$defs/Properties/definitions/MetricsSource"
-	Statistics?:  _#defs."/$defs/Properties/definitions/MetricsSource"
+#ModelQuality: close({
+	Constraints?: #MetricsSource
+	Statistics?:  #MetricsSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseMIMEType": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"^[-\\w]+\\/.+$" |
-fn.#StringExpression
+#ResponseMIMEType: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[-\\w]+\\/.+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3DataSource": close({
+#S3DataSource: close({
 	S3DataType!: "ManifestFile" | "S3Prefix" | "AugmentedManifestFile" | fn.#StringExpression
 	S3Uri!:      strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3ModelDataSource": close({
+#S3ModelDataSource: close({
 	CompressionType!:   "None" | "Gzip" | fn.#StringExpression
-	ModelAccessConfig?: _#defs."/$defs/Properties/definitions/ModelAccessConfig"
+	ModelAccessConfig?: #ModelAccessConfig
 	S3DataType!:        "S3Prefix" | "S3Object" | fn.#StringExpression
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SamplePayloadUrl": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"^(https|s3)://([^/]+)/?(.*)$" |
+#SamplePayloadUrl: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityConfig": close({
+#SecurityConfig: close({
 	KmsKeyId!: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) &
 	strings.MaxRunes(2048) &
@@ -350,44 +301,43 @@ _#defs: "/$defs/Properties/definitions/SecurityConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SkipModelValidation": "None" | "All" | fn.#StringExpression
+#SkipModelValidation: "None" | "All" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourceAlgorithm": close({
+#SourceAlgorithm: close({
 	AlgorithmName!: strings.MaxRunes(170) & strings.MinRunes(1) | fn.#StringExpression
 	ModelDataUrl?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceAlgorithmSpecification": close({
-	SourceAlgorithms!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SourceAlgorithm"] |
-		fn.#ListExpression
-}) |
+#SourceAlgorithmSpecification: close(
+	{SourceAlgorithms!: list.MaxItems(1) & list.MinItems(1) & [...#SourceAlgorithm] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceUri": strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+#SourceUri: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Task": string | fn.#StringExpression
+#Task: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TransformInput": close({
+#TransformInput: close({
 	CompressionType?: "None" | "Gzip" | fn.#StringExpression
 	ContentType?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	DataSource!:      _#defs."/$defs/Properties/definitions/DataSource"
+	DataSource!:      #DataSource
 	SplitType?:       "None" | "TFRecord" | "Line" | "RecordIO" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformInstanceType": string | fn.#StringExpression
+#TransformInstanceType: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TransformJobDefinition": close({
+#TransformJobDefinition: close({
 	BatchStrategy?: "MultiRecord" | "SingleRecord" | fn.#StringExpression
-	Environment?:   _#defs."/$defs/Properties/definitions/Environment"
+	Environment?:   #Environment
 	MaxConcurrentTransforms?: int & >=0 |
 		{
 			string &
@@ -418,13 +368,13 @@ _#defs: "/$defs/Properties/definitions/TransformJobDefinition": close({
 				)
 		} |
 		fn.#NumberExpression
-	TransformInput!:     _#defs."/$defs/Properties/definitions/TransformInput"
-	TransformOutput!:    _#defs."/$defs/Properties/definitions/TransformOutput"
-	TransformResources!: _#defs."/$defs/Properties/definitions/TransformResources"
+	TransformInput!:     #TransformInput
+	TransformOutput!:    #TransformOutput
+	TransformResources!: #TransformResources
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformOutput": close({
+#TransformOutput: close({
 	Accept?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	AssembleWith?: "None" | "Line" | fn.#StringExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -438,7 +388,7 @@ _#defs: "/$defs/Properties/definitions/TransformOutput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformResources": close({
+#TransformResources: close({
 	InstanceCount!: int & >=1 |
 		{
 			string &
@@ -459,25 +409,18 @@ _#defs: "/$defs/Properties/definitions/TransformResources": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ValidationProfile": close({
+#ValidationProfile: close({
 	ProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
-	TransformJobDefinition!: _#defs."/$defs/Properties/definitions/TransformJobDefinition"
+	TransformJobDefinition!: #TransformJobDefinition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ValidationSpecification": close({
-	ValidationProfiles!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ValidationProfile"
-	] |
-		fn.#ListExpression
+#ValidationSpecification: close({
+	ValidationProfiles!: list.MaxItems(1) & list.MinItems(1) & [...#ValidationProfile] | fn.#ListExpression
 	ValidationRole!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::ModelPackage"
-	Properties?: #Properties
-}

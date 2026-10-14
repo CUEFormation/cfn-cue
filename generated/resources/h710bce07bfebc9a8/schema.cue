@@ -16,52 +16,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EMR::InstanceGroupConfig
-#Properties: close({
-	AutoScalingPolicy?: _#defs."/$defs/Properties/definitions/AutoScalingPolicy"
-	BidPrice?:          string | fn.#StringExpression
-	Configurations?:    [..._#defs."/$defs/Properties/definitions/AppConfiguration"] | fn.#ListExpression
-	CustomAmiId?:       string | fn.#StringExpression
-	EbsConfiguration?:  _#defs."/$defs/Properties/definitions/EbsConfiguration"
-	InstanceCount!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	InstanceRole!: string | fn.#StringExpression
-	InstanceType!: string | fn.#StringExpression
-	JobFlowId!:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Market?:       string | fn.#StringExpression
-	Name?:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::InstanceGroupConfig"
+	Properties!: close({
+		AutoScalingPolicy?: #AutoScalingPolicy
+		BidPrice?:          string | fn.#StringExpression
+		Configurations?:    [...#AppConfiguration] | fn.#ListExpression
+		CustomAmiId?:       string | fn.#StringExpression
+		EbsConfiguration?:  #EbsConfiguration
+		InstanceCount!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		InstanceRole!: string | fn.#StringExpression
+		InstanceType!: string | fn.#StringExpression
+		JobFlowId!:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Market?:       string | fn.#StringExpression
+		Name?:         string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AppConfiguration": close({
+#AppConfiguration: close({
 	Classification?: string | fn.#StringExpression
 	ConfigurationProperties?: close({
 
 		{[=~"^.*$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Configurations?: [..._#defs."/$defs/Properties/definitions/AppConfiguration"] | fn.#ListExpression
+	Configurations?: [...#AppConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingPolicy": close({
-	Constraints!: _#defs."/$defs/Properties/definitions/ScalingConstraints"
-	Rules!:       [..._#defs."/$defs/Properties/definitions/ScalingRule"] | fn.#ListExpression
+#AutoScalingPolicy: close({
+	Constraints!: #ScalingConstraints
+	Rules!:       [...#ScalingRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
+#CloudWatchAlarmDefinition: close({
 	ComparisonOperator!: string | fn.#StringExpression
-	Dimensions?:         [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
+	Dimensions?:         [...#MetricDimension] | fn.#ListExpression
 	EvaluationPeriods?: int |
 		{
 			string &
@@ -116,8 +121,8 @@ _#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
-	VolumeSpecification!: _#defs."/$defs/Properties/definitions/VolumeSpecification"
+#EbsBlockDeviceConfig: close({
+	VolumeSpecification!: #VolumeSpecification
 	VolumesPerInstance?: int |
 		{
 			string &
@@ -135,25 +140,25 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsConfiguration": close({
-	EbsBlockDeviceConfigs?: [..._#defs."/$defs/Properties/definitions/EbsBlockDeviceConfig"] | fn.#ListExpression
+#EbsConfiguration: close({
+	EbsBlockDeviceConfigs?: [...#EbsBlockDeviceConfig] | fn.#ListExpression
 	EbsOptimized?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingAction": close({
+#ScalingAction: close({
 	Market?:                           string | fn.#StringExpression
-	SimpleScalingPolicyConfiguration!: _#defs."/$defs/Properties/definitions/SimpleScalingPolicyConfiguration"
+	SimpleScalingPolicyConfiguration!: #SimpleScalingPolicyConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConstraints": close({
+#ScalingConstraints: close({
 	MaxCapacity!: int |
 		{
 			string &
@@ -185,20 +190,17 @@ _#defs: "/$defs/Properties/definitions/ScalingConstraints": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingRule": close({
-	Action!:      _#defs."/$defs/Properties/definitions/ScalingAction"
+#ScalingRule: close({
+	Action!:      #ScalingAction
 	Description?: string | fn.#StringExpression
 	Name!:        string | fn.#StringExpression
-	Trigger!:     _#defs."/$defs/Properties/definitions/ScalingTrigger"
+	Trigger!:     #ScalingTrigger
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingTrigger": close(
-	{CloudWatchAlarmDefinition!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmDefinition"},
-) |
-	fn.#ObjectExpression
+#ScalingTrigger: close({CloudWatchAlarmDefinition!: #CloudWatchAlarmDefinition}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SimpleScalingPolicyConfiguration": close({
+#SimpleScalingPolicyConfiguration: close({
 	AdjustmentType?: string | fn.#StringExpression
 	CoolDown?: int |
 		{
@@ -231,7 +233,7 @@ _#defs: "/$defs/Properties/definitions/SimpleScalingPolicyConfiguration": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
+#VolumeSpecification: close({
 	Iops?: int |
 		{
 			string &
@@ -277,7 +279,3 @@ _#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
 	VolumeType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::InstanceGroupConfig"
-	Properties!: #Properties
-}

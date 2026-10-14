@@ -12,68 +12,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolRiskConfigurationAttachment
-#Properties: close({
-	AccountTakeoverRiskConfiguration?: _#defs."/$defs/Properties/definitions/AccountTakeoverRiskConfigurationType"
-	ClientId!:                         string | fn.#StringExpression
-	CompromisedCredentialsRiskConfiguration?:
-		_#defs."/$defs/Properties/definitions/CompromisedCredentialsRiskConfigurationType"
-	RiskExceptionConfiguration?: _#defs."/$defs/Properties/definitions/RiskExceptionConfigurationType"
-	UserPoolId!:                 string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::UserPoolRiskConfigurationAttachment"
+	Properties!: close({
+		AccountTakeoverRiskConfiguration?:        #AccountTakeoverRiskConfigurationType
+		ClientId!:                                string | fn.#StringExpression
+		CompromisedCredentialsRiskConfiguration?: #CompromisedCredentialsRiskConfigurationType
+		RiskExceptionConfiguration?:              #RiskExceptionConfigurationType
+		UserPoolId!:                              string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccountTakeoverActionType": close({
+#AccountTakeoverActionType: close({
 	EventAction!: string | fn.#StringExpression
 	Notify!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccountTakeoverActionsType": close({
-	HighAction?:   _#defs."/$defs/Properties/definitions/AccountTakeoverActionType"
-	LowAction?:    _#defs."/$defs/Properties/definitions/AccountTakeoverActionType"
-	MediumAction?: _#defs."/$defs/Properties/definitions/AccountTakeoverActionType"
+#AccountTakeoverActionsType: close({
+	HighAction?:   #AccountTakeoverActionType
+	LowAction?:    #AccountTakeoverActionType
+	MediumAction?: #AccountTakeoverActionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccountTakeoverRiskConfigurationType": close({
-	Actions!:             _#defs."/$defs/Properties/definitions/AccountTakeoverActionsType"
-	NotifyConfiguration?: _#defs."/$defs/Properties/definitions/NotifyConfigurationType"
+#AccountTakeoverRiskConfigurationType: close({
+	Actions!:             #AccountTakeoverActionsType
+	NotifyConfiguration?: #NotifyConfigurationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CompromisedCredentialsActionsType": close(
-	{EventAction!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#CompromisedCredentialsActionsType: close({EventAction!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CompromisedCredentialsRiskConfigurationType": close({
-	Actions!:     _#defs."/$defs/Properties/definitions/CompromisedCredentialsActionsType"
+#CompromisedCredentialsRiskConfigurationType: close({
+	Actions!:     #CompromisedCredentialsActionsType
 	EventFilter?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotifyConfigurationType": close({
-	BlockEmail?:    _#defs."/$defs/Properties/definitions/NotifyEmailType"
+#NotifyConfigurationType: close({
+	BlockEmail?:    #NotifyEmailType
 	From?:          string | fn.#StringExpression
-	MfaEmail?:      _#defs."/$defs/Properties/definitions/NotifyEmailType"
-	NoActionEmail?: _#defs."/$defs/Properties/definitions/NotifyEmailType"
+	MfaEmail?:      #NotifyEmailType
+	NoActionEmail?: #NotifyEmailType
 	ReplyTo?:       string | fn.#StringExpression
 	SourceArn!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotifyEmailType": close({
+#NotifyEmailType: close({
 	HtmlBody?: string | fn.#StringExpression
 	Subject!:  string | fn.#StringExpression
 	TextBody?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RiskExceptionConfigurationType": close({
+#RiskExceptionConfigurationType: close({
 	BlockedIPRangeList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	SkippedIPRangeList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolRiskConfigurationAttachment"
-	Properties!: #Properties
-}

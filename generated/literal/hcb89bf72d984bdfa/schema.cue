@@ -47,11 +47,11 @@ import (
 	PeerNetworkRouteTableIds?: list.MaxItems(1) & list.MinItems(1) & [...=~"^rtb-[a-z0-9]{8,17}$"]
 
 	// Tags to assign to the Odb peering connection.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that's 1 to 128 Unicode
 	// characters in length and can't be prefixed with aws:. You can use any of the
 	// following characters: Unicode letters, digits, whitespace, _, ., :, /, =, +,

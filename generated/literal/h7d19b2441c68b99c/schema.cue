@@ -11,7 +11,7 @@ import (
 
 // Resource Type definition for AWS::SageMaker::Cluster
 #Properties: close({
-	AutoScaling?: _#defs."/$defs/Properties/definitions/ClusterAutoScalingConfig"
+	AutoScaling?: #ClusterAutoScalingConfig
 
 	// The Amazon Resource Name (ARN) of the HyperPod Cluster.
 	ClusterArn?: strings.MaxRunes(256) & =~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:cluster/[a-z0-9]{12}$"
@@ -32,7 +32,7 @@ import (
 
 	// The failure message of the HyperPod Cluster.
 	FailureMessage?: string
-	InstanceGroups?: _#defs."/$defs/Properties/definitions/ClusterInstanceGroupsList"
+	InstanceGroups?: #ClusterInstanceGroupsList
 
 	// Determines the scaling strategy for the SageMaker HyperPod cluster. When set
 	// to 'Continuous', enables continuous scaling which dynamically manages node
@@ -44,29 +44,29 @@ import (
 	// rebooted when a failure is detected. If set to false, nodes will be labelled
 	// when a fault is detected.
 	NodeRecovery?:                   "Automatic" | "None"
-	Orchestrator?:                   _#defs."/$defs/Properties/definitions/Orchestrator"
-	RestrictedInstanceGroups?:       _#defs."/$defs/Properties/definitions/ClusterRestrictedInstanceGroupsList"
-	RestrictedInstanceGroupsConfig?: _#defs."/$defs/Properties/definitions/RestrictedInstanceGroupsConfig"
+	Orchestrator?:                   #Orchestrator
+	RestrictedInstanceGroups?:       #ClusterRestrictedInstanceGroupsList
+	RestrictedInstanceGroupsConfig?: #RestrictedInstanceGroupsConfig
 
 	// Custom tags for managing the SageMaker HyperPod cluster as an AWS resource.
 	// You can add tags to your cluster in the same way you add them in other AWS
 	// services that support tagging.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TieredStorageConfig?: _#defs."/$defs/Properties/definitions/TieredStorageConfig"
-	VpcConfig?:           _#defs."/$defs/Properties/definitions/VpcConfig"
+	Tags?:                list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
+	TieredStorageConfig?: #TieredStorageConfig
+	VpcConfig?:           #VpcConfig
 })
 
 // The details of the alarm to monitor during the AMI update.
-_#defs: "/$defs/Properties/definitions/AlarmDetails": close({
+#AlarmDetails: close({
 	// The name of the alarm.
 	AlarmName!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
 // The configuration for automatic patching of the instance group. Enables
 // workload-aware, patch-level AMI updates.
-_#defs: "/$defs/Properties/definitions/AutoPatchConfig": close({
-	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig"
-	PatchSchedule?:    _#defs."/$defs/Properties/definitions/PatchSchedule"
+#AutoPatchConfig: close({
+	DeploymentConfig?: #DeploymentConfig
+	PatchSchedule?:    #PatchSchedule
 
 	// The patching strategy that determines when and how instances are patched.
 	// WhenIdle patches instances as they become idle. WhenAllIdle patches all
@@ -76,14 +76,12 @@ _#defs: "/$defs/Properties/definitions/AutoPatchConfig": close({
 
 // An array that contains the alarms that SageMaker monitors to know whether to
 // roll back the AMI update.
-_#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AlarmDetails"
-]
+#AutoRollbackConfiguration: list.MaxItems(10) & list.MinItems(1) & [...#AlarmDetails]
 
 // The configuration of the size measurements of the AMI update. Using this
 // configuration, you can specify whether SageMaker should update your instance
 // group by an amount or percentage of instances.
-_#defs: "/$defs/Properties/definitions/CapacitySizeConfig": close({
+#CapacitySizeConfig: close({
 	// Specifies whether SageMaker should process the update by amount or percentage of instances.
 	Type!: =~"INSTANCE_COUNT|CAPACITY_PERCENTAGE"
 
@@ -95,7 +93,7 @@ _#defs: "/$defs/Properties/definitions/CapacitySizeConfig": close({
 // connects to. Database credentials are supplied out-of-band through the
 // referenced Secrets Manager secret. Supported only with Continuous node
 // provisioning.
-_#defs: "/$defs/Properties/definitions/ClusterAccountingDatabase": close({
+#ClusterAccountingDatabase: close({
 	// Hostname or endpoint of the accounting database, such as an RDS endpoint.
 	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -110,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/ClusterAccountingDatabase": close({
 })
 
 // Configuration for cluster auto-scaling
-_#defs: "/$defs/Properties/definitions/ClusterAutoScalingConfig": close({
+#ClusterAutoScalingConfig: close({
 	// The type of auto-scaler to use
 	AutoScalerType?: "Karpenter"
 
@@ -119,16 +117,16 @@ _#defs: "/$defs/Properties/definitions/ClusterAutoScalingConfig": close({
 })
 
 // Specifies the capacity requirements configuration for an instance group
-_#defs: "/$defs/Properties/definitions/ClusterCapacityRequirements": close({
-	OnDemand?: _#defs."/$defs/Properties/definitions/ClusterOnDemandOptions"
-	Spot?:     _#defs."/$defs/Properties/definitions/ClusterSpotOptions"
+#ClusterCapacityRequirements: close({
+	OnDemand?: #ClusterOnDemandOptions
+	Spot?:     #ClusterSpotOptions
 })
 
 // Defines the configuration for attaching additional Amazon Elastic Block Store
 // (EBS) volumes to the instances in the SageMaker HyperPod cluster instance
 // group. The additional EBS volume is attached to each instance within the
 // SageMaker HyperPod cluster instance group and mounted to /opt/sagemaker.
-_#defs: "/$defs/Properties/definitions/ClusterEbsVolumeConfig": close({
+#ClusterEbsVolumeConfig: close({
 	RootVolume?:     bool
 	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$"
 
@@ -141,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/ClusterEbsVolumeConfig": close({
 
 // Configuration for mounting an Amazon FSx Lustre file system to the instances
 // in the SageMaker HyperPod cluster instance group.
-_#defs: "/$defs/Properties/definitions/ClusterFsxLustreConfig": close({
+#ClusterFsxLustreConfig: close({
 	// The DNS name of the FSx for Lustre file system.
 	DnsName!: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$"
 
@@ -154,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/ClusterFsxLustreConfig": close({
 
 // Configuration for mounting an Amazon FSx OpenZFS file system to the instances
 // in the SageMaker HyperPod cluster instance group.
-_#defs: "/$defs/Properties/definitions/ClusterFsxOpenZfsConfig": close({
+#ClusterFsxOpenZfsConfig: close({
 	// The DNS name of the FSx for OpenZFS file system.
 	DnsName!: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$"
 
@@ -163,33 +161,33 @@ _#defs: "/$defs/Properties/definitions/ClusterFsxOpenZfsConfig": close({
 })
 
 // Details of an instance group in a SageMaker HyperPod cluster.
-_#defs: "/$defs/Properties/definitions/ClusterInstanceGroup": close({
-	AutoPatchConfig?:      _#defs."/$defs/Properties/definitions/AutoPatchConfig"
-	CapacityRequirements?: _#defs."/$defs/Properties/definitions/ClusterCapacityRequirements"
+#ClusterInstanceGroup: close({
+	AutoPatchConfig?:      #AutoPatchConfig
+	CapacityRequirements?: #ClusterCapacityRequirements
 
 	// The number of instances that are currently in the instance group of a SageMaker HyperPod cluster.
 	CurrentCount?:  int & >=0
-	ExecutionRole!: _#defs."/$defs/Properties/definitions/ExecutionRole"
-	ImageId?:       _#defs."/$defs/Properties/definitions/ImageId"
+	ExecutionRole!: #ExecutionRole
+	ImageId?:       #ImageId
 
 	// The number of instances you specified to add to the instance group of a
 	// SageMaker HyperPod cluster.
 	InstanceCount!:          int & <=6758 & >=0
-	InstanceGroupName!:      _#defs."/$defs/Properties/definitions/InstanceGroupName"
-	InstanceRequirements?:   _#defs."/$defs/Properties/definitions/InstanceRequirements"
-	InstanceStorageConfigs?: _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
-	InstanceType?:           _#defs."/$defs/Properties/definitions/InstanceType"
-	KubernetesConfig?:       _#defs."/$defs/Properties/definitions/ClusterKubernetesConfig"
-	LifeCycleConfig?:        _#defs."/$defs/Properties/definitions/ClusterLifeCycleConfig"
+	InstanceGroupName!:      #InstanceGroupName
+	InstanceRequirements?:   #InstanceRequirements
+	InstanceStorageConfigs?: #ClusterInstanceStorageConfigs
+	InstanceType?:           #InstanceType
+	KubernetesConfig?:       #ClusterKubernetesConfig
+	LifeCycleConfig?:        #ClusterLifeCycleConfig
 
 	// The minimum number of instances required for the instance group to be
 	// InService. MinInstanceCount must be less than or equal to InstanceCount.
 	MinInstanceCount?:        int & <=6758 & >=0
-	NetworkInterface?:        _#defs."/$defs/Properties/definitions/ClusterNetworkInterface"
-	OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
-	OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
-	ScheduledUpdateConfig?:   _#defs."/$defs/Properties/definitions/ScheduledUpdateConfig"
-	SlurmConfig?:             _#defs."/$defs/Properties/definitions/ClusterSlurmConfig"
+	NetworkInterface?:        #ClusterNetworkInterface
+	OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
+	OverrideVpcConfig?:       #VpcConfig
+	ScheduledUpdateConfig?:   #ScheduledUpdateConfig
+	SlurmConfig?:             #ClusterSlurmConfig
 
 	// The number you specified to TreadsPerCore in CreateCluster for enabling or
 	// disabling multithreading. For instance types that support multithreading,
@@ -207,38 +205,34 @@ _#defs: "/$defs/Properties/definitions/ClusterInstanceGroup": close({
 })
 
 // The instance groups of the SageMaker HyperPod cluster.
-_#defs: "/$defs/Properties/definitions/ClusterInstanceGroupsList": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ClusterInstanceGroup"
-]
+#ClusterInstanceGroupsList: list.MaxItems(100) & list.MinItems(1) & [...#ClusterInstanceGroup]
 
 // Defines the configuration for attaching additional storage to the instances
 // in the SageMaker HyperPod cluster instance group.
-_#defs: "/$defs/Properties/definitions/ClusterInstanceStorageConfig": matchN(1, [close(
-	{EbsVolumeConfig?: _#defs."/$defs/Properties/definitions/ClusterEbsVolumeConfig"},
+#ClusterInstanceStorageConfig: matchN(1, [close(
+	{EbsVolumeConfig?: #ClusterEbsVolumeConfig},
 ), close(
-	{FsxLustreConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxLustreConfig"},
+	{FsxLustreConfig?: #ClusterFsxLustreConfig},
 ), close(
-	{FsxOpenZfsConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxOpenZfsConfig"},
+	{FsxOpenZfsConfig?: #ClusterFsxOpenZfsConfig},
 )])
 
 // The instance storage configuration for the instance group.
-_#defs: "/$defs/Properties/definitions/ClusterInstanceStorageConfigs": list.MaxItems(4) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfig"
-]
+#ClusterInstanceStorageConfigs: list.MaxItems(4) & [...] & [...#ClusterInstanceStorageConfig]
 
 // Kubernetes configuration for cluster nodes including labels and taints.
-_#defs: "/$defs/Properties/definitions/ClusterKubernetesConfig": close({
-	Labels?: _#defs."/$defs/Properties/definitions/ClusterKubernetesLabels"
-	Taints?: _#defs."/$defs/Properties/definitions/ClusterKubernetesTaints"
+#ClusterKubernetesConfig: close({
+	Labels?: #ClusterKubernetesLabels
+	Taints?: #ClusterKubernetesTaints
 })
 
 // A map of Kubernetes labels to apply to cluster nodes.
-_#defs: "/$defs/Properties/definitions/ClusterKubernetesLabels": close({
+#ClusterKubernetesLabels: close({
 
 	{[=~"^.+$"]: string}})
 
 // A Kubernetes taint to apply to cluster nodes.
-_#defs: "/$defs/Properties/definitions/ClusterKubernetesTaint": close({
+#ClusterKubernetesTaint: close({
 	// The effect of the taint.
 	Effect!: "NoSchedule" | "PreferNoSchedule" | "NoExecute"
 
@@ -252,15 +246,13 @@ _#defs: "/$defs/Properties/definitions/ClusterKubernetesTaint": close({
 })
 
 // A list of Kubernetes taints to apply to cluster nodes. Maximum of 50 taints.
-_#defs: "/$defs/Properties/definitions/ClusterKubernetesTaints": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ClusterKubernetesTaint"
-]
+#ClusterKubernetesTaints: list.MaxItems(50) & [...] & [...#ClusterKubernetesTaint]
 
 // The lifecycle configuration for a SageMaker HyperPod cluster. When omitted,
 // the instance group uses Bootstrap mode. When provided with SourceS3Uri and
 // OnCreate, uses Customer Managed mode. When provided with SourceS3Uri and
 // OnInitComplete, uses Extended mode.
-_#defs: "/$defs/Properties/definitions/ClusterLifeCycleConfig": close({
+#ClusterLifeCycleConfig: close({
 	// The file name of the entrypoint script of lifecycle scripts under
 	// SourceS3Uri. This entrypoint script runs during cluster creation. Mutually
 	// exclusive with OnInitComplete.
@@ -276,44 +268,44 @@ _#defs: "/$defs/Properties/definitions/ClusterLifeCycleConfig": close({
 })
 
 // Specifies the network interface configuration for the instance group.
-_#defs: "/$defs/Properties/definitions/ClusterNetworkInterface": close({
+#ClusterNetworkInterface: close({
 	// The type of network interface.
 	InterfaceType!: "efa" | "efa-only"
 })
 
 // Options for OnDemand capacity
-_#defs: "/$defs/Properties/definitions/ClusterOnDemandOptions": close({})
+#ClusterOnDemandOptions: close({})
 
 // Specifies parameter(s) related to EKS as orchestrator, e.g. the EKS cluster nodes will attach to,
-_#defs: "/$defs/Properties/definitions/ClusterOrchestratorEksConfig": close({
+#ClusterOrchestratorEksConfig: close({
 	// The ARN of the EKS cluster, such as arn:aws:eks:us-west-2:123456789012:cluster/my-eks-cluster
 	ClusterArn!: string
 })
 
 // Specifies parameter(s) related to Slurm as orchestrator.
-_#defs: "/$defs/Properties/definitions/ClusterOrchestratorSlurmConfig": close({
-	AccountingDatabase?: _#defs."/$defs/Properties/definitions/ClusterAccountingDatabase"
+#ClusterOrchestratorSlurmConfig: close({
+	AccountingDatabase?: #ClusterAccountingDatabase
 
 	// The strategy for managing Slurm configuration on the cluster.
 	SlurmConfigStrategy?: "Overwrite" | "Managed" | "Merge"
 })
 
 // Details of a restricted instance group in a SageMaker HyperPod cluster.
-_#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroup": close({
+#ClusterRestrictedInstanceGroup: close({
 	// The number of instances that are currently in the restricted instance group
 	// of a SageMaker HyperPod cluster.
 	CurrentCount?:      int & >=0
-	EnvironmentConfig?: _#defs."/$defs/Properties/definitions/EnvironmentConfig"
-	ExecutionRole!:     _#defs."/$defs/Properties/definitions/ExecutionRole"
+	EnvironmentConfig?: #EnvironmentConfig
+	ExecutionRole!:     #ExecutionRole
 
 	// The number of instances you specified to add to the restricted instance group
 	// of a SageMaker HyperPod cluster.
 	InstanceCount!:           int & <=6758 & >=0
-	InstanceGroupName!:       _#defs."/$defs/Properties/definitions/InstanceGroupName"
-	InstanceStorageConfigs?:  _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
-	InstanceType!:            _#defs."/$defs/Properties/definitions/InstanceType"
-	OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
-	OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
+	InstanceGroupName!:       #InstanceGroupName
+	InstanceStorageConfigs?:  #ClusterInstanceStorageConfigs
+	InstanceType!:            #InstanceType
+	OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
+	OverrideVpcConfig?:       #VpcConfig
 
 	// The number you specified to TreadsPerCore in CreateCluster for enabling or
 	// disabling multithreading. For instance types that support multithreading,
@@ -331,12 +323,10 @@ _#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroup": close({
 })
 
 // The restricted instance groups of the SageMaker HyperPod cluster.
-_#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroupsList": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ClusterRestrictedInstanceGroup"
-]
+#ClusterRestrictedInstanceGroupsList: list.MaxItems(100) & list.MinItems(1) & [...#ClusterRestrictedInstanceGroup]
 
 // Slurm configuration for the instance group.
-_#defs: "/$defs/Properties/definitions/ClusterSlurmConfig": close({
+#ClusterSlurmConfig: close({
 	// The type of Slurm node for this instance group.
 	NodeType!: "Controller" | "Login" | "Compute"
 
@@ -347,33 +337,31 @@ _#defs: "/$defs/Properties/definitions/ClusterSlurmConfig": close({
 })
 
 // Options for Spot capacity
-_#defs: "/$defs/Properties/definitions/ClusterSpotOptions": close({})
+#ClusterSpotOptions: close({})
 
 // The type of deep health check(s) to be performed on the instances in the
 // SageMaker HyperPod cluster instance group.
-_#defs: "/$defs/Properties/definitions/DeepHealthCheckType": "InstanceStress" | "InstanceConnectivity"
+#DeepHealthCheckType: "InstanceStress" | "InstanceConnectivity"
 
 // The configuration to use when updating the AMI versions.
-_#defs: "/$defs/Properties/definitions/DeploymentConfig": close({
-	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfiguration"
-	RollingUpdatePolicy?:       _#defs."/$defs/Properties/definitions/RollingUpdatePolicy"
+#DeploymentConfig: close({
+	AutoRollbackConfiguration?: #AutoRollbackConfiguration
+	RollingUpdatePolicy?:       #RollingUpdatePolicy
 
 	// The duration in seconds that SageMaker waits before updating more instances in the cluster.
 	WaitIntervalInSeconds?: int & <=3600 & >=0
 })
 
 // The configuration for the restricted instance groups (RIG) environment.
-_#defs: "/$defs/Properties/definitions/EnvironmentConfig": close(
-	{FSxLustreConfig?: _#defs."/$defs/Properties/definitions/FSxLustreConfig"},
-)
+#EnvironmentConfig: close({FSxLustreConfig?: #FSxLustreConfig})
 
 // The execution role for the instance group to assume.
-_#defs: "/$defs/Properties/definitions/ExecutionRole": strings.MaxRunes(2048) &
+#ExecutionRole: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 // Configuration settings for an Amazon FSx for Lustre file system to be used with the cluster.
-_#defs: "/$defs/Properties/definitions/FSxLustreConfig": close({
+#FSxLustreConfig: close({
 	// The throughput capacity of the FSx for Lustre file system, measured in MB/s per TiB of storage.
 	PerUnitStorageThroughput!: int & <=1000 & >=125
 
@@ -382,42 +370,36 @@ _#defs: "/$defs/Properties/definitions/FSxLustreConfig": close({
 })
 
 // AMI Id to be used for launching EC2 instances - HyperPodPublicAmiId or CustomAmiId
-_#defs: "/$defs/Properties/definitions/ImageId": =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
+#ImageId: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
 strings.MaxRunes(21) &
 strings.MinRunes(7) &
 =~"^ami-[0-9a-fA-F]{8,17}|default$"
 
 // The name of the instance group of a SageMaker HyperPod cluster.
-_#defs: "/$defs/Properties/definitions/InstanceGroupName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
+#InstanceGroupName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 
 // The instance requirements for the instance group. Specifies a list of
 // instance types that can be used.
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
+#InstanceRequirements: close({
 	// A list of instance types that can be used for this instance group.
-	InstanceTypes!: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InstanceType"]
+	InstanceTypes!: list.MaxItems(20) & list.MinItems(1) & [...#InstanceType]
 })
 
 // The instance type of the instance group of a SageMaker HyperPod cluster.
-_#defs: "/$defs/Properties/definitions/InstanceType": string
+#InstanceType: string
 
 // Nodes will undergo advanced stress test to detect and replace faulty
 // instances, based on the type of deep health check(s) passed in.
-_#defs: "/$defs/Properties/definitions/OnStartDeepHealthChecks": list.MaxItems(3) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/DeepHealthCheckType"
-]
+#OnStartDeepHealthChecks: list.MaxItems(3) & list.MinItems(1) & [...#DeepHealthCheckType]
 
 // Specifies parameter(s) specific to the orchestrator, e.g. specify the EKS
 // cluster or Slurm configuration.
-_#defs: "/$defs/Properties/definitions/Orchestrator": matchN(1, [close(
-	{Eks?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorEksConfig"},
-), close(
-	{Slurm?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorSlurmConfig"},
-)])
+#Orchestrator: matchN(1, [
+	close({Eks?: #ClusterOrchestratorEksConfig}), close({Slurm?: #ClusterOrchestratorSlurmConfig}),
+])
 
 // The schedule configuration for automatic patching.
-_#defs: "/$defs/Properties/definitions/PatchSchedule": close({
+#PatchSchedule: close({
 	// The date and time of the next scheduled patch, set by the system when a patch AMI is detected.
 	NextPatchDate?: string
 })
@@ -425,19 +407,17 @@ _#defs: "/$defs/Properties/definitions/PatchSchedule": close({
 // The cluster-level configuration for restricted instance groups, including
 // shared environment settings for inter-RIG communication and FSx Lustre
 // sharing.
-_#defs: "/$defs/Properties/definitions/RestrictedInstanceGroupsConfig": close(
-	{SharedEnvironmentConfig!: _#defs."/$defs/Properties/definitions/SharedEnvironmentConfig"},
-)
+#RestrictedInstanceGroupsConfig: close({SharedEnvironmentConfig!: #SharedEnvironmentConfig})
 
 // The policy that SageMaker uses when updating the AMI versions of the cluster.
-_#defs: "/$defs/Properties/definitions/RollingUpdatePolicy": close({
-	MaximumBatchSize!:         _#defs."/$defs/Properties/definitions/CapacitySizeConfig"
-	RollbackMaximumBatchSize?: _#defs."/$defs/Properties/definitions/CapacitySizeConfig"
+#RollingUpdatePolicy: close({
+	MaximumBatchSize!:         #CapacitySizeConfig
+	RollbackMaximumBatchSize?: #CapacitySizeConfig
 })
 
 // The configuration object of the schedule that SageMaker follows when updating the AMI.
-_#defs: "/$defs/Properties/definitions/ScheduledUpdateConfig": close({
-	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig"
+#ScheduledUpdateConfig: close({
+	DeploymentConfig?: #DeploymentConfig
 
 	// A cron expression that specifies the schedule that SageMaker follows when updating the AMI.
 	ScheduleExpression!: strings.MaxRunes(256) &
@@ -447,8 +427,8 @@ _#defs: "/$defs/Properties/definitions/ScheduledUpdateConfig": close({
 
 // The shared environment configuration for restricted instance groups that use
 // cluster-level shared FSx Lustre storage.
-_#defs: "/$defs/Properties/definitions/SharedEnvironmentConfig": close({
-	FSxLustreConfig?: _#defs."/$defs/Properties/definitions/FSxLustreConfig"
+#SharedEnvironmentConfig: close({
+	FSxLustreConfig?: #FSxLustreConfig
 
 	// The deletion policy for the shared FSx Lustre file system. Keep retains the
 	// FSx when RIGs are deleted. DeleteIfNotUsed deletes the FSx when no RIGs
@@ -457,7 +437,7 @@ _#defs: "/$defs/Properties/definitions/SharedEnvironmentConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -472,7 +452,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Configuration for tiered storage in the SageMaker HyperPod cluster.
-_#defs: "/$defs/Properties/definitions/TieredStorageConfig": close({
+#TieredStorageConfig: close({
 	// The percentage of instance memory to allocate for tiered storage.
 	InstanceMemoryAllocationPercentage?: int & <=100 & >=0
 
@@ -483,7 +463,7 @@ _#defs: "/$defs/Properties/definitions/TieredStorageConfig": close({
 // Specifies an Amazon Virtual Private Cloud (VPC) that your SageMaker jobs,
 // hosted models, and compute resources have access to. You can control access
 // to and from your resources by configuring a VPC.
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// The VPC security group IDs, in the form sg-xxxxxxxx. Specify the security
 	// groups for the VPC that is specified in the Subnets field.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [

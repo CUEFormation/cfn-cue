@@ -15,32 +15,32 @@ import (
 	Format?: "CSV" | "JSON" | "PARQUET" | "EXCEL" | "ORC"
 
 	// Format options for dataset
-	FormatOptions?: _#defs."/$defs/Properties/definitions/FormatOptions"
+	FormatOptions?: #FormatOptions
 
 	// Input
-	Input!: _#defs."/$defs/Properties/definitions/Input"
+	Input!: #Input
 
 	// Dataset name
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// PathOptions
-	PathOptions?: _#defs."/$defs/Properties/definitions/PathOptions"
+	PathOptions?: #PathOptions
 
 	// Source type of the dataset
 	Source?: "S3" | "DATA-CATALOG" | "DATABASE"
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:   [...#Tag]
 })
 
 // Bucket owner
-_#defs: "/$defs/Properties/definitions/BucketOwner": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
+#BucketOwner: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 
 // Csv options
-_#defs: "/$defs/Properties/definitions/CsvOptions": close({
+#CsvOptions: close({
 	Delimiter?: strings.MaxRunes(1) & strings.MinRunes(1)
 	HeaderRow?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/DataCatalogInputDefinition": close({
+#DataCatalogInputDefinition: close({
 	// Catalog id
 	CatalogId?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -49,10 +49,10 @@ _#defs: "/$defs/Properties/definitions/DataCatalogInputDefinition": close({
 
 	// Table name
 	TableName?:     strings.MaxRunes(255) & strings.MinRunes(1)
-	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location"
+	TempDirectory?: #S3Location
 })
 
-_#defs: "/$defs/Properties/definitions/DatabaseInputDefinition": close({
+#DatabaseInputDefinition: close({
 	// Database table name
 	DatabaseTableName?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -62,21 +62,21 @@ _#defs: "/$defs/Properties/definitions/DatabaseInputDefinition": close({
 	// Custom SQL to run against the provided AWS Glue connection. This SQL will be
 	// used as the input for DataBrew projects and jobs.
 	QueryString?:   strings.MaxRunes(10000) & strings.MinRunes(1)
-	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location"
+	TempDirectory?: #S3Location
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetParameter": close({
+#DatasetParameter: close({
 	// Add the value of this parameter as a column in a dataset.
 	CreateColumn?:    bool
-	DatetimeOptions?: _#defs."/$defs/Properties/definitions/DatetimeOptions"
-	Filter?:          _#defs."/$defs/Properties/definitions/FilterExpression"
-	Name!:            _#defs."/$defs/Properties/definitions/PathParameterName"
+	DatetimeOptions?: #DatetimeOptions
+	Filter?:          #FilterExpression
+	Name!:            #PathParameterName
 
 	// Parameter type
 	Type!: "String" | "Number" | "Datetime"
 })
 
-_#defs: "/$defs/Properties/definitions/DatetimeOptions": close({
+#DatetimeOptions: close({
 	// Date/time format of a date parameter
 	Format!: strings.MaxRunes(100) & strings.MinRunes(2)
 
@@ -87,19 +87,18 @@ _#defs: "/$defs/Properties/definitions/DatetimeOptions": close({
 	TimezoneOffset?: strings.MaxRunes(6) & strings.MinRunes(1) & =~"^(Z|[-+](\\d|\\d{2}|\\d{2}:?\\d{2}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/ExcelOptions": matchN(1, [{
-	SheetNames!: _
-	...
-}, {
-	SheetIndexes!: _
-	...
-}]) & close({
+#ExcelOptions: close({
 	HeaderRow?:    bool
 	SheetIndexes?: list.MaxItems(1) & list.MinItems(1) & [...int & <=200 & >=0]
 	SheetNames?:   list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(31) & strings.MinRunes(1)]
-})
+	if SheetNames != _|_ if SheetNames."Fn::If" == _|_ {
+		SheetIndexes?: close({"Fn::If": _}) | error(
+			"SheetIndexes cannot be used with SheetNames; set exactly one of SheetNames, SheetIndexes",
+		)
+	}
+}) & matchN(>=1, [{SheetNames!: _}, {SheetIndexes!: _}])
 
-_#defs: "/$defs/Properties/definitions/FilesLimit": close({
+#FilesLimit: close({
 	// Maximum number of files
 	MaxFiles!: int & >=1
 
@@ -110,14 +109,14 @@ _#defs: "/$defs/Properties/definitions/FilesLimit": close({
 	OrderedBy?: "LAST_MODIFIED_DATE"
 })
 
-_#defs: "/$defs/Properties/definitions/FilterExpression": close({
+#FilterExpression: close({
 	// Filtering expression for a parameter
 	Expression!: strings.MaxRunes(1024) & strings.MinRunes(4) & =~"^[><0-9A-Za-z_.,:)(!= ]+$"
-	ValuesMap!:  [..._#defs."/$defs/Properties/definitions/FilterValue"]
+	ValuesMap!:  [...#FilterValue]
 })
 
 // A key-value pair to associate expression variable names with their values
-_#defs: "/$defs/Properties/definitions/FilterValue": close({
+#FilterValue: close({
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// Variable name
@@ -125,53 +124,53 @@ _#defs: "/$defs/Properties/definitions/FilterValue": close({
 })
 
 // Format options for dataset
-_#defs: "/$defs/Properties/definitions/FormatOptions": close({
-	Csv?:   _#defs."/$defs/Properties/definitions/CsvOptions"
-	Excel?: _#defs."/$defs/Properties/definitions/ExcelOptions"
-	Json?:  _#defs."/$defs/Properties/definitions/JsonOptions"
+#FormatOptions: close({
+	Csv?:   #CsvOptions
+	Excel?: #ExcelOptions
+	Json?:  #JsonOptions
 })
 
 // Input
-_#defs: "/$defs/Properties/definitions/Input": close({
-	DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
-	DatabaseInputDefinition?:    _#defs."/$defs/Properties/definitions/DatabaseInputDefinition"
-	Metadata?:                   _#defs."/$defs/Properties/definitions/Metadata"
-	S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
+#Input: close({
+	DataCatalogInputDefinition?: #DataCatalogInputDefinition
+	DatabaseInputDefinition?:    #DatabaseInputDefinition
+	Metadata?:                   #Metadata
+	S3InputDefinition?:          #S3Location
 })
 
 // Json options
-_#defs: "/$defs/Properties/definitions/JsonOptions": close({MultiLine?: bool})
+#JsonOptions: close({MultiLine?: bool})
 
-_#defs: "/$defs/Properties/definitions/Metadata": close({
+#Metadata: close({
 	// Arn of the source of the dataset. For e.g.: AppFlow Flow ARN.
 	SourceArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
 })
 
 // Path options for dataset
-_#defs: "/$defs/Properties/definitions/PathOptions": close({
-	FilesLimit?:                _#defs."/$defs/Properties/definitions/FilesLimit"
-	LastModifiedDateCondition?: _#defs."/$defs/Properties/definitions/FilterExpression"
-	Parameters?:                [..._#defs."/$defs/Properties/definitions/PathParameter"]
+#PathOptions: close({
+	FilesLimit?:                #FilesLimit
+	LastModifiedDateCondition?: #FilterExpression
+	Parameters?:                [...#PathParameter]
 })
 
 // A key-value pair to associate dataset parameter name with its definition.
-_#defs: "/$defs/Properties/definitions/PathParameter": close({
-	DatasetParameter!:  _#defs."/$defs/Properties/definitions/DatasetParameter"
-	PathParameterName!: _#defs."/$defs/Properties/definitions/PathParameterName"
+#PathParameter: close({
+	DatasetParameter!:  #DatasetParameter
+	PathParameterName!: #PathParameterName
 })
 
 // Parameter name
-_#defs: "/$defs/Properties/definitions/PathParameterName": strings.MaxRunes(255) & strings.MinRunes(1)
+#PathParameterName: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // Input location
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:      strings.MaxRunes(63) & strings.MinRunes(3)
-	BucketOwner?: _#defs."/$defs/Properties/definitions/BucketOwner"
+	BucketOwner?: #BucketOwner
 	Key?:         strings.MaxRunes(1280) & strings.MinRunes(1)
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

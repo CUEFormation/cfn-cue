@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,23 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::EventBusPolicy
-#Properties: close({
-	Action?: "events:PutEvents" & strings.MaxRunes(64) & strings.MinRunes(1) & =~"events:[a-zA-Z]+" |
-	fn.#StringExpression
-	Condition?:    _#defs."/$defs/Properties/definitions/Condition"
-	EventBusName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
-	Principal?:    strings.MaxRunes(12) & strings.MinRunes(1) & =~"(\\d{12}|\\*)" | fn.#StringExpression
-	Statement?:    fn.#Object & {...} | string | fn.#StringObjectExpression
-	StatementId!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Events::EventBusPolicy"
+	Properties!: close({
+		Action?: "events:PutEvents" & strings.MaxRunes(64) & strings.MinRunes(1) & =~"events:[a-zA-Z]+" |
+		fn.#StringExpression
+		Condition?:    #Condition
+		EventBusName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
+		Principal?:    strings.MaxRunes(12) & strings.MinRunes(1) & =~"(\\d{12}|\\*)" | fn.#StringExpression
+		Statement?:    fn.#Object & {...} | string | fn.#StringObjectExpression
+		StatementId!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	Key?:   string | fn.#StringExpression
 	Type?:  "StringEquals" | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Events::EventBusPolicy"
-	Properties!: #Properties
-}

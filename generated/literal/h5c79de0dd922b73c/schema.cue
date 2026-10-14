@@ -32,22 +32,22 @@ package schema
 	RestoreToTime?:                    string
 	RestoreType?:                      string
 	RotateMasterUserPassword?:         bool
-	ServerlessV2ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessV2ScalingConfiguration"
+	ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration
 	SnapshotIdentifier?:               string
 	SourceDBClusterIdentifier?:        string
 	StorageEncrypted?:                 bool
 	StorageType?:                      string
-	Tags?:                             [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                             [...#Tag]
 	UseLatestRestorableTime?:          bool
 	VpcSecurityGroupIds?:              [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
-_#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close({
+#ServerlessV2ScalingConfiguration: close({
 	MaxCapacity!: number
 	MinCapacity!: number
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

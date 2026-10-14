@@ -48,7 +48,7 @@ import (
 
 	// [HTTP/HTTPS health checks] The HTTP or gRPC codes to use when checking for a
 	// successful response from a target.
-	Matcher?: _#defs."/$defs/Properties/definitions/Matcher"
+	Matcher?: #Matcher
 
 	// The name of the target group.
 	Name?: string
@@ -66,7 +66,7 @@ import (
 	ProtocolVersion?: string
 
 	// The tags.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The port that the target control agent uses to communicate the available
 	// capacity of targets to the load balancer.
@@ -76,7 +76,7 @@ import (
 	TargetGroupArn?: string
 
 	// The attributes.
-	TargetGroupAttributes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupAttribute"]
+	TargetGroupAttributes?: list.UniqueItems() & [...#TargetGroupAttribute]
 
 	// The full name of the target group.
 	TargetGroupFullName?: string
@@ -90,7 +90,7 @@ import (
 	TargetType?: "alb" | "instance" | "ip" | "lambda"
 
 	// The targets.
-	Targets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetDescription"]
+	Targets?: list.UniqueItems() & [...#TargetDescription]
 
 	// The number of consecutive health check failures required before considering a target unhealthy.
 	UnhealthyThresholdCount?: int & <=10 & >=2
@@ -100,7 +100,7 @@ import (
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Matcher": close({
+#Matcher: close({
 	// You can specify values between 0 and 99. You can specify multiple values, or
 	// a range of values. The default value is 12.
 	GrpcCode?: string
@@ -111,7 +111,7 @@ _#defs: "/$defs/Properties/definitions/Matcher": close({
 	HttpCode?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The value for the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -119,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/TargetDescription": close({
+#TargetDescription: close({
 	// An Availability Zone or all. This determines whether the target receives
 	// traffic from the load balancer nodes in the specified Availability Zone or
 	// from all enabled Availability Zones for the load balancer.
@@ -141,7 +141,7 @@ _#defs: "/$defs/Properties/definitions/TargetDescription": close({
 	QuicServerId?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TargetGroupAttribute": close({
+#TargetGroupAttribute: close({
 	// The value of the attribute.
 	Key?: string
 

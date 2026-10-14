@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::ServiceEnvironment
-#Properties: close({
-	CapacityLimits!:         _#defs."/$defs/Properties/definitions/CapacityLimits"
-	ServiceEnvironmentName?: string | fn.#StringExpression
-	ServiceEnvironmentType!: =~"(?i)^(?:sagemaker_training)$" | fn.#StringExpression
-	State?:                  string | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Batch::ServiceEnvironment"
+	Properties!: close({
+		CapacityLimits!:         #CapacityLimits
+		ServiceEnvironmentName?: string | fn.#StringExpression
+		ServiceEnvironmentType!: =~"(?i)^(?:sagemaker_training)$" | fn.#StringExpression
+		State?:                  string | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CapacityLimit": close({
+#CapacityLimit: close({
 	CapacityUnit?: string | fn.#StringExpression
 	MaxCapacity?: int |
 		{
@@ -43,9 +46,4 @@ _#defs: "/$defs/Properties/definitions/CapacityLimit": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityLimits": [..._#defs."/$defs/Properties/definitions/CapacityLimit"] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Batch::ServiceEnvironment"
-	Properties!: #Properties
-}
+#CapacityLimits: [...#CapacityLimit] | fn.#ListExpression

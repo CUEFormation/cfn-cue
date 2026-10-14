@@ -32,8 +32,8 @@ import (
 	=~"^arn:aws[a-z\\-]*:braket:[a-z0-9\\-]+:[0-9]{12}:spending-limit/.*$"
 
 	// The tags to apply to the spending limit.
-	Tags?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TimePeriod?: _#defs."/$defs/Properties/definitions/TimePeriod"
+	Tags?:       list.UniqueItems() & [...#Tag]
+	TimePeriod?: #TimePeriod
 
 	// The total amount spent on the device so far during the current time period, in USD.
 	TotalSpend?: string
@@ -43,7 +43,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Defines a time range for spending limits, specifying when the limit is active.
-_#defs: "/$defs/Properties/definitions/TimePeriod": close({
+#TimePeriod: close({
 	// The end date and time for the spending limit period, in ISO 8601 format.
 	EndAt!: time.Time
 

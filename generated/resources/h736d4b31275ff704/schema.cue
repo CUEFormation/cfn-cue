@@ -13,96 +13,105 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeBuild::Project
-#Properties: close({
-	Artifacts!: _#defs."/$defs/Properties/definitions/Artifacts"
-	AutoRetryLimit?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeBuild::Project"
+	Properties!: close({
+		Artifacts!: #Artifacts
+		AutoRetryLimit?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
 							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BadgeEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BuildBatchConfig?: _#defs."/$defs/Properties/definitions/ProjectBuildBatchConfig"
-	Cache?:            _#defs."/$defs/Properties/definitions/ProjectCache"
-	ConcurrentBuildLimit?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?:         string | fn.#StringExpression
-	EncryptionKey?:       string | fn.#StringExpression
-	Environment!:         _#defs."/$defs/Properties/definitions/Environment"
-	FileSystemLocations?: [..._#defs."/$defs/Properties/definitions/ProjectFileSystemLocation"] | fn.#ListExpression
-	LogsConfig?:          _#defs."/$defs/Properties/definitions/LogsConfig"
-	Name?:                string | fn.#StringExpression
-	QueuedTimeoutInMinutes?: int & <=480 & >=5 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=480 &
-							>=5,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResourceAccessRole?:      string | fn.#StringExpression
-	SecondaryArtifacts?:      [..._#defs."/$defs/Properties/definitions/Artifacts"] | fn.#ListExpression
-	SecondarySourceVersions?: [..._#defs."/$defs/Properties/definitions/ProjectSourceVersion"] | fn.#ListExpression
-	SecondarySources?:        [..._#defs."/$defs/Properties/definitions/Source"] | fn.#ListExpression
-	ServiceRole!:             string | fn.#StringExpression
-	Source!:                  _#defs."/$defs/Properties/definitions/Source"
-	SourceVersion?:           string | fn.#StringExpression
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeoutInMinutes?: int & <=2160 & >=5 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2160 &
-							>=5,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Triggers?:   _#defs."/$defs/Properties/definitions/ProjectTriggers"
-	Visibility?: string | fn.#StringExpression
-	VpcConfig?:  _#defs."/$defs/Properties/definitions/VpcConfig"
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		BadgeEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		BuildBatchConfig?: #ProjectBuildBatchConfig
+		Cache?:            #ProjectCache
+		ConcurrentBuildLimit?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Description?:         string | fn.#StringExpression
+		EncryptionKey?:       string | fn.#StringExpression
+		Environment!:         #Environment
+		FileSystemLocations?: [...#ProjectFileSystemLocation] | fn.#ListExpression
+		LogsConfig?:          #LogsConfig
+		Name?:                string | fn.#StringExpression
+		QueuedTimeoutInMinutes?: int & <=480 & >=5 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=480 &
+								>=5,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ResourceAccessRole?:      string | fn.#StringExpression
+		SecondaryArtifacts?:      [...#Artifacts] | fn.#ListExpression
+		SecondarySourceVersions?: [...#ProjectSourceVersion] | fn.#ListExpression
+		SecondarySources?:        [...#Source] | fn.#ListExpression
+		ServiceRole!:             string | fn.#StringExpression
+		Source!:                  #Source
+		SourceVersion?:           string | fn.#StringExpression
+		Tags?:                    [...#Tag] | fn.#ListExpression
+		TimeoutInMinutes?: int & <=2160 & >=5 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2160 &
+								>=5,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Triggers?:   #ProjectTriggers
+		Visibility?: string | fn.#StringExpression
+		VpcConfig?:  #VpcConfig
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Artifacts": close({
+#Artifacts: close({
 	ArtifactIdentifier?:   string | fn.#StringExpression
 	EncryptionDisabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Location?:             string | fn.#StringExpression
@@ -115,7 +124,7 @@ _#defs: "/$defs/Properties/definitions/Artifacts": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchRestrictions": close({
+#BatchRestrictions: close({
 	ComputeTypesAllowed?: [...string | fn.#StringExpression] | fn.#ListExpression
 	MaximumBuildsAllowed?: int |
 		{
@@ -134,20 +143,20 @@ _#defs: "/$defs/Properties/definitions/BatchRestrictions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BuildStatusConfig": close({
+#BuildStatusConfig: close({
 	Context?:   string | fn.#StringExpression
 	TargetUrl?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsConfig": close({
+#CloudWatchLogsConfig: close({
 	GroupName?:  string | fn.#StringExpression
 	Status!:     string | fn.#StringExpression
 	StreamName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DockerServer": close({
+#DockerServer: close({
 	ComputeType!: string | fn.#StringExpression
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -157,45 +166,45 @@ _#defs: "/$defs/Properties/definitions/DockerServer": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 	Certificate?:              string | fn.#StringExpression
 	ComputeType!:              string | fn.#StringExpression
-	DockerServer?:             _#defs."/$defs/Properties/definitions/DockerServer"
-	EnvironmentVariables?:     [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] | fn.#ListExpression
-	Fleet?:                    _#defs."/$defs/Properties/definitions/ProjectFleet"
+	DockerServer?:             #DockerServer
+	EnvironmentVariables?:     [...#EnvironmentVariable] | fn.#ListExpression
+	Fleet?:                    #ProjectFleet
 	HostKernel?:               string | fn.#StringExpression
 	Image!:                    string | fn.#StringExpression
 	ImagePullCredentialsType?: string | fn.#StringExpression
 	PrivilegedMode?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RegistryCredential?:       _#defs."/$defs/Properties/definitions/RegistryCredential"
+	RegistryCredential?:       #RegistryCredential
 	Type!:                     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Name!:  string | fn.#StringExpression
 	Type?:  string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterGroup": [...] | fn.#ListExpression
+#FilterGroup: [...] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/GitSubmodulesConfig": close(
+#GitSubmodulesConfig: close(
 	{FetchSubmodules!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogsConfig": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsConfig"
-	S3Logs?:         _#defs."/$defs/Properties/definitions/S3LogsConfig"
+#LogsConfig: close({
+	CloudWatchLogs?: #CloudWatchLogsConfig
+	S3Logs?:         #S3LogsConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectBuildBatchConfig": close({
+#ProjectBuildBatchConfig: close({
 	BatchReportMode?:  string | fn.#StringExpression
 	CombineArtifacts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Restrictions?:     _#defs."/$defs/Properties/definitions/BatchRestrictions"
+	Restrictions?:     #BatchRestrictions
 	ServiceRole?:      string | fn.#StringExpression
 	TimeoutInMins?: int |
 		{
@@ -214,7 +223,7 @@ _#defs: "/$defs/Properties/definitions/ProjectBuildBatchConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectCache": close({
+#ProjectCache: close({
 	CacheNamespace?: string | fn.#StringExpression
 	Location?:       string | fn.#StringExpression
 	Modes?:          [...string | fn.#StringExpression] | fn.#ListExpression
@@ -222,7 +231,7 @@ _#defs: "/$defs/Properties/definitions/ProjectCache": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectFileSystemLocation": close({
+#ProjectFileSystemLocation: close({
 	Identifier!:   string | fn.#StringExpression
 	Location!:     string | fn.#StringExpression
 	MountOptions?: string | fn.#StringExpression
@@ -231,54 +240,53 @@ _#defs: "/$defs/Properties/definitions/ProjectFileSystemLocation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectFleet": close({FleetArn?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ProjectFleet: close({FleetArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectSourceVersion": close({
+#ProjectSourceVersion: close({
 	SourceIdentifier!: string | fn.#StringExpression
 	SourceVersion?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectTriggers": close({
+#ProjectTriggers: close({
 	BuildType?:              string | fn.#StringExpression
-	FilterGroups?:           [..._#defs."/$defs/Properties/definitions/FilterGroup"] | fn.#ListExpression
-	PullRequestBuildPolicy?: _#defs."/$defs/Properties/definitions/PullRequestBuildPolicy"
-	ScopeConfiguration?:     _#defs."/$defs/Properties/definitions/ScopeConfiguration"
+	FilterGroups?:           [...#FilterGroup] | fn.#ListExpression
+	PullRequestBuildPolicy?: #PullRequestBuildPolicy
+	ScopeConfiguration?:     #ScopeConfiguration
 	Webhook?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PullRequestBuildPolicy": close({
+#PullRequestBuildPolicy: close({
 	ApproverRoles?:           [...string | fn.#StringExpression] | fn.#ListExpression
 	RequiresCommentApproval!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegistryCredential": close({
+#RegistryCredential: close({
 	Credential!:         string | fn.#StringExpression
 	CredentialProvider!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3LogsConfig": close({
+#S3LogsConfig: close({
 	EncryptionDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Location?:           string | fn.#StringExpression
 	Status!:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScopeConfiguration": close({
+#ScopeConfiguration: close({
 	Domain?: string | fn.#StringExpression
 	Name!:   string | fn.#StringExpression
 	Scope?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
-	Auth?:              _#defs."/$defs/Properties/definitions/SourceAuth"
+#Source: close({
+	Auth?:              #SourceAuth
 	BuildSpec?:         string | fn.#StringExpression
-	BuildStatusConfig?: _#defs."/$defs/Properties/definitions/BuildStatusConfig"
+	BuildStatusConfig?: #BuildStatusConfig
 	GitCloneDepth?: int |
 		{
 			string &
@@ -293,7 +301,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 				)
 		} |
 		fn.#NumberExpression
-	GitSubmodulesConfig?: _#defs."/$defs/Properties/definitions/GitSubmodulesConfig"
+	GitSubmodulesConfig?: #GitSubmodulesConfig
 	InsecureSsl?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Location?:            string | fn.#StringExpression
 	ReportBuildStatus?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -302,19 +310,19 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceAuth": close({
+#SourceAuth: close({
 	Resource?: string | fn.#StringExpression
 	Type!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -325,7 +333,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeBuild::Project"
-	Properties!: #Properties
-}

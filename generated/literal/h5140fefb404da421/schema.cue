@@ -9,7 +9,7 @@ package schema
 	BackupVaultName!:          string
 	CreationTime?:             string
 	LastUpdatedTime?:          string
-	ResourceSelection!:        [..._#defs."/$defs/Properties/definitions/ResourceSelection"]
+	ResourceSelection!:        [...#ResourceSelection]
 	TieringConfigurationArn?:  string
 	TieringConfigurationName!: string
 	TieringConfigurationTags?: close({
@@ -17,7 +17,7 @@ package schema
 		{[=~"^.{1,128}$"]: string}})
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceSelection": close({
+#ResourceSelection: close({
 	ResourceType!:              string
 	Resources!:                 [...string]
 	TieringDownSettingsInDays!: int

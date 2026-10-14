@@ -11,37 +11,37 @@ import (
 
 // Resource schema for AWS::SES::ConfigurationSet.
 #Properties: close({
-	ArchivingOptions?: _#defs."/$defs/Properties/definitions/ArchivingOptions"
-	DeliveryOptions?:  _#defs."/$defs/Properties/definitions/DeliveryOptions"
+	ArchivingOptions?: #ArchivingOptions
+	DeliveryOptions?:  #DeliveryOptions
 
 	// The name of the configuration set.
 	Name?:               =~"^[a-zA-Z0-9_-]{1,64}$"
-	ReputationOptions?:  _#defs."/$defs/Properties/definitions/ReputationOptions"
-	SendingOptions?:     _#defs."/$defs/Properties/definitions/SendingOptions"
-	SuppressionOptions?: _#defs."/$defs/Properties/definitions/SuppressionOptions"
+	ReputationOptions?:  #ReputationOptions
+	SendingOptions?:     #SendingOptions
+	SuppressionOptions?: #SuppressionOptions
 
 	// The tags (keys and values) associated with the contact list.
-	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TrackingOptions?: _#defs."/$defs/Properties/definitions/TrackingOptions"
-	VdmOptions?:      _#defs."/$defs/Properties/definitions/VdmOptions"
+	Tags?:            list.MaxItems(50) & [...] & [...#Tag]
+	TrackingOptions?: #TrackingOptions
+	VdmOptions?:      #VdmOptions
 })
 
 // An object that defines a MailManager archive that is used to preserve emails
 // that you send using the configuration set.
-_#defs: "/$defs/Properties/definitions/ArchivingOptions": close({
+#ArchivingOptions: close({
 	// The ARN of the MailManager archive to associate with the configuration set.
 	ArchiveArn?: string
 })
 
 // Preferences regarding the Dashboard feature.
-_#defs: "/$defs/Properties/definitions/DashboardOptions": close({
+#DashboardOptions: close({
 	// Whether emails sent with this configuration set have engagement tracking enabled.
 	EngagementMetrics!: =~"ENABLED|DISABLED"
 })
 
 // An object that defines the dedicated IP pool that is used to send emails that
 // you send using the configuration set.
-_#defs: "/$defs/Properties/definitions/DeliveryOptions": close({
+#DeliveryOptions: close({
 	// Specifies the maximum time until which SES will retry sending emails
 	MaxDeliverySeconds?: <=50400 & >=300
 
@@ -57,14 +57,14 @@ _#defs: "/$defs/Properties/definitions/DeliveryOptions": close({
 })
 
 // Preferences regarding the Guardian feature.
-_#defs: "/$defs/Properties/definitions/GuardianOptions": close({
+#GuardianOptions: close({
 	// Whether emails sent with this configuration set have optimized delivery algorithm enabled.
 	OptimizedSharedDelivery!: =~"ENABLED|DISABLED"
 })
 
 // An object that defines whether or not Amazon SES collects reputation metrics
 // for the emails that you send that use the configuration set.
-_#defs: "/$defs/Properties/definitions/ReputationOptions": close({
+#ReputationOptions: close({
 	// If true , tracking of reputation metrics is enabled for the configuration
 	// set. If false , tracking of reputation metrics is disabled for the
 	// configuration set.
@@ -73,10 +73,10 @@ _#defs: "/$defs/Properties/definitions/ReputationOptions": close({
 
 // An object that defines whether or not Amazon SES can send email that you send
 // using the configuration set.
-_#defs: "/$defs/Properties/definitions/SendingOptions": close({SendingEnabled?: bool})
+#SendingOptions: close({SendingEnabled?: bool})
 
 // An object that contains information about the suppression list preferences for your account.
-_#defs: "/$defs/Properties/definitions/SuppressionOptions": close({
+#SuppressionOptions: close({
 	// A list that contains the reasons that email addresses are automatically added
 	// to the suppression list for your account.
 	SuppressedReasons?: [...=~"BOUNCE|COMPLAINT"]
@@ -97,14 +97,14 @@ _#defs: "/$defs/Properties/definitions/SuppressionOptions": close({
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // An object that defines the open and click tracking options for emails that
 // you send using the configuration set.
-_#defs: "/$defs/Properties/definitions/TrackingOptions": close({
+#TrackingOptions: close({
 	// The domain to use for tracking open and click events.
 	CustomRedirectDomain?: string
 
@@ -113,7 +113,7 @@ _#defs: "/$defs/Properties/definitions/TrackingOptions": close({
 })
 
 // An object that contains Virtual Deliverability Manager (VDM) settings for this configuration set.
-_#defs: "/$defs/Properties/definitions/VdmOptions": close({
-	DashboardOptions?: _#defs."/$defs/Properties/definitions/DashboardOptions"
-	GuardianOptions?:  _#defs."/$defs/Properties/definitions/GuardianOptions"
+#VdmOptions: close({
+	DashboardOptions?: #DashboardOptions
+	GuardianOptions?:  #GuardianOptions
 })

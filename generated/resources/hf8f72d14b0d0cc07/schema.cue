@@ -9,79 +9,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::ResourceDefinition
-#Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/ResourceDefinitionVersion"
-	Name!:           string | fn.#StringExpression
-	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::ResourceDefinition"
+	Properties!: close({
+		InitialVersion?: #ResourceDefinitionVersion
+		Name!:           string | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/GroupOwnerSetting": close({
+#GroupOwnerSetting: close({
 	AutoAddGroupOwner!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	GroupOwner?:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocalDeviceResourceData": close({
-	GroupOwnerSetting?: _#defs."/$defs/Properties/definitions/GroupOwnerSetting"
+#LocalDeviceResourceData: close({
+	GroupOwnerSetting?: #GroupOwnerSetting
 	SourcePath!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocalVolumeResourceData": close({
+#LocalVolumeResourceData: close({
 	DestinationPath!:   string | fn.#StringExpression
-	GroupOwnerSetting?: _#defs."/$defs/Properties/definitions/GroupOwnerSetting"
+	GroupOwnerSetting?: #GroupOwnerSetting
 	SourcePath!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceDataContainer": close({
-	LocalDeviceResourceData?:            _#defs."/$defs/Properties/definitions/LocalDeviceResourceData"
-	LocalVolumeResourceData?:            _#defs."/$defs/Properties/definitions/LocalVolumeResourceData"
-	S3MachineLearningModelResourceData?: _#defs."/$defs/Properties/definitions/S3MachineLearningModelResourceData"
-	SageMakerMachineLearningModelResourceData?:
-		_#defs."/$defs/Properties/definitions/SageMakerMachineLearningModelResourceData"
-	SecretsManagerSecretResourceData?: _#defs."/$defs/Properties/definitions/SecretsManagerSecretResourceData"
+#ResourceDataContainer: close({
+	LocalDeviceResourceData?:                   #LocalDeviceResourceData
+	LocalVolumeResourceData?:                   #LocalVolumeResourceData
+	S3MachineLearningModelResourceData?:        #S3MachineLearningModelResourceData
+	SageMakerMachineLearningModelResourceData?: #SageMakerMachineLearningModelResourceData
+	SecretsManagerSecretResourceData?:          #SecretsManagerSecretResourceData
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceDefinitionVersion": close(
-	{Resources!: [..._#defs."/$defs/Properties/definitions/ResourceInstance"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#ResourceDefinitionVersion: close({Resources!: [...#ResourceInstance] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceDownloadOwnerSetting": close({
+#ResourceDownloadOwnerSetting: close({
 	GroupOwner!:      string | fn.#StringExpression
 	GroupPermission!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceInstance": close({
+#ResourceInstance: close({
 	Id!:                    string | fn.#StringExpression
 	Name!:                  string | fn.#StringExpression
-	ResourceDataContainer!: _#defs."/$defs/Properties/definitions/ResourceDataContainer"
+	ResourceDataContainer!: #ResourceDataContainer
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3MachineLearningModelResourceData": close({
+#S3MachineLearningModelResourceData: close({
 	DestinationPath!: string | fn.#StringExpression
-	OwnerSetting?:    _#defs."/$defs/Properties/definitions/ResourceDownloadOwnerSetting"
+	OwnerSetting?:    #ResourceDownloadOwnerSetting
 	S3Uri!:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SageMakerMachineLearningModelResourceData": close({
+#SageMakerMachineLearningModelResourceData: close({
 	DestinationPath!: string | fn.#StringExpression
-	OwnerSetting?:    _#defs."/$defs/Properties/definitions/ResourceDownloadOwnerSetting"
+	OwnerSetting?:    #ResourceDownloadOwnerSetting
 	SageMakerJobArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerSecretResourceData": close({
+#SecretsManagerSecretResourceData: close({
 	ARN!:                               string | fn.#StringExpression
 	AdditionalStagingLabelsToDownload?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::ResourceDefinition"
-	Properties!: #Properties
-}

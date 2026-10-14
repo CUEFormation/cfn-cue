@@ -13,23 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53Resolver::ResolverRule
-#Properties: close({
-	DelegationRecord?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	DomainName?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:               strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	ResolverEndpointId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	RuleType!:           =~"(?i)^(?:delegate|forward|recursive|system)$" | fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetIps?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TargetAddress"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53Resolver::ResolverRule"
+	Properties!: close({
+		DelegationRecord?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		DomainName?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:               strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		ResolverEndpointId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		RuleType!:           =~"(?i)^(?:delegate|forward|recursive|system)$" | fn.#StringExpression
+		Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TargetIps?:          list.MinItems(1) & [...#TargetAddress] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetAddress": close({
+#TargetAddress: close({
 	Ip?:                   strings.MaxRunes(36) & strings.MinRunes(7) | fn.#StringExpression
 	Ipv6?:                 strings.MaxRunes(39) & strings.MinRunes(7) | fn.#StringExpression
 	Port?:                 strings.MaxRunes(65535) & strings.MinRunes(0) | fn.#StringExpression
@@ -37,7 +40,3 @@ _#defs: "/$defs/Properties/definitions/TargetAddress": close({
 	ServerNameIndication?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53Resolver::ResolverRule"
-	Properties!: #Properties
-}

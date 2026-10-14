@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,26 +13,24 @@ import (
 #Properties: close({
 	// The Amazon Resource Name (ARN) that uniquely identifies the channel
 	ChannelArn?:  string
-	ChannelName!: _#defs."/$defs/Properties/definitions/ChannelName"
+	ChannelName!: #ChannelName
 
 	// The Amazon Resource Name (ARN) of the cluster
 	ClusterArn?:                      string
-	EncryptionConfiguration?:         _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	IcebergDestinationConfiguration?: _#defs."/$defs/Properties/definitions/IcebergDestinationConfiguration"
-	LoggingInfo?:                     _#defs."/$defs/Properties/definitions/ChannelLoggingInfo"
-	S3DestinationConfiguration?:      _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
-	StateInfo?:                       _#defs."/$defs/Properties/definitions/ChannelStateInfo"
-	Status?:                          _#defs."/$defs/Properties/definitions/ChannelStatus"
-	Tags?:                            _#defs."/$defs/Properties/definitions/Tags"
+	EncryptionConfiguration?:         #EncryptionConfiguration
+	IcebergDestinationConfiguration?: #IcebergDestinationConfiguration
+	LoggingInfo?:                     #ChannelLoggingInfo
+	S3DestinationConfiguration?:      #S3DestinationConfiguration
+	StateInfo?:                       #ChannelStateInfo
+	Status?:                          #ChannelStatus
+	Tags?:                            #Tags
 
 	// Topic configuration
-	TopicConfigurationList!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TopicConfiguration"
-	]
+	TopicConfigurationList!: list.MaxItems(1) & list.MinItems(1) & [...#TopicConfiguration]
 })
 
 // Catalog configuration of the destination
-_#defs: "/$defs/Properties/definitions/Catalog": close({
+#Catalog: close({
 	// The ARN of the catalog
 	CatalogArn?: string
 
@@ -41,17 +39,17 @@ _#defs: "/$defs/Properties/definitions/Catalog": close({
 })
 
 // Log configuration details for Channel
-_#defs: "/$defs/Properties/definitions/ChannelLoggingInfo": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogDestination"
-	Firehose?:       _#defs."/$defs/Properties/definitions/FirehoseLogDestination"
-	S3?:             _#defs."/$defs/Properties/definitions/S3LogDestination"
+#ChannelLoggingInfo: close({
+	CloudWatchLogs?: #CloudWatchLogsLogDestination
+	Firehose?:       #FirehoseLogDestination
+	S3?:             #S3LogDestination
 })
 
 // Name of the channel
-_#defs: "/$defs/Properties/definitions/ChannelName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$"
+#ChannelName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$"
 
 // Includes information about the channel state
-_#defs: "/$defs/Properties/definitions/ChannelStateInfo": close({
+#ChannelStateInfo: close({
 	// Code for channel state
 	Code?: string
 
@@ -60,16 +58,10 @@ _#defs: "/$defs/Properties/definitions/ChannelStateInfo": close({
 })
 
 // Status of a channel resource
-_#defs: "/$defs/Properties/definitions/ChannelStatus": "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"FAILED" |
-	"SUSPENDING" |
-	"SUSPENDED"
+#ChannelStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "FAILED" | "SUSPENDING" | "SUSPENDED"
 
 // CloudWatch Logs log destination details
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsLogDestination": close({
+#CloudWatchLogsLogDestination: close({
 	// Whether CloudWatch Logs logging is enabled
 	Enabled!: bool
 
@@ -78,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsLogDestination": close({
 })
 
 // Dead letter queue S3 configuration of the destination
-_#defs: "/$defs/Properties/definitions/DeadLetterQueueS3": close({
+#DeadLetterQueueS3: close({
 	// The ARN of the S3 bucket
 	BucketArn!: string
 
@@ -90,23 +82,23 @@ _#defs: "/$defs/Properties/definitions/DeadLetterQueueS3": close({
 })
 
 // Destination table configuration
-_#defs: "/$defs/Properties/definitions/DestinationTable": close({
+#DestinationTable: close({
 	// The destination database name
 	DestinationDatabaseName!: string
 
 	// The destination table name
 	DestinationTableName!: string
-	PartitionSpec?:        _#defs."/$defs/Properties/definitions/PartitionSpec"
+	PartitionSpec?:        #PartitionSpec
 })
 
 // Encryption configuration
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// The ARN of the KMS key for encryption
 	KmsKeyArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 })
 
 // Firehose log destination details
-_#defs: "/$defs/Properties/definitions/FirehoseLogDestination": close({
+#FirehoseLogDestination: close({
 	// The Firehose delivery stream for log delivery
 	DeliveryStream?: string
 
@@ -115,74 +107,70 @@ _#defs: "/$defs/Properties/definitions/FirehoseLogDestination": close({
 })
 
 // Compression codec for Iceberg table data files. Defaults to ZSTD.
-_#defs: "/$defs/Properties/definitions/IcebergCompressionType": "ZSTD" | "SNAPPY"
+#IcebergCompressionType: "ZSTD" | "SNAPPY"
 
 // Iceberg destination configuration
-_#defs: "/$defs/Properties/definitions/IcebergDestinationConfiguration": close({
+#IcebergDestinationConfiguration: close({
 	// Append only mode
 	AppendOnly!:      bool
-	Catalog?:         _#defs."/$defs/Properties/definitions/Catalog"
-	CompressionType?: _#defs."/$defs/Properties/definitions/IcebergCompressionType"
+	Catalog?:         #Catalog
+	CompressionType?: #IcebergCompressionType
 
 	// Data freshness in seconds
 	DataFreshnessInSeconds?: int & <=900 & >=60
-	DeadLetterQueueS3!:      _#defs."/$defs/Properties/definitions/DeadLetterQueueS3"
+	DeadLetterQueueS3!:      #DeadLetterQueueS3
 
 	// List of destination tables
-	DestinationTableList!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DestinationTable"
-	]
-	SchemaEvolution!: _#defs."/$defs/Properties/definitions/SchemaEvolution"
+	DestinationTableList!: list.MaxItems(1) & list.MinItems(1) & [...#DestinationTable]
+	SchemaEvolution!:      #SchemaEvolution
 
 	// The Amazon Resource Name (ARN) of an IAM role used by MSK to access the table
 	ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	TableCreation!:           _#defs."/$defs/Properties/definitions/TableCreation"
+	TableCreation!:           #TableCreation
 })
 
 // Partition source configuration
-_#defs: "/$defs/Properties/definitions/PartitionSource": close({
+#PartitionSource: close({
 	// Source name
 	SourceName?: string
 })
 
 // Partition specification
-_#defs: "/$defs/Properties/definitions/PartitionSpec": close({
-	PartitionStrategy!: _#defs."/$defs/Properties/definitions/PartitionStrategy"
+#PartitionSpec: close({
+	PartitionStrategy!: #PartitionStrategy
 
 	// Source list
-	SourceList?: [..._#defs."/$defs/Properties/definitions/PartitionSource"]
+	SourceList?: [...#PartitionSource]
 })
 
 // Partition strategy for MSK channel
-_#defs: "/$defs/Properties/definitions/PartitionStrategy": "TIME_HOUR"
+#PartitionStrategy: "TIME_HOUR"
 
 // Record converter configuration for a topic
-_#defs: "/$defs/Properties/definitions/RecordConverter": close(
-	{ValueConverter!: _#defs."/$defs/Properties/definitions/ValueConverter"},
-)
+#RecordConverter: close({ValueConverter!: #ValueConverter})
 
 // Record schema configuration for a topic
-_#defs: "/$defs/Properties/definitions/RecordSchema": close({
+#RecordSchema: close({
 	// ARN of Glue Schema Registry resource used for table schema
 	GsrArn!: string
 })
 
 // S3 compression type
-_#defs: "/$defs/Properties/definitions/S3CompressionType": "NONE" | "GZIP" | "ZSTD"
+#S3CompressionType: "NONE" | "GZIP" | "ZSTD"
 
 // S3 destination configuration
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
+#S3DestinationConfiguration: close({
 	// Data freshness in seconds
 	DataFreshnessInSeconds?: int & <=900 & >=60
-	DeadLetterQueueS3!:      _#defs."/$defs/Properties/definitions/DeadLetterQueueS3"
+	DeadLetterQueueS3!:      #DeadLetterQueueS3
 
 	// The Amazon Resource Name (ARN) of an IAM role used by MSK to access S3
 	ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	Storage!:                 _#defs."/$defs/Properties/definitions/S3Storage"
+	Storage!:                 #S3Storage
 })
 
 // S3 log destination details
-_#defs: "/$defs/Properties/definitions/S3LogDestination": close({
+#S3LogDestination: close({
 	// The name of the S3 bucket for log delivery
 	Bucket?: string
 
@@ -194,10 +182,10 @@ _#defs: "/$defs/Properties/definitions/S3LogDestination": close({
 })
 
 // S3 storage configuration
-_#defs: "/$defs/Properties/definitions/S3Storage": close({
+#S3Storage: close({
 	// ARN of the S3 bucket
 	BucketArn!:       string
-	CompressionType!: _#defs."/$defs/Properties/definitions/S3CompressionType"
+	CompressionType!: #S3CompressionType
 
 	// Optional 12-digit AWS account ID expected to own the S3 bucket
 	ExpectedBucketOwner?: string
@@ -207,37 +195,37 @@ _#defs: "/$defs/Properties/definitions/S3Storage": close({
 
 	// Optional prefix for output objects
 	OutputPrefix?: string
-	StorageClass!: _#defs."/$defs/Properties/definitions/S3StorageClass"
+	StorageClass!: #S3StorageClass
 })
 
 // S3 storage class
-_#defs: "/$defs/Properties/definitions/S3StorageClass": "STANDARD" | "INTELLIGENT_TIERING" | "GLACIER_IR"
+#S3StorageClass: "STANDARD" | "INTELLIGENT_TIERING" | "GLACIER_IR"
 
 // Schema evolution configuration of the destination
-_#defs: "/$defs/Properties/definitions/SchemaEvolution": close({
+#SchemaEvolution: close({
 	// Whether schema evolution is enabled
 	EnableSchemaEvolution!: bool
 })
 
 // Table creation configuration of the destination
-_#defs: "/$defs/Properties/definitions/TableCreation": close({
+#TableCreation: close({
 	// Whether table creation is enabled
 	EnableTableCreation!: bool
 })
 
 // Tags attached to the channel
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string}})
 
 // Configuration of topic in a channel
-_#defs: "/$defs/Properties/definitions/TopicConfiguration": close({
-	RecordConverter!: _#defs."/$defs/Properties/definitions/RecordConverter"
-	RecordSchema?:    _#defs."/$defs/Properties/definitions/RecordSchema"
+#TopicConfiguration: close({
+	RecordConverter!: #RecordConverter
+	RecordSchema?:    #RecordSchema
 
 	// The Amazon Resource Name (ARN) that uniquely identifies the topic
 	TopicArn!: string
 })
 
 // Value converter for topic data
-_#defs: "/$defs/Properties/definitions/ValueConverter": "BYTE_ARRAY" | "JSON" | "JSON_SCHEMA_GSR" | "STRING"
+#ValueConverter: "BYTE_ARRAY" | "JSON" | "JSON_SCHEMA_GSR" | "STRING"

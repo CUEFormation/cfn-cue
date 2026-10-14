@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 	"struct"
 )
@@ -20,143 +20,154 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::BedrockAgentCore::Harness - a managed
 // agentic loop service that provides a turnkey solution for running stateful,
 // tool-equipped AI agents.
-#Properties: close({
-	AllowedTools?: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(\\*|@?[^/]+(/[^/]+)?)$" | fn.#StringExpression] |
-	fn.#ListExpression
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration" | fn.#ObjectExpression
-	Environment?: close({
-		AgentCoreRuntimeEnvironment?: close({
-			FilesystemConfigurations?: list.MaxItems(5) & [...] & [
-				..._#defs."/$defs/Properties/definitions/FilesystemConfiguration"
-			] |
-				fn.#ListExpression
-			LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
-			NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	EnvironmentArtifact?: _#defs."/$defs/Properties/definitions/HarnessEnvironmentArtifact" | fn.#ObjectExpression
-	EnvironmentVariables?: struct.MaxFields(50) & close({
-
-		{[=~"^[\\s\\S]*$"]: strings.MaxRunes(5000) & strings.MinRunes(0) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
-	HarnessName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}$" | fn.#StringExpression
-	Hooks?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/HarnessHook"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::Harness"
+	Properties!: close({
+		AllowedTools?: [
+			...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(\\*|@?[^/]+(/[^/]+)?)$" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	MaxIterations?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxTokens?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Memory?: close({
-		AgentCoreMemoryConfiguration?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration"
-		Disabled?:                     _#defs."/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration"
-		ManagedMemoryConfiguration?: close({
-			EncryptionKeyArn?: string | fn.#StringExpression
-			EventExpiryDuration?: int & <=365 & >=3 |
-				{
-					string &
-						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-						cfnScalarStrings.Repeat(
-							self,
-							len(cfnScalarStrconv.FormatInt(
-								cfnScalarStrconv.Atoi(
-									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								) &
-									int &
-									<=365 &
-									>=3,
-								10,
-							))*0 + 1,
-						)
-				} |
-				fn.#NumberExpression
-			Strategies?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
-				..."SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "EPISODIC" | fn.#StringExpression
-			] |
-				fn.#ListExpression
+
+		// The inbound authorization configuration for authenticating incoming requests.
+		AuthorizerConfiguration?: #AuthorizerConfiguration
+		Environment?: close({
+			AgentCoreRuntimeEnvironment?: close({
+				FilesystemConfigurations?: list.MaxItems(5) & [...] & [...#FilesystemConfiguration] | fn.#ListExpression
+				LifecycleConfiguration?:   #LifecycleConfiguration
+				NetworkConfiguration?:     #NetworkConfiguration
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Model!:        _#defs."/$defs/Properties/definitions/HarnessModelConfiguration" | fn.#ObjectExpression
-	Skills?:       [..._#defs."/$defs/Properties/definitions/HarnessSkill"] | fn.#ListExpression
-	SystemPrompt?: [..._#defs."/$defs/Properties/definitions/HarnessSystemContentBlock"] | fn.#ListExpression
-	Tags?:         list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeoutSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tools?:      [..._#defs."/$defs/Properties/definitions/HarnessTool"] | fn.#ListExpression
-	Truncation?: _#defs."/$defs/Properties/definitions/HarnessTruncationConfiguration" | fn.#ObjectExpression
-})
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer?: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-) |
-	fn.#ObjectExpression
+		// The environment artifact for the harness, such as a custom container image.
+		EnvironmentArtifact?: #HarnessEnvironmentArtifact
+		EnvironmentVariables?: struct.MaxFields(50) & close({
 
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
+			{[=~"^[\\s\\S]*$"]: strings.MaxRunes(5000) & strings.MinRunes(0) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
+		fn.#StringExpression
+		HarnessName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}$" | fn.#StringExpression
+		Hooks?:       list.MaxItems(20) & list.UniqueItems() & [...#HarnessHook] | fn.#ListExpression
+		MaxIterations?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxTokens?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Memory?: close({
+			AgentCoreMemoryConfiguration?: #HarnessAgentCoreMemoryConfiguration
+			Disabled?:                     #HarnessDisabledMemoryConfiguration
+			ManagedMemoryConfiguration?: close({
+				EncryptionKeyArn?: string | fn.#StringExpression
+				EventExpiryDuration?: int & <=365 & >=3 |
+					{
+						string &
+							=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+							cfnScalarStrings.Repeat(
+								self,
+								len(cfnScalarStrconv.FormatInt(
+									cfnScalarStrconv.Atoi(
+										cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									) &
+										int &
+										<=365 &
+										>=3,
+									10,
+								))*0 + 1,
+							)
+					} |
+					fn.#NumberExpression
+				Strategies?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
+					..."SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "EPISODIC" | fn.#StringExpression
+				] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+		}) |
+		fn.#ObjectExpression
+
+		// The model configuration for the harness.
+		Model!:        #HarnessModelConfiguration
+		Skills?:       [...#HarnessSkill] | fn.#ListExpression
+		SystemPrompt?: [...#HarnessSystemContentBlock] | fn.#ListExpression
+		Tags?:         list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TimeoutSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tools?: [...#HarnessTool] | fn.#ListExpression
+
+		// The truncation configuration for managing conversation context.
+		Truncation?: #HarnessTruncationConfiguration
+	})
+}
+
+#AuthorizerConfiguration: close({CustomJWTAuthorizer?: #CustomJWTAuthorizerConfiguration}) | fn.#ObjectExpression
+
+#AuthorizingClaimMatchValueType: close({
 	ClaimMatchOperator!: "EQUALS" | "CONTAINS" | "CONTAINS_ANY" | fn.#StringExpression
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+	ClaimMatchValue!:    #ClaimMatchValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [{
-	MatchValueString!: _
-	...
-}, {
-	MatchValueStringList!: _
-	...
-}]) & close({
+#ClaimMatchValueType: close({
 	MatchValueString?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$" | fn.#StringExpression
 	MatchValueStringList?: list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-}) |
+	if MatchValueString != _|_ if MatchValueString."Fn::If" == _|_ {
+		MatchValueStringList?: close({"Fn::If": _}) | error(
+			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
+		)
+	}
+}) & matchN(>=1, [{MatchValueString!: _}, {MatchValueStringList!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerConfiguration": close({
+#ContainerConfiguration: close({
 	ContainerUri!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^(([0-9]{12})\\.dkr\\.ecr\\.([a-z0-9-]+)\\.amazonaws\\.com(\\.cn)?|public\\.ecr\\.aws)/((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)(?::([^:@]{1,300}))?(?:@(.+))?$" |
@@ -164,14 +175,14 @@ _#defs: "/$defs/Properties/definitions/ContainerConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
 	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-:]+$" | fn.#StringExpression
 	InboundTokenClaimValueType!: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
+#CustomJWTAuthorizerConfiguration: close({
 	AdvertisedScopeMapping?: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 		{[=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]{1,255}$"]: strings.MaxRunes(255) &
@@ -185,16 +196,14 @@ _#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close(
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CustomClaims?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"] |
-		fn.#ListExpression
-	DiscoveryUrl!:    =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
-	PrivateEndpoint?: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
-	PrivateEndpointOverrides?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"] |
-		fn.#ListExpression
+	CustomClaims?:             list.MinItems(1) & [...#CustomClaimValidationType] | fn.#ListExpression
+	DiscoveryUrl!:             =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
+	PrivateEndpoint?:          #PrivateEndpoint
+	PrivateEndpointOverrides?: list.MaxItems(5) & [...#PrivateEndpointOverride] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EfsAccessPointConfiguration": close({
+#EfsAccessPointConfiguration: close({
 	AccessPointArn!: strings.MaxRunes(128) &
 	=~"^arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:access-point/fsap-[0-9a-f]{8,40}$" |
 	fn.#StringExpression
@@ -202,45 +211,45 @@ _#defs: "/$defs/Properties/definitions/EfsAccessPointConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilesystemConfiguration": close({
-	EfsAccessPoint?:     _#defs."/$defs/Properties/definitions/EfsAccessPointConfiguration"
-	S3FilesAccessPoint?: _#defs."/$defs/Properties/definitions/S3FilesAccessPointConfiguration"
-	SessionStorage?:     _#defs."/$defs/Properties/definitions/SessionStorageConfiguration"
+#FilesystemConfiguration: close({
+	EfsAccessPoint?:     #EfsAccessPointConfiguration
+	S3FilesAccessPoint?: #S3FilesAccessPointConfiguration
+	SessionStorage?:     #SessionStorageConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessAfterInvocationHook": close({
+#HarnessAfterInvocationHook: close({
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
+	Target!: #HarnessHookTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessAfterToolCallHook": close({
+#HarnessAfterToolCallHook: close({
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
+	Target!: #HarnessHookTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreBrowserConfig": close({
+#HarnessAgentCoreBrowserConfig: close({
 	BrowserArn?: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreCodeInterpreterConfig": close({
+#HarnessAgentCoreCodeInterpreterConfig: close({
 	CodeInterpreterArn?: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):code-interpreter(-custom)?/(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreGatewayConfig": close({
+#HarnessAgentCoreGatewayConfig: close({
 	GatewayArn!: =~"^arn:aws(|-cn|-us-gov):bedrock-agentcore:[a-z0-9-]{1,20}:[0-9]{12}:gateway/([0-9a-z][-]?){1,48}-[a-z0-9]{10}$" |
 		fn.#StringExpression
-	OutboundAuth?: _#defs."/$defs/Properties/definitions/HarnessGatewayOutboundAuth"
+	OutboundAuth?: #HarnessGatewayOutboundAuth
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration": close({
+#HarnessAgentCoreMemoryConfiguration: close({
 	ActorId?: string | fn.#StringExpression
 	Arn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
 		fn.#StringExpression
@@ -260,12 +269,12 @@ _#defs: "/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration": clo
 		fn.#NumberExpression
 	RetrievalConfig?: close({
 
-		{[=~"^[\\s\\S]*$"]: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryRetrievalConfig"}}) |
+		{[=~"^[\\s\\S]*$"]: #HarnessAgentCoreMemoryRetrievalConfig}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreMemoryRetrievalConfig": close({
+#HarnessAgentCoreMemoryRetrievalConfig: close({
 	RelevanceScore?: number |
 		{
 			string &
@@ -303,20 +312,17 @@ _#defs: "/$defs/Properties/definitions/HarnessAgentCoreMemoryRetrievalConfig": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment": close({
-	AgentRuntimeArn?:  strings.MaxRunes(1011) & strings.MinRunes(20) | fn.#StringExpression
-	AgentRuntimeId?:   string | fn.#StringExpression
-	AgentRuntimeName?: string | fn.#StringExpression
-	FilesystemConfigurations?: list.MaxItems(5) & [...] & [
-		..._#defs."/$defs/Properties/definitions/FilesystemConfiguration"
-	] |
-		fn.#ListExpression
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
-	NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+#HarnessAgentCoreRuntimeEnvironment: close({
+	AgentRuntimeArn?:          strings.MaxRunes(1011) & strings.MinRunes(20) | fn.#StringExpression
+	AgentRuntimeId?:           string | fn.#StringExpression
+	AgentRuntimeName?:         string | fn.#StringExpression
+	FilesystemConfigurations?: list.MaxItems(5) & [...] & [...#FilesystemConfiguration] | fn.#ListExpression
+	LifecycleConfiguration?:   #LifecycleConfiguration
+	NetworkConfiguration?:     #NetworkConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessBedrockModelConfig": close({
+#HarnessBedrockModelConfig: close({
 	AdditionalParams?: fn.#Object & {...} | fn.#ObjectExpression
 	ApiFormat?:        "converse_stream" | "responses" | "chat_completions" | fn.#StringExpression
 	MaxTokens?: int & >=1 |
@@ -378,47 +384,40 @@ _#defs: "/$defs/Properties/definitions/HarnessBedrockModelConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessBeforeInvocationHook": close({
+#HarnessBeforeInvocationHook: close({
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
+	Target!: #HarnessHookTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessBeforeToolCallHook": close({
+#HarnessBeforeToolCallHook: close({
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Target!: _#defs."/$defs/Properties/definitions/HarnessHookTarget"
+	Target!: #HarnessHookTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration": close({}) | fn.#ObjectExpression
+#HarnessDisabledMemoryConfiguration: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessEnvironmentArtifact": close(
-	{ContainerConfiguration?: _#defs."/$defs/Properties/definitions/ContainerConfiguration"},
-) |
+#HarnessEnvironmentArtifact: close({ContainerConfiguration?: #ContainerConfiguration}) | fn.#ObjectExpression
+
+#HarnessEnvironmentProvider: close({AgentCoreRuntimeEnvironment?: #HarnessAgentCoreRuntimeEnvironment}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessEnvironmentProvider": close(
-	{AgentCoreRuntimeEnvironment?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreRuntimeEnvironment"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/HarnessGatewayOutboundAuth": matchN(1, [{
-	AwsIam!: _
-	...
-}, {
-	None!: _
-	...
-}, {
-	Oauth!: _
-	...
-}]) & close({
+#HarnessGatewayOutboundAuth: close({
 	AwsIam?: close({}) | fn.#ObjectExpression
 	None?:   close({}) | fn.#ObjectExpression
-	Oauth?:  _#defs."/$defs/Properties/definitions/OAuthCredentialProvider"
-}) |
+	Oauth?:  #OAuthCredentialProvider
+	if AwsIam != _|_ if AwsIam."Fn::If" == _|_ {
+		None?:  close({"Fn::If": _}) | error("None cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
+		Oauth?: close({"Fn::If": _}) | error("Oauth cannot be used with AwsIam; set exactly one of AwsIam, None, Oauth")
+	}
+	if None != _|_ if None."Fn::If" == _|_ {
+		Oauth?: close({"Fn::If": _}) | error("Oauth cannot be used with None; set exactly one of AwsIam, None, Oauth")
+	}
+}) & matchN(>=1, [{AwsIam!: _}, {None!: _}, {Oauth!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessGeminiModelConfig": close({
+#HarnessGeminiModelConfig: close({
 	AdditionalParams?: fn.#Object & {...} | fn.#ObjectExpression
 	ApiKeyArn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$" |
 		fn.#StringExpression
@@ -497,27 +496,39 @@ _#defs: "/$defs/Properties/definitions/HarnessGeminiModelConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessHook": matchN(1, [{
-	BeforeInvocation!: _
-	...
-}, {
-	AfterInvocation!: _
-	...
-}, {
-	BeforeToolCall!: _
-	...
-}, {
-	AfterToolCall!: _
-	...
-}]) & close({
-	AfterInvocation?:  _#defs."/$defs/Properties/definitions/HarnessAfterInvocationHook"
-	AfterToolCall?:    _#defs."/$defs/Properties/definitions/HarnessAfterToolCallHook"
-	BeforeInvocation?: _#defs."/$defs/Properties/definitions/HarnessBeforeInvocationHook"
-	BeforeToolCall?:   _#defs."/$defs/Properties/definitions/HarnessBeforeToolCallHook"
-}) |
+#HarnessHook: close({
+	AfterInvocation?:  #HarnessAfterInvocationHook
+	AfterToolCall?:    #HarnessAfterToolCallHook
+	BeforeInvocation?: #HarnessBeforeInvocationHook
+	BeforeToolCall?:   #HarnessBeforeToolCallHook
+	if BeforeInvocation != _|_ if BeforeInvocation."Fn::If" == _|_ {
+		AfterInvocation?: close({"Fn::If": _}) | error(
+			"AfterInvocation cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+		BeforeToolCall?: close({"Fn::If": _}) | error(
+			"BeforeToolCall cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+		AfterToolCall?: close({"Fn::If": _}) | error(
+			"AfterToolCall cannot be used with BeforeInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+	}
+	if AfterInvocation != _|_ if AfterInvocation."Fn::If" == _|_ {
+		BeforeToolCall?: close({"Fn::If": _}) | error(
+			"BeforeToolCall cannot be used with AfterInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+		AfterToolCall?: close({"Fn::If": _}) | error(
+			"AfterToolCall cannot be used with AfterInvocation; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+	}
+	if BeforeToolCall != _|_ if BeforeToolCall."Fn::If" == _|_ {
+		AfterToolCall?: close({"Fn::If": _}) | error(
+			"AfterToolCall cannot be used with BeforeToolCall; set exactly one of BeforeInvocation, AfterInvocation, BeforeToolCall, AfterToolCall",
+		)
+	}
+}) & matchN(>=1, [{BeforeInvocation!: _}, {AfterInvocation!: _}, {BeforeToolCall!: _}, {AfterToolCall!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessHookEventBridgeTarget": close({
+#HarnessHookEventBridgeTarget: close({
 	Arn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:events:[a-z0-9-]+:[0-9]{12}:event-bus/.+$" |
@@ -525,7 +536,7 @@ _#defs: "/$defs/Properties/definitions/HarnessHookEventBridgeTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessHookLambdaTarget": close({
+#HarnessHookLambdaTarget: close({
 	Arn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws(-[^:]+)?:lambda:[a-z0-9-]+:[0-9]{12}:function:.+$" |
 	fn.#StringExpression
 	FailureMode?: "allow" | "deny" | fn.#StringExpression
@@ -548,35 +559,39 @@ _#defs: "/$defs/Properties/definitions/HarnessHookLambdaTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessHookSnsTarget": close({
+#HarnessHookSnsTarget: close({
 	Arn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws(-[^:]+)?:sns:[a-z0-9-]+:[0-9]{12}:.+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessHookTarget": matchN(1, [{
-	Lambda!: _
-	...
-}, {
-	Sns!: _
-	...
-}, {
-	EventBridge!: _
-	...
-}]) & close({
-	EventBridge?: _#defs."/$defs/Properties/definitions/HarnessHookEventBridgeTarget"
-	Lambda?:      _#defs."/$defs/Properties/definitions/HarnessHookLambdaTarget"
-	Sns?:         _#defs."/$defs/Properties/definitions/HarnessHookSnsTarget"
-}) |
+#HarnessHookTarget: close({
+	EventBridge?: #HarnessHookEventBridgeTarget
+	Lambda?:      #HarnessHookLambdaTarget
+	Sns?:         #HarnessHookSnsTarget
+	if Lambda != _|_ if Lambda."Fn::If" == _|_ {
+		Sns?: close({"Fn::If": _}) | error(
+			"Sns cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge",
+		)
+		EventBridge?: close({"Fn::If": _}) | error(
+			"EventBridge cannot be used with Lambda; set exactly one of Lambda, Sns, EventBridge",
+		)
+	}
+	if Sns != _|_ if Sns."Fn::If" == _|_ {
+		EventBridge?: close({"Fn::If": _}) | error(
+			"EventBridge cannot be used with Sns; set exactly one of Lambda, Sns, EventBridge",
+		)
+	}
+}) & matchN(>=1, [{Lambda!: _}, {Sns!: _}, {EventBridge!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessInlineFunctionConfig": close({
+#HarnessInlineFunctionConfig: close({
 	Description!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	InputSchema!: fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessLiteLlmModelConfig": close({
+#HarnessLiteLlmModelConfig: close({
 	AdditionalParams?: fn.#Object & {...} | fn.#ObjectExpression
 	ApiBase?:          strings.MaxRunes(16383) & strings.MinRunes(1) | fn.#StringExpression
 	ApiKeyArn?: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$" |
@@ -640,7 +655,7 @@ _#defs: "/$defs/Properties/definitions/HarnessLiteLlmModelConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessManagedMemoryConfiguration": close({
+#HarnessManagedMemoryConfiguration: close({
 	Arn?: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
 		fn.#StringExpression
 	EncryptionKeyArn?: string | fn.#StringExpression
@@ -667,34 +682,46 @@ _#defs: "/$defs/Properties/definitions/HarnessManagedMemoryConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessMemoryConfiguration": close({
-	AgentCoreMemoryConfiguration?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreMemoryConfiguration"
-	Disabled?:                     _#defs."/$defs/Properties/definitions/HarnessDisabledMemoryConfiguration"
-	ManagedMemoryConfiguration?:   _#defs."/$defs/Properties/definitions/HarnessManagedMemoryConfiguration"
+#HarnessMemoryConfiguration: close({
+	AgentCoreMemoryConfiguration?: #HarnessAgentCoreMemoryConfiguration
+	Disabled?:                     #HarnessDisabledMemoryConfiguration
+	ManagedMemoryConfiguration?:   #HarnessManagedMemoryConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessModelConfiguration": matchN(1, [{
-	BedrockModelConfig!: _
-	...
-}, {
-	OpenAiModelConfig!: _
-	...
-}, {
-	GeminiModelConfig!: _
-	...
-}, {
-	LiteLlmModelConfig!: _
-	...
-}]) & close({
-	BedrockModelConfig?: _#defs."/$defs/Properties/definitions/HarnessBedrockModelConfig"
-	GeminiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessGeminiModelConfig"
-	LiteLlmModelConfig?: _#defs."/$defs/Properties/definitions/HarnessLiteLlmModelConfig"
-	OpenAiModelConfig?:  _#defs."/$defs/Properties/definitions/HarnessOpenAiModelConfig"
-}) |
+#HarnessModelConfiguration: close({
+	BedrockModelConfig?: #HarnessBedrockModelConfig
+	GeminiModelConfig?:  #HarnessGeminiModelConfig
+	LiteLlmModelConfig?: #HarnessLiteLlmModelConfig
+	OpenAiModelConfig?:  #HarnessOpenAiModelConfig
+	if BedrockModelConfig != _|_ if BedrockModelConfig."Fn::If" == _|_ {
+		OpenAiModelConfig?: close({"Fn::If": _}) | error(
+			"OpenAiModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+		GeminiModelConfig?: close({"Fn::If": _}) | error(
+			"GeminiModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+		LiteLlmModelConfig?: close({"Fn::If": _}) | error(
+			"LiteLlmModelConfig cannot be used with BedrockModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+	}
+	if OpenAiModelConfig != _|_ if OpenAiModelConfig."Fn::If" == _|_ {
+		GeminiModelConfig?: close({"Fn::If": _}) | error(
+			"GeminiModelConfig cannot be used with OpenAiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+		LiteLlmModelConfig?: close({"Fn::If": _}) | error(
+			"LiteLlmModelConfig cannot be used with OpenAiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+	}
+	if GeminiModelConfig != _|_ if GeminiModelConfig."Fn::If" == _|_ {
+		LiteLlmModelConfig?: close({"Fn::If": _}) | error(
+			"LiteLlmModelConfig cannot be used with GeminiModelConfig; set exactly one of BedrockModelConfig, OpenAiModelConfig, GeminiModelConfig, LiteLlmModelConfig",
+		)
+	}
+}) & matchN(>=1, [{BedrockModelConfig!: _}, {OpenAiModelConfig!: _}, {GeminiModelConfig!: _}, {LiteLlmModelConfig!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessOpenAiModelConfig": close({
+#HarnessOpenAiModelConfig: close({
 	AdditionalParams?: fn.#Object & {...} | fn.#ObjectExpression
 	ApiBase?:          strings.MaxRunes(16383) & strings.MinRunes(1) | fn.#StringExpression
 	ApiFormat?:        "chat_completions" | "responses" | fn.#StringExpression
@@ -759,7 +786,7 @@ _#defs: "/$defs/Properties/definitions/HarnessOpenAiModelConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessRemoteMcpConfig": close({
+#HarnessRemoteMcpConfig: close({
 	Headers?: close({
 
 		{[=~"^[\\s\\S]*$"]: strings.MaxRunes(16383) & strings.MinRunes(1) | fn.#StringExpression}}) |
@@ -768,40 +795,37 @@ _#defs: "/$defs/Properties/definitions/HarnessRemoteMcpConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessSkill": close({
-	AwsSkills?: _#defs."/$defs/Properties/definitions/HarnessSkillAwsSkillsSource"
-	Git?:       _#defs."/$defs/Properties/definitions/HarnessSkillGitSource"
+#HarnessSkill: close({
+	AwsSkills?: #HarnessSkillAwsSkillsSource
+	Git?:       #HarnessSkillGitSource
 	Path?:      strings.MinRunes(1) | fn.#StringExpression
-	S3?:        _#defs."/$defs/Properties/definitions/HarnessSkillS3Source"
+	S3?:        #HarnessSkillS3Source
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessSkillAwsSkillsSource": close({
+#HarnessSkillAwsSkillsSource: close({
 	Paths?: [...strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^([^*?\\[\\]]|\\*)+$" | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessSkillGitAuth": close({
+#HarnessSkillGitAuth: close({
 	CredentialArn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/apikeycredentialprovider/[a-zA-Z0-9-.]+$" |
 		fn.#StringExpression
 	Username?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessSkillGitSource": close({
-	Auth?: _#defs."/$defs/Properties/definitions/HarnessSkillGitAuth"
+#HarnessSkillGitSource: close({
+	Auth?: #HarnessSkillGitAuth
 	Path?: string | fn.#StringExpression
 	Url!:  strings.MinRunes(8) & =~"^https://" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessSkillS3Source": close(
-	{Uri!: strings.MinRunes(5) & =~"^s3://" | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#HarnessSkillS3Source: close({Uri!: strings.MinRunes(5) & =~"^s3://" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessSlidingWindowConfiguration": close({
+#HarnessSlidingWindowConfiguration: close({
 	MessagesCount?: int |
 		{
 			string &
@@ -819,7 +843,7 @@ _#defs: "/$defs/Properties/definitions/HarnessSlidingWindowConfiguration": close
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessStatus": "CREATING" |
+#HarnessStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"UPDATING" |
 	"UPDATE_FAILED" |
@@ -828,7 +852,7 @@ _#defs: "/$defs/Properties/definitions/HarnessStatus": "CREATING" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessSummarizationConfiguration": close({
+#HarnessSummarizationConfiguration: close({
 	PreserveRecentMessages?: int |
 		{
 			string &
@@ -866,13 +890,10 @@ _#defs: "/$defs/Properties/definitions/HarnessSummarizationConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessSystemContentBlock": close(
-	{Text!: strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#HarnessSystemContentBlock: close({Text!: strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessTool": close({
-	Config?: _#defs."/$defs/Properties/definitions/HarnessToolConfiguration"
+#HarnessTool: close({
+	Config?: #HarnessToolConfiguration
 	Name?:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	Type!: "remote_mcp" |
 		"agentcore_browser" |
@@ -883,43 +904,79 @@ _#defs: "/$defs/Properties/definitions/HarnessTool": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessToolConfiguration": matchN(1, [{
-	RemoteMcp!: _
-	...
-}, {
-	AgentCoreBrowser!: _
-	...
-}, {
-	AgentCoreGateway!: _
-	...
-}, {
-	InlineFunction!: _
-	...
-}, {
-	AgentCoreCodeInterpreter!: _
-	...
-}]) & close({
-	AgentCoreBrowser?:         _#defs."/$defs/Properties/definitions/HarnessAgentCoreBrowserConfig"
-	AgentCoreCodeInterpreter?: _#defs."/$defs/Properties/definitions/HarnessAgentCoreCodeInterpreterConfig"
-	AgentCoreGateway?:         _#defs."/$defs/Properties/definitions/HarnessAgentCoreGatewayConfig"
-	InlineFunction?:           _#defs."/$defs/Properties/definitions/HarnessInlineFunctionConfig"
-	RemoteMcp?:                _#defs."/$defs/Properties/definitions/HarnessRemoteMcpConfig"
-}) |
+#HarnessToolConfiguration: close({
+	AgentCoreBrowser?:         #HarnessAgentCoreBrowserConfig
+	AgentCoreCodeInterpreter?: #HarnessAgentCoreCodeInterpreterConfig
+	AgentCoreGateway?:         #HarnessAgentCoreGatewayConfig
+	InlineFunction?:           #HarnessInlineFunctionConfig
+	RemoteMcp?:                #HarnessRemoteMcpConfig
+	if RemoteMcp != _|_ if RemoteMcp."Fn::If" == _|_ {
+		AgentCoreBrowser?: close({"Fn::If": _}) | error(
+			"AgentCoreBrowser cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreGateway?: close({"Fn::If": _}) | error(
+			"AgentCoreGateway cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		InlineFunction?: close({"Fn::If": _}) | error(
+			"InlineFunction cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
+			"AgentCoreCodeInterpreter cannot be used with RemoteMcp; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+	if AgentCoreBrowser != _|_ if AgentCoreBrowser."Fn::If" == _|_ {
+		AgentCoreGateway?: close({"Fn::If": _}) | error(
+			"AgentCoreGateway cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		InlineFunction?: close({"Fn::If": _}) | error(
+			"InlineFunction cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
+			"AgentCoreCodeInterpreter cannot be used with AgentCoreBrowser; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+	if AgentCoreGateway != _|_ if AgentCoreGateway."Fn::If" == _|_ {
+		InlineFunction?: close({"Fn::If": _}) | error(
+			"InlineFunction cannot be used with AgentCoreGateway; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
+			"AgentCoreCodeInterpreter cannot be used with AgentCoreGateway; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+	if InlineFunction != _|_ if InlineFunction."Fn::If" == _|_ {
+		AgentCoreCodeInterpreter?: close({"Fn::If": _}) | error(
+			"AgentCoreCodeInterpreter cannot be used with InlineFunction; set exactly one of RemoteMcp, AgentCoreBrowser, AgentCoreGateway, InlineFunction, AgentCoreCodeInterpreter",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{
+		RemoteMcp!: _
+	}, {
+		AgentCoreBrowser!: _
+	}, {
+		AgentCoreGateway!: _
+	}, {
+		InlineFunction!: _
+	}, {
+		AgentCoreCodeInterpreter!: _
+	}],
+) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessTruncationConfiguration": close({
-	Config?:   _#defs."/$defs/Properties/definitions/HarnessTruncationStrategyConfiguration"
+#HarnessTruncationConfiguration: close({
+	Config?:   #HarnessTruncationStrategyConfiguration
 	Strategy!: "sliding_window" | "summarization" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HarnessTruncationStrategyConfiguration": close({
-	SlidingWindow?: _#defs."/$defs/Properties/definitions/HarnessSlidingWindowConfiguration"
-	Summarization?: _#defs."/$defs/Properties/definitions/HarnessSummarizationConfiguration"
+#HarnessTruncationStrategyConfiguration: close({
+	SlidingWindow?: #HarnessSlidingWindowConfiguration
+	Summarization?: #HarnessSummarizationConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
+#LifecycleConfiguration: close({
 	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60 |
 		{
 			string &
@@ -955,7 +1012,7 @@ _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
+#ManagedVpcResource: close({
 	EndpointIpAddressType!: "IPV4" | "IPV6" | fn.#StringExpression
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
@@ -974,13 +1031,13 @@ _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
+#NetworkConfiguration: close({
 	NetworkMode!:       "PUBLIC" | "VPC" | fn.#StringExpression
-	NetworkModeConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	NetworkModeConfig?: #VpcConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OAuthCredentialProvider": close({
+#OAuthCredentialProvider: close({
 	CustomParameters?: struct.MaxFields(10) & struct.MinFields(1) & close({
 
 		{[=~"^[\\s\\S]*$"]: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}}) |
@@ -994,19 +1051,19 @@ _#defs: "/$defs/Properties/definitions/OAuthCredentialProvider": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": close({
-	ManagedVpcResource?:         _#defs."/$defs/Properties/definitions/ManagedVpcResource"
-	SelfManagedLatticeResource?: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"
+#PrivateEndpoint: close({
+	ManagedVpcResource?:         #ManagedVpcResource
+	SelfManagedLatticeResource?: #SelfManagedLatticeResource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpointOverride": close({
+#PrivateEndpointOverride: close({
 	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpoint!: #PrivateEndpoint
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3FilesAccessPointConfiguration": close({
+#S3FilesAccessPointConfiguration: close({
 	AccessPointArn!: strings.MaxRunes(256) &
 	=~"^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$" |
 	fn.#StringExpression
@@ -1014,7 +1071,7 @@ _#defs: "/$defs/Properties/definitions/S3FilesAccessPointConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
+#SelfManagedLatticeResource: close({
 	ResourceConfigurationIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$" |
@@ -1022,18 +1079,18 @@ _#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionStorageConfiguration": close(
+#SessionStorageConfiguration: close(
 	{MountPath!: strings.MaxRunes(200) & strings.MinRunes(6) & =~"^/mnt/[a-zA-Z0-9._-]+/?$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 			=~"^sg-[0-9a-zA-Z]{8,17}$" |
@@ -1044,7 +1101,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::Harness"
-	Properties!: #Properties
-}

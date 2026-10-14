@@ -13,22 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Aws Route53 Recovery Readiness Check Schema and API specification.
-#Properties: close({
-	ReadinessCheckName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	ResourceSetName?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	Tags?: [
-		..._#defs."/$defs/Properties/definitions/Tag" & (null | bool | number | string | list.MaxItems(20) | {...}) |
-		fn.#ObjectExpression
-	] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53RecoveryReadiness::ReadinessCheck"
+	Properties?: close({
+		ReadinessCheckName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
+		ResourceSetName?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
+		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryReadiness::ReadinessCheck"
-	Properties?: #Properties
-}

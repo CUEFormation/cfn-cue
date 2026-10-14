@@ -9,34 +9,34 @@ import "strings"
 // Definition of AWS::AmplifyUIBuilder::Form Resource Type
 #Properties: close({
 	AppId?:             string
-	Cta?:               _#defs."/$defs/Properties/definitions/FormCTA"
-	DataType?:          _#defs."/$defs/Properties/definitions/FormDataTypeConfig"
+	Cta?:               #FormCTA
+	DataType?:          #FormDataTypeConfig
 	EnvironmentName?:   string
-	Fields?:            _#defs."/$defs/Properties/definitions/FieldsMap"
-	FormActionType?:    _#defs."/$defs/Properties/definitions/FormActionType"
+	Fields?:            #FieldsMap
+	FormActionType?:    #FormActionType
 	Id?:                string
-	LabelDecorator?:    _#defs."/$defs/Properties/definitions/LabelDecorator"
+	LabelDecorator?:    #LabelDecorator
 	Name?:              strings.MaxRunes(255) & strings.MinRunes(1)
 	SchemaVersion?:     string
-	SectionalElements?: _#defs."/$defs/Properties/definitions/SectionalElementMap"
-	Style?:             _#defs."/$defs/Properties/definitions/FormStyle"
-	Tags?:              _#defs."/$defs/Properties/definitions/Tags"
+	SectionalElements?: #SectionalElementMap
+	Style?:             #FormStyle
+	Tags?:              #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/FieldConfig": close({
+#FieldConfig: close({
 	Excluded?:    bool
-	InputType?:   _#defs."/$defs/Properties/definitions/FieldInputConfig"
+	InputType?:   #FieldInputConfig
 	Label?:       string
-	Position?:    _#defs."/$defs/Properties/definitions/FieldPosition"
-	Validations?: [..._#defs."/$defs/Properties/definitions/FieldValidationConfiguration"]
+	Position?:    #FieldPosition
+	Validations?: [...#FieldValidationConfiguration]
 })
 
-_#defs: "/$defs/Properties/definitions/FieldInputConfig": close({
+#FieldInputConfig: close({
 	DefaultChecked?:     bool
 	DefaultCountryCode?: string
 	DefaultValue?:       string
 	DescriptiveText?:    string
-	FileUploaderConfig?: _#defs."/$defs/Properties/definitions/FileUploaderFieldConfig"
+	FileUploaderConfig?: #FileUploaderFieldConfig
 	IsArray?:            bool
 	MaxValue?:           number
 	MinValue?:           number
@@ -47,120 +47,112 @@ _#defs: "/$defs/Properties/definitions/FieldInputConfig": close({
 	Step?:               number
 	Type!:               string
 	Value?:              string
-	ValueMappings?:      _#defs."/$defs/Properties/definitions/ValueMappings"
+	ValueMappings?:      #ValueMappings
 })
 
-_#defs: "/$defs/Properties/definitions/FieldPosition": matchN(1, [close(
-	{Fixed!: _#defs."/$defs/Properties/definitions/FixedPosition"},
-), close(
-	{RightOf!: string},
-), close(
-	{Below!: string},
-)])
+#FieldPosition: matchN(1, [close({Fixed!: #FixedPosition}), close({RightOf!: string}), close({Below!: string})])
 
-_#defs: "/$defs/Properties/definitions/FieldValidationConfiguration": close({
+#FieldValidationConfiguration: close({
 	NumValues?:         [...number]
 	StrValues?:         [...string]
 	Type!:              string
 	ValidationMessage?: string
 })
 
-_#defs: "/$defs/Properties/definitions/FieldsMap": close({
+#FieldsMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FieldConfig"}})
+	{[=~".+"]: #FieldConfig}})
 
-_#defs: "/$defs/Properties/definitions/FileUploaderFieldConfig": close({
+#FileUploaderFieldConfig: close({
 	AcceptedFileTypes!: [...string]
-	AccessLevel!:       _#defs."/$defs/Properties/definitions/StorageAccessLevel"
+	AccessLevel!:       #StorageAccessLevel
 	IsResumable?:       bool
 	MaxFileCount?:      number
 	MaxSize?:           number
 	ShowThumbnails?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/FixedPosition": "first"
+#FixedPosition: "first"
 
-_#defs: "/$defs/Properties/definitions/FormActionType": "create" | "update"
+#FormActionType: "create" | "update"
 
-_#defs: "/$defs/Properties/definitions/FormButton": close({
+#FormButton: close({
 	Children?: string
 	Excluded?: bool
-	Position?: _#defs."/$defs/Properties/definitions/FieldPosition"
+	Position?: #FieldPosition
 })
 
-_#defs: "/$defs/Properties/definitions/FormButtonsPosition": "top" | "bottom" | "top_and_bottom"
+#FormButtonsPosition: "top" | "bottom" | "top_and_bottom"
 
-_#defs: "/$defs/Properties/definitions/FormCTA": close({
-	Cancel?:   _#defs."/$defs/Properties/definitions/FormButton"
-	Clear?:    _#defs."/$defs/Properties/definitions/FormButton"
-	Position?: _#defs."/$defs/Properties/definitions/FormButtonsPosition"
-	Submit?:   _#defs."/$defs/Properties/definitions/FormButton"
+#FormCTA: close({
+	Cancel?:   #FormButton
+	Clear?:    #FormButton
+	Position?: #FormButtonsPosition
+	Submit?:   #FormButton
 })
 
-_#defs: "/$defs/Properties/definitions/FormDataSourceType": "DataStore" | "Custom"
+#FormDataSourceType: "DataStore" | "Custom"
 
-_#defs: "/$defs/Properties/definitions/FormDataTypeConfig": close({
-	DataSourceType!: _#defs."/$defs/Properties/definitions/FormDataSourceType"
+#FormDataTypeConfig: close({
+	DataSourceType!: #FormDataSourceType
 	DataTypeName!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/FormInputBindingProperties": close({
+#FormInputBindingProperties: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FormInputBindingPropertiesValue"}})
+	{[=~".+"]: #FormInputBindingPropertiesValue}})
 
-_#defs: "/$defs/Properties/definitions/FormInputBindingPropertiesValue": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputBindingPropertiesValueProperties"
+#FormInputBindingPropertiesValue: close({
+	BindingProperties?: #FormInputBindingPropertiesValueProperties
 	Type?:              string
 })
 
-_#defs: "/$defs/Properties/definitions/FormInputBindingPropertiesValueProperties": close({Model?: string})
+#FormInputBindingPropertiesValueProperties: close({Model?: string})
 
-_#defs: "/$defs/Properties/definitions/FormInputValueProperty": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputValuePropertyBindingProperties"
-	Concat?:            [..._#defs."/$defs/Properties/definitions/FormInputValueProperty"]
+#FormInputValueProperty: close({
+	BindingProperties?: #FormInputValuePropertyBindingProperties
+	Concat?:            [...#FormInputValueProperty]
 	Value?:             string
 })
 
-_#defs: "/$defs/Properties/definitions/FormInputValuePropertyBindingProperties": close({
+#FormInputValuePropertyBindingProperties: close({
 	Field?:    string
 	Property!: string
 })
 
-_#defs: "/$defs/Properties/definitions/FormStyle": close({
-	HorizontalGap?: _#defs."/$defs/Properties/definitions/FormStyleConfig"
-	OuterPadding?:  _#defs."/$defs/Properties/definitions/FormStyleConfig"
-	VerticalGap?:   _#defs."/$defs/Properties/definitions/FormStyleConfig"
+#FormStyle: close({
+	HorizontalGap?: #FormStyleConfig
+	OuterPadding?:  #FormStyleConfig
+	VerticalGap?:   #FormStyleConfig
 })
 
-_#defs: "/$defs/Properties/definitions/FormStyleConfig": matchN(1, [
-	close({TokenReference!: string}), close({Value!: string}),
-])
+#FormStyleConfig: matchN(1, [close({TokenReference!: string}), close({Value!: string})])
 
-_#defs: "/$defs/Properties/definitions/LabelDecorator": "required" | "optional" | "none"
+#LabelDecorator: "required" | "optional" | "none"
 
-_#defs: "/$defs/Properties/definitions/SectionalElement": close({
+#SectionalElement: close({
 	Excluded?:    bool
 	Level?:       number
 	Orientation?: string
-	Position?:    _#defs."/$defs/Properties/definitions/FieldPosition"
+	Position?:    #FieldPosition
 	Text?:        string
 	Type!:        string
 })
 
-_#defs: "/$defs/Properties/definitions/SectionalElementMap": close({
+#SectionalElementMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/SectionalElement"}})
+	{[=~".+"]: #SectionalElement}})
 
-_#defs: "/$defs/Properties/definitions/StorageAccessLevel": "public" | "protected" | "private"
+#StorageAccessLevel: "public" | "protected" | "private"
 
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}
 
-_#defs: "/$defs/Properties/definitions/ValueMapping": close({
-	DisplayValue?: _#defs."/$defs/Properties/definitions/FormInputValueProperty"
-	Value!:        _#defs."/$defs/Properties/definitions/FormInputValueProperty"
+#ValueMapping: close({
+	DisplayValue?: #FormInputValueProperty
+	Value!:        #FormInputValueProperty
 })
 
-_#defs: "/$defs/Properties/definitions/ValueMappings": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputBindingProperties"
-	Values!:            [..._#defs."/$defs/Properties/definitions/ValueMapping"]
+#ValueMappings: close({
+	BindingProperties?: #FormInputBindingProperties
+	Values!:            [...#ValueMapping]
 })

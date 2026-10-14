@@ -13,59 +13,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GammaDilithium::JobDefinition
-#Properties: close({
-	ContainerProperties?:  _#defs."/$defs/Properties/definitions/ContainerProperties"
-	EcsProperties?:        _#defs."/$defs/Properties/definitions/EcsProperties"
-	EksProperties?:        _#defs."/$defs/Properties/definitions/EksProperties"
-	JobDefinitionName?:    string | fn.#StringExpression
-	NodeProperties?:       _#defs."/$defs/Properties/definitions/NodeProperties"
-	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	PlatformCapabilities?: [...string | fn.#StringExpression] | fn.#ListExpression
-	PropagateTags?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RetryStrategy?:        _#defs."/$defs/Properties/definitions/RetryStrategy"
-	SchedulingPriority?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: [...close({
-		Key!:   string | fn.#StringExpression
-		Value!: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Timeout?: _#defs."/$defs/Properties/definitions/Timeout"
-	Type!:    string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GammaDilithium::JobDefinition"
+	Properties!: close({
+		ContainerProperties?:  #ContainerProperties
+		EcsProperties?:        #EcsProperties
+		EksProperties?:        #EksProperties
+		JobDefinitionName?:    string | fn.#StringExpression
+		NodeProperties?:       #NodeProperties
+		Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		PlatformCapabilities?: [...string | fn.#StringExpression] | fn.#ListExpression
+		PropagateTags?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RetryStrategy?:        #RetryStrategy
+		SchedulingPriority?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: [...close({
+			Key!:   string | fn.#StringExpression
+			Value!: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Timeout?: #Timeout
+		Type!:    string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuthorizationConfig": close({
+#AuthorizationConfig: close({
 	AccessPointId?: string | fn.#StringExpression
 	Iam?:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerProperties": close({
+#ContainerProperties: close({
 	Command?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Environment?:      [..._#defs."/$defs/Properties/definitions/Environment"] | fn.#ListExpression
-	EphemeralStorage?: _#defs."/$defs/Properties/definitions/EphemeralStorage"
+	Environment?:      [...#Environment] | fn.#ListExpression
+	EphemeralStorage?: #EphemeralStorage
 	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	FargatePlatformConfiguration?: _#defs."/$defs/Properties/definitions/FargatePlatformConfiguration"
+	FargatePlatformConfiguration?: #FargatePlatformConfiguration
 	Image!:                        string | fn.#StringExpression
 	InstanceType?:                 string | fn.#StringExpression
 	JobRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	LinuxParameters?:  _#defs."/$defs/Properties/definitions/LinuxParameters"
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	LinuxParameters?:  #LinuxParameters
+	LogConfiguration?: #LogConfiguration
 	Memory?: int |
 		{
 			string &
@@ -80,15 +85,15 @@ _#defs: "/$defs/Properties/definitions/ContainerProperties": close({
 				)
 		} |
 		fn.#NumberExpression
-	MountPoints?:            [..._#defs."/$defs/Properties/definitions/MountPoints"] | fn.#ListExpression
-	NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	MountPoints?:            [...#MountPoints] | fn.#ListExpression
+	NetworkConfiguration?:   #NetworkConfiguration
 	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials"
-	ResourceRequirements?:   [..._#defs."/$defs/Properties/definitions/ResourceRequirement"] | fn.#ListExpression
-	RuntimePlatform?:        _#defs."/$defs/Properties/definitions/RuntimePlatform"
-	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
-	Ulimits?:                [..._#defs."/$defs/Properties/definitions/Ulimit"] | fn.#ListExpression
+	RepositoryCredentials?:  #RepositoryCredentials
+	ResourceRequirements?:   [...#ResourceRequirement] | fn.#ListExpression
+	RuntimePlatform?:        #RuntimePlatform
+	Secrets?:                [...#Secret] | fn.#ListExpression
+	Ulimits?:                [...#Ulimit] | fn.#ListExpression
 	User?:                   string | fn.#StringExpression
 	Vcpus?: int |
 		{
@@ -104,40 +109,37 @@ _#defs: "/$defs/Properties/definitions/ContainerProperties": close({
 				)
 		} |
 		fn.#NumberExpression
-	Volumes?: [..._#defs."/$defs/Properties/definitions/Volumes"] | fn.#ListExpression
+	Volumes?: [...#Volumes] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	ContainerPath?: string | fn.#StringExpression
 	HostPath?:      string | fn.#StringExpression
 	Permissions?:   [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsProperties": close(
-	{TaskProperties!: [..._#defs."/$defs/Properties/definitions/EcsTaskProperties"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#EcsProperties: close({TaskProperties!: [...#EcsTaskProperties] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsTaskProperties": close({
-	Containers?:       [..._#defs."/$defs/Properties/definitions/TaskContainerProperties"] | fn.#ListExpression
-	EphemeralStorage?: _#defs."/$defs/Properties/definitions/EphemeralStorage"
+#EcsTaskProperties: close({
+	Containers?:       [...#TaskContainerProperties] | fn.#ListExpression
+	EphemeralStorage?: #EphemeralStorage
 	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	IpcMode?:              string | fn.#StringExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	NetworkConfiguration?: #NetworkConfiguration
 	PidMode?:              string | fn.#StringExpression
 	PlatformVersion?:      string | fn.#StringExpression
-	RuntimePlatform?:      _#defs."/$defs/Properties/definitions/RuntimePlatform"
+	RuntimePlatform?:      #RuntimePlatform
 	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	Volumes?: [..._#defs."/$defs/Properties/definitions/Volumes"] | fn.#ListExpression
+	Volumes?: [...#Volumes] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EfsVolumeConfiguration": close({
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/AuthorizationConfig"
+#EfsVolumeConfiguration: close({
+	AuthorizationConfig?: #AuthorizationConfig
 	FileSystemId!:        string | fn.#StringExpression
 	RootDirectory?:       string | fn.#StringExpression
 	TransitEncryption?:   string | fn.#StringExpression
@@ -158,32 +160,32 @@ _#defs: "/$defs/Properties/definitions/EfsVolumeConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksContainer": close({
+#EksContainer: close({
 	Args?:            [...string | fn.#StringExpression] | fn.#ListExpression
 	Command?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	Env?:             [..._#defs."/$defs/Properties/definitions/EksContainerEnvironmentVariable"] | fn.#ListExpression
+	Env?:             [...#EksContainerEnvironmentVariable] | fn.#ListExpression
 	Image!:           string | fn.#StringExpression
 	ImagePullPolicy?: string | fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	Resources?:       _#defs."/$defs/Properties/definitions/EksContainerResourceRequirements"
-	SecurityContext?: _#defs."/$defs/Properties/definitions/EksContainerSecurityContext"
-	VolumeMounts?:    [..._#defs."/$defs/Properties/definitions/EksContainerVolumeMount"] | fn.#ListExpression
+	Resources?:       #EksContainerResourceRequirements
+	SecurityContext?: #EksContainerSecurityContext
+	VolumeMounts?:    [...#EksContainerVolumeMount] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksContainerEnvironmentVariable": close({
+#EksContainerEnvironmentVariable: close({
 	Name!:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksContainerResourceRequirements": close({
+#EksContainerResourceRequirements: close({
 	Limits?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 	Requests?: fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksContainerSecurityContext": close({
+#EksContainerSecurityContext: close({
 	AllowPrivilegeEscalation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Privileged?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadOnlyRootFilesystem?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -219,48 +221,44 @@ _#defs: "/$defs/Properties/definitions/EksContainerSecurityContext": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksContainerVolumeMount": close({
+#EksContainerVolumeMount: close({
 	MountPath?: string | fn.#StringExpression
 	Name?:      string | fn.#StringExpression
 	ReadOnly?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksEmptyDir": close({
+#EksEmptyDir: close({
 	Medium?:    string | fn.#StringExpression
 	SizeLimit?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksHostPath": close({Path?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#EksHostPath: close({Path?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksProperties": close(
-	{PodProperties?: _#defs."/$defs/Properties/definitions/PodProperties"},
-) |
-	fn.#ObjectExpression
+#EksProperties: close({PodProperties?: #PodProperties}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksSecret": close({
+#EksSecret: close({
 	Optional?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecretName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksVolume": close({
-	EmptyDir?: _#defs."/$defs/Properties/definitions/EksEmptyDir"
-	HostPath?: _#defs."/$defs/Properties/definitions/EksHostPath"
+#EksVolume: close({
+	EmptyDir?: #EksEmptyDir
+	HostPath?: #EksHostPath
 	Name!:     string | fn.#StringExpression
-	Secret?:   _#defs."/$defs/Properties/definitions/EksSecret"
+	Secret?:   #EksSecret
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
+#EphemeralStorage: close({
 	SizeInGiB!: int |
 		{
 			string &
@@ -278,7 +276,7 @@ _#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluateOnExit": close({
+#EvaluateOnExit: close({
 	Action!:         string | fn.#StringExpression
 	OnExitCode?:     string | fn.#StringExpression
 	OnReason?:       string | fn.#StringExpression
@@ -286,16 +284,12 @@ _#defs: "/$defs/Properties/definitions/EvaluateOnExit": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FargatePlatformConfiguration": close(
-	{PlatformVersion?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#FargatePlatformConfiguration: close({PlatformVersion?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImagePullSecret": close({Name!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ImagePullSecret: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinuxParameters": close({
-	Devices?:            [..._#defs."/$defs/Properties/definitions/Device"] | fn.#ListExpression
+#LinuxParameters: close({
+	Devices?:            [...#Device] | fn.#ListExpression
 	InitProcessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxSwap?: int |
 		{
@@ -339,33 +333,29 @@ _#defs: "/$defs/Properties/definitions/LinuxParameters": close({
 				)
 		} |
 		fn.#NumberExpression
-	Tmpfs?: [..._#defs."/$defs/Properties/definitions/Tmpfs"] | fn.#ListExpression
+	Tmpfs?: [...#Tmpfs] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	LogDriver!:     string | fn.#StringExpression
 	Options?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	SecretOptions?: [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Metadata": close(
-	{Labels?: fn.#Object & {...} | string | fn.#StringObjectExpression},
-) |
-fn.#ObjectExpression
+#Metadata: close({Labels?: fn.#Object & {...} | string | fn.#StringObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MountPoints": close({
+#MountPoints: close({
 	ContainerPath?: string | fn.#StringExpression
 	ReadOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceVolume?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({AssignPublicIp?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#NetworkConfiguration: close({AssignPublicIp?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeProperties": close({
+#NodeProperties: close({
 	MainNode!: int |
 		{
 			string &
@@ -380,7 +370,7 @@ _#defs: "/$defs/Properties/definitions/NodeProperties": close({
 				)
 		} |
 		fn.#NumberExpression
-	NodeRangeProperties!: [..._#defs."/$defs/Properties/definitions/NodeRangeProperty"] | fn.#ListExpression
+	NodeRangeProperties!: [...#NodeRangeProperty] | fn.#ListExpression
 	NumNodes!: int |
 		{
 			string &
@@ -398,40 +388,37 @@ _#defs: "/$defs/Properties/definitions/NodeProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeRangeProperty": close({
-	Container?:     _#defs."/$defs/Properties/definitions/ContainerProperties"
-	EcsProperties?: _#defs."/$defs/Properties/definitions/EcsProperties"
-	EksProperties?: _#defs."/$defs/Properties/definitions/EksProperties"
+#NodeRangeProperty: close({
+	Container?:     #ContainerProperties
+	EcsProperties?: #EcsProperties
+	EksProperties?: #EksProperties
 	InstanceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
 	TargetNodes!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PodProperties": close({
-	Containers?:            [..._#defs."/$defs/Properties/definitions/EksContainer"] | fn.#ListExpression
+#PodProperties: close({
+	Containers?:            [...#EksContainer] | fn.#ListExpression
 	DnsPolicy?:             string | fn.#StringExpression
 	HostNetwork?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ImagePullSecrets?:      [..._#defs."/$defs/Properties/definitions/ImagePullSecret"] | fn.#ListExpression
-	InitContainers?:        [..._#defs."/$defs/Properties/definitions/EksContainer"] | fn.#ListExpression
-	Metadata?:              _#defs."/$defs/Properties/definitions/Metadata"
+	ImagePullSecrets?:      [...#ImagePullSecret] | fn.#ListExpression
+	InitContainers?:        [...#EksContainer] | fn.#ListExpression
+	Metadata?:              #Metadata
 	ServiceAccountName?:    string | fn.#StringExpression
 	ShareProcessNamespace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Volumes?:               [..._#defs."/$defs/Properties/definitions/EksVolume"] | fn.#ListExpression
+	Volumes?:               [...#EksVolume] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RepositoryCredentials": close(
-	{CredentialsParameter!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#RepositoryCredentials: close({CredentialsParameter!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceRequirement": close({
+#ResourceRequirement: close({
 	Type?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetryStrategy": close({
+#RetryStrategy: close({
 	Attempts?: int |
 		{
 			string &
@@ -446,49 +433,49 @@ _#defs: "/$defs/Properties/definitions/RetryStrategy": close({
 				)
 		} |
 		fn.#NumberExpression
-	EvaluateOnExit?: [..._#defs."/$defs/Properties/definitions/EvaluateOnExit"] | fn.#ListExpression
+	EvaluateOnExit?: [...#EvaluateOnExit] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuntimePlatform": close({
+#RuntimePlatform: close({
 	CpuArchitecture?:       string | fn.#StringExpression
 	OperatingSystemFamily?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	Name!:      string | fn.#StringExpression
 	ValueFrom!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskContainerDependency": close({
+#TaskContainerDependency: close({
 	Condition!:     string | fn.#StringExpression
 	ContainerName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskContainerProperties": close({
+#TaskContainerProperties: close({
 	Command?:                [...string | fn.#StringExpression] | fn.#ListExpression
-	DependsOn?:              [..._#defs."/$defs/Properties/definitions/TaskContainerDependency"] | fn.#ListExpression
-	Environment?:            [..._#defs."/$defs/Properties/definitions/Environment"] | fn.#ListExpression
+	DependsOn?:              [...#TaskContainerDependency] | fn.#ListExpression
+	Environment?:            [...#Environment] | fn.#ListExpression
 	Essential?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Image!:                  string | fn.#StringExpression
-	LinuxParameters?:        _#defs."/$defs/Properties/definitions/LinuxParameters"
-	LogConfiguration?:       _#defs."/$defs/Properties/definitions/LogConfiguration"
-	MountPoints?:            [..._#defs."/$defs/Properties/definitions/MountPoints"] | fn.#ListExpression
+	LinuxParameters?:        #LinuxParameters
+	LogConfiguration?:       #LogConfiguration
+	MountPoints?:            [...#MountPoints] | fn.#ListExpression
 	Name?:                   string | fn.#StringExpression
 	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RepositoryCredentials?:  _#defs."/$defs/Properties/definitions/RepositoryCredentials"
-	ResourceRequirements?:   [..._#defs."/$defs/Properties/definitions/ResourceRequirement"] | fn.#ListExpression
-	Secrets?:                [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
-	Ulimits?:                [..._#defs."/$defs/Properties/definitions/Ulimit"] | fn.#ListExpression
+	RepositoryCredentials?:  #RepositoryCredentials
+	ResourceRequirements?:   [...#ResourceRequirement] | fn.#ListExpression
+	Secrets?:                [...#Secret] | fn.#ListExpression
+	Ulimits?:                [...#Ulimit] | fn.#ListExpression
 	User?:                   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timeout": close({
+#Timeout: close({
 	AttemptDurationSeconds?: int |
 		{
 			string &
@@ -506,7 +493,7 @@ _#defs: "/$defs/Properties/definitions/Timeout": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tmpfs": close({
+#Tmpfs: close({
 	ContainerPath!: string | fn.#StringExpression
 	MountOptions?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	Size!: int |
@@ -526,7 +513,7 @@ _#defs: "/$defs/Properties/definitions/Tmpfs": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ulimit": close({
+#Ulimit: close({
 	HardLimit!: int |
 		{
 			string &
@@ -559,16 +546,11 @@ _#defs: "/$defs/Properties/definitions/Ulimit": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Volumes": close({
-	EfsVolumeConfiguration?: _#defs."/$defs/Properties/definitions/EfsVolumeConfiguration"
-	Host?:                   _#defs."/$defs/Properties/definitions/VolumesHost"
+#Volumes: close({
+	EfsVolumeConfiguration?: #EfsVolumeConfiguration
+	Host?:                   #VolumesHost
 	Name?:                   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumesHost": close({SourcePath?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GammaDilithium::JobDefinition"
-	Properties!: #Properties
-}
+#VolumesHost: close({SourcePath?: string | fn.#StringExpression}) | fn.#ObjectExpression

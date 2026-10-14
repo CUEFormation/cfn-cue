@@ -12,14 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // API. For more information, see [Model Selection
 // Expressions](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-selection-expressions.html#apigateway-websocket-api-model-selection-expressions)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	ApiId!:       string | fn.#StringExpression
-	ContentType?: string | fn.#StringExpression
-	Description?: string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
-	Schema!:      fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Model"
-	Properties!: #Properties
+	Type!: "AWS::ApiGatewayV2::Model"
+	Properties!: close({
+		ApiId!:       string | fn.#StringExpression
+		ContentType?: string | fn.#StringExpression
+		Description?: string | fn.#StringExpression
+		Name!:        string | fn.#StringExpression
+		Schema!:      fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

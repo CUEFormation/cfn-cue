@@ -17,82 +17,75 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a router input in AWS Elemental MediaConnect that can be used to
 // egress content transmitted from router inputs
-#Properties: close({
-	AvailabilityZone?:         string | fn.#StringExpression
-	Configuration!:            _#defs."/$defs/Properties/definitions/RouterOutputConfiguration"
-	FabricConfiguration?:      _#defs."/$defs/Properties/definitions/FabricConfiguration"
-	MaintenanceConfiguration?: _#defs."/$defs/Properties/definitions/MaintenanceConfiguration"
-	MaximumBitrate!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RegionName?:   string | fn.#StringExpression
-	RoutingScope!: _#defs."/$defs/Properties/definitions/RoutingScope"
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Tier!:         _#defs."/$defs/Properties/definitions/RouterOutputTier"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::RouterOutput"
+	Properties!: close({
+		AvailabilityZone?:         string | fn.#StringExpression
+		Configuration!:            #RouterOutputConfiguration
+		FabricConfiguration?:      #FabricConfiguration
+		MaintenanceConfiguration?: #MaintenanceConfiguration
+		MaximumBitrate!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		RegionName?:   string | fn.#StringExpression
+		RoutingScope!: #RoutingScope
+		Tags?:         [...#Tag] | fn.#ListExpression
+		Tier!:         #RouterOutputTier
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({}) | fn.#ObjectExpression
+#AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Day": "MONDAY" |
-	"TUESDAY" |
-	"WEDNESDAY" |
-	"THURSDAY" |
-	"FRIDAY" |
-	"SATURDAY" |
-	"SUNDAY" |
-	fn.#StringExpression
+#Day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultMaintenanceConfiguration": close({}) | fn.#ObjectExpression
+#DefaultMaintenanceConfiguration: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FabricConfiguration": close(
-	{RecoveryLatencyMode!: _#defs."/$defs/Properties/definitions/FabricLatencyMode"},
-) |
-	fn.#ObjectExpression
+#FabricConfiguration: close({RecoveryLatencyMode!: #FabricLatencyMode}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FabricLatencyMode": "BALANCED" | "LOW_LATENCY" | fn.#StringExpression
+#FabricLatencyMode: "BALANCED" | "LOW_LATENCY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
+#FlowTransitEncryption: close({
+	EncryptionKeyConfiguration!: #FlowTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #FlowTransitEncryptionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#FlowTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyType": "SECRETS_MANAGER" |
-	"AUTOMATIC" |
-	fn.#StringExpression
+#FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ForwardErrorCorrectionState": "ENABLED" | "DISABLED" | fn.#StringExpression
+#ForwardErrorCorrectionState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceConfiguration": matchN(1, [close(
-	{PreferredDayTime!: _#defs."/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration"},
+#MaintenanceConfiguration: matchN(1, [close(
+	{PreferredDayTime!: #PreferredDayTimeMaintenanceConfiguration},
 ), close(
-	{Default!: _#defs."/$defs/Properties/definitions/DefaultMaintenanceConfiguration"},
+	{Default!: #DefaultMaintenanceConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceType": "PREFERRED_DAY_TIME" | "DEFAULT" | fn.#StringExpression
+#MaintenanceType: "PREFERRED_DAY_TIME" | "DEFAULT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MediaConnectFlowRouterOutputConfiguration": close({
-	DestinationTransitEncryption!: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
+#MediaConnectFlowRouterOutputConfiguration: close({
+	DestinationTransitEncryption!: #FlowTransitEncryption
 	FlowArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
 	FlowSourceArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:source:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
@@ -100,42 +93,40 @@ _#defs: "/$defs/Properties/definitions/MediaConnectFlowRouterOutputConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveInputPipelineId": "PIPELINE_0" | "PIPELINE_1" | fn.#StringExpression
+#MediaLiveInputPipelineId: "PIPELINE_0" | "PIPELINE_1" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveInputRouterOutputConfiguration": close({
-	DestinationTransitEncryption!: _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryption"
+#MediaLiveInputRouterOutputConfiguration: close({
+	DestinationTransitEncryption!: #MediaLiveTransitEncryption
 	MediaLiveInputArn?: =~"^arn:(aws[a-zA-Z-]*):medialive:[a-z0-9-]+:[0-9]{12}:input:[a-zA-Z0-9]+$" |
 		fn.#StringExpression
-	MediaLivePipelineId?: _#defs."/$defs/Properties/definitions/MediaLiveInputPipelineId"
+	MediaLivePipelineId?: #MediaLiveInputPipelineId
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyType"
+#MediaLiveTransitEncryption: close({
+	EncryptionKeyConfiguration!: #MediaLiveTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #MediaLiveTransitEncryptionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#MediaLiveTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyType": "SECRETS_MANAGER" |
-	"AUTOMATIC" |
-	fn.#StringExpression
+#MediaLiveTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration": close({
-	Day!:  _#defs."/$defs/Properties/definitions/Day"
+#PreferredDayTimeMaintenanceConfiguration: close({
+	Day!:  #Day
 	Time!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicTlsEncryptionConfiguration": close({}) | fn.#ObjectExpression
+#PublicTlsEncryptionConfiguration: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RistRouterOutputConfiguration": close({
+#RistRouterOutputConfiguration: close({
 	DestinationAddress!: string | fn.#StringExpression
 	DestinationPort!: int & <=65535 & >=1024 |
 		{
@@ -156,41 +147,33 @@ _#defs: "/$defs/Properties/definitions/RistRouterOutputConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouterOutputConfiguration": matchN(1, [close(
-	{Standard!: _#defs."/$defs/Properties/definitions/StandardRouterOutputConfiguration"},
+#RouterOutputConfiguration: matchN(1, [close(
+	{Standard!: #StandardRouterOutputConfiguration},
 ), close(
-	{MediaConnectFlow!: _#defs."/$defs/Properties/definitions/MediaConnectFlowRouterOutputConfiguration"},
+	{MediaConnectFlow!: #MediaConnectFlowRouterOutputConfiguration},
 ), close(
-	{MediaLiveInput!: _#defs."/$defs/Properties/definitions/MediaLiveInputRouterOutputConfiguration"},
+	{MediaLiveInput!: #MediaLiveInputRouterOutputConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RouterOutputProtocol": "RTP" |
-	"RIST" |
-	"SRT_CALLER" |
-	"SRT_LISTENER" |
-	"RTMP_PUSH" |
-	fn.#StringExpression
+#RouterOutputProtocol: "RTP" | "RIST" | "SRT_CALLER" | "SRT_LISTENER" | "RTMP_PUSH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterOutputProtocolConfiguration": matchN(1, [close(
-	{Rtp!: _#defs."/$defs/Properties/definitions/RtpRouterOutputConfiguration"},
+#RouterOutputProtocolConfiguration: matchN(1, [close(
+	{Rtp!: #RtpRouterOutputConfiguration},
 ), close(
-	{Rist!: _#defs."/$defs/Properties/definitions/RistRouterOutputConfiguration"},
+	{Rist!: #RistRouterOutputConfiguration},
 ), close(
-	{SrtListener!: _#defs."/$defs/Properties/definitions/SrtListenerRouterOutputConfiguration"},
+	{SrtListener!: #SrtListenerRouterOutputConfiguration},
 ), close(
-	{SrtCaller!: _#defs."/$defs/Properties/definitions/SrtCallerRouterOutputConfiguration"},
+	{SrtCaller!: #SrtCallerRouterOutputConfiguration},
 ), close(
-	{RtmpPush!: _#defs."/$defs/Properties/definitions/RtmpPushRouterOutputConfiguration"},
+	{RtmpPush!: #RtmpPushRouterOutputConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RouterOutputRoutedState": "ROUTED" |
-	"ROUTING" |
-	"UNROUTED" |
-	fn.#StringExpression
+#RouterOutputRoutedState: "ROUTED" | "ROUTING" | "UNROUTED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterOutputState": "CREATING" |
+#RouterOutputState: "CREATING" |
 	"STANDBY" |
 	"STARTING" |
 	"ACTIVE" |
@@ -202,19 +185,13 @@ _#defs: "/$defs/Properties/definitions/RouterOutputState": "CREATING" |
 	"MIGRATING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterOutputTier": "OUTPUT_100" |
-	"OUTPUT_50" |
-	"OUTPUT_20" |
-	fn.#StringExpression
+#RouterOutputTier: "OUTPUT_100" | "OUTPUT_50" | "OUTPUT_20" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouterOutputType": "STANDARD" |
-	"MEDIACONNECT_FLOW" |
-	"MEDIALIVE_INPUT" |
-	fn.#StringExpression
+#RouterOutputType: "STANDARD" | "MEDIACONNECT_FLOW" | "MEDIALIVE_INPUT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingScope": "REGIONAL" | "GLOBAL" | fn.#StringExpression
+#RoutingScope: "REGIONAL" | "GLOBAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RtmpPushRouterOutputConfiguration": close({
+#RtmpPushRouterOutputConfiguration: close({
 	ApplicationName!:    string | fn.#StringExpression
 	DestinationAddress!: string | fn.#StringExpression
 	DestinationPort!: int & <=65535 & >=443 |
@@ -234,11 +211,11 @@ _#defs: "/$defs/Properties/definitions/RtmpPushRouterOutputConfiguration": close
 		} |
 		fn.#NumberExpression
 	StreamName!:    string | fn.#StringExpression
-	TlsEncryption?: _#defs."/$defs/Properties/definitions/TlsEncryption"
+	TlsEncryption?: #TlsEncryption
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RtpRouterOutputConfiguration": close({
+#RtpRouterOutputConfiguration: close({
 	DestinationAddress!: string | fn.#StringExpression
 	DestinationPort!: int & <=65531 & >=1024 |
 		{
@@ -256,11 +233,11 @@ _#defs: "/$defs/Properties/definitions/RtpRouterOutputConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	ForwardErrorCorrection?: _#defs."/$defs/Properties/definitions/ForwardErrorCorrectionState"
+	ForwardErrorCorrection?: #ForwardErrorCorrectionState
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
+#SecretsManagerEncryptionKeyConfiguration: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
 		fn.#StringExpression
@@ -269,7 +246,7 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SrtCallerRouterOutputConfiguration": close({
+#SrtCallerRouterOutputConfiguration: close({
 	DestinationAddress!: string | fn.#StringExpression
 	DestinationPort!: int & <=65535 & >=1024 |
 		{
@@ -287,7 +264,7 @@ _#defs: "/$defs/Properties/definitions/SrtCallerRouterOutputConfiguration": clos
 				)
 		} |
 		fn.#NumberExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtEncryptionConfiguration"
+	EncryptionConfiguration?: #SrtEncryptionConfiguration
 	MinimumLatencyMilliseconds!: int & <=10000 & >=10 |
 		{
 			string &
@@ -308,13 +285,10 @@ _#defs: "/$defs/Properties/definitions/SrtCallerRouterOutputConfiguration": clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SrtEncryptionConfiguration": close(
-	{EncryptionKey!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
-) |
-	fn.#ObjectExpression
+#SrtEncryptionConfiguration: close({EncryptionKey!: #SecretsManagerEncryptionKeyConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SrtListenerRouterOutputConfiguration": close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtEncryptionConfiguration"
+#SrtListenerRouterOutputConfiguration: close({
+	EncryptionConfiguration?: #SrtEncryptionConfiguration
 	MinimumLatencyMilliseconds!: int & <=10000 & >=10 |
 		{
 			string &
@@ -350,33 +324,26 @@ _#defs: "/$defs/Properties/definitions/SrtListenerRouterOutputConfiguration": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StandardRouterOutputConfiguration": close({
+#StandardRouterOutputConfiguration: close({
 	NetworkInterfaceArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" |
 		fn.#StringExpression
-	Protocol?:              _#defs."/$defs/Properties/definitions/RouterOutputProtocol"
-	ProtocolConfiguration!: _#defs."/$defs/Properties/definitions/RouterOutputProtocolConfiguration"
+	Protocol?:              #RouterOutputProtocol
+	ProtocolConfiguration!: #RouterOutputProtocolConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsEncryption": close({
-	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/TlsEncryptionConfiguration"
-	EncryptionType?:          _#defs."/$defs/Properties/definitions/TlsEncryptionType"
+#TlsEncryption: close({
+	EncryptionConfiguration!: #TlsEncryptionConfiguration
+	EncryptionType?:          #TlsEncryptionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsEncryptionConfiguration": close(
-	{Public!: _#defs."/$defs/Properties/definitions/PublicTlsEncryptionConfiguration"},
-) |
-	fn.#ValueExpression
+#TlsEncryptionConfiguration: close({Public!: #PublicTlsEncryptionConfiguration}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/TlsEncryptionType": "PUBLIC" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::RouterOutput"
-	Properties!: #Properties
-}
+#TlsEncryptionType: "PUBLIC" | fn.#StringExpression

@@ -13,30 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This schema provides construct and validation rules for AWS-XRay Group resource parameters.
-#Properties: close({
-	FilterExpression?:      string | fn.#StringExpression
-	GroupName!:             strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-	InsightsConfiguration?: _#defs."/$defs/Properties/definitions/InsightsConfiguration"
-	Tags?:                  _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::XRay::Group"
+	Properties!: close({
+		FilterExpression?:      string | fn.#StringExpression
+		GroupName!:             strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+		InsightsConfiguration?: #InsightsConfiguration
+		Tags?:                  #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/InsightsConfiguration": close({
+#InsightsConfiguration: close({
 	InsightsEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NotificationsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::XRay::Group"
-	Properties!: #Properties
-}
+#Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression

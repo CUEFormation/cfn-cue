@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"struct"
 	"strings"
 	"list"
-	"struct"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -35,14 +35,14 @@ import (
 
 	// Whether to enable encryption of the AWS Systems Manager parameters used by post launch actions.
 	EnableParametersEncryption?: bool
-	LargeVolumeConf?:            _#defs."/$defs/Properties/definitions/LaunchTemplateDiskConf"
+	LargeVolumeConf?:            #LaunchTemplateDiskConf
 
 	// ID of the Launch Configuration Template.
 	LaunchConfigurationTemplateID?: strings.MaxRunes(21) & strings.MinRunes(21) & =~"^lct-[0-9a-zA-Z]{17}$"
 
 	// Launch disposition.
 	LaunchDisposition?: "STOPPED" | "STARTED"
-	Licensing?:         _#defs."/$defs/Properties/definitions/Licensing"
+	Licensing?:         #Licensing
 
 	// Launch configuration template map auto tagging MPE ID.
 	MapAutoTaggingMpeID?: strings.MaxRunes(256) & strings.MinRunes(0)
@@ -52,21 +52,21 @@ import (
 	ParametersEncryptionKey?: strings.MaxRunes(276) &
 	strings.MinRunes(20) &
 	=~"^((arn:[\\w-]+:kms:([a-z]{2}-(gov-)?[a-z]+-\\d{1})?:(\\d{12})?:((alias|key)/[a-zA-Z0-9:/_-]{1,256}))|())$"
-	PostLaunchActions?: _#defs."/$defs/Properties/definitions/PostLaunchActions"
-	SmallVolumeConf?:   _#defs."/$defs/Properties/definitions/LaunchTemplateDiskConf"
+	PostLaunchActions?: #PostLaunchActions
+	SmallVolumeConf?:   #LaunchTemplateDiskConf
 
 	// Small volume maximum size, in GiB.
 	SmallVolumeMaxSize?: int & >=0
 
 	// A set of tags to be associated with the Launch Configuration Template.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// Target instance type right-sizing method.
 	TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC"
 })
 
 // Launch template disk configuration.
-_#defs: "/$defs/Properties/definitions/LaunchTemplateDiskConf": struct.MinFields(1) & close({
+#LaunchTemplateDiskConf: struct.MinFields(1) & close({
 	// Launch template disk IOPS configuration.
 	Iops?: int & <=64000 & >=100
 
@@ -78,13 +78,13 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateDiskConf": struct.MinFields
 })
 
 // Configuration of a machine's license.
-_#defs: "/$defs/Properties/definitions/Licensing": struct.MinFields(1) & close({
+#Licensing: struct.MinFields(1) & close({
 	// Whether to configure BYOL OS licensing.
 	OsByol?: bool
 })
 
 // Post launch actions to execute on the Test or Cutover instance.
-_#defs: "/$defs/Properties/definitions/PostLaunchActions": struct.MinFields(1) & close({
+#PostLaunchActions: struct.MinFields(1) & close({
 	// AWS Systems Manager Command's CloudWatch log group name.
 	CloudWatchLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
 
@@ -98,18 +98,18 @@ _#defs: "/$defs/Properties/definitions/PostLaunchActions": struct.MinFields(1) &
 	S3OutputKeyPrefix?: strings.MaxRunes(256) & strings.MinRunes(0)
 
 	// AWS Systems Manager Documents to execute, in order.
-	SsmDocuments?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/SsmDocument"]
+	SsmDocuments?: list.MaxItems(10) & [...] & [...#SsmDocument]
 })
 
 // An AWS Systems Manager Document to execute as a post launch action.
-_#defs: "/$defs/Properties/definitions/SsmDocument": close({
+#SsmDocument: close({
 	// User-friendly name for the AWS Systems Manager Document.
 	ActionName!:         strings.MaxRunes(256) & strings.MinRunes(0)
-	ExternalParameters?: _#defs."/$defs/Properties/definitions/SsmDocumentExternalParameters"
+	ExternalParameters?: #SsmDocumentExternalParameters
 
 	// Whether Cutover is blocked when the document has failed.
 	MustSucceedForCutover?: bool
-	Parameters?:            _#defs."/$defs/Properties/definitions/SsmDocumentParameters"
+	Parameters?:            #SsmDocumentParameters
 
 	// AWS Systems Manager Document name or full ARN.
 	SsmDocumentName!: strings.MaxRunes(172) & strings.MinRunes(3) & =~"^([A-Za-z0-9/:_\\.-])+$"
@@ -119,25 +119,23 @@ _#defs: "/$defs/Properties/definitions/SsmDocument": close({
 })
 
 // AWS Systems Manager Document external parameters.
-_#defs: "/$defs/Properties/definitions/SsmDocumentExternalParameters": struct.MaxFields(20) & struct.MinFields(0) & close({
+#SsmDocumentExternalParameters: struct.MaxFields(20) & struct.MinFields(0) & close({
 
-	{[=~"^([A-Za-z0-9])+$"]: _#defs."/$defs/Properties/definitions/SsmExternalParameter"}})
+	{[=~"^([A-Za-z0-9])+$"]: #SsmExternalParameter}})
 
 // AWS Systems Manager Document parameters, each resolved from AWS Systems Manager Parameter Store.
-_#defs: "/$defs/Properties/definitions/SsmDocumentParameters": struct.MaxFields(20) & struct.MinFields(0) & close({
+#SsmDocumentParameters: struct.MaxFields(20) & struct.MinFields(0) & close({
 
-	{[=~"^([A-Za-z0-9])+$"]: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SsmParameterStoreParameter"
-	]}})
+	{[=~"^([A-Za-z0-9])+$"]: list.MaxItems(10) & list.MinItems(1) & [...#SsmParameterStoreParameter]}})
 
 // An AWS Systems Manager Document external parameter.
-_#defs: "/$defs/Properties/definitions/SsmExternalParameter": close({
+#SsmExternalParameter: close({
 	// AWS Systems Manager Document external parameter dynamic path.
 	DynamicPath!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_\\[\\]]+)*$"
 })
 
 // An AWS Systems Manager Parameter Store parameter.
-_#defs: "/$defs/Properties/definitions/SsmParameterStoreParameter": close({
+#SsmParameterStoreParameter: close({
 	// AWS Systems Manager Parameter Store parameter name.
 	ParameterName!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^([A-Za-z0-9_\\.-])+$"
 
@@ -146,7 +144,7 @@ _#defs: "/$defs/Properties/definitions/SsmParameterStoreParameter": close({
 })
 
 // A key-value pair to associate with the Launch Configuration Template.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(0)
 

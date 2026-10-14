@@ -8,7 +8,7 @@ package schema
 #Properties: close({
 	// Tags are composed of a Key/Value pair. You can use tags to categorize and
 	// track each parameter group. The tag value null is permitted.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the transit gateway.
 	TransitGatewayId!: string
@@ -17,7 +17,7 @@ package schema
 	TransitGatewayRouteTableId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the associated tag key-value pair
 	Key!: string
 

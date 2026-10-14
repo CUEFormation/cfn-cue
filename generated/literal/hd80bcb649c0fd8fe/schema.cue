@@ -27,7 +27,7 @@ import (
 	// Specifies the format and location of the input data. The S3 bucket containing
 	// the input data must be located in the same Region as the entity recognizer
 	// being created.
-	InputDataConfig!: _#defs."/$defs/Properties/definitions/EntityRecognizerInputDataConfig"
+	InputDataConfig!: #EntityRecognizerInputDataConfig
 
 	// The language of the input documents. All documents must be in the same language.
 	LanguageCode!: "en" | "es" | "fr" | "de" | "it" | "pt" | "ar" | "hi" | "ja" | "ko" | "zh" | "zh-TW"
@@ -44,7 +44,7 @@ import (
 	RecognizerName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 
 	// Tags to associate with the entity recognizer.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The version name given to the entity recognizer.
 	VersionName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
@@ -55,11 +55,11 @@ import (
 
 	// Configuration parameters for an optional private VPC containing the resources
 	// you are using for your custom entity recognizer.
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?: #VpcConfig
 })
 
 // An augmented manifest file that provides training data for your custom model.
-_#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
+#AugmentedManifestsListItem: close({
 	// The S3 prefix to the annotation files that are referred in the augmented manifest file.
 	AnnotationDataS3Uri?: strings.MaxRunes(1024) &
 	strings.MinRunes(0) &
@@ -84,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
 })
 
 // Describes the annotations associated with an entity recognizer.
-_#defs: "/$defs/Properties/definitions/EntityRecognizerAnnotations": close({
+#EntityRecognizerAnnotations: close({
 	// Specifies the Amazon S3 location where the annotations are located.
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$"
 
@@ -93,7 +93,7 @@ _#defs: "/$defs/Properties/definitions/EntityRecognizerAnnotations": close({
 })
 
 // Describes the training documents submitted with an entity recognizer.
-_#defs: "/$defs/Properties/definitions/EntityRecognizerDocuments": close({
+#EntityRecognizerDocuments: close({
 	// Specifies how the text in an input file should be processed.
 	InputFormat?: "ONE_DOC_PER_FILE" | "ONE_DOC_PER_LINE"
 
@@ -105,41 +105,41 @@ _#defs: "/$defs/Properties/definitions/EntityRecognizerDocuments": close({
 })
 
 // Describes the entity list submitted with an entity recognizer.
-_#defs: "/$defs/Properties/definitions/EntityRecognizerEntityList": close({
+#EntityRecognizerEntityList: close({
 	// Specifies the Amazon S3 location where the entity list is located.
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$"
 })
 
 // Specifies the format and location of the input data for an entity recognizer.
-_#defs: "/$defs/Properties/definitions/EntityRecognizerInputDataConfig": close({
+#EntityRecognizerInputDataConfig: close({
 	// The S3 location of the CSV file that annotates your training documents.
-	Annotations?: _#defs."/$defs/Properties/definitions/EntityRecognizerAnnotations"
+	Annotations?: #EntityRecognizerAnnotations
 
 	// A list of augmented manifest files that provide training data for a custom model.
-	AugmentedManifests?: [..._#defs."/$defs/Properties/definitions/AugmentedManifestsListItem"]
+	AugmentedManifests?: [...#AugmentedManifestsListItem]
 
 	// The format of your training data.
 	DataFormat?: "COMPREHEND_CSV" | "AUGMENTED_MANIFEST"
 
 	// The S3 location of the folder that contains the training documents.
-	Documents?: _#defs."/$defs/Properties/definitions/EntityRecognizerDocuments"
+	Documents?: #EntityRecognizerDocuments
 
 	// The S3 location of the CSV file that has the entity list.
-	EntityList?: _#defs."/$defs/Properties/definitions/EntityRecognizerEntityList"
+	EntityList?: #EntityRecognizerEntityList
 
 	// The entity types in the labeled training data.
-	EntityTypes!: [..._#defs."/$defs/Properties/definitions/EntityTypesListItem"]
+	EntityTypes!: [...#EntityTypesListItem]
 })
 
 // An entity type within a labeled training dataset that Amazon Comprehend uses
 // to train a custom entity recognizer.
-_#defs: "/$defs/Properties/definitions/EntityTypesListItem": close({
+#EntityTypesListItem: close({
 	// An entity type within a labeled training dataset.
 	Type!: strings.MaxRunes(64) & strings.MinRunes(0)
 })
 
 // A key-value pair that adds metadata to a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the key-value pair that forms a tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -149,7 +149,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 // Configuration parameters for an optional private Virtual Private Cloud (VPC)
 // containing the resources you are using for the job.
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// The ID number for a security group on an instance of your private VPC.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &

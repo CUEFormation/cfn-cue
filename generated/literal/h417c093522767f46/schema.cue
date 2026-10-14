@@ -59,7 +59,7 @@ import (
 	// The collection of log types to be exported provided by the customer. Should
 	// only be one of the three supported log types: userlog, useractivitylog and
 	// connectionlog
-	LogExports?: list.MaxItems(16) & [...] & [..._#defs."/$defs/Properties/definitions/LogExport"]
+	LogExports?: list.MaxItems(16) & [...] & [...#LogExport]
 
 	// If true, Amazon Redshift uses AWS Secrets Manager to manage the namespace's
 	// admin credentials. You can't use adminUserPassword if manageAdminPassword is
@@ -68,7 +68,7 @@ import (
 	ManageAdminPassword?: bool
 
 	// Definition of Namespace resource.
-	Namespace?: _#defs."/$defs/Properties/definitions/Namespace"
+	Namespace?: #Namespace
 
 	// A unique identifier for the namespace. You use this identifier to refer to
 	// the namespace for any subsequent namespace operations such as deleting or
@@ -81,17 +81,15 @@ import (
 	RedshiftIdcApplicationArn?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The snapshot copy configurations for the namespace.
-	SnapshotCopyConfigurations?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SnapshotCopyConfiguration"
-	]
+	SnapshotCopyConfigurations?: list.MaxItems(1) & [...] & [...#SnapshotCopyConfiguration]
 
 	// The list of tags for the namespace.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/LogExport": "useractivitylog" | "userlog" | "connectionlog"
+#LogExport: "useractivitylog" | "userlog" | "connectionlog"
 
-_#defs: "/$defs/Properties/definitions/Namespace": close({
+#Namespace: close({
 	AdminPasswordSecretArn?:      string
 	AdminPasswordSecretKmsKeyId?: string
 	AdminUsername?:               string
@@ -100,22 +98,22 @@ _#defs: "/$defs/Properties/definitions/Namespace": close({
 	DefaultIamRoleArn?:           =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	IamRoles?:                    [...strings.MaxRunes(512) & strings.MinRunes(0)]
 	KmsKeyId?:                    =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
-	LogExports?:                  list.MaxItems(16) & [...] & [..._#defs."/$defs/Properties/definitions/LogExport"]
+	LogExports?:                  list.MaxItems(16) & [...] & [...#LogExport]
 	NamespaceArn?:                string
 	NamespaceId?:                 string
 	NamespaceName?:               strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"
-	Status?:                      _#defs."/$defs/Properties/definitions/NamespaceStatus"
+	Status?:                      #NamespaceStatus
 })
 
-_#defs: "/$defs/Properties/definitions/NamespaceStatus": "AVAILABLE" | "MODIFYING" | "DELETING"
+#NamespaceStatus: "AVAILABLE" | "MODIFYING" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/SnapshotCopyConfiguration": close({
+#SnapshotCopyConfiguration: close({
 	DestinationKmsKeyId?:     string
 	DestinationRegion!:       string
 	SnapshotRetentionPeriod?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

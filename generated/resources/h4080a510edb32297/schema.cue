@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,31 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::PaymentManager
-#Properties: close({
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"
-	AuthorizerType!:          _#defs."/$defs/Properties/definitions/PaymentsAuthorizerType"
-	Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
-	Name!:        =~"^[a-zA-Z][a-zA-Z0-9]{0,47}$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::PaymentManager"
+	Properties!: close({
+		AuthorizerConfiguration?: #AuthorizerConfiguration
+		AuthorizerType!:          #PaymentsAuthorizerType
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
+		Name!:        =~"^[a-zA-Z][a-zA-Z0-9]{0,47}$" | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-) |
-	fn.#ObjectExpression
+#AuthorizerConfiguration: close({CustomJWTAuthorizer!: #CustomJWTAuthorizerConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
+#AuthorizingClaimMatchValueType: close({
 	ClaimMatchOperator!: "EQUALS" | "CONTAINS" | "CONTAINS_ANY" | fn.#StringExpression
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+	ClaimMatchValue!:    #ClaimMatchValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
+#ClaimMatchValueType: close({
 	MatchValueString?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$" | fn.#StringExpression
 	MatchValueStringList?: [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$" | fn.#StringExpression
@@ -46,27 +46,26 @@ _#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
 	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression
 	InboundTokenClaimValueType!: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
+#CustomJWTAuthorizerConfiguration: close({
 	AllowedAudience?: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedClients?:  list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedScopes?: list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CustomClaims?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"] |
-		fn.#ListExpression
+	CustomClaims?: list.MinItems(1) & [...#CustomClaimValidationType] | fn.#ListExpression
 	DiscoveryUrl!: =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PaymentManagerStatus": "CREATING" |
+#PaymentManagerStatus: "CREATING" |
 	"UPDATING" |
 	"DELETING" |
 	"READY" |
@@ -75,19 +74,15 @@ _#defs: "/$defs/Properties/definitions/PaymentManagerStatus": "CREATING" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PaymentsAuthorizerType": "CUSTOM_JWT" | "AWS_IAM" | fn.#StringExpression
+#PaymentsAuthorizerType: "CUSTOM_JWT" | "AWS_IAM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadIdentityDetails": close(
+#WorkloadIdentityDetails: close(
 	{WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::PaymentManager"
-	Properties!: #Properties
-}

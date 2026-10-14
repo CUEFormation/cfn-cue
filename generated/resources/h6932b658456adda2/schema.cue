@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,27 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaTailor::Function
-#Properties: close({
-	AwsServiceRequestConfiguration?: _#defs."/$defs/Properties/definitions/AwsServiceRequestConfiguration"
-	ConcurrentExecutorConfiguration?: _#defs."/$defs/Properties/definitions/ConcurrentExecutorConfiguration" |
-		fn.#ObjectExpression
-	CustomOutputConfiguration?:       _#defs."/$defs/Properties/definitions/CustomOutputConfiguration"
-	Description?:                     string | fn.#StringExpression
-	FunctionId!:                      string | fn.#StringExpression
-	FunctionType!:                    _#defs."/$defs/Properties/definitions/FunctionType" | fn.#StringExpression
-	HttpRequestConfiguration?:        _#defs."/$defs/Properties/definitions/HttpRequestConfiguration"
-	SequentialExecutorConfiguration?: _#defs."/$defs/Properties/definitions/SequentialExecutorConfiguration"
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VastRequestConfiguration?: _#defs."/$defs/Properties/definitions/VastRequestConfiguration"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::Function"
+	Properties!: close({
+		AwsServiceRequestConfiguration?: #AwsServiceRequestConfiguration
 
-_#defs: "/$defs/Properties/definitions/AwsServiceRequestConfiguration": close({
+		// The configuration for a CONCURRENT_EXECUTOR function. Required when
+		// FunctionType is CONCURRENT_EXECUTOR.
+		ConcurrentExecutorConfiguration?: #ConcurrentExecutorConfiguration
+		CustomOutputConfiguration?:       #CustomOutputConfiguration
+		Description?:                     string | fn.#StringExpression
+		FunctionId!:                      string | fn.#StringExpression
+
+		// The type of the function. Determines which configuration object is used.
+		FunctionType!:                    #FunctionType
+		HttpRequestConfiguration?:        #HttpRequestConfiguration
+		SequentialExecutorConfiguration?: #SequentialExecutorConfiguration
+		Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VastRequestConfiguration?:        #VastRequestConfiguration
+	})
+}
+
+#AwsServiceRequestConfiguration: close({
 	Body?: string | fn.#StringExpression
 	Headers?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	MethodType!: _#defs."/$defs/Properties/definitions/MethodType"
+	MethodType!: #MethodType
 	Output?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
@@ -58,16 +65,15 @@ _#defs: "/$defs/Properties/definitions/AwsServiceRequestConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Runtime!:       _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!:       #RuntimeType
 	TargetRegion!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	TargetService!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9-]+" | fn.#StringExpression
 	Url!:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConcurrentExecutorConfiguration": close({
-	FunctionList!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FunctionRef"] |
-		fn.#ListExpression
+#ConcurrentExecutorConfiguration: close({
+	FunctionList!: list.MaxItems(10) & list.MinItems(1) & [...#FunctionRef] | fn.#ListExpression
 	MaxConcurrency!: int & <=2 & >=1 |
 		{
 			string &
@@ -88,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/ConcurrentExecutorConfiguration": close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!: #RuntimeType
 	TimeoutMilliseconds!: int & <=2000 & >=100 |
 		{
 			string &
@@ -108,20 +114,23 @@ _#defs: "/$defs/Properties/definitions/ConcurrentExecutorConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomOutputConfiguration": close({
-	Output?:  _#defs."/$defs/Properties/definitions/StringMap" | fn.#ObjectExpression
-	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType" | fn.#StringExpression
+#CustomOutputConfiguration: close({
+	// A map of output key-value pairs that define the custom output.
+	Output?: #StringMap
+
+	// The runtime environment for the function expression language.
+	Runtime!: #RuntimeType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FunctionRef": close({
+#FunctionRef: close({
 	Alias?:        string | fn.#StringExpression
 	FunctionId?:   string | fn.#StringExpression
 	RunCondition?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FunctionType": "HTTP_REQUEST" |
+#FunctionType: "HTTP_REQUEST" |
 	"AWS_SERVICE_REQUEST" |
 	"CUSTOM_OUTPUT" |
 	"CONCURRENT_EXECUTOR" |
@@ -129,11 +138,18 @@ _#defs: "/$defs/Properties/definitions/FunctionType": "HTTP_REQUEST" |
 	"VAST_REQUEST" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HttpRequestConfiguration": close({
-	Body?:       string | fn.#StringExpression
-	Headers?:    _#defs."/$defs/Properties/definitions/StringMap" | fn.#ObjectExpression
-	MethodType!: _#defs."/$defs/Properties/definitions/MethodType" | fn.#StringExpression
-	Output?:     _#defs."/$defs/Properties/definitions/StringMap" | fn.#ObjectExpression
+#HttpRequestConfiguration: close({
+	Body?: string | fn.#StringExpression
+
+	// A map of HTTP headers to include in the request.
+	Headers?: #StringMap
+
+	// The HTTP method type for the request.
+	MethodType!: #MethodType
+
+	// A map of output key-value pairs. Keys must start with session., temp.,
+	// avail., scte., or be a valid adsRequest directive.
+	Output?: #StringMap
 	RequestTimeoutMilliseconds!: int |
 		{
 			string &
@@ -148,22 +164,24 @@ _#defs: "/$defs/Properties/definitions/HttpRequestConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType" | fn.#StringExpression
+
+	// The runtime environment for the function expression language.
+	Runtime!: #RuntimeType
 	Url!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MethodType": "GET" | "POST" | fn.#StringExpression
+#MethodType: "GET" | "POST" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuntimeType": "JSONATA" | fn.#StringExpression
+#RuntimeType: "JSONATA" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SequentialExecutorConfiguration": close({
-	FunctionList!: [..._#defs."/$defs/Properties/definitions/FunctionRef"] | fn.#ListExpression
+#SequentialExecutorConfiguration: close({
+	FunctionList!: [...#FunctionRef] | fn.#ListExpression
 	Output?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!: #RuntimeType
 	TimeoutMilliseconds!: int |
 		{
 			string &
@@ -181,24 +199,24 @@ _#defs: "/$defs/Properties/definitions/SequentialExecutorConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StringMap": close({
+#StringMap: close({
 
 	{[=~".*"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VastRequestConfiguration": close({
+#VastRequestConfiguration: close({
 	Body?: string | fn.#StringExpression
 	Headers?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	MethodType!: _#defs."/$defs/Properties/definitions/MethodType"
+	MethodType!: #MethodType
 	Output?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
@@ -219,11 +237,7 @@ _#defs: "/$defs/Properties/definitions/VastRequestConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Runtime!: _#defs."/$defs/Properties/definitions/RuntimeType"
+	Runtime!: #RuntimeType
 	Url!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::Function"
-	Properties!: #Properties
-}

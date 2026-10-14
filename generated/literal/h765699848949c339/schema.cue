@@ -10,15 +10,15 @@ import "list"
 #Properties: close({
 	Id?:             string
 	Name!:           string
-	XssMatchTuples!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/XssMatchTuple"]
+	XssMatchTuples!: list.UniqueItems() & [...#XssMatchTuple]
 })
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string
 	Type!: string
 })
 
-_#defs: "/$defs/Properties/definitions/XssMatchTuple": close({
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
+#XssMatchTuple: close({
+	FieldToMatch!:       #FieldToMatch
 	TextTransformation!: string
 })

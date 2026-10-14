@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,82 +17,82 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkspacesInstances::WorkspaceInstance
-#Properties: close({
-	ManagedInstance?: close({
-		BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] | fn.#ListExpression
-		CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification"
-		CpuOptions?:                       _#defs."/$defs/Properties/definitions/CpuOptionsRequest"
-		CreditSpecification?:              _#defs."/$defs/Properties/definitions/CreditSpecificationRequest"
-		DisableApiStop?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EnablePrimaryIpv6?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EnclaveOptions?:     _#defs."/$defs/Properties/definitions/EnclaveOptionsRequest"
-		HibernationOptions?: _#defs."/$defs/Properties/definitions/HibernationOptionsRequest"
-		IamInstanceProfile?: _#defs."/$defs/Properties/definitions/IamInstanceProfileSpecification"
-		ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^ami-[0-9a-zA-Z]{1,63}$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkspacesInstances::WorkspaceInstance"
+	Properties?: close({
+		ManagedInstance?: close({
+			BlockDeviceMappings?:              [...#BlockDeviceMapping] | fn.#ListExpression
+			CapacityReservationSpecification?: #CapacityReservationSpecification
+			CpuOptions?:                       #CpuOptionsRequest
+			CreditSpecification?:              #CreditSpecificationRequest
+			DisableApiStop?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			EnablePrimaryIpv6?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			EnclaveOptions?:     #EnclaveOptionsRequest
+			HibernationOptions?: #HibernationOptionsRequest
+			IamInstanceProfile?: #IamInstanceProfileSpecification
+			ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+				=~"^ami-[0-9a-zA-Z]{1,63}$" |
+				fn.#StringExpression
+			InstanceType!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([a-z0-9-]+)\\.([a-z0-9]+)$" |
 			fn.#StringExpression
-		InstanceType!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([a-z0-9-]+)\\.([a-z0-9]+)$" |
-		fn.#StringExpression
-		Ipv6AddressCount?: int & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		KeyName?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-		LicenseSpecifications?: [..._#defs."/$defs/Properties/definitions/LicenseConfigurationRequest"] |
-			fn.#ListExpression
-		MaintenanceOptions?: _#defs."/$defs/Properties/definitions/InstanceMaintenanceOptionsRequest"
-		MetadataOptions?:    _#defs."/$defs/Properties/definitions/InstanceMetadataOptionsRequest"
-		Monitoring?:         _#defs."/$defs/Properties/definitions/RunInstancesMonitoringEnabled"
-		NetworkInterfaces?: [..._#defs."/$defs/Properties/definitions/InstanceNetworkInterfaceSpecification"] |
-			fn.#ListExpression
-		NetworkPerformanceOptions?: _#defs."/$defs/Properties/definitions/InstanceNetworkPerformanceOptionsRequest"
-		Placement?:                 _#defs."/$defs/Properties/definitions/Placement"
-		PrivateDnsNameOptions?:     _#defs."/$defs/Properties/definitions/PrivateDnsNameOptionsRequest"
-		SubnetId?:                  =~"^subnet-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
-		TagSpecifications?: list.MaxItems(30) & [..._#defs."/$defs/Properties/definitions/TagSpecification"] |
-			fn.#ListExpression
-		UserData?: strings.MaxRunes(16000) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+			Ipv6AddressCount?: int & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			KeyName?:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+			LicenseSpecifications?:     [...#LicenseConfigurationRequest] | fn.#ListExpression
+			MaintenanceOptions?:        #InstanceMaintenanceOptionsRequest
+			MetadataOptions?:           #InstanceMetadataOptionsRequest
+			Monitoring?:                #RunInstancesMonitoringEnabled
+			NetworkInterfaces?:         [...#InstanceNetworkInterfaceSpecification] | fn.#ListExpression
+			NetworkPerformanceOptions?: #InstanceNetworkPerformanceOptionsRequest
+			Placement?:                 #Placement
+			PrivateDnsNameOptions?:     #PrivateDnsNameOptionsRequest
+			SubnetId?:                  =~"^subnet-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
+			TagSpecifications?:         list.MaxItems(30) & [...#TagSpecification] | fn.#ListExpression
+			UserData?:                  strings.MaxRunes(16000) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(30) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
+#BlockDeviceMapping: close({
 	DeviceName?:  strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
+	Ebs?:         #EbsBlockDevice
 	NoDevice?:    strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
 	VirtualName?: =~"^ephemeral(0|[1-9][0-9]{0,2})$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	CapacityReservationPreference?: "capacity-reservations-only" | "open" | "none" | fn.#StringExpression
-	CapacityReservationTarget?:     _#defs."/$defs/Properties/definitions/CapacityReservationTarget"
+	CapacityReservationTarget?:     #CapacityReservationTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
+#CapacityReservationTarget: close({
 	CapacityReservationId?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	CapacityReservationResourceGroupArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecificationRequest": close({
+#ConnectionTrackingSpecificationRequest: close({
 	TcpEstablishedTimeout?: int |
 		{
 			string &
@@ -138,7 +138,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecificationRequest": 
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CpuOptionsRequest": close({
+#CpuOptionsRequest: close({
 	CoreCount?: int & >=0 |
 		{
 			string &
@@ -172,15 +172,12 @@ _#defs: "/$defs/Properties/definitions/CpuOptionsRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreditSpecificationRequest": close(
-	{CpuCredits?: "standard" | "unlimited" | fn.#StringExpression},
-) |
+#CreditSpecificationRequest: close({CpuCredits?: "standard" | "unlimited" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EC2ManagedInstance": close({InstanceId?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#EC2ManagedInstance: close({InstanceId?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
+#EbsBlockDevice: close({
 	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int & >=0 |
 		{
@@ -234,45 +231,43 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecificationRequest": close({
+#EnaSrdSpecificationRequest: close({
 	EnaSrdEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnaSrdUdpSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdUdpSpecificationRequest"
+	EnaSrdUdpSpecification?: #EnaSrdUdpSpecificationRequest
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdUdpSpecificationRequest": close(
+#EnaSrdUdpSpecificationRequest: close(
 	{EnaSrdUdpEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnclaveOptionsRequest": close(
+#EnclaveOptionsRequest: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HibernationOptionsRequest": close(
+#HibernationOptionsRequest: close(
 	{Configured?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IamInstanceProfileSpecification": close({
+#IamInstanceProfileSpecification: close({
 	Arn?:  strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" | fn.#StringExpression
 	Name?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceIpv6Address": close({
+#InstanceIpv6Address: close({
 	Ipv6Address?:   strings.MaxRunes(128) | fn.#StringExpression
 	IsPrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceMaintenanceOptionsRequest": close(
-	{AutoRecovery?: "disabled" | "default" | fn.#StringExpression},
-) |
+#InstanceMaintenanceOptionsRequest: close({AutoRecovery?: "disabled" | "default" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceMetadataOptionsRequest": close({
+#InstanceMetadataOptionsRequest: close({
 	HttpEndpoint?:     "enabled" | "disabled" | fn.#StringExpression
 	HttpProtocolIpv6?: "enabled" | "disabled" | fn.#StringExpression
 	HttpPutResponseHopLimit?: int & <=64 & >=1 |
@@ -296,7 +291,7 @@ _#defs: "/$defs/Properties/definitions/InstanceMetadataOptionsRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceNetworkInterfaceSpecification": close({
+#InstanceNetworkInterfaceSpecification: close({
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 	DeviceIndex?: int & >=0 |
 		{
@@ -318,27 +313,23 @@ _#defs: "/$defs/Properties/definitions/InstanceNetworkInterfaceSpecification": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceNetworkPerformanceOptionsRequest": close(
+#InstanceNetworkPerformanceOptionsRequest: close(
 	{BandwidthWeighting?: "default" | "vpc-1" | "ebs-1" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv4PrefixSpecificationRequest": close(
-	{Ipv4Prefix?: strings.MaxRunes(128) | fn.#StringExpression},
-) |
+#Ipv4PrefixSpecificationRequest: close({Ipv4Prefix?: strings.MaxRunes(128) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv6PrefixSpecificationRequest": close(
-	{Ipv6Prefix?: strings.MaxRunes(128) | fn.#StringExpression},
-) |
+#Ipv6PrefixSpecificationRequest: close({Ipv6Prefix?: strings.MaxRunes(128) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseConfigurationRequest": close(
+#LicenseConfigurationRequest: close(
 	{LicenseConfigurationArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Placement": close({
+#Placement: close({
 	AvailabilityZone?: =~"^[a-z]{2}-[a-z]+-\\d[a-z](-[a-z0-9]+)?$" | fn.#StringExpression
 	GroupId?:          =~"^pg-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
 	GroupName?:        strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -361,7 +352,7 @@ _#defs: "/$defs/Properties/definitions/Placement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameOptionsRequest": close({
+#PrivateDnsNameOptionsRequest: close({
 	EnableResourceNameDnsAAAARecord?: bool |
 		"true" |
 		"True" |
@@ -375,29 +366,25 @@ _#defs: "/$defs/Properties/definitions/PrivateDnsNameOptionsRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
+#PrivateIpAddressSpecification: close({
 	Primary?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress?: strings.MaxRunes(128) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RunInstancesMonitoringEnabled": close(
+#RunInstancesMonitoringEnabled: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType?: "instance" | "volume" | "spot-instances-request" | "network-interface" | fn.#StringExpression
-	Tags?:         list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:         list.MaxItems(30) & [...] & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkspacesInstances::WorkspaceInstance"
-	Properties?: #Properties
-}

@@ -10,18 +10,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Associates a specified AWS RAM permission with a resource share. You can only
 // associate one permission with each resource type in a resource share.
-#Properties: close({
-	PermissionArn!:    string | fn.#StringExpression
-	Replace?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourceShareArn!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RAM::PermissionAssociation"
+	Properties!: close({
+		PermissionArn!:    string | fn.#StringExpression
+		Replace?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ResourceShareArn!: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PermissionTemplateParameter": close({
+#PermissionTemplateParameter: close({
 	Name!:   string | fn.#StringExpression
 	Values!: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RAM::PermissionAssociation"
-	Properties!: #Properties
-}

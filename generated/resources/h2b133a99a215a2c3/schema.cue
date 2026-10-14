@@ -17,39 +17,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::LoadBalancer
-#Properties: close({
-	AttachedInstances?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	HealthCheckPath?:   string | fn.#StringExpression
-	InstancePort!: int & <=65535 & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=65535 &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	IpAddressType?:            "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
-	LoadBalancerName!:         =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
-	SessionStickinessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SessionStickinessLBCookieDurationSeconds?: string | fn.#StringExpression
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TlsPolicyName?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::LoadBalancer"
+	Properties!: close({
+		AttachedInstances?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		HealthCheckPath?:   string | fn.#StringExpression
+		InstancePort!: int & <=65535 & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65535 &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		IpAddressType?:            "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
+		LoadBalancerName!:         =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
+		SessionStickinessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SessionStickinessLBCookieDurationSeconds?: string | fn.#StringExpression
+		Tags?:                                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TlsPolicyName?:                            string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::LoadBalancer"
-	Properties!: #Properties
-}

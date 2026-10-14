@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"list"
+	"time"
 	"strings"
 )
 
@@ -13,16 +13,16 @@ import (
 // Resource definition for AWS::BedrockAgentCore::BrowserCustom
 #Properties: close({
 	// The ARN of a Browser resource.
-	BrowserArn?: _#defs."/$defs/Properties/definitions/BrowserArn"
+	BrowserArn?: #BrowserArn
 
 	// The id of the browser.
-	BrowserId?: _#defs."/$defs/Properties/definitions/BrowserId"
+	BrowserId?: #BrowserId
 
 	// Browser signing configuration.
-	BrowserSigning?: _#defs."/$defs/Properties/definitions/BrowserSigning"
+	BrowserSigning?: #BrowserSigning
 
 	// List of root CA certificates in PEM format.
-	Certificates?: _#defs."/$defs/Properties/definitions/CertificateList"
+	Certificates?: #CertificateList
 
 	// Timestamp when the browser was created.
 	CreatedAt?: time.Time
@@ -31,10 +31,10 @@ import (
 	Description?: string
 
 	// A list of enterprise policy files for the browser.
-	EnterprisePolicies?: _#defs."/$defs/Properties/definitions/BrowserEnterprisePolicies"
+	EnterprisePolicies?: #BrowserEnterprisePolicies
 
 	// The Amazon Resource Name (ARN) of the IAM role that the browser uses to access resources.
-	ExecutionRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn"
+	ExecutionRoleArn?: #RoleArn
 
 	// The reason for failure if the browser creation or operation failed.
 	FailureReason?: string
@@ -46,131 +46,117 @@ import (
 	Name!: string
 
 	// Network configuration for browser.
-	NetworkConfiguration!: _#defs."/$defs/Properties/definitions/BrowserNetworkConfiguration"
+	NetworkConfiguration!: #BrowserNetworkConfiguration
 
 	// Recording configuration for browser.
-	RecordingConfig?: _#defs."/$defs/Properties/definitions/RecordingConfig"
+	RecordingConfig?: #RecordingConfig
 
 	// Status of browser.
-	Status?: _#defs."/$defs/Properties/definitions/BrowserStatus"
-	Tags?:   _#defs."/$defs/Properties/definitions/TagsMap"
+	Status?: #BrowserStatus
+	Tags?:   #TagsMap
 })
 
 // The ARN of a Browser resource.
-_#defs: "/$defs/Properties/definitions/BrowserArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?\\/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
+#BrowserArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?\\/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
 
 // List of browser enterprise policies.
-_#defs: "/$defs/Properties/definitions/BrowserEnterprisePolicies": list.MaxItems(10) & [...] & [
-	..._#defs."/$defs/Properties/definitions/BrowserEnterprisePolicy"
-]
+#BrowserEnterprisePolicies: list.MaxItems(10) & [...] & [...#BrowserEnterprisePolicy]
 
 // Browser enterprise policy configuration.
-_#defs: "/$defs/Properties/definitions/BrowserEnterprisePolicy": close({
+#BrowserEnterprisePolicy: close({
 	// The S3 location of the enterprise policy file.
-	Location!: _#defs."/$defs/Properties/definitions/S3Location"
+	Location!: #S3Location
 
 	// The type of browser enterprise policy.
-	Type!: _#defs."/$defs/Properties/definitions/BrowserEnterprisePolicyType"
+	Type!: #BrowserEnterprisePolicyType
 })
 
 // The type of browser enterprise policy.
-_#defs: "/$defs/Properties/definitions/BrowserEnterprisePolicyType": "MANAGED" | "RECOMMENDED"
+#BrowserEnterprisePolicyType: "MANAGED" | "RECOMMENDED"
 
 // The id of the browser.
-_#defs: "/$defs/Properties/definitions/BrowserId": =~"^(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
+#BrowserId: =~"^(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
 
 // Network configuration for browser
-_#defs: "/$defs/Properties/definitions/BrowserNetworkConfiguration": close({
-	NetworkMode!: _#defs."/$defs/Properties/definitions/BrowserNetworkMode"
-	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig"
+#BrowserNetworkConfiguration: close({
+	NetworkMode!: #BrowserNetworkMode
+	VpcConfig?:   #VpcConfig
 })
 
 // Network modes supported by browser
-_#defs: "/$defs/Properties/definitions/BrowserNetworkMode": "PUBLIC" | "VPC"
+#BrowserNetworkMode: "PUBLIC" | "VPC"
 
 // Browser signing configuration
-_#defs: "/$defs/Properties/definitions/BrowserSigning": close({Enabled?: bool})
+#BrowserSigning: close({Enabled?: bool})
 
 // Status of browser
-_#defs: "/$defs/Properties/definitions/BrowserStatus": "CREATING" |
-	"CREATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"DELETED"
+#BrowserStatus: "CREATING" | "CREATE_FAILED" | "READY" | "DELETING" | "DELETE_FAILED" | "DELETED"
 
 // List of browsers
-_#defs: "/$defs/Properties/definitions/BrowserSummaries": [..._#defs."/$defs/Properties/definitions/BrowserSummary"]
+#BrowserSummaries: [...#BrowserSummary]
 
 // Browser
-_#defs: "/$defs/Properties/definitions/BrowserSummary": close({
-	BrowserArn!:    _#defs."/$defs/Properties/definitions/BrowserArn"
-	BrowserId!:     _#defs."/$defs/Properties/definitions/BrowserId"
+#BrowserSummary: close({
+	BrowserArn!:    #BrowserArn
+	BrowserId!:     #BrowserId
 	CreatedAt!:     time.Time
 	Description?:   string
 	LastUpdatedAt?: time.Time
 	Name?:          string
-	Status!:        _#defs."/$defs/Properties/definitions/BrowserStatus"
+	Status!:        #BrowserStatus
 })
 
 // A root CA certificate configuration.
-_#defs: "/$defs/Properties/definitions/Certificate": close({
+#Certificate: close({
 	// Certificate location in Secrets Manager.
-	CertificateLocation!: _#defs."/$defs/Properties/definitions/CertificateLocation"
+	CertificateLocation!: #CertificateLocation
 })
 
 // List of root CA certificates.
-_#defs: "/$defs/Properties/definitions/CertificateList": list.MaxItems(10) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Certificate"
-]
+#CertificateList: list.MaxItems(10) & [...] & [...#Certificate]
 
 // Certificate location in Secrets Manager.
-_#defs: "/$defs/Properties/definitions/CertificateLocation": close({
+#CertificateLocation: close({
 	// Secrets Manager secret ARN.
 	SecretArn!:
 		=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$"
 })
 
 // Recording configuration for browser
-_#defs: "/$defs/Properties/definitions/RecordingConfig": close({
+#RecordingConfig: close({
 	Enabled?:    bool
-	S3Location?: _#defs."/$defs/Properties/definitions/S3Location"
+	S3Location?: #S3Location
 })
 
 // The Amazon Resource Name (ARN) of the IAM role.
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$"
 
 // S3 Location Configuration
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
 	Prefix!: strings.MinRunes(1)
 })
 
 // Security group id
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
-	=~"^sg-[0-9a-zA-Z]{8,17}$"
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$"
 
 // Security groups for VPC
-_#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SecurityGroupId"
-]
+#SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId]
 
 // Subnet id
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-zA-Z]{8,17}$"
+#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$"
 
 // Subnets for VPC
-_#defs: "/$defs/Properties/definitions/Subnets": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SubnetId"
-]
+#Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId]
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
 // Network mode configuration for VPC
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
-	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets"
+#VpcConfig: close({
+	SecurityGroups!: #SecurityGroups
+	Subnets!:        #Subnets
 })

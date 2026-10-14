@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::PortfolioPrincipalAssociation
-#Properties: close({
-	AcceptLanguage?: string | fn.#StringExpression
-	PortfolioId?:    string | fn.#StringExpression
-	PrincipalARN?:   =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" | fn.#StringExpression
-	PrincipalType!:  string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::PortfolioPrincipalAssociation"
-	Properties!: #Properties
+	Type!: "AWS::ServiceCatalog::PortfolioPrincipalAssociation"
+	Properties!: close({
+		AcceptLanguage?: string | fn.#StringExpression
+		PortfolioId?:    string | fn.#StringExpression
+		PrincipalARN?:   =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" | fn.#StringExpression
+		PrincipalType!:  string | fn.#StringExpression
+	})
 }

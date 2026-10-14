@@ -13,20 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::MemoryDB::SubnetGroup resource creates an Amazon MemoryDB Subnet Group.
-#Properties: close({
-	Description?:     string | fn.#StringExpression
-	SubnetGroupName!: =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
-	SubnetIds!:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MemoryDB::SubnetGroup"
+	Properties!: close({
+		Description?:     string | fn.#StringExpression
+		SubnetGroupName!: =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
+		SubnetIds!:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MemoryDB::SubnetGroup"
-	Properties!: #Properties
-}

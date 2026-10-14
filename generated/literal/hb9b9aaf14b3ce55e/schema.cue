@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,7 +19,7 @@ import (
 
 	// The timestamp when the workspace was created.
 	CreatedAt?:     time.Time
-	DataResidency?: _#defs."/$defs/Properties/definitions/DataResidency"
+	DataResidency?: #DataResidency
 
 	// The unique identifier of the workspace.
 	Id?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^wrkspc_[A-Za-z0-9]+$"
@@ -28,11 +28,11 @@ import (
 	Name!: strings.MaxRunes(40) & strings.MinRunes(1)
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Data residency configuration for the workspace. WorkspaceGeo is immutable after creation.
-_#defs: "/$defs/Properties/definitions/DataResidency": close({
+#DataResidency: close({
 	// Permitted inference geo values. Omit to allow all geos (the service default
 	// of 'unrestricted'); otherwise list specific geos.
 	AllowedInferenceGeos?: list.UniqueItems() & [...string]
@@ -48,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/DataResidency": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

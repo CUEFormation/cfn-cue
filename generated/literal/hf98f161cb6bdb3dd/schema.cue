@@ -6,12 +6,12 @@ package schema
 
 // Resource Type definition for AWS::WAFRegional::GeoMatchSet
 #Properties: close({
-	GeoMatchConstraints?: [..._#defs."/$defs/Properties/definitions/GeoMatchConstraint"]
+	GeoMatchConstraints?: [...#GeoMatchConstraint]
 	Id?:                  string
 	Name!:                string
 })
 
-_#defs: "/$defs/Properties/definitions/GeoMatchConstraint": close({
+#GeoMatchConstraint: close({
 	Type!:  string
 	Value!: string
 })

@@ -13,34 +13,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Macie FindingsFilter resource schema.
-#Properties: close({
-	Action?:          _#defs."/$defs/Properties/definitions/FindingFilterAction" | fn.#StringExpression
-	Description?:     string | fn.#StringExpression
-	FindingCriteria!: _#defs."/$defs/Properties/definitions/FindingCriteria" | fn.#ObjectExpression
-	Name!:            string | fn.#StringExpression
-	Position?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Macie::FindingsFilter"
+	Properties!: close({
+		// Findings filter action.
+		Action?:      #FindingFilterAction
+		Description?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Criterion": close({
+		// Findings filter criteria.
+		FindingCriteria!: #FindingCriteria
+		Name!:            string | fn.#StringExpression
+		Position?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
-	{[=~"\\w"]: _#defs."/$defs/Properties/definitions/CriterionAdditionalProperties"}}) |
+#Criterion: close({
+
+	{[=~"\\w"]: #CriterionAdditionalProperties}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CriterionAdditionalProperties": close({
+#CriterionAdditionalProperties: close({
 	eq?: [...string | fn.#StringExpression] | fn.#ListExpression
 	gt?: int |
 		{
@@ -102,25 +110,18 @@ _#defs: "/$defs/Properties/definitions/CriterionAdditionalProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FindingCriteria": close(
-	{Criterion?: _#defs."/$defs/Properties/definitions/Criterion"},
-) |
-	fn.#ObjectExpression
+#FindingCriteria: close({Criterion?: #Criterion}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FindingFilterAction": "ARCHIVE" | "NOOP" | fn.#StringExpression
+#FindingFilterAction: "ARCHIVE" | "NOOP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FindingsFilterListItem": {
+#FindingsFilterListItem: {
 	Id?:   string | fn.#StringExpression
 	Name?: string | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Macie::FindingsFilter"
-	Properties!: #Properties
-}

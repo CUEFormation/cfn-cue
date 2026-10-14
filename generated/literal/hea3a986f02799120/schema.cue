@@ -41,7 +41,7 @@ import (
 	Status?: "CREATING" | "ACTIVE" | "DELETING"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The time the application was last updated.
 	UpdatedAt?: time.Time
@@ -51,7 +51,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

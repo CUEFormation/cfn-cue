@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	Arn?:                  strings.MinRunes(1)
 	BaseCapacity?:         int & >=0
-	ComputeConfiguration?: _#defs."/$defs/Properties/definitions/ComputeConfiguration"
+	ComputeConfiguration?: #ComputeConfiguration
 	ComputeType?: "BUILD_GENERAL1_SMALL" |
 		"BUILD_GENERAL1_MEDIUM" |
 		"BUILD_GENERAL1_LARGE" |
@@ -30,17 +30,17 @@ import (
 		"LINUX_EC2" |
 		"ARM_EC2" |
 		"WINDOWS_EC2"
-	FleetProxyConfiguration?: _#defs."/$defs/Properties/definitions/ProxyConfiguration"
+	FleetProxyConfiguration?: #ProxyConfiguration
 	FleetServiceRole?:        strings.MinRunes(1) & =~"^(?:arn:)[a-zA-Z+-=,._:/@]+$"
-	FleetVpcConfig?:          _#defs."/$defs/Properties/definitions/VpcConfig"
+	FleetVpcConfig?:          #VpcConfig
 	ImageId?:                 =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & strings.MinRunes(1)
 	Name?:                    strings.MaxRunes(128) & strings.MinRunes(2) & =~"^[A-Za-z0-9][A-Za-z0-9\\-_]{1,127}$"
 	OverflowBehavior?:        "QUEUE" | "ON_DEMAND"
-	ScalingConfiguration?:    _#defs."/$defs/Properties/definitions/ScalingConfigurationInput"
-	Tags?:                    list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ScalingConfiguration?:    #ScalingConfigurationInput
+	Tags?:                    list.MaxItems(50) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ComputeConfiguration": close({
+#ComputeConfiguration: close({
 	disk?:         int
 	instanceType?: strings.MinRunes(1)
 	machineType?:  "GENERAL" | "NVME"
@@ -48,24 +48,24 @@ _#defs: "/$defs/Properties/definitions/ComputeConfiguration": close({
 	vCpu?:         int
 })
 
-_#defs: "/$defs/Properties/definitions/FleetProxyRule": close({
+#FleetProxyRule: close({
 	Effect?:   "ALLOW" | "DENY"
 	Entities?: [...string]
 	Type?:     "DOMAIN" | "IP"
 })
 
-_#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
+#ProxyConfiguration: close({
 	DefaultBehavior?:   "ALLOW_ALL" | "DENY_ALL"
-	OrderedProxyRules?: [..._#defs."/$defs/Properties/definitions/FleetProxyRule"]
+	OrderedProxyRules?: [...#FleetProxyRule]
 })
 
-_#defs: "/$defs/Properties/definitions/ScalingConfigurationInput": close({
+#ScalingConfigurationInput: close({
 	MaxCapacity?:                  int & >=1
 	ScalingType?:                  "TARGET_TRACKING_SCALING"
-	TargetTrackingScalingConfigs?: [..._#defs."/$defs/Properties/definitions/TargetTrackingScalingConfiguration"]
+	TargetTrackingScalingConfigs?: [...#TargetTrackingScalingConfiguration]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -78,12 +78,12 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingConfiguration": close({
+#TargetTrackingScalingConfiguration: close({
 	MetricType?:  "FLEET_UTILIZATION_RATE"
 	TargetValue?: number
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets?:          [...string]
 	VpcId?:            =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"

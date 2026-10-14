@@ -12,17 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DirectoryService::MicrosoftAD
-#Properties: close({
-	CreateAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Edition?:     "Enterprise" | "Standard" | fn.#StringExpression
-	EnableSso?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:        =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$" | fn.#StringExpression
-	Password?:    string | fn.#StringExpression
-	ShortName?:   =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$" | fn.#StringExpression
-	VpcSettings!: _#defs."/$defs/Properties/definitions/VpcSettings" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DirectoryService::MicrosoftAD"
+	Properties!: close({
+		CreateAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Edition?:     "Enterprise" | "Standard" | fn.#StringExpression
+		EnableSso?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!:        =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$" | fn.#StringExpression
+		Password?:    string | fn.#StringExpression
+		ShortName?:   =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcSettings": close({
+		// Specifies the VPC settings of the Microsoft AD directory server in AWS.
+		VpcSettings!: #VpcSettings
+	})
+}
+
+#VpcSettings: close({
 	SubnetIds!: list.UniqueItems() & [...=~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" | fn.#StringExpression] |
 		fn.#ListExpression
 	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -30,7 +35,3 @@ _#defs: "/$defs/Properties/definitions/VpcSettings": close({
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DirectoryService::MicrosoftAD"
-	Properties!: #Properties
-}

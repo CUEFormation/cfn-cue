@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,69 +17,67 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerTrafficPolicy Resource Type
-#Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/AcceptAction"
-	MaxMessageSizeBytes?: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::MailManagerTrafficPolicy"
+	Properties!: close({
+		DefaultAction!: #AcceptAction
+		MaxMessageSizeBytes?: >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PolicyStatements!: [..._#defs."/$defs/Properties/definitions/PolicyStatement"] | fn.#ListExpression
-	Tags?:             list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TrafficPolicyName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PolicyStatements!:  [...#PolicyStatement] | fn.#ListExpression
+		Tags?:              list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TrafficPolicyName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AcceptAction": "ALLOW" | "DENY" | fn.#StringExpression
+#AcceptAction: "ALLOW" | "DENY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressAddressListEmailAttribute": "RECIPIENT" | fn.#StringExpression
+#IngressAddressListEmailAttribute: "RECIPIENT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressAnalysis": close({
+#IngressAnalysis: close({
 	Analyzer!:    =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
 	ResultField!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(addon\\.)?[\\sa-zA-Z0-9_]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngressBooleanExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressBooleanToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressBooleanOperator"
+#IngressBooleanExpression: close({
+	Evaluate!: #IngressBooleanToEvaluate
+	Operator!: #IngressBooleanOperator
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngressBooleanOperator": "IS_TRUE" | "IS_FALSE" | fn.#StringExpression
+#IngressBooleanOperator: "IS_TRUE" | "IS_FALSE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressBooleanToEvaluate": matchN(1, [close(
-	{Analysis!: _#defs."/$defs/Properties/definitions/IngressAnalysis"},
-), close(
-	{IsInAddressList!: _#defs."/$defs/Properties/definitions/IngressIsInAddressList"},
-)]) |
+#IngressBooleanToEvaluate: matchN(1, [
+	close({Analysis!: #IngressAnalysis}), close({IsInAddressList!: #IngressIsInAddressList}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/IngressIpOperator": "CIDR_MATCHES" | "NOT_CIDR_MATCHES" | fn.#StringExpression
+#IngressIpOperator: "CIDR_MATCHES" | "NOT_CIDR_MATCHES" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressIpToEvaluate": close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/IngressIpv4Attribute"},
-) |
-	fn.#ValueExpression
+#IngressIpToEvaluate: close({Attribute!: #IngressIpv4Attribute}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/IngressIpv4Attribute": "SENDER_IP" | fn.#StringExpression
+#IngressIpv4Attribute: "SENDER_IP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressIpv4Expression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressIpToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressIpOperator"
+#IngressIpv4Expression: close({
+	Evaluate!: #IngressIpToEvaluate
+	Operator!: #IngressIpOperator
 	Values!: [
 		...=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/([0-9]|[12][0-9]|3[0-2])$" |
 			fn.#StringExpression
@@ -88,11 +86,11 @@ _#defs: "/$defs/Properties/definitions/IngressIpv4Expression": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngressIpv6Attribute": "SENDER_IPV6" | fn.#StringExpression
+#IngressIpv6Attribute: "SENDER_IPV6" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressIpv6Expression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressIpv6ToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressIpOperator"
+#IngressIpv6Expression: close({
+	Evaluate!: #IngressIpv6ToEvaluate
+	Operator!: #IngressIpOperator
 	Values!: [
 		...strings.MaxRunes(49) &
 		=~"^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9])$" |
@@ -102,84 +100,67 @@ _#defs: "/$defs/Properties/definitions/IngressIpv6Expression": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngressIpv6ToEvaluate": close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/IngressIpv6Attribute"},
-) |
-	fn.#ValueExpression
+#IngressIpv6ToEvaluate: close({Attribute!: #IngressIpv6Attribute}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/IngressIsInAddressList": close({
+#IngressIsInAddressList: close({
 	AddressLists!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	Attribute!: _#defs."/$defs/Properties/definitions/IngressAddressListEmailAttribute"
+	Attribute!: #IngressAddressListEmailAttribute
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngressStringEmailAttribute": "RECIPIENT" | fn.#StringExpression
+#IngressStringEmailAttribute: "RECIPIENT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressStringExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressStringToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressStringOperator"
+#IngressStringExpression: close({
+	Evaluate!: #IngressStringToEvaluate
+	Operator!: #IngressStringOperator
 	Values!:   [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngressStringOperator": "EQUALS" |
-	"NOT_EQUALS" |
-	"STARTS_WITH" |
-	"ENDS_WITH" |
-	"CONTAINS" |
-	fn.#StringExpression
+#IngressStringOperator: "EQUALS" | "NOT_EQUALS" | "STARTS_WITH" | "ENDS_WITH" | "CONTAINS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressStringToEvaluate": matchN(1, [close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/IngressStringEmailAttribute"},
-), close(
-	{Analysis!: _#defs."/$defs/Properties/definitions/IngressAnalysis"},
-)]) |
+#IngressStringToEvaluate: matchN(1, [
+	close({Attribute!: #IngressStringEmailAttribute}), close({Analysis!: #IngressAnalysis}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/IngressTlsAttribute": "TLS_PROTOCOL" | fn.#StringExpression
+#IngressTlsAttribute: "TLS_PROTOCOL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressTlsProtocolAttribute": "TLS1_2" | "TLS1_3" | fn.#StringExpression
+#IngressTlsProtocolAttribute: "TLS1_2" | "TLS1_3" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressTlsProtocolExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressTlsProtocolToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressTlsProtocolOperator"
-	Value!:    _#defs."/$defs/Properties/definitions/IngressTlsProtocolAttribute"
+#IngressTlsProtocolExpression: close({
+	Evaluate!: #IngressTlsProtocolToEvaluate
+	Operator!: #IngressTlsProtocolOperator
+	Value!:    #IngressTlsProtocolAttribute
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngressTlsProtocolOperator": "MINIMUM_TLS_VERSION" | "IS" | fn.#StringExpression
+#IngressTlsProtocolOperator: "MINIMUM_TLS_VERSION" | "IS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressTlsProtocolToEvaluate": close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/IngressTlsAttribute"},
-) |
-	fn.#ValueExpression
+#IngressTlsProtocolToEvaluate: close({Attribute!: #IngressTlsAttribute}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyCondition": matchN(1, [close(
-	{StringExpression!: _#defs."/$defs/Properties/definitions/IngressStringExpression"},
+#PolicyCondition: matchN(1, [close(
+	{StringExpression!: #IngressStringExpression},
 ), close(
-	{IpExpression!: _#defs."/$defs/Properties/definitions/IngressIpv4Expression"},
+	{IpExpression!: #IngressIpv4Expression},
 ), close(
-	{Ipv6Expression!: _#defs."/$defs/Properties/definitions/IngressIpv6Expression"},
+	{Ipv6Expression!: #IngressIpv6Expression},
 ), close(
-	{TlsExpression!: _#defs."/$defs/Properties/definitions/IngressTlsProtocolExpression"},
+	{TlsExpression!: #IngressTlsProtocolExpression},
 ), close(
-	{BooleanExpression!: _#defs."/$defs/Properties/definitions/IngressBooleanExpression"},
+	{BooleanExpression!: #IngressBooleanExpression},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyStatement": close({
-	Action!:     _#defs."/$defs/Properties/definitions/AcceptAction"
-	Conditions!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PolicyCondition"] | fn.#ListExpression
+#PolicyStatement: close({
+	Action!:     #AcceptAction
+	Conditions!: list.MinItems(1) & [...#PolicyCondition] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::MailManagerTrafficPolicy"
-	Properties!: #Properties
-}

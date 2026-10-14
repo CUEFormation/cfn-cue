@@ -14,22 +14,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A dimension can be used to limit the scope of a metric used in a security
 // profile for AWS IoT Device Defender.
-#Properties: close({
-	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	StringValues!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: "TOPIC_FILTER" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::Dimension"
+	Properties!: close({
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+		StringValues!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
+			...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!: "TOPIC_FILTER" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::Dimension"
-	Properties!: #Properties
-}

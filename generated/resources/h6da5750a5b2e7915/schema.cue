@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,35 +13,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for EKS Capability.
-#Properties: close({
-	CapabilityName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ClusterName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Configuration?: close({
-		Ack?: _#defs."/$defs/Properties/definitions/Ack"
-		ArgoCd?: close({
-			AwsIdc!: close({
-				IdcInstanceArn!: string | fn.#StringExpression
-				IdcRegion?:      string | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::Capability"
+	Properties!: close({
+		CapabilityName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ClusterName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Configuration?: close({
+			Ack?: #Ack
+			ArgoCd?: close({
+				AwsIdc!: close({
+					IdcInstanceArn!: string | fn.#StringExpression
+					IdcRegion?:      string | fn.#StringExpression
+				}) |
+				fn.#ObjectExpression
+				EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
+				fn.#StringExpression
+				Namespace?:        string | fn.#StringExpression
+				NetworkAccess?:    #NetworkAccess
+				RbacRoleMappings?: [...#ArgoCdRoleMapping] | fn.#ListExpression
 			}) |
 			fn.#ObjectExpression
-			EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
-			fn.#StringExpression
-			Namespace?:        string | fn.#StringExpression
-			NetworkAccess?:    _#defs."/$defs/Properties/definitions/NetworkAccess"
-			RbacRoleMappings?: [..._#defs."/$defs/Properties/definitions/ArgoCdRoleMapping"] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	DeletePropagationPolicy!: "RETAIN" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$" |
-		fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: "ARGOCD" | "ACK" | "KRO" | fn.#StringExpression
-})
+		DeletePropagationPolicy!: "RETAIN" | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$" |
+			fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!: "ARGOCD" | "ACK" | "KRO" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Ack": close({
+#Ack: close({
 	DisabledServices?: list.MaxItems(200) & [...] & [
 		...strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*$" | fn.#StringExpression
 	] |
@@ -50,53 +53,46 @@ _#defs: "/$defs/Properties/definitions/Ack": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ArgoCd": close({
-	AwsIdc!: _#defs."/$defs/Properties/definitions/AwsIdc"
+#ArgoCd: close({
+	AwsIdc!: #AwsIdc
 	EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
 	fn.#StringExpression
 	Namespace?:        string | fn.#StringExpression
-	NetworkAccess?:    _#defs."/$defs/Properties/definitions/NetworkAccess"
-	RbacRoleMappings?: [..._#defs."/$defs/Properties/definitions/ArgoCdRoleMapping"] | fn.#ListExpression
+	NetworkAccess?:    #NetworkAccess
+	RbacRoleMappings?: [...#ArgoCdRoleMapping] | fn.#ListExpression
 	ServerUrl?:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ArgoCdRoleMapping": close({
-	Identities!: [..._#defs."/$defs/Properties/definitions/SsoIdentity"] | fn.#ListExpression
+#ArgoCdRoleMapping: close({
+	Identities!: [...#SsoIdentity] | fn.#ListExpression
 	Role!:       "ADMIN" | "EDITOR" | "VIEWER" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AwsIdc": close({
+#AwsIdc: close({
 	IdcInstanceArn!:           string | fn.#StringExpression
 	IdcManagedApplicationArn?: string | fn.#StringExpression
 	IdcRegion?:                string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapabilityConfiguration": close({
-	Ack?:    _#defs."/$defs/Properties/definitions/Ack"
-	ArgoCd?: _#defs."/$defs/Properties/definitions/ArgoCd"
+#CapabilityConfiguration: close({
+	Ack?:    #Ack
+	ArgoCd?: #ArgoCd
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAccess": close(
-	{VpceIds?: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#NetworkAccess: close({VpceIds?: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SsoIdentity": close({
+#SsoIdentity: close({
 	Id!:   string | fn.#StringExpression
 	Type!: "SSO_USER" | "SSO_GROUP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::Capability"
-	Properties!: #Properties
-}

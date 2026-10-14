@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,33 +17,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Disk
-#Properties: close({
-	AddOns?:           [..._#defs."/$defs/Properties/definitions/AddOn"] | fn.#ListExpression
-	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	DiskName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
-	fn.#StringExpression
-	Location?: close({}) | fn.#ObjectExpression
-	SizeInGb!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Disk"
+	Properties!: close({
+		AddOns?:           [...#AddOn] | fn.#ListExpression
+		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		DiskName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
+		fn.#StringExpression
+		Location?: close({}) | fn.#ObjectExpression
+		SizeInGb!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AddOn": close({
+#AddOn: close({
 	AddOnType!: ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	AutoSnapshotAddOnRequest?: _#defs."/$defs/Properties/definitions/AutoSnapshotAddOn"
+	AutoSnapshotAddOnRequest?: #AutoSnapshotAddOn
 	Status?: "Enabling" |
 		"Disabling" |
 		"Enabled" |
@@ -55,23 +60,16 @@ _#defs: "/$defs/Properties/definitions/AddOn": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoSnapshotAddOn": close(
-	{SnapshotTimeOfDay?: =~"^[0-9]{2}:00$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#AutoSnapshotAddOn: close({SnapshotTimeOfDay?: =~"^[0-9]{2}:00$" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	AvailabilityZone?: string | fn.#StringExpression
 	RegionName?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Disk"
-	Properties!: #Properties
-}

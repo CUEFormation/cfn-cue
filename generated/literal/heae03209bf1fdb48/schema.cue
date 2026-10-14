@@ -19,11 +19,11 @@ import "strings"
 	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F})"
 	PrivateKey?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+"
 	ServerCertificateName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+"
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                  [...#Tag]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

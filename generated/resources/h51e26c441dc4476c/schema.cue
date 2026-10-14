@@ -16,18 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // End User Messaging SMS. A newly created number is in PENDING status; it
 // becomes VERIFIED only after the recipient supplies the one-time code out of
 // band.
-#Properties: close({
-	DestinationPhoneNumber!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^\\+?[1-9][0-9]{1,18}$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::VerifiedDestinationNumber"
+	Properties!: close({
+		DestinationPhoneNumber!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^\\+?[1-9][0-9]{1,18}$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::VerifiedDestinationNumber"
-	Properties!: #Properties
-}

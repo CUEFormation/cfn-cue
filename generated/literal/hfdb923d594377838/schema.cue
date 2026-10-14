@@ -8,7 +8,7 @@ import "list"
 
 // Resource Type definition for AWS::Backup::BackupPlan
 #Properties: close({
-	BackupPlan!:    _#defs."/$defs/Properties/definitions/BackupPlanResourceType"
+	BackupPlan!:    #BackupPlanResourceType
 	BackupPlanArn?: string
 	BackupPlanId?:  string
 	BackupPlanTags?: close({
@@ -17,29 +17,29 @@ import "list"
 	VersionId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedBackupSettingResourceType": close({
+#AdvancedBackupSettingResourceType: close({
 	BackupOptions!: string | {...}
 	ResourceType!:  =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$"
 })
 
-_#defs: "/$defs/Properties/definitions/BackupPlanResourceType": close({
-	AdvancedBackupSettings?: [..._#defs."/$defs/Properties/definitions/AdvancedBackupSettingResourceType"]
+#BackupPlanResourceType: close({
+	AdvancedBackupSettings?: [...#AdvancedBackupSettingResourceType]
 	BackupPlanName!:         string
-	BackupPlanRule!:         [..._#defs."/$defs/Properties/definitions/BackupRuleResourceType"]
-	ScanSettings?:           [..._#defs."/$defs/Properties/definitions/ScanSettingResourceType"]
+	BackupPlanRule!:         [...#BackupRuleResourceType]
+	ScanSettings?:           [...#ScanSettingResourceType]
 })
 
-_#defs: "/$defs/Properties/definitions/BackupRuleResourceType": close({
+#BackupRuleResourceType: close({
 	CompletionWindowMinutes?: number
-	CopyActions?:             [..._#defs."/$defs/Properties/definitions/CopyActionResourceType"]
+	CopyActions?:             [...#CopyActionResourceType]
 	EnableContinuousBackup?:  bool
-	IndexActions?:            [..._#defs."/$defs/Properties/definitions/IndexActionsResourceType"]
-	Lifecycle?:               _#defs."/$defs/Properties/definitions/LifecycleResourceType"
+	IndexActions?:            [...#IndexActionsResourceType]
+	Lifecycle?:               #LifecycleResourceType
 	RecoveryPointTags?: close({
 
 		{[=~"^.{1,128}$"]: string}})
 	RuleName!:                               string
-	ScanActions?:                            [..._#defs."/$defs/Properties/definitions/ScanActionResourceType"]
+	ScanActions?:                            [...#ScanActionResourceType]
 	ScheduleExpression?:                     string
 	ScheduleExpressionTimezone?:             string
 	StartWindowMinutes?:                     number
@@ -47,38 +47,34 @@ _#defs: "/$defs/Properties/definitions/BackupRuleResourceType": close({
 	TargetLogicallyAirGappedBackupVaultArn?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CopyActionResourceType": close({
+#CopyActionResourceType: close({
 	DestinationBackupVaultArn!: string
-	Lifecycle?:                 _#defs."/$defs/Properties/definitions/LifecycleResourceType"
+	Lifecycle?:                 #LifecycleResourceType
 })
 
-_#defs: "/$defs/Properties/definitions/IndexActionsResourceType": close(
-	{ResourceTypes?: _#defs."/$defs/Properties/definitions/ResourceTypes"},
-)
+#IndexActionsResourceType: close({ResourceTypes?: #ResourceTypes})
 
-_#defs: "/$defs/Properties/definitions/LifecycleResourceType": close({
+#LifecycleResourceType: close({
 	DeleteAfterDays?:                     number
 	MoveToColdStorageAfterDays?:          number
 	OptInToArchiveForSupportedResources?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/MalwareScanner": "GUARDDUTY"
+#MalwareScanner: "GUARDDUTY"
 
-_#defs: "/$defs/Properties/definitions/ResourceType": =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$"
+#ResourceType: =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$"
 
-_#defs: "/$defs/Properties/definitions/ResourceTypes": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/ResourceType"
-]
+#ResourceTypes: list.UniqueItems() & [...#ResourceType]
 
-_#defs: "/$defs/Properties/definitions/ScanActionResourceType": close({
-	MalwareScanner?: _#defs."/$defs/Properties/definitions/MalwareScanner"
-	ScanMode?:       _#defs."/$defs/Properties/definitions/ScanMode"
+#ScanActionResourceType: close({
+	MalwareScanner?: #MalwareScanner
+	ScanMode?:       #ScanMode
 })
 
-_#defs: "/$defs/Properties/definitions/ScanMode": "FULL_SCAN" | "INCREMENTAL_SCAN"
+#ScanMode: "FULL_SCAN" | "INCREMENTAL_SCAN"
 
-_#defs: "/$defs/Properties/definitions/ScanSettingResourceType": close({
-	MalwareScanner?: _#defs."/$defs/Properties/definitions/MalwareScanner"
-	ResourceTypes?:  _#defs."/$defs/Properties/definitions/ResourceTypes"
+#ScanSettingResourceType: close({
+	MalwareScanner?: #MalwareScanner
+	ResourceTypes?:  #ResourceTypes
 	ScannerRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })

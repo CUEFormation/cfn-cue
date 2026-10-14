@@ -11,132 +11,120 @@ import (
 
 // A Kendra index
 #Properties: close({
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// Capacity units
-	CapacityUnits?: _#defs."/$defs/Properties/definitions/CapacityUnitsConfiguration"
+	CapacityUnits?: #CapacityUnitsConfiguration
 
 	// A description for the index
-	Description?: _#defs."/$defs/Properties/definitions/Description"
+	Description?: #Description
 
 	// Document metadata configurations
-	DocumentMetadataConfigurations?: _#defs."/$defs/Properties/definitions/DocumentMetadataConfigurationList"
-	Edition!:                        _#defs."/$defs/Properties/definitions/Edition"
-	Id?:                             _#defs."/$defs/Properties/definitions/Id"
-	Name!:                           _#defs."/$defs/Properties/definitions/Name"
-	RoleArn!:                        _#defs."/$defs/Properties/definitions/RoleArn"
+	DocumentMetadataConfigurations?: #DocumentMetadataConfigurationList
+	Edition!:                        #Edition
+	Id?:                             #Id
+	Name!:                           #Name
+	RoleArn!:                        #RoleArn
 
 	// Server side encryption configuration
-	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration"
+	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
 
 	// Tags for labeling the index
-	Tags?:                    _#defs."/$defs/Properties/definitions/TagList"
-	UserContextPolicy?:       _#defs."/$defs/Properties/definitions/UserContextPolicy"
-	UserTokenConfigurations?: _#defs."/$defs/Properties/definitions/UserTokenConfigurationList"
+	Tags?:                    #TagList
+	UserContextPolicy?:       #UserContextPolicy
+	UserTokenConfigurations?: #UserTokenConfigurationList
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000)
+#Arn: strings.MaxRunes(1000)
 
-_#defs: "/$defs/Properties/definitions/CapacityUnitsConfiguration": close({
-	QueryCapacityUnits!:   _#defs."/$defs/Properties/definitions/QueryCapacityUnits"
-	StorageCapacityUnits!: _#defs."/$defs/Properties/definitions/StorageCapacityUnits"
+#CapacityUnitsConfiguration: close({
+	QueryCapacityUnits!:   #QueryCapacityUnits
+	StorageCapacityUnits!: #StorageCapacityUnits
 })
 
-_#defs: "/$defs/Properties/definitions/ClaimRegex": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\P{C}*$"
+#ClaimRegex: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\P{C}*$"
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$"
+#Description: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$"
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeValueType": "STRING_VALUE" |
-	"STRING_LIST_VALUE" |
-	"LONG_VALUE" |
-	"DATE_VALUE"
+#DocumentAttributeValueType: "STRING_VALUE" | "STRING_LIST_VALUE" | "LONG_VALUE" | "DATE_VALUE"
 
-_#defs: "/$defs/Properties/definitions/DocumentMetadataConfiguration": close({
-	Name!:      _#defs."/$defs/Properties/definitions/DocumentMetadataConfigurationName"
-	Relevance?: _#defs."/$defs/Properties/definitions/Relevance"
-	Search?:    _#defs."/$defs/Properties/definitions/Search"
-	Type!:      _#defs."/$defs/Properties/definitions/DocumentAttributeValueType"
+#DocumentMetadataConfiguration: close({
+	Name!:      #DocumentMetadataConfigurationName
+	Relevance?: #Relevance
+	Search?:    #Search
+	Type!:      #DocumentAttributeValueType
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentMetadataConfigurationList": list.MaxItems(500) & [
-	..._#defs."/$defs/Properties/definitions/DocumentMetadataConfiguration"
-]
+#DocumentMetadataConfigurationList: list.MaxItems(500) & [...#DocumentMetadataConfiguration]
 
-_#defs: "/$defs/Properties/definitions/DocumentMetadataConfigurationName": strings.MaxRunes(30) & strings.MinRunes(1)
+#DocumentMetadataConfigurationName: strings.MaxRunes(30) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Duration": strings.MaxRunes(10) & strings.MinRunes(1) & =~"[0-9]+[s]"
+#Duration: strings.MaxRunes(10) & strings.MinRunes(1) & =~"[0-9]+[s]"
 
 // Edition of index
-_#defs: "/$defs/Properties/definitions/Edition": "DEVELOPER_EDITION" |
-	"ENTERPRISE_EDITION" |
-	"GEN_AI_ENTERPRISE_EDITION"
+#Edition: "DEVELOPER_EDITION" | "ENTERPRISE_EDITION" | "GEN_AI_ENTERPRISE_EDITION"
 
-_#defs: "/$defs/Properties/definitions/Freshness": bool
+#Freshness: bool
 
-_#defs: "/$defs/Properties/definitions/GroupAttributeField": strings.MaxRunes(100) & strings.MinRunes(1)
+#GroupAttributeField: strings.MaxRunes(100) & strings.MinRunes(1)
 
 // Unique ID of index
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(36) & strings.MinRunes(36)
+#Id: strings.MaxRunes(36) & strings.MinRunes(36)
 
-_#defs: "/$defs/Properties/definitions/Importance": int & <=10 & >=1
+#Importance: int & <=10 & >=1
 
-_#defs: "/$defs/Properties/definitions/Issuer": strings.MaxRunes(65) & strings.MinRunes(1) & =~"^\\P{C}*$"
+#Issuer: strings.MaxRunes(65) & strings.MinRunes(1) & =~"^\\P{C}*$"
 
-_#defs: "/$defs/Properties/definitions/JsonTokenTypeConfiguration": close({
-	GroupAttributeField!:    _#defs."/$defs/Properties/definitions/GroupAttributeField"
-	UserNameAttributeField!: _#defs."/$defs/Properties/definitions/UserNameAttributeField"
+#JsonTokenTypeConfiguration: close({
+	GroupAttributeField!:    #GroupAttributeField
+	UserNameAttributeField!: #UserNameAttributeField
 })
 
-_#defs: "/$defs/Properties/definitions/JwtTokenTypeConfiguration": close({
-	ClaimRegex?:             _#defs."/$defs/Properties/definitions/ClaimRegex"
-	GroupAttributeField?:    _#defs."/$defs/Properties/definitions/GroupAttributeField"
-	Issuer?:                 _#defs."/$defs/Properties/definitions/Issuer"
-	KeyLocation!:            _#defs."/$defs/Properties/definitions/KeyLocation"
-	SecretManagerArn?:       _#defs."/$defs/Properties/definitions/RoleArn"
-	URL?:                    _#defs."/$defs/Properties/definitions/Url"
-	UserNameAttributeField?: _#defs."/$defs/Properties/definitions/UserNameAttributeField"
+#JwtTokenTypeConfiguration: close({
+	ClaimRegex?:             #ClaimRegex
+	GroupAttributeField?:    #GroupAttributeField
+	Issuer?:                 #Issuer
+	KeyLocation!:            #KeyLocation
+	SecretManagerArn?:       #RoleArn
+	URL?:                    #Url
+	UserNameAttributeField?: #UserNameAttributeField
 })
 
-_#defs: "/$defs/Properties/definitions/KeyLocation": "URL" | "SECRET_MANAGER"
+#KeyLocation: "URL" | "SECRET_MANAGER"
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-	string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // Name of index
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1000) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
+#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
 
-_#defs: "/$defs/Properties/definitions/Order": "ASCENDING" | "DESCENDING"
+#Order: "ASCENDING" | "DESCENDING"
 
-_#defs: "/$defs/Properties/definitions/QueryCapacityUnits": int & >=0
+#QueryCapacityUnits: int & >=0
 
-_#defs: "/$defs/Properties/definitions/Relevance": close({
-	Duration?:             _#defs."/$defs/Properties/definitions/Duration"
-	Freshness?:            _#defs."/$defs/Properties/definitions/Freshness"
-	Importance?:           _#defs."/$defs/Properties/definitions/Importance"
-	RankOrder?:            _#defs."/$defs/Properties/definitions/Order"
-	ValueImportanceItems?: _#defs."/$defs/Properties/definitions/ValueImportanceItems"
+#Relevance: close({
+	Duration?:             #Duration
+	Freshness?:            #Freshness
+	Importance?:           #Importance
+	RankOrder?:            #Order
+	ValueImportanceItems?: #ValueImportanceItems
 })
 
 // Role Arn
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(1284) & strings.MinRunes(1)
+#RoleArn: strings.MaxRunes(1284) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Search": close({
+#Search: close({
 	Displayable?: bool
 	Facetable?:   bool
 	Searchable?:  bool
 	Sortable?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close(
-	{KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"},
-)
+#ServerSideEncryptionConfiguration: close({KmsKeyId?: #KmsKeyId})
 
-_#defs: "/$defs/Properties/definitions/StorageCapacityUnits": int & >=0
+#StorageCapacityUnits: int & >=0
 
 // A label for tagging Kendra resources
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -145,34 +133,26 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // List of tags
-_#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#TagList: list.MaxItems(200) & [...] & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/Url": strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^(https?|ftp|file):\\/\\/([^\\s]*)"
+#Url: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file):\\/\\/([^\\s]*)"
 
-_#defs: "/$defs/Properties/definitions/UserContextPolicy": "ATTRIBUTE_FILTER" | "USER_TOKEN"
+#UserContextPolicy: "ATTRIBUTE_FILTER" | "USER_TOKEN"
 
-_#defs: "/$defs/Properties/definitions/UserNameAttributeField": strings.MaxRunes(100) & strings.MinRunes(1)
+#UserNameAttributeField: strings.MaxRunes(100) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/UserTokenConfiguration": close({
-	JsonTokenTypeConfiguration?: _#defs."/$defs/Properties/definitions/JsonTokenTypeConfiguration"
-	JwtTokenTypeConfiguration?:  _#defs."/$defs/Properties/definitions/JwtTokenTypeConfiguration"
+#UserTokenConfiguration: close({
+	JsonTokenTypeConfiguration?: #JsonTokenTypeConfiguration
+	JwtTokenTypeConfiguration?:  #JwtTokenTypeConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/UserTokenConfigurationList": list.MaxItems(1) & [...] & [
-	..._#defs."/$defs/Properties/definitions/UserTokenConfiguration"
-]
+#UserTokenConfigurationList: list.MaxItems(1) & [...] & [...#UserTokenConfiguration]
 
-_#defs: "/$defs/Properties/definitions/ValueImportanceItem": close({
-	Key?:   _#defs."/$defs/Properties/definitions/ValueImportanceItemKey"
-	Value?: _#defs."/$defs/Properties/definitions/Importance"
+#ValueImportanceItem: close({
+	Key?:   #ValueImportanceItemKey
+	Value?: #Importance
 })
 
-_#defs: "/$defs/Properties/definitions/ValueImportanceItemKey": strings.MaxRunes(50) & strings.MinRunes(1)
+#ValueImportanceItemKey: strings.MaxRunes(50) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ValueImportanceItems": [
-	..._#defs."/$defs/Properties/definitions/ValueImportanceItem"
-]
+#ValueImportanceItems: [...#ValueImportanceItem]

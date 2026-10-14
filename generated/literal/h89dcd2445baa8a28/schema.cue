@@ -17,7 +17,7 @@ import (
 // in the *Developer Guide*.
 #Properties: close({
 	// The definition of the input.
-	InputDefinition!: _#defs."/$defs/Properties/definitions/InputDefinition"
+	InputDefinition!: #InputDefinition
 
 	// A brief description of the input.
 	InputDescription?: strings.MaxRunes(1024) & strings.MinRunes(1)
@@ -28,7 +28,7 @@ import (
 	// An array of key-value pairs to apply to this resource.
 	// For more information, see
 	// [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The attributes from the JSON payload that are made available by the input.
@@ -36,7 +36,7 @@ import (
 // ``BatchPutMessage``. Each such message contains a JSON payload. Those
 // attributes (and their paired values) specified here are available for use in
 // the ``condition`` expressions used by detectors.
-_#defs: "/$defs/Properties/definitions/Attribute": close({
+#Attribute: close({
 	// An expression that specifies an attribute-value pair in a JSON structure. Use
 	// this to specify an attribute from the JSON payload that is made available by
 	// the input. Inputs are derived from messages sent to ITE
@@ -50,19 +50,17 @@ _#defs: "/$defs/Properties/definitions/Attribute": close({
 })
 
 // The definition of the input.
-_#defs: "/$defs/Properties/definitions/InputDefinition": close({
+#InputDefinition: close({
 	// The attributes from the JSON payload that are made available by the input.
 	// Inputs are derived from messages sent to the ITE system using
 	// ``BatchPutMessage``. Each such message contains a JSON payload, and those
 	// attributes (and their paired values) specified here are available for use in
 	// the ``condition`` expressions used by detectors that monitor this input.
-	Attributes!: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Attribute"
-	]
+	Attributes!: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Attribute]
 })
 
 // Metadata that can be used to manage the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: string
 

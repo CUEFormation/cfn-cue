@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,77 +17,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An aggregated metric of certain devices in your fleet
-#Properties: close({
-	AggregationField?: strings.MinRunes(1) | fn.#StringExpression
-	AggregationType?:  _#defs."/$defs/Properties/definitions/AggregationType"
-	Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	IndexName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression
-	MetricName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\.]+$" | fn.#StringExpression
-	Period?: int & <=86400 & >=60 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=86400 &
-							>=60,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	QueryString?:  strings.MinRunes(1) | fn.#StringExpression
-	QueryVersion?: string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Unit?: "Bits" |
-		"Bits/Second" |
-		"Bytes" |
-		"Bytes/Second" |
-		"Count" |
-		"Count/Second" |
-		"Gigabits" |
-		"Gigabits/Second" |
-		"Gigabytes" |
-		"Gigabytes/Second" |
-		"Kilobits" |
-		"Kilobits/Second" |
-		"Kilobytes" |
-		"Kilobytes/Second" |
-		"Megabits" |
-		"Megabits/Second" |
-		"Megabytes" |
-		"Megabytes/Second" |
-		"Microseconds" |
-		"Milliseconds" |
-		"None" |
-		"Percent" |
-		"Seconds" |
-		"Terabits" |
-		"Terabits/Second" |
-		"Terabytes" |
-		"Terabytes/Second" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::FleetMetric"
+	Properties!: close({
+		AggregationField?: strings.MinRunes(1) | fn.#StringExpression
+		AggregationType?:  #AggregationType
+		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		IndexName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression
+		MetricName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\.]+$" | fn.#StringExpression
+		Period?: int & <=86400 & >=60 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=86400 &
+								>=60,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		QueryString?:  strings.MinRunes(1) | fn.#StringExpression
+		QueryVersion?: string | fn.#StringExpression
+		Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Unit?: "Bits" |
+			"Bits/Second" |
+			"Bytes" |
+			"Bytes/Second" |
+			"Count" |
+			"Count/Second" |
+			"Gigabits" |
+			"Gigabits/Second" |
+			"Gigabytes" |
+			"Gigabytes/Second" |
+			"Kilobits" |
+			"Kilobits/Second" |
+			"Kilobytes" |
+			"Kilobytes/Second" |
+			"Megabits" |
+			"Megabits/Second" |
+			"Megabytes" |
+			"Megabytes/Second" |
+			"Microseconds" |
+			"Milliseconds" |
+			"None" |
+			"Percent" |
+			"Seconds" |
+			"Terabits" |
+			"Terabits/Second" |
+			"Terabytes" |
+			"Terabytes/Second" |
+			fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AggregationType": close({
+#AggregationType: close({
 	Name!: "Cardinality" | "Percentiles" | "Statistics" | fn.#StringExpression
 	Values!: [...strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::FleetMetric"
-	Properties!: #Properties
-}

@@ -9,29 +9,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Macie AllowList resource schema
-#Properties: close({
-	Criteria!:    _#defs."/$defs/Properties/definitions/Criteria" | fn.#ObjectExpression
-	Description?: string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Macie::AllowList"
+	Properties!: close({
+		// AllowList criteria.
+		Criteria!:    #Criteria
+		Description?: string | fn.#StringExpression
+		Name!:        string | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Criteria": fn.#Object & {...} & matchN(1, [close(
+#Criteria: fn.#Object & {...} & matchN(1, [close(
 	{Regex!: string | fn.#StringExpression},
-), close(
-	{S3WordsList!: _#defs."/$defs/Properties/definitions/S3WordsList" | fn.#ObjectExpression},
-)]) |
+), close({
+	// The S3 location for the AllowList.
+	S3WordsList!: #S3WordsList
+})]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Regex": string | fn.#StringExpression
+#Regex: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3WordsList": close({
+#S3WordsList: close({
 	BucketName!: string | fn.#StringExpression
 	ObjectKey!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "OK" |
+#Status: "OK" |
 	"S3_OBJECT_NOT_FOUND" |
 	"S3_USER_ACCESS_DENIED" |
 	"S3_OBJECT_ACCESS_DENIED" |
@@ -41,12 +46,8 @@ _#defs: "/$defs/Properties/definitions/Status": "OK" |
 	"UNKNOWN_ERROR" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Macie::AllowList"
-	Properties!: #Properties
-}

@@ -13,32 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Contains detailed information about a report plan in AWS Backup Audit Manager.
-#Properties: close({
-	ReportDeliveryChannel!: close({
-		Formats?:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		S3BucketName!: string | fn.#StringExpression
-		S3KeyPrefix?:  string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	ReportPlanDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
-	ReportPlanName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" | fn.#StringExpression
-	ReportPlanTags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	ReportSetting!: close({
-		Accounts?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		FrameworkArns?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		OrganizationUnits?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		Regions?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		ReportTemplate!:    string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::ReportPlan"
+	Properties!: close({
+		ReportDeliveryChannel!: close({
+			Formats?:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+			S3BucketName!: string | fn.#StringExpression
+			S3KeyPrefix?:  string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		ReportPlanDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
+		ReportPlanName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" | fn.#StringExpression
+		ReportPlanTags?: [...#Tag] | fn.#ListExpression
+		ReportSetting!: close({
+			Accounts?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+			FrameworkArns?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+			OrganizationUnits?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+			Regions?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+			ReportTemplate!:    string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::ReportPlan"
-	Properties!: #Properties
-}

@@ -9,14 +9,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::EC2::TransitGatewayPolicyTableEntry Resource Definition
-#Properties: close({
-	PolicyRule!:                  _#defs."/$defs/Properties/definitions/TransitGatewayPolicyRule" | fn.#ObjectExpression
-	PolicyRuleNumber!:            string | fn.#StringExpression
-	TargetRouteTableId!:          string | fn.#StringExpression
-	TransitGatewayPolicyTableId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TransitGatewayPolicyTableEntry"
+	Properties!: close({
+		// The policy rule associated with the entry.
+		PolicyRule!:                  #TransitGatewayPolicyRule
+		PolicyRuleNumber!:            string | fn.#StringExpression
+		TargetRouteTableId!:          string | fn.#StringExpression
+		TransitGatewayPolicyTableId!: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayPolicyRule": close({
+#TransitGatewayPolicyRule: close({
 	DestinationCidrBlock?: string | fn.#StringExpression
 	DestinationPortRange?: string | fn.#StringExpression
 	Protocol?:             string | fn.#StringExpression
@@ -24,7 +28,3 @@ _#defs: "/$defs/Properties/definitions/TransitGatewayPolicyRule": close({
 	SourcePortRange?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayPolicyTableEntry"
-	Properties!: #Properties
-}

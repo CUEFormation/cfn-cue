@@ -9,10 +9,10 @@ import "strings"
 // The ARN of the IAM principal to remove from the pull time update exclusion list.
 #Properties: close({
 	// The ARN of the IAM principal to remove from the pull time update exclusion list.
-	PrincipalArn!: _#defs."/$defs/Properties/definitions/PrincipalArn"
+	PrincipalArn!: #PrincipalArn
 })
 
 // Principal arn that should not update image pull times.
-_#defs: "/$defs/Properties/definitions/PrincipalArn": strings.MaxRunes(200) &
+#PrincipalArn: strings.MaxRunes(200) &
 strings.MinRunes(0) &
 =~"^arn:aws(-[a-z]+)*:iam::[0-9]{12}:(role|user)/[\\w+=,.@-]+(/[\\w+=,.@-]+)*$"

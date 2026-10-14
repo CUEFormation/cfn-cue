@@ -42,9 +42,7 @@ import (
 	LastModifiedBy?: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The list of Well-Architected pillars this goal targets.
-	Pillars!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Pillar"
-	]
+	Pillars!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#Pillar]
 
 	// The Amazon Resource Name (ARN) of the parent Agent Profile that owns this
 	// goal. Pass `!Ref` of the parent AWS::WellArchitected::AgentProfile to flow
@@ -58,8 +56,4 @@ import (
 })
 
 // A Well-Architected pillar the Agent Goal targets.
-_#defs: "/$defs/Properties/definitions/Pillar": "COST_OPTIMIZATION" |
-	"SECURITY" |
-	"RESILIENCE" |
-	"PERFORMANCE" |
-	"OPERATIONAL_EXCELLENCE"
+#Pillar: "COST_OPTIMIZATION" | "SECURITY" | "RESILIENCE" | "PERFORMANCE" | "OPERATIONAL_EXCELLENCE"

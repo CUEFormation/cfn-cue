@@ -185,7 +185,7 @@ import (
 		"workspaces:workspacespool:DesiredUserSessions"
 
 	// The scheduled actions for the scalable target. Duplicates aren't allowed.
-	ScheduledActions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ScheduledAction"]
+	ScheduledActions?: list.UniqueItems() & [...#ScheduledAction]
 
 	// The namespace of the AWS service that provides the resource, or a ``custom-resource``.
 	ServiceNamespace!: "appstream" |
@@ -215,8 +215,8 @@ import (
 	// scale-out activities that are triggered by a scaling policy are suspended.
 	// + For ``ScheduledScalingSuspended``, while a suspension is in effect, all
 	// scaling activities that involve scheduled actions are suspended.
-	SuspendedState?: _#defs."/$defs/Properties/definitions/SuspendedState"
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	SuspendedState?: #SuspendedState
+	Tags?:           list.UniqueItems() & [...#Tag]
 })
 
 // ``ScalableTargetAction`` specifies the minimum and maximum capacity for the
@@ -224,7 +224,7 @@ import (
 // [AWS::ApplicationAutoScaling::ScalableTarget
 // ScheduledAction](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-applicationautoscaling-scalabletarget-scheduledaction.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/ScalableTargetAction": close({
+#ScalableTargetAction: close({
 	// The maximum capacity.
 	MaxCapacity?: int
 
@@ -238,7 +238,7 @@ _#defs: "/$defs/Properties/definitions/ScalableTargetAction": close({
 // For more information, see [Scheduled
 // scaling](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-scheduled-scaling.html)
 // in the *Application Auto Scaling User Guide*.
-_#defs: "/$defs/Properties/definitions/ScheduledAction": close({
+#ScheduledAction: close({
 	// The date and time that the action is scheduled to end, in UTC.
 	EndTime?: string
 
@@ -247,7 +247,7 @@ _#defs: "/$defs/Properties/definitions/ScheduledAction": close({
 	// Application Auto Scaling scales out to the minimum capacity. If the current
 	// capacity is above the maximum capacity, Application Auto Scaling scales in
 	// to the maximum capacity.
-	ScalableTargetAction?: _#defs."/$defs/Properties/definitions/ScalableTargetAction"
+	ScalableTargetAction?: #ScalableTargetAction
 
 	// The schedule for this action. The following formats are supported:
 	// + At expressions - "``at(yyyy-mm-ddThh:mm:ss)``"
@@ -284,7 +284,7 @@ _#defs: "/$defs/Properties/definitions/ScheduledAction": close({
 // For more information, see [Suspending and resuming
 // scaling](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-suspend-resume-scaling.html)
 // in the *Application Auto Scaling User Guide*.
-_#defs: "/$defs/Properties/definitions/SuspendedState": close({
+#SuspendedState: close({
 	// Whether scale in by a target tracking scaling policy or a step scaling policy
 	// is suspended. Set the value to ``true`` if you don't want Application Auto
 	// Scaling to remove capacity when a scaling policy is triggered. The default
@@ -303,7 +303,7 @@ _#defs: "/$defs/Properties/definitions/SuspendedState": close({
 	ScheduledScalingSuspended?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

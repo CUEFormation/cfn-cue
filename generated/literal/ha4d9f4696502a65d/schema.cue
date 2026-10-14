@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 	"time"
 )
 
@@ -12,49 +12,38 @@ import (
 
 // Resource Type definition for AWS::MPA::ApprovalTeam.
 #Properties: close({
-	ApprovalStrategy!: _#defs."/$defs/Properties/definitions/ApprovalStrategy"
-	Approvers!: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Approver"
-	]
+	ApprovalStrategy!:  #ApprovalStrategy
+	Approvers!:         list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#Approver]
 	Arn?:               string
-	CreationTime?:      _#defs."/$defs/Properties/definitions/Timestamp"
+	CreationTime?:      #Timestamp
 	Description!:       strings.MaxRunes(256) & strings.MinRunes(1)
-	LastUpdateTime?:    _#defs."/$defs/Properties/definitions/Timestamp"
+	LastUpdateTime?:    #Timestamp
 	Name!:              strings.MaxRunes(64) & =~"^[a-zA-Z0-9._-]+$"
 	NumberOfApprovers?: int
-	Policies!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Policy"
-	]
-	Status?:           string
-	StatusCode?:       string
-	StatusMessage?:    string
-	Tags?:             _#defs."/$defs/Properties/definitions/Tags"
-	UpdateSessionArn?: string
-	VersionId?:        string
+	Policies!:          list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Policy]
+	Status?:            string
+	StatusCode?:        string
+	StatusMessage?:     string
+	Tags?:              #Tags
+	UpdateSessionArn?:  string
+	VersionId?:         string
 })
 
-_#defs: "/$defs/Properties/definitions/ApprovalStrategy": close(
-	{MofN!: _#defs."/$defs/Properties/definitions/MofNApprovalStrategy"},
-)
+#ApprovalStrategy: close({MofN!: #MofNApprovalStrategy})
 
-_#defs: "/$defs/Properties/definitions/Approver": close({
+#Approver: close({
 	ApproverId?:               string
 	PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1)
 	PrimaryIdentitySourceArn!: strings.MaxRunes(1000)
 	PrimaryIdentityStatus?:    string
-	ResponseTime?:             _#defs."/$defs/Properties/definitions/Timestamp"
+	ResponseTime?:             #Timestamp
 })
 
-_#defs: "/$defs/Properties/definitions/MofNApprovalStrategy": close({MinApprovalsRequired!: int})
+#MofNApprovalStrategy: close({MinApprovalsRequired!: int})
 
-_#defs: "/$defs/Properties/definitions/Policy": null |
-bool |
-number |
-string |
-[...] |
-close({PolicyArn!: strings.MaxRunes(1224)})
+#Policy: null | bool | number | string | [...] | close({PolicyArn!: strings.MaxRunes(1224)})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -68,6 +57,6 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: list.UniqueItems() & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/Timestamp": time.Time
+#Timestamp: time.Time

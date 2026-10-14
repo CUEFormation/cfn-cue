@@ -13,13 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // table that describes the available destination network routes. Each route in
 // the route table specifies the path for traffic to specific resources or
 // networks.
-#Properties: close({
-	ClientVpnEndpointId!:  string | fn.#StringExpression
-	Description?:          string | fn.#StringExpression
-	DestinationCidrBlock!: string | fn.#StringExpression
-	TargetVpcSubnetId?:    string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::ClientVpnRoute"
-	Properties!: #Properties
+	Type!: "AWS::EC2::ClientVpnRoute"
+	Properties!: close({
+		ClientVpnEndpointId!:  string | fn.#StringExpression
+		Description?:          string | fn.#StringExpression
+		DestinationCidrBlock!: string | fn.#StringExpression
+		TargetVpcSubnetId?:    string | fn.#StringExpression
+	})
 }

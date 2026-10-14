@@ -12,13 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a user journey within a Resilience Hub system.
-#Properties: close({
-	Description?:      strings.MaxRunes(500) | fn.#StringExpression
-	Name!:             =~"^[A-Za-z0-9][A-Za-z0-9 _\\-]{1,59}$" | fn.#StringExpression
-	PolicyArn?:        string | fn.#StringExpression
-	SystemIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResilienceHubV2::UserJourney"
-	Properties!: #Properties
+	Type!: "AWS::ResilienceHubV2::UserJourney"
+	Properties!: close({
+		Description?:      strings.MaxRunes(500) | fn.#StringExpression
+		Name!:             =~"^[A-Za-z0-9][A-Za-z0-9 _\\-]{1,59}$" | fn.#StringExpression
+		PolicyArn?:        string | fn.#StringExpression
+		SystemIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

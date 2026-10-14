@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"time"
+	"strings"
 	"list"
 )
 
@@ -16,7 +16,7 @@ import (
 	Arn?: =~"^arn:aws[-a-z]*:bcm-pricing-calculator::[0-9]{12}:bill-scenario/[a-f0-9-]+$"
 
 	// The time period covered by the bill scenario
-	BillInterval?: _#defs."/$defs/Properties/definitions/BillInterval"
+	BillInterval?: #BillInterval
 
 	// The ARN of the cost category group sharing preference
 	CostCategoryGroupSharingPreferenceArn?: strings.MaxRunes(2048) &
@@ -33,7 +33,7 @@ import (
 	FailureMessage?: string
 
 	// The group sharing preference for the bill scenario
-	GroupSharingPreference?: _#defs."/$defs/Properties/definitions/GroupSharingPreference"
+	GroupSharingPreference?: #GroupSharingPreference
 
 	// The unique identifier of the bill scenario
 	Id?: string
@@ -42,22 +42,22 @@ import (
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 
 	// The status of the bill scenario
-	Status?: _#defs."/$defs/Properties/definitions/BillScenarioStatus"
+	Status?: #BillScenarioStatus
 
 	// An array of key-value pairs to apply to this resource
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/BillInterval": close({
+#BillInterval: close({
 	End?:   time.Time
 	Start?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/BillScenarioStatus": "READY" | "LOCKED" | "FAILED"
+#BillScenarioStatus: "READY" | "LOCKED" | "FAILED"
 
-_#defs: "/$defs/Properties/definitions/GroupSharingPreference": "OPEN" | "PRIORITIZED" | "RESTRICTED"
+#GroupSharingPreference: "OPEN" | "PRIORITIZED" | "RESTRICTED"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,41 +14,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A billing group is a set of linked account which belong to the same end
 // customer. It can be seen as a virtual consolidated billing family.
-#Properties: ({
-	AccountGrouping?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	{
-		LinkedAccountIds!: _
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BillingConductor::BillingGroup"
+	Properties!: ({
+		AccountGrouping?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			LinkedAccountIds!: _
+			...
+		} |
+		fn.#ValueExpression
+		PrimaryAccountId!: _
 		...
-	} |
-	fn.#ValueExpression
-	PrimaryAccountId!: _
-	...
-} | {
-	AccountGrouping!: null |
-	bool |
-	number |
-	string |
-	[...] |
-	{
-		ResponsibilityTransferArn!: _
+	} | {
+		AccountGrouping!: null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			ResponsibilityTransferArn!: _
+			...
+		} |
+		fn.#ValueExpression
 		...
-	} |
-	fn.#ValueExpression
-	...
-}) & close({
-	AccountGrouping!:       _#defs."/$defs/Properties/definitions/AccountGrouping"
-	ComputationPreference!: _#defs."/$defs/Properties/definitions/ComputationPreference"
-	Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-	PrimaryAccountId?: =~"[0-9]{12}" | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+	}) & close({
+		AccountGrouping!:       #AccountGrouping
+		ComputationPreference!: #ComputationPreference
+		Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
+		PrimaryAccountId?: =~"[0-9]{12}" | fn.#StringExpression
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccountGrouping": close({
+#AccountGrouping: close({
 	AutoAssociate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LinkedAccountIds?: list.MaxItems(30) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"[0-9]{12}" | fn.#StringExpression
@@ -59,20 +62,16 @@ _#defs: "/$defs/Properties/definitions/AccountGrouping": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BillingGroupStatus": "ACTIVE" | "PRIMARY_ACCOUNT_MISSING" | fn.#StringExpression
+#BillingGroupStatus: "ACTIVE" | "PRIMARY_ACCOUNT_MISSING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ComputationPreference": close({
+#ComputationPreference: close({
 	PricingPlanArn!: =~"arn:aws(-cn)?:billingconductor::(aws|[0-9]{12}):pricingplan/(BasicPricingPlan|Passthrough|[a-zA-Z0-9]{10})" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BillingConductor::BillingGroup"
-	Properties!: #Properties
-}

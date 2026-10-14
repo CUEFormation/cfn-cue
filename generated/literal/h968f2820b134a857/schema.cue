@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"struct"
 	"strings"
+	"struct"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,52 +15,52 @@ import (
 	ComponentName?:    string
 	ComponentVersion?: string
 	InlineRecipe?:     string
-	LambdaFunction?:   _#defs."/$defs/Properties/definitions/LambdaFunctionRecipeSource"
+	LambdaFunction?:   #LambdaFunctionRecipeSource
 	Tags?:             struct.MaxFields(50) & {...}
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentDependencyRequirement": close({
+#ComponentDependencyRequirement: close({
 	DependencyType?:     "SOFT" | "HARD"
 	VersionRequirement?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentPlatform": close({
+#ComponentPlatform: close({
 	Attributes?: close({
 
 		{[=~".+"]: string}})
 	Name?: strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/FilesystemPath": string
+#FilesystemPath: string
 
-_#defs: "/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean": bool
+#LambdaAddGroupOwnerBoolean: bool
 
-_#defs: "/$defs/Properties/definitions/LambdaContainerParams": close({
-	Devices?:        [..._#defs."/$defs/Properties/definitions/LambdaDeviceMount"]
+#LambdaContainerParams: close({
+	Devices?:        [...#LambdaDeviceMount]
 	MemorySizeInKB?: int
 	MountROSysfs?:   bool
-	Volumes?:        [..._#defs."/$defs/Properties/definitions/LambdaVolumeMount"]
+	Volumes?:        [...#LambdaVolumeMount]
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaDeviceMount": close({
-	AddGroupOwner?: _#defs."/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean"
-	Path?:          _#defs."/$defs/Properties/definitions/FilesystemPath"
-	Permission?:    _#defs."/$defs/Properties/definitions/LambdaFilesystemPermission"
+#LambdaDeviceMount: close({
+	AddGroupOwner?: #LambdaAddGroupOwnerBoolean
+	Path?:          #FilesystemPath
+	Permission?:    #LambdaFilesystemPermission
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaEventSource": close({
+#LambdaEventSource: close({
 	Topic?: string
 	Type?:  "PUB_SUB" | "IOT_CORE"
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaExecutionParameters": close({
+#LambdaExecutionParameters: close({
 	EnvironmentVariables?: close({
 
 		{[=~".+"]: string}})
-	EventSources?:             [..._#defs."/$defs/Properties/definitions/LambdaEventSource"]
+	EventSources?:             [...#LambdaEventSource]
 	ExecArgs?:                 [...string]
 	InputPayloadEncodingType?: "json" | "binary"
-	LinuxProcessParams?:       _#defs."/$defs/Properties/definitions/LambdaLinuxProcessParams"
+	LinuxProcessParams?:       #LambdaLinuxProcessParams
 	MaxIdleTimeInSeconds?:     int
 	MaxInstancesCount?:        int
 	MaxQueueSize?:             int
@@ -69,29 +69,29 @@ _#defs: "/$defs/Properties/definitions/LambdaExecutionParameters": close({
 	TimeoutInSeconds?:         int
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaFilesystemPermission": "ro" | "rw"
+#LambdaFilesystemPermission: "ro" | "rw"
 
-_#defs: "/$defs/Properties/definitions/LambdaFunctionRecipeSource": close({
+#LambdaFunctionRecipeSource: close({
 	ComponentDependencies?: close({
 
-		{[=~".*"]: _#defs."/$defs/Properties/definitions/ComponentDependencyRequirement"}})
-	ComponentLambdaParameters?: _#defs."/$defs/Properties/definitions/LambdaExecutionParameters"
+		{[=~".*"]: #ComponentDependencyRequirement}})
+	ComponentLambdaParameters?: #LambdaExecutionParameters
 	ComponentName?:             strings.MaxRunes(128) & strings.MinRunes(1)
-	ComponentPlatforms?:        [..._#defs."/$defs/Properties/definitions/ComponentPlatform"]
+	ComponentPlatforms?:        [...#ComponentPlatform]
 	ComponentVersion?:          strings.MaxRunes(64) & strings.MinRunes(1)
 	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MinRunes(1) &
 	=~"^arn:[^:]*:lambda:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaLinuxProcessParams": close({
-	ContainerParams?: _#defs."/$defs/Properties/definitions/LambdaContainerParams"
+#LambdaLinuxProcessParams: close({
+	ContainerParams?: #LambdaContainerParams
 	IsolationMode?:   "GreengrassContainer" | "NoContainer"
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaVolumeMount": close({
-	AddGroupOwner?:   _#defs."/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean"
-	DestinationPath?: _#defs."/$defs/Properties/definitions/FilesystemPath"
-	Permission?:      _#defs."/$defs/Properties/definitions/LambdaFilesystemPermission"
-	SourcePath?:      _#defs."/$defs/Properties/definitions/FilesystemPath"
+#LambdaVolumeMount: close({
+	AddGroupOwner?:   #LambdaAddGroupOwnerBoolean
+	DestinationPath?: #FilesystemPath
+	Permission?:      #LambdaFilesystemPermission
+	SourcePath?:      #FilesystemPath
 })

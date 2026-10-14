@@ -55,13 +55,13 @@ import (
 	// different ways, such as by purpose, owner, or environment. For example, you
 	// might want to tag a maintenance window to identify the type of tasks it will
 	// run, the types of targets, and the environment it will run in.
-	Tags?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(1000) & [...] & [...#Tag]
 
 	// The ID of the maintenance window.
 	WindowId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

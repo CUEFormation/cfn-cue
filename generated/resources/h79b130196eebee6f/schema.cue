@@ -13,18 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An Amazon CloudFront VPC origin.
-#Properties: close({
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcOriginEndpointConfig!: _#defs."/$defs/Properties/definitions/VpcOriginEndpointConfig" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::VpcOrigin"
+	Properties!: close({
+		Tags?: [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+		// The VPC origin endpoint configuration.
+		VpcOriginEndpointConfig!: #VpcOriginEndpointConfig
+	})
+}
+
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcOriginEndpointConfig": close({
+#VpcOriginEndpointConfig: close({
 	Arn!: string | fn.#StringExpression
 	HTTPPort?: int |
 		{
@@ -60,7 +65,3 @@ _#defs: "/$defs/Properties/definitions/VpcOriginEndpointConfig": close({
 	OriginSSLProtocols?:   [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::VpcOrigin"
-	Properties!: #Properties
-}

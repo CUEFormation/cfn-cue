@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"list"
+	"strings"
 	"struct"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -31,11 +31,11 @@ import (
 	AuthenticationMaterial?: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[0-9A-Za-z!#$%&()*\\+\\-;<=>?@^_`{|}~\\/: ]+$"
-	AuthenticationMaterialType?: _#defs."/$defs/Properties/definitions/AuthMaterialType"
+	AuthenticationMaterialType?: #AuthMaterialType
 
 	// Brand of the managed thing
 	Brand?:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$"
-	CapabilityReport?: _#defs."/$defs/Properties/definitions/CapabilityReport"
+	CapabilityReport?: #CapabilityReport
 
 	// The certificate data, in PEM format.
 	CertificatePem?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[\\s\\S]*$"
@@ -57,7 +57,7 @@ import (
 
 	// Z-Wave device specific key
 	DeviceSpecificKey?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_.,@\\+\\-]+$"
-	HubNetworkMode?:    _#defs."/$defs/Properties/definitions/HubNetworkMode"
+	HubNetworkMode?:    #HubNetworkMode
 
 	// Unique Id of a Managed Thing.
 	Id?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]*$"
@@ -70,7 +70,7 @@ import (
 
 	// Zigbee mac address
 	MacAddress?: strings.MaxRunes(128) & strings.MinRunes(1)
-	MetaData?:   _#defs."/$defs/Properties/definitions/MetaData"
+	MetaData?:   #MetaData
 
 	// Model of the managed thing
 	Model?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$"
@@ -88,30 +88,28 @@ import (
 
 	// ID of the parent controller for this managed thing entry
 	ParentControllerId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$"
-	ProvisioningStatus?: _#defs."/$defs/Properties/definitions/ProvisioningStatus"
-	Role!:               _#defs."/$defs/Properties/definitions/Role"
+	ProvisioningStatus?: #ProvisioningStatus
+	Role!:               #Role
 
 	// Managed thing serial number
 	SerialNumber?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$"
-	Tags?:         _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?:         #TagsMap
 
 	// Managed thing Universal Product Code (UPC)
 	UniversalProductCode?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$"
 
 	// Timestamp the managed thing was last updated
 	UpdatedAt?:                    time.Time
-	WiFiSimpleSetupConfiguration?: _#defs."/$defs/Properties/definitions/WiFiSimpleSetupConfiguration"
+	WiFiSimpleSetupConfiguration?: #WiFiSimpleSetupConfiguration
 })
 
 // Represent the type of authentication material provided
-_#defs: "/$defs/Properties/definitions/AuthMaterialType": "WIFI_SETUP_QR_BAR_CODE" |
-	"ZWAVE_QR_BAR_CODE" |
-	"ZIGBEE_QR_BAR_CODE"
+#AuthMaterialType: "WIFI_SETUP_QR_BAR_CODE" | "ZWAVE_QR_BAR_CODE" | "ZIGBEE_QR_BAR_CODE"
 
 // Report of all capabilities supported by the device.
-_#defs: "/$defs/Properties/definitions/CapabilityReport": close({
+#CapabilityReport: close({
 	// Endpoints used in Capability Report.
-	Endpoints!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/CapabilityReportEndpoint"]
+	Endpoints!: list.MaxItems(50) & [...] & [...#CapabilityReportEndpoint]
 
 	// Numeric identifier of the node.
 	NodeId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_.,@\\+\\-/]+$"
@@ -121,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/CapabilityReport": close({
 })
 
 // Capability used in Capability Report.
-_#defs: "/$defs/Properties/definitions/CapabilityReportCapability": close({
+#CapabilityReportCapability: close({
 	// Capability actions used in Capability Report.
 	Actions!: list.MaxItems(100) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$"]
 
@@ -144,9 +142,9 @@ _#defs: "/$defs/Properties/definitions/CapabilityReportCapability": close({
 })
 
 // Endpoint used in Capability Report.
-_#defs: "/$defs/Properties/definitions/CapabilityReportEndpoint": close({
+#CapabilityReportEndpoint: close({
 	// Capabilities used in Capability Report.
-	Capabilities!: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/CapabilityReportCapability"]
+	Capabilities!: list.MaxItems(50) & [...] & [...#CapabilityReportCapability]
 
 	// The type of device..
 	DeviceTypes!: list.MaxItems(50) & [...] & [...strings.MaxRunes(256) & =~"^[a-zA-Z0-9=_. ,@\\+\\-/]+$"]
@@ -156,15 +154,15 @@ _#defs: "/$defs/Properties/definitions/CapabilityReportEndpoint": close({
 })
 
 // Network Mode setting of Hub
-_#defs: "/$defs/Properties/definitions/HubNetworkMode": "STANDARD" | "NETWORK_WIDE_EXCLUSION"
+#HubNetworkMode: "STANDARD" | "NETWORK_WIDE_EXCLUSION"
 
 // Meta data associated with the managedThing
-_#defs: "/$defs/Properties/definitions/MetaData": struct.MaxFields(50) & struct.MinFields(1) & close({
+#MetaData: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"[a-zA-Z0-9_.,@/:#-]+"]: strings.MaxRunes(800) & =~"[a-zA-Z0-9_.,@/:#-]*"}})
 
 // Status of a managed thing
-_#defs: "/$defs/Properties/definitions/ProvisioningStatus": "UNASSOCIATED" |
+#ProvisioningStatus: "UNASSOCIATED" |
 	"PRE_ASSOCIATED" |
 	"DISCOVERED" |
 	"ACTIVATED" |
@@ -174,18 +172,18 @@ _#defs: "/$defs/Properties/definitions/ProvisioningStatus": "UNASSOCIATED" |
 	"DELETED"
 
 // Represent the role of a managed thing
-_#defs: "/$defs/Properties/definitions/Role": "CONTROLLER" | "DEVICE"
+#Role: "CONTROLLER" | "DEVICE"
 
 // Tags associated with the resource
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.MinFields(0) & close({
+#TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})
 
 // The Wi-Fi Simple Setup configuration for the managed thing, which defines
 // provisioning capabilities and timeout settings.
-_#defs: "/$defs/Properties/definitions/WiFiSimpleSetupConfiguration": close({
+#WiFiSimpleSetupConfiguration: close({
 	// Indicates whether the device can act as a provisionee in Wi-Fi Simple Setup,
 	// allowing it to be configured by other devices.
 	EnableAsProvisionee?: bool

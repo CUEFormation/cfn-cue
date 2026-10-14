@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::ConfigurationSet
-#Properties: close({
-	ConfigurationSetName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	DefaultSenderId?:      =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	EventDestinations?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/EventDestination"] |
-		fn.#ListExpression
-	MessageFeedbackEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ProtectConfigurationId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::ConfigurationSet"
+	Properties?: close({
+		ConfigurationSetName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
+		DefaultSenderId?:      =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
+		EventDestinations?:    list.MaxItems(5) & [...#EventDestination] | fn.#ListExpression
+		MessageFeedbackEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ProtectConfigurationId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsDestination": close({
+#CloudWatchLogsDestination: close({
 	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:\\S+$" |
 		fn.#StringExpression
@@ -31,27 +34,37 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventDestination": matchN(1, [{
-	CloudWatchLogsDestination!: _
-	...
-}, {
-	KinesisFirehoseDestination!: _
-	...
-}, {
-	SnsDestination!: _
-	...
-}]) & close({
-	CloudWatchLogsDestination?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestination" | fn.#ObjectExpression
+#EventDestination: close({
+	// An object that contains IamRoleArn and LogGroupArn associated with an Amazon
+	// CloudWatch event destination.
+	CloudWatchLogsDestination?: #CloudWatchLogsDestination
 	Enabled!:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EventDestinationName!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination" |
-		fn.#ObjectExpression
-	MatchingEventTypes!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnsDestination?:     _#defs."/$defs/Properties/definitions/SnsDestination" | fn.#ObjectExpression
-}) |
+
+	// An object that contains IamRoleArn and DeliveryStreamArn associated with an
+	// Amazon Kinesis Firehose event destination.
+	KinesisFirehoseDestination?: #KinesisFirehoseDestination
+	MatchingEventTypes!:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+
+	// An object that contains SNS TopicArn event destination.
+	SnsDestination?: #SnsDestination
+	if CloudWatchLogsDestination != _|_ if CloudWatchLogsDestination."Fn::If" == _|_ {
+		KinesisFirehoseDestination?: close({"Fn::If": _}) | error(
+			"KinesisFirehoseDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+		SnsDestination?: close({"Fn::If": _}) | error(
+			"SnsDestination cannot be used with CloudWatchLogsDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+	}
+	if KinesisFirehoseDestination != _|_ if KinesisFirehoseDestination."Fn::If" == _|_ {
+		SnsDestination?: close({"Fn::If": _}) | error(
+			"SnsDestination cannot be used with KinesisFirehoseDestination; set exactly one of CloudWatchLogsDestination, KinesisFirehoseDestination, SnsDestination",
+		)
+	}
+}) & matchN(>=1, [{CloudWatchLogsDestination!: _}, {KinesisFirehoseDestination!: _}, {SnsDestination!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
+#KinesisFirehoseDestination: close({
 	DeliveryStreamArn!: =~"^arn:\\S+$" | fn.#StringExpression
 	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:\\S+$" |
@@ -59,19 +72,15 @@ _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnsDestination": close({
+#SnsDestination: close({
 	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:\\S+$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::ConfigurationSet"
-	Properties?: #Properties
-}

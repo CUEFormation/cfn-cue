@@ -13,39 +13,37 @@ import (
 // your business entity. Invoice units allow you to separate AWS account costs
 // and configures your invoice for each business entity.
 #Properties: close({
-	Description?:            _#defs."/$defs/Properties/definitions/Description"
-	InvoiceReceiver!:        _#defs."/$defs/Properties/definitions/InvoiceReceiver"
-	InvoiceUnitArn?:         _#defs."/$defs/Properties/definitions/InvoiceUnitArn"
-	LastModified?:           _#defs."/$defs/Properties/definitions/LastModified"
-	Name!:                   _#defs."/$defs/Properties/definitions/Name"
-	ResourceTags?:           _#defs."/$defs/Properties/definitions/ResourceTags"
-	Rule!:                   _#defs."/$defs/Properties/definitions/Rule"
-	TaxInheritanceDisabled?: _#defs."/$defs/Properties/definitions/TaxInheritanceDisabled"
+	Description?:            #Description
+	InvoiceReceiver!:        #InvoiceReceiver
+	InvoiceUnitArn?:         #InvoiceUnitArn
+	LastModified?:           #LastModified
+	Name!:                   #Name
+	ResourceTags?:           #ResourceTags
+	Rule!:                   #Rule
+	TaxInheritanceDisabled?: #TaxInheritanceDisabled
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
+#Description: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
 
-_#defs: "/$defs/Properties/definitions/InvoiceReceiver": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$"
+#InvoiceReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$"
 
-_#defs: "/$defs/Properties/definitions/InvoiceUnitArn": strings.MaxRunes(256) &
+#InvoiceUnitArn: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$"
 
-_#defs: "/$defs/Properties/definitions/LastModified": number
+#LastModified: number
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(50) & strings.MinRunes(1)
+#Name: strings.MaxRunes(50) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(200) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceTags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ResourceTag"
-]
+#ResourceTags: list.MaxItems(200) & [...] & [...#ResourceTag]
 
-_#defs: "/$defs/Properties/definitions/Rule": close(
+#Rule: close(
 	{LinkedAccounts!: list.MaxItems(1000) & [...] & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$"]},
 )
 
-_#defs: "/$defs/Properties/definitions/TaxInheritanceDisabled": bool
+#TaxInheritanceDisabled: bool

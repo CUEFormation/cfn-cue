@@ -17,36 +17,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KafkaConnect::Connector
-#Properties: close({
-	Capacity!: _#defs."/$defs/Properties/definitions/Capacity"
-	ConnectorConfiguration!: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KafkaConnect::Connector"
+	Properties!: close({
+		Capacity!: #Capacity
+		ConnectorConfiguration!: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ConnectorDescription?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ConnectorName!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	KafkaCluster!:                     _#defs."/$defs/Properties/definitions/KafkaCluster"
-	KafkaClusterClientAuthentication!: _#defs."/$defs/Properties/definitions/KafkaClusterClientAuthentication"
-	KafkaClusterEncryptionInTransit!:  _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransit"
-	KafkaConnectVersion!:              string | fn.#StringExpression
-	LogDelivery?:                      _#defs."/$defs/Properties/definitions/LogDelivery"
-	NetworkType?:                      "IPV4" | "DUAL" | fn.#StringExpression
-	Plugins!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Plugin"] |
-		fn.#ListExpression
-	ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
-		fn.#StringExpression
-	Tags?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WorkerConfiguration?: _#defs."/$defs/Properties/definitions/WorkerConfiguration"
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ConnectorDescription?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ConnectorName!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		KafkaCluster!:                     #KafkaCluster
+		KafkaClusterClientAuthentication!: #KafkaClusterClientAuthentication
+		KafkaClusterEncryptionInTransit!:  #KafkaClusterEncryptionInTransit
+		KafkaConnectVersion!:              string | fn.#StringExpression
+		LogDelivery?:                      #LogDelivery
+		NetworkType?:                      "IPV4" | "DUAL" | fn.#StringExpression
+		Plugins!:                          list.MinItems(1) & list.UniqueItems() & [...#Plugin] | fn.#ListExpression
+		ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
+			fn.#StringExpression
+		Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		WorkerConfiguration?: #WorkerConfiguration
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ApacheKafkaCluster": close({
+#ApacheKafkaCluster: close({
 	BootstrapServers!: string | fn.#StringExpression
-	Vpc!:              _#defs."/$defs/Properties/definitions/Vpc"
+	Vpc!:              #Vpc
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScaling": close({
+#AutoScaling: close({
 	MaxAutoscalingTaskCount?: int |
 		{
 			string &
@@ -90,30 +92,29 @@ _#defs: "/$defs/Properties/definitions/AutoScaling": close({
 				)
 		} |
 		fn.#NumberExpression
-	ScaleInPolicy!:  _#defs."/$defs/Properties/definitions/ScaleInPolicy"
-	ScaleOutPolicy!: _#defs."/$defs/Properties/definitions/ScaleOutPolicy"
+	ScaleInPolicy!:  #ScaleInPolicy
+	ScaleOutPolicy!: #ScaleOutPolicy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Capacity": matchN(1, [{
-	AutoScaling!: _
-	...
-}, {
-	ProvisionedCapacity!: _
-	...
-}]) & close({
-	AutoScaling?:         _#defs."/$defs/Properties/definitions/AutoScaling"
-	ProvisionedCapacity?: _#defs."/$defs/Properties/definitions/ProvisionedCapacity"
-}) |
+#Capacity: close({
+	AutoScaling?:         #AutoScaling
+	ProvisionedCapacity?: #ProvisionedCapacity
+	if AutoScaling != _|_ if AutoScaling."Fn::If" == _|_ {
+		ProvisionedCapacity?: close({"Fn::If": _}) | error(
+			"ProvisionedCapacity cannot be used with AutoScaling; set exactly one of AutoScaling, ProvisionedCapacity",
+		)
+	}
+}) & matchN(>=1, [{AutoScaling!: _}, {ProvisionedCapacity!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsLogDelivery": close({
+#CloudWatchLogsLogDelivery: close({
 	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroup?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPlugin": close({
+#CustomPlugin: close({
 	CustomPluginArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" | fn.#StringExpression
 	Revision!: int & <=9223372036854776000 & >=1 |
 		{
@@ -134,42 +135,28 @@ _#defs: "/$defs/Properties/definitions/CustomPlugin": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirehoseLogDelivery": close({
+#FirehoseLogDelivery: close({
 	DeliveryStream?: string | fn.#StringExpression
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KafkaCluster": close(
-	{ApacheKafkaCluster!: _#defs."/$defs/Properties/definitions/ApacheKafkaCluster"},
-) |
+#KafkaCluster: close({ApacheKafkaCluster!: #ApacheKafkaCluster}) | fn.#ObjectExpression
+
+#KafkaClusterClientAuthentication: close({AuthenticationType!: #KafkaClusterClientAuthenticationType}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KafkaClusterClientAuthentication": close(
-	{AuthenticationType!: _#defs."/$defs/Properties/definitions/KafkaClusterClientAuthenticationType"},
-) |
-	fn.#ObjectExpression
+#KafkaClusterClientAuthenticationType: "NONE" | "IAM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KafkaClusterClientAuthenticationType": "NONE" | "IAM" | fn.#StringExpression
+#KafkaClusterEncryptionInTransit: close({EncryptionType!: #KafkaClusterEncryptionInTransitType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KafkaClusterEncryptionInTransit": close(
-	{EncryptionType!: _#defs."/$defs/Properties/definitions/KafkaClusterEncryptionInTransitType"},
-) |
-	fn.#ObjectExpression
+#KafkaClusterEncryptionInTransitType: "PLAINTEXT" | "TLS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KafkaClusterEncryptionInTransitType": "PLAINTEXT" | "TLS" | fn.#StringExpression
+#LogDelivery: close({WorkerLogDelivery!: #WorkerLogDelivery}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogDelivery": close(
-	{WorkerLogDelivery!: _#defs."/$defs/Properties/definitions/WorkerLogDelivery"},
-) |
-	fn.#ObjectExpression
+#Plugin: close({CustomPlugin!: #CustomPlugin}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Plugin": close(
-	{CustomPlugin!: _#defs."/$defs/Properties/definitions/CustomPlugin"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ProvisionedCapacity": close({
+#ProvisionedCapacity: close({
 	McuCount!: (==1 | ==2 | ==4 | ==8) & int & <=8 & >=1 | fn.#NumberExpression
 	WorkerCount!: int |
 		{
@@ -188,14 +175,14 @@ _#defs: "/$defs/Properties/definitions/ProvisionedCapacity": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3LogDelivery": close({
+#S3LogDelivery: close({
 	Bucket?:  string | fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
+#ScaleInPolicy: close({
 	CpuUtilizationPercentage!: int & <=100 & >=1 |
 		{
 			string &
@@ -215,7 +202,7 @@ _#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScaleOutPolicy": close({
+#ScaleOutPolicy: close({
 	CpuUtilizationPercentage!: int & <=100 & >=1 |
 		{
 			string &
@@ -235,13 +222,13 @@ _#defs: "/$defs/Properties/definitions/ScaleOutPolicy": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Vpc": close({
+#Vpc: close({
 	SecurityGroups!: list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -251,7 +238,7 @@ _#defs: "/$defs/Properties/definitions/Vpc": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkerConfiguration": close({
+#WorkerConfiguration: close({
 	Revision!: int & <=9223372036854776000 & >=1 |
 		{
 			string &
@@ -272,13 +259,9 @@ _#defs: "/$defs/Properties/definitions/WorkerConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkerLogDelivery": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogDelivery"
-	Firehose?:       _#defs."/$defs/Properties/definitions/FirehoseLogDelivery"
-	S3?:             _#defs."/$defs/Properties/definitions/S3LogDelivery"
+#WorkerLogDelivery: close({
+	CloudWatchLogs?: #CloudWatchLogsLogDelivery
+	Firehose?:       #FirehoseLogDelivery
+	S3?:             #S3LogDelivery
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KafkaConnect::Connector"
-	Properties!: #Properties
-}

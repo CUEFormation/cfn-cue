@@ -18,54 +18,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a monitor, which defines the monitoring boundaries for
 // measurements that Internet Monitor publishes information about for an
 // application
-#Properties: close({
-	HealthEventsConfig?:    _#defs."/$defs/Properties/definitions/HealthEventsConfig"
-	IncludeLinkedAccounts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InternetMeasurementsLogDelivery?: _#defs."/$defs/Properties/definitions/InternetMeasurementsLogDelivery"
-	LinkedAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^(\\d{12})$" | fn.#StringExpression
-	MaxCityNetworksToMonitor?: int & <=500000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=500000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MonitorName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Resources?: [...strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" | fn.#StringExpression] |
-	fn.#ListExpression
-	ResourcesToAdd?:    [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
-	ResourcesToRemove?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
-	Status?:            _#defs."/$defs/Properties/definitions/MonitorConfigState"
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TrafficPercentageToMonitor?: int & <=100 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=100 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InternetMonitor::Monitor"
+	Properties!: close({
+		HealthEventsConfig?:    #HealthEventsConfig
+		IncludeLinkedAccounts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InternetMeasurementsLogDelivery?: #InternetMeasurementsLogDelivery
+		LinkedAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^(\\d{12})$" | fn.#StringExpression
+		MaxCityNetworksToMonitor?: int & <=500000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=500000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MonitorName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+		Resources?: [...strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" | fn.#StringExpression] |
+		fn.#ListExpression
+		ResourcesToAdd?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
+		ResourcesToRemove?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
+		fn.#ListExpression
+		Status?: #MonitorConfigState
+		Tags?:   [...#Tag] | fn.#ListExpression
+		TrafficPercentageToMonitor?: int & <=100 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=100 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/HealthEventsConfig": close({
-	AvailabilityLocalHealthEventsConfig?: _#defs."/$defs/Properties/definitions/LocalHealthEventsConfig"
+#HealthEventsConfig: close({
+	AvailabilityLocalHealthEventsConfig?: #LocalHealthEventsConfig
 	AvailabilityScoreThreshold?: <=100 & >=0 |
 		{
 			string &
@@ -86,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/HealthEventsConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	PerformanceLocalHealthEventsConfig?: _#defs."/$defs/Properties/definitions/LocalHealthEventsConfig"
+	PerformanceLocalHealthEventsConfig?: #LocalHealthEventsConfig
 	PerformanceScoreThreshold?: <=100 & >=0 |
 		{
 			string &
@@ -110,12 +118,9 @@ _#defs: "/$defs/Properties/definitions/HealthEventsConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InternetMeasurementsLogDelivery": close(
-	{S3Config?: _#defs."/$defs/Properties/definitions/S3Config"},
-) |
-	fn.#ObjectExpression
+#InternetMeasurementsLogDelivery: close({S3Config?: #S3Config}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocalHealthEventsConfig": close({
+#LocalHealthEventsConfig: close({
 	HealthScoreThreshold?: <=100 & >=0 |
 		{
 			string &
@@ -160,13 +165,9 @@ _#defs: "/$defs/Properties/definitions/LocalHealthEventsConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonitorConfigState": "PENDING" |
-	"ACTIVE" |
-	"INACTIVE" |
-	"ERROR" |
-	fn.#StringExpression
+#MonitorConfigState: "PENDING" | "ACTIVE" | "INACTIVE" | "ERROR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MonitorProcessingStatusCode": "OK" |
+#MonitorProcessingStatusCode: "OK" |
 	"INACTIVE" |
 	"COLLECTING_DATA" |
 	"INSUFFICIENT_DATA" |
@@ -174,22 +175,18 @@ _#defs: "/$defs/Properties/definitions/MonitorProcessingStatusCode": "OK" |
 	"FAULT_ACCESS_CLOUDWATCH" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Config": close({
+#S3Config: close({
 	BucketName?:        strings.MinRunes(3) | fn.#StringExpression
 	BucketPrefix?:      string | fn.#StringExpression
 	LogDeliveryStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InternetMonitor::Monitor"
-	Properties!: #Properties
-}

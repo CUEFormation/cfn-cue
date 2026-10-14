@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,50 +17,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm Project
-#Properties: close({
-	DefaultJobTimeoutMinutes?: int & <=150 & >=5 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=150 &
-							>=5,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EnvironmentVariables?: list.MaxItems(32) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnvironmentVariable"
-	] |
-		fn.#ListExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[^:]*:iam::[0-9]{12}:role/.+" |
-	fn.#StringExpression
-	Name!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DeviceFarm::Project"
+	Properties!: close({
+		DefaultJobTimeoutMinutes?: int & <=150 & >=5 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=150 &
+								>=5,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EnvironmentVariables?: list.MaxItems(32) & list.MinItems(1) & list.UniqueItems() & [...#EnvironmentVariable] |
+			fn.#ListExpression
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[^:]*:iam::[0-9]{12}:role/.+" |
+		fn.#StringExpression
+		Name!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+		VpcConfig?: #VpcConfig
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Name!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z_0-9]*" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(4096) &
@@ -80,7 +83,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DeviceFarm::Project"
-	Properties!: #Properties
-}

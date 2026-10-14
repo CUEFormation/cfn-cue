@@ -14,20 +14,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A security control in Security Hub describes a security best practice related
 // to a specific resource.
-#Properties: matchN(>=1, [{
-	SecurityControlId!: _
-	...
-}, {
-	SecurityControlArn!: _
-	...
-}]) & close({
-	LastUpdateReason?:   =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
-	Parameters!:         _#defs."/$defs/Properties/definitions/Parameters" | fn.#ObjectExpression
-	SecurityControlArn?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	SecurityControlId?:  _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::SecurityControl"
+	Properties!: close({
+		LastUpdateReason?: =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IntegerList": [
+		// An object that identifies the name of a control parameter, its current value,
+		// and whether it has been customized.
+		Parameters!: #Parameters
+
+		// The Amazon Resource Name (ARN) for a security control across standards, such
+		// as `arn:aws:securityhub:eu-central-1:123456789012:security-control/S3.1`.
+		// This parameter doesn't mention a specific standard.
+		SecurityControlArn?: #NonEmptyString
+
+		// The unique identifier of a security control across standards. Values for this
+		// field typically consist of an AWS service name and a number, such as
+		// APIGateway.3.
+		SecurityControlId?: #NonEmptyString
+	}) & matchN(>=1, [{SecurityControlId!: _}, {SecurityControlArn!: _}])
+}
+
+#IntegerList: [
 	...int |
 		{
 			string &
@@ -45,42 +53,17 @@ _#defs: "/$defs/Properties/definitions/IntegerList": [
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NonEmptyString": =~".*\\S.*" | fn.#StringExpression
+#NonEmptyString: =~".*\\S.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NonEmptyStringList": [..._#defs."/$defs/Properties/definitions/NonEmptyString"] |
-	fn.#ListExpression
+#NonEmptyStringList: [...#NonEmptyString] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
-	Value?:     _#defs."/$defs/Properties/definitions/ParameterValue"
+#ParameterConfiguration: close({
+	Value?:     #ParameterValue
 	ValueType!: "DEFAULT" | "CUSTOM" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": matchN(1, [{
-	Boolean!: _
-	...
-}, {
-	Double!: _
-	...
-}, {
-	Enum!: _
-	...
-}, {
-	EnumList!: _
-	...
-}, {
-	Integer!: _
-	...
-}, {
-	IntegerList!: _
-	...
-}, {
-	String!: _
-	...
-}, {
-	StringList!: _
-	...
-}]) & close({
+#ParameterValue: close({
 	Boolean?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Double?: number |
 		{
@@ -101,8 +84,12 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": matchN(1, [{
 				)
 		} |
 		fn.#NumberExpression
-	Enum?:     _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	EnumList?: _#defs."/$defs/Properties/definitions/NonEmptyStringList" | fn.#ListExpression
+
+	// A control parameter that is a enum.
+	Enum?: #NonEmptyString
+
+	// A control parameter that is a list of enums.
+	EnumList?: #NonEmptyStringList
 	Integer?: int |
 		{
 			string &
@@ -117,17 +104,136 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": matchN(1, [{
 				)
 		} |
 		fn.#NumberExpression
-	IntegerList?: _#defs."/$defs/Properties/definitions/IntegerList" | fn.#ListExpression
-	String?:      _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	StringList?:  _#defs."/$defs/Properties/definitions/NonEmptyStringList" | fn.#ListExpression
-}) |
+
+	// A control parameter that is a list of integers.
+	IntegerList?: #IntegerList
+
+	// A control parameter that is a string.
+	String?: #NonEmptyString
+
+	// A control parameter that is a list of strings.
+	StringList?: #NonEmptyStringList
+	if Boolean != _|_ if Boolean."Fn::If" == _|_ {
+		Double?: close({"Fn::If": _}) | error(
+			"Double cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Enum?: close({"Fn::If": _}) | error(
+			"Enum cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		EnumList?: close({"Fn::If": _}) | error(
+			"EnumList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Integer?: close({"Fn::If": _}) | error(
+			"Integer cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if Double != _|_ if Double."Fn::If" == _|_ {
+		Enum?: close({"Fn::If": _}) | error(
+			"Enum cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		EnumList?: close({"Fn::If": _}) | error(
+			"EnumList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Integer?: close({"Fn::If": _}) | error(
+			"Integer cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if Enum != _|_ if Enum."Fn::If" == _|_ {
+		EnumList?: close({"Fn::If": _}) | error(
+			"EnumList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Integer?: close({"Fn::If": _}) | error(
+			"Integer cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if EnumList != _|_ if EnumList."Fn::If" == _|_ {
+		Integer?: close({"Fn::If": _}) | error(
+			"Integer cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if Integer != _|_ if Integer."Fn::If" == _|_ {
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if IntegerList != _|_ if IntegerList."Fn::If" == _|_ {
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with IntegerList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with IntegerList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if String != _|_ if String."Fn::If" == _|_ {
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with String; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{
+		Boolean!: _
+	}, {
+		Double!: _
+	}, {
+		Enum!: _
+	}, {
+		EnumList!: _
+	}, {
+		Integer!: _
+	}, {
+		IntegerList!: _
+	}, {
+		String!: _
+	}, {
+		StringList!: _
+	}],
+) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Parameters": close({
+#Parameters: close({
 
-	{[=~".*\\S.*"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration"}}) |
+	{[=~".*\\S.*"]: #ParameterConfiguration}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::SecurityControl"
-	Properties!: #Properties
-}

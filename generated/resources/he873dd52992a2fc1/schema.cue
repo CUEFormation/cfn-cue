@@ -18,47 +18,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::CodePipeline::Pipeline resource creates a CodePipeline pipeline that
 // describes how software changes go through a release process.
-#Properties: matchN(1, [{
-	ArtifactStore!: _
-	...
-}, {
-	ArtifactStores!: _
-	...
-}]) & close({
-	ArtifactStore?: _#defs."/$defs/Properties/definitions/ArtifactStore" | fn.#ObjectExpression
-	ArtifactStores?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ArtifactStoreMap"] |
-		fn.#ListExpression
-	DisableInboundStageTransitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StageTransition"] |
-		fn.#ListExpression
-	ExecutionMode?:            "QUEUED" | "SUPERSEDED" | "PARALLEL" | fn.#StringExpression
-	Name?:                     string | fn.#StringExpression
-	PipelineType?:             "V1" | "V2" | fn.#StringExpression
-	RestartExecutionOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
-		fn.#StringExpression
-	Stages!: list.MinItems(2) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StageDeclaration"] |
-		fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Triggers?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PipelineTriggerDeclaration"] |
-		fn.#ListExpression
-	Variables?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VariableDeclaration"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodePipeline::Pipeline"
+	Properties!: close({
+		// The S3 bucket where artifacts for the pipeline are stored.
+		ArtifactStore?:                  #ArtifactStore
+		ArtifactStores?:                 list.UniqueItems() & [...#ArtifactStoreMap] | fn.#ListExpression
+		DisableInboundStageTransitions?: list.UniqueItems() & [...#StageTransition] | fn.#ListExpression
+		ExecutionMode?:                  "QUEUED" | "SUPERSEDED" | "PARALLEL" | fn.#StringExpression
+		Name?:                           string | fn.#StringExpression
+		PipelineType?:                   "V1" | "V2" | fn.#StringExpression
+		RestartExecutionOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
+			fn.#StringExpression
+		Stages!:    list.MinItems(2) & list.UniqueItems() & [...#StageDeclaration] | fn.#ListExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+		Triggers?:  list.UniqueItems() & [...#PipelineTriggerDeclaration] | fn.#ListExpression
+		Variables?: list.UniqueItems() & [...#VariableDeclaration] | fn.#ListExpression
+		if ArtifactStore != _|_ if ArtifactStore."Fn::If" == _|_ {
+			ArtifactStores?: close({"Fn::If": _}) | error(
+				"ArtifactStores cannot be used with ArtifactStore; set exactly one of ArtifactStore, ArtifactStores",
+			)
+		}
+	}) & matchN(>=1, [{ArtifactStore!: _}, {ArtifactStores!: _}])
+}
 
-_#defs: "/$defs/Properties/definitions/ActionDeclaration": close({
-	ActionTypeId!:  _#defs."/$defs/Properties/definitions/ActionTypeId"
-	Commands?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	Configuration?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	EnvironmentVariables?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] |
-		fn.#ListExpression
-	InputArtifacts?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InputArtifact"] | fn.#ListExpression
-	Name!:           =~"^[A-Za-z0-9.@\\-_]{1,100}$" | fn.#StringExpression
-	Namespace?:      string | fn.#StringExpression
-	OutputArtifacts?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OutputArtifact"] |
-		fn.#ListExpression
-	OutputVariables?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Region?:          string | fn.#StringExpression
+#ActionDeclaration: close({
+	ActionTypeId!:         #ActionTypeId
+	Commands?:             [...string | fn.#StringExpression] | fn.#ListExpression
+	Configuration?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	EnvironmentVariables?: list.UniqueItems() & [...#EnvironmentVariable] | fn.#ListExpression
+	InputArtifacts?:       list.UniqueItems() & [...#InputArtifact] | fn.#ListExpression
+	Name!:                 =~"^[A-Za-z0-9.@\\-_]{1,100}$" | fn.#StringExpression
+	Namespace?:            string | fn.#StringExpression
+	OutputArtifacts?:      list.UniqueItems() & [...#OutputArtifact] | fn.#ListExpression
+	OutputVariables?:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Region?:               string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
 		fn.#StringExpression
@@ -93,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/ActionDeclaration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ActionTypeId": close({
+#ActionTypeId: close({
 	Category!: "Source" | "Build" | "Test" | "Deploy" | "Invoke" | "Approval" | "Compute" | fn.#StringExpression
 	Owner!:    string | fn.#StringExpression
 	Provider!: string | fn.#StringExpression
@@ -101,126 +97,122 @@ _#defs: "/$defs/Properties/definitions/ActionTypeId": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ArtifactStore": close({
-	EncryptionKey?: _#defs."/$defs/Properties/definitions/EncryptionKey"
+#ArtifactStore: close({
+	EncryptionKey?: #EncryptionKey
 	Location!:      string | fn.#StringExpression
 	Type!:          "S3" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ArtifactStoreMap": close({
-	ArtifactStore!: _#defs."/$defs/Properties/definitions/ArtifactStore"
+#ArtifactStoreMap: close({
+	ArtifactStore!: #ArtifactStore
 	Region!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BeforeEntryConditions": close(
-	{Conditions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression},
-) |
+#BeforeEntryConditions: close({Conditions?: list.UniqueItems() & [...#Condition] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockerDeclaration": close({
+#BlockerDeclaration: close({
 	Name!: string | fn.#StringExpression
 	Type!: "Schedule" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	Result?: string | fn.#StringExpression
-	Rules?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RuleDeclaration"] | fn.#ListExpression
+	Rules?:  list.UniqueItems() & [...#RuleDeclaration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionKey": close({
+#EncryptionKey: close({
 	Id!:   string | fn.#StringExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Name!:  string | fn.#StringExpression
 	Type?:  "PLAINTEXT" | "SECRETS_MANAGER" | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailureConditions": close({
-	Conditions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
+#FailureConditions: close({
+	Conditions?: list.UniqueItems() & [...#Condition] | fn.#ListExpression
 	Result?:     "ROLLBACK" | "RETRY" | fn.#StringExpression
 	RetryConfiguration?: close({RetryMode?: "ALL_ACTIONS" | "FAILED_ACTIONS" | fn.#StringExpression}) |
 		fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitBranchFilterCriteria": close({
+#GitBranchFilterCriteria: close({
 	Excludes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Includes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitConfiguration": close({
-	PullRequest?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GitPullRequestFilter"] |
-		fn.#ListExpression
-	Push?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GitPushFilter"] | fn.#ListExpression
+#GitConfiguration: close({
+	PullRequest?:      list.UniqueItems() & [...#GitPullRequestFilter] | fn.#ListExpression
+	Push?:             list.UniqueItems() & [...#GitPushFilter] | fn.#ListExpression
 	SourceActionName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitFilePathFilterCriteria": close({
+#GitFilePathFilterCriteria: close({
 	Excludes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Includes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitPullRequestFilter": close({
-	Branches?:  _#defs."/$defs/Properties/definitions/GitBranchFilterCriteria"
+#GitPullRequestFilter: close({
+	Branches?:  #GitBranchFilterCriteria
 	Events?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	FilePaths?: _#defs."/$defs/Properties/definitions/GitFilePathFilterCriteria"
+	FilePaths?: #GitFilePathFilterCriteria
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitPushFilter": close({
-	Branches?:  _#defs."/$defs/Properties/definitions/GitBranchFilterCriteria"
-	FilePaths?: _#defs."/$defs/Properties/definitions/GitFilePathFilterCriteria"
-	Tags?:      _#defs."/$defs/Properties/definitions/GitTagFilterCriteria"
+#GitPushFilter: close({
+	Branches?:  #GitBranchFilterCriteria
+	FilePaths?: #GitFilePathFilterCriteria
+	Tags?:      #GitTagFilterCriteria
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitTagFilterCriteria": close({
+#GitTagFilterCriteria: close({
 	Excludes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Includes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputArtifact": close({Name!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#InputArtifact: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutputArtifact": close({
+#OutputArtifact: close({
 	Files?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Name!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipelineTriggerDeclaration": close({
-	GitConfiguration?: _#defs."/$defs/Properties/definitions/GitConfiguration"
+#PipelineTriggerDeclaration: close({
+	GitConfiguration?: #GitConfiguration
 	ProviderType!:     "CodeStarSourceConnection" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleDeclaration": close({
+#RuleDeclaration: close({
 	Commands?:       [...string | fn.#StringExpression] | fn.#ListExpression
 	Configuration?:  fn.#Object & {...} | fn.#ObjectExpression
-	InputArtifacts?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InputArtifact"] | fn.#ListExpression
+	InputArtifacts?: list.UniqueItems() & [...#InputArtifact] | fn.#ListExpression
 	Name?:           string | fn.#StringExpression
 	Region?:         string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
 		fn.#StringExpression
-	RuleTypeId?: _#defs."/$defs/Properties/definitions/RuleTypeId"
+	RuleTypeId?: #RuleTypeId
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleTypeId": close({
+#RuleTypeId: close({
 	Category?: string | fn.#StringExpression
 	Owner?:    string | fn.#StringExpression
 	Provider?: string | fn.#StringExpression
@@ -228,42 +220,34 @@ _#defs: "/$defs/Properties/definitions/RuleTypeId": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StageDeclaration": close({
-	Actions!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ActionDeclaration"] |
-		fn.#ListExpression
-	BeforeEntry?: _#defs."/$defs/Properties/definitions/BeforeEntryConditions" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	Blockers?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockerDeclaration"] | fn.#ListExpression
-	Name!:      string | fn.#StringExpression
-	OnFailure?: _#defs."/$defs/Properties/definitions/FailureConditions" & fn.#Object & {...} | fn.#ObjectExpression
-	OnSuccess?: _#defs."/$defs/Properties/definitions/SuccessConditions" & fn.#Object & {...} | fn.#ObjectExpression
+#StageDeclaration: close({
+	Actions!:     list.MinItems(1) & list.UniqueItems() & [...#ActionDeclaration] | fn.#ListExpression
+	BeforeEntry?: #BeforeEntryConditions & fn.#Object & {...} | fn.#ObjectExpression
+	Blockers?:    list.UniqueItems() & [...#BlockerDeclaration] | fn.#ListExpression
+	Name!:        string | fn.#StringExpression
+	OnFailure?:   #FailureConditions & fn.#Object & {...} | fn.#ObjectExpression
+	OnSuccess?:   #SuccessConditions & fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StageTransition": close({
+#StageTransition: close({
 	Reason!:    string | fn.#StringExpression
 	StageName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SuccessConditions": close(
-	{Conditions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression},
-) |
+#SuccessConditions: close({Conditions?: list.UniqueItems() & [...#Condition] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VariableDeclaration": close({
+#VariableDeclaration: close({
 	DefaultValue?: string | fn.#StringExpression
 	Description?:  string | fn.#StringExpression
 	Name!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodePipeline::Pipeline"
-	Properties!: #Properties
-}

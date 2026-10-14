@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,32 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DMS::MigrationProject
-#Properties: close({
-	Description?:                  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceProfileArn?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceProfileIdentifier?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceProfileName?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	MigrationProjectCreationTime?: strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
-	MigrationProjectIdentifier?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	MigrationProjectName?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SchemaConversionApplicationAttributes?: close({
-		S3BucketPath?:    string | fn.#StringExpression
-		S3BucketRoleArn?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	SourceDataProviderDescriptors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor"
-	] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetDataProviderDescriptors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor"
-	] |
-		fn.#ListExpression
-	TransformationRules?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DMS::MigrationProject"
+	Properties?: close({
+		Description?:                  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceProfileArn?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceProfileIdentifier?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceProfileName?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		MigrationProjectCreationTime?: strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
+		MigrationProjectIdentifier?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		MigrationProjectName?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		SchemaConversionApplicationAttributes?: close({
+			S3BucketPath?:    string | fn.#StringExpression
+			S3BucketRoleArn?: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		SourceDataProviderDescriptors?: list.UniqueItems() & [...#DataProviderDescriptor] | fn.#ListExpression
+		Tags?:                          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetDataProviderDescriptors?: list.UniqueItems() & [...#DataProviderDescriptor] | fn.#ListExpression
+		TransformationRules?:           string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DataProviderDescriptor": close({
+#DataProviderDescriptor: close({
 	DataProviderArn?:        string | fn.#StringExpression
 	DataProviderIdentifier?: string | fn.#StringExpression
 	DataProviderName?:       string | fn.#StringExpression
@@ -48,12 +45,8 @@ _#defs: "/$defs/Properties/definitions/DataProviderDescriptor": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DMS::MigrationProject"
-	Properties?: #Properties
-}

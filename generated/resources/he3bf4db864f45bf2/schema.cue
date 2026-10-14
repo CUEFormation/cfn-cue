@@ -13,40 +13,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage partner account
-#Properties: close({
-	AccountLinked?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PartnerAccountId?: strings.MaxRunes(256) | fn.#StringExpression
-	PartnerType?:      "Sidewalk" | fn.#StringExpression
-	Sidewalk?:         _#defs."/$defs/Properties/definitions/SidewalkAccountInfo" | fn.#ObjectExpression
-	SidewalkResponse?: _#defs."/$defs/Properties/definitions/SidewalkAccountInfoWithFingerprint" | fn.#ObjectExpression
-	SidewalkUpdate?:   _#defs."/$defs/Properties/definitions/SidewalkUpdateAccount" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::PartnerAccount"
+	Properties?: close({
+		AccountLinked?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PartnerAccountId?: strings.MaxRunes(256) | fn.#StringExpression
+		PartnerType?:      "Sidewalk" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SidewalkAccountInfo": close(
+		// The Sidewalk account credentials.
+		Sidewalk?: #SidewalkAccountInfo
+
+		// The Sidewalk account credentials.
+		SidewalkResponse?: #SidewalkAccountInfoWithFingerprint
+
+		// The Sidewalk account credentials.
+		SidewalkUpdate?: #SidewalkUpdateAccount
+		Tags?:           list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#SidewalkAccountInfo: close(
 	{AppServerPrivateKey!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SidewalkAccountInfoWithFingerprint": close({
+#SidewalkAccountInfoWithFingerprint: close({
 	AmazonId?:    strings.MaxRunes(2048) | fn.#StringExpression
 	Arn?:         string | fn.#StringExpression
 	Fingerprint?: strings.MaxRunes(64) & strings.MinRunes(64) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SidewalkUpdateAccount": close(
+#SidewalkUpdateAccount: close(
 	{AppServerPrivateKey?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::PartnerAccount"
-	Properties?: #Properties
-}

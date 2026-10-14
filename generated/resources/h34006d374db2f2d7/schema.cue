@@ -12,13 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GlobalAccelerator::CrossAccountAttachment
-#Properties: close({
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
-	Principals?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(^\\d{12}$|arn:.*)$" | fn.#StringExpression] |
-	fn.#ListExpression
-	Resources?: [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GlobalAccelerator::CrossAccountAttachment"
+	Properties!: close({
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
+		Principals?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(^\\d{12}$|arn:.*)$" | fn.#StringExpression] |
+		fn.#ListExpression
+		Resources?: [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+	})
+}
+
+#Tag: close({
+	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": close({
 	Cidr?:       strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -26,13 +35,3 @@ _#defs: "/$defs/Properties/definitions/Resource": close({
 	Region?:     strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GlobalAccelerator::CrossAccountAttachment"
-	Properties!: #Properties
-}

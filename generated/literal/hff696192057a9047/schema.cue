@@ -9,37 +9,37 @@ import "list"
 // Resource Type definition for AWS::EMR::Cluster
 #Properties: close({
 	AdditionalInfo?:          string | {...}
-	Applications?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Application"]
+	Applications?:            list.UniqueItems() & [...#Application]
 	AutoScalingRole?:         string
-	AutoTerminationPolicy?:   _#defs."/$defs/Properties/definitions/AutoTerminationPolicy"
-	BootstrapActions?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BootstrapActionConfig"]
-	Configurations?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Configuration"]
+	AutoTerminationPolicy?:   #AutoTerminationPolicy
+	BootstrapActions?:        list.UniqueItems() & [...#BootstrapActionConfig]
+	Configurations?:          list.UniqueItems() & [...#Configuration]
 	CustomAmiId?:             string
 	EbsRootVolumeIops?:       int
 	EbsRootVolumeSize?:       int
 	EbsRootVolumeThroughput?: int
 	Id?:                      string
-	Instances!:               _#defs."/$defs/Properties/definitions/JobFlowInstancesConfig"
+	Instances!:               #JobFlowInstancesConfig
 	JobFlowRole!:             string
-	KerberosAttributes?:      _#defs."/$defs/Properties/definitions/KerberosAttributes"
+	KerberosAttributes?:      #KerberosAttributes
 	LogEncryptionKmsKeyId?:   string
 	LogUri?:                  string
-	ManagedScalingPolicy?:    _#defs."/$defs/Properties/definitions/ManagedScalingPolicy"
+	ManagedScalingPolicy?:    #ManagedScalingPolicy
 	MasterPublicDNS?:         string
 	Name!:                    string
 	OSReleaseLabel?:          string
-	PlacementGroupConfigs?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PlacementGroupConfig"]
+	PlacementGroupConfigs?:   list.UniqueItems() & [...#PlacementGroupConfig]
 	ReleaseLabel?:            string
 	ScaleDownBehavior?:       string
 	SecurityConfiguration?:   string
 	ServiceRole!:             string
 	StepConcurrencyLevel?:    int
-	Steps?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StepConfig"]
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"]
+	Steps?:                   list.UniqueItems() & [...#StepConfig]
+	Tags?:                    [...#Tag]
 	VisibleToAllUsers?:       bool
 })
 
-_#defs: "/$defs/Properties/definitions/Application": close({
+#Application: close({
 	AdditionalInfo?: {
 		{[=~"[a-zA-Z0-9]+"]: string}
 		...
@@ -49,21 +49,21 @@ _#defs: "/$defs/Properties/definitions/Application": close({
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/AutoScalingPolicy": close({
-	Constraints!: _#defs."/$defs/Properties/definitions/ScalingConstraints"
-	Rules!:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ScalingRule"]
+#AutoScalingPolicy: close({
+	Constraints!: #ScalingConstraints
+	Rules!:       list.UniqueItems() & [...#ScalingRule]
 })
 
-_#defs: "/$defs/Properties/definitions/AutoTerminationPolicy": close({IdleTimeout?: int})
+#AutoTerminationPolicy: close({IdleTimeout?: int})
 
-_#defs: "/$defs/Properties/definitions/BootstrapActionConfig": close({
+#BootstrapActionConfig: close({
 	Name!:                  string
-	ScriptBootstrapAction!: _#defs."/$defs/Properties/definitions/ScriptBootstrapActionConfig"
+	ScriptBootstrapAction!: #ScriptBootstrapActionConfig
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
+#CloudWatchAlarmDefinition: close({
 	ComparisonOperator!: string
-	Dimensions?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDimension"]
+	Dimensions?:         list.UniqueItems() & [...#MetricDimension]
 	EvaluationPeriods?:  int
 	MetricName!:         string
 	Namespace?:          string
@@ -73,12 +73,12 @@ _#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
 	Unit?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogConfiguration": null | bool | number | string | [...] | {
+#CloudWatchLogConfiguration: null | bool | number | string | [...] | {
 	LogGroupName?: _
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/ComputeLimits": close({
+#ComputeLimits: close({
 	MaximumCapacityUnits!:         int
 	MaximumCoreCapacityUnits?:     int
 	MaximumOnDemandCapacityUnits?: int
@@ -86,79 +86,79 @@ _#defs: "/$defs/Properties/definitions/ComputeLimits": close({
 	UnitType!:                     string
 })
 
-_#defs: "/$defs/Properties/definitions/Configuration": close({
+#Configuration: close({
 	Classification?: string
 	ConfigurationProperties?: {
 		{[=~"[a-zA-Z0-9]+"]: string}
 		...
 	}
-	Configurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Configuration"]
+	Configurations?: list.UniqueItems() & [...#Configuration]
 })
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
-	VolumeSpecification!: _#defs."/$defs/Properties/definitions/VolumeSpecification"
+#EbsBlockDeviceConfig: close({
+	VolumeSpecification!: #VolumeSpecification
 	VolumesPerInstance?:  int
 })
 
-_#defs: "/$defs/Properties/definitions/EbsConfiguration": close({
-	EbsBlockDeviceConfigs?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EbsBlockDeviceConfig"]
+#EbsConfiguration: close({
+	EbsBlockDeviceConfigs?: list.UniqueItems() & [...#EbsBlockDeviceConfig]
 	EbsOptimized?:          bool
 })
 
-_#defs: "/$defs/Properties/definitions/HadoopJarStepConfig": close({
+#HadoopJarStepConfig: close({
 	Args?:           list.UniqueItems() & [...string]
 	Jar!:            string
 	MainClass?:      string
-	StepProperties?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValue"]
+	StepProperties?: list.UniqueItems() & [...#KeyValue]
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetConfig": close({
-	InstanceTypeConfigs?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceTypeConfig"]
-	LaunchSpecifications?:   _#defs."/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications"
+#InstanceFleetConfig: close({
+	InstanceTypeConfigs?:    list.UniqueItems() & [...#InstanceTypeConfig]
+	LaunchSpecifications?:   #InstanceFleetProvisioningSpecifications
 	Name?:                   string
-	ResizeSpecifications?:   _#defs."/$defs/Properties/definitions/InstanceFleetResizingSpecifications"
+	ResizeSpecifications?:   #InstanceFleetResizingSpecifications
 	TargetOnDemandCapacity?: int
 	TargetSpotCapacity?:     int
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications": close({
-	OnDemandSpecification?: _#defs."/$defs/Properties/definitions/OnDemandProvisioningSpecification"
-	SpotSpecification?:     _#defs."/$defs/Properties/definitions/SpotProvisioningSpecification"
+#InstanceFleetProvisioningSpecifications: close({
+	OnDemandSpecification?: #OnDemandProvisioningSpecification
+	SpotSpecification?:     #SpotProvisioningSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetResizingSpecifications": close({
-	OnDemandResizeSpecification?: _#defs."/$defs/Properties/definitions/OnDemandResizingSpecification"
-	SpotResizeSpecification?:     _#defs."/$defs/Properties/definitions/SpotResizingSpecification"
+#InstanceFleetResizingSpecifications: close({
+	OnDemandResizeSpecification?: #OnDemandResizingSpecification
+	SpotResizeSpecification?:     #SpotResizingSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceGroupConfig": close({
-	AutoScalingPolicy?: _#defs."/$defs/Properties/definitions/AutoScalingPolicy"
+#InstanceGroupConfig: close({
+	AutoScalingPolicy?: #AutoScalingPolicy
 	BidPrice?:          string
-	Configurations?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Configuration"]
+	Configurations?:    list.UniqueItems() & [...#Configuration]
 	CustomAmiId?:       string
-	EbsConfiguration?:  _#defs."/$defs/Properties/definitions/EbsConfiguration"
+	EbsConfiguration?:  #EbsConfiguration
 	InstanceCount!:     int
 	InstanceType!:      string
 	Market?:            string
 	Name?:              string
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
+#InstanceTypeConfig: close({
 	BidPrice?:                            string
 	BidPriceAsPercentageOfOnDemandPrice?: number
-	Configurations?:                      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Configuration"]
+	Configurations?:                      list.UniqueItems() & [...#Configuration]
 	CustomAmiId?:                         string
-	EbsConfiguration?:                    _#defs."/$defs/Properties/definitions/EbsConfiguration"
+	EbsConfiguration?:                    #EbsConfiguration
 	InstanceType!:                        string
 	Priority?:                            number
 	WeightedCapacity?:                    int
 })
 
-_#defs: "/$defs/Properties/definitions/JobFlowInstancesConfig": close({
+#JobFlowInstancesConfig: close({
 	AdditionalMasterSecurityGroups?: list.UniqueItems() & [...string]
 	AdditionalSlaveSecurityGroups?:  list.UniqueItems() & [...string]
-	CoreInstanceFleet?:              _#defs."/$defs/Properties/definitions/InstanceFleetConfig"
-	CoreInstanceGroup?:              _#defs."/$defs/Properties/definitions/InstanceGroupConfig"
+	CoreInstanceFleet?:              #InstanceFleetConfig
+	CoreInstanceGroup?:              #InstanceGroupConfig
 	Ec2KeyName?:                     string
 	Ec2SubnetId?:                    string
 	Ec2SubnetIds?:                   list.UniqueItems() & [...string]
@@ -166,17 +166,17 @@ _#defs: "/$defs/Properties/definitions/JobFlowInstancesConfig": close({
 	EmrManagedSlaveSecurityGroup?:   string
 	HadoopVersion?:                  string
 	KeepJobFlowAliveWhenNoSteps?:    bool
-	MasterInstanceFleet?:            _#defs."/$defs/Properties/definitions/InstanceFleetConfig"
-	MasterInstanceGroup?:            _#defs."/$defs/Properties/definitions/InstanceGroupConfig"
-	Placement?:                      _#defs."/$defs/Properties/definitions/PlacementType"
+	MasterInstanceFleet?:            #InstanceFleetConfig
+	MasterInstanceGroup?:            #InstanceGroupConfig
+	Placement?:                      #PlacementType
 	ServiceAccessSecurityGroup?:     string
-	TaskInstanceFleets?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceFleetConfig"]
-	TaskInstanceGroups?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceGroupConfig"]
-	TerminationProtected?:     bool
-	UnhealthyNodeReplacement?: bool
+	TaskInstanceFleets?:             list.UniqueItems() & [...#InstanceFleetConfig]
+	TaskInstanceGroups?:             list.UniqueItems() & [...#InstanceGroupConfig]
+	TerminationProtected?:           bool
+	UnhealthyNodeReplacement?:       bool
 })
 
-_#defs: "/$defs/Properties/definitions/KerberosAttributes": close({
+#KerberosAttributes: close({
 	ADDomainJoinPassword?:             string
 	ADDomainJoinUser?:                 string
 	CrossRealmTrustPrincipalPassword?: string
@@ -184,102 +184,100 @@ _#defs: "/$defs/Properties/definitions/KerberosAttributes": close({
 	Realm!:                            string
 })
 
-_#defs: "/$defs/Properties/definitions/KeyValue": close({
+#KeyValue: close({
 	Key?:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedScalingPolicy": close({
-	ComputeLimits?:               _#defs."/$defs/Properties/definitions/ComputeLimits"
+#ManagedScalingPolicy: close({
+	ComputeLimits?:               #ComputeLimits
 	ScalingStrategy?:             string
 	UtilizationPerformanceIndex?: int
 })
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/OnDemandCapacityReservationOptions": close({
+#OnDemandCapacityReservationOptions: close({
 	CapacityReservationPreference?:       string
 	CapacityReservationResourceGroupArn?: string
 	UsageStrategy?:                       string
 })
 
-_#defs: "/$defs/Properties/definitions/OnDemandProvisioningSpecification": close({
+#OnDemandProvisioningSpecification: close({
 	AllocationStrategy!:         string
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions"
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 })
 
-_#defs: "/$defs/Properties/definitions/OnDemandResizingSpecification": close({
+#OnDemandResizingSpecification: close({
 	AllocationStrategy?:         string
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions"
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 	TimeoutDurationMinutes?:     int
 })
 
-_#defs: "/$defs/Properties/definitions/PlacementGroupConfig": close({
+#PlacementGroupConfig: close({
 	InstanceRole!:      string
 	PlacementStrategy?: string
 })
 
-_#defs: "/$defs/Properties/definitions/PlacementType": close({AvailabilityZone!: string})
+#PlacementType: close({AvailabilityZone!: string})
 
-_#defs: "/$defs/Properties/definitions/ScalingAction": close({
+#ScalingAction: close({
 	Market?:                           string
-	SimpleScalingPolicyConfiguration!: _#defs."/$defs/Properties/definitions/SimpleScalingPolicyConfiguration"
+	SimpleScalingPolicyConfiguration!: #SimpleScalingPolicyConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ScalingConstraints": close({
+#ScalingConstraints: close({
 	MaxCapacity!: int
 	MinCapacity!: int
 })
 
-_#defs: "/$defs/Properties/definitions/ScalingRule": close({
-	Action!:      _#defs."/$defs/Properties/definitions/ScalingAction"
+#ScalingRule: close({
+	Action!:      #ScalingAction
 	Description?: string
 	Name!:        string
-	Trigger!:     _#defs."/$defs/Properties/definitions/ScalingTrigger"
+	Trigger!:     #ScalingTrigger
 })
 
-_#defs: "/$defs/Properties/definitions/ScalingTrigger": close(
-	{CloudWatchAlarmDefinition!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmDefinition"},
-)
+#ScalingTrigger: close({CloudWatchAlarmDefinition!: #CloudWatchAlarmDefinition})
 
-_#defs: "/$defs/Properties/definitions/ScriptBootstrapActionConfig": close({
+#ScriptBootstrapActionConfig: close({
 	Args?: list.UniqueItems() & [...string]
 	Path!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SimpleScalingPolicyConfiguration": close({
+#SimpleScalingPolicyConfiguration: close({
 	AdjustmentType?:    string
 	CoolDown?:          int
 	ScalingAdjustment!: int
 })
 
-_#defs: "/$defs/Properties/definitions/SpotProvisioningSpecification": close({
+#SpotProvisioningSpecification: close({
 	AllocationStrategy?:     string
 	BlockDurationMinutes?:   int
 	TimeoutAction!:          string
 	TimeoutDurationMinutes!: int
 })
 
-_#defs: "/$defs/Properties/definitions/SpotResizingSpecification": close({
+#SpotResizingSpecification: close({
 	AllocationStrategy?:     string
 	TimeoutDurationMinutes?: int
 })
 
-_#defs: "/$defs/Properties/definitions/StepConfig": close({
+#StepConfig: close({
 	ActionOnFailure?: string
-	HadoopJarStep!:   _#defs."/$defs/Properties/definitions/HadoopJarStepConfig"
+	HadoopJarStep!:   #HadoopJarStepConfig
 	Name!:            string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
+#VolumeSpecification: close({
 	Iops?:       int
 	SizeInGB!:   int
 	Throughput?: int

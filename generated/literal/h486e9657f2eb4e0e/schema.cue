@@ -45,9 +45,7 @@ import (
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]{1,512}"
 
 	// The metric transformations.
-	MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MetricTransformation"
-	]
+	MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [...#MetricTransformation]
 })
 
 // Specifies the CW metric dimensions to publish with this metric.
@@ -70,7 +68,7 @@ import (
 // than expected. For more information, see [Creating a Billing Alarm to
 // Monitor Your Estimated
 // Charges](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html).
-_#defs: "/$defs/Properties/definitions/Dimension": close({
+#Dimension: close({
 	// The name for the CW metric dimension that the metric filter creates.
 	// Dimension names must contain only ASCII characters, must include at least one
 	// non-whitespace character, and cannot start with a colon (:).
@@ -86,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/Dimension": close({
 // ``MetricTransformation`` is a property of the ``AWS::Logs::MetricFilter``
 // resource that describes how to transform log streams into a CloudWatch
 // metric.
-_#defs: "/$defs/Properties/definitions/MetricTransformation": close({
+#MetricTransformation: close({
 	// (Optional) The value to emit when a filter pattern does not match a log
 	// event. This value can be null.
 	DefaultValue?: number
@@ -105,9 +103,7 @@ _#defs: "/$defs/Properties/definitions/MetricTransformation": close({
 	// than expected. For more information, see [Creating a Billing Alarm to
 	// Monitor Your Estimated
 	// Charges](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html).
-	Dimensions?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Dimension"
-	]
+	Dimensions?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#Dimension]
 
 	// The name of the CloudWatch metric.
 	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1)

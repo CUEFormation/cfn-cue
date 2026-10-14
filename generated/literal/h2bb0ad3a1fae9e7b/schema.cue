@@ -29,15 +29,15 @@ import "strings"
 
 	// The scaling configuration to apply to the function, including minimum and
 	// maximum execution environment limits.
-	FunctionScalingConfig?: _#defs."/$defs/Properties/definitions/FunctionScalingConfig"
+	FunctionScalingConfig?: #FunctionScalingConfig
 
 	// Specifies a provisioned concurrency configuration for a function's version.
 	// Updates are not supported for this property.
-	ProvisionedConcurrencyConfig?: _#defs."/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration"
+	ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration
 
 	// Specifies the runtime management configuration of a function. Displays
 	// runtimeVersionArn only for Manual.
-	RuntimePolicy?: _#defs."/$defs/Properties/definitions/RuntimePolicy"
+	RuntimePolicy?: #RuntimePolicy
 
 	// The version number.
 	Version?: string
@@ -46,7 +46,7 @@ import "strings"
 // Configuration that defines the scaling behavior for a Lambda Managed
 // Instances function, including the minimum and maximum number of execution
 // environments that can be provisioned.
-_#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
+#FunctionScalingConfig: close({
 	// The maximum number of execution environments that can be provisioned for the function.
 	MaxExecutionEnvironments?: int & <=15000 & >=0
 
@@ -55,13 +55,13 @@ _#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
 })
 
 // A provisioned concurrency configuration for a function's version.
-_#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": close({
+#ProvisionedConcurrencyConfiguration: close({
 	// The amount of provisioned concurrency to allocate for the version.
 	ProvisionedConcurrentExecutions!: int
 })
 
 // Runtime Management Config of a function.
-_#defs: "/$defs/Properties/definitions/RuntimePolicy": close({
+#RuntimePolicy: close({
 	// The ARN of the runtime the function is configured to use. If the runtime
 	// update mode is manual, the ARN is returned, otherwise null is returned.
 	RuntimeVersionArn?: strings.MaxRunes(2048) &

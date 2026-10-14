@@ -16,7 +16,7 @@ import (
 
 	// The configuration for the connector that specifies the third-party cloud
 	// provider connection details.
-	ConnectorConfiguration!: _#defs."/$defs/Properties/definitions/ConnectorConfiguration"
+	ConnectorConfiguration!: #ConnectorConfiguration
 
 	// The time at which the connector was created.
 	CreatedTime?: string
@@ -25,11 +25,11 @@ import (
 	Name?: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// The tags for the connector.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Configuration for connecting to Microsoft Azure.
-_#defs: "/$defs/Properties/definitions/AzureConnectorConfiguration": close({
+#AzureConnectorConfiguration: close({
 	// The Azure client (application) identifier.
 	ClientIdentifier!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -38,13 +38,13 @@ _#defs: "/$defs/Properties/definitions/AzureConnectorConfiguration": close({
 })
 
 // The configuration for the connector. Specify the third-party cloud provider configuration.
-_#defs: "/$defs/Properties/definitions/ConnectorConfiguration": close({
+#ConnectorConfiguration: close({
 	// The configuration for connecting to Microsoft Azure.
-	Azure?: _#defs."/$defs/Properties/definitions/AzureConnectorConfiguration"
+	Azure?: #AzureConnectorConfiguration
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

@@ -14,20 +14,18 @@ import (
 	ArchiveArn?:   string
 	ArchiveId?:    strings.MaxRunes(66) & strings.MinRunes(1)
 	ArchiveName?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$"
-	ArchiveState?: _#defs."/$defs/Properties/definitions/ArchiveState"
+	ArchiveState?: #ArchiveState
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		=~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$"
-	Retention?: _#defs."/$defs/Properties/definitions/ArchiveRetention"
-	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Retention?: #ArchiveRetention
+	Tags?:      list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ArchiveRetention": close(
-	{RetentionPeriod!: _#defs."/$defs/Properties/definitions/RetentionPeriod"},
-)
+#ArchiveRetention: close({RetentionPeriod!: #RetentionPeriod})
 
-_#defs: "/$defs/Properties/definitions/ArchiveState": "ACTIVE" | "PENDING_DELETION"
+#ArchiveState: "ACTIVE" | "PENDING_DELETION"
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": "THREE_MONTHS" |
+#RetentionPeriod: "THREE_MONTHS" |
 	"SIX_MONTHS" |
 	"NINE_MONTHS" |
 	"ONE_YEAR" |
@@ -44,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/RetentionPeriod": "THREE_MONTHS" |
 	"TEN_YEARS" |
 	"PERMANENT"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

@@ -15,31 +15,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A recommender schema defining the set of data columns available for training
 // recommenders and filters under an Amazon Connect Customer Profiles domain.
-#Properties: close({
-	DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Fields!: struct.MaxFields(2) & struct.MinFields(1) & close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::RecommenderSchema"
+	Properties!: close({
+		DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Fields!: struct.MaxFields(2) & struct.MinFields(1) & close({
 
-		{[=~"^.+$"]: list.MaxItems(9) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/RecommenderSchemaField"
-		] |
-			fn.#ListExpression}}) |
-	fn.#ObjectExpression
-	RecommenderSchemaName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+			{[=~"^.+$"]: list.MaxItems(9) & list.MinItems(1) & [...#RecommenderSchemaField] | fn.#ListExpression}}) |
+		fn.#ObjectExpression
+		RecommenderSchemaName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...close({
+			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/RecommenderSchemaField": close({
+#RecommenderSchemaField: close({
 	ContentType?:     "STRING" | "NUMBER" | fn.#StringExpression
 	FeatureType?:     "TEXTUAL" | "CATEGORICAL" | fn.#StringExpression
 	TargetFieldName!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::RecommenderSchema"
-	Properties!: #Properties
-}

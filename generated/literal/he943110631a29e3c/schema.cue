@@ -8,29 +8,29 @@ package schema
 #Properties: close({
 	// The Amazon Resource Number (ARN) of the bridge.
 	BridgeArn!:  string
-	FlowSource?: _#defs."/$defs/Properties/definitions/BridgeFlowSource"
+	FlowSource?: #BridgeFlowSource
 
 	// The name of the source.
 	Name!:          string
-	NetworkSource?: _#defs."/$defs/Properties/definitions/BridgeNetworkSource"
+	NetworkSource?: #BridgeNetworkSource
 })
 
 // The source of the bridge. A flow source originates in MediaConnect as an existing cloud flow.
-_#defs: "/$defs/Properties/definitions/BridgeFlowSource": close({
+#BridgeFlowSource: close({
 	// The ARN of the cloud flow used as a source of this bridge.
 	FlowArn!: string
 
 	// The name of the VPC interface attachment to use for this source.
-	FlowVpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment"
+	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment
 })
 
 // The source of the bridge. A network source originates at your premises.
-_#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
+#BridgeNetworkSource: close({
 	// The network source multicast IP.
 	MulticastIp!: string
 
 	// The settings related to the multicast source.
-	MulticastSourceSettings?: _#defs."/$defs/Properties/definitions/MulticastSourceSettings"
+	MulticastSourceSettings?: #MulticastSourceSettings
 
 	// The network source's gateway network name.
 	NetworkName!: string
@@ -39,19 +39,19 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
 	Port!: int
 
 	// The network source protocol.
-	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum"
+	Protocol!: #ProtocolEnum
 })
 
 // The settings related to the multicast source.
-_#defs: "/$defs/Properties/definitions/MulticastSourceSettings": close({
+#MulticastSourceSettings: close({
 	// The IP address of the source for source-specific multicast (SSM).
 	MulticastSourceIp?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ProtocolEnum": "rtp-fec" | "rtp" | "udp"
+#ProtocolEnum: "rtp-fec" | "rtp" | "udp"
 
 // The settings for attaching a VPC interface to an resource.
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close({
+#VpcInterfaceAttachment: close({
 	// The name of the VPC interface to use for this resource.
 	VpcInterfaceName?: string
 })

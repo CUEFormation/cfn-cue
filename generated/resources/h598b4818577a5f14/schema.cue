@@ -16,16 +16,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for Resiliency Policy.
-#Properties: close({
-	DataLocationConstraint?: "AnyLocation" | "SameContinent" | "SameCountry" | fn.#StringExpression
-	Policy!:                 _#defs."/$defs/Properties/definitions/PolicyMap"
-	PolicyDescription?:      strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	PolicyName!:             =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	Tags?:                   _#defs."/$defs/Properties/definitions/TagMap"
-	Tier!: "MissionCritical" | "Critical" | "Important" | "CoreServices" | "NonCritical" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ResilienceHub::ResiliencyPolicy"
+	Properties!: close({
+		DataLocationConstraint?: "AnyLocation" | "SameContinent" | "SameCountry" | fn.#StringExpression
+		Policy!:                 #PolicyMap
+		PolicyDescription?:      strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		PolicyName!:             =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		Tags?:                   #TagMap
+		Tier!: "MissionCritical" | "Critical" | "Important" | "CoreServices" | "NonCritical" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/FailurePolicy": close({
+#FailurePolicy: close({
 	RpoInSecs!: int |
 		{
 			string &
@@ -57,21 +60,17 @@ _#defs: "/$defs/Properties/definitions/FailurePolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyMap": close({
-	AZ!:       _#defs."/$defs/Properties/definitions/FailurePolicy"
-	Hardware!: _#defs."/$defs/Properties/definitions/FailurePolicy"
-	Region?:   _#defs."/$defs/Properties/definitions/FailurePolicy"
-	Software!: _#defs."/$defs/Properties/definitions/FailurePolicy"
+#PolicyMap: close({
+	AZ!:       #FailurePolicy
+	Hardware!: #FailurePolicy
+	Region?:   #FailurePolicy
+	Software!: #FailurePolicy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
-	{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TagValue"}}) |
+	{[=~".{1,128}"]: #TagValue}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagValue": strings.MaxRunes(256) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResilienceHub::ResiliencyPolicy"
-	Properties!: #Properties
-}
+#TagValue: strings.MaxRunes(256) | fn.#StringExpression

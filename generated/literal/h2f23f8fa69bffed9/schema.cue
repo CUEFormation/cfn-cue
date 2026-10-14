@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,7 +12,7 @@ import (
 // Resource Type definition for AWS::ImageBuilder::ImageRecipe
 #Properties: close({
 	// Specify additional settings and launch scripts for your build instances.
-	AdditionalInstanceConfiguration?: _#defs."/$defs/Properties/definitions/AdditionalInstanceConfiguration"
+	AdditionalInstanceConfiguration?: #AdditionalInstanceConfiguration
 
 	// The tags to apply to the AMI created by this image recipe.
 	AmiTags?: close({
@@ -32,16 +32,16 @@ import (
 	Arn?: =~"^arn:[^:]+:imagebuilder:[^:]+:[^:]+:image-recipe/.+$"
 
 	// The block device mappings to apply when creating images from this recipe.
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/InstanceBlockDeviceMapping"]
+	BlockDeviceMappings?: [...#InstanceBlockDeviceMapping]
 
 	// The components of the image recipe.
-	Components?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentConfiguration"]
+	Components?: list.MinItems(1) & [...#ComponentConfiguration]
 
 	// The description of the image recipe.
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The latest version references of the image recipe.
-	LatestVersion?: _#defs."/$defs/Properties/definitions/LatestVersion"
+	LatestVersion?: #LatestVersion
 
 	// The name of the image recipe.
 	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$"
@@ -62,9 +62,9 @@ import (
 })
 
 // Specify additional settings and launch scripts for your build instances.
-_#defs: "/$defs/Properties/definitions/AdditionalInstanceConfiguration": close({
+#AdditionalInstanceConfiguration: close({
 	// Contains settings for the SSM agent on your build instance.
-	SystemsManagerAgent?: _#defs."/$defs/Properties/definitions/SystemsManagerAgent"
+	SystemsManagerAgent?: #SystemsManagerAgent
 
 	// Use this property to provide commands or a command script to run when you
 	// launch your build instance.
@@ -74,17 +74,17 @@ _#defs: "/$defs/Properties/definitions/AdditionalInstanceConfiguration": close({
 })
 
 // Configuration details of the component.
-_#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
+#ComponentConfiguration: close({
 	// The Amazon Resource Name (ARN) of the component.
 	ComponentArn?:
 		=~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?|third-party):component/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$"
 
 	// A group of parameter settings that are used to configure the component for a specific recipe.
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentParameter"]
+	Parameters?: list.MinItems(1) & [...#ComponentParameter]
 })
 
 // Contains a key/value pair that sets the named component parameter.
-_#defs: "/$defs/Properties/definitions/ComponentParameter": close({
+#ComponentParameter: close({
 	// The name of the component parameter to set.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x00]+$"
 
@@ -93,7 +93,7 @@ _#defs: "/$defs/Properties/definitions/ComponentParameter": close({
 })
 
 // Amazon EBS-specific block device mapping specifications.
-_#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": close({
+#EbsInstanceBlockDeviceSpecification: close({
 	// Use to configure delete on termination of the associated device.
 	DeleteOnTermination?: bool
 
@@ -120,12 +120,12 @@ _#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": clo
 })
 
 // Defines block device mappings for the instance used to configure your image.
-_#defs: "/$defs/Properties/definitions/InstanceBlockDeviceMapping": close({
+#InstanceBlockDeviceMapping: close({
 	// The device to which these mappings apply.
 	DeviceName?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// Use to manage Amazon EBS-specific configuration for this mapping.
-	Ebs?: _#defs."/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification"
+	Ebs?: #EbsInstanceBlockDeviceSpecification
 
 	// Use to remove a mapping from the parent image.
 	NoDevice?: strings.MaxRunes(0) & strings.MinRunes(0)
@@ -135,7 +135,7 @@ _#defs: "/$defs/Properties/definitions/InstanceBlockDeviceMapping": close({
 })
 
 // The latest version references of the image recipe.
-_#defs: "/$defs/Properties/definitions/LatestVersion": close({
+#LatestVersion: close({
 	// The latest version ARN of the created image recipe.
 	Arn?: string
 
@@ -150,7 +150,7 @@ _#defs: "/$defs/Properties/definitions/LatestVersion": close({
 })
 
 // Contains settings for the SSM agent on your build instance.
-_#defs: "/$defs/Properties/definitions/SystemsManagerAgent": close({
+#SystemsManagerAgent: close({
 	// Controls whether the SSM agent is removed from your final build image, prior
 	// to creating the new AMI. If this is set to true, then the agent is removed
 	// from the final image. If it's set to false, then the agent is left in, so

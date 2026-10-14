@@ -15,7 +15,7 @@ import (
 
 	// Contains information about the Amazon Kinesis data stream where you are
 	// sending real-time log data for this real-time log configuration.
-	EndPoints!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EndPoint"]
+	EndPoints!: list.MinItems(1) & [...#EndPoint]
 
 	// A list of fields that are included in each real-time log record. In an API
 	// response, the fields are provided in the same order in which they are sent
@@ -37,10 +37,10 @@ import (
 
 // Contains information about the Amazon Kinesis data stream where you are
 // sending real-time log data for this real-time log configuration.
-_#defs: "/$defs/Properties/definitions/EndPoint": close({
+#EndPoint: close({
 	// Contains information about the Amazon Kinesis data stream where you are
 	// sending real-time log data in a real-time log configuration.
-	KinesisStreamConfig!: _#defs."/$defs/Properties/definitions/KinesisStreamConfig"
+	KinesisStreamConfig!: #KinesisStreamConfig
 
 	// The type of data stream where you are sending real-time log data. The only
 	// valid value is ``Kinesis``.
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/EndPoint": close({
 
 // Contains information about the Amazon Kinesis data stream where you are
 // sending real-time log data.
-_#defs: "/$defs/Properties/definitions/KinesisStreamConfig": close({
+#KinesisStreamConfig: close({
 	// The Amazon Resource Name (ARN) of an IAMlong (IAM) role that CloudFront can
 	// use to send real-time log data to your Kinesis data stream.
 	// For more information the IAM role, see [Real-time log configuration IAM

@@ -9,47 +9,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudFront::StreamingDistribution
-#Properties: close({
-	StreamingDistributionConfig!: _#defs."/$defs/Properties/definitions/StreamingDistributionConfig"
-	Tags!:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::StreamingDistribution"
+	Properties!: close({
+		StreamingDistributionConfig!: #StreamingDistributionConfig
+		Tags!:                        [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Logging": close({
+#Logging: close({
 	Bucket!:  string | fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Origin": close({
+#S3Origin: close({
 	DomainName!:           string | fn.#StringExpression
 	OriginAccessIdentity!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamingDistributionConfig": close({
+#StreamingDistributionConfig: close({
 	Aliases?:        [...string | fn.#StringExpression] | fn.#ListExpression
 	Comment!:        string | fn.#StringExpression
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Logging?:        _#defs."/$defs/Properties/definitions/Logging"
+	Logging?:        #Logging
 	PriceClass?:     string | fn.#StringExpression
-	S3Origin!:       _#defs."/$defs/Properties/definitions/S3Origin"
-	TrustedSigners!: _#defs."/$defs/Properties/definitions/TrustedSigners"
+	S3Origin!:       #S3Origin
+	TrustedSigners!: #TrustedSigners
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrustedSigners": close({
+#TrustedSigners: close({
 	AwsAccountNumbers?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Enabled!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::StreamingDistribution"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,27 +13,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeCommit::Repository
-#Properties: close({
-	Code?: _#defs."/$defs/Properties/definitions/Code" | fn.#ObjectExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(100) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9:/_-]+$" |
-	fn.#StringExpression
-	RepositoryDescription?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	RepositoryName!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Triggers?:              [..._#defs."/$defs/Properties/definitions/RepositoryTrigger"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeCommit::Repository"
+	Properties!: close({
+		// Information about code to be committed to a repository after it is created in
+		// an AWS CloudFormation stack. Information about code is only used in resource
+		// creation. Updates to a stack will not reflect changes made to code
+		// properties after initial resource creation.
+		Code?: #Code
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9:/_-]+$" |
+		fn.#StringExpression
+		RepositoryDescription?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		RepositoryName!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Triggers?:              [...#RepositoryTrigger] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Code": close({
+#Code: close({
 	BranchName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	S3!:         _#defs."/$defs/Properties/definitions/S3" | fn.#ObjectExpression
+
+	// Information about the Amazon S3 bucket that contains a ZIP file of code to be
+	// committed to the repository. Changes to this property are ignored after
+	// initial resource creation.
+	S3!: #S3
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RepositoryTrigger": close({
+#RepositoryTrigger: close({
 	Branches?:       [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	CustomData?:     string | fn.#StringExpression
 	DestinationArn!: string | fn.#StringExpression
@@ -43,19 +54,15 @@ _#defs: "/$defs/Properties/definitions/RepositoryTrigger": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3": close({
+#S3: close({
 	Bucket!:        strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	Key!:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeCommit::Repository"
-	Properties!: #Properties
-}

@@ -12,16 +12,16 @@ import (
 // Resource Type definition for AWS::Notifications::NotificationHub
 #Properties: close({
 	CreationTime?:                 time.Time
-	NotificationHubStatusSummary?: _#defs."/$defs/Properties/definitions/NotificationHubStatusSummary"
-	Region!:                       _#defs."/$defs/Properties/definitions/Region"
+	NotificationHubStatusSummary?: #NotificationHubStatusSummary
+	Region!:                       #Region
 })
 
-_#defs: "/$defs/Properties/definitions/NotificationHubStatus": "ACTIVE" | "REGISTERING" | "DEREGISTERING" | "INACTIVE"
+#NotificationHubStatus: "ACTIVE" | "REGISTERING" | "DEREGISTERING" | "INACTIVE"
 
-_#defs: "/$defs/Properties/definitions/NotificationHubStatusSummary": close({
-	NotificationHubStatus!:       _#defs."/$defs/Properties/definitions/NotificationHubStatus"
+#NotificationHubStatusSummary: close({
+	NotificationHubStatus!:       #NotificationHubStatus
 	NotificationHubStatusReason!: string
 })
 
 // Region that NotificationHub is present in.
-_#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(25) & strings.MinRunes(2)
+#Region: strings.MaxRunes(25) & strings.MinRunes(2)

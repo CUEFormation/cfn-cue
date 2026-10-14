@@ -13,100 +13,91 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an AWS Supply Chain data integration flow.
-#Properties: close({
-	InstanceId!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]+$" | fn.#StringExpression
-	Sources!: list.MaxItems(40) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataIntegrationFlowSource"
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Target!:         _#defs."/$defs/Properties/definitions/DataIntegrationFlowTarget"
-	Transformation!: _#defs."/$defs/Properties/definitions/DataIntegrationFlowTransformation"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SCN::DataIntegrationFlow"
+	Properties!: close({
+		InstanceId!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		fn.#StringExpression
+		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]+$" | fn.#StringExpression
+		Sources!:        list.MaxItems(40) & list.MinItems(1) & [...#DataIntegrationFlowSource] | fn.#ListExpression
+		Tags?:           list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Target!:         #DataIntegrationFlowTarget
+		Transformation!: #DataIntegrationFlowTransformation
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DataIntegrationFlowSource": close({
-	DatasetSource?: _#defs."/$defs/Properties/definitions/DatasetSourceConfiguration"
-	S3Source?:      _#defs."/$defs/Properties/definitions/S3SourceConfiguration"
+#DataIntegrationFlowSource: close({
+	DatasetSource?: #DatasetSourceConfiguration
+	S3Source?:      #S3SourceConfiguration
 	SourceName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_]+$" | fn.#StringExpression
 	SourceType!:    "S3" | "DATASET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataIntegrationFlowTarget": close({
-	DatasetTarget?: _#defs."/$defs/Properties/definitions/DatasetTargetConfiguration"
+#DataIntegrationFlowTarget: close({
+	DatasetTarget?: #DatasetTargetConfiguration
 	TargetType!:    "DATASET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataIntegrationFlowTransformation": close({
-	SqlTransformation?:  _#defs."/$defs/Properties/definitions/SqlTransformationConfiguration"
+#DataIntegrationFlowTransformation: close({
+	SqlTransformation?:  #SqlTransformationConfiguration
 	TransformationType!: "SQL" | "NONE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetOptions": close({
+#DatasetOptions: close({
 	DedupeRecords?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DedupeStrategy?: _#defs."/$defs/Properties/definitions/DedupeStrategy"
+	DedupeStrategy?: #DedupeStrategy
 	LoadType?:       "INCREMENTAL" | "REPLACE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetSourceConfiguration": close({
+#DatasetSourceConfiguration: close({
 	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" | fn.#StringExpression
-	Options?:           _#defs."/$defs/Properties/definitions/DatasetOptions"
+	Options?:           #DatasetOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetTargetConfiguration": close({
+#DatasetTargetConfiguration: close({
 	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" | fn.#StringExpression
-	Options?:           _#defs."/$defs/Properties/definitions/DatasetOptions"
+	Options?:           #DatasetOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DedupeStrategy": close({
-	FieldPriority?: _#defs."/$defs/Properties/definitions/FieldPriorityDedupeStrategyConfiguration"
+#DedupeStrategy: close({
+	FieldPriority?: #FieldPriorityDedupeStrategyConfiguration
 	Type!:          "FIELD_PRIORITY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldPriorityDedupeField": close({
+#FieldPriorityDedupeField: close({
 	Name!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
 	SortOrder!: "ASC" | "DESC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldPriorityDedupeStrategyConfiguration": close({
-	Fields!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FieldPriorityDedupeField"] |
-		fn.#ListExpression
-}) |
+#FieldPriorityDedupeStrategyConfiguration: close(
+	{Fields!: list.MaxItems(10) & list.MinItems(1) & [...#FieldPriorityDedupeField] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Options": close({FileType?: "CSV" | "PARQUET" | "JSON" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#S3Options: close({FileType?: "CSV" | "PARQUET" | "JSON" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3SourceConfiguration": close({
+#S3SourceConfiguration: close({
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" | fn.#StringExpression
-	Options?:    _#defs."/$defs/Properties/definitions/S3Options"
+	Options?:    #S3Options
 	Prefix!:     strings.MaxRunes(700) & strings.MinRunes(0) & =~"^[/A-Za-z0-9._-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqlTransformationConfiguration": close(
-	{Query!: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#SqlTransformationConfiguration: close({Query!: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SCN::DataIntegrationFlow"
-	Properties!: #Properties
-}

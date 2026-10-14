@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,35 +12,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LakeFormation::DataCellsFilter
-#Properties: close({
-	ColumnNames?:    _#defs."/$defs/Properties/definitions/ColumnNames" | fn.#ListExpression
-	ColumnWildcard?: _#defs."/$defs/Properties/definitions/ColumnWildcard" | fn.#ObjectExpression
-	DatabaseName!:   _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name!:           _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	RowFilter?:      _#defs."/$defs/Properties/definitions/RowFilter" | fn.#ObjectExpression
-	TableCatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	TableName!:      _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::DataCellsFilter"
+	Properties!: close({
+		// A list of columns to be included in this Data Cells Filter.
+		ColumnNames?: #ColumnNames
 
-_#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(12) & strings.MinRunes(12) |
-fn.#StringExpression
+		// An object representing the Data Cells Filter's Columns. Either Column Names
+		// or a Wildcard is required
+		ColumnWildcard?: #ColumnWildcard
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"] |
-	fn.#ListExpression
+		// The name of the Database that the Table resides in.
+		DatabaseName!: #NameString
 
-_#defs: "/$defs/Properties/definitions/ColumnWildcard": close(
-	{ExcludedColumnNames?: _#defs."/$defs/Properties/definitions/ColumnNames" | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+		// The desired name of the Data Cells Filter.
+		Name!: #NameString
 
-_#defs: "/$defs/Properties/definitions/NameString": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		// An object representing the Data Cells Filter's Row Filter. Either a Filter
+		// Expression or a Wildcard is required
+		RowFilter?: #RowFilter
 
-_#defs: "/$defs/Properties/definitions/RowFilter": close({
+		// The Catalog Id of the Table on which to create a Data Cells Filter.
+		TableCatalogId!: #CatalogIdString
+
+		// The name of the Table to create a Data Cells Filter for.
+		TableName!: #NameString
+	})
+}
+
+#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
+
+#ColumnNames: [...#NameString] | fn.#ListExpression
+
+#ColumnWildcard: close({
+	// A list of column names to be excluded from the Data Cells Filter.
+	ExcludedColumnNames?: #ColumnNames
+}) |
+fn.#ObjectExpression
+
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+#RowFilter: close({
 	AllRowsWildcard?:  close({}) | fn.#ObjectExpression
 	FilterExpression?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::DataCellsFilter"
-	Properties!: #Properties
-}

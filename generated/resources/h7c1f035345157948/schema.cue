@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,40 +12,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Enable a resource that has been published in the CloudFormation Registry.
-#Properties: matchN(1, [{
-	TypeName!:    _
-	PublisherId!: _
-	Type!:        _
-	...
-}, {
-	PublicTypeArn!: _
-	...
-}]) & close({
-	AutoUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
-	MajorVersion?:  strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
-	PublicTypeArn?: strings.MaxRunes(1024) &
-	=~"arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/.+" |
-	fn.#StringExpression
-	PublisherId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[0-9a-zA-Z-]{1,40}" | fn.#StringExpression
-	Type?:        "RESOURCE" | "MODULE" | "HOOK" | fn.#StringExpression
-	TypeName?:    =~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" | fn.#StringExpression
-	TypeNameAlias?: strings.MaxRunes(204) &
-	strings.MinRunes(10) &
-	=~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" |
-	fn.#StringExpression
-	VersionBump?: "MAJOR" | "MINOR" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFormation::TypeActivation"
+	Properties?: matchN(1, [{
+		TypeName!:    _
+		PublisherId!: _
+		Type!:        _
+		...
+	}, {
+		PublicTypeArn!: _
+		...
+	}]) & close({
+		AutoUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+		// Specifies logging configuration information for a type.
+		LoggingConfig?: #LoggingConfig
+		MajorVersion?:  strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
+		PublicTypeArn?: strings.MaxRunes(1024) &
+		=~"arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/.+" |
+		fn.#StringExpression
+		PublisherId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[0-9a-zA-Z-]{1,40}" | fn.#StringExpression
+		Type?:        "RESOURCE" | "MODULE" | "HOOK" | fn.#StringExpression
+		TypeName?:    =~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" | fn.#StringExpression
+		TypeNameAlias?: strings.MaxRunes(204) &
+		strings.MinRunes(10) &
+		=~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" |
+		fn.#StringExpression
+		VersionBump?: "MAJOR" | "MINOR" | fn.#StringExpression
+	})
+}
+
+#LoggingConfig: close({
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	LogRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::TypeActivation"
-	Properties?: #Properties
-}

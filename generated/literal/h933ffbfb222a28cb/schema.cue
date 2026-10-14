@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"list"
 	"time"
-	"strings"
 	"struct"
 )
 
@@ -15,11 +15,11 @@ import (
 // source databases or data warehouses into Amazon DataZone.
 #Properties: close({
 	// The metadata forms that are to be attached to the assets that this data source works with.
-	AssetFormsInput?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/FormInput"]
+	AssetFormsInput?: list.MaxItems(10) & [...] & [...#FormInput]
 
 	// Configuration of the data source. It can be set to either
 	// glueRunConfiguration or redshiftRunConfiguration.
-	Configuration?: _#defs."/$defs/Properties/definitions/DataSourceConfigurationInput"
+	Configuration?: #DataSourceConfigurationInput
 
 	// The unique identifier of a connection used to fetch relevant parameters from
 	// connection during Datasource run
@@ -42,7 +42,7 @@ import (
 	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$"
 
 	// Specifies whether the data source is enabled.
-	EnableSetting?: _#defs."/$defs/Properties/definitions/EnableSetting"
+	EnableSetting?: #EnableSetting
 
 	// The unique identifier of the Amazon DataZone environment to which the data
 	// source publishes assets.
@@ -78,13 +78,13 @@ import (
 	PublishOnImport?: bool
 
 	// Specifies whether the business name generation is to be enabled for this data source.
-	Recommendation?: _#defs."/$defs/Properties/definitions/RecommendationConfiguration"
+	Recommendation?: #RecommendationConfiguration
 
 	// The schedule of the data source runs.
-	Schedule?: _#defs."/$defs/Properties/definitions/ScheduleConfiguration"
+	Schedule?: #ScheduleConfiguration
 
 	// The status of the data source.
-	Status?: _#defs."/$defs/Properties/definitions/DataSourceStatus"
+	Status?: #DataSourceStatus
 
 	// The type of the data source.
 	Type!: strings.MaxRunes(256) & strings.MinRunes(1)
@@ -93,24 +93,24 @@ import (
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$"
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$"
 
 // The data access role included in the configuration details of the AWS Glue data source.
-_#defs: "/$defs/Properties/definitions/DataAccessRole": =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
+#DataAccessRole: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
 
 // Specifies the configuration of the data source. It can be set to either
 // glueRunConfiguration or redshiftRunConfiguration or
 // sageMakerRunConfiguration.
-_#defs: "/$defs/Properties/definitions/DataSourceConfigurationInput": matchN(1, [close(
-	{GlueRunConfiguration?: _#defs."/$defs/Properties/definitions/GlueRunConfigurationInput"},
+#DataSourceConfigurationInput: matchN(1, [close(
+	{GlueRunConfiguration?: #GlueRunConfigurationInput},
 ), close(
-	{RedshiftRunConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftRunConfigurationInput"},
+	{RedshiftRunConfiguration?: #RedshiftRunConfigurationInput},
 ), close(
-	{SageMakerRunConfiguration?: _#defs."/$defs/Properties/definitions/SageMakerRunConfigurationInput"},
+	{SageMakerRunConfiguration?: #SageMakerRunConfigurationInput},
 )])
 
 // The status of the data source.
-_#defs: "/$defs/Properties/definitions/DataSourceStatus": "CREATING" |
+#DataSourceStatus: "CREATING" |
 	"FAILED_CREATION" |
 	"READY" |
 	"UPDATING" |
@@ -120,36 +120,36 @@ _#defs: "/$defs/Properties/definitions/DataSourceStatus": "CREATING" |
 	"FAILED_DELETION"
 
 // Specifies whether the data source is enabled.
-_#defs: "/$defs/Properties/definitions/EnableSetting": "ENABLED" | "DISABLED"
+#EnableSetting: "ENABLED" | "DISABLED"
 
 // The search filter expression.
-_#defs: "/$defs/Properties/definitions/FilterExpression": close({
+#FilterExpression: close({
 	Expression!: strings.MaxRunes(2048) & strings.MinRunes(1)
-	Type!:       _#defs."/$defs/Properties/definitions/FilterExpressionType"
+	Type!:       #FilterExpressionType
 })
 
 // The search filter expression type.
-_#defs: "/$defs/Properties/definitions/FilterExpressionType": "INCLUDE" | "EXCLUDE"
+#FilterExpressionType: "INCLUDE" | "EXCLUDE"
 
 // The details of a metadata form.
-_#defs: "/$defs/Properties/definitions/FormInput": close({
+#FormInput: close({
 	// The content of the metadata form.
 	Content?: strings.MaxRunes(75000)
 
 	// The name of the metadata form.
-	FormName!: _#defs."/$defs/Properties/definitions/FormName"
+	FormName!: #FormName
 
 	// The ID of the metadata form type.
 	TypeIdentifier?: strings.MaxRunes(385) & strings.MinRunes(1)
 
 	// The revision of the metadata form type.
-	TypeRevision?: _#defs."/$defs/Properties/definitions/TypeRevision"
+	TypeRevision?: #TypeRevision
 })
 
 // The name of the metadata form.
-_#defs: "/$defs/Properties/definitions/FormName": strings.MaxRunes(128) & strings.MinRunes(1)
+#FormName: strings.MaxRunes(128) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/GlueRunConfigurationInput": close({
+#GlueRunConfigurationInput: close({
 	// Specifies whether to automatically import data quality metrics as part of the data source run.
 	AutoImportDataQualityResult?: bool
 
@@ -157,72 +157,70 @@ _#defs: "/$defs/Properties/definitions/GlueRunConfigurationInput": close({
 	CatalogName?: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The data access role included in the configuration details of the AWS Glue data source.
-	DataAccessRole?: _#defs."/$defs/Properties/definitions/DataAccessRole"
+	DataAccessRole?: #DataAccessRole
 
 	// The relational filter configurations included in the configuration details of
 	// the AWS Glue data source.
-	RelationalFilterConfigurations!: [..._#defs."/$defs/Properties/definitions/RelationalFilterConfiguration"]
+	RelationalFilterConfigurations!: [...#RelationalFilterConfiguration]
 })
 
 // The recommendation to be updated as part of the UpdateDataSource action.
-_#defs: "/$defs/Properties/definitions/RecommendationConfiguration": close({
+#RecommendationConfiguration: close({
 	// Specifies whether automatic business name generation is to be enabled or not
 	// as part of the recommendation configuration.
 	EnableBusinessNameGeneration?: bool
 })
 
 // The name of an Amazon Redshift cluster.
-_#defs: "/$defs/Properties/definitions/RedshiftClusterStorage": close({
+#RedshiftClusterStorage: close({
 	// The name of an Amazon Redshift cluster.
 	ClusterName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z].[a-z0-9\\-]*$"
 })
 
 // The ARN of a secret manager for an Amazon Redshift cluster.
-_#defs: "/$defs/Properties/definitions/RedshiftCredentialConfiguration": close({
+#RedshiftCredentialConfiguration: close({
 	// The ARN of a secret manager for an Amazon Redshift cluster.
 	SecretManagerArn!: strings.MaxRunes(256) &
 	=~"^arn:aws[^:]*:secretsmanager:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:secret:.*$"
 })
 
 // The configuration details of the Amazon Redshift data source.
-_#defs: "/$defs/Properties/definitions/RedshiftRunConfigurationInput": close({
+#RedshiftRunConfigurationInput: close({
 	// The data access role included in the configuration details of the Amazon Redshift data source.
-	DataAccessRole?: _#defs."/$defs/Properties/definitions/DataAccessRole"
+	DataAccessRole?: #DataAccessRole
 
 	// The details of the credentials required to access an Amazon Redshift cluster.
-	RedshiftCredentialConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftCredentialConfiguration"
+	RedshiftCredentialConfiguration?: #RedshiftCredentialConfiguration
 
 	// The details of the Amazon Redshift storage as part of the configuration of an
 	// Amazon Redshift data source run.
-	RedshiftStorage?:                _#defs."/$defs/Properties/definitions/RedshiftStorage"
-	RelationalFilterConfigurations!: _#defs."/$defs/Properties/definitions/RelationalFilterConfigurations"
+	RedshiftStorage?:                #RedshiftStorage
+	RelationalFilterConfigurations!: #RelationalFilterConfigurations
 })
 
 // The details of the Amazon Redshift Serverless workgroup storage.
-_#defs: "/$defs/Properties/definitions/RedshiftServerlessStorage": close({
+#RedshiftServerlessStorage: close({
 	// The name of the Amazon Redshift Serverless workgroup.
 	WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"
 })
 
 // The details of the Amazon Redshift storage as part of the configuration of an
 // Amazon Redshift data source run.
-_#defs: "/$defs/Properties/definitions/RedshiftStorage": matchN(1, [close(
-	{RedshiftClusterSource!: _#defs."/$defs/Properties/definitions/RedshiftClusterStorage"},
+#RedshiftStorage: matchN(1, [close(
+	{RedshiftClusterSource!: #RedshiftClusterStorage},
 ), close(
-	{RedshiftServerlessSource!: _#defs."/$defs/Properties/definitions/RedshiftServerlessStorage"},
+	{RedshiftServerlessSource!: #RedshiftServerlessStorage},
 )])
 
-_#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(16) &
-strings.MinRunes(4) &
-=~"[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]"
+#Region: strings.MaxRunes(16) & strings.MinRunes(4) & =~"[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]"
 
 // The relational filter configuration for the data source.
-_#defs: "/$defs/Properties/definitions/RelationalFilterConfiguration": close({
+#RelationalFilterConfiguration: close({
 	// The database name specified in the relational filter configuration for the data source.
 	DatabaseName!: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The filter expressions specified in the relational filter configuration for the data source.
-	FilterExpressions?: [..._#defs."/$defs/Properties/definitions/FilterExpression"]
+	FilterExpressions?: [...#FilterExpression]
 
 	// The schema name specified in the relational filter configuration for the data source.
 	SchemaName?: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -230,28 +228,26 @@ _#defs: "/$defs/Properties/definitions/RelationalFilterConfiguration": close({
 
 // The relational filter configurations included in the configuration details of
 // the Amazon Redshift data source.
-_#defs: "/$defs/Properties/definitions/RelationalFilterConfigurations": [
-	..._#defs."/$defs/Properties/definitions/RelationalFilterConfiguration"
-]
+#RelationalFilterConfigurations: [...#RelationalFilterConfiguration]
 
 // The configuration details of the Amazon SageMaker data source.
-_#defs: "/$defs/Properties/definitions/SageMakerRunConfigurationInput": close({
+#SageMakerRunConfigurationInput: close({
 	// The tracking assets of the Amazon SageMaker run.
-	TrackingAssets!: _#defs."/$defs/Properties/definitions/TrackingAssets"
+	TrackingAssets!: #TrackingAssets
 })
 
 // The schedule of the data source runs.
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
+#ScheduleConfiguration: close({
 	// The schedule of the data source runs.
 	Schedule?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"cron\\((\\b[0-5]?[0-9]\\b) (\\b2[0-3]\\b|\\b[0-1]?[0-9]\\b) (.*){1,5} (.*){1,5} (.*){1,5} (.*){1,5}\\)"
 
 	// The timezone of the data source run.
-	Timezone?: _#defs."/$defs/Properties/definitions/Timezone"
+	Timezone?: #Timezone
 })
 
-_#defs: "/$defs/Properties/definitions/Timezone": "AFRICA_JOHANNESBURG" |
+#Timezone: "AFRICA_JOHANNESBURG" |
 	"AMERICA_MONTREAL" |
 	"AMERICA_SAO_PAULO" |
 	"ASIA_BAHRAIN" |
@@ -317,11 +313,11 @@ _#defs: "/$defs/Properties/definitions/Timezone": "AFRICA_JOHANNESBURG" |
 	"UTC"
 
 // The tracking assets of the Amazon SageMaker run.
-_#defs: "/$defs/Properties/definitions/TrackingAssets": struct.MaxFields(1) & close({
+#TrackingAssets: struct.MaxFields(1) & close({
 
 	{[=~"^.{1,64}$"]: list.MaxItems(500) & [...] & [
 		...=~"^arn:aws[^:]*:sagemaker:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:[\\w+=,.@-]{1,128}/[\\w+=,.@-]{1,256}$"
 	]}})
 
 // The revision of the metadata form type.
-_#defs: "/$defs/Properties/definitions/TypeRevision": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
+#TypeRevision: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"

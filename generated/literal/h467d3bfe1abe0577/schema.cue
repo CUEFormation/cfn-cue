@@ -37,7 +37,7 @@ import (
 	CpuCoreCount?: int & <=368 & >=0
 
 	// The set of diagnostic collection options enabled for the VM cluster.
-	DataCollectionOptions?: _#defs."/$defs/Properties/definitions/DataCollectionOptions"
+	DataCollectionOptions?: #DataCollectionOptions
 
 	// The size of the data disk group, in terabytes (TB), that's allocated for the VM cluster.
 	DataStorageSizeInTBs?: number
@@ -46,7 +46,7 @@ import (
 	DbNodeStorageSizeInGBs?: int
 
 	// The DB nodes that are implicitly created and managed as part of this VM Cluster.
-	DbNodes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DbNode"]
+	DbNodes?: list.UniqueItems() & [...#DbNode]
 
 	// The list of database servers for the VM cluster.
 	DbServers?: list.MaxItems(1024) & list.MinItems(1) & [...string]
@@ -68,7 +68,7 @@ import (
 	Hostname?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$"
 
 	// The AWS Identity and Access Management (IAM) service roles associated with the VM cluster.
-	IamRoles?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IamRole"]
+	IamRoles?: list.UniqueItems() & [...#IamRole]
 
 	// Indicates whether database backups to local Exadata storage is enabled for the VM cluster.
 	IsLocalBackupEnabled?: bool
@@ -125,7 +125,7 @@ import (
 	SystemVersion?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Tags to assign to the Vm Cluster.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The time zone of the VM cluster.
 	TimeZone?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -138,7 +138,7 @@ import (
 })
 
 // Information about the data collection options enabled for a VM cluster.
-_#defs: "/$defs/Properties/definitions/DataCollectionOptions": close({
+#DataCollectionOptions: close({
 	// Indicates whether diagnostic collection is enabled for the VM cluster.
 	IsDiagnosticsEventsEnabled?: bool
 
@@ -151,7 +151,7 @@ _#defs: "/$defs/Properties/definitions/DataCollectionOptions": close({
 
 // A DbNode is a virtual machine that hosts Oracle database instances and
 // provides access to shared storage servers within a VM Cluster
-_#defs: "/$defs/Properties/definitions/DbNode": close({
+#DbNode: close({
 	// The Oracle Cloud ID (OCID) of the backup IP address that's associated with the DB node.
 	BackupIpId?: string
 
@@ -190,7 +190,7 @@ _#defs: "/$defs/Properties/definitions/DbNode": close({
 
 	// The current status of the DB node.
 	Status?: string
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:   [...#Tag]
 
 	// The OCID of the second VNIC.
 	Vnic2Id?: string
@@ -200,7 +200,7 @@ _#defs: "/$defs/Properties/definitions/DbNode": close({
 })
 
 // An AWS Identity and Access Management (IAM) service role associated with the VM cluster.
-_#defs: "/$defs/Properties/definitions/IamRole": close({
+#IamRole: close({
 	// The AWS integration configuration settings for the AWS Identity and Access
 	// Management (IAM) service role.
 	AwsIntegration?: string
@@ -213,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/IamRole": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that's 1 to 128 Unicode
 	// characters in length and can't be prefixed with aws:. You can use any of the
 	// following characters: the set of Unicode letters, digits, whitespace, _, .,

@@ -17,24 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Trigger
-#Properties: close({
-	Actions!:                [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
-	Description?:            strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	EventBatchingCondition?: _#defs."/$defs/Properties/definitions/EventBatchingCondition" | fn.#ObjectExpression
-	Name?:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Predicate?:              _#defs."/$defs/Properties/definitions/Predicate" | fn.#ObjectExpression
-	Schedule?:               string | fn.#StringExpression
-	StartOnCreation?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                   fn.#Object & {...} | string | fn.#StringObjectExpression
-	Type!:                   "CONDITIONAL" | "EVENT" | "ON_DEMAND" | "SCHEDULED" | fn.#StringExpression
-	WorkflowName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Trigger"
+	Properties!: close({
+		Actions!:     [...#Action] | fn.#ListExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	Arguments?:             fn.#Object & {...} | string | fn.#StringObjectExpression
-	CrawlerName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	JobName?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	NotificationProperty?:  _#defs."/$defs/Properties/definitions/NotificationProperty" | fn.#ObjectExpression
+		// Batch condition that must be met (specified number of events received or
+		// batch time window expired) before EventBridge event trigger fires.
+		EventBatchingCondition?: #EventBatchingCondition
+		Name?:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+		// The predicate of this trigger, which defines when it will fire.
+		Predicate?:       #Predicate
+		Schedule?:        string | fn.#StringExpression
+		StartOnCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+		Type!:            "CONDITIONAL" | "EVENT" | "ON_DEMAND" | "SCHEDULED" | fn.#StringExpression
+		WorkflowName?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
+
+#Action: close({
+	Arguments?:   fn.#Object & {...} | string | fn.#StringObjectExpression
+	CrawlerName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	JobName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Specifies configuration properties of a job run notification.
+	NotificationProperty?:  #NotificationProperty
 	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Timeout?: int & >=1 |
 		{
@@ -54,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	CrawlState?:      "CANCELLED" | "CANCELLING" | "ERROR" | "FAILED" | "RUNNING" | "SUCCEEDED" | fn.#StringExpression
 	CrawlerName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	JobName?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -63,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBatchingCondition": close({
+#EventBatchingCondition: close({
 	BatchSize!: int & <=100 & >=1 |
 		{
 			string &
@@ -99,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/EventBatchingCondition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationProperty": close({
+#NotificationProperty: close({
 	NotifyDelayAfter?: int & >=1 |
 		{
 			string &
@@ -118,12 +128,8 @@ _#defs: "/$defs/Properties/definitions/NotificationProperty": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Predicate": close({
-	Conditions?: list.MaxItems(500) & [...] & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
+#Predicate: close({
+	Conditions?: list.MaxItems(500) & [...] & [...#Condition] | fn.#ListExpression
 	Logical?:    "AND" | "ANY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Trigger"
-	Properties!: #Properties
-}

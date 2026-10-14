@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,7 +12,7 @@ import (
 // Resource Type definition for AWS::AppStream::Entitlement
 #Properties: close({
 	AppVisibility!:    "ALL" | "ASSOCIATED"
-	Attributes!:       list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Attribute"]
+	Attributes!:       list.MinItems(1) & list.UniqueItems() & [...#Attribute]
 	CreatedTime?:      string
 	Description?:      strings.MaxRunes(256) & strings.MinRunes(0)
 	LastModifiedTime?: string
@@ -20,7 +20,7 @@ import (
 	StackName!:        =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$"
 })
 
-_#defs: "/$defs/Properties/definitions/Attribute": close({
+#Attribute: close({
 	Name!:  strings.MinRunes(1)
 	Value!: strings.MinRunes(1)
 })

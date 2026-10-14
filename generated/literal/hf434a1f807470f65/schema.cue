@@ -52,7 +52,7 @@ import (
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// A list of the cache nodes in the source cluster.
-	NodeSnapshots?: [..._#defs."/$defs/Properties/definitions/NodeSnapshot"]
+	NodeSnapshots?: [...#NodeSnapshot]
 
 	// The number of cache nodes in the source cluster.
 	NumCacheNodes?: int
@@ -95,7 +95,7 @@ import (
 	SnapshotWindow?: string
 
 	// A list of tags to be added to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The Amazon Resource Name (ARN) for the topic used by the source cluster for
 	// publishing notifications.
@@ -106,7 +106,7 @@ import (
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/NodeSnapshot": close({
+#NodeSnapshot: close({
 	// A unique identifier for the source cluster.
 	CacheClusterId?: string
 
@@ -127,7 +127,7 @@ _#defs: "/$defs/Properties/definitions/NodeSnapshot": close({
 	SnapshotCreateTime?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -11,8 +11,8 @@ import (
 
 // Resource schema for AWS::DataBrew::Job.
 #Properties: close({
-	DataCatalogOutputs?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DataCatalogOutput"]
-	DatabaseOutputs?:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DatabaseOutput"]
+	DataCatalogOutputs?: list.MinItems(1) & [...#DataCatalogOutput]
+	DatabaseOutputs?:    list.MinItems(1) & [...#DatabaseOutput]
 
 	// Dataset name
 	DatasetName?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -24,7 +24,7 @@ import (
 	EncryptionMode?: "SSE-KMS" | "SSE-S3"
 
 	// Job Sample
-	JobSample?: _#defs."/$defs/Properties/definitions/JobSample"
+	JobSample?: #JobSample
 
 	// Log subscription
 	LogSubscription?: "ENABLE" | "DISABLE"
@@ -39,19 +39,19 @@ import (
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Output location
-	OutputLocation?: _#defs."/$defs/Properties/definitions/OutputLocation"
-	Outputs?:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Output"]
+	OutputLocation?: #OutputLocation
+	Outputs?:        list.MinItems(1) & [...#Output]
 
 	// Profile Job configuration
-	ProfileConfiguration?: _#defs."/$defs/Properties/definitions/ProfileConfiguration"
+	ProfileConfiguration?: #ProfileConfiguration
 
 	// Project name
 	ProjectName?: strings.MaxRunes(255) & strings.MinRunes(1)
-	Recipe?:      _#defs."/$defs/Properties/definitions/Recipe"
+	Recipe?:      #Recipe
 
 	// Role arn
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
-	Tags?:    [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:    [...#Tag]
 
 	// Timeout
 	Timeout?: int & >=0
@@ -60,37 +60,35 @@ import (
 	Type!: "PROFILE" | "RECIPE"
 
 	// Data quality rules configuration
-	ValidationConfigurations?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ValidationConfiguration"]
+	ValidationConfigurations?: list.MinItems(1) & [...#ValidationConfiguration]
 })
 
-_#defs: "/$defs/Properties/definitions/AllowedStatistics": close(
-	{Statistics!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Statistic"]},
-)
+#AllowedStatistics: close({Statistics!: list.MinItems(1) & [...#Statistic]})
 
-_#defs: "/$defs/Properties/definitions/ColumnSelector": close({
+#ColumnSelector: close({
 	Name?:  strings.MaxRunes(255) & strings.MinRunes(1)
 	Regex?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnStatisticsConfiguration": close({
-	Selectors?:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSelector"]
-	Statistics!: _#defs."/$defs/Properties/definitions/StatisticsConfiguration"
+#ColumnStatisticsConfiguration: close({
+	Selectors?:  list.MinItems(1) & [...#ColumnSelector]
+	Statistics!: #StatisticsConfiguration
 })
 
 // Output Csv options
-_#defs: "/$defs/Properties/definitions/CsvOutputOptions": close({Delimiter?: strings.MaxRunes(1) & strings.MinRunes(1)})
+#CsvOutputOptions: close({Delimiter?: strings.MaxRunes(1) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/DataCatalogOutput": close({
+#DataCatalogOutput: close({
 	CatalogId?:       strings.MaxRunes(255) & strings.MinRunes(1)
 	DatabaseName!:    strings.MaxRunes(255) & strings.MinRunes(1)
-	DatabaseOptions?: _#defs."/$defs/Properties/definitions/DatabaseTableOutputOptions"
+	DatabaseOptions?: #DatabaseTableOutputOptions
 	Overwrite?:       bool
-	S3Options?:       _#defs."/$defs/Properties/definitions/S3TableOutputOptions"
+	S3Options?:       #S3TableOutputOptions
 	TableName!:       strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DatabaseOutput": close({
-	DatabaseOptions!: _#defs."/$defs/Properties/definitions/DatabaseTableOutputOptions"
+#DatabaseOutput: close({
+	DatabaseOptions!: #DatabaseTableOutputOptions
 
 	// Database table name
 	DatabaseOutputMode?: "NEW_TABLE"
@@ -99,30 +97,30 @@ _#defs: "/$defs/Properties/definitions/DatabaseOutput": close({
 	GlueConnectionName!: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DatabaseTableOutputOptions": close({
+#DatabaseTableOutputOptions: close({
 	TableName!:     strings.MaxRunes(255) & strings.MinRunes(1)
-	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location"
+	TempDirectory?: #S3Location
 })
 
-_#defs: "/$defs/Properties/definitions/EntityDetectorConfiguration": close({
-	AllowedStatistics?: _#defs."/$defs/Properties/definitions/AllowedStatistics"
+#EntityDetectorConfiguration: close({
+	AllowedStatistics?: #AllowedStatistics
 	EntityTypes!:       list.MinItems(1) & [...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z_][A-Z\\\\d_]*$"]
 })
 
 // Job Sample
-_#defs: "/$defs/Properties/definitions/JobSample": close({
-	Mode?: _#defs."/$defs/Properties/definitions/SampleMode"
-	Size?: _#defs."/$defs/Properties/definitions/JobSize"
+#JobSample: close({
+	Mode?: #SampleMode
+	Size?: #JobSize
 })
 
 // Sample configuration size for profile jobs.
-_#defs: "/$defs/Properties/definitions/JobSize": int
+#JobSize: int
 
-_#defs: "/$defs/Properties/definitions/Output": close({
+#Output: close({
 	CompressionFormat?: "GZIP" | "LZ4" | "SNAPPY" | "BZIP2" | "DEFLATE" | "LZO" | "BROTLI" | "ZSTD" | "ZLIB"
 	Format?:            "CSV" | "JSON" | "PARQUET" | "GLUEPARQUET" | "AVRO" | "ORC" | "XML" | "TABLEAUHYPER"
-	FormatOptions?:     _#defs."/$defs/Properties/definitions/OutputFormatOptions"
-	Location!:          _#defs."/$defs/Properties/definitions/S3Location"
+	FormatOptions?:     #OutputFormatOptions
+	Location!:          #S3Location
 	MaxOutputFiles?:    int & <=999 & >=1
 	Overwrite?:         bool
 	PartitionColumns?: list.MaxItems(200) & list.UniqueItems() & [...] & [
@@ -131,31 +129,27 @@ _#defs: "/$defs/Properties/definitions/Output": close({
 })
 
 // Format options for job Output
-_#defs: "/$defs/Properties/definitions/OutputFormatOptions": close(
-	{Csv?: _#defs."/$defs/Properties/definitions/CsvOutputOptions"},
-)
+#OutputFormatOptions: close({Csv?: #CsvOutputOptions})
 
 // Output location
-_#defs: "/$defs/Properties/definitions/OutputLocation": close({
+#OutputLocation: close({
 	Bucket!:      strings.MaxRunes(63) & strings.MinRunes(3)
 	BucketOwner?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 	Key?:         strings.MaxRunes(1280) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterMap": close({
+#ParameterMap: close({
 
 	{[=~"^[A-Za-z0-9]{1,128}$"]: string}})
 
-_#defs: "/$defs/Properties/definitions/ProfileConfiguration": close({
-	ColumnStatisticsConfigurations?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnStatisticsConfiguration"
-	]
-	DatasetStatisticsConfiguration?: _#defs."/$defs/Properties/definitions/StatisticsConfiguration"
-	EntityDetectorConfiguration?:    _#defs."/$defs/Properties/definitions/EntityDetectorConfiguration"
-	ProfileColumns?:                 list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSelector"]
+#ProfileConfiguration: close({
+	ColumnStatisticsConfigurations?: list.MinItems(1) & [...#ColumnStatisticsConfiguration]
+	DatasetStatisticsConfiguration?: #StatisticsConfiguration
+	EntityDetectorConfiguration?:    #EntityDetectorConfiguration
+	ProfileColumns?:                 list.MinItems(1) & [...#ColumnSelector]
 })
 
-_#defs: "/$defs/Properties/definitions/Recipe": close({
+#Recipe: close({
 	// Recipe name
 	Name!: string
 
@@ -164,42 +158,40 @@ _#defs: "/$defs/Properties/definitions/Recipe": close({
 })
 
 // S3 Output location
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:      strings.MaxRunes(63) & strings.MinRunes(3)
 	BucketOwner?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 	Key?:         strings.MaxRunes(1280) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/S3TableOutputOptions": close(
-	{Location!: _#defs."/$defs/Properties/definitions/S3Location"},
-)
+#S3TableOutputOptions: close({Location!: #S3Location})
 
 // Sample configuration mode for profile jobs.
-_#defs: "/$defs/Properties/definitions/SampleMode": "FULL_DATASET" | "CUSTOM_ROWS"
+#SampleMode: "FULL_DATASET" | "CUSTOM_ROWS"
 
-_#defs: "/$defs/Properties/definitions/Statistic": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$"
+#Statistic: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$"
 
-_#defs: "/$defs/Properties/definitions/StatisticOverride": close({
-	Parameters!: _#defs."/$defs/Properties/definitions/ParameterMap"
-	Statistic!:  _#defs."/$defs/Properties/definitions/Statistic"
+#StatisticOverride: close({
+	Parameters!: #ParameterMap
+	Statistic!:  #Statistic
 })
 
-_#defs: "/$defs/Properties/definitions/StatisticsConfiguration": close({
-	IncludedStatistics?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Statistic"]
-	Overrides?:          list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/StatisticOverride"]
+#StatisticsConfiguration: close({
+	IncludedStatistics?: list.MinItems(1) & [...#Statistic]
+	Overrides?:          list.MinItems(1) & [...#StatisticOverride]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // Configuration to attach Rulesets to the job
-_#defs: "/$defs/Properties/definitions/ValidationConfiguration": close({
+#ValidationConfiguration: close({
 	// Arn of the Ruleset
 	RulesetArn!:     strings.MaxRunes(2048) & strings.MinRunes(20)
-	ValidationMode?: _#defs."/$defs/Properties/definitions/ValidationMode"
+	ValidationMode?: #ValidationMode
 })
 
-_#defs: "/$defs/Properties/definitions/ValidationMode": "CHECK_ALL"
+#ValidationMode: "CHECK_ALL"

@@ -14,50 +14,44 @@ import (
 // Definition of AWS::IoTFleetWise::Vehicle Resource Type
 #Properties: close({
 	Arn?:                  string
-	AssociationBehavior?:  _#defs."/$defs/Properties/definitions/VehicleAssociationBehavior"
-	Attributes?:           _#defs."/$defs/Properties/definitions/attributesMap"
+	AssociationBehavior?:  #VehicleAssociationBehavior
+	Attributes?:           #attributesMap
 	CreationTime?:         time.Time
 	DecoderManifestArn!:   string
 	LastModificationTime?: time.Time
 	ModelManifestArn!:     string
 	Name!:                 strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$"
-	StateTemplates?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/StateTemplateAssociation"
-	]
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	StateTemplates?:       list.MaxItems(20) & list.UniqueItems() & [...] & [...#StateTemplateAssociation]
+	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/OnChangeStateTemplateUpdateStrategy": close({})
+#OnChangeStateTemplateUpdateStrategy: close({})
 
-_#defs: "/$defs/Properties/definitions/PeriodicStateTemplateUpdateStrategy": close(
-	{StateTemplateUpdateRate!: _#defs."/$defs/Properties/definitions/TimePeriod"},
-)
+#PeriodicStateTemplateUpdateStrategy: close({StateTemplateUpdateRate!: #TimePeriod})
 
-_#defs: "/$defs/Properties/definitions/StateTemplateAssociation": struct.MinFields(0) & close({
+#StateTemplateAssociation: struct.MinFields(0) & close({
 	Identifier!:                  strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$"
-	StateTemplateUpdateStrategy!: _#defs."/$defs/Properties/definitions/StateTemplateUpdateStrategy"
+	StateTemplateUpdateStrategy!: #StateTemplateUpdateStrategy
 })
 
-_#defs: "/$defs/Properties/definitions/StateTemplateUpdateStrategy": matchN(1, [close(
-	{Periodic!: _#defs."/$defs/Properties/definitions/PeriodicStateTemplateUpdateStrategy"},
-), close(
-	{OnChange!: _#defs."/$defs/Properties/definitions/OnChangeStateTemplateUpdateStrategy"},
-)])
+#StateTemplateUpdateStrategy: matchN(1, [
+	close({Periodic!: #PeriodicStateTemplateUpdateStrategy}), close({OnChange!: #OnChangeStateTemplateUpdateStrategy}),
+])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TimePeriod": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TimeUnit"
+#TimePeriod: close({
+	Unit!:  #TimeUnit
 	Value!: >=1
 })
 
-_#defs: "/$defs/Properties/definitions/TimeUnit": "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR"
+#TimeUnit: "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR"
 
-_#defs: "/$defs/Properties/definitions/VehicleAssociationBehavior": "CreateIotThing" | "ValidateIotThingExists"
+#VehicleAssociationBehavior: "CreateIotThing" | "ValidateIotThingExists"
 
-_#defs: "/$defs/Properties/definitions/attributesMap": struct.MinFields(1) & close({
+#attributesMap: struct.MinFields(1) & close({
 
 	{[=~"^[a-zA-Z0-9_.-]+$"]: string}})

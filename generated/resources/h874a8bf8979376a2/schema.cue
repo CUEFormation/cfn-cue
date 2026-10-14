@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"struct"
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,14 +14,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::LoggingConfiguration
-#Properties: close({
-	EnableMonitoringDashboard?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FirewallArn!:               _#defs."/$defs/Properties/definitions/ResourceArn"
-	FirewallName?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	LoggingConfiguration!:      _#defs."/$defs/Properties/definitions/LoggingConfiguration"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkFirewall::LoggingConfiguration"
+	Properties!: close({
+		EnableMonitoringDashboard?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		FirewallArn!:          #ResourceArn
+		FirewallName?:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		LoggingConfiguration!: #LoggingConfiguration
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/LogDestinationConfig": close({
+#LogDestinationConfig: close({
 	LogDestination!: struct.MinFields(1) & close({
 
 		{[=~"^[0-9A-Za-z.\\-_@\\/]+$"]: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression}}) |
@@ -31,15 +41,9 @@ _#defs: "/$defs/Properties/definitions/LogDestinationConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
-	LogDestinationConfigs!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogDestinationConfig"] |
-		fn.#ListExpression
-}) |
+#LoggingConfiguration: close(
+	{LogDestinationConfigs!: list.MinItems(1) & [...#LogDestinationConfig] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" |
-fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkFirewall::LoggingConfiguration"
-	Properties!: #Properties
-}
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" | fn.#StringExpression

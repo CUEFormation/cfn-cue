@@ -44,19 +44,19 @@ import (
 })
 
 // The properties of a domain unit group.
-_#defs: "/$defs/Properties/definitions/DomainUnitGroupProperties": close({
+#DomainUnitGroupProperties: close({
 	// The ID of the domain unit group.
 	GroupId?: string
 })
 
 // The properties of the domain unit owner.
-_#defs: "/$defs/Properties/definitions/DomainUnitOwnerProperties": close({
-	Group?: _#defs."/$defs/Properties/definitions/DomainUnitGroupProperties"
-	User?:  _#defs."/$defs/Properties/definitions/DomainUnitUserProperties"
+#DomainUnitOwnerProperties: close({
+	Group?: #DomainUnitGroupProperties
+	User?:  #DomainUnitUserProperties
 })
 
 // The properties of the domain unit user.
-_#defs: "/$defs/Properties/definitions/DomainUnitUserProperties": close({
+#DomainUnitUserProperties: close({
 	// The ID of the domain unit user.
 	UserId?: string
 })

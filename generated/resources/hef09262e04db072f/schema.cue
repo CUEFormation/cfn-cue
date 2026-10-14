@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,33 +17,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Instance
-#Properties: close({
-	AddOns?:           [..._#defs."/$defs/Properties/definitions/AddOn"] | fn.#ListExpression
-	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	BlueprintId!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	BundleId!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Hardware?: close(
-		{Disks?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Disk"] | fn.#ListExpression},
-	) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Instance"
+	Properties!: close({
+		AddOns?:           [...#AddOn] | fn.#ListExpression
+		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		BlueprintId!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		BundleId!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		Hardware?:         close({Disks?: list.UniqueItems() & [...#Disk] | fn.#ListExpression}) | fn.#ObjectExpression
+		InstanceName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
+		fn.#StringExpression
+		KeyPairName?: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+		Location?:    close({}) | fn.#ObjectExpression
+		Networking?: close({
+			MonthlyTransfer?: close({}) | fn.#ObjectExpression
+			Ports!:           list.UniqueItems() & [...#Port] | fn.#ListExpression
+		}) |
 		fn.#ObjectExpression
-	InstanceName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
-	fn.#StringExpression
-	KeyPairName?: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	Location?:    close({}) | fn.#ObjectExpression
-	Networking?: close({
-		MonthlyTransfer?: close({}) | fn.#ObjectExpression
-		Ports!:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Port"] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	State?:    close({}) | fn.#ObjectExpression
-	Tags?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserData?: string | fn.#StringExpression
-})
+		State?:    close({}) | fn.#ObjectExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UserData?: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AddOn": close({
+#AddOn: close({
 	AddOnType!: ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	AutoSnapshotAddOnRequest?: _#defs."/$defs/Properties/definitions/AutoSnapshotAddOn"
+	AutoSnapshotAddOnRequest?: #AutoSnapshotAddOn
 	Status?: "Enabling" |
 		"Disabling" |
 		"Enabled" |
@@ -55,12 +55,9 @@ _#defs: "/$defs/Properties/definitions/AddOn": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoSnapshotAddOn": close(
-	{SnapshotTimeOfDay?: =~"^[0-9]{2}:00$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#AutoSnapshotAddOn: close({SnapshotTimeOfDay?: =~"^[0-9]{2}:00$" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Disk": close({
+#Disk: close({
 	AttachedTo?:      string | fn.#StringExpression
 	AttachmentState?: string | fn.#StringExpression
 	DiskName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
@@ -85,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/Disk": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Hardware": close({
+#Hardware: close({
 	CpuCount?: int |
 		{
 			string &
@@ -100,7 +97,7 @@ _#defs: "/$defs/Properties/definitions/Hardware": close({
 				)
 		} |
 		fn.#NumberExpression
-	Disks?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Disk"] | fn.#ListExpression
+	Disks?: list.UniqueItems() & [...#Disk] | fn.#ListExpression
 	RamSizeInGb?: int |
 		{
 			string &
@@ -118,27 +115,26 @@ _#defs: "/$defs/Properties/definitions/Hardware": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	AvailabilityZone?: string | fn.#StringExpression
 	RegionName?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonthlyTransfer": close({GbPerMonthAllocated?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#MonthlyTransfer: close({GbPerMonthAllocated?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Networking": close({
-	MonthlyTransfer?: _#defs."/$defs/Properties/definitions/MonthlyTransfer"
-	Ports!:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Port"] | fn.#ListExpression
+#Networking: close({
+	MonthlyTransfer?: #MonthlyTransfer
+	Ports!:           list.UniqueItems() & [...#Port] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Port": close({
+#Port: close({
 	AccessDirection?: string | fn.#StringExpression
 	AccessFrom?:      string | fn.#StringExpression
 	AccessType?:      string | fn.#StringExpression
-	CidrListAliases?: _#defs."/$defs/Properties/definitions/cidrListAliases"
-	Cidrs?:           _#defs."/$defs/Properties/definitions/cidrs"
+	CidrListAliases?: #cidrListAliases
+	Cidrs?:           #cidrs
 	CommonName?:      string | fn.#StringExpression
 	FromPort?: int |
 		{
@@ -154,7 +150,7 @@ _#defs: "/$defs/Properties/definitions/Port": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6Cidrs?: _#defs."/$defs/Properties/definitions/ipv6Cidrs"
+	Ipv6Cidrs?: #ipv6Cidrs
 	Protocol?:  string | fn.#StringExpression
 	ToPort?: int |
 		{
@@ -173,7 +169,7 @@ _#defs: "/$defs/Properties/definitions/Port": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/State": close({
+#State: close({
 	Code?: int |
 		{
 			string &
@@ -192,18 +188,14 @@ _#defs: "/$defs/Properties/definitions/State": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/cidrListAliases": [...string | fn.#StringExpression] | fn.#ListExpression
+#cidrListAliases: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/cidrs": [...string | fn.#StringExpression] | fn.#ListExpression
+#cidrs: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ipv6Cidrs": [...string | fn.#StringExpression] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Instance"
-	Properties!: #Properties
-}
+#ipv6Cidrs: [...string | fn.#StringExpression] | fn.#ListExpression

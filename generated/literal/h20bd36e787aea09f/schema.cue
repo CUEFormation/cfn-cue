@@ -28,10 +28,10 @@ import (
 	ParentReadinessScopes?: list.MaxItems(5) & [...string]
 
 	// A collection of tags associated with a resource
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

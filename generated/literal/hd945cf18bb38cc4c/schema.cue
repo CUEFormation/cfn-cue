@@ -8,100 +8,98 @@ package schema
 #Properties: close({
 	BackupId?:             string
 	Name!:                 string
-	OntapConfiguration?:   _#defs."/$defs/Properties/definitions/OntapConfiguration"
-	OpenZFSConfiguration?: _#defs."/$defs/Properties/definitions/OpenZFSConfiguration"
+	OntapConfiguration?:   #OntapConfiguration
+	OpenZFSConfiguration?: #OpenZFSConfiguration
 	ResourceARN?:          string
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                 [...#Tag]
 	UUID?:                 string
 	VolumeId?:             string
 	VolumeType?:           string
 })
 
-_#defs: "/$defs/Properties/definitions/AggregateConfiguration": close({
+#AggregateConfiguration: close({
 	Aggregates?:               [...string]
 	ConstituentsPerAggregate?: int
 })
 
-_#defs: "/$defs/Properties/definitions/AutocommitPeriod": close({
+#AutocommitPeriod: close({
 	Type!:  string
 	Value?: int
 })
 
-_#defs: "/$defs/Properties/definitions/ClientConfigurations": close({
+#ClientConfigurations: close({
 	Clients!: string
 	Options!: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/NfsExports": close(
-	{ClientConfigurations!: [..._#defs."/$defs/Properties/definitions/ClientConfigurations"]},
-)
+#NfsExports: close({ClientConfigurations!: [...#ClientConfigurations]})
 
-_#defs: "/$defs/Properties/definitions/OntapConfiguration": close({
-	AggregateConfiguration?:   _#defs."/$defs/Properties/definitions/AggregateConfiguration"
+#OntapConfiguration: close({
+	AggregateConfiguration?:   #AggregateConfiguration
 	CopyTagsToBackups?:        string
 	JunctionPath?:             string
 	OntapVolumeType?:          string
 	SecurityStyle?:            string
 	SizeInBytes?:              string
 	SizeInMegabytes?:          string
-	SnaplockConfiguration?:    _#defs."/$defs/Properties/definitions/SnaplockConfiguration"
+	SnaplockConfiguration?:    #SnaplockConfiguration
 	SnapshotPolicy?:           string
 	StorageEfficiencyEnabled?: string
 	StorageVirtualMachineId!:  string
-	TieringPolicy?:            _#defs."/$defs/Properties/definitions/TieringPolicy"
+	TieringPolicy?:            #TieringPolicy
 	VolumeStyle?:              string
 })
 
-_#defs: "/$defs/Properties/definitions/OpenZFSConfiguration": close({
+#OpenZFSConfiguration: close({
 	CopyTagsToSnapshots?:           bool
 	DataCompressionType?:           string
-	NfsExports?:                    [..._#defs."/$defs/Properties/definitions/NfsExports"]
+	NfsExports?:                    [...#NfsExports]
 	Options?:                       [...string]
-	OriginSnapshot?:                _#defs."/$defs/Properties/definitions/OriginSnapshot"
+	OriginSnapshot?:                #OriginSnapshot
 	ParentVolumeId!:                string
 	ReadOnly?:                      bool
 	RecordSizeKiB?:                 int
 	StorageCapacityQuotaGiB?:       int
 	StorageCapacityReservationGiB?: int
-	UserAndGroupQuotas?:            [..._#defs."/$defs/Properties/definitions/UserAndGroupQuotas"]
+	UserAndGroupQuotas?:            [...#UserAndGroupQuotas]
 })
 
-_#defs: "/$defs/Properties/definitions/OriginSnapshot": close({
+#OriginSnapshot: close({
 	CopyStrategy!: string
 	SnapshotARN!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	Type!:  string
 	Value?: int
 })
 
-_#defs: "/$defs/Properties/definitions/SnaplockConfiguration": close({
+#SnaplockConfiguration: close({
 	AuditLogVolume?:          string
-	AutocommitPeriod?:        _#defs."/$defs/Properties/definitions/AutocommitPeriod"
+	AutocommitPeriod?:        #AutocommitPeriod
 	PrivilegedDelete?:        string
-	RetentionPeriod?:         _#defs."/$defs/Properties/definitions/SnaplockRetentionPeriod"
+	RetentionPeriod?:         #SnaplockRetentionPeriod
 	SnaplockType!:            string
 	VolumeAppendModeEnabled?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SnaplockRetentionPeriod": close({
-	DefaultRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	MaximumRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	MinimumRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
+#SnaplockRetentionPeriod: close({
+	DefaultRetention!: #RetentionPeriod
+	MaximumRetention!: #RetentionPeriod
+	MinimumRetention!: #RetentionPeriod
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TieringPolicy": close({
+#TieringPolicy: close({
 	CoolingPeriod?: int
 	Name?:          string
 })
 
-_#defs: "/$defs/Properties/definitions/UserAndGroupQuotas": close({
+#UserAndGroupQuotas: close({
 	Id!:                      int
 	StorageCapacityQuotaGiB!: int
 	Type!:                    string

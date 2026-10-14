@@ -32,16 +32,16 @@ import (
 
 	// The instance type and the Amazon Resource Name (ARN) of the SageMaker image
 	// created on the instance.
-	ResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+	ResourceSpec?: #ResourceSpec
 
 	// A list of tags to apply to the app.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The user profile name.
 	UserProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}"
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceSpec": close({
+#ResourceSpec: close({
 	// The instance type that the image version runs on.
 	InstanceType?: "system" |
 		"ml.t3.micro" |
@@ -223,7 +223,7 @@ _#defs: "/$defs/Properties/definitions/ResourceSpec": close({
 	=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image-version/[a-z0-9]([-.]?[a-z0-9])*/[0-9]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

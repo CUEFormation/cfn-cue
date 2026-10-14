@@ -15,25 +15,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::CloudWatch::ResourceMetricsConfiguration.
 // Manages the detailed monitoring metric selections for an AWS resource,
 // identified by the ARN of the resource being monitored.
-#Properties: close({
-	MetricSelections?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResourceMetricSelection"
-	] |
-		fn.#ListExpression
-	ResourceArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[a-zA-Z0-9-]+:[a-zA-Z0-9-]+:[a-zA-Z0-9-]*:\\d{12}:.+$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::ResourceMetricsConfiguration"
+	Properties!: close({
+		MetricSelections?: list.MaxItems(1) & list.MinItems(1) & [...#ResourceMetricSelection] | fn.#ListExpression
+		ResourceArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[a-zA-Z0-9-]+:[a-zA-Z0-9-]+:[a-zA-Z0-9-]*:\\d{12}:.+$" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ResourceMetricSelection": close({
+#ResourceMetricSelection: close({
 	IncludeMetrics!: list.MaxItems(500) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::ResourceMetricsConfiguration"
-	Properties!: #Properties
-}

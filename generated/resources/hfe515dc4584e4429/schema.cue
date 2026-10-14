@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,47 +17,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::DataSource Resource Type.
-#Properties: close({
-	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSourceParameters"
-	] |
-		fn.#ListExpression
-	AwsAccountId?:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Credentials?:          _#defs."/$defs/Properties/definitions/DataSourceCredentials"
-	DataSourceId?:         string | fn.#StringExpression
-	DataSourceParameters?: _#defs."/$defs/Properties/definitions/DataSourceParameters"
-	ErrorInfo?:            _#defs."/$defs/Properties/definitions/DataSourceErrorInfo"
-	FolderArns?:           list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
-		fn.#ListExpression
-	SslProperties?: _#defs."/$defs/Properties/definitions/SslProperties"
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/DataSourceType"
-	VpcConnectionProperties?: _#defs."/$defs/Properties/definitions/VpcConnectionProperties"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::DataSource"
+	Properties!: close({
+		AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [...#DataSourceParameters] |
+			fn.#ListExpression
+		AwsAccountId?:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Credentials?:             #DataSourceCredentials
+		DataSourceId?:            string | fn.#StringExpression
+		DataSourceParameters?:    #DataSourceParameters
+		ErrorInfo?:               #DataSourceErrorInfo
+		FolderArns?:              list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Permissions?:             list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		SslProperties?:           #SslProperties
+		Tags?:                    list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		Type!:                    #DataSourceType
+		VpcConnectionProperties?: #VpcConnectionProperties
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AmazonElasticsearchParameters": close(
-	{Domain!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#AmazonElasticsearchParameters: close({Domain!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AmazonOpenSearchParameters": close(
-	{Domain!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#AmazonOpenSearchParameters: close({Domain!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AthenaParameters": close({
+#AthenaParameters: close({
 	ConsumerAccountRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
-	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
+	IdentityCenterConfiguration?: #IdentityCenterConfiguration
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 	WorkGroup?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuroraParameters": close({
+#AuroraParameters: close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -83,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/AuroraParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuroraPostgreSqlParameters": close({
+#AuroraPostgreSqlParameters: close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -109,31 +105,23 @@ _#defs: "/$defs/Properties/definitions/AuroraPostgreSqlParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "PASSWORD" |
-	"TOKEN" |
-	"X509" |
-	"KEYPAIR" |
-	fn.#StringExpression
+#AuthenticationType: "PASSWORD" | "TOKEN" | "X509" | "KEYPAIR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AwsIotAnalyticsParameters": close(
-	{DataSetName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#AwsIotAnalyticsParameters: close({DataSetName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CredentialPair": close({
-	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSourceParameters"
-	] |
+#CredentialPair: close({
+	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [...#DataSourceParameters] |
 		fn.#ListExpression
 	Password!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Username!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceCredentials": close({
+#DataSourceCredentials: close({
 	CopySourceArn?:      =~"^arn:[-a-z0-9]*:quicksight:[-a-z0-9]*:[0-9]{12}:datasource/.+$" | fn.#StringExpression
-	CredentialPair?:     _#defs."/$defs/Properties/definitions/CredentialPair"
-	KeyPairCredentials?: _#defs."/$defs/Properties/definitions/KeyPairCredentials"
+	CredentialPair?:     #CredentialPair
+	KeyPairCredentials?: #KeyPairCredentials
 	SecretArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[-a-z0-9]*:secretsmanager:[-a-z0-9]*:[0-9]{12}:secret:.+$" |
@@ -141,13 +129,13 @@ _#defs: "/$defs/Properties/definitions/DataSourceCredentials": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceErrorInfo": close({
+#DataSourceErrorInfo: close({
 	Message?: string | fn.#StringExpression
-	Type?:    _#defs."/$defs/Properties/definitions/DataSourceErrorInfoType"
+	Type?:    #DataSourceErrorInfoType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceErrorInfoType": "ACCESS_DENIED" |
+#DataSourceErrorInfoType: "ACCESS_DENIED" |
 	"COPY_SOURCE_NOT_FOUND" |
 	"TIMEOUT" |
 	"ENGINE_VERSION_NOT_SUPPORTED" |
@@ -157,32 +145,32 @@ _#defs: "/$defs/Properties/definitions/DataSourceErrorInfoType": "ACCESS_DENIED"
 	"UNKNOWN" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceParameters": close({
-	AmazonElasticsearchParameters?: _#defs."/$defs/Properties/definitions/AmazonElasticsearchParameters"
-	AmazonOpenSearchParameters?:    _#defs."/$defs/Properties/definitions/AmazonOpenSearchParameters"
-	AthenaParameters?:              _#defs."/$defs/Properties/definitions/AthenaParameters"
-	AuroraParameters?:              _#defs."/$defs/Properties/definitions/AuroraParameters"
-	AuroraPostgreSqlParameters?:    _#defs."/$defs/Properties/definitions/AuroraPostgreSqlParameters"
-	DatabricksParameters?:          _#defs."/$defs/Properties/definitions/DatabricksParameters"
-	MariaDbParameters?:             _#defs."/$defs/Properties/definitions/MariaDbParameters"
-	MySqlParameters?:               _#defs."/$defs/Properties/definitions/MySqlParameters"
-	OracleParameters?:              _#defs."/$defs/Properties/definitions/OracleParameters"
-	PostgreSqlParameters?:          _#defs."/$defs/Properties/definitions/PostgreSqlParameters"
-	PrestoParameters?:              _#defs."/$defs/Properties/definitions/PrestoParameters"
-	RdsParameters?:                 _#defs."/$defs/Properties/definitions/RdsParameters"
-	RedshiftParameters?:            _#defs."/$defs/Properties/definitions/RedshiftParameters"
-	S3Parameters?:                  _#defs."/$defs/Properties/definitions/S3Parameters"
-	S3TablesParameters?:            _#defs."/$defs/Properties/definitions/S3TablesParameters"
-	SnowflakeParameters?:           _#defs."/$defs/Properties/definitions/SnowflakeParameters"
-	SparkParameters?:               _#defs."/$defs/Properties/definitions/SparkParameters"
-	SqlServerParameters?:           _#defs."/$defs/Properties/definitions/SqlServerParameters"
-	StarburstParameters?:           _#defs."/$defs/Properties/definitions/StarburstParameters"
-	TeradataParameters?:            _#defs."/$defs/Properties/definitions/TeradataParameters"
-	TrinoParameters?:               _#defs."/$defs/Properties/definitions/TrinoParameters"
+#DataSourceParameters: close({
+	AmazonElasticsearchParameters?: #AmazonElasticsearchParameters
+	AmazonOpenSearchParameters?:    #AmazonOpenSearchParameters
+	AthenaParameters?:              #AthenaParameters
+	AuroraParameters?:              #AuroraParameters
+	AuroraPostgreSqlParameters?:    #AuroraPostgreSqlParameters
+	DatabricksParameters?:          #DatabricksParameters
+	MariaDbParameters?:             #MariaDbParameters
+	MySqlParameters?:               #MySqlParameters
+	OracleParameters?:              #OracleParameters
+	PostgreSqlParameters?:          #PostgreSqlParameters
+	PrestoParameters?:              #PrestoParameters
+	RdsParameters?:                 #RdsParameters
+	RedshiftParameters?:            #RedshiftParameters
+	S3Parameters?:                  #S3Parameters
+	S3TablesParameters?:            #S3TablesParameters
+	SnowflakeParameters?:           #SnowflakeParameters
+	SparkParameters?:               #SparkParameters
+	SqlServerParameters?:           #SqlServerParameters
+	StarburstParameters?:           #StarburstParameters
+	TeradataParameters?:            #TeradataParameters
+	TrinoParameters?:               #TrinoParameters
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceType": "ADOBE_ANALYTICS" |
+#DataSourceType: "ADOBE_ANALYTICS" |
 	"AMAZON_ELASTICSEARCH" |
 	"AMAZON_OPENSEARCH" |
 	"ATHENA" |
@@ -241,7 +229,7 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": "ADOBE_ANALYTICS" |
 	"ATLAN" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabricksParameters": close({
+#DatabricksParameters: close({
 	Host!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
@@ -267,12 +255,12 @@ _#defs: "/$defs/Properties/definitions/DatabricksParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityCenterConfiguration": close(
+#IdentityCenterConfiguration: close(
 	{EnableIdentityPropagation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImpalaParameters": close({
+#ImpalaParameters: close({
 	Host!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
@@ -298,7 +286,7 @@ _#defs: "/$defs/Properties/definitions/ImpalaParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyPairCredentials": close({
+#KeyPairCredentials: close({
 	KeyPairUsername!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	PrivateKey!: strings.MaxRunes(8000) &
 	strings.MinRunes(1600) &
@@ -308,13 +296,13 @@ _#defs: "/$defs/Properties/definitions/KeyPairCredentials": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestFileLocation": close({
+#ManifestFileLocation: close({
 	Bucket!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Key!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MariaDbParameters": close({
+#MariaDbParameters: close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -340,7 +328,7 @@ _#defs: "/$defs/Properties/definitions/MariaDbParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MySqlParameters": close({
+#MySqlParameters: close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -366,15 +354,15 @@ _#defs: "/$defs/Properties/definitions/MySqlParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OAuthParameters": close({
+#OAuthParameters: close({
 	IdentityProviderResourceUri?:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	IdentityProviderVpcConnectionProperties?: _#defs."/$defs/Properties/definitions/VpcConnectionProperties"
+	IdentityProviderVpcConnectionProperties?: #VpcConnectionProperties
 	OAuthScope?:                              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	TokenProviderUrl!:                        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OracleParameters": close({
+#OracleParameters: close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -401,7 +389,7 @@ _#defs: "/$defs/Properties/definitions/OracleParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PostgreSqlParameters": close({
+#PostgreSqlParameters: close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -427,7 +415,7 @@ _#defs: "/$defs/Properties/definitions/PostgreSqlParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrestoParameters": close({
+#PrestoParameters: close({
 	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Host!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -453,13 +441,13 @@ _#defs: "/$defs/Properties/definitions/PrestoParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsParameters": close({
+#RdsParameters: close({
 	Database!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	InstanceId!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftIAMParameters": close({
+#RedshiftIAMParameters: close({
 	AutoCreateDatabaseUser?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DatabaseGroups?: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
@@ -471,12 +459,12 @@ _#defs: "/$defs/Properties/definitions/RedshiftIAMParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftParameters": close({
+#RedshiftParameters: close({
 	ClusterId?:                   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Database!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host?:                        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	IAMParameters?:               _#defs."/$defs/Properties/definitions/RedshiftIAMParameters"
-	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
+	IAMParameters?:               #RedshiftIAMParameters
+	IdentityCenterConfiguration?: #IdentityCenterConfiguration
 	Port?: <=65535 & >=0 |
 		{
 			string &
@@ -500,14 +488,14 @@ _#defs: "/$defs/Properties/definitions/RedshiftParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	Actions!:   list.MaxItems(30) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Resource?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceStatus": "CREATION_IN_PROGRESS" |
+#ResourceStatus: "CREATION_IN_PROGRESS" |
 	"CREATION_SUCCESSFUL" |
 	"CREATION_FAILED" |
 	"UPDATE_IN_PROGRESS" |
@@ -517,30 +505,30 @@ _#defs: "/$defs/Properties/definitions/ResourceStatus": "CREATION_IN_PROGRESS" |
 	"DELETED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Parameters": close({
-	ManifestFileLocation!: _#defs."/$defs/Properties/definitions/ManifestFileLocation"
+#S3Parameters: close({
+	ManifestFileLocation!: #ManifestFileLocation
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3TablesParameters": close({
+#S3TablesParameters: close({
 	TableBucketArn?: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-zA-Z0-9-_]{3,63})$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnowflakeParameters": close({
-	AuthenticationType?:        _#defs."/$defs/Properties/definitions/AuthenticationType"
+#SnowflakeParameters: close({
+	AuthenticationType?:        #AuthenticationType
 	Database!:                  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseAccessControlRole?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Host!:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OAuthParameters?:           _#defs."/$defs/Properties/definitions/OAuthParameters"
+	OAuthParameters?:           #OAuthParameters
 	Warehouse!:                 strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SparkParameters": close({
+#SparkParameters: close({
 	Host!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
@@ -565,7 +553,7 @@ _#defs: "/$defs/Properties/definitions/SparkParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqlServerParameters": close({
+#SqlServerParameters: close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -591,17 +579,17 @@ _#defs: "/$defs/Properties/definitions/SqlServerParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SslProperties": close(
+#SslProperties: close(
 	{DisableSsl?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StarburstParameters": close({
-	AuthenticationType?:        _#defs."/$defs/Properties/definitions/AuthenticationType"
+#StarburstParameters: close({
+	AuthenticationType?:        #AuthenticationType
 	Catalog!:                   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	DatabaseAccessControlRole?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Host!:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OAuthParameters?:           _#defs."/$defs/Properties/definitions/OAuthParameters"
+	OAuthParameters?:           #OAuthParameters
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -622,19 +610,19 @@ _#defs: "/$defs/Properties/definitions/StarburstParameters": close({
 				)
 		} |
 		fn.#NumberExpression
-	ProductType?: _#defs."/$defs/Properties/definitions/StarburstProductType"
+	ProductType?: #StarburstProductType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StarburstProductType": "GALAXY" | "ENTERPRISE" | fn.#StringExpression
+#StarburstProductType: "GALAXY" | "ENTERPRISE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TeradataParameters": close({
+#TeradataParameters: close({
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -660,7 +648,7 @@ _#defs: "/$defs/Properties/definitions/TeradataParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrinoParameters": close({
+#TrinoParameters: close({
 	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Host!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Port!: <=65535 & >=1 |
@@ -686,11 +674,4 @@ _#defs: "/$defs/Properties/definitions/TrinoParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectionProperties": close(
-	{VpcConnectionArn!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::DataSource"
-	Properties!: #Properties
-}
+#VpcConnectionProperties: close({VpcConnectionArn!: string | fn.#StringExpression}) | fn.#ObjectExpression

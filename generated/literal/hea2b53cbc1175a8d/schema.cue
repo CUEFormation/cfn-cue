@@ -44,9 +44,7 @@ import (
 	FlexMatchMode?: "STANDALONE" | "WITH_QUEUE"
 
 	// A set of custom properties for a game session, formatted as key:value pairs.
-	GameProperties?: list.MaxItems(16) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/GameProperty"
-	]
+	GameProperties?: list.MaxItems(16) & list.UniqueItems() & [...] & [...#GameProperty]
 
 	// A set of custom game session properties, formatted as a single string value.
 	GameSessionData?: strings.MaxRunes(4096) & strings.MinRunes(1)
@@ -73,11 +71,11 @@ import (
 	RuleSetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]*"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // A key-value pair that contains information about a game session.
-_#defs: "/$defs/Properties/definitions/GameProperty": close({
+#GameProperty: close({
 	// The game property identifier.
 	Key!: strings.MaxRunes(32) & strings.MinRunes(0)
 
@@ -86,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/GameProperty": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

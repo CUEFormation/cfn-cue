@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"math"
+	"list"
 	"strings"
 )
 
@@ -105,7 +105,7 @@ import (
 	// A capacity provider strategy can contain a maximum of 20 capacity providers.
 	// To remove this property from your service resource, specify an empty
 	// ``CapacityProviderStrategyItem`` array.
-	CapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"]
+	CapacityProviderStrategy?: [...#CapacityProviderStrategyItem]
 
 	// The short name or full Amazon Resource Name (ARN) of the cluster that you run
 	// your service on. If you do not specify a cluster, the default cluster is
@@ -114,10 +114,10 @@ import (
 
 	// Optional deployment parameters that control how many tasks run during the
 	// deployment and the ordering of stopping and starting tasks.
-	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentConfiguration"
+	DeploymentConfiguration?: #DeploymentConfiguration
 
 	// The deployment controller to use for the service.
-	DeploymentController?: _#defs."/$defs/Properties/definitions/DeploymentController"
+	DeploymentController?: #DeploymentController
 
 	// The number of instantiations of the specified task definition to place and
 	// keep running in your service.
@@ -145,7 +145,7 @@ import (
 	// tasks to use a newer Docker image with the same image/tag combination
 	// (``my_image:latest``) or to roll Fargate tasks onto a newer platform
 	// version.
-	ForceNewDeployment?: _#defs."/$defs/Properties/definitions/ForceNewDeployment"
+	ForceNewDeployment?: #ForceNewDeployment
 
 	// The period of time, in seconds, that the Amazon ECS service scheduler ignores
 	// unhealthy Elastic Load Balancing, VPC Lattice, and container health checks
@@ -171,13 +171,13 @@ import (
 	// Balancing](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-load-balancing.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
 	// To remove this property from your service resource, specify an empty ``LoadBalancer`` array.
-	LoadBalancers?: [..._#defs."/$defs/Properties/definitions/LoadBalancer"]
+	LoadBalancers?: [...#LoadBalancer]
 
 	// The optional monitoring configuration for the service, which defines the
 	// resolution for the service-level ``CPUUtilization`` and
 	// ``MemoryUtilization`` Amazon CloudWatch metrics. When not specified, Amazon
 	// ECS uses the default resolution of ``60`` seconds.
-	Monitoring?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+	Monitoring?: #MonitoringConfiguration
 	Name?:       string
 
 	// The network configuration for the service. This parameter is required for
@@ -186,19 +186,19 @@ import (
 	// For more information, see [Task
 	// Networking](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-networking.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	NetworkConfiguration?: #NetworkConfiguration
 
 	// An array of placement constraint objects to use for tasks in your service.
 	// You can specify a maximum of 10 constraints for each task. This limit
 	// includes constraints in the task definition and those specified at runtime.
 	// To remove this property from your service resource, specify an empty
 	// ``PlacementConstraint`` array.
-	PlacementConstraints?: [..._#defs."/$defs/Properties/definitions/PlacementConstraint"]
+	PlacementConstraints?: [...#PlacementConstraint]
 
 	// The placement strategy objects to use for tasks in your service. You can
 	// specify a maximum of 5 strategy rules for each service.
 	// To remove this property from your service resource, specify an empty ``PlacementStrategy`` array.
-	PlacementStrategies?: [..._#defs."/$defs/Properties/definitions/PlacementStrategy"]
+	PlacementStrategies?: [...#PlacementStrategy]
 
 	// The platform version that your tasks in the service are running on. A
 	// platform version is specified only for tasks using the Fargate launch type.
@@ -277,7 +277,7 @@ import (
 	// see [Service
 	// Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	ServiceConnectConfiguration?: _#defs."/$defs/Properties/definitions/ServiceConnectConfiguration"
+	ServiceConnectConfiguration?: #ServiceConnectConfiguration
 
 	// The name of your service. Up to 255 letters (uppercase and lowercase),
 	// numbers, underscores, and hyphens are allowed. Service names must be unique
@@ -295,7 +295,7 @@ import (
 	// Each service may be associated with one service registry. Multiple service
 	// registries for each service isn't supported.
 	// To remove this property from your service resource, specify an empty ``ServiceRegistry`` array.
-	ServiceRegistries?: [..._#defs."/$defs/Properties/definitions/ServiceRegistry"]
+	ServiceRegistries?: [...#ServiceRegistry]
 
 	// The metadata that you apply to the service to help you categorize and
 	// organize them. Each tag consists of a key and an optional value, both of
@@ -314,7 +314,7 @@ import (
 	// such as a prefix for either keys or values as it is reserved for AWS use.
 	// You cannot edit or delete tag keys or values with this prefix. Tags with
 	// this prefix do not count against your tags per resource limit.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The ``family`` and ``revision`` (``family:revision``) or full ARN of the task
 	// definition to run in your service. If a ``revision`` isn't specified, the
@@ -330,10 +330,10 @@ import (
 	// is an Amazon EBS volume.
 	// To remove this property from your service resource, specify an empty
 	// ``ServiceVolumeConfiguration`` array.
-	VolumeConfigurations?: [..._#defs."/$defs/Properties/definitions/ServiceVolumeConfiguration"]
+	VolumeConfigurations?: [...#ServiceVolumeConfiguration]
 
 	// The VPC Lattice configuration for the service being created.
-	VpcLatticeConfigurations?: [..._#defs."/$defs/Properties/definitions/VpcLatticeConfiguration"]
+	VpcLatticeConfigurations?: [...#VpcLatticeConfiguration]
 })
 
 // The advanced settings for a load balancer used in blue/green deployments.
@@ -342,7 +342,7 @@ import (
 // see [Required resources for Amazon ECS blue/green
 // deployments](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/blue-green-deployment-implementation.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/AdvancedConfiguration": close({
+#AdvancedConfiguration: close({
 	// The Amazon Resource Name (ARN) of the alternate target group for Amazon ECS
 	// blue/green deployments.
 	AlternateTargetGroupArn!: string
@@ -365,7 +365,7 @@ _#defs: "/$defs/Properties/definitions/AdvancedConfiguration": close({
 // An object representing the networking details for a task or service. For
 // example
 // ``awsVpcConfiguration={subnets=["subnet-12344321"],securityGroups=["sg-12344321"]}``.
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
+#AwsVpcConfiguration: close({
 	// Whether the task's elastic network interface receives a public IP address.
 	// Consider the following when you set this value:
 	// + When you use ``create-service`` or ``update-service``, the default is ``DISABLED``.
@@ -398,7 +398,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 // hooks) can extend deployment time beyond these calculations. Even
 // deployments under the 33-hour threshold might still time out if these
 // processes cause the total duration to exceed 36 hours.
-_#defs: "/$defs/Properties/definitions/CanaryConfiguration": close({
+#CanaryConfiguration: close({
 	// The amount of time in minutes to wait during the canary phase before shifting
 	// the remaining production traffic to the new service revision. Valid values
 	// are 0 to 1440 minutes (24 hours). The default value is 10.
@@ -425,7 +425,7 @@ _#defs: "/$defs/Properties/definitions/CanaryConfiguration": close({
 // ``FARGATE_SPOT`` capacity providers. The FARGATElong capacity providers are
 // available to all accounts and only need to be associated with a cluster to
 // be used in a capacity provider strategy.
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	// The *base* value designates how many tasks, at a minimum, to run on the
 	// specified capacity provider for each service. Only one capacity provider in
 	// a capacity provider strategy can have a *base* defined. If no value is
@@ -486,7 +486,7 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 // For more information, see [Rolling
 // update](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-ecs.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/DeploymentAlarms": close({
+#DeploymentAlarms: close({
 	// One or more CloudWatch alarm names. Use a "," to separate the alarms.
 	AlarmNames!: [...string]
 
@@ -513,7 +513,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentAlarms": close({
 // For more information about API failure reasons, see [API failure
 // reasons](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/api_failures_messages.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/DeploymentCircuitBreaker": close({
+#DeploymentCircuitBreaker: close({
 	// Determines whether to use the deployment circuit breaker logic for the service.
 	Enable!: bool
 
@@ -533,14 +533,14 @@ _#defs: "/$defs/Properties/definitions/DeploymentCircuitBreaker": close({
 	// The threshold configuration that controls when the deployment circuit breaker
 	// triggers. The ``type`` and ``value`` together determine how many task
 	// failures are tolerated before the circuit breaker activates.
-	ThresholdConfiguration?: _#defs."/$defs/Properties/definitions/ThresholdConfiguration"
+	ThresholdConfiguration?: #ThresholdConfiguration
 })
 
 // Optional deployment parameters that control how many tasks run during a
 // deployment and the ordering of stopping and starting tasks.
-_#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
+#DeploymentConfiguration: close({
 	// Information about the CloudWatch alarms.
-	Alarms?: _#defs."/$defs/Properties/definitions/DeploymentAlarms"
+	Alarms?: #DeploymentAlarms
 
 	// The duration waiting before terminating the previous service revision and
 	// marking a deployment complete.
@@ -560,7 +560,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
 	// strategy is ``CANARY``. This configuration enables shifting a fixed
 	// percentage of traffic for testing, followed by shifting the remaining
 	// traffic after a bake period.
-	CanaryConfiguration?: _#defs."/$defs/Properties/definitions/CanaryConfiguration"
+	CanaryConfiguration?: #CanaryConfiguration
 
 	// The deployment circuit breaker can only be used for services using the
 	// rolling update (``ECS``) deployment type.
@@ -572,23 +572,23 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
 	// completed successfully. For more information, see [Rolling
 	// update](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-ecs.html)
 	// in the *Amazon Elastic Container Service Developer Guide*
-	DeploymentCircuitBreaker?: _#defs."/$defs/Properties/definitions/DeploymentCircuitBreaker"
+	DeploymentCircuitBreaker?: #DeploymentCircuitBreaker
 
 	// The early success criteria configuration for a rolling deployment. With early
 	// success criteria, you can configure an Amazon ECS deployment to complete
 	// faster. Amazon ECS declares a deployment successful once a target percentage
 	// of tasks are healthy, instead of waiting for the service to fully stabilize.
-	EarlySuccessCriteria?: _#defs."/$defs/Properties/definitions/DeploymentEarlySuccessCriteria"
+	EarlySuccessCriteria?: #DeploymentEarlySuccessCriteria
 
 	// An array of deployment lifecycle hook objects to run custom logic or pause
 	// the deployment at specific stages of the deployment lifecycle.
-	LifecycleHooks?: [..._#defs."/$defs/Properties/definitions/DeploymentLifecycleHook"]
+	LifecycleHooks?: [...#DeploymentLifecycleHook]
 
 	// Configuration for linear deployment strategy. Only valid when the deployment
 	// strategy is ``LINEAR``. This configuration enables progressive traffic
 	// shifting in equal percentage increments with configurable bake times between
 	// each step.
-	LinearConfiguration?: _#defs."/$defs/Properties/definitions/LinearConfiguration"
+	LinearConfiguration?: #LinearConfiguration
 
 	// If a service is using the rolling update (``ECS``) deployment type, the
 	// ``maximumPercent`` parameter represents an upper limit on the number of your
@@ -708,7 +708,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
 })
 
 // The deployment controller to use for the service.
-_#defs: "/$defs/Properties/definitions/DeploymentController": close({
+#DeploymentController: close({
 	// The deployment controller type to use.
 	// The deployment controller is the mechanism that determines how tasks are
 	// deployed for your service. The valid options are:
@@ -803,7 +803,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentController": close({
 // tasks that must be healthy before a deployment completes. It also controls
 // whether Amazon ECS must remove the previous tasks before a deployment
 // completes.
-_#defs: "/$defs/Properties/definitions/DeploymentEarlySuccessCriteria": close({
+#DeploymentEarlySuccessCriteria: close({
 	// Specifies whether to use the early success criteria for the service
 	// deployment. When set to ``false``, the deployment uses the default behavior,
 	// where Amazon ECS considers the deployment successful when the target service
@@ -839,7 +839,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentEarlySuccessCriteria": close({
 // For more information, see [Lifecycle hooks for Amazon ECS service
 // deployments](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-lifecycle-hooks.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/DeploymentLifecycleHook": close({
+#DeploymentLifecycleHook: close({
 	// Use this field to specify custom parameters that ECS passes to your hook
 	// target invocations (such as a Lambda function).
 	// This field must be a JSON object as a string.
@@ -921,11 +921,11 @@ _#defs: "/$defs/Properties/definitions/DeploymentLifecycleHook": close({
 	// The timeout configuration for the lifecycle hook. This specifies how long
 	// Amazon ECS waits before taking the timeout action if the hook is not
 	// resolved.
-	TimeoutConfiguration?: _#defs."/$defs/Properties/definitions/HookTimeoutConfig"
+	TimeoutConfiguration?: #HookTimeoutConfig
 })
 
 // The tag specifications of an Amazon EBS volume.
-_#defs: "/$defs/Properties/definitions/EBSTagSpecification": close({
+#EBSTagSpecification: close({
 	// Determines whether to propagate the tags from the task definition to the
 	// Amazon EBS volume. Tags can only propagate to a ``SERVICE`` specified in
 	// ``ServiceVolumeConfiguration``. If no value is specified, the tags aren't
@@ -937,7 +937,7 @@ _#defs: "/$defs/Properties/definitions/EBSTagSpecification": close({
 
 	// The tags applied to this Amazon EBS volume. ``AmazonECSCreated`` and
 	// ``AmazonECSManaged`` are reserved tags that can't be used.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // Determines whether to force a new deployment of the service. By default,
@@ -946,7 +946,7 @@ _#defs: "/$defs/Properties/definitions/EBSTagSpecification": close({
 // tasks to use a newer Docker image with the same image/tag combination
 // (``my_image:latest``) or to roll Fargate tasks onto a newer platform
 // version.
-_#defs: "/$defs/Properties/definitions/ForceNewDeployment": close({
+#ForceNewDeployment: close({
 	// Determines whether to force a new deployment of the service. By default,
 	// deployments aren't forced. You can use this option to start a new deployment
 	// with no service definition changes. For example, you can update a service's
@@ -964,7 +964,7 @@ _#defs: "/$defs/Properties/definitions/ForceNewDeployment": close({
 	ForceNewDeploymentNonce?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/HookTimeoutConfig": close({
+#HookTimeoutConfig: close({
 	Action?:           "ROLLBACK" | "CONTINUE"
 	TimeoutInMinutes?: int & <=20160 & >=1
 })
@@ -995,7 +995,7 @@ _#defs: "/$defs/Properties/definitions/HookTimeoutConfig": close({
 // hooks) can extend deployment time beyond these calculations. Even
 // deployments under the 33-hour threshold might still time out if these
 // processes cause the total duration to exceed 36 hours.
-_#defs: "/$defs/Properties/definitions/LinearConfiguration": close({
+#LinearConfiguration: close({
 	// The amount of time in minutes to wait between each traffic shifting step
 	// during a linear deployment. Valid values are 0 to 1440 minutes (24 hours).
 	// The default value is 6. This bake time is not applied after reaching 100
@@ -1024,11 +1024,11 @@ _#defs: "/$defs/Properties/definitions/LinearConfiguration": close({
 // the target type, not ``instance``. Tasks that use the ``awsvpc`` network
 // mode are associated with an elastic network interface, not an Amazon EC2
 // instance.
-_#defs: "/$defs/Properties/definitions/LoadBalancer": close({
+#LoadBalancer: close({
 	// The advanced settings for the load balancer used in blue/green deployments.
 	// Specify the alternate target group, listener rules, and IAM role required
 	// for traffic shifting during blue/green deployments.
-	AdvancedConfiguration?: _#defs."/$defs/Properties/definitions/AdvancedConfiguration"
+	AdvancedConfiguration?: #AdvancedConfiguration
 
 	// The name of the container (as it appears in a container definition) to
 	// associate with the load balancer.
@@ -1099,7 +1099,7 @@ _#defs: "/$defs/Properties/definitions/LoadBalancer": close({
 // underlying infrastructure your tasks are hosted on, any additional software
 // needed must be installed outside of the task. For example, the Fluentd
 // output aggregators or a remote host running Logstash to send Gelf logs to.
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	// The log driver to use for the container.
 	// For tasks on FARGATElong, the supported log drivers are ``awslogs``,
 	// ``splunk``, and ``awsfirelens``.
@@ -1238,11 +1238,11 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 	// [Specifying sensitive
 	// data](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"]
+	SecretOptions?: [...#Secret]
 })
 
 // The configuration for a specific set of metrics to collect for a service.
-_#defs: "/$defs/Properties/definitions/MetricConfiguration": close({
+#MetricConfiguration: close({
 	// The list of metric names to configure. The supported metric names are
 	// ``CPUUtilization`` and ``MemoryUtilization``.
 	MetricNames!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
@@ -1258,18 +1258,16 @@ _#defs: "/$defs/Properties/definitions/MetricConfiguration": close({
 // resolution for the service-level ``CPUUtilization`` and
 // ``MemoryUtilization`` Amazon CloudWatch metrics. When not specified, Amazon
 // ECS uses the default resolution of ``60`` seconds.
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
+#MonitoringConfiguration: close({
 	// The list of metric configurations for the service monitoring.
-	MetricConfigurations!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MetricConfiguration"
-	]
+	MetricConfigurations!: list.MaxItems(2) & list.MinItems(1) & [...#MetricConfiguration]
 })
 
 // The network configuration for a task or service.
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
+#NetworkConfiguration: close({
 	// The VPC subnets and security groups that are associated with a task.
 	// All specified subnets and security groups must be from the same VPC.
-	AwsvpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"
+	AwsvpcConfiguration?: #AwsVpcConfiguration
 })
 
 // An object representing a constraint on task placement. For more information,
@@ -1277,7 +1275,7 @@ _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
 // constraints](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-constraints.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
 // If you're using the Fargate launch type, task placement constraints aren't supported.
-_#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
+#PlacementConstraint: close({
 	// A cluster query language expression to apply to the constraint. The
 	// expression can have a maximum length of 2000 characters. You can't specify
 	// an expression if the constraint type is ``distinctInstance``. For more
@@ -1296,7 +1294,7 @@ _#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
 // [Task placement
 // strategies](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-placement-strategies.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
+#PlacementStrategy: close({
 	// The field to apply the placement strategy against. For the ``spread``
 	// placement strategy, valid values are ``instanceId`` (or ``host``, which has
 	// the same effect), or any platform or custom attribute that's applied to a
@@ -1326,7 +1324,7 @@ _#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
 // For more information, see [Specifying sensitive
 // data](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	// The name of the secret.
 	Name!: string
 
@@ -1353,7 +1351,7 @@ _#defs: "/$defs/Properties/definitions/Secret": close({
 // purposes.
 // To enable access logs, you must also specify a ``logConfiguration`` in the
 // ``serviceConnectConfiguration``.
-_#defs: "/$defs/Properties/definitions/ServiceConnectAccessLogConfiguration": close({
+#ServiceConnectAccessLogConfiguration: close({
 	// The format for Service Connect access log output. Choose TEXT for
 	// human-readable logs or JSON for structured data that integrates well with
 	// log analysis tools.
@@ -1378,7 +1376,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectAccessLogConfiguration": cl
 // see [Service
 // Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/ServiceConnectClientAlias": close({
+#ServiceConnectClientAlias: close({
 	// The ``dnsName`` is the name that you use in the applications of client tasks
 	// to connect to this service. The name must be a valid DNS name but doesn't
 	// need to be fully-qualified. The name can include up to 127 characters. The
@@ -1409,7 +1407,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectClientAlias": close({
 	// deployments with Amazon ECS Service Connect. This allows you to route a
 	// portion of traffic to the new service revision of your service for testing
 	// before shifting all production traffic.
-	TestTrafficRules?: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRules"
+	TestTrafficRules?: #ServiceConnectTestTrafficRules
 })
 
 // The Service Connect configuration of your Amazon ECS service. The
@@ -1423,7 +1421,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectClientAlias": close({
 // see [Service
 // Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/ServiceConnectConfiguration": close({
+#ServiceConnectConfiguration: close({
 	// The configuration for Service Connect access logging. Access logs capture
 	// detailed information about requests made to your service, including request
 	// patterns, response codes, and timing data. They can be useful for debugging
@@ -1431,7 +1429,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectConfiguration": close({
 	// service-to-service communication for security and compliance purposes.
 	// To enable access logs, you must also specify a ``logConfiguration`` in the
 	// ``serviceConnectConfiguration``.
-	AccessLogConfiguration?: _#defs."/$defs/Properties/definitions/ServiceConnectAccessLogConfiguration"
+	AccessLogConfiguration?: #ServiceConnectAccessLogConfiguration
 
 	// Specifies whether to use Service Connect with this service.
 	Enabled!: bool
@@ -1465,7 +1463,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectConfiguration": close({
 	// underlying infrastructure your tasks are hosted on, any additional software
 	// needed must be installed outside of the task. For example, the Fluentd
 	// output aggregators or a remote host running Logstash to send Gelf logs to.
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	LogConfiguration?: #LogConfiguration
 
 	// The namespace name or full Amazon Resource Name (ARN) of the CMAPlong
 	// namespace for use with Service Connect. The namespace must be in the same
@@ -1487,14 +1485,14 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectConfiguration": close({
 	// An object selects a port from the task definition, assigns a name for the
 	// CMAPlong service, and a list of aliases (endpoints) and ports for client
 	// applications to refer to this service.
-	Services?: [..._#defs."/$defs/Properties/definitions/ServiceConnectService"]
+	Services?: [...#ServiceConnectService]
 })
 
 // The Service Connect service object configuration. For more information, see
 // [Service
 // Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/ServiceConnectService": close({
+#ServiceConnectService: close({
 	// The list of client aliases for this Service Connect service. You use these to
 	// assign names that can be used by client applications. The maximum number of
 	// client aliases that you can have in this list is 1.
@@ -1503,7 +1501,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectService": close({
 	// Each name and port mapping must be unique within the namespace.
 	// For each ``ServiceConnectService``, you must provide at least one
 	// ``clientAlias`` with one ``port``.
-	ClientAliases?: [..._#defs."/$defs/Properties/definitions/ServiceConnectClientAlias"]
+	ClientAliases?: [...#ServiceConnectClientAlias]
 
 	// The ``discoveryName`` is the name of the new CMAP service that Amazon ECS
 	// creates for this Amazon ECS service. This must be unique within the CMAP
@@ -1530,10 +1528,10 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectService": close({
 	PortName!: string
 
 	// A reference to an object that represents the configured timeouts for Service Connect.
-	Timeout?: _#defs."/$defs/Properties/definitions/TimeoutConfiguration"
+	Timeout?: #TimeoutConfiguration
 
 	// A reference to an object that represents a Transport Layer Security (TLS) configuration.
-	Tls?: _#defs."/$defs/Properties/definitions/ServiceConnectTlsConfiguration"
+	Tls?: #ServiceConnectTlsConfiguration
 })
 
 // The test traffic routing configuration for Amazon ECS blue/green deployments.
@@ -1543,31 +1541,31 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectService": close({
 // For more information, see [Service Connect for Amazon ECS blue/green
 // deployments](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect-blue-green.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/ServiceConnectTestTrafficRules": close({
+#ServiceConnectTestTrafficRules: close({
 	// The HTTP header-based routing rules that determine which requests should be
 	// routed to the new service version during blue/green deployment testing.
 	// These rules provide fine-grained control over test traffic routing based on
 	// request headers.
-	Header!: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeader"
+	Header!: #ServiceConnectTestTrafficRulesHeader
 })
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeader": close({
+#ServiceConnectTestTrafficRulesHeader: close({
 	Name!:  string
-	Value?: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeaderValue"
+	Value?: #ServiceConnectTestTrafficRulesHeaderValue
 })
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeaderValue": close({Exact!: string})
+#ServiceConnectTestTrafficRulesHeaderValue: close({Exact!: string})
 
 // The certificate root authority that secures your service.
-_#defs: "/$defs/Properties/definitions/ServiceConnectTlsCertificateAuthority": close({
+#ServiceConnectTlsCertificateAuthority: close({
 	// The ARN of the AWS Private Certificate Authority certificate.
 	AwsPcaAuthorityArn?: string
 })
 
 // The key that encrypts and decrypts your resources for Service Connect TLS.
-_#defs: "/$defs/Properties/definitions/ServiceConnectTlsConfiguration": close({
+#ServiceConnectTlsConfiguration: close({
 	// The signer certificate authority.
-	IssuerCertificateAuthority!: _#defs."/$defs/Properties/definitions/ServiceConnectTlsCertificateAuthority"
+	IssuerCertificateAuthority!: #ServiceConnectTlsCertificateAuthority
 
 	// The AWS Key Management Service key.
 	KmsKey?: string
@@ -1584,7 +1582,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectTlsConfiguration": close({
 // types](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-volumes.html#ebs-volumes-configuration)
 // in the*Amazon Elastic Container Service Developer Guide*.
 // Many of these parameters map 1:1 with the Amazon EBS ``CreateVolume`` API request parameters.
-_#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": close({
+#ServiceManagedEBSVolumeConfiguration: close({
 	// Indicates whether the volume should be encrypted. If you turn on Region-level
 	// Amazon EBS encryption by default but set this value as ``false``, the
 	// setting is overridden and the volume is encrypted with the KMS key specified
@@ -1672,7 +1670,7 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": cl
 	// of the [CreateVolume
 	// API](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html)
 	// in the *Amazon EC2 API Reference*.
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/EBSTagSpecification"]
+	TagSpecifications?: [...#EBSTagSpecification]
 
 	// The throughput to provision for a volume, in MiB/s, with a maximum of 1,000
 	// MiB/s. This parameter maps 1:1 with the ``Throughput`` parameter of the
@@ -1713,7 +1711,7 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": cl
 // When you add, update, or remove the service registries configuration, Amazon
 // ECS starts a new deployment. New tasks are registered and deregistered to
 // the updated service registry configuration.
-_#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
+#ServiceRegistry: close({
 	// The container name value to be used for your service discovery service. It's
 	// already specified in the task definition. If the task definition that your
 	// service task specifies uses the ``bridge`` or ``host`` network mode, you
@@ -1748,13 +1746,13 @@ _#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
 // The configuration for a volume specified in the task definition as a volume
 // that is configured at launch time. Currently, the only supported volume type
 // is an Amazon EBS volume.
-_#defs: "/$defs/Properties/definitions/ServiceVolumeConfiguration": close({
+#ServiceVolumeConfiguration: close({
 	// The configuration for the Amazon EBS volume that Amazon ECS creates and
 	// manages on your behalf. These settings are used to create each Amazon EBS
 	// volume, with one volume created for each task in the service. The Amazon EBS
 	// volumes are visible in your account in the Amazon EC2 console once they are
 	// created.
-	ManagedEBSVolume?: _#defs."/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration"
+	ManagedEBSVolume?: #ServiceManagedEBSVolumeConfiguration
 
 	// The name of the volume. This value must match the volume name from the
 	// ``Volume`` object in the task definition.
@@ -1790,7 +1788,7 @@ _#defs: "/$defs/Properties/definitions/ServiceVolumeConfiguration": close({
 // + You can use CFN to tag the service as you would a service with a long ARN format.
 // + When the ``PhysicalResourceId`` in the CFN stack represents a service, the
 // value does not change and will be the short service ARN.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// One part of a key-value pair that make up a tag. A ``key`` is a general label
 	// that acts like a category for more specific tag values.
 	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
@@ -1806,7 +1804,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // triggers.
 // By default, the threshold configuration uses a ``type`` of
 // ``BOUNDED_PERCENT`` with a ``value`` of ``50``.
-_#defs: "/$defs/Properties/definitions/ThresholdConfiguration": close({
+#ThresholdConfiguration: close({
 	// Determines how Amazon ECS uses ``value`` to calculate the failure threshold.
 	// For the percentage types (``BOUNDED_PERCENT`` and ``UNBOUNDED_PERCENT``),
 	// Amazon ECS multiplies ``value`` by the latest service desired count. For
@@ -1826,7 +1824,7 @@ _#defs: "/$defs/Properties/definitions/ThresholdConfiguration": close({
 // If ``idleTimeout`` is set to a time that is less than ``perRequestTimeout``,
 // the connection will close when the ``idleTimeout`` is reached and not the
 // ``perRequestTimeout``.
-_#defs: "/$defs/Properties/definitions/TimeoutConfiguration": close({
+#TimeoutConfiguration: close({
 	// The amount of time in seconds a connection will stay active while idle. A
 	// value of ``0`` can be set to disable ``idleTimeout``.
 	// The ``idleTimeout`` default for ``HTTP``/``HTTP2``/``GRPC`` is 5 minutes.
@@ -1841,7 +1839,7 @@ _#defs: "/$defs/Properties/definitions/TimeoutConfiguration": close({
 	PerRequestTimeoutSeconds?: int & <=2147483647 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/VpcLatticeAdvancedConfiguration": close({
+#VpcLatticeAdvancedConfiguration: close({
 	AlternateTargetGroupArn?: string
 	ProductionListenerRule?:  string
 	TestListenerRule?:        string
@@ -1849,8 +1847,8 @@ _#defs: "/$defs/Properties/definitions/VpcLatticeAdvancedConfiguration": close({
 
 // The VPC Lattice configuration for your service that holds the information for
 // the target group(s) Amazon ECS tasks will be registered to.
-_#defs: "/$defs/Properties/definitions/VpcLatticeConfiguration": close({
-	AdvancedConfiguration?: _#defs."/$defs/Properties/definitions/VpcLatticeAdvancedConfiguration"
+#VpcLatticeConfiguration: close({
+	AdvancedConfiguration?: #VpcLatticeAdvancedConfiguration
 
 	// The name of the port mapping to register in the VPC Lattice target group.
 	// This is the name of the ``portMapping`` you defined in your task definition.

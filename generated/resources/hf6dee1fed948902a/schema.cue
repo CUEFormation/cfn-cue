@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,34 +14,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Comprehend::Flywheel resource creates an Amazon Comprehend Flywheel
 // that enables customer to train their model.
-#Properties: close({
-	ActiveModelArn?: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"arn:aws(-[^:]+)?:comprehend:[a-zA-Z0-9-]*:[0-9]{12}:(document-classifier|entity-recognizer)/[a-zA-Z0-9](-*[a-zA-Z0-9])*(/version/[a-zA-Z0-9](-*[a-zA-Z0-9])*)?" |
-	fn.#StringExpression
-	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
-	fn.#StringExpression
-	DataLakeS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
-	fn.#StringExpression
-	DataSecurityConfig?: _#defs."/$defs/Properties/definitions/DataSecurityConfig"
-	FlywheelName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-	ModelType?:    "DOCUMENT_CLASSIFIER" | "ENTITY_RECOGNIZER" | fn.#StringExpression
-	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TaskConfig?:   _#defs."/$defs/Properties/definitions/TaskConfig"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Comprehend::Flywheel"
+	Properties!: close({
+		ActiveModelArn?: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"arn:aws(-[^:]+)?:comprehend:[a-zA-Z0-9-]*:[0-9]{12}:(document-classifier|entity-recognizer)/[a-zA-Z0-9](-*[a-zA-Z0-9])*(/version/[a-zA-Z0-9](-*[a-zA-Z0-9])*)?" |
+		fn.#StringExpression
+		DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+		fn.#StringExpression
+		DataLakeS3Uri!: strings.MaxRunes(512) &
+		strings.MinRunes(0) &
+		=~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
+		fn.#StringExpression
+		DataSecurityConfig?: #DataSecurityConfig
+		FlywheelName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		ModelType?:  "DOCUMENT_CLASSIFIER" | "ENTITY_RECOGNIZER" | fn.#StringExpression
+		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TaskConfig?: #TaskConfig
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DataSecurityConfig": close({
-	DataLakeKmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
-	ModelKmsKeyId?:    _#defs."/$defs/Properties/definitions/KmsKeyId"
-	VolumeKmsKeyId?:   _#defs."/$defs/Properties/definitions/KmsKeyId"
-	VpcConfig?:        _#defs."/$defs/Properties/definitions/VpcConfig"
+#DataSecurityConfig: close({
+	DataLakeKmsKeyId?: #KmsKeyId
+	ModelKmsKeyId?:    #KmsKeyId
+	VolumeKmsKeyId?:   #KmsKeyId
+	VpcConfig?:        #VpcConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentClassificationConfig": close({
+#DocumentClassificationConfig: close({
 	Labels?: list.MaxItems(1000) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(5000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
 	] |
@@ -50,36 +56,31 @@ _#defs: "/$defs/Properties/definitions/DocumentClassificationConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityRecognitionConfig": close({
-	EntityTypes?: list.MaxItems(25) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EntityTypesListItem"
-	] |
+#EntityRecognitionConfig: close({
+	EntityTypes?: list.MaxItems(25) & list.MinItems(1) & list.UniqueItems() & [...#EntityTypesListItem] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityTypesListItem": close(
-	{Type!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#EntityTypesListItem: close({Type!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\p{ASCII}+$" |
-fn.#StringExpression
+#KmsKeyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\p{ASCII}+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskConfig": close({
-	DocumentClassificationConfig?: _#defs."/$defs/Properties/definitions/DocumentClassificationConfig"
-	EntityRecognitionConfig?:      _#defs."/$defs/Properties/definitions/EntityRecognitionConfig"
+#TaskConfig: close({
+	DocumentClassificationConfig?: #DocumentClassificationConfig
+	EntityRecognitionConfig?:      #EntityRecognitionConfig
 	LanguageCode!:                 "en" | "es" | "fr" | "it" | "de" | "pt" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &
@@ -94,7 +95,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Comprehend::Flywheel"
-	Properties!: #Properties
-}

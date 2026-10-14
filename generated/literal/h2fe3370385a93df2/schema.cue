@@ -66,7 +66,7 @@ import (
 	// embed in a group, see [Limitations on
 	// Entities](https://docs.aws.amazon.com/IAM/latest/UserGuide/LimitationsOnEntities.html)
 	// in the *User Guide*.
-	Policies?: [..._#defs."/$defs/Properties/definitions/Policy"]
+	Policies?: [...#Policy]
 })
 
 // Contains information about an attached policy.
@@ -74,7 +74,7 @@ import (
 // For more information about managed policies, see [Managed Policies and Inline
 // Policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/policies-managed-vs-inline.html)
 // in the *User Guide*.
-_#defs: "/$defs/Properties/definitions/Policy": close({
+#Policy: close({
 	// The policy document.
 	PolicyDocument!: string | {...}
 

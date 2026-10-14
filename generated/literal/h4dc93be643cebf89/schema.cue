@@ -12,21 +12,21 @@ import (
 // This schema provides construct and validation rules for AWS-XRay SamplingRule
 // resource parameters.
 #Properties: close({
-	RuleARN?:            _#defs."/$defs/Properties/definitions/RuleARN"
-	RuleName?:           _#defs."/$defs/Properties/definitions/RuleName"
-	SamplingRule?:       _#defs."/$defs/Properties/definitions/SamplingRule"
-	SamplingRuleRecord?: _#defs."/$defs/Properties/definitions/SamplingRuleRecord"
-	SamplingRuleUpdate?: _#defs."/$defs/Properties/definitions/SamplingRuleUpdate"
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
+	RuleARN?:            #RuleARN
+	RuleName?:           #RuleName
+	SamplingRule?:       #SamplingRule
+	SamplingRuleRecord?: #SamplingRuleRecord
+	SamplingRuleUpdate?: #SamplingRuleUpdate
+	Tags?:               #Tags
 })
 
 // The ARN of the sampling rule. Specify a rule by either name or ARN, but not both.
-_#defs: "/$defs/Properties/definitions/RuleARN": string
+#RuleARN: string
 
 // The ARN of the sampling rule. Specify a rule by either name or ARN, but not both.
-_#defs: "/$defs/Properties/definitions/RuleName": strings.MaxRunes(32) & strings.MinRunes(1)
+#RuleName: strings.MaxRunes(32) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/SamplingRateBoost": close({
+#SamplingRateBoost: close({
 	// Time window (in minutes) in which only one sampling rate boost can be
 	// triggered. After a boost occurs, no further boosts are allowed until the
 	// next window.
@@ -38,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/SamplingRateBoost": close({
 	MaxRate!: <=1 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/SamplingRule": close({
+#SamplingRule: close({
 	// Matches attributes derived from the request.
 	Attributes?: close({
 
@@ -63,9 +63,9 @@ _#defs: "/$defs/Properties/definitions/SamplingRule": close({
 
 	// Matches the ARN of the AWS resource on which the service runs.
 	ResourceARN!:       strings.MaxRunes(500) & strings.MinRunes(0)
-	RuleARN?:           _#defs."/$defs/Properties/definitions/RuleARN"
-	RuleName?:          _#defs."/$defs/Properties/definitions/RuleName"
-	SamplingRateBoost?: _#defs."/$defs/Properties/definitions/SamplingRateBoost"
+	RuleARN?:           #RuleARN
+	RuleName?:          #RuleName
+	SamplingRateBoost?: #SamplingRateBoost
 
 	// Matches the name that the service uses to identify itself in segments.
 	ServiceName!: strings.MaxRunes(64) & strings.MinRunes(0)
@@ -80,16 +80,16 @@ _#defs: "/$defs/Properties/definitions/SamplingRule": close({
 	Version?: int & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/SamplingRuleRecord": close({
+#SamplingRuleRecord: close({
 	// When the rule was created, in Unix time seconds.
 	CreatedAt?: string
 
 	// When the rule was modified, in Unix time seconds.
 	ModifiedAt?:   string
-	SamplingRule?: _#defs."/$defs/Properties/definitions/SamplingRule"
+	SamplingRule?: #SamplingRule
 })
 
-_#defs: "/$defs/Properties/definitions/SamplingRuleUpdate": close({
+#SamplingRuleUpdate: close({
 	// Matches attributes derived from the request.
 	Attributes?: close({
 
@@ -114,9 +114,9 @@ _#defs: "/$defs/Properties/definitions/SamplingRuleUpdate": close({
 
 	// Matches the ARN of the AWS resource on which the service runs.
 	ResourceARN?:       strings.MaxRunes(500)
-	RuleARN?:           _#defs."/$defs/Properties/definitions/RuleARN"
-	RuleName?:          _#defs."/$defs/Properties/definitions/RuleName"
-	SamplingRateBoost?: _#defs."/$defs/Properties/definitions/SamplingRateBoost"
+	RuleARN?:           #RuleARN
+	RuleName?:          #RuleName
+	SamplingRateBoost?: #SamplingRateBoost
 
 	// Matches the name that the service uses to identify itself in segments.
 	ServiceName?: strings.MaxRunes(64)
@@ -128,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/SamplingRuleUpdate": close({
 	URLPath?: strings.MaxRunes(128)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -137,6 +137,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An array of key-value pairs to apply to this resource.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(200) & [...] & [...#Tag]

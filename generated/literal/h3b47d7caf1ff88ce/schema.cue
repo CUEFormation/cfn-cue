@@ -11,7 +11,7 @@ package schema
 
 	// The MediaLive Channels that are currently running on Nodes in this Cluster.
 	ChannelIds?:  [...string]
-	ClusterType?: _#defs."/$defs/Properties/definitions/ClusterType"
+	ClusterType?: #ClusterType
 
 	// The unique ID of the Cluster.
 	Id?: string
@@ -21,31 +21,31 @@ package schema
 
 	// The user-specified name of the Cluster to be created.
 	Name?:            string
-	NetworkSettings?: _#defs."/$defs/Properties/definitions/ClusterNetworkSettings"
-	State?:           _#defs."/$defs/Properties/definitions/ClusterState"
+	NetworkSettings?: #ClusterNetworkSettings
+	State?:           #ClusterState
 
 	// A collection of key-value pairs.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags"]
+	Tags?: [...#Tags]
 })
 
 // On premises settings which will have the interface network mappings and
 // default Output logical interface
-_#defs: "/$defs/Properties/definitions/ClusterNetworkSettings": close({
+#ClusterNetworkSettings: close({
 	// Default value if the customer does not define it in channel Output API
 	DefaultRoute?: string
 
 	// Network mappings for the cluster
-	InterfaceMappings?: [..._#defs."/$defs/Properties/definitions/InterfaceMapping"]
+	InterfaceMappings?: [...#InterfaceMapping]
 })
 
 // The current state of the Cluster.
-_#defs: "/$defs/Properties/definitions/ClusterState": "CREATING" | "CREATE_FAILED" | "ACTIVE" | "DELETING" | "DELETED"
+#ClusterState: "CREATING" | "CREATE_FAILED" | "ACTIVE" | "DELETING" | "DELETED"
 
 // The hardware type for the cluster.
-_#defs: "/$defs/Properties/definitions/ClusterType": "ON_PREMISES" | "OUTPOSTS_RACK" | "OUTPOSTS_SERVER" | "EC2"
+#ClusterType: "ON_PREMISES" | "OUTPOSTS_RACK" | "OUTPOSTS_SERVER" | "EC2"
 
 // Network mappings for the cluster
-_#defs: "/$defs/Properties/definitions/InterfaceMapping": close({
+#InterfaceMapping: close({
 	// logical interface name, unique in the list
 	LogicalInterfaceName?: string
 
@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/InterfaceMapping": close({
 })
 
 // Network mappings for the cluster
-_#defs: "/$defs/Properties/definitions/InterfaceNetworkMapping": close({
+#InterfaceNetworkMapping: close({
 	// logical interface name, unique in the list
 	LogicalInterfaceName?: string
 
@@ -63,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/InterfaceNetworkMapping": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string
 	Value?: string
 })

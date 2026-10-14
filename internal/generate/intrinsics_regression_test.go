@@ -79,7 +79,7 @@ func TestConditionalObjectThroughLocalReference(t *testing.T) {
 	if _, err := Generate(fixture(t), Options{Out: out, Regions: []string{"us-east-1"}}); err != nil {
 		t.Fatal(err)
 	}
-	schema := build(t, out, "./resources/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	schema := propertiesSchema(t, out, "./resources/htest")
 	for _, data := range []string{
 		`{Name:"one",Node:{"Fn::If":["Enabled",{Label:"a"},{Ref:"AWS::NoValue"}]}}`,
 		`{Name:"one",Node:{Children:[{"Fn::If":["Enabled",{Label:"a",Children:[{Label:"b"}]},{Ref:"AWS::NoValue"}]}]}}`,
@@ -114,7 +114,7 @@ func TestConditionalObjectThroughReferenceChain(t *testing.T) {
 	if _, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}}); err != nil {
 		t.Fatal(err)
 	}
-	schema := build(t, out, "./resources/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	schema := propertiesSchema(t, out, "./resources/htest")
 	validate(t, schema, `{Name:"one",Alias:{"Fn::If":["Enabled",{Label:"a"},{Ref:"AWS::NoValue"}]},Any:{"Fn::If":["Enabled",{Nested:[1,"a",true]},{Ref:"AWS::NoValue"}]}}`, true)
 	validate(t, schema, `{Name:"one",Alias:{"Fn::If":["Enabled",[],{Ref:"AWS::NoValue"}]}}`, false)
 }
@@ -148,4 +148,28 @@ func TestIntrinsicConditionalQuotedScalars(t *testing.T) {
 			}
 		})
 	}
+}
+
+// A described reference to a lifted definition is not lifted again; two
+// identical intrinsic alternatives would leave every intrinsic ambiguous.
+func TestDescribedReferenceToLiftedDefinition(t *testing.T) {
+	root := map[string]any{
+		"typeName": "AWS::Test::Thing", "type": "object", "additionalProperties": false,
+		"properties": map[string]any{
+			"Names": map[string]any{"type": "array", "items": map[string]any{"$ref": "#/definitions/Name", "description": "A name"}},
+			"Owner": map[string]any{"$ref": "#/definitions/Name", "description": "The owner"},
+		},
+		"definitions": map[string]any{"Name": map[string]any{"type": "string", "pattern": "^[a-z]+$"}},
+	}
+	b, e := json.Marshal(root)
+	if e != nil {
+		t.Fatal(e)
+	}
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, e = Generate(&Source{Label: "test", SHA256: "test", files: map[string][]byte{"providers/us-east-1.json": []byte(`{"AWS::Test::Thing":"test"}`), "resources/test.json": b}}, Options{Out: out}); e != nil {
+		t.Fatal(e)
+	}
+	schema := propertiesSchema(t, out, "./resources/htest")
+	validate(t, schema, `{Names:[{Ref:"P"},{"Fn::GetAtt":["R","Name"]},"abc"],Owner:{Ref:"P"}}`, true)
+	validate(t, schema, `{Names:["ABC"]}`, false)
 }

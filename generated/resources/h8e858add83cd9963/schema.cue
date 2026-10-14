@@ -12,11 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::ResourcePolicy Resource Type
-#Properties: close({
-	PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
-	ResourceArn!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::Bedrock::ResourcePolicy"
+	Properties!: close({
+		PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
+		ResourceArn!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

@@ -19,10 +19,10 @@ package schema
 	DomainNameArn!: string
 
 	// An array of arbitrary tags (key-value pairs) to associate with the domainname access association.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

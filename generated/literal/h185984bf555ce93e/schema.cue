@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,12 +12,10 @@ import (
 // Resource Type definition for AWS::Connect::HoursOfOperation
 #Properties: close({
 	// List of child hours of operations.
-	ChildHoursOfOperations?: [..._#defs."/$defs/Properties/definitions/HoursOfOperationsIdentifier"]
+	ChildHoursOfOperations?: [...#HoursOfOperationsIdentifier]
 
 	// Configuration information for the hours of operation: day, start time, and end time.
-	Config!: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/HoursOfOperationConfig"
-	]
+	Config!: list.MaxItems(100) & list.UniqueItems() & [...] & [...#HoursOfOperationConfig]
 
 	// The description of the hours of operation.
 	Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,250}$"
@@ -27,7 +25,7 @@ import (
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/operating-hours/[-a-zA-Z0-9]*$"
 
 	// One or more hours of operation overrides assigned to an hour of operation.
-	HoursOfOperationOverrides?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/HoursOfOperationOverride"]
+	HoursOfOperationOverrides?: list.MaxItems(50) & [...#HoursOfOperationOverride]
 
 	// The identifier of the Amazon Connect instance.
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
@@ -36,62 +34,62 @@ import (
 	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,127}$"
 
 	// List of parent hours of operations.
-	ParentHoursOfOperations?: [..._#defs."/$defs/Properties/definitions/HoursOfOperationsIdentifier"]
+	ParentHoursOfOperations?: [...#HoursOfOperationsIdentifier]
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The time zone of the hours of operation.
 	TimeZone!: string
 })
 
 // The date from which the hours of operation override would be effective.
-_#defs: "/$defs/Properties/definitions/EffectiveFrom": =~"^\\d{4}-\\d{2}-\\d{2}$"
+#EffectiveFrom: =~"^\\d{4}-\\d{2}-\\d{2}$"
 
 // The date till which the hours of operation override would be effective.
-_#defs: "/$defs/Properties/definitions/EffectiveTill": =~"^\\d{4}-\\d{2}-\\d{2}$"
+#EffectiveTill: =~"^\\d{4}-\\d{2}-\\d{2}$"
 
 // Contains information about the hours of operation.
-_#defs: "/$defs/Properties/definitions/HoursOfOperationConfig": close({
+#HoursOfOperationConfig: close({
 	// The day that the hours of operation applies to.
 	Day!: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY"
 
 	// The end time that your contact center closes.
-	EndTime!: _#defs."/$defs/Properties/definitions/HoursOfOperationTimeSlice"
+	EndTime!: #HoursOfOperationTimeSlice
 
 	// The start time that your contact center opens.
-	StartTime!: _#defs."/$defs/Properties/definitions/HoursOfOperationTimeSlice"
+	StartTime!: #HoursOfOperationTimeSlice
 })
 
 // Overrides attached to the hours of operation.
-_#defs: "/$defs/Properties/definitions/HoursOfOperationOverride": close({
-	EffectiveFrom!:              _#defs."/$defs/Properties/definitions/EffectiveFrom"
-	EffectiveTill!:              _#defs."/$defs/Properties/definitions/EffectiveTill"
-	HoursOfOperationOverrideId?: _#defs."/$defs/Properties/definitions/HoursOfOperationOverrideId"
-	OverrideConfig!:             _#defs."/$defs/Properties/definitions/OverrideConfig"
-	OverrideDescription?:        _#defs."/$defs/Properties/definitions/OverrideDescription"
-	OverrideName!:               _#defs."/$defs/Properties/definitions/OverrideName"
-	OverrideType?:               _#defs."/$defs/Properties/definitions/OverrideType"
-	RecurrenceConfig?:           _#defs."/$defs/Properties/definitions/RecurrenceConfig"
+#HoursOfOperationOverride: close({
+	EffectiveFrom!:              #EffectiveFrom
+	EffectiveTill!:              #EffectiveTill
+	HoursOfOperationOverrideId?: #HoursOfOperationOverrideId
+	OverrideConfig!:             #OverrideConfig
+	OverrideDescription?:        #OverrideDescription
+	OverrideName!:               #OverrideName
+	OverrideType?:               #OverrideType
+	RecurrenceConfig?:           #RecurrenceConfig
 })
 
 // Contains information about the hours of operation override.
-_#defs: "/$defs/Properties/definitions/HoursOfOperationOverrideConfig": close({
+#HoursOfOperationOverrideConfig: close({
 	// The day that the hours of operation override applies to.
 	Day!: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY"
 
 	// The new end time that your contact center closes for the overriden days.
-	EndTime!: _#defs."/$defs/Properties/definitions/OverrideTimeSlice"
+	EndTime!: #OverrideTimeSlice
 
 	// The new start time that your contact center opens for the overriden days.
-	StartTime!: _#defs."/$defs/Properties/definitions/OverrideTimeSlice"
+	StartTime!: #OverrideTimeSlice
 })
 
 // The Resource Identifier for the hours of operation override.
-_#defs: "/$defs/Properties/definitions/HoursOfOperationOverrideId": =~"^[-a-zA-Z0-9]*$"
+#HoursOfOperationOverrideId: =~"^[-a-zA-Z0-9]*$"
 
 // The start time or end time for an hours of operation.
-_#defs: "/$defs/Properties/definitions/HoursOfOperationTimeSlice": close({
+#HoursOfOperationTimeSlice: close({
 	// The hours.
 	Hours!: int & <=23 & >=0
 
@@ -100,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/HoursOfOperationTimeSlice": close({
 })
 
 // Identifier for hours of operation.
-_#defs: "/$defs/Properties/definitions/HoursOfOperationsIdentifier": close({
+#HoursOfOperationsIdentifier: close({
 	// The identifier for the hours of operation.
 	Id!: string
 
@@ -109,24 +107,22 @@ _#defs: "/$defs/Properties/definitions/HoursOfOperationsIdentifier": close({
 })
 
 // List of month days (-1 to 31) for recurrence pattern.
-_#defs: "/$defs/Properties/definitions/MonthDayList": [...int & <=31 & >=-1]
+#MonthDayList: [...int & <=31 & >=-1]
 
 // List of months (1-12) for recurrence pattern.
-_#defs: "/$defs/Properties/definitions/MonthList": [...int & <=12 & >=1]
+#MonthList: [...int & <=12 & >=1]
 
 // Configuration information for the hours of operation override: day, start time, and end time.
-_#defs: "/$defs/Properties/definitions/OverrideConfig": list.MaxItems(100) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/HoursOfOperationOverrideConfig"
-]
+#OverrideConfig: list.MaxItems(100) & list.UniqueItems() & [...#HoursOfOperationOverrideConfig]
 
 // The description of the hours of operation override.
-_#defs: "/$defs/Properties/definitions/OverrideDescription": strings.MaxRunes(250) & strings.MinRunes(1)
+#OverrideDescription: strings.MaxRunes(250) & strings.MinRunes(1)
 
 // The name of the hours of operation override.
-_#defs: "/$defs/Properties/definitions/OverrideName": strings.MaxRunes(127) & strings.MinRunes(1)
+#OverrideName: strings.MaxRunes(127) & strings.MinRunes(1)
 
 // The start time or end time for an an hours of operation override.
-_#defs: "/$defs/Properties/definitions/OverrideTimeSlice": close({
+#OverrideTimeSlice: close({
 	// The hours.
 	Hours!: int & <=23 & >=0
 
@@ -135,27 +131,25 @@ _#defs: "/$defs/Properties/definitions/OverrideTimeSlice": close({
 })
 
 // The type of hours of operation override.
-_#defs: "/$defs/Properties/definitions/OverrideType": "STANDARD" | "OPEN" | "CLOSED"
+#OverrideType: "STANDARD" | "OPEN" | "CLOSED"
 
 // Configuration for recurring hours of operation overrides.
-_#defs: "/$defs/Properties/definitions/RecurrenceConfig": close(
-	{RecurrencePattern!: _#defs."/$defs/Properties/definitions/RecurrencePattern"},
-)
+#RecurrenceConfig: close({RecurrencePattern!: #RecurrencePattern})
 
 // The frequency of recurrence for hours of operation overrides.
-_#defs: "/$defs/Properties/definitions/RecurrenceFrequency": "WEEKLY" | "MONTHLY" | "YEARLY"
+#RecurrenceFrequency: "WEEKLY" | "MONTHLY" | "YEARLY"
 
 // Pattern for recurring hours of operation overrides.
-_#defs: "/$defs/Properties/definitions/RecurrencePattern": close({
-	ByMonth?:             _#defs."/$defs/Properties/definitions/MonthList"
-	ByMonthDay?:          _#defs."/$defs/Properties/definitions/MonthDayList"
+#RecurrencePattern: close({
+	ByMonth?:             #MonthList
+	ByMonthDay?:          #MonthDayList
 	ByWeekdayOccurrence?: list.MaxItems(1) & [...] & [...int & <=4 & >=-1]
-	Frequency?:           _#defs."/$defs/Properties/definitions/RecurrenceFrequency"
+	Frequency?:           #RecurrenceFrequency
 	Interval?:            int & <=6 & >=1
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,82 +16,97 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::MLTransform
-#Properties: close({
-	Description?:       strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	GlueVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
-	InputRecordTables!: _#defs."/$defs/Properties/definitions/InputRecordTables" | fn.#ObjectExpression
-	MaxCapacity?: <=100 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							<=100 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxRetries?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	NumberOfWorkers?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Role!: string | fn.#StringExpression
-	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Timeout?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TransformEncryption?: _#defs."/$defs/Properties/definitions/TransformEncryption" | fn.#ObjectExpression
-	TransformParameters!: _#defs."/$defs/Properties/definitions/TransformParameters" | fn.#ObjectExpression
-	WorkerType?:          "G.025X" | "G.1X" | "G.2X" | "G.4X" | "G.8X" | "Standard" | "Z.2X" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::MLTransform"
+	Properties!: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FindMatchesParameters": close({
+		// A list of AWS Glue table definitions used by the transform.
+		InputRecordTables!: #InputRecordTables
+		MaxCapacity?: <=100 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=100 &
+								>=1,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxRetries?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		NumberOfWorkers?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Role!: string | fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Timeout?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+
+		// The encryption-at-rest settings of the transform.
+		TransformEncryption?: #TransformEncryption
+
+		// The algorithm-specific parameters that are associated with the machine learning transform.
+		TransformParameters!: #TransformParameters
+		WorkerType?:          "G.025X" | "G.1X" | "G.2X" | "G.4X" | "G.8X" | "Standard" | "Z.2X" | fn.#StringExpression
+	})
+}
+
+#FindMatchesParameters: close({
 	AccuracyCostTradeoff?: number |
 		{
 			string &
@@ -135,7 +150,7 @@ _#defs: "/$defs/Properties/definitions/FindMatchesParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GlueTables": close({
+#GlueTables: close({
 	CatalogId?:      string | fn.#StringExpression
 	ConnectionName?: string | fn.#StringExpression
 	DatabaseName!:   string | fn.#StringExpression
@@ -143,12 +158,9 @@ _#defs: "/$defs/Properties/definitions/GlueTables": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputRecordTables": close(
-	{GlueTables?: [..._#defs."/$defs/Properties/definitions/GlueTables"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#InputRecordTables: close({GlueTables?: [...#GlueTables] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MLUserDataEncryption": close({
+#MLUserDataEncryption: close({
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 	fn.#StringExpression
@@ -156,24 +168,20 @@ _#defs: "/$defs/Properties/definitions/MLUserDataEncryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformEncryption": close({
-	MLUserDataEncryption?:             _#defs."/$defs/Properties/definitions/MLUserDataEncryption"
+#TransformEncryption: close({
+	MLUserDataEncryption?:             #MLUserDataEncryption
 	TaskRunSecurityConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformParameters": close({
-	FindMatchesParameters?: _#defs."/$defs/Properties/definitions/FindMatchesParameters"
+#TransformParameters: close({
+	FindMatchesParameters?: #FindMatchesParameters
 	TransformType!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::MLTransform"
-	Properties!: #Properties
-}

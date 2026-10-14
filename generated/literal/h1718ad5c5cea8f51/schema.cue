@@ -22,14 +22,14 @@ import (
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Specifies an OpenTableFormatInput structure when creating an open format table.
-	OpenTableFormatInput?: _#defs."/$defs/Properties/definitions/OpenTableFormatInput"
+	OpenTableFormatInput?: #OpenTableFormatInput
 
 	// A structure used to define a table.
-	TableInput?: _#defs."/$defs/Properties/definitions/TableInput"
+	TableInput?: #TableInput
 })
 
 // A column in a Table.
-_#defs: "/$defs/Properties/definitions/Column": close({
+#Column: close({
 	// A free-form text comment.
 	Comment?: strings.MaxRunes(255) & strings.MinRunes(0)
 
@@ -41,19 +41,19 @@ _#defs: "/$defs/Properties/definitions/Column": close({
 })
 
 // Specifies an input structure that defines an Apache Iceberg metadata table.
-_#defs: "/$defs/Properties/definitions/IcebergInput": close({
+#IcebergInput: close({
 	// Specifies the Iceberg table configuration.
-	IcebergTableInput?: _#defs."/$defs/Properties/definitions/IcebergTableInput"
+	IcebergTableInput?: #IcebergTableInput
 
 	// A required metadata operation. Can only be set to CREATE.
-	MetadataOperation?: _#defs."/$defs/Properties/definitions/MetadataOperation"
+	MetadataOperation?: #MetadataOperation
 
 	// The table version of the Iceberg table. Defaults to 2.
 	Version?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // A partition field in an Iceberg partition spec.
-_#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
+#IcebergPartitionField: close({
 	// The partition field ID.
 	FieldId?: int
 
@@ -68,18 +68,18 @@ _#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
 })
 
 // The partition spec for an Iceberg table.
-_#defs: "/$defs/Properties/definitions/IcebergPartitionSpec": close({
+#IcebergPartitionSpec: close({
 	// The partition fields.
-	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergPartitionField"]
+	Fields!: [...#IcebergPartitionField]
 
 	// The spec ID.
 	SpecId?: int
 })
 
 // The schema for an Iceberg table.
-_#defs: "/$defs/Properties/definitions/IcebergSchema": close({
+#IcebergSchema: close({
 	// The fields in the schema.
-	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergStructField"]
+	Fields!: [...#IcebergStructField]
 
 	// The identifier field IDs.
 	IdentifierFieldIds?: [...int]
@@ -92,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/IcebergSchema": close({
 })
 
 // A sort field in an Iceberg sort order.
-_#defs: "/$defs/Properties/definitions/IcebergSortField": close({
+#IcebergSortField: close({
 	// The sort direction.
 	Direction!: string
 
@@ -107,16 +107,16 @@ _#defs: "/$defs/Properties/definitions/IcebergSortField": close({
 })
 
 // The sort order for an Iceberg table.
-_#defs: "/$defs/Properties/definitions/IcebergSortOrder": close({
+#IcebergSortOrder: close({
 	// The sort fields.
-	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergSortField"]
+	Fields!: [...#IcebergSortField]
 
 	// The order ID.
 	OrderId!: int
 })
 
 // A field in an Iceberg schema.
-_#defs: "/$defs/Properties/definitions/IcebergStructField": close({
+#IcebergStructField: close({
 	// Documentation for the field.
 	Doc?: string
 
@@ -134,12 +134,12 @@ _#defs: "/$defs/Properties/definitions/IcebergStructField": close({
 })
 
 // Specifies the Iceberg table configuration.
-_#defs: "/$defs/Properties/definitions/IcebergTableInput": close({
+#IcebergTableInput: close({
 	// The location of the Iceberg table.
 	Location!: string
 
 	// The partition spec for the Iceberg table.
-	PartitionSpec?: _#defs."/$defs/Properties/definitions/IcebergPartitionSpec"
+	PartitionSpec?: #IcebergPartitionSpec
 
 	// The properties for the Iceberg table.
 	Properties?: close({
@@ -147,23 +147,23 @@ _#defs: "/$defs/Properties/definitions/IcebergTableInput": close({
 		{[=~"^.+$"]: string}})
 
 	// The schema for the Iceberg table.
-	Schema!: _#defs."/$defs/Properties/definitions/IcebergSchema"
+	Schema!: #IcebergSchema
 
 	// The write order for the Iceberg table.
-	WriteOrder?: _#defs."/$defs/Properties/definitions/IcebergSortOrder"
+	WriteOrder?: #IcebergSortOrder
 })
 
 // A required metadata operation. Can only be set to CREATE.
-_#defs: "/$defs/Properties/definitions/MetadataOperation": "CREATE"
+#MetadataOperation: "CREATE"
 
 // Specifies an OpenTableFormatInput structure when creating an open format table.
-_#defs: "/$defs/Properties/definitions/OpenTableFormatInput": close({
+#OpenTableFormatInput: close({
 	// Specifies an IcebergInput structure that defines an Apache Iceberg metadata table.
-	IcebergInput?: _#defs."/$defs/Properties/definitions/IcebergInput"
+	IcebergInput?: #IcebergInput
 })
 
 // Specifies the sort order of a sorted column.
-_#defs: "/$defs/Properties/definitions/Order": close({
+#Order: close({
 	// The name of the column.
 	Column!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -173,7 +173,7 @@ _#defs: "/$defs/Properties/definitions/Order": close({
 
 // A structure that contains schema identity fields. Either this or the
 // SchemaVersionId has to be provided.
-_#defs: "/$defs/Properties/definitions/SchemaId": close({
+#SchemaId: close({
 	// The name of the schema registry that contains the schema.
 	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$"
 
@@ -185,10 +185,10 @@ _#defs: "/$defs/Properties/definitions/SchemaId": close({
 })
 
 // An object that references a schema stored in the AWS Glue Schema Registry.
-_#defs: "/$defs/Properties/definitions/SchemaReference": close({
+#SchemaReference: close({
 	// A structure that contains schema identity fields. Either this or the
 	// SchemaVersionId has to be provided.
-	SchemaId?: _#defs."/$defs/Properties/definitions/SchemaId"
+	SchemaId?: #SchemaId
 
 	// The unique ID assigned to a version of the schema. Either this or the
 	// SchemaId has to be provided.
@@ -202,7 +202,7 @@ _#defs: "/$defs/Properties/definitions/SchemaReference": close({
 
 // Information about a serialization/deserialization program (SerDe) that serves
 // as an extractor an loader.
-_#defs: "/$defs/Properties/definitions/SerdeInfo": close({
+#SerdeInfo: close({
 	// Name of the SerDe.
 	Name?:       strings.MaxRunes(255) & strings.MinRunes(1)
 	Parameters?: string | {...}
@@ -213,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/SerdeInfo": close({
 })
 
 // Specifies skewed values in a table. Skewed values are those that occur with very high frequency.
-_#defs: "/$defs/Properties/definitions/SkewedInfo": close({
+#SkewedInfo: close({
 	// A list of names of columns that contain skewed values.
 	SkewedColumnNames?:             [...strings.MaxRunes(255) & strings.MinRunes(1)]
 	SkewedColumnValueLocationMaps?: string | {...}
@@ -223,12 +223,12 @@ _#defs: "/$defs/Properties/definitions/SkewedInfo": close({
 })
 
 // Describes the physical storage of table data.
-_#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
+#StorageDescriptor: close({
 	// A list of reducer grouping columns, clustering columns, and bucketing columns in the table.
 	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1)]
 
 	// A list of the Columns in the table.
-	Columns?: [..._#defs."/$defs/Properties/definitions/Column"]
+	Columns?: [...#Column]
 
 	// True if the data in the table is compressed, or False if not.
 	Compressed?: bool
@@ -250,23 +250,23 @@ _#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
 	Parameters?:   string | {...}
 
 	// An object that references a schema stored in the AWS Glue Schema Registry.
-	SchemaReference?: _#defs."/$defs/Properties/definitions/SchemaReference"
+	SchemaReference?: #SchemaReference
 
 	// The serialization/deserialization (SerDe) information.
-	SerdeInfo?: _#defs."/$defs/Properties/definitions/SerdeInfo"
+	SerdeInfo?: #SerdeInfo
 
 	// The information about values that appear frequently in a column (skewed values).
-	SkewedInfo?: _#defs."/$defs/Properties/definitions/SkewedInfo"
+	SkewedInfo?: #SkewedInfo
 
 	// A list specifying the sort order of each bucket in the table.
-	SortColumns?: [..._#defs."/$defs/Properties/definitions/Order"]
+	SortColumns?: [...#Order]
 
 	// True if the table data is stored in subdirectories, or False if not.
 	StoredAsSubDirectories?: bool
 })
 
 // A structure that describes a target table for resource linking.
-_#defs: "/$defs/Properties/definitions/TableIdentifier": close({
+#TableIdentifier: close({
 	// The ID of the Data Catalog in which the table resides.
 	CatalogId?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -281,7 +281,7 @@ _#defs: "/$defs/Properties/definitions/TableIdentifier": close({
 })
 
 // A structure used to define a table.
-_#defs: "/$defs/Properties/definitions/TableInput": close({
+#TableInput: close({
 	// A description of the table.
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0)
 
@@ -295,13 +295,13 @@ _#defs: "/$defs/Properties/definitions/TableInput": close({
 
 	// A list of columns by which the table is partitioned. Only primitive types are
 	// supported as partition keys.
-	PartitionKeys?: [..._#defs."/$defs/Properties/definitions/Column"]
+	PartitionKeys?: [...#Column]
 
 	// The retention time for this table.
 	Retention?: int & >=0
 
 	// A storage descriptor containing information about the physical storage of this table.
-	StorageDescriptor?: _#defs."/$defs/Properties/definitions/StorageDescriptor"
+	StorageDescriptor?: #StorageDescriptor
 
 	// The type of this table. AWS Glue will create tables with the EXTERNAL_TABLE
 	// type. Other services, such as Athena, may create tables with additional
@@ -309,10 +309,10 @@ _#defs: "/$defs/Properties/definitions/TableInput": close({
 	TableType?: ("EXTERNAL_TABLE" | "VIRTUAL_VIEW") & (strings.MaxRunes(255) & strings.MinRunes(0))
 
 	// A TableIdentifier structure that describes a target table for resource linking.
-	TargetTable?: _#defs."/$defs/Properties/definitions/TableIdentifier"
+	TargetTable?: #TableIdentifier
 
 	// The view definition for the table.
-	ViewDefinition?: _#defs."/$defs/Properties/definitions/ViewDefinition"
+	ViewDefinition?: #ViewDefinition
 
 	// Included for Apache Hive compatibility. Not used in the normal course of AWS Glue operations.
 	ViewExpandedText?: strings.MaxRunes(409600) & strings.MinRunes(0)
@@ -322,7 +322,7 @@ _#defs: "/$defs/Properties/definitions/TableInput": close({
 })
 
 // A structure that defines the view.
-_#defs: "/$defs/Properties/definitions/ViewDefinition": close({
+#ViewDefinition: close({
 	// The definer of the view.
 	Definer?: strings.MaxRunes(2048) & strings.MinRunes(20)
 
@@ -330,16 +330,14 @@ _#defs: "/$defs/Properties/definitions/ViewDefinition": close({
 	IsProtected?: bool
 
 	// The representations of the view.
-	Representations?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ViewRepresentation"
-	]
+	Representations?: list.MaxItems(10) & list.MinItems(1) & [...#ViewRepresentation]
 
 	// The sub-objects of the view.
 	SubObjects?: list.MaxItems(10) & [...] & [...strings.MaxRunes(2048) & strings.MinRunes(20)]
 })
 
 // A structure that defines a view representation.
-_#defs: "/$defs/Properties/definitions/ViewRepresentation": close({
+#ViewRepresentation: close({
 	// The dialect of the view representation.
 	Dialect?: "ATHENA" | "REDSHIFT" | "SPARK"
 

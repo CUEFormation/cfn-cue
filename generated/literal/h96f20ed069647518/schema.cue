@@ -14,7 +14,7 @@ import (
 	Arn?: string
 
 	// Container provider of the virtual cluster.
-	ContainerProvider!: _#defs."/$defs/Properties/definitions/ContainerProvider"
+	ContainerProvider!: #ContainerProvider
 
 	// Id of the virtual cluster.
 	Id?: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -29,26 +29,24 @@ import (
 	SessionEnabled?: bool
 
 	// An array of key-value pairs to apply to this virtual cluster.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerInfo": close({EksInfo!: _#defs."/$defs/Properties/definitions/EksInfo"})
+#ContainerInfo: close({EksInfo!: #EksInfo})
 
-_#defs: "/$defs/Properties/definitions/ContainerProvider": close({
+#ContainerProvider: close({
 	// The ID of the container cluster
 	Id!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*"
-	Info!: _#defs."/$defs/Properties/definitions/ContainerInfo"
+	Info!: #ContainerInfo
 
 	// The type of the container provider
 	Type!: "EKS"
 })
 
-_#defs: "/$defs/Properties/definitions/EksInfo": close(
-	{Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9]([-a-z0-9]*[a-z0-9])?"},
-)
+#EksInfo: close({Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9]([-a-z0-9]*[a-z0-9])?"})
 
 // An arbitrary set of tags (key-value pairs) for this virtual cluster.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

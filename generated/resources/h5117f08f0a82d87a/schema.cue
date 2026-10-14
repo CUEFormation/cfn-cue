@@ -14,28 +14,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for managing AWS account-level UX customization settings,
 // including account color, visible services, and visible regions.
-#Properties: close({
-	AccountColor?: "none" |
-		"pink" |
-		"purple" |
-		"darkBlue" |
-		"lightBlue" |
-		"teal" |
-		"green" |
-		"yellow" |
-		"orange" |
-		"red" |
-		fn.#StringExpression
-	VisibleRegions?: list.MaxItems(100) & list.UniqueItems() & [
-		...=~"^[a-z]{2}(-[a-z]{1,10}){1,2}-[1-9]$" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	VisibleServices?: list.MaxItems(500) & list.UniqueItems() & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::UXC::AccountCustomization"
-	Properties?: #Properties
+	Type!: "AWS::UXC::AccountCustomization"
+	Properties?: close({
+		AccountColor?: "none" |
+			"pink" |
+			"purple" |
+			"darkBlue" |
+			"lightBlue" |
+			"teal" |
+			"green" |
+			"yellow" |
+			"orange" |
+			"red" |
+			fn.#StringExpression
+		VisibleRegions?: list.MaxItems(100) & list.UniqueItems() & [
+			...=~"^[a-z]{2}(-[a-z]{1,10}){1,2}-[1-9]$" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		VisibleServices?: list.MaxItems(500) & list.UniqueItems() & [
+			...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+	})
 }

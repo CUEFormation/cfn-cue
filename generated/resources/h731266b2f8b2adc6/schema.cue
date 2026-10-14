@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,22 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::FlowAlias Resource Type
-#Properties: close({
-	ConcurrencyConfiguration?: _#defs."/$defs/Properties/definitions/FlowAliasConcurrencyConfiguration"
-	Description?:              strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	FlowArn!: strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" |
-	fn.#StringExpression
-	Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	RoutingConfiguration!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FlowAliasRoutingConfigurationListItem"
-	] |
-		fn.#ListExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::FlowAlias"
+	Properties!: close({
+		ConcurrencyConfiguration?: #FlowAliasConcurrencyConfiguration
+		Description?:              strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		FlowArn!: strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" |
+		fn.#StringExpression
+		Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		RoutingConfiguration!: list.MaxItems(1) & list.MinItems(1) & [...#FlowAliasRoutingConfigurationListItem] |
+			fn.#ListExpression
+		Tags?: #TagsMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ConcurrencyType": "Automatic" | "Manual" | fn.#StringExpression
+#ConcurrencyType: "Automatic" | "Manual" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FlowAliasConcurrencyConfiguration": close({
+#FlowAliasConcurrencyConfiguration: close({
 	MaxConcurrency?: <=100 & >=1 |
 		{
 			string &
@@ -53,22 +54,18 @@ _#defs: "/$defs/Properties/definitions/FlowAliasConcurrencyConfiguration": close
 				)
 		} |
 		fn.#NumberExpression
-	Type!: _#defs."/$defs/Properties/definitions/ConcurrencyType"
+	Type!: #ConcurrencyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowAliasRoutingConfigurationListItem": close({
+#FlowAliasRoutingConfigurationListItem: close({
 	FlowVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]{0,4}[1-9][0-9]{0,4})$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::FlowAlias"
-	Properties!: #Properties
-}

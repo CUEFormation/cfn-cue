@@ -13,66 +13,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Timestream::Table resource creates a Timestream Table.
-#Properties: close({
-	DatabaseName!: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
-	MagneticStoreWriteProperties?: close({
-		EnableMagneticStoreWrites!: bool |
-			"true" |
-			"True" |
-			"TRUE" |
-			"false" |
-			"False" |
-			"FALSE" |
-			fn.#BooleanExpression
-		MagneticStoreRejectedDataLocation?: close({
-			S3Configuration?: close({
-				BucketName!:       string | fn.#StringExpression
-				EncryptionOption!: string | fn.#StringExpression
-				KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-					string |
-					fn.#StringExpression
-				ObjectKeyPrefix?: string | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Timestream::Table"
+	Properties!: close({
+		DatabaseName!: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
+		MagneticStoreWriteProperties?: close({
+			EnableMagneticStoreWrites!: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+			MagneticStoreRejectedDataLocation?: close({
+				S3Configuration?: close({
+					BucketName!:       string | fn.#StringExpression
+					EncryptionOption!: string | fn.#StringExpression
+					KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+						string |
+						fn.#StringExpression
+					ObjectKeyPrefix?: string | fn.#StringExpression
+				}) |
+				fn.#ObjectExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	RetentionProperties?: close({
-		MagneticStoreRetentionPeriodInDays?: string | fn.#StringExpression
-		MemoryStoreRetentionPeriodInHours?:  string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Schema?: close({CompositePartitionKey?: _#defs."/$defs/Properties/definitions/PartitionKeyList"}) |
+		RetentionProperties?: close({
+			MagneticStoreRetentionPeriodInDays?: string | fn.#StringExpression
+			MemoryStoreRetentionPeriodInHours?:  string | fn.#StringExpression
+		}) |
 		fn.#ObjectExpression
-	TableName?: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		Schema?:    close({CompositePartitionKey?: #PartitionKeyList}) | fn.#ObjectExpression
+		TableName?: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
+		Tags?:      list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PartitionKey": close({
-	EnforcementInRecord?: _#defs."/$defs/Properties/definitions/PartitionKeyEnforcementLevel"
-	Name?:                _#defs."/$defs/Properties/definitions/SchemaName"
-	Type!:                _#defs."/$defs/Properties/definitions/PartitionKeyType"
+#PartitionKey: close({
+	EnforcementInRecord?: #PartitionKeyEnforcementLevel
+	Name?:                #SchemaName
+	Type!:                #PartitionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionKeyEnforcementLevel": "REQUIRED" | "OPTIONAL" | fn.#StringExpression
+#PartitionKeyEnforcementLevel: "REQUIRED" | "OPTIONAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionKeyList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PartitionKey"
-] |
-	fn.#ListExpression
+#PartitionKeyList: list.MinItems(1) & [...#PartitionKey] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionKeyType": "DIMENSION" | "MEASURE" | fn.#StringExpression
+#PartitionKeyType: "DIMENSION" | "MEASURE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaName": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#SchemaName: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Timestream::Table"
-	Properties!: #Properties
-}

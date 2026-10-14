@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,35 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::AccountAccess::Entitlement specifying an
 // entitlement for account access
-#Properties: close({
-	ApplicationArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(49) &
-	=~"^arn:[a-z0-9-]+:account-access:[a-z0-9]+(-[a-z0-9]+)*:[0-9]{12}:application/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	Entitlement!: close({
-		PrincipalRole!: close({
-			Principal!: _#defs."/$defs/Properties/definitions/Principal"
-			RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-				=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
-				fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AccountAccess::Entitlement"
+	Properties!: close({
+		ApplicationArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(49) &
+		=~"^arn:[a-z0-9-]+:account-access:[a-z0-9]+(-[a-z0-9]+)*:[0-9]{12}:application/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		Entitlement!: close({
+			PrincipalRole!: close({
+				Principal!: #Principal
+				RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+					=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
+					fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-})
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Entitlement": close(
-	{PrincipalRole!: _#defs."/$defs/Properties/definitions/PrincipalRoleEntitlement"},
-) |
-	fn.#ObjectExpression
+#Entitlement: close({PrincipalRole!: #PrincipalRoleEntitlement}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityCenterPrincipal": matchN(1, [{
-	UserId!: _
-	...
-}, {
-	GroupId!: _
-	...
-}]) & close({
+#IdentityCenterPrincipal: close({
 	GroupId?: strings.MaxRunes(47) &
 	strings.MinRunes(1) &
 	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
@@ -50,23 +44,19 @@ _#defs: "/$defs/Properties/definitions/IdentityCenterPrincipal": matchN(1, [{
 	strings.MinRunes(1) &
 	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
 	fn.#StringExpression
-}) |
+	if UserId != _|_ if UserId."Fn::If" == _|_ {
+		GroupId?: close({"Fn::If": _}) | error("GroupId cannot be used with UserId; set exactly one of UserId, GroupId")
+	}
+}) & matchN(>=1, [{UserId!: _}, {GroupId!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Principal": close(
-	{IdentityCenter!: _#defs."/$defs/Properties/definitions/IdentityCenterPrincipal"},
-) |
-	fn.#ObjectExpression
+#Principal: close({IdentityCenter!: #IdentityCenterPrincipal}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalRoleEntitlement": close({
+#PrincipalRoleEntitlement: close({
 	Account?:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Principal!: _#defs."/$defs/Properties/definitions/Principal"
+	Principal!: #Principal
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AccountAccess::Entitlement"
-	Properties!: #Properties
-}

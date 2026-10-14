@@ -7,48 +7,42 @@ package schema
 // Resource Type definition for AWS::ManagedBlockchain::Member
 #Properties: close({
 	InvitationId?:         string
-	MemberConfiguration!:  _#defs."/$defs/Properties/definitions/MemberConfiguration"
+	MemberConfiguration!:  #MemberConfiguration
 	MemberId?:             string
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	NetworkConfiguration?: #NetworkConfiguration
 	NetworkId?:            string
 })
 
-_#defs: "/$defs/Properties/definitions/ApprovalThresholdPolicy": close({
+#ApprovalThresholdPolicy: close({
 	ProposalDurationInHours?: int
 	ThresholdComparator?:     string
 	ThresholdPercentage?:     int
 })
 
-_#defs: "/$defs/Properties/definitions/MemberConfiguration": close({
+#MemberConfiguration: close({
 	Description?:                  string
-	MemberFrameworkConfiguration?: _#defs."/$defs/Properties/definitions/MemberFrameworkConfiguration"
+	MemberFrameworkConfiguration?: #MemberFrameworkConfiguration
 	Name!:                         string
 })
 
-_#defs: "/$defs/Properties/definitions/MemberFabricConfiguration": close({
+#MemberFabricConfiguration: close({
 	AdminPassword!: string
 	AdminUsername!: string
 })
 
-_#defs: "/$defs/Properties/definitions/MemberFrameworkConfiguration": close(
-	{MemberFabricConfiguration?: _#defs."/$defs/Properties/definitions/MemberFabricConfiguration"},
-)
+#MemberFrameworkConfiguration: close({MemberFabricConfiguration?: #MemberFabricConfiguration})
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
+#NetworkConfiguration: close({
 	Description?:                   string
 	Framework!:                     string
 	FrameworkVersion!:              string
 	Name!:                          string
-	NetworkFrameworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkFrameworkConfiguration"
-	VotingPolicy!:                  _#defs."/$defs/Properties/definitions/VotingPolicy"
+	NetworkFrameworkConfiguration?: #NetworkFrameworkConfiguration
+	VotingPolicy!:                  #VotingPolicy
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkFabricConfiguration": close({Edition!: string})
+#NetworkFabricConfiguration: close({Edition!: string})
 
-_#defs: "/$defs/Properties/definitions/NetworkFrameworkConfiguration": close(
-	{NetworkFabricConfiguration?: _#defs."/$defs/Properties/definitions/NetworkFabricConfiguration"},
-)
+#NetworkFrameworkConfiguration: close({NetworkFabricConfiguration?: #NetworkFabricConfiguration})
 
-_#defs: "/$defs/Properties/definitions/VotingPolicy": close(
-	{ApprovalThresholdPolicy?: _#defs."/$defs/Properties/definitions/ApprovalThresholdPolicy"},
-)
+#VotingPolicy: close({ApprovalThresholdPolicy?: #ApprovalThresholdPolicy})

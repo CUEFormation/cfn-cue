@@ -12,20 +12,20 @@ import "strings"
 	CatalogId!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The metadata for the database.
-	DatabaseInput!: _#defs."/$defs/Properties/definitions/DatabaseInput"
+	DatabaseInput!: #DatabaseInput
 
 	// The name of the database. For hive compatibility, this is folded to lowercase when it is store.
 	DatabaseName?: string
 })
 
 // The AWS Lake Formation principal.
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close({
+#DataLakePrincipal: close({
 	// An identifier for the AWS Lake Formation principal.
 	DataLakePrincipalIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // A structure that describes a target database for resource linking.
-_#defs: "/$defs/Properties/definitions/DatabaseIdentifier": close({
+#DatabaseIdentifier: close({
 	// The ID of the Data Catalog in which the database resides.
 	CatalogId?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -37,16 +37,16 @@ _#defs: "/$defs/Properties/definitions/DatabaseIdentifier": close({
 })
 
 // The structure used to create or update a database.
-_#defs: "/$defs/Properties/definitions/DatabaseInput": close({
+#DatabaseInput: close({
 	// Creates a set of default permissions on the table for principals. Used by AWS
 	// Lake Formation. Not used in the normal course of AWS Glue operations.
-	CreateTableDefaultPermissions?: [..._#defs."/$defs/Properties/definitions/PrincipalPrivileges"]
+	CreateTableDefaultPermissions?: [...#PrincipalPrivileges]
 
 	// A description of the database.
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0)
 
 	// A FederatedDatabase structure that references an entity outside the AWS Glue Data Catalog.
-	FederatedDatabase?: _#defs."/$defs/Properties/definitions/FederatedDatabase"
+	FederatedDatabase?: #FederatedDatabase
 
 	// The location of the database (for example, an HDFS path).
 	LocationUri?: strings.MaxRunes(1024) & strings.MinRunes(1)
@@ -56,11 +56,11 @@ _#defs: "/$defs/Properties/definitions/DatabaseInput": close({
 	Parameters?: string | {...}
 
 	// A DatabaseIdentifier structure that describes a target database for resource linking.
-	TargetDatabase?: _#defs."/$defs/Properties/definitions/DatabaseIdentifier"
+	TargetDatabase?: #DatabaseIdentifier
 })
 
 // A FederatedDatabase structure that references an entity outside the AWS Glue Data Catalog.
-_#defs: "/$defs/Properties/definitions/FederatedDatabase": close({
+#FederatedDatabase: close({
 	// The name of the connection to the external metastore.
 	ConnectionName?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -69,7 +69,7 @@ _#defs: "/$defs/Properties/definitions/FederatedDatabase": close({
 })
 
 // The permissions granted to a principal.
-_#defs: "/$defs/Properties/definitions/PrincipalPrivileges": close({
+#PrincipalPrivileges: close({
 	// The permissions that are granted to the principal.
 	Permissions?: [
 		..."ALL" |
@@ -84,5 +84,5 @@ _#defs: "/$defs/Properties/definitions/PrincipalPrivileges": close({
 	]
 
 	// The principal who is granted permissions.
-	Principal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+	Principal?: #DataLakePrincipal
 })

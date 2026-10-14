@@ -15,105 +15,91 @@ import (
 	KnowledgeBaseArn?:
 		=~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?$"
 	KnowledgeBaseId?:                   =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
-	KnowledgeBaseType!:                 _#defs."/$defs/Properties/definitions/KnowledgeBaseType"
+	KnowledgeBaseType!:                 #KnowledgeBaseType
 	Name!:                              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+"
-	RenderingConfiguration?:            _#defs."/$defs/Properties/definitions/RenderingConfiguration"
-	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration"
-	SourceConfiguration?:               _#defs."/$defs/Properties/definitions/SourceConfiguration"
-	Tags?:                              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VectorIngestionConfiguration?:      _#defs."/$defs/Properties/definitions/VectorIngestionConfiguration"
+	RenderingConfiguration?:            #RenderingConfiguration
+	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
+	SourceConfiguration?:               #SourceConfiguration
+	Tags?:                              list.UniqueItems() & [...#Tag]
+	VectorIngestionConfiguration?:      #VectorIngestionConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AppIntegrationsConfiguration": close({
+#AppIntegrationsConfiguration: close({
 	AppIntegrationArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$"
 	ObjectFields?: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(4096) & strings.MinRunes(1)]
 })
 
-_#defs: "/$defs/Properties/definitions/BedrockFoundationModelConfiguration": close({
+#BedrockFoundationModelConfiguration: close({
 	ModelArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model\\/anthropic.claude-3-haiku-20240307-v1:0$"
 	ParsingPrompt?: close({ParsingPromptText!: strings.MaxRunes(10000) & strings.MinRunes(1)})
 })
 
-_#defs: "/$defs/Properties/definitions/FixedSizeChunkingConfiguration": close({
+#FixedSizeChunkingConfiguration: close({
 	MaxTokens!:         >=1
 	OverlapPercentage!: <=99 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/HierarchicalChunkingConfiguration": close({
-	LevelConfigurations!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration"
-	]
-	OverlapTokens!: >=1
+#HierarchicalChunkingConfiguration: close({
+	LevelConfigurations!: list.MaxItems(2) & list.MinItems(2) & [...#HierarchicalChunkingLevelConfiguration]
+	OverlapTokens!:       >=1
 })
 
-_#defs: "/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration": close({MaxTokens!: <=8192 & >=1})
+#HierarchicalChunkingLevelConfiguration: close({MaxTokens!: <=8192 & >=1})
 
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseType": "EXTERNAL" |
-	"CUSTOM" |
-	"MESSAGE_TEMPLATES" |
-	"MANAGED" |
-	"QUICK_RESPONSES"
+#KnowledgeBaseType: "EXTERNAL" | "CUSTOM" | "MESSAGE_TEMPLATES" | "MANAGED" | "QUICK_RESPONSES"
 
-_#defs: "/$defs/Properties/definitions/ManagedSourceConfiguration": close(
-	{WebCrawlerConfiguration!: _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration"},
-)
+#ManagedSourceConfiguration: close({WebCrawlerConfiguration!: #WebCrawlerConfiguration})
 
-_#defs: "/$defs/Properties/definitions/RenderingConfiguration": close(
-	{TemplateUri?: strings.MaxRunes(4096) & strings.MinRunes(1)},
-)
+#RenderingConfiguration: close({TemplateUri?: strings.MaxRunes(4096) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/SeedUrl": close({Url?: =~"^https?://[A-Za-z0-9][^\\s]*$"})
+#SeedUrl: close({Url?: =~"^https?://[A-Za-z0-9][^\\s]*$"})
 
-_#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
+#SemanticChunkingConfiguration: close({
 	BreakpointPercentileThreshold!: <=99 & >=50
 	BufferSize!:                    <=1 & >=0
 	MaxTokens!:                     >=1
 })
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+#ServerSideEncryptionConfiguration: close({
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(4096) & strings.MinRunes(1))
 })
 
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": matchN(1, [close(
-	{AppIntegrations!: _#defs."/$defs/Properties/definitions/AppIntegrationsConfiguration"},
+#SourceConfiguration: matchN(1, [close(
+	{AppIntegrations!: #AppIntegrationsConfiguration},
 ), close(
-	{ManagedSourceConfiguration!: _#defs."/$defs/Properties/definitions/ManagedSourceConfiguration"},
+	{ManagedSourceConfiguration!: #ManagedSourceConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/UrlFilterList": list.MaxItems(25) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/UrlFilterPattern"
-]
+#UrlFilterList: list.MaxItems(25) & list.MinItems(1) & [...#UrlFilterPattern]
 
-_#defs: "/$defs/Properties/definitions/UrlFilterPattern": strings.MaxRunes(1000) & strings.MinRunes(1)
+#UrlFilterPattern: strings.MaxRunes(1000) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/VectorIngestionConfiguration": close({
+#VectorIngestionConfiguration: close({
 	ChunkingConfiguration?: close({
 		ChunkingStrategy!:                  "FIXED_SIZE" | "NONE" | "HIERARCHICAL" | "SEMANTIC"
-		FixedSizeChunkingConfiguration?:    _#defs."/$defs/Properties/definitions/FixedSizeChunkingConfiguration"
-		HierarchicalChunkingConfiguration?: _#defs."/$defs/Properties/definitions/HierarchicalChunkingConfiguration"
-		SemanticChunkingConfiguration?:     _#defs."/$defs/Properties/definitions/SemanticChunkingConfiguration"
+		FixedSizeChunkingConfiguration?:    #FixedSizeChunkingConfiguration
+		HierarchicalChunkingConfiguration?: #HierarchicalChunkingConfiguration
+		SemanticChunkingConfiguration?:     #SemanticChunkingConfiguration
 	})
 	ParsingConfiguration?: close({
-		BedrockFoundationModelConfiguration?: _#defs."/$defs/Properties/definitions/BedrockFoundationModelConfiguration"
+		BedrockFoundationModelConfiguration?: #BedrockFoundationModelConfiguration
 		ParsingStrategy!:                     "BEDROCK_FOUNDATION_MODEL"
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
+#WebCrawlerConfiguration: close({
 	CrawlerLimits?:    close({RateLimit?: <=3000 & >=1})
-	ExclusionFilters?: _#defs."/$defs/Properties/definitions/UrlFilterList"
-	InclusionFilters?: _#defs."/$defs/Properties/definitions/UrlFilterList"
+	ExclusionFilters?: #UrlFilterList
+	InclusionFilters?: #UrlFilterList
 	Scope?:            "HOST_ONLY" | "SUBDOMAINS"
-	UrlConfiguration!: close(
-		{SeedUrls?: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SeedUrl"]},
-	)
+	UrlConfiguration!: close({SeedUrls?: list.MaxItems(100) & list.MinItems(1) & [...#SeedUrl]})
 })

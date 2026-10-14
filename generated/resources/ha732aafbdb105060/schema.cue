@@ -17,77 +17,84 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMPool Type
-#Properties: close({
-	AddressFamily!: =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
-	AllocationDefaultNetmaskLength?: int & <=128 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=128 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AllocationMaxNetmaskLength?: int & <=128 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=128 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AllocationMinNetmaskLength?: int & <=128 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=128 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AllocationResourceTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	AutoImport?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AwsService?:             =~"(?i)^(?:ec2|global-services)$" | fn.#StringExpression
-	Description?:            string | fn.#StringExpression
-	IpamScopeId!:            string | fn.#StringExpression
-	Locale?:                 string | fn.#StringExpression
-	ProvisionedCidrs?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ProvisionedCidr"] |
-		fn.#ListExpression
-	PublicIpSource?:       =~"(?i)^(?:amazon|byoip)$" | fn.#StringExpression
-	PubliclyAdvertisable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceIpamPoolId?:     string | fn.#StringExpression
-	SourceResource?:       _#defs."/$defs/Properties/definitions/SourceResource"
-	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::IPAMPool"
+	Properties!: close({
+		AddressFamily!: =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
+		AllocationDefaultNetmaskLength?: int & <=128 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=128 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AllocationMaxNetmaskLength?: int & <=128 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=128 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AllocationMinNetmaskLength?: int & <=128 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=128 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AllocationResourceTags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		AutoImport?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AwsService?:             =~"(?i)^(?:ec2|global-services)$" | fn.#StringExpression
+		Description?:            string | fn.#StringExpression
+		IpamScopeId!:            string | fn.#StringExpression
+		Locale?:                 string | fn.#StringExpression
+		ProvisionedCidrs?:       list.UniqueItems() & [...#ProvisionedCidr] | fn.#ListExpression
+		PublicIpSource?:         =~"(?i)^(?:amazon|byoip)$" | fn.#StringExpression
+		PubliclyAdvertisable?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SourceIpamPoolId?:       string | fn.#StringExpression
+		SourceResource?:         #SourceResource
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Cidr": string & string | fn.#StringExpression
+#Cidr: string & string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedCidr": close({Cidr!: _#defs."/$defs/Properties/definitions/Cidr"}) |
-	fn.#ObjectExpression
+#ProvisionedCidr: close({Cidr!: #Cidr}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceResource": close({
+#SourceResource: close({
 	ResourceId!:     string | fn.#StringExpression
 	ResourceOwner!:  string | fn.#StringExpression
 	ResourceRegion!: string | fn.#StringExpression
@@ -95,12 +102,8 @@ _#defs: "/$defs/Properties/definitions/SourceResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::IPAMPool"
-	Properties!: #Properties
-}

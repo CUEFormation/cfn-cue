@@ -13,37 +13,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage FUOTA tasks.
-#Properties: close({
-	AssociateMulticastGroup?:    strings.MaxRunes(256) | fn.#StringExpression
-	AssociateWirelessDevice?:    strings.MaxRunes(256) | fn.#StringExpression
-	Description?:                strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	DisassociateMulticastGroup?: strings.MaxRunes(256) | fn.#StringExpression
-	DisassociateWirelessDevice?: strings.MaxRunes(256) | fn.#StringExpression
-	FirmwareUpdateImage!:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	FirmwareUpdateRole!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	LoRaWAN!: close({
-		RfRegion!: ("AS923-1" |
-			"AS923-2" |
-			"AS923-3" |
-			"AS923-4" |
-			"AU915" |
-			"CN470" |
-			"CN779" |
-			"EU433" |
-			"EU868" |
-			"IN865" |
-			"KR920" |
-			"RU864" |
-			"US915") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::FuotaTask"
+	Properties!: close({
+		AssociateMulticastGroup?:    strings.MaxRunes(256) | fn.#StringExpression
+		AssociateWirelessDevice?:    strings.MaxRunes(256) | fn.#StringExpression
+		Description?:                strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		DisassociateMulticastGroup?: strings.MaxRunes(256) | fn.#StringExpression
+		DisassociateWirelessDevice?: strings.MaxRunes(256) | fn.#StringExpression
+		FirmwareUpdateImage!:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		FirmwareUpdateRole!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		LoRaWAN!: close({
+			RfRegion!: ("AS923-1" |
+				"AS923-2" |
+				"AS923-3" |
+				"AS923-4" |
+				"AU915" |
+				"CN470" |
+				"CN779" |
+				"EU433" |
+				"EU868" |
+				"IN865" |
+				"KR920" |
+				"RU864" |
+				"US915") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/LoRaWAN": close({
+#LoRaWAN: close({
 	RfRegion!: ("AS923-1" |
 		"AS923-2" |
 		"AS923-3" |
@@ -62,12 +64,8 @@ _#defs: "/$defs/Properties/definitions/LoRaWAN": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::FuotaTask"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,20 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::S3::AccessPoint resource is an Amazon S3 resource type that you can
 // use to access buckets.
-#Properties: close({
-	Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
-	Name?:   strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
-	Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
-		fn.#ObjectExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::AccessPoint"
+	Properties!: close({
+		Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+		BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
+		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
+		Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+		// The PublicAccessBlock configuration that you want to apply to this Access
+		// Point. You can enable the configuration options in any combination. For more
+		// information about when Amazon S3 considers a bucket or object public, see
+		// https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html#access-control-block-public-access-policy-status
+		// 'The Meaning of Public' in the Amazon Simple Storage Service Developer
+		// Guide.
+		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
+		Tags?:                           [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": {
+		// If you include this field, Amazon S3 restricts access to this Access Point to
+		// requests from the specified Virtual Private Cloud (VPC).
+		VpcConfiguration?: #VpcConfiguration
+	})
+}
+
+#Arn: string | fn.#StringExpression
+
+#PublicAccessBlockConfiguration: {
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -34,18 +46,14 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": {
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": {
+#VpcConfiguration: {
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	...
 } | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::AccessPoint"
-	Properties!: #Properties
-}

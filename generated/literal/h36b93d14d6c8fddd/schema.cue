@@ -22,7 +22,7 @@ import (
 	Arn?: =~"^arn:[^:]+:imagebuilder:[^:]+:[^:]+:container-recipe/.+$"
 
 	// Components for build and test that are included in the container recipe.
-	Components?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentConfiguration"]
+	Components?: list.MinItems(1) & [...#ComponentConfiguration]
 
 	// Specifies the type of container, such as Docker.
 	ContainerType?: "DOCKER"
@@ -45,13 +45,13 @@ import (
 
 	// A group of options that can be used to configure an instance for building and
 	// testing container images.
-	InstanceConfiguration?: _#defs."/$defs/Properties/definitions/InstanceConfiguration"
+	InstanceConfiguration?: #InstanceConfiguration
 
 	// Identifies which KMS key is used to encrypt the container image.
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
 
 	// The latest version references of the container recipe.
-	LatestVersion?: _#defs."/$defs/Properties/definitions/LatestVersion"
+	LatestVersion?: #LatestVersion
 
 	// The name of the container recipe.
 	Name?: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$"
@@ -68,7 +68,7 @@ import (
 		{[=~".{1,}"]: string}})
 
 	// The destination repository for the container image.
-	TargetRepository?: _#defs."/$defs/Properties/definitions/TargetContainerRepository"
+	TargetRepository?: #TargetContainerRepository
 
 	// The semantic version of the container recipe (<major>.<minor>.<patch>).
 	Version?: string
@@ -78,17 +78,17 @@ import (
 })
 
 // Configuration details of the component.
-_#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
+#ComponentConfiguration: close({
 	// The Amazon Resource Name (ARN) of the component.
 	ComponentArn?:
 		=~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?|third-party):component/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$"
 
 	// A group of parameter settings that are used to configure the component for a specific recipe.
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentParameter"]
+	Parameters?: list.MinItems(1) & [...#ComponentParameter]
 })
 
 // Contains a key/value pair that sets the named component parameter.
-_#defs: "/$defs/Properties/definitions/ComponentParameter": close({
+#ComponentParameter: close({
 	// The name of the component parameter to set.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x00]+$"
 
@@ -97,7 +97,7 @@ _#defs: "/$defs/Properties/definitions/ComponentParameter": close({
 })
 
 // Amazon EBS-specific block device mapping specifications.
-_#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": close({
+#EbsInstanceBlockDeviceSpecification: close({
 	// Use to configure delete on termination of the associated device.
 	DeleteOnTermination?: bool
 
@@ -124,12 +124,12 @@ _#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": clo
 })
 
 // Defines block device mappings for the instance used to configure your image.
-_#defs: "/$defs/Properties/definitions/InstanceBlockDeviceMapping": close({
+#InstanceBlockDeviceMapping: close({
 	// The device to which these mappings apply.
 	DeviceName?: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// Use to manage Amazon EBS-specific configuration for this mapping.
-	Ebs?: _#defs."/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification"
+	Ebs?: #EbsInstanceBlockDeviceSpecification
 
 	// Use to remove a mapping from the parent image.
 	NoDevice?: strings.MaxRunes(0) & strings.MinRunes(0)
@@ -140,9 +140,9 @@ _#defs: "/$defs/Properties/definitions/InstanceBlockDeviceMapping": close({
 
 // A group of options that can be used to configure an instance for building and
 // testing container images.
-_#defs: "/$defs/Properties/definitions/InstanceConfiguration": close({
+#InstanceConfiguration: close({
 	// Defines the block devices to attach for building an instance from this Image Builder AMI.
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/InstanceBlockDeviceMapping"]
+	BlockDeviceMappings?: [...#InstanceBlockDeviceMapping]
 
 	// The AMI ID to use as the base image for a container build and test instance.
 	// If not specified, Image Builder will use the appropriate ECS-optimized AMI
@@ -151,7 +151,7 @@ _#defs: "/$defs/Properties/definitions/InstanceConfiguration": close({
 })
 
 // The latest version references of the container recipe.
-_#defs: "/$defs/Properties/definitions/LatestVersion": close({
+#LatestVersion: close({
 	// The latest version ARN of the created container recipe.
 	Arn?: string
 
@@ -166,7 +166,7 @@ _#defs: "/$defs/Properties/definitions/LatestVersion": close({
 })
 
 // The container repository where the output container image is stored.
-_#defs: "/$defs/Properties/definitions/TargetContainerRepository": close({
+#TargetContainerRepository: close({
 	// The name of the container repository where the output container image is
 	// stored. This name is prefixed by the repository location.
 	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1)

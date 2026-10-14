@@ -11,14 +11,14 @@ import "list"
 // instance.
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the specified access grant.
-	AccessGrantArn?: _#defs."/$defs/Properties/definitions/AccessGrantArn"
+	AccessGrantArn?: #AccessGrantArn
 
 	// The ID assigned to this access grant.
 	AccessGrantId?: string
 
 	// The configuration options of the grant location, which is the S3 path to the
 	// data to which you are granting access.
-	AccessGrantsLocationConfiguration?: _#defs."/$defs/Properties/definitions/AccessGrantsLocationConfiguration"
+	AccessGrantsLocationConfiguration?: #AccessGrantsLocationConfiguration
 
 	// The custom S3 location to be accessed by the grantee
 	AccessGrantsLocationId!: string
@@ -31,25 +31,25 @@ import "list"
 	GrantScope?: string
 
 	// The principal who will be granted permission to access S3.
-	Grantee!: _#defs."/$defs/Properties/definitions/Grantee"
+	Grantee!: #Grantee
 
 	// The level of access to be afforded to the grantee
 	Permission!: "READ" | "WRITE" | "READWRITE"
 
 	// The type of S3SubPrefix.
 	S3PrefixType?: "Object"
-	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:         list.UniqueItems() & [...#Tag]
 })
 
 // the Amazon Resource Name (ARN) of the specified access grant.
-_#defs: "/$defs/Properties/definitions/AccessGrantArn": string
+#AccessGrantArn: string
 
-_#defs: "/$defs/Properties/definitions/AccessGrantsLocationConfiguration": close({
+#AccessGrantsLocationConfiguration: close({
 	// The S3 sub prefix of a registered location in your S3 Access Grants instance
 	S3SubPrefix!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Grantee": close({
+#Grantee: close({
 	// The unique identifier of the Grantee
 	GranteeIdentifier!: string
 
@@ -57,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/Grantee": close({
 	GranteeType!: "IAM" | "DIRECTORY_USER" | "DIRECTORY_GROUP"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

@@ -18,10 +18,10 @@ import "strings"
 	// The metadata that you apply to CodeDeploy applications to help you organize
 	// and categorize them. Each tag consists of a key and an optional value, both
 	// of which you define.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

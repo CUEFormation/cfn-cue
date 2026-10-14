@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -22,44 +22,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // To learn more, see [Mounting a file system using EFS access
 // points](https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html).
 // This operation requires permissions for the ``elasticfilesystem:CreateAccessPoint`` action.
-#Properties: close({
-	AccessPointTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AccessPointTag"] |
-		fn.#ListExpression
-	ClientToken?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	FileSystemId!: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
-	fn.#StringExpression
-	PosixUser?:     _#defs."/$defs/Properties/definitions/PosixUser" | fn.#ObjectExpression
-	RootDirectory?: _#defs."/$defs/Properties/definitions/RootDirectory" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EFS::AccessPoint"
+	Properties!: close({
+		AccessPointTags?: list.UniqueItems() & [...#AccessPointTag] | fn.#ListExpression
+		ClientToken?:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		FileSystemId!: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccessPointTag": close({
+		// The full POSIX identity, including the user ID, group ID, and secondary group
+		// IDs on the access point that is used for all file operations by NFS clients
+		// using the access point.
+		PosixUser?: #PosixUser
+
+		// The directory on the EFS file system that the access point exposes as the
+		// root directory to NFS clients using the access point.
+		RootDirectory?: #RootDirectory
+	})
+}
+
+#AccessPointTag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreationInfo": close({
+#CreationInfo: close({
 	OwnerGid!:    string | fn.#StringExpression
 	OwnerUid!:    string | fn.#StringExpression
 	Permissions!: =~"^[0-7]{3,4}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PosixUser": close({
+#PosixUser: close({
 	Gid!:           string | fn.#StringExpression
 	SecondaryGids?: list.MaxItems(16) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	Uid!:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RootDirectory": close({
-	CreationInfo?: _#defs."/$defs/Properties/definitions/CreationInfo" | fn.#ObjectExpression
+#RootDirectory: close({
+	// (Optional) Specifies the POSIX IDs and permissions to apply to the access
+	// point's ``RootDirectory``. If the ``RootDirectory`` > ``Path`` specified
+	// does not exist, EFS creates the root directory using the ``CreationInfo``
+	// settings when a client connects to an access point. When specifying the
+	// ``CreationInfo``, you must provide values for all properties.
+	// If you do not provide ``CreationInfo`` and the specified ``RootDirectory`` >
+	// ``Path`` does not exist, attempts to mount the file system using the access
+	// point will fail.
+	CreationInfo?: #CreationInfo
 	Path?:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EFS::AccessPoint"
-	Properties!: #Properties
-}

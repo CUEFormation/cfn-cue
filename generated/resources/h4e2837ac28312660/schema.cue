@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,44 +17,73 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::CodeDeploy::DeploymentGroup
-#Properties: close({
-	AlarmConfiguration?: _#defs."/$defs/Properties/definitions/AlarmConfiguration" | fn.#ObjectExpression
-	ApplicationName!:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
-	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfiguration" | fn.#ObjectExpression
-	AutoScalingGroups?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	BlueGreenDeploymentConfiguration?: _#defs."/$defs/Properties/definitions/BlueGreenDeploymentConfiguration" |
-		fn.#ObjectExpression
-	Deployment?: _#defs."/$defs/Properties/definitions/Deployment" | fn.#ObjectExpression
-	DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
-	fn.#StringExpression
-	DeploymentGroupName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
-	DeploymentStyle?:     _#defs."/$defs/Properties/definitions/DeploymentStyle" | fn.#ObjectExpression
-	ECSServices?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ECSService"] | fn.#ListExpression
-	Ec2TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagFilter"] | fn.#ListExpression
-	Ec2TagSet?:     _#defs."/$defs/Properties/definitions/EC2TagSet" | fn.#ObjectExpression
-	LoadBalancerInfo?: _#defs."/$defs/Properties/definitions/LoadBalancerInfo" | fn.#ObjectExpression
-	OnPremisesInstanceTagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] |
-		fn.#ListExpression
-	OnPremisesTagSet?:          _#defs."/$defs/Properties/definitions/OnPremisesTagSet" | fn.#ObjectExpression
-	OutdatedInstancesStrategy?: "IGNORE" | "UPDATE" | fn.#StringExpression
-	ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeDeploy::DeploymentGroup"
+	Properties!: close({
+		// Information about the Amazon CloudWatch alarms that are associated with the deployment group.
+		AlarmConfiguration?: #AlarmConfiguration
+		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
+
+		// Information about the automatic rollback configuration that is associated
+		// with the deployment group. If you specify this property, don't specify the
+		// Deployment property.
+		AutoRollbackConfiguration?: #AutoRollbackConfiguration
+		AutoScalingGroups?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+
+		// Information about blue/green deployment options for a deployment group.
+		BlueGreenDeploymentConfiguration?: #BlueGreenDeploymentConfiguration
+
+		// The application revision to deploy to this deployment group. If you specify
+		// this property, your target application revision is deployed as soon as the
+		// provisioning process is complete. If you specify this property, don't
+		// specify the AutoRollbackConfiguration property.
+		Deployment?: #Deployment
+		DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
 		fn.#StringExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TerminationHookEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TriggerConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TriggerConfig"] |
-		fn.#ListExpression
-})
+		DeploymentGroupName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Alarm": close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
+		// Attributes that determine the type of deployment to run and whether to route
+		// deployment traffic behind a load balancer. If you specify this property with
+		// a blue/green deployment type, don't specify the AutoScalingGroups,
+		// LoadBalancerInfo, or Deployment properties.
+		DeploymentStyle?: #DeploymentStyle
+		ECSServices?:     list.UniqueItems() & [...#ECSService] | fn.#ListExpression
+		Ec2TagFilters?:   list.UniqueItems() & [...#EC2TagFilter] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AlarmConfiguration": close({
-	Alarms?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Alarm"] | fn.#ListExpression
+		// Information about groups of tags applied to Amazon EC2 instances. Use when
+		// the deployment group includes only Amazon EC2 instances identified by all
+		// the tag groups. Cannot be used in the same call as ec2TagFilter.
+		Ec2TagSet?: #EC2TagSet
+
+		// Information about the load balancer to use in a deployment.
+		LoadBalancerInfo?:             #LoadBalancerInfo
+		OnPremisesInstanceTagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
+
+		// Information about groups of tags applied to on-premises instances. The
+		// deployment group includes only on-premises instances identified by all the
+		// tag groups. You can specify OnPremisesInstanceTagFilters or
+		// OnPremisesInstanceTagSet, but not both.
+		OnPremisesTagSet?:          #OnPremisesTagSet
+		OutdatedInstancesStrategy?: "IGNORE" | "UPDATE" | fn.#StringExpression
+		ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Tags?:                   [...#Tag] | fn.#ListExpression
+		TerminationHookEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		TriggerConfigurations?:  list.UniqueItems() & [...#TriggerConfig] | fn.#ListExpression
+	})
+}
+
+#Alarm: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#AlarmConfiguration: close({
+	Alarms?:                 list.UniqueItems() & [...#Alarm] | fn.#ListExpression
 	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnorePollAlarmFailure?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": close({
+#AutoRollbackConfiguration: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Events?: list.UniqueItems() & [
 		..."DEPLOYMENT_FAILURE" | "DEPLOYMENT_STOP_ON_ALARM" | "DEPLOYMENT_STOP_ON_REQUEST" | fn.#StringExpression
@@ -63,16 +92,22 @@ _#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlueGreenDeploymentConfiguration": close({
-	DeploymentReadyOption?: _#defs."/$defs/Properties/definitions/DeploymentReadyOption" | fn.#ObjectExpression
-	GreenFleetProvisioningOption?: _#defs."/$defs/Properties/definitions/GreenFleetProvisioningOption" |
-		fn.#ObjectExpression
-	TerminateBlueInstancesOnDeploymentSuccess?: _#defs."/$defs/Properties/definitions/BlueInstanceTerminationOption" |
-		fn.#ObjectExpression
+#BlueGreenDeploymentConfiguration: close({
+	// Information about the action to take when newly provisioned instances are
+	// ready to receive traffic in a blue/green deployment.
+	DeploymentReadyOption?: #DeploymentReadyOption
+
+	// Information about how instances are provisioned for a replacement environment
+	// in a blue/green deployment.
+	GreenFleetProvisioningOption?: #GreenFleetProvisioningOption
+
+	// Information about whether to terminate instances in the original fleet during
+	// a blue/green deployment.
+	TerminateBlueInstancesOnDeploymentSuccess?: #BlueInstanceTerminationOption
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlueInstanceTerminationOption": close({
+#BlueInstanceTerminationOption: close({
 	Action?: "KEEP_ALIVE" | "TERMINATE" | fn.#StringExpression
 	TerminationWaitTimeInMinutes?: int |
 		{
@@ -91,7 +126,7 @@ _#defs: "/$defs/Properties/definitions/BlueInstanceTerminationOption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Deployment": close({
+#Deployment: close({
 	Description?: string | fn.#StringExpression
 	IgnoreApplicationStopFailures?: bool |
 		"true" |
@@ -101,11 +136,14 @@ _#defs: "/$defs/Properties/definitions/Deployment": close({
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	Revision!: _#defs."/$defs/Properties/definitions/RevisionLocation" | fn.#ObjectExpression
+
+	// Information about the location of stored application artifacts and the
+	// service from which to retrieve them.
+	Revision!: #RevisionLocation
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentReadyOption": close({
+#DeploymentReadyOption: close({
 	ActionOnTimeout?: "CONTINUE_DEPLOYMENT" | "STOP_DEPLOYMENT" | fn.#StringExpression
 	WaitTimeInMinutes?: int |
 		{
@@ -124,77 +162,65 @@ _#defs: "/$defs/Properties/definitions/DeploymentReadyOption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentStyle": close({
+#DeploymentStyle: close({
 	DeploymentOption?: "WITHOUT_TRAFFIC_CONTROL" | "WITH_TRAFFIC_CONTROL" | fn.#StringExpression
 	DeploymentType?:   "BLUE_GREEN" | "IN_PLACE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EC2TagFilter": close({
+#EC2TagFilter: close({
 	Key?:   string | fn.#StringExpression
 	Type?:  "KEY_AND_VALUE" | "KEY_ONLY" | "VALUE_ONLY" | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EC2TagSet": close({
-	Ec2TagSetList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagSetListObject"] |
-		fn.#ListExpression
-}) |
+#EC2TagSet: close({Ec2TagSetList?: list.UniqueItems() & [...#EC2TagSetListObject] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EC2TagSetListObject": close(
-	{Ec2TagGroup?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EC2TagFilter"] | fn.#ListExpression},
-) |
+#EC2TagSetListObject: close({Ec2TagGroup?: list.UniqueItems() & [...#EC2TagFilter] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ECSService": close({
+#ECSService: close({
 	ClusterName!: string | fn.#StringExpression
 	ServiceName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ELBInfo": close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ELBInfo: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitHubLocation": close({
+#GitHubLocation: close({
 	CommitId!:   string | fn.#StringExpression
 	Repository!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GreenFleetProvisioningOption": close(
-	{Action?: "COPY_AUTO_SCALING_GROUP" | "DISCOVER_EXISTING" | fn.#StringExpression},
+#GreenFleetProvisioningOption: close({Action?: "COPY_AUTO_SCALING_GROUP" | "DISCOVER_EXISTING" | fn.#StringExpression}) |
+	fn.#ObjectExpression
+
+#LoadBalancerInfo: close({
+	ElbInfoList?:             list.UniqueItems() & [...#ELBInfo] | fn.#ListExpression
+	TargetGroupInfoList?:     list.UniqueItems() & [...#TargetGroupInfo] | fn.#ListExpression
+	TargetGroupPairInfoList?: list.UniqueItems() & [...#TargetGroupPairInfo] | fn.#ListExpression
+}) |
+fn.#ObjectExpression
+
+#OnPremisesTagSet: close(
+	{OnPremisesTagSetList?: list.UniqueItems() & [...#OnPremisesTagSetListObject] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoadBalancerInfo": close({
-	ElbInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ELBInfo"] | fn.#ListExpression
-	TargetGroupInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupInfo"] |
-		fn.#ListExpression
-	TargetGroupPairInfoList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupPairInfo"] |
-		fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/OnPremisesTagSet": close({
-	OnPremisesTagSetList?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OnPremisesTagSetListObject"] |
-		fn.#ListExpression
-}) |
+#OnPremisesTagSetListObject: close({OnPremisesTagGroup?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnPremisesTagSetListObject": close({
-	OnPremisesTagGroup?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/RevisionLocation": close({
-	GitHubLocation?: _#defs."/$defs/Properties/definitions/GitHubLocation"
+#RevisionLocation: close({
+	GitHubLocation?: #GitHubLocation
 	RevisionType?:   string | fn.#StringExpression
-	S3Location?:     _#defs."/$defs/Properties/definitions/S3Location"
+	S3Location?:     #S3Location
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:     string | fn.#StringExpression
 	BundleType?: string | fn.#StringExpression
 	ETag?:       string | fn.#StringExpression
@@ -203,35 +229,38 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagFilter": close({
+#TagFilter: close({
 	Key?:   string | fn.#StringExpression
 	Type?:  "KEY_AND_VALUE" | "KEY_ONLY" | "VALUE_ONLY" | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetGroupInfo": close({Name?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#TargetGroupInfo: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetGroupPairInfo": close({
-	ProdTrafficRoute?: _#defs."/$defs/Properties/definitions/TrafficRoute" | fn.#ObjectExpression
-	TargetGroups?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupInfo"] | fn.#ListExpression
-	TestTrafficRoute?: _#defs."/$defs/Properties/definitions/TrafficRoute" | fn.#ObjectExpression
+#TargetGroupPairInfo: close({
+	// The path used by a load balancer to route production traffic when an Amazon
+	// ECS deployment is complete.
+	ProdTrafficRoute?: #TrafficRoute
+	TargetGroups?:     list.UniqueItems() & [...#TargetGroupInfo] | fn.#ListExpression
+
+	// An optional path used by a load balancer to route test traffic after an
+	// Amazon ECS deployment. Validation can occur while test traffic is served
+	// during a deployment.
+	TestTrafficRoute?: #TrafficRoute
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficRoute": close(
-	{ListenerArns?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#TrafficRoute: close({ListenerArns?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerConfig": close({
+#TriggerConfig: close({
 	TriggerEvents?: list.UniqueItems() & [
 		..."DeploymentFailure" |
 			"DeploymentReady" |
@@ -250,7 +279,3 @@ _#defs: "/$defs/Properties/definitions/TriggerConfig": close({
 	TriggerTargetArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeDeploy::DeploymentGroup"
-	Properties!: #Properties
-}

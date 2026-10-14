@@ -31,23 +31,23 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\P{C}\\n\\r\\t\\f\\v\\p{Cf}]*$"
 
 	// A list of permissions granted on the space.
-	Permissions?: [..._#defs."/$defs/Properties/definitions/ResourcePermission"]
+	Permissions?: [...#ResourcePermission]
 
 	// A list of QuickSight resources attached to the space.
-	Resources?: [..._#defs."/$defs/Properties/definitions/SpaceResource"]
+	Resources?: [...#SpaceResource]
 
 	// The unique identifier for the space.
 	SpaceId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$"
 
 	// A list of key-value pairs to associate with the space resource.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 
 	// The date and time the space was last updated.
 	UpdatedAt?: time.Time
 })
 
 // A permission granted to a principal on a QuickSight resource.
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	// The list of actions granted to the principal.
 	Actions!: list.MaxItems(20) & list.MinItems(1) & [...string]
 
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/ResourcePermission": close({
 })
 
 // A QuickSight resource attached to the space.
-_#defs: "/$defs/Properties/definitions/SpaceResource": close({
+#SpaceResource: close({
 	// The ARN of the QuickSight resource.
 	ResourceArn!: string
 
@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/SpaceResource": close({
 })
 
 // A key-value pair to associate with the space resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

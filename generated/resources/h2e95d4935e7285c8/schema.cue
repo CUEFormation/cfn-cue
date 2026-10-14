@@ -9,8 +9,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCBlockPublicAccessOptions
-#Properties: close({InternetGatewayBlockMode!: "block-bidirectional" | "block-ingress" | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::VPCBlockPublicAccessOptions"
-	Properties!: #Properties
+	Properties!: close({InternetGatewayBlockMode!: "block-bidirectional" | "block-ingress" | fn.#StringExpression})
 }

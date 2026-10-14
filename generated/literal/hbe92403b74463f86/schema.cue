@@ -21,17 +21,17 @@ import (
 
 	// The name of the connector.
 	Name!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$"
-	SsmCommandConfig?: _#defs."/$defs/Properties/definitions/ConnectorSsmCommandConfig"
+	SsmCommandConfig?: #ConnectorSsmCommandConfig
 
 	// The SSM instance ID associated with this connector.
 	SsmInstanceID!: strings.MaxRunes(20) & strings.MinRunes(19) & =~"(^i-[0-9a-zA-Z]{17}$)|(^mi-[0-9a-zA-Z]{17}$)"
 
 	// Tags to assign to the connector.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // SSM command configuration for the connector.
-_#defs: "/$defs/Properties/definitions/ConnectorSsmCommandConfig": close({
+#ConnectorSsmCommandConfig: close({
 	// The CloudWatch Logs group name for SSM command output.
 	CloudWatchLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$"
 
@@ -46,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/ConnectorSsmCommandConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(0)
 

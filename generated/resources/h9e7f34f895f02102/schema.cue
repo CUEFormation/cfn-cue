@@ -12,11 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The policy to be attached to a Multi Region Access Point
-#Properties: close({
-	MrapName!: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" | fn.#StringExpression
-	Policy!:   fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::MultiRegionAccessPointPolicy"
-	Properties!: #Properties
+	Type!: "AWS::S3::MultiRegionAccessPointPolicy"
+	Properties!: close({
+		MrapName!: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" |
+		fn.#StringExpression
+		Policy!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

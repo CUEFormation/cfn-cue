@@ -17,37 +17,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::InboundExternalLink Resource Type
-#Properties: close({
-	GatewayId!:       _#defs."/$defs/Properties/definitions/GatewayId"
-	LinkAttributes?:  _#defs."/$defs/Properties/definitions/LinkAttributes"
-	LinkLogSettings!: _#defs."/$defs/Properties/definitions/LinkLogSettings"
-	Tags?:            _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RTBFabric::InboundExternalLink"
+	Properties!: close({
+		GatewayId!:       #GatewayId
+		LinkAttributes?:  #LinkAttributes
+		LinkLogSettings!: #LinkLogSettings
+		Tags?:            #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedTimestamp": string | fn.#StringExpression
+#CreatedTimestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DomainName": =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
+#DomainName: =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayId": =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LinkAttributes": close({
+#LinkAttributes: close({
 	CustomerProvidedId?: string | fn.#StringExpression
-	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode"
-	] |
+	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [...#ResponderErrorMaskingForHttpCode] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinkId": =~"^link-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#LinkId: =~"^link-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LinkLogSettings": close({
+#LinkLogSettings: close({
 	ApplicationLogs!: close({
 		LinkApplicationLogSampling!: close({
 			ErrorLog!: <=100 & >=0 |
@@ -97,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/LinkLogSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinkStatus": "PENDING_CREATION" |
+#LinkStatus: "PENDING_CREATION" |
 	"PENDING_REQUEST" |
 	"REQUESTED" |
 	"ACCEPTED" |
@@ -113,12 +114,10 @@ _#defs: "/$defs/Properties/definitions/LinkStatus": "PENDING_CREATION" |
 	"UNKNOWN_TO_SDK_VERSION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode": close({
+#ResponderErrorMaskingForHttpCode: close({
 	Action!:   "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
 	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" | fn.#StringExpression
-	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResponderErrorMaskingLoggingType"
-	] |
+	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#ResponderErrorMaskingLoggingType] |
 		fn.#ListExpression
 	ResponseLoggingPercentage?: <=100 & >=0 |
 		{
@@ -143,25 +142,15 @@ _#defs: "/$defs/Properties/definitions/ResponderErrorMaskingForHttpCode": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponderErrorMaskingLoggingType": "NONE" |
-	"METRIC" |
-	"RESPONSE" |
-	fn.#StringExpression
+#ResponderErrorMaskingLoggingType: "NONE" | "METRIC" | "RESPONSE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
 	fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RTBFabric::InboundExternalLink"
-	Properties!: #Properties
-}
+#UpdatedTimestamp: string | fn.#StringExpression

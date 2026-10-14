@@ -22,11 +22,11 @@ import "strings"
 	Tags?:    string | {...}
 
 	// An object representing an AWS Glue table.
-	TargetTable?: _#defs."/$defs/Properties/definitions/DataQualityTargetTable"
+	TargetTable?: #DataQualityTargetTable
 })
 
 // An object representing an AWS Glue table.
-_#defs: "/$defs/Properties/definitions/DataQualityTargetTable": close({
+#DataQualityTargetTable: close({
 	// The name of the database where the AWS Glue table exists.
 	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1)
 

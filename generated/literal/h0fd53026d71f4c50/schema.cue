@@ -21,7 +21,7 @@ import (
 
 	// The URL of the FSx ONTAP file system that was described.
 	LocationUri?: strings.MaxRunes(4360) & =~"^(efs|nfs|s3|smb|hdfs|fsx[a-z0-9-]+)://[a-zA-Z0-9.:/\\-]+$"
-	Protocol?:    _#defs."/$defs/Properties/definitions/Protocol"
+	Protocol?:    #Protocol
 
 	// The ARNs of the security groups that are to use to configure the FSx ONTAP file system.
 	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
@@ -39,13 +39,13 @@ import (
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Specifies configuration information for a DataSync-managed secret, such as an
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and a customer-managed AWS KMS key.
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	// Specifies the ARN for the customer-managed AWS KMS key used to encrypt the
 	// secret specified for SecretArn. DataSync provides this key to AWS Secrets
 	// Manager.
@@ -64,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and an IAM role that DataSync can assume and
 // access the customer-managed secret.
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	// Specifies the ARN for the AWS Identity and Access Management role that
 	// DataSync uses to access the secret specified for SecretArn.
 	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -82,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location. DataSync uses the default AWS-managed KMS key to
 // encrypt this secret in AWS Secrets Manager.
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	// Specifies the ARN for an AWS Secrets Manager secret.
 	SecretArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -90,31 +90,29 @@ _#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
 })
 
 // NFS protocol configuration for FSx ONTAP file system.
-_#defs: "/$defs/Properties/definitions/NFS": close(
-	{MountOptions!: _#defs."/$defs/Properties/definitions/NfsMountOptions"},
-)
+#NFS: close({MountOptions!: #NfsMountOptions})
 
 // The NFS mount options that DataSync can use to mount your NFS share.
-_#defs: "/$defs/Properties/definitions/NfsMountOptions": close({
+#NfsMountOptions: close({
 	// The specific NFS version that you want DataSync to use to mount your NFS share.
 	Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1"
 })
 
 // Configuration settings for NFS or SMB protocol.
-_#defs: "/$defs/Properties/definitions/Protocol": close({
-	NFS?: _#defs."/$defs/Properties/definitions/NFS"
-	SMB?: _#defs."/$defs/Properties/definitions/SMB"
+#Protocol: close({
+	NFS?: #NFS
+	SMB?: #SMB
 })
 
 // SMB protocol configuration for FSx ONTAP file system.
-_#defs: "/$defs/Properties/definitions/SMB": close({
-	CmkSecretConfig?:    _#defs."/$defs/Properties/definitions/CmkSecretConfig"
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
+#SMB: close({
+	CmkSecretConfig?:    #CmkSecretConfig
+	CustomSecretConfig?: #CustomSecretConfig
 
 	// The name of the Windows domain that the SMB server belongs to.
 	Domain?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$"
-	ManagedSecretConfig?: _#defs."/$defs/Properties/definitions/ManagedSecretConfig"
-	MountOptions!:        _#defs."/$defs/Properties/definitions/SmbMountOptions"
+	ManagedSecretConfig?: #ManagedSecretConfig
+	MountOptions!:        #SmbMountOptions
 
 	// The password of the user who can mount the share and has the permissions to
 	// access files and folders in the SMB share.
@@ -126,13 +124,13 @@ _#defs: "/$defs/Properties/definitions/SMB": close({
 })
 
 // The mount options used by DataSync to access the SMB server.
-_#defs: "/$defs/Properties/definitions/SmbMountOptions": close({
+#SmbMountOptions: close({
 	// The specific SMB version that you want DataSync to use to mount your SMB share.
 	Version?: "AUTOMATIC" | "SMB2" | "SMB3"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 

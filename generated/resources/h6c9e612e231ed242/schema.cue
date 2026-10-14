@@ -9,33 +9,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolRegionalConfigurationAttachment
-#Properties: close({
-	EmailConfiguration?: _#defs."/$defs/Properties/definitions/EmailConfiguration"
-	LambdaConfig?:       _#defs."/$defs/Properties/definitions/LambdaConfig"
-	SmsConfiguration?:   _#defs."/$defs/Properties/definitions/SmsConfiguration"
-	Status?:             string | fn.#StringExpression
-	UserPoolId!:         string | fn.#StringExpression
-	UserPoolTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::UserPoolRegionalConfigurationAttachment"
+	Properties!: close({
+		EmailConfiguration?: #EmailConfiguration
+		LambdaConfig?:       #LambdaConfig
+		SmsConfiguration?:   #SmsConfiguration
+		Status?:             string | fn.#StringExpression
+		UserPoolId!:         string | fn.#StringExpression
+		UserPoolTags?: close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CustomEmailSender": close({
+#CustomEmailSender: close({
 	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	LambdaVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomSMSSender": close({
+#CustomSMSSender: close({
 	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	LambdaVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmailConfiguration": close({
+#EmailConfiguration: close({
 	ConfigurationSet?:    string | fn.#StringExpression
 	EmailSendingAccount?: string | fn.#StringExpression
 	From?:                string | fn.#StringExpression
@@ -44,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/EmailConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EumsSmsConfiguration": close({
+#EumsSmsConfiguration: close({
 	CallerArn!:            string | fn.#StringExpression
 	ConfigurationSetName?: string | fn.#StringExpression
 	ExternalId?:           string | fn.#StringExpression
@@ -55,47 +58,43 @@ _#defs: "/$defs/Properties/definitions/EumsSmsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InboundFederation": close({
+#InboundFederation: close({
 	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	LambdaVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close({
+#LambdaConfig: close({
 	CreateAuthChallenge?:         string | fn.#StringExpression
-	CustomEmailSender?:           _#defs."/$defs/Properties/definitions/CustomEmailSender"
+	CustomEmailSender?:           #CustomEmailSender
 	CustomMessage?:               string | fn.#StringExpression
-	CustomSMSSender?:             _#defs."/$defs/Properties/definitions/CustomSMSSender"
+	CustomSMSSender?:             #CustomSMSSender
 	DefineAuthChallenge?:         string | fn.#StringExpression
-	InboundFederation?:           _#defs."/$defs/Properties/definitions/InboundFederation"
+	InboundFederation?:           #InboundFederation
 	KMSKeyID?:                    string | fn.#StringExpression
 	PostAuthentication?:          string | fn.#StringExpression
 	PostConfirmation?:            string | fn.#StringExpression
 	PreAuthentication?:           string | fn.#StringExpression
 	PreSignUp?:                   string | fn.#StringExpression
 	PreTokenGeneration?:          string | fn.#StringExpression
-	PreTokenGenerationConfig?:    _#defs."/$defs/Properties/definitions/PreTokenGenerationConfig"
+	PreTokenGenerationConfig?:    #PreTokenGenerationConfig
 	UserMigration?:               string | fn.#StringExpression
 	VerifyAuthChallengeResponse?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PreTokenGenerationConfig": close({
+#PreTokenGenerationConfig: close({
 	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	LambdaVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SmsConfiguration": close({
-	EumsSms?:      _#defs."/$defs/Properties/definitions/EumsSmsConfiguration"
+#SmsConfiguration: close({
+	EumsSms?:      #EumsSmsConfiguration
 	ExternalId?:   string | fn.#StringExpression
 	SnsCallerArn?: string | fn.#StringExpression
 	SnsRegion?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolRegionalConfigurationAttachment"
-	Properties!: #Properties
-}

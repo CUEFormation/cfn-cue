@@ -9,21 +9,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::SourceApiAssociation
-#Properties: close({
-	Description?:                string | fn.#StringExpression
-	MergedApiIdentifier?:        string | fn.#StringExpression
-	SourceApiAssociationConfig?: _#defs."/$defs/Properties/definitions/SourceApiAssociationConfig" | fn.#ValueExpression
-	SourceApiIdentifier?:        string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::SourceApiAssociation"
+	Properties?: close({
+		Description?:         string | fn.#StringExpression
+		MergedApiIdentifier?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourceApiAssociationConfig": null |
+		// Customized configuration for SourceApiAssociation.
+		SourceApiAssociationConfig?: #SourceApiAssociationConfig
+		SourceApiIdentifier?:        string | fn.#StringExpression
+	})
+}
+
+#SourceApiAssociationConfig: null |
 	bool |
 	number |
 	string |
 	[...] |
 	close({MergeType?: "AUTO_MERGE" | "MANUAL_MERGE" | fn.#StringExpression}) |
 	fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::SourceApiAssociation"
-	Properties?: #Properties
-}

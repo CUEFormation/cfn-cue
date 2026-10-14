@@ -16,29 +16,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::Limit
-#Properties: close({
-	AmountRequirementName!: strings.MaxRunes(1024) | fn.#StringExpression
-	Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	MaxCount!: int & <=2147483647 & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2147483647 &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::Limit"
-	Properties!: #Properties
+	Type!: "AWS::Deadline::Limit"
+	Properties!: close({
+		AmountRequirementName!: strings.MaxRunes(1024) | fn.#StringExpression
+		Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		MaxCount!: int & <=2147483647 & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2147483647 &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
 }

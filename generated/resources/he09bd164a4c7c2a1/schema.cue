@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,55 +13,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::DLPSetting Resource Type.
-#Properties: close({
-	AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	DlpSettingId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-	Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- &]*[A-Za-z0-9])?$" |
-	fn.#StringExpression
-	ProviderConfig!:       _#defs."/$defs/Properties/definitions/ProviderConfig"
-	ProviderOutageAction!: _#defs."/$defs/Properties/definitions/DlpAction"
-	ProviderType!:         _#defs."/$defs/Properties/definitions/DlpProviderType"
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::DLPSetting"
+	Properties!: close({
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		DlpSettingId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- &]*[A-Za-z0-9])?$" |
+		fn.#StringExpression
+		ProviderConfig!:       #ProviderConfig
+		ProviderOutageAction!: #DlpAction
+		ProviderType!:         #DlpProviderType
+		Tags?:                 list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DlpAction": "ALLOW" | "WARN" | "BLOCK" | fn.#StringExpression
+#DlpAction: "ALLOW" | "WARN" | "BLOCK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DlpProviderType": "MICROSOFT_PURVIEW" | fn.#StringExpression
+#DlpProviderType: "MICROSOFT_PURVIEW" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DlpSettingStatus": "ACTIVE" | "INACTIVE" | fn.#StringExpression
+#DlpSettingStatus: "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LabelActionMapping": close({
-	Action!:    _#defs."/$defs/Properties/definitions/DlpAction"
+#LabelActionMapping: close({
+	Action!:    #DlpAction
 	LabelId!:   strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	LabelName!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MicrosoftPurviewCredentials": close(
+#MicrosoftPurviewCredentials: close(
 	{SecretArn!: =~"^arn:aws(-[\\w]+)*:secretsmanager:[a-z0-9\\-]+:\\d{12}:secret:.+$" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MicrosoftPurviewProviderConfig": close({
-	Credentials!: _#defs."/$defs/Properties/definitions/MicrosoftPurviewCredentials"
-	LabelActionMappings!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/LabelActionMapping"] |
-		fn.#ListExpression
-	UnmappedAction!: _#defs."/$defs/Properties/definitions/DlpAction"
+#MicrosoftPurviewProviderConfig: close({
+	Credentials!:         #MicrosoftPurviewCredentials
+	LabelActionMappings!: list.MaxItems(100) & [...#LabelActionMapping] | fn.#ListExpression
+	UnmappedAction!:      #DlpAction
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProviderConfig": close(
-	{MicrosoftPurview!: _#defs."/$defs/Properties/definitions/MicrosoftPurviewProviderConfig"},
-) |
-	fn.#ValueExpression
+#ProviderConfig: close({MicrosoftPurview!: #MicrosoftPurviewProviderConfig}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::DLPSetting"
-	Properties!: #Properties
-}

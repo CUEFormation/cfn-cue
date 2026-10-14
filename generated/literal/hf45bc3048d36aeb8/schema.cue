@@ -6,7 +6,7 @@ package schema
 
 // Resource Schema of AWS::EC2::IPAMAllocation Type
 #Properties: close({
-	Cidr?:        _#defs."/$defs/Properties/definitions/Cidr"
+	Cidr?:        #Cidr
 	Description?: string
 
 	// Id of the allocation.
@@ -21,4 +21,4 @@ package schema
 })
 
 // Represents an IPAM custom allocation of a single IPv4 or IPv6 CIDR
-_#defs: "/$defs/Properties/definitions/Cidr": string
+#Cidr: string

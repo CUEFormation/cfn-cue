@@ -23,37 +23,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // CloudFront sends a request when it can't find an object in its cache that
 // matches the request. If you want to send values to the origin and also
 // include them in the cache key, use ``CachePolicy``.
-#Properties: close({
-	OriginRequestPolicyConfig!: _#defs."/$defs/Properties/definitions/OriginRequestPolicyConfig" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::OriginRequestPolicy"
+	Properties!: close({
+		// The origin request policy configuration.
+		OriginRequestPolicyConfig!: #OriginRequestPolicyConfig
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CookiesConfig": close({
+#CookiesConfig: close({
 	CookieBehavior!: =~"^(none|whitelist|all|allExcept)$" | fn.#StringExpression
 	Cookies?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeadersConfig": close({
+#HeadersConfig: close({
 	HeaderBehavior!: =~"^(none|whitelist|allViewer|allViewerAndWhitelistCloudFront|allExcept)$" | fn.#StringExpression
 	Headers?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginRequestPolicyConfig": close({
-	Comment?:            string | fn.#StringExpression
-	CookiesConfig!:      _#defs."/$defs/Properties/definitions/CookiesConfig" | fn.#ObjectExpression
-	HeadersConfig!:      _#defs."/$defs/Properties/definitions/HeadersConfig" | fn.#ObjectExpression
-	Name!:               string | fn.#StringExpression
-	QueryStringsConfig!: _#defs."/$defs/Properties/definitions/QueryStringsConfig" | fn.#ObjectExpression
+#OriginRequestPolicyConfig: close({
+	Comment?: string | fn.#StringExpression
+
+	// The cookies from viewer requests to include in origin requests.
+	CookiesConfig!: #CookiesConfig
+
+	// The HTTP headers to include in origin requests. These can include headers
+	// from viewer requests and additional headers added by CloudFront.
+	HeadersConfig!: #HeadersConfig
+	Name!:          string | fn.#StringExpression
+
+	// The URL query strings from viewer requests to include in origin requests.
+	QueryStringsConfig!: #QueryStringsConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringsConfig": close({
+#QueryStringsConfig: close({
 	QueryStringBehavior!: =~"^(none|whitelist|all|allExcept)$" | fn.#StringExpression
 	QueryStrings?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::OriginRequestPolicy"
-	Properties!: #Properties
-}

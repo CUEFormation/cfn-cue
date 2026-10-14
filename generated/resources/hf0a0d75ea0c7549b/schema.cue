@@ -12,13 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Hub Central Configuration Policy associations in your Target. Only the AWS
 // Security Hub delegated administrator can create the resouce from the home
 // region.
-#Properties: close({
-	ConfigurationPolicyId!: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$|^SELF_MANAGED_SECURITY_HUB$" |
-		fn.#StringExpression
-	TargetId!:   string | fn.#StringExpression
-	TargetType!: "ACCOUNT" | "ORGANIZATIONAL_UNIT" | "ROOT" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::PolicyAssociation"
-	Properties!: #Properties
+	Type!: "AWS::SecurityHub::PolicyAssociation"
+	Properties!: close({
+		ConfigurationPolicyId!: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$|^SELF_MANAGED_SECURITY_HUB$" |
+			fn.#StringExpression
+		TargetId!:   string | fn.#StringExpression
+		TargetType!: "ACCOUNT" | "ORGANIZATIONAL_UNIT" | "ROOT" | fn.#StringExpression
+	})
 }

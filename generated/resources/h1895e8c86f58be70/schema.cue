@@ -27,87 +27,105 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // it as a scalable target using the
 // [DependsOn](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-dependson.html)
 // attribute.
-#Properties: close({
-	MaxCapacity!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MinCapacity!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResourceId!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	ScalableDimension!: "appstream:fleet:DesiredCapacity" |
-		"cassandra:table:ReadCapacityUnits" |
-		"cassandra:table:WriteCapacityUnits" |
-		"comprehend:document-classifier-endpoint:DesiredInferenceUnits" |
-		"comprehend:entity-recognizer-endpoint:DesiredInferenceUnits" |
-		"custom-resource:ResourceType:Property" |
-		"dynamodb:index:ReadCapacityUnits" |
-		"dynamodb:index:WriteCapacityUnits" |
-		"dynamodb:table:ReadCapacityUnits" |
-		"dynamodb:table:WriteCapacityUnits" |
-		"ec2:capacity-reservation:AvailableInstances" |
-		"ec2:spot-fleet-request:TargetCapacity" |
-		"ecs:service:DesiredCount" |
-		"elasticache:cache-cluster:Nodes" |
-		"elasticache:replication-group:NodeGroups" |
-		"elasticache:replication-group:Replicas" |
-		"elasticmapreduce:instancegroup:InstanceCount" |
-		"kafka:broker-storage:VolumeSize" |
-		"lambda:function:ProvisionedConcurrency" |
-		"neptune:cluster:ReadReplicaCount" |
-		"rds:cluster:ReadReplicaCount" |
-		"sagemaker:inference-component:DesiredCopyCount" |
-		"sagemaker:variant:DesiredInstanceCount" |
-		"sagemaker:variant:DesiredProvisionedConcurrency" |
-		"workspaces:workspacespool:DesiredUserSessions" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApplicationAutoScaling::ScalableTarget"
+	Properties!: close({
+		MaxCapacity!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MinCapacity!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ResourceId!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
 		fn.#StringExpression
-	ScheduledActions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ScheduledAction"] |
-		fn.#ListExpression
-	ServiceNamespace!: "appstream" |
-		"cassandra" |
-		"comprehend" |
-		"custom-resource" |
-		"dynamodb" |
-		"ec2" |
-		"ecs" |
-		"elasticache" |
-		"elasticmapreduce" |
-		"kafka" |
-		"lambda" |
-		"neptune" |
-		"rds" |
-		"sagemaker" |
-		"workspaces" |
-		fn.#StringExpression
-	SuspendedState?: _#defs."/$defs/Properties/definitions/SuspendedState" | fn.#ObjectExpression
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		ScalableDimension!: "appstream:fleet:DesiredCapacity" |
+			"cassandra:table:ReadCapacityUnits" |
+			"cassandra:table:WriteCapacityUnits" |
+			"comprehend:document-classifier-endpoint:DesiredInferenceUnits" |
+			"comprehend:entity-recognizer-endpoint:DesiredInferenceUnits" |
+			"custom-resource:ResourceType:Property" |
+			"dynamodb:index:ReadCapacityUnits" |
+			"dynamodb:index:WriteCapacityUnits" |
+			"dynamodb:table:ReadCapacityUnits" |
+			"dynamodb:table:WriteCapacityUnits" |
+			"ec2:capacity-reservation:AvailableInstances" |
+			"ec2:spot-fleet-request:TargetCapacity" |
+			"ecs:service:DesiredCount" |
+			"elasticache:cache-cluster:Nodes" |
+			"elasticache:replication-group:NodeGroups" |
+			"elasticache:replication-group:Replicas" |
+			"elasticmapreduce:instancegroup:InstanceCount" |
+			"kafka:broker-storage:VolumeSize" |
+			"lambda:function:ProvisionedConcurrency" |
+			"neptune:cluster:ReadReplicaCount" |
+			"rds:cluster:ReadReplicaCount" |
+			"sagemaker:inference-component:DesiredCopyCount" |
+			"sagemaker:variant:DesiredInstanceCount" |
+			"sagemaker:variant:DesiredProvisionedConcurrency" |
+			"workspaces:workspacespool:DesiredUserSessions" |
+			fn.#StringExpression
+		ScheduledActions?: list.UniqueItems() & [...#ScheduledAction] | fn.#ListExpression
+		ServiceNamespace!: "appstream" |
+			"cassandra" |
+			"comprehend" |
+			"custom-resource" |
+			"dynamodb" |
+			"ec2" |
+			"ecs" |
+			"elasticache" |
+			"elasticmapreduce" |
+			"kafka" |
+			"lambda" |
+			"neptune" |
+			"rds" |
+			"sagemaker" |
+			"workspaces" |
+			fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScalableTargetAction": close({
+		// An embedded object that contains attributes and attribute values that are
+		// used to suspend and resume automatic scaling. Setting the value of an
+		// attribute to ``true`` suspends the specified scaling activities. Setting it
+		// to ``false`` (default) resumes the specified scaling activities.
+		// *Suspension Outcomes*
+		// + For ``DynamicScalingInSuspended``, while a suspension is in effect, all
+		// scale-in activities that are triggered by a scaling policy are suspended.
+		// + For ``DynamicScalingOutSuspended``, while a suspension is in effect, all
+		// scale-out activities that are triggered by a scaling policy are suspended.
+		// + For ``ScheduledScalingSuspended``, while a suspension is in effect, all
+		// scaling activities that involve scheduled actions are suspended.
+		SuspendedState?: #SuspendedState
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#ScalableTargetAction: close({
 	MaxCapacity?: int |
 		{
 			string &
@@ -139,9 +157,15 @@ _#defs: "/$defs/Properties/definitions/ScalableTargetAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledAction": close({
-	EndTime?:              string | fn.#StringExpression
-	ScalableTargetAction?: _#defs."/$defs/Properties/definitions/ScalableTargetAction" | fn.#ObjectExpression
+#ScheduledAction: close({
+	EndTime?: string | fn.#StringExpression
+
+	// The new minimum and maximum capacity. You can set both values or just one. At
+	// the scheduled time, if the current capacity is below the minimum capacity,
+	// Application Auto Scaling scales out to the minimum capacity. If the current
+	// capacity is above the maximum capacity, Application Auto Scaling scales in
+	// to the maximum capacity.
+	ScalableTargetAction?: #ScalableTargetAction
 	Schedule!:             string | fn.#StringExpression
 	ScheduledActionName!:  string | fn.#StringExpression
 	StartTime?:            string | fn.#StringExpression
@@ -149,19 +173,15 @@ _#defs: "/$defs/Properties/definitions/ScheduledAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SuspendedState": close({
+#SuspendedState: close({
 	DynamicScalingInSuspended?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DynamicScalingOutSuspended?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ScheduledScalingSuspended?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationAutoScaling::ScalableTarget"
-	Properties!: #Properties
-}

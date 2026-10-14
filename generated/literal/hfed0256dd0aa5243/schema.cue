@@ -6,23 +6,23 @@ package schema
 
 // Resource Type definition for AWS::LakeFormation::DataLakeSettings
 #Properties: close({
-	Admins?:                           [..._#defs."/$defs/Properties/definitions/DataLakePrincipal"]
+	Admins?:                           [...#DataLakePrincipal]
 	AllowExternalDataFiltering?:       bool
 	AllowFullTableExternalDataAccess?: bool
 	AuthorizedSessionTagValueList?:    [...string]
-	CreateDatabaseDefaultPermissions?: [..._#defs."/$defs/Properties/definitions/PrincipalPermissions"]
-	CreateTableDefaultPermissions?:    [..._#defs."/$defs/Properties/definitions/PrincipalPermissions"]
-	ExternalDataFilteringAllowList?:   [..._#defs."/$defs/Properties/definitions/DataLakePrincipal"]
+	CreateDatabaseDefaultPermissions?: [...#PrincipalPermissions]
+	CreateTableDefaultPermissions?:    [...#PrincipalPermissions]
+	ExternalDataFilteringAllowList?:   [...#DataLakePrincipal]
 	Id?:                               string
 	MutationType?:                     string
 	Parameters?:                       string | {...}
-	ReadOnlyAdmins?:                   [..._#defs."/$defs/Properties/definitions/DataLakePrincipal"]
+	ReadOnlyAdmins?:                   [...#DataLakePrincipal]
 	TrustedResourceOwners?:            [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close({DataLakePrincipalIdentifier!: string})
+#DataLakePrincipal: close({DataLakePrincipalIdentifier!: string})
 
-_#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
+#PrincipalPermissions: close({
 	Permissions!: [...string]
-	Principal!:   _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+	Principal!:   #DataLakePrincipal
 })

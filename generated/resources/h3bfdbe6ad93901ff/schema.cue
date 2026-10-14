@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,16 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::EventBridgeRuleTemplate Resource Type
-#Properties: close({
-	Description?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	EventTargets?:    [..._#defs."/$defs/Properties/definitions/EventBridgeRuleTemplateTarget"] | fn.#ListExpression
-	EventType!:       _#defs."/$defs/Properties/definitions/EventBridgeRuleTemplateEventType"
-	GroupIdentifier?: =~"^[^\\s]+$" | fn.#StringExpression
-	Name!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Tags?:            _#defs."/$defs/Properties/definitions/TagMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::EventBridgeRuleTemplate"
+	Properties!: close({
+		Description?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		EventTargets?:    [...#EventBridgeRuleTemplateTarget] | fn.#ListExpression
+		EventType!:       #EventBridgeRuleTemplateEventType
+		GroupIdentifier?: =~"^[^\\s]+$" | fn.#StringExpression
+		Name!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		Tags?:            #TagMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EventBridgeRuleTemplateEventType": "MEDIALIVE_MULTIPLEX_ALERT" |
+#EventBridgeRuleTemplateEventType: "MEDIALIVE_MULTIPLEX_ALERT" |
 	"MEDIALIVE_MULTIPLEX_STATE_CHANGE" |
 	"MEDIALIVE_CHANNEL_ALERT" |
 	"MEDIALIVE_CHANNEL_INPUT_CHANGE" |
@@ -36,16 +39,12 @@ _#defs: "/$defs/Properties/definitions/EventBridgeRuleTemplateEventType": "MEDIA
 	"MEDIACONNECT_FLOW_STATUS_CHANGE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeRuleTemplateTarget": close(
+#EventBridgeRuleTemplateTarget: close(
 	{Arn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn.+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::EventBridgeRuleTemplate"
-	Properties!: #Properties
-}

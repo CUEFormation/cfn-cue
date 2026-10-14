@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -15,64 +15,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates an ingestion destination, which specifies how an application's
 // ingested data is processed by Amazon Web Services AppFabric and where it's
 // delivered.
-#Properties: close({
-	AppBundleArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
-	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
-	IngestionArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
-	ProcessingConfiguration!:  _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppFabric::IngestionDestination"
+	Properties!: close({
+		AppBundleArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
+		DestinationConfiguration!: #DestinationConfiguration
+		IngestionArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
+		ProcessingConfiguration!:  #ProcessingConfiguration
+		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuditLogDestinationConfiguration": close(
-	{Destination!: _#defs."/$defs/Properties/definitions/Destination"},
-) |
-	fn.#ObjectExpression
+#AuditLogDestinationConfiguration: close({Destination!: #Destination}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuditLogProcessingConfiguration": close({
+#AuditLogProcessingConfiguration: close({
 	Format!: "json" | "parquet" | fn.#StringExpression
 	Schema!: "ocsf" | "raw" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Destination": matchN(1, [{
-	S3Bucket!: _
-	...
-}, {
-	FirehoseStream!: _
-	...
-}]) & close({
-	FirehoseStream?: _#defs."/$defs/Properties/definitions/FirehoseStream"
-	S3Bucket?:       _#defs."/$defs/Properties/definitions/S3Bucket"
-}) |
+#Destination: close({
+	FirehoseStream?: #FirehoseStream
+	S3Bucket?:       #S3Bucket
+	if S3Bucket != _|_ if S3Bucket."Fn::If" == _|_ {
+		FirehoseStream?: close({"Fn::If": _}) | error(
+			"FirehoseStream cannot be used with S3Bucket; set exactly one of S3Bucket, FirehoseStream",
+		)
+	}
+}) & matchN(>=1, [{S3Bucket!: _}, {FirehoseStream!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close(
-	{AuditLog!: _#defs."/$defs/Properties/definitions/AuditLogDestinationConfiguration"},
-) |
-	fn.#ObjectExpression
+#DestinationConfiguration: close({AuditLog!: #AuditLogDestinationConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirehoseStream": close(
-	{StreamName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression},
-) |
+#FirehoseStream: close({StreamName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcessingConfiguration": close(
-	{AuditLog!: _#defs."/$defs/Properties/definitions/AuditLogProcessingConfiguration"},
-) |
-	fn.#ObjectExpression
+#ProcessingConfiguration: close({AuditLog!: #AuditLogProcessingConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Bucket": close({
+#S3Bucket: close({
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	Prefix?:     strings.MaxRunes(120) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppFabric::IngestionDestination"
-	Properties!: #Properties
-}

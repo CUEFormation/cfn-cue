@@ -18,84 +18,90 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::ContainerGroupDefinition resource creates an Amazon
 // GameLift container group definition.
-#Properties: close({
-	ContainerGroupType?:            "GAME_SERVER" | "PER_INSTANCE" | fn.#StringExpression
-	GameServerContainerDefinition?: _#defs."/$defs/Properties/definitions/GameServerContainerDefinition"
-	Name!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	OperatingSystem!: "AMAZON_LINUX_2023" | fn.#StringExpression
-	SourceVersionNumber?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SupportContainerDefinitions?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SupportContainerDefinition"
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	TotalMemoryLimitMebibytes!: int & <=1024000 & >=4 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1024000 &
-							>=4,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TotalVcpuLimit?: <=10 & >=0.125 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::ContainerGroupDefinition"
+	Properties!: close({
+		ContainerGroupType?:            "GAME_SERVER" | "PER_INSTANCE" | fn.#StringExpression
+		GameServerContainerDefinition?: #GameServerContainerDefinition
+		Name!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		OperatingSystem!: "AMAZON_LINUX_2023" | fn.#StringExpression
+		SourceVersionNumber?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SupportContainerDefinitions?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
+			...#SupportContainerDefinition
+		] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TotalMemoryLimitMebibytes!: int & <=1024000 & >=4 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1024000 &
+								>=4,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TotalVcpuLimit?: <=10 & >=0.125 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=10 &
+								>=0.125,
+							"g",
+							-1,
 							64,
-						) &
-							<=10 &
-							>=0.125,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	VersionDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		VersionDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ContainerDependency": close({
+#ContainerDependency: close({
 	Condition!:     "START" | "COMPLETE" | "SUCCESS" | "HEALTHY" | fn.#StringExpression
 	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerEnvironment": close({
+#ContainerEnvironment: close({
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerHealthCheck": close({
+#ContainerHealthCheck: close({
 	Command!: list.MaxItems(20) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	] |
@@ -167,14 +173,14 @@ _#defs: "/$defs/Properties/definitions/ContainerHealthCheck": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerMountPoint": close({
+#ContainerMountPoint: close({
 	AccessLevel?:   "READ_ONLY" | "READ_AND_WRITE" | fn.#StringExpression
 	ContainerPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(\\/+[^\\/]+\\/*)+$" | fn.#StringExpression
 	InstancePath!:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\/[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerPortRange": close({
+#ContainerPortRange: close({
 	FromPort!: int & <=60000 & >=1 |
 		{
 			string &
@@ -211,23 +217,22 @@ _#defs: "/$defs/Properties/definitions/ContainerPortRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GameServerContainerDefinition": close({
+#GameServerContainerDefinition: close({
 	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerDependency"
-	] |
+	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerDependency] |
 		fn.#ListExpression
-	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerEnvironment"
-	] |
+	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#ContainerEnvironment] |
 		fn.#ListExpression
 	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" | fn.#StringExpression
-	LinuxCapabilities?: _#defs."/$defs/Properties/definitions/LinuxCapabilities" | fn.#ObjectExpression
-	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerMountPoint"
-	] |
+
+	// Linux-specific modifications applied to the default Docker container
+	// configuration, such as Linux capabilities.
+	LinuxCapabilities?: #LinuxCapabilities
+	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerMountPoint] |
 		fn.#ListExpression
-	PortConfiguration?:   _#defs."/$defs/Properties/definitions/PortConfiguration" | fn.#ObjectExpression
+
+	// Defines the ports on the container.
+	PortConfiguration?:   #PortConfiguration
 	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$" | fn.#StringExpression
 	ServerSdkVersion!:    strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
 	Vcpu?: <=10 & >=0.125 |
@@ -253,7 +258,7 @@ _#defs: "/$defs/Properties/definitions/GameServerContainerDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinuxCapabilities": close({
+#LinuxCapabilities: close({
 	Include?: list.MaxItems(37) & list.UniqueItems() & [...] & [
 		..."AUDIT_CONTROL" |
 			"AUDIT_WRITE" |
@@ -298,28 +303,27 @@ _#defs: "/$defs/Properties/definitions/LinuxCapabilities": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortConfiguration": close({
-	ContainerPortRanges!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerPortRange"
-	] |
+#PortConfiguration: close({
+	ContainerPortRanges!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#ContainerPortRange] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SupportContainerDefinition": close({
+#SupportContainerDefinition: close({
 	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerDependency"
-	] |
+	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerDependency] |
 		fn.#ListExpression
-	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerEnvironment"
-	] |
+	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#ContainerEnvironment] |
 		fn.#ListExpression
-	Essential?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HealthCheck?: _#defs."/$defs/Properties/definitions/ContainerHealthCheck" | fn.#ObjectExpression
+	Essential?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// Specifies how the health of the containers will be checked.
+	HealthCheck?: #ContainerHealthCheck
 	ImageUri!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" | fn.#StringExpression
-	LinuxCapabilities?: _#defs."/$defs/Properties/definitions/LinuxCapabilities" | fn.#ObjectExpression
+
+	// Linux-specific modifications applied to the default Docker container
+	// configuration, such as Linux capabilities.
+	LinuxCapabilities?: #LinuxCapabilities
 	MemoryHardLimitMebibytes?: int & <=1024000 & >=4 |
 		{
 			string &
@@ -336,11 +340,11 @@ _#defs: "/$defs/Properties/definitions/SupportContainerDefinition": close({
 				)
 		} |
 		fn.#NumberExpression
-	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerMountPoint"
-	] |
+	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerMountPoint] |
 		fn.#ListExpression
-	PortConfiguration?:   _#defs."/$defs/Properties/definitions/PortConfiguration" | fn.#ObjectExpression
+
+	// Defines the ports on the container.
+	PortConfiguration?:   #PortConfiguration
 	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$" | fn.#StringExpression
 	Vcpu?: <=10 & >=0.125 |
 		{
@@ -365,12 +369,8 @@ _#defs: "/$defs/Properties/definitions/SupportContainerDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::ContainerGroupDefinition"
-	Properties!: #Properties
-}

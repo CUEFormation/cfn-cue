@@ -15,32 +15,32 @@ import (
 	Arn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[-a-z0-9]*:connect-campaigns:[-a-z0-9]*:[0-9]{12}:campaign/[-a-zA-Z0-9]*$"
-	ChannelSubtypeConfig?:        _#defs."/$defs/Properties/definitions/ChannelSubtypeConfig"
-	CommunicationLimitsOverride?: _#defs."/$defs/Properties/definitions/CommunicationLimitsConfig"
-	CommunicationTimeConfig?:     _#defs."/$defs/Properties/definitions/CommunicationTimeConfig"
-	ConnectCampaignFlowArn?:      _#defs."/$defs/Properties/definitions/Arn"
-	ConnectInstanceId!:           _#defs."/$defs/Properties/definitions/InstanceId"
-	EntryLimitsConfig?:           _#defs."/$defs/Properties/definitions/EntryLimitsConfig"
-	Name!:                        _#defs."/$defs/Properties/definitions/CampaignName"
-	Schedule?:                    _#defs."/$defs/Properties/definitions/Schedule"
-	Source?:                      _#defs."/$defs/Properties/definitions/Source"
+	ChannelSubtypeConfig?:        #ChannelSubtypeConfig
+	CommunicationLimitsOverride?: #CommunicationLimitsConfig
+	CommunicationTimeConfig?:     #CommunicationTimeConfig
+	ConnectCampaignFlowArn?:      #Arn
+	ConnectInstanceId!:           #InstanceId
+	EntryLimitsConfig?:           #EntryLimitsConfig
+	Name!:                        #CampaignName
+	Schedule?:                    #Schedule
+	Source?:                      #Source
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type?: _#defs."/$defs/Properties/definitions/CampaignType"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
+	Type?: #CampaignType
 })
 
 // Actions that can performed on a contact by an agent
-_#defs: "/$defs/Properties/definitions/AgentAction": "DISCARD"
+#AgentAction: "DISCARD"
 
 // Actions that can be performed by agent during preview phase
-_#defs: "/$defs/Properties/definitions/AgentActions": [..._#defs."/$defs/Properties/definitions/AgentAction"]
+#AgentActions: [...#AgentAction]
 
 // Agentless config
-_#defs: "/$defs/Properties/definitions/AgentlessConfig": close({})
+#AgentlessConfig: close({})
 
 // The configuration used for answering machine detection during outbound calls
-_#defs: "/$defs/Properties/definitions/AnswerMachineDetectionConfig": close({
+#AnswerMachineDetectionConfig: close({
 	// Enables detection of prompts (e.g., beep after after a voicemail greeting)
 	AwaitAnswerMachinePrompt?: bool
 
@@ -49,268 +49,220 @@ _#defs: "/$defs/Properties/definitions/AnswerMachineDetectionConfig": close({
 })
 
 // Arn
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(500) & strings.MinRunes(20) & =~"^arn:.*$"
+#Arn: strings.MaxRunes(500) & strings.MinRunes(20) & =~"^arn:.*$"
 
 // The bandwidth allocation of a queue resource.
-_#defs: "/$defs/Properties/definitions/BandwidthAllocation": <=1 & >=0
+#BandwidthAllocation: <=1 & >=0
 
 // Campaign name
-_#defs: "/$defs/Properties/definitions/CampaignName": strings.MaxRunes(127) & strings.MinRunes(1)
+#CampaignName: strings.MaxRunes(127) & strings.MinRunes(1)
 
 // Campaign type
-_#defs: "/$defs/Properties/definitions/CampaignType": "MANAGED" | "JOURNEY"
+#CampaignType: "MANAGED" | "JOURNEY"
 
 // Allocates outbound capacity for the specific channel of this campaign between
 // multiple active campaigns
-_#defs: "/$defs/Properties/definitions/Capacity": <=1 & >=0.01
+#Capacity: <=1 & >=0.01
 
 // The possible types of channel subtype config parameters
-_#defs: "/$defs/Properties/definitions/ChannelSubtypeConfig": matchN(>=1, [{
-	Telephony!: _
-	...
-}, {
-	Sms!: _
-	...
-}, {
-	Email!: _
-	...
-}, {
-	WhatsApp!: _
-	...
-}]) & close({
-	Email?:     _#defs."/$defs/Properties/definitions/EmailChannelSubtypeConfig"
-	Sms?:       _#defs."/$defs/Properties/definitions/SmsChannelSubtypeConfig"
-	Telephony?: _#defs."/$defs/Properties/definitions/TelephonyChannelSubtypeConfig"
-	WhatsApp?:  _#defs."/$defs/Properties/definitions/WhatsAppChannelSubtypeConfig"
-})
+#ChannelSubtypeConfig: close({
+	Email?:     #EmailChannelSubtypeConfig
+	Sms?:       #SmsChannelSubtypeConfig
+	Telephony?: #TelephonyChannelSubtypeConfig
+	WhatsApp?:  #WhatsAppChannelSubtypeConfig
+}) & matchN(>=1, [{Telephony!: _}, {Sms!: _}, {Email!: _}, {WhatsApp!: _}])
 
 // Communication Limit
-_#defs: "/$defs/Properties/definitions/CommunicationLimit": close({
+#CommunicationLimit: close({
 	Frequency!:            int & >=1
 	MaxCountPerRecipient!: int & >=1
-	Unit!:                 _#defs."/$defs/Properties/definitions/CommunicationLimitTimeUnit"
+	Unit!:                 #CommunicationLimitTimeUnit
 })
 
 // List of communication limit
-_#defs: "/$defs/Properties/definitions/CommunicationLimitList": [
-	..._#defs."/$defs/Properties/definitions/CommunicationLimit"
-]
+#CommunicationLimitList: [...#CommunicationLimit]
 
 // The communication limit time unit
-_#defs: "/$defs/Properties/definitions/CommunicationLimitTimeUnit": "DAY"
+#CommunicationLimitTimeUnit: "DAY"
 
 // Communication limits
-_#defs: "/$defs/Properties/definitions/CommunicationLimits": close(
-	{CommunicationLimitList?: _#defs."/$defs/Properties/definitions/CommunicationLimitList"},
-)
+#CommunicationLimits: close({CommunicationLimitList?: #CommunicationLimitList})
 
 // Communication limits config
-_#defs: "/$defs/Properties/definitions/CommunicationLimitsConfig": close({
-	AllChannelsSubtypes?:    _#defs."/$defs/Properties/definitions/CommunicationLimits"
-	InstanceLimitsHandling?: _#defs."/$defs/Properties/definitions/InstanceLimitsHandling"
+#CommunicationLimitsConfig: close({
+	AllChannelsSubtypes?:    #CommunicationLimits
+	InstanceLimitsHandling?: #InstanceLimitsHandling
 })
 
 // Campaign communication time config
-_#defs: "/$defs/Properties/definitions/CommunicationTimeConfig": close({
-	Email?:               _#defs."/$defs/Properties/definitions/TimeWindow"
-	LocalTimeZoneConfig!: _#defs."/$defs/Properties/definitions/LocalTimeZoneConfig"
-	Sms?:                 _#defs."/$defs/Properties/definitions/TimeWindow"
-	Telephony?:           _#defs."/$defs/Properties/definitions/TimeWindow"
-	WhatsApp?:            _#defs."/$defs/Properties/definitions/TimeWindow"
+#CommunicationTimeConfig: close({
+	Email?:               #TimeWindow
+	LocalTimeZoneConfig!: #LocalTimeZoneConfig
+	Sms?:                 #TimeWindow
+	Telephony?:           #TimeWindow
+	WhatsApp?:            #TimeWindow
 })
 
 // The identifier of the contact flow for the outbound call
-_#defs: "/$defs/Properties/definitions/ContactFlowId": strings.MaxRunes(500)
+#ContactFlowId: strings.MaxRunes(500)
 
 // Daily Hour
-_#defs: "/$defs/Properties/definitions/DailyHour": close({
-	Key?:   _#defs."/$defs/Properties/definitions/DayOfWeek"
-	Value?: _#defs."/$defs/Properties/definitions/TimeRangeList"
+#DailyHour: close({
+	Key?:   #DayOfWeek
+	Value?: #TimeRangeList
 })
 
 // Daily Hours map
-_#defs: "/$defs/Properties/definitions/DailyHours": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/DailyHour"
-]
+#DailyHours: list.UniqueItems() & [...#DailyHour]
 
 // Day of week
-_#defs: "/$defs/Properties/definitions/DayOfWeek": "MONDAY" |
-	"TUESDAY" |
-	"WEDNESDAY" |
-	"THURSDAY" |
-	"FRIDAY" |
-	"SATURDAY" |
-	"SUNDAY"
+#DayOfWeek: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
 
 // Email address used for Email messages
-_#defs: "/$defs/Properties/definitions/EmailAddress": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[\\w-\\.\\+]+@([\\w-]+\\.)+[\\w-]{2,4}$"
+#EmailAddress: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-\\.\\+]+@([\\w-]+\\.)+[\\w-]{2,4}$"
 
 // Email Channel Subtype config
-_#defs: "/$defs/Properties/definitions/EmailChannelSubtypeConfig": close({
-	Capacity?:              _#defs."/$defs/Properties/definitions/Capacity"
-	DefaultOutboundConfig!: _#defs."/$defs/Properties/definitions/EmailOutboundConfig"
-	OutboundMode!:          _#defs."/$defs/Properties/definitions/EmailOutboundMode"
+#EmailChannelSubtypeConfig: close({
+	Capacity?:              #Capacity
+	DefaultOutboundConfig!: #EmailOutboundConfig
+	OutboundMode!:          #EmailOutboundMode
 })
 
 // Default Email outbound config
-_#defs: "/$defs/Properties/definitions/EmailOutboundConfig": close({
-	ConnectSourceEmailAddress!:     _#defs."/$defs/Properties/definitions/EmailAddress"
-	SourceEmailAddressDisplayName?: _#defs."/$defs/Properties/definitions/SourceEmailAddressDisplayName"
-	WisdomTemplateArn!:             _#defs."/$defs/Properties/definitions/Arn"
+#EmailOutboundConfig: close({
+	ConnectSourceEmailAddress!:     #EmailAddress
+	SourceEmailAddressDisplayName?: #SourceEmailAddressDisplayName
+	WisdomTemplateArn!:             #Arn
 })
 
 // Email Outbound Mode
-_#defs: "/$defs/Properties/definitions/EmailOutboundMode": close(
-	{AgentlessConfig?: _#defs."/$defs/Properties/definitions/AgentlessConfig"},
-)
+#EmailOutboundMode: close({AgentlessConfig?: #AgentlessConfig})
 
 // Entry limits config for a campaign
-_#defs: "/$defs/Properties/definitions/EntryLimitsConfig": close({
+#EntryLimitsConfig: close({
 	// Maximum number of entries per participant. 0 indicates unlimited entries.
 	MaxEntryCount!: int & >=0
 
 	// Minimum time interval between entries for the same participant in ISO 8601 duration format
-	MinEntryInterval!: _#defs."/$defs/Properties/definitions/Iso8601Duration"
+	MinEntryInterval!: #Iso8601Duration
 })
 
 // The event trigger of the campaign
-_#defs: "/$defs/Properties/definitions/EventTrigger": close(
-	{CustomerProfilesDomainArn?: _#defs."/$defs/Properties/definitions/Arn"},
-)
+#EventTrigger: close({CustomerProfilesDomainArn?: #Arn})
 
 // Amazon Connect Instance Id
-_#defs: "/$defs/Properties/definitions/InstanceId": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9_\\-.]*$"
+#InstanceId: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-.]*$"
 
 // Enumeration of Instance Limits handling in a Campaign
-_#defs: "/$defs/Properties/definitions/InstanceLimitsHandling": "OPT_IN" | "OPT_OUT"
+#InstanceLimitsHandling: "OPT_IN" | "OPT_OUT"
 
 // Date in ISO 8601 format, e.g. 2024-01-01
-_#defs: "/$defs/Properties/definitions/Iso8601Date": =~"^\\d{4}-\\d{2}-\\d{2}$"
+#Iso8601Date: =~"^\\d{4}-\\d{2}-\\d{2}$"
 
 // Time duration in ISO 8601 format
-_#defs: "/$defs/Properties/definitions/Iso8601Duration": strings.MaxRunes(50) &
+#Iso8601Duration: strings.MaxRunes(50) &
 strings.MinRunes(0) &
 =~"^P(?:([-+]?[0-9]+)D)?(T(?:([-+]?[0-9]+)H)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?$"
 
 // Time in ISO 8601 format, e.g. T23:11
-_#defs: "/$defs/Properties/definitions/Iso8601Time": =~"^T\\d{2}:\\d{2}$"
+#Iso8601Time: =~"^T\\d{2}:\\d{2}$"
 
 // Local time zone config
-_#defs: "/$defs/Properties/definitions/LocalTimeZoneConfig": close({
-	DefaultTimeZone?:             _#defs."/$defs/Properties/definitions/TimeZone"
-	LocalTimeZoneDetection?:      _#defs."/$defs/Properties/definitions/LocalTimeZoneDetection"
-	LocalTimeZoneDetectionScope?: _#defs."/$defs/Properties/definitions/LocalTimeZoneDetectionScope"
+#LocalTimeZoneConfig: close({
+	DefaultTimeZone?:             #TimeZone
+	LocalTimeZoneDetection?:      #LocalTimeZoneDetection
+	LocalTimeZoneDetectionScope?: #LocalTimeZoneDetectionScope
 })
 
 // Local TimeZone Detection method list
-_#defs: "/$defs/Properties/definitions/LocalTimeZoneDetection": [
-	..._#defs."/$defs/Properties/definitions/LocalTimeZoneDetectionType"
-]
+#LocalTimeZoneDetection: [...#LocalTimeZoneDetectionType]
 
 // Local TimeZone Detection scope
-_#defs: "/$defs/Properties/definitions/LocalTimeZoneDetectionScope": "PRIMARY_ONLY" | "ALL_AVAILABLE"
+#LocalTimeZoneDetectionScope: "PRIMARY_ONLY" | "ALL_AVAILABLE"
 
 // Local TimeZone Detection method
-_#defs: "/$defs/Properties/definitions/LocalTimeZoneDetectionType": "ZIP_CODE" | "AREA_CODE"
+#LocalTimeZoneDetectionType: "ZIP_CODE" | "AREA_CODE"
 
 // Open Hours config
-_#defs: "/$defs/Properties/definitions/OpenHours": close(
-	{DailyHours!: _#defs."/$defs/Properties/definitions/DailyHours"},
-)
+#OpenHours: close({DailyHours!: #DailyHours})
 
 // Predictive config
-_#defs: "/$defs/Properties/definitions/PredictiveConfig": close(
-	{BandwidthAllocation!: _#defs."/$defs/Properties/definitions/BandwidthAllocation"},
-)
+#PredictiveConfig: close({BandwidthAllocation!: #BandwidthAllocation})
 
 // Preview config
-_#defs: "/$defs/Properties/definitions/PreviewConfig": close({
-	AgentActions?:        _#defs."/$defs/Properties/definitions/AgentActions"
-	BandwidthAllocation!: _#defs."/$defs/Properties/definitions/BandwidthAllocation"
-	TimeoutConfig!:       _#defs."/$defs/Properties/definitions/TimeoutConfig"
+#PreviewConfig: close({
+	AgentActions?:        #AgentActions
+	BandwidthAllocation!: #BandwidthAllocation
+	TimeoutConfig!:       #TimeoutConfig
 })
 
 // Progressive config
-_#defs: "/$defs/Properties/definitions/ProgressiveConfig": close(
-	{BandwidthAllocation!: _#defs."/$defs/Properties/definitions/BandwidthAllocation"},
-)
+#ProgressiveConfig: close({BandwidthAllocation!: #BandwidthAllocation})
 
 // The queue for the call
-_#defs: "/$defs/Properties/definitions/QueueId": strings.MaxRunes(500)
+#QueueId: strings.MaxRunes(500)
 
 // Restricted period
-_#defs: "/$defs/Properties/definitions/RestrictedPeriod": close({
-	EndDate!: _#defs."/$defs/Properties/definitions/Iso8601Date"
+#RestrictedPeriod: close({
+	EndDate!: #Iso8601Date
 
 	// The name of a restricted period
 	Name?:      strings.MaxRunes(127)
-	StartDate!: _#defs."/$defs/Properties/definitions/Iso8601Date"
+	StartDate!: #Iso8601Date
 })
 
 // List of restricted period
-_#defs: "/$defs/Properties/definitions/RestrictedPeriodList": [
-	..._#defs."/$defs/Properties/definitions/RestrictedPeriod"
-]
+#RestrictedPeriodList: [...#RestrictedPeriod]
 
 // Restricted period config
-_#defs: "/$defs/Properties/definitions/RestrictedPeriods": {
-	RestrictedPeriodList!: _
-	...
-} & close({RestrictedPeriodList?: _#defs."/$defs/Properties/definitions/RestrictedPeriodList"})
+#RestrictedPeriods: close({RestrictedPeriodList?: #RestrictedPeriodList}) & matchN(>=1, [{RestrictedPeriodList!: _}])
 
 // Maximum ring time for outbound calls in seconds
-_#defs: "/$defs/Properties/definitions/RingTimeout": int & <=60 & >=15
+#RingTimeout: int & <=60 & >=15
 
 // Campaign schedule
-_#defs: "/$defs/Properties/definitions/Schedule": close({
-	EndTime!:          _#defs."/$defs/Properties/definitions/TimeStamp"
-	RefreshFrequency?: _#defs."/$defs/Properties/definitions/Iso8601Duration"
-	StartTime!:        _#defs."/$defs/Properties/definitions/TimeStamp"
+#Schedule: close({
+	EndTime!:          #TimeStamp
+	RefreshFrequency?: #Iso8601Duration
+	StartTime!:        #TimeStamp
 })
 
 // SMS Channel Subtype config
-_#defs: "/$defs/Properties/definitions/SmsChannelSubtypeConfig": close({
-	Capacity?:              _#defs."/$defs/Properties/definitions/Capacity"
-	DefaultOutboundConfig!: _#defs."/$defs/Properties/definitions/SmsOutboundConfig"
-	OutboundMode!:          _#defs."/$defs/Properties/definitions/SmsOutboundMode"
+#SmsChannelSubtypeConfig: close({
+	Capacity?:              #Capacity
+	DefaultOutboundConfig!: #SmsOutboundConfig
+	OutboundMode!:          #SmsOutboundMode
 })
 
 // Default SMS outbound config
-_#defs: "/$defs/Properties/definitions/SmsOutboundConfig": close({
-	ConnectSourcePhoneNumberArn!: _#defs."/$defs/Properties/definitions/Arn"
-	WisdomTemplateArn!:           _#defs."/$defs/Properties/definitions/Arn"
+#SmsOutboundConfig: close({
+	ConnectSourcePhoneNumberArn!: #Arn
+	WisdomTemplateArn!:           #Arn
 })
 
 // SMS Outbound Mode
-_#defs: "/$defs/Properties/definitions/SmsOutboundMode": close(
-	{AgentlessConfig?: _#defs."/$defs/Properties/definitions/AgentlessConfig"},
-)
+#SmsOutboundMode: close({AgentlessConfig?: #AgentlessConfig})
 
 // The possible source of the campaign
-_#defs: "/$defs/Properties/definitions/Source": matchN(1, [{
-	CustomerProfilesSegmentArn!: _
-	...
-}, {
-	EventTrigger!: _
-	...
-}]) & close({
-	CustomerProfilesSegmentArn?: _#defs."/$defs/Properties/definitions/Arn"
-	EventTrigger?:               _#defs."/$defs/Properties/definitions/EventTrigger"
-})
+#Source: close({
+	CustomerProfilesSegmentArn?: #Arn
+	EventTrigger?:               #EventTrigger
+	if CustomerProfilesSegmentArn != _|_ if CustomerProfilesSegmentArn."Fn::If" == _|_ {
+		EventTrigger?: close({"Fn::If": _}) | error(
+			"EventTrigger cannot be used with CustomerProfilesSegmentArn; set exactly one of CustomerProfilesSegmentArn, EventTrigger",
+		)
+	}
+}) & matchN(>=1, [{CustomerProfilesSegmentArn!: _}, {EventTrigger!: _}])
 
 // The name of the source email address display name
-_#defs: "/$defs/Properties/definitions/SourceEmailAddressDisplayName": strings.MaxRunes(256) & strings.MinRunes(0)
+#SourceEmailAddressDisplayName: strings.MaxRunes(256) & strings.MinRunes(0)
 
 // The phone number associated with the Amazon Connect instance, in E.164
 // format. If you do not specify a source phone number, you must specify a
 // queue.
-_#defs: "/$defs/Properties/definitions/SourcePhoneNumber": strings.MaxRunes(100)
+#SourcePhoneNumber: strings.MaxRunes(100)
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: string
 
@@ -319,85 +271,95 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Telephony Channel Subtype config
-_#defs: "/$defs/Properties/definitions/TelephonyChannelSubtypeConfig": close({
-	Capacity?:              _#defs."/$defs/Properties/definitions/Capacity"
-	ConnectQueueId?:        _#defs."/$defs/Properties/definitions/QueueId"
-	DefaultOutboundConfig!: _#defs."/$defs/Properties/definitions/TelephonyOutboundConfig"
-	OutboundMode!:          _#defs."/$defs/Properties/definitions/TelephonyOutboundMode"
+#TelephonyChannelSubtypeConfig: close({
+	Capacity?:              #Capacity
+	ConnectQueueId?:        #QueueId
+	DefaultOutboundConfig!: #TelephonyOutboundConfig
+	OutboundMode!:          #TelephonyOutboundMode
 })
 
 // Default Telephone Outbound config
-_#defs: "/$defs/Properties/definitions/TelephonyOutboundConfig": close({
-	AnswerMachineDetectionConfig?: _#defs."/$defs/Properties/definitions/AnswerMachineDetectionConfig"
-	ConnectContactFlowId!:         _#defs."/$defs/Properties/definitions/ContactFlowId"
-	ConnectSourcePhoneNumber?:     _#defs."/$defs/Properties/definitions/SourcePhoneNumber"
-	RingTimeout?:                  _#defs."/$defs/Properties/definitions/RingTimeout"
+#TelephonyOutboundConfig: close({
+	AnswerMachineDetectionConfig?: #AnswerMachineDetectionConfig
+	ConnectContactFlowId!:         #ContactFlowId
+	ConnectSourcePhoneNumber?:     #SourcePhoneNumber
+	RingTimeout?:                  #RingTimeout
 })
 
 // Telephony Outbound Mode
-_#defs: "/$defs/Properties/definitions/TelephonyOutboundMode": matchN(1, [{
-	ProgressiveConfig!: _
-	...
-}, {
-	PredictiveConfig!: _
-	...
-}, {
-	AgentlessConfig!: _
-	...
-}, {
-	PreviewConfig!: _
-	...
-}]) & close({
-	AgentlessConfig?:   _#defs."/$defs/Properties/definitions/AgentlessConfig"
-	PredictiveConfig?:  _#defs."/$defs/Properties/definitions/PredictiveConfig"
-	PreviewConfig?:     _#defs."/$defs/Properties/definitions/PreviewConfig"
-	ProgressiveConfig?: _#defs."/$defs/Properties/definitions/ProgressiveConfig"
-})
+#TelephonyOutboundMode: close({
+	AgentlessConfig?:   #AgentlessConfig
+	PredictiveConfig?:  #PredictiveConfig
+	PreviewConfig?:     #PreviewConfig
+	ProgressiveConfig?: #ProgressiveConfig
+	if ProgressiveConfig != _|_ if ProgressiveConfig."Fn::If" == _|_ {
+		PredictiveConfig?: close({"Fn::If": _}) | error(
+			"PredictiveConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+		AgentlessConfig?: close({"Fn::If": _}) | error(
+			"AgentlessConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+		PreviewConfig?: close({"Fn::If": _}) | error(
+			"PreviewConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+	}
+	if PredictiveConfig != _|_ if PredictiveConfig."Fn::If" == _|_ {
+		AgentlessConfig?: close({"Fn::If": _}) | error(
+			"AgentlessConfig cannot be used with PredictiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+		PreviewConfig?: close({"Fn::If": _}) | error(
+			"PreviewConfig cannot be used with PredictiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+	}
+	if AgentlessConfig != _|_ if AgentlessConfig."Fn::If" == _|_ {
+		PreviewConfig?: close({"Fn::If": _}) | error(
+			"PreviewConfig cannot be used with AgentlessConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
+		)
+	}
+}) & matchN(>=1, [{ProgressiveConfig!: _}, {PredictiveConfig!: _}, {AgentlessConfig!: _}, {PreviewConfig!: _}])
 
 // Time range in 24 hour format
-_#defs: "/$defs/Properties/definitions/TimeRange": close({
-	EndTime!:   _#defs."/$defs/Properties/definitions/Iso8601Time"
-	StartTime!: _#defs."/$defs/Properties/definitions/Iso8601Time"
+#TimeRange: close({
+	EndTime!:   #Iso8601Time
+	StartTime!: #Iso8601Time
 })
 
 // List of time range
-_#defs: "/$defs/Properties/definitions/TimeRangeList": [..._#defs."/$defs/Properties/definitions/TimeRange"]
+#TimeRangeList: [...#TimeRange]
 
 // Timestamp with no UTC offset or timezone
-_#defs: "/$defs/Properties/definitions/TimeStamp": strings.MaxRunes(100)
+#TimeStamp: strings.MaxRunes(100)
 
 // Time window config
-_#defs: "/$defs/Properties/definitions/TimeWindow": close({
-	OpenHours!:         _#defs."/$defs/Properties/definitions/OpenHours"
-	RestrictedPeriods?: _#defs."/$defs/Properties/definitions/RestrictedPeriods"
+#TimeWindow: close({
+	OpenHours!:         #OpenHours
+	RestrictedPeriods?: #RestrictedPeriods
 })
 
 // Time Zone Id in the IANA format
-_#defs: "/$defs/Properties/definitions/TimeZone": strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/]*$"
+#TimeZone: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/]*$"
 
 // Timeout Config for preview contacts
-_#defs: "/$defs/Properties/definitions/TimeoutConfig": {
-	DurationInSeconds?: _#defs."/$defs/Properties/definitions/TimeoutDuration"
+#TimeoutConfig: {
+	DurationInSeconds?: #TimeoutDuration
 	...
 }
 
 // Timeout duration for a preview contact in seconds
-_#defs: "/$defs/Properties/definitions/TimeoutDuration": int & <=300 & >=1
+#TimeoutDuration: int & <=300 & >=1
 
 // WhatsApp Channel Subtype config
-_#defs: "/$defs/Properties/definitions/WhatsAppChannelSubtypeConfig": close({
-	Capacity?:              _#defs."/$defs/Properties/definitions/Capacity"
-	DefaultOutboundConfig!: _#defs."/$defs/Properties/definitions/WhatsAppOutboundConfig"
-	OutboundMode!:          _#defs."/$defs/Properties/definitions/WhatsAppOutboundMode"
+#WhatsAppChannelSubtypeConfig: close({
+	Capacity?:              #Capacity
+	DefaultOutboundConfig!: #WhatsAppOutboundConfig
+	OutboundMode!:          #WhatsAppOutboundMode
 })
 
 // Default WhatsApp outbound config
-_#defs: "/$defs/Properties/definitions/WhatsAppOutboundConfig": close({
-	ConnectSourcePhoneNumberArn!: _#defs."/$defs/Properties/definitions/Arn"
-	WisdomTemplateArn!:           _#defs."/$defs/Properties/definitions/Arn"
+#WhatsAppOutboundConfig: close({
+	ConnectSourcePhoneNumberArn!: #Arn
+	WisdomTemplateArn!:           #Arn
 })
 
 // WhatsApp Outbound Mode
-_#defs: "/$defs/Properties/definitions/WhatsAppOutboundMode": close(
-	{AgentlessConfig?: _#defs."/$defs/Properties/definitions/AgentlessConfig"},
-)
+#WhatsAppOutboundMode: close({AgentlessConfig?: #AgentlessConfig})

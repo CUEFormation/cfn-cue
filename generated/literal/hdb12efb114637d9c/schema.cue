@@ -40,33 +40,27 @@ import (
 	// The partition specification of the dataset.
 	PartitionSpec?: close({
 		// The partition fields.
-		Fields!: list.MaxItems(10) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/DataLakeDatasetPartitionField"
-		]
+		Fields!: list.MaxItems(10) & list.MinItems(1) & [...#DataLakeDatasetPartitionField]
 	})
 
 	// The schema of the dataset.
 	Schema?: close({
 		// The list of field details of the dataset schema.
-		Fields!: list.MaxItems(500) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/DataLakeDatasetSchemaField"
-		]
+		Fields!: list.MaxItems(500) & list.MinItems(1) & [...#DataLakeDatasetSchemaField]
 
 		// The name of the dataset schema.
 		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$"
 
 		// The list of primary key fields for the dataset.
-		PrimaryKeys?: list.MaxItems(20) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/DataLakeDatasetPrimaryKeyField"
-		]
+		PrimaryKeys?: list.MaxItems(20) & list.MinItems(1) & [...#DataLakeDatasetPrimaryKeyField]
 	})
 
 	// The tags for the dataset.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag]
 })
 
 // The partition field details.
-_#defs: "/$defs/Properties/definitions/DataLakeDatasetPartitionField": close({
+#DataLakeDatasetPartitionField: close({
 	// The name of the partition field.
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$"
 
@@ -78,13 +72,13 @@ _#defs: "/$defs/Properties/definitions/DataLakeDatasetPartitionField": close({
 })
 
 // The primary key field details.
-_#defs: "/$defs/Properties/definitions/DataLakeDatasetPrimaryKeyField": close({
+#DataLakeDatasetPrimaryKeyField: close({
 	// The name of the primary key field.
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$"
 })
 
 // The dataset field details.
-_#defs: "/$defs/Properties/definitions/DataLakeDatasetSchemaField": close({
+#DataLakeDatasetSchemaField: close({
 	// Indicate if the field is required or not.
 	IsRequired!: bool
 
@@ -96,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/DataLakeDatasetSchemaField": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

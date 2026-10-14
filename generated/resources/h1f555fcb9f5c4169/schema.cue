@@ -18,13 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // information, see [Registry
 // permissions](https://docs.aws.amazon.com/AmazonECR/latest/userguide/registry-permissions.html)
 // in the *Amazon Elastic Container Registry User Guide*.
-#Properties: close(
-	{PolicyText!: fn.#Object & {...} | strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringObjectExpression},
-)
-
-_#defs: "/$defs/Properties/definitions/RegistryId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::RegistryPolicy"
-	Properties!: #Properties
+	Type!: "AWS::ECR::RegistryPolicy"
+	Properties!: close(
+		{PolicyText!: fn.#Object & {...} | strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringObjectExpression},
+	)
 }
+
+#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression

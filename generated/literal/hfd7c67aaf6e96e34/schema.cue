@@ -21,7 +21,7 @@ import (
 	Description?: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The elements in this list.
-	Elements?: list.MaxItems(100000) & [...] & [..._#defs."/$defs/Properties/definitions/Element"]
+	Elements?: list.MaxItems(100000) & [...] & [...#Element]
 
 	// The time when the list was last updated.
 	LastUpdatedTime?: string
@@ -30,17 +30,17 @@ import (
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_]+$"
 
 	// Tags associated with this list.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 
 	// The variable type of the list.
 	VariableType?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Z_]{1,64}$"
 })
 
 // An element in a list.
-_#defs: "/$defs/Properties/definitions/Element": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^\\S+( +\\S+)*$"
+#Element: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^\\S+( +\\S+)*$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

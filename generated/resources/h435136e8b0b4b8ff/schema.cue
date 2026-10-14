@@ -9,38 +9,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::Pentest
-#Properties: close({
-	AgentSpaceId!: string | fn.#StringExpression
-	Assets!: close({
-		Actors?: [...close({
-			Authentication?: _#defs."/$defs/Properties/definitions/Authentication" | fn.#ObjectExpression
-			Description?:    string | fn.#StringExpression
-			EnableEmailMfa?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			Identifier?:     string | fn.#StringExpression
-			Uris?:           [...string | fn.#StringExpression] | fn.#ListExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityAgent::Pentest"
+	Properties!: close({
+		AgentSpaceId!: string | fn.#StringExpression
+		Assets!: close({
+			Actors?: [...close({
+				// Authentication credentials for this actor
+				Authentication?: #Authentication
+				Description?:    string | fn.#StringExpression
+				EnableEmailMfa?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+				Identifier?:     string | fn.#StringExpression
+				Uris?:           [...string | fn.#StringExpression] | fn.#ListExpression
+			}) |
+			fn.#ObjectExpression] |
+			fn.#ListExpression
+			Documents?:              [...#DocumentInfo] | fn.#ListExpression
+			Endpoints?:              [...#Endpoint] | fn.#ListExpression
+			IntegratedRepositories?: [...#IntegratedRepository] | fn.#ListExpression
+			SourceCode?:             [...#SourceCodeRepository] | fn.#ListExpression
+			TrustedCaCertificates?:  [...#TrustedCaCertificate] | fn.#ListExpression
 		}) |
-		fn.#ObjectExpression] |
-		fn.#ListExpression
-		Documents?:              [..._#defs."/$defs/Properties/definitions/DocumentInfo"] | fn.#ListExpression
-		Endpoints?:              [..._#defs."/$defs/Properties/definitions/Endpoint"] | fn.#ListExpression
-		IntegratedRepositories?: [..._#defs."/$defs/Properties/definitions/IntegratedRepository"] | fn.#ListExpression
-		SourceCode?:             [..._#defs."/$defs/Properties/definitions/SourceCodeRepository"] | fn.#ListExpression
-		TrustedCaCertificates?:  [..._#defs."/$defs/Properties/definitions/TrustedCaCertificate"] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	CleanUpStrategy?:         _#defs."/$defs/Properties/definitions/CleanUpStrategy" | fn.#StringExpression
-	CodeRemediationStrategy?: _#defs."/$defs/Properties/definitions/CodeRemediationStrategy" | fn.#StringExpression
-	DisableManagedSkills?:    [..._#defs."/$defs/Properties/definitions/SkillType"] | fn.#ListExpression
-	ExcludeRiskTypes?:        [..._#defs."/$defs/Properties/definitions/RiskType"] | fn.#ListExpression
-	LogConfig?:               _#defs."/$defs/Properties/definitions/CloudWatchLog" | fn.#ObjectExpression
-	NetworkTrafficConfig?:    _#defs."/$defs/Properties/definitions/NetworkTrafficConfig" | fn.#ObjectExpression
-	ServiceRole!:             string | fn.#StringExpression
-	Title?:                   string | fn.#StringExpression
-	VpcConfig?:               _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
-})
+		fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Actor": close({
-	Authentication?:       _#defs."/$defs/Properties/definitions/Authentication" | fn.#ObjectExpression
+		// Strategy for cleaning up resources after pentest job completion
+		CleanUpStrategy?: #CleanUpStrategy
+
+		// Strategy for code remediation on findings
+		CodeRemediationStrategy?: #CodeRemediationStrategy
+		DisableManagedSkills?:    [...#SkillType] | fn.#ListExpression
+		ExcludeRiskTypes?:        [...#RiskType] | fn.#ListExpression
+
+		// CloudWatch logs config
+		LogConfig?: #CloudWatchLog
+
+		// Configuration for network traffic filtering
+		NetworkTrafficConfig?: #NetworkTrafficConfig
+		ServiceRole!:          string | fn.#StringExpression
+		Title?:                string | fn.#StringExpression
+
+		// VPC configuration that the security testing environment accesses
+		VpcConfig?: #VpcConfig
+	})
+}
+
+#Actor: close({
+	// Authentication credentials for this actor
+	Authentication?:       #Authentication
 	Description?:          string | fn.#StringExpression
 	EnableEmailMfa?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Identifier?:           string | fn.#StringExpression
@@ -49,83 +64,87 @@ _#defs: "/$defs/Properties/definitions/Actor": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Assets": close({
-	Actors?:                 [..._#defs."/$defs/Properties/definitions/Actor"] | fn.#ListExpression
-	Documents?:              [..._#defs."/$defs/Properties/definitions/DocumentInfo"] | fn.#ListExpression
-	Endpoints?:              [..._#defs."/$defs/Properties/definitions/Endpoint"] | fn.#ListExpression
-	IntegratedRepositories?: [..._#defs."/$defs/Properties/definitions/IntegratedRepository"] | fn.#ListExpression
-	SourceCode?:             [..._#defs."/$defs/Properties/definitions/SourceCodeRepository"] | fn.#ListExpression
-	TrustedCaCertificates?:  [..._#defs."/$defs/Properties/definitions/TrustedCaCertificate"] | fn.#ListExpression
+#Assets: close({
+	Actors?:                 [...#Actor] | fn.#ListExpression
+	Documents?:              [...#DocumentInfo] | fn.#ListExpression
+	Endpoints?:              [...#Endpoint] | fn.#ListExpression
+	IntegratedRepositories?: [...#IntegratedRepository] | fn.#ListExpression
+	SourceCode?:             [...#SourceCodeRepository] | fn.#ListExpression
+	TrustedCaCertificates?:  [...#TrustedCaCertificate] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Authentication": close({
+#Authentication: close({
 	ProviderType?: "SECRETS_MANAGER" | "AWS_LAMBDA" | "AWS_IAM_ROLE" | "AWS_INTERNAL" | fn.#StringExpression
 	Value?:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaCertificateSource": matchN(1, [{
-	InlinePem!: _
-	...
-}, {
-	ArtifactId!: _
-	...
-}, {
-	S3Location!: _
-	...
-}]) & close({
+#CaCertificateSource: close({
 	ArtifactId?: string | fn.#StringExpression
 	InlinePem?:  string | fn.#StringExpression
 	S3Location?: string | fn.#StringExpression
-}) |
+	if InlinePem != _|_ if InlinePem."Fn::If" == _|_ {
+		ArtifactId?: close({"Fn::If": _}) | error(
+			"ArtifactId cannot be used with InlinePem; set exactly one of InlinePem, ArtifactId, S3Location",
+		)
+		S3Location?: close({"Fn::If": _}) | error(
+			"S3Location cannot be used with InlinePem; set exactly one of InlinePem, ArtifactId, S3Location",
+		)
+	}
+	if ArtifactId != _|_ if ArtifactId."Fn::If" == _|_ {
+		S3Location?: close({"Fn::If": _}) | error(
+			"S3Location cannot be used with ArtifactId; set exactly one of InlinePem, ArtifactId, S3Location",
+		)
+	}
+}) & matchN(>=1, [{InlinePem!: _}, {ArtifactId!: _}, {S3Location!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CleanUpStrategy": "BEST_EFFORT_DELETE" | "RETAIN_ALL" | fn.#StringExpression
+#CleanUpStrategy: "BEST_EFFORT_DELETE" | "RETAIN_ALL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLog": close({
+#CloudWatchLog: close({
 	LogGroup?:  string | fn.#StringExpression
 	LogStream?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeRemediationStrategy": "AUTOMATIC" | "DISABLED" | fn.#StringExpression
+#CodeRemediationStrategy: "AUTOMATIC" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomHeader": close({
+#CustomHeader: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentInfo": close({
+#DocumentInfo: close({
 	ArtifactId?: string | fn.#StringExpression
 	S3Location?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({Uri?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Endpoint: close({Uri?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegratedRepository": close({
+#IntegratedRepository: close({
 	Branch?:             string | fn.#StringExpression
 	IntegrationId!:      string | fn.#StringExpression
 	ProviderResourceId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkTrafficConfig": close({
-	CustomHeaders?: [..._#defs."/$defs/Properties/definitions/CustomHeader"] | fn.#ListExpression
-	Rules?:         [..._#defs."/$defs/Properties/definitions/NetworkTrafficRule"] | fn.#ListExpression
+#NetworkTrafficConfig: close({
+	CustomHeaders?: [...#CustomHeader] | fn.#ListExpression
+	Rules?:         [...#NetworkTrafficRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkTrafficRule": close({
+#NetworkTrafficRule: close({
 	Effect?:                 "ALLOW" | "DENY" | fn.#StringExpression
 	NetworkTrafficRuleType?: "URL" | fn.#StringExpression
 	Pattern?:                string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RiskType": "CROSS_SITE_SCRIPTING" |
+#RiskType: "CROSS_SITE_SCRIPTING" |
 	"DEFAULT_CREDENTIALS" |
 	"INSECURE_DIRECT_OBJECT_REFERENCE" |
 	"PRIVILEGE_ESCALATION" |
@@ -155,25 +174,19 @@ _#defs: "/$defs/Properties/definitions/RiskType": "CROSS_SITE_SCRIPTING" |
 	"UNKNOWN" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SkillType": "FINDING_PERSONALIZATION" |
-	"LOGIN_OPTIMIZATION" |
-	fn.#StringExpression
+#SkillType: "FINDING_PERSONALIZATION" | "LOGIN_OPTIMIZATION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourceCodeRepository": close({S3Location?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SourceCodeRepository: close({S3Location?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrustedCaCertificate": close(
-	{Source!: _#defs."/$defs/Properties/definitions/CaCertificateSource" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#TrustedCaCertificate: close({
+	// Where to read the certificate from
+	Source!: #CaCertificateSource
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupArns?: [...string | fn.#StringExpression] | fn.#ListExpression
 	SubnetArns?:        [...string | fn.#StringExpression] | fn.#ListExpression
 	VpcArn?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityAgent::Pentest"
-	Properties!: #Properties
-}

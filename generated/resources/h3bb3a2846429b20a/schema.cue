@@ -16,96 +16,99 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Alarm
-#Properties: close({
-	AlarmName!: =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
-	ComparisonOperator!: "GreaterThanOrEqualToThreshold" |
-		"GreaterThanThreshold" |
-		"LessThanOrEqualToThreshold" |
-		"LessThanThreshold" |
-		fn.#StringExpression
-	ContactProtocols?: list.UniqueItems() & [..."Email" | "SMS" | fn.#StringExpression] | fn.#ListExpression
-	DatapointsToAlarm?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EvaluationPeriods!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MetricName!: "BurstCapacityPercentage" |
-		"BurstCapacityTime" |
-		"CPUUtilization" |
-		"ClientTLSNegotiationErrorCount" |
-		"DatabaseConnections" |
-		"DiskQueueDepth" |
-		"FreeStorageSpace" |
-		"FreeableMemory" |
-		"HTTPCode_Instance_2XX_Count" |
-		"HTTPCode_Instance_3XX_Count" |
-		"HTTPCode_Instance_4XX_Count" |
-		"HTTPCode_Instance_5XX_Count" |
-		"HTTPCode_LB_4XX_Count" |
-		"HTTPCode_LB_5XX_Count" |
-		"HealthyHostCount" |
-		"InstanceResponseTime" |
-		"NetworkIn" |
-		"NetworkOut" |
-		"NetworkReceiveThroughput" |
-		"NetworkTransmitThroughput" |
-		"RejectedConnectionCount" |
-		"RequestCount" |
-		"StatusCheckFailed" |
-		"StatusCheckFailed_Instance" |
-		"StatusCheckFailed_System" |
-		"SwapUsage" |
-		"UnhealthyHostCount" |
-		fn.#StringExpression
-	MonitoredResourceName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	NotificationEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NotificationTriggers?: list.UniqueItems() & [..."ALARM" | "INSUFFICIENT_DATA" | "OK" | fn.#StringExpression] |
-		fn.#ListExpression
-	Threshold!: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TreatMissingData?: "breaching" | "ignore" | "missing" | "notBreaching" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Alarm"
-	Properties!: #Properties
+	Type!: "AWS::Lightsail::Alarm"
+	Properties!: close({
+		AlarmName!: =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
+		ComparisonOperator!: "GreaterThanOrEqualToThreshold" |
+			"GreaterThanThreshold" |
+			"LessThanOrEqualToThreshold" |
+			"LessThanThreshold" |
+			fn.#StringExpression
+		ContactProtocols?: list.UniqueItems() & [..."Email" | "SMS" | fn.#StringExpression] | fn.#ListExpression
+		DatapointsToAlarm?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EvaluationPeriods!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MetricName!: "BurstCapacityPercentage" |
+			"BurstCapacityTime" |
+			"CPUUtilization" |
+			"ClientTLSNegotiationErrorCount" |
+			"DatabaseConnections" |
+			"DiskQueueDepth" |
+			"FreeStorageSpace" |
+			"FreeableMemory" |
+			"HTTPCode_Instance_2XX_Count" |
+			"HTTPCode_Instance_3XX_Count" |
+			"HTTPCode_Instance_4XX_Count" |
+			"HTTPCode_Instance_5XX_Count" |
+			"HTTPCode_LB_4XX_Count" |
+			"HTTPCode_LB_5XX_Count" |
+			"HealthyHostCount" |
+			"InstanceResponseTime" |
+			"NetworkIn" |
+			"NetworkOut" |
+			"NetworkReceiveThroughput" |
+			"NetworkTransmitThroughput" |
+			"RejectedConnectionCount" |
+			"RequestCount" |
+			"StatusCheckFailed" |
+			"StatusCheckFailed_Instance" |
+			"StatusCheckFailed_System" |
+			"SwapUsage" |
+			"UnhealthyHostCount" |
+			fn.#StringExpression
+		MonitoredResourceName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+		NotificationEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		NotificationTriggers?: list.UniqueItems() & [..."ALARM" | "INSUFFICIENT_DATA" | "OK" | fn.#StringExpression] |
+			fn.#ListExpression
+		Threshold!: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TreatMissingData?: "breaching" | "ignore" | "missing" | "notBreaching" | fn.#StringExpression
+	})
 }

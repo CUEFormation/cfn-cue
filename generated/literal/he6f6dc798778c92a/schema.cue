@@ -13,11 +13,11 @@ package schema
 	Name!: string
 
 	// The output of the bridge.
-	NetworkOutput!: _#defs."/$defs/Properties/definitions/BridgeNetworkOutput"
+	NetworkOutput!: #BridgeNetworkOutput
 })
 
 // The output of the bridge. A network output is delivered to your premises.
-_#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
+#BridgeNetworkOutput: close({
 	// The network output IP Address.
 	IpAddress!: string
 

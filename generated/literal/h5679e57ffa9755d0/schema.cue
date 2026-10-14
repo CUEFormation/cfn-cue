@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 	"time"
 )
 
@@ -14,16 +14,16 @@ import (
 #Properties: close({
 	// Beneficiary of the license.
 	Beneficiary!:              string
-	ConsumptionConfiguration!: _#defs."/$defs/Properties/definitions/ConsumptionConfiguration"
-	Entitlements!:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Entitlement"]
+	ConsumptionConfiguration!: #ConsumptionConfiguration
+	Entitlements!:             list.UniqueItems() & [...#Entitlement]
 
 	// Home region for the created license.
 	HomeRegion!: string
-	Issuer!:     _#defs."/$defs/Properties/definitions/IssuerData"
+	Issuer!:     #IssuerData
 
 	// Amazon Resource Name is a unique name for each resource.
-	LicenseArn?:      _#defs."/$defs/Properties/definitions/Arn"
-	LicenseMetadata?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Metadata"]
+	LicenseArn?:      #Arn
+	LicenseMetadata?: list.UniqueItems() & [...#Metadata]
 
 	// Name for the created license.
 	LicenseName!: string
@@ -33,30 +33,30 @@ import (
 
 	// ProductSKU of the license.
 	ProductSKU!: strings.MaxRunes(1024) & strings.MinRunes(1)
-	Status?:     _#defs."/$defs/Properties/definitions/LicenseStatus"
+	Status?:     #LicenseStatus
 
 	// A list of tags to attach.
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"]
-	Validity!: _#defs."/$defs/Properties/definitions/ValidityDateFormat"
+	Tags?:     [...#Tag]
+	Validity!: #ValidityDateFormat
 
 	// The version of the license.
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(0)
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/BorrowConfiguration": close({
+#BorrowConfiguration: close({
 	AllowEarlyCheckIn!:      bool
 	MaxTimeToLiveInMinutes!: int
 })
 
-_#defs: "/$defs/Properties/definitions/ConsumptionConfiguration": close({
-	BorrowConfiguration?:      _#defs."/$defs/Properties/definitions/BorrowConfiguration"
-	ProvisionalConfiguration?: _#defs."/$defs/Properties/definitions/ProvisionalConfiguration"
+#ConsumptionConfiguration: close({
+	BorrowConfiguration?:      #BorrowConfiguration
+	ProvisionalConfiguration?: #ProvisionalConfiguration
 	RenewType?:                "Monthly" | "None" | "Weekly"
 })
 
-_#defs: "/$defs/Properties/definitions/Entitlement": close({
+#Entitlement: close({
 	AllowCheckIn?: bool
 	MaxCount?:     int
 	Name!:         string
@@ -91,22 +91,22 @@ _#defs: "/$defs/Properties/definitions/Entitlement": close({
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/IssuerData": close({
+#IssuerData: close({
 	Name!:    string
 	SignKey?: string
 })
 
-_#defs: "/$defs/Properties/definitions/LicenseStatus": string
+#LicenseStatus: string
 
-_#defs: "/$defs/Properties/definitions/Metadata": close({
+#Metadata: close({
 	Name!:  string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ProvisionalConfiguration": close({MaxTimeToLiveInMinutes!: int})
+#ProvisionalConfiguration: close({MaxTimeToLiveInMinutes!: int})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: string
 
@@ -114,7 +114,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ValidityDateFormat": close({
+#ValidityDateFormat: close({
 	// Validity begin date for the license.
 	Begin!: time.Time &
 	strings.MaxRunes(50) &

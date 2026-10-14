@@ -15,13 +15,13 @@ import (
 // Application](https://docs.aws.amazon.com/kinesisanalytics/latest/java/getting-started.html).
 #Properties: close({
 	// Use this parameter to configure the application.
-	ApplicationConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationConfiguration"
+	ApplicationConfiguration?: #ApplicationConfiguration
 
 	// The description of the application.
 	ApplicationDescription?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// Used to configure start of maintenance window.
-	ApplicationMaintenanceConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationMaintenanceConfiguration"
+	ApplicationMaintenanceConfiguration?: #ApplicationMaintenanceConfiguration
 
 	// To create a Kinesis Data Analytics Studio notebook, you must set the mode to
 	// `INTERACTIVE`. However, for a Kinesis Data Analytics for Apache Flink
@@ -33,7 +33,7 @@ import (
 
 	// Specifies run configuration (start parameters) of a Kinesis Data Analytics
 	// application. Evaluated on update for RUNNING applications an only.
-	RunConfiguration?: _#defs."/$defs/Properties/definitions/RunConfiguration"
+	RunConfiguration?: #RunConfiguration
 
 	// The runtime environment for the application.
 	RuntimeEnvironment!: "FLINK-1_11" |
@@ -52,58 +52,57 @@ import (
 		"ZEPPELIN-FLINK-3_0"
 
 	// Specifies the IAM role that the application uses to access external resources.
-	ServiceExecutionRole!: _#defs."/$defs/Properties/definitions/Arn"
+	ServiceExecutionRole!: #Arn
 
 	// A list of one or more tags to assign to the application. A tag is a key-value
 	// pair that identifies an application. Note that the maximum number of
 	// application tags includes system tags. The maximum number of user-defined
 	// application tags is 50.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 })
 
 // Describes code configuration for an application.
-_#defs: "/$defs/Properties/definitions/ApplicationCodeConfiguration": close({
+#ApplicationCodeConfiguration: close({
 	// The location and type of the application code.
-	CodeContent!: _#defs."/$defs/Properties/definitions/CodeContent"
+	CodeContent!: #CodeContent
 
 	// Specifies whether the code content is in text or zip format.
 	CodeContentType!: "PLAINTEXT" | "ZIPFILE"
 })
 
 // Specifies the creation parameters for a Kinesis Data Analytics application.
-_#defs: "/$defs/Properties/definitions/ApplicationConfiguration": close({
+#ApplicationConfiguration: close({
 	// The code location and type parameters for a Flink-based Kinesis Data Analytics application.
-	ApplicationCodeConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationCodeConfiguration"
+	ApplicationCodeConfiguration?: #ApplicationCodeConfiguration
 
 	// Describes whether customer managed key is enabled and key details for customer data encryption
-	ApplicationEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationEncryptionConfiguration"
+	ApplicationEncryptionConfiguration?: #ApplicationEncryptionConfiguration
 
 	// Describes whether snapshots are enabled for a Flink-based Kinesis Data Analytics application.
-	ApplicationSnapshotConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationSnapshotConfiguration"
+	ApplicationSnapshotConfiguration?: #ApplicationSnapshotConfiguration
 
 	// Describes whether system initiated rollbacks are enabled for a Flink-based
 	// Kinesis Data Analytics application.
-	ApplicationSystemRollbackConfiguration?:
-		_#defs."/$defs/Properties/definitions/ApplicationSystemRollbackConfiguration"
+	ApplicationSystemRollbackConfiguration?: #ApplicationSystemRollbackConfiguration
 
 	// Describes execution properties for a Flink-based Kinesis Data Analytics application.
-	EnvironmentProperties?: _#defs."/$defs/Properties/definitions/EnvironmentProperties"
+	EnvironmentProperties?: #EnvironmentProperties
 
 	// The creation and update parameters for a Flink-based Kinesis Data Analytics application.
-	FlinkApplicationConfiguration?: _#defs."/$defs/Properties/definitions/FlinkApplicationConfiguration"
+	FlinkApplicationConfiguration?: #FlinkApplicationConfiguration
 
 	// The creation and update parameters for a SQL-based Kinesis Data Analytics application.
-	SqlApplicationConfiguration?: _#defs."/$defs/Properties/definitions/SqlApplicationConfiguration"
+	SqlApplicationConfiguration?: #SqlApplicationConfiguration
 
 	// The array of descriptions of VPC configurations available to the application.
-	VpcConfigurations?: _#defs."/$defs/Properties/definitions/VpcConfigurations"
+	VpcConfigurations?: #VpcConfigurations
 
 	// The configuration parameters for a Kinesis Data Analytics Studio notebook.
-	ZeppelinApplicationConfiguration?: _#defs."/$defs/Properties/definitions/ZeppelinApplicationConfiguration"
+	ZeppelinApplicationConfiguration?: #ZeppelinApplicationConfiguration
 })
 
 // Describes whether customer managed key is enabled and key details for customer data encryption
-_#defs: "/$defs/Properties/definitions/ApplicationEncryptionConfiguration": close({
+#ApplicationEncryptionConfiguration: close({
 	// KMS KeyId. Can be either key uuid or full key arn or key alias arn or short key alias
 	KeyId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -115,13 +114,13 @@ _#defs: "/$defs/Properties/definitions/ApplicationEncryptionConfiguration": clos
 })
 
 // Describes the maintenance configuration for the application.
-_#defs: "/$defs/Properties/definitions/ApplicationMaintenanceConfiguration": close({
+#ApplicationMaintenanceConfiguration: close({
 	// The start time for the maintenance window.
 	ApplicationMaintenanceWindowStartTime!: =~"^([01][0-9]|2[0-3]):[0-5][0-9]$"
 })
 
 // Describes the restore behavior of a restarting application.
-_#defs: "/$defs/Properties/definitions/ApplicationRestoreConfiguration": close({
+#ApplicationRestoreConfiguration: close({
 	// Specifies how the application should be restored.
 	ApplicationRestoreType!: "SKIP_RESTORE_FROM_SNAPSHOT" |
 		"RESTORE_FROM_LATEST_SNAPSHOT" |
@@ -134,21 +133,21 @@ _#defs: "/$defs/Properties/definitions/ApplicationRestoreConfiguration": close({
 })
 
 // Describes whether snapshots are enabled for a Flink-based Kinesis Data Analytics application.
-_#defs: "/$defs/Properties/definitions/ApplicationSnapshotConfiguration": close({
+#ApplicationSnapshotConfiguration: close({
 	// Describes whether snapshots are enabled for a Flink-based Kinesis Data Analytics application.
 	SnapshotsEnabled!: bool
 })
 
 // Describes whether system initiated rollbacks are enabled for a Flink-based
 // Kinesis Data Analytics application.
-_#defs: "/$defs/Properties/definitions/ApplicationSystemRollbackConfiguration": close({
+#ApplicationSystemRollbackConfiguration: close({
 	// Describes whether system initiated rollbacks are enabled for a Flink-based
 	// Kinesis Data Analytics application.
 	RollbackEnabled!: bool
 })
 
 // The Amazon Resource Name
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:.*$"
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:.*$"
 
 // For a SQL-based Kinesis Data Analytics application, provides additional
 // mapping information when the record format uses delimiters, such as CSV. For
@@ -156,7 +155,7 @@ _#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.Mi
 // the '\n' as the row delimiter and a comma (",") as the column delimiter:
 // `"name1", "address1"`
 // `"name2", "address2"`
-_#defs: "/$defs/Properties/definitions/CSVMappingParameters": close({
+#CSVMappingParameters: close({
 	// The column delimiter. For example, in a CSV format, a comma (",") is the
 	// typical column delimiter.
 	RecordColumnDelimiter!: strings.MaxRunes(1024) & strings.MinRunes(1)
@@ -168,18 +167,18 @@ _#defs: "/$defs/Properties/definitions/CSVMappingParameters": close({
 // The configuration parameters for the default Amazon Glue database. You use
 // this database for SQL queries that you write in a Kinesis Data Analytics
 // Studio notebook.
-_#defs: "/$defs/Properties/definitions/CatalogConfiguration": close({
+#CatalogConfiguration: close({
 	// The configuration parameters for the default Amazon Glue database. You use
 	// this database for Apache Flink SQL queries and table API transforms that you
 	// write in a Kinesis Data Analytics Studio notebook.
-	GlueDataCatalogConfiguration?: _#defs."/$defs/Properties/definitions/GlueDataCatalogConfiguration"
+	GlueDataCatalogConfiguration?: #GlueDataCatalogConfiguration
 })
 
 // Describes an application's checkpointing configuration. Checkpointing is the
 // process of persisting application state for fault tolerance. For more
 // information, see Checkpoints for Fault Tolerance in the Apache Flink
 // Documentation.
-_#defs: "/$defs/Properties/definitions/CheckpointConfiguration": close({
+#CheckpointConfiguration: close({
 	// Describes the interval in milliseconds between checkpoint operations.
 	CheckpointInterval?: int & <=9223372036854776000 & >=1
 
@@ -202,9 +201,9 @@ _#defs: "/$defs/Properties/definitions/CheckpointConfiguration": close({
 
 // Specifies either the application code, or the location of the application
 // code, for a Flink-based Kinesis Data Analytics application.
-_#defs: "/$defs/Properties/definitions/CodeContent": close({
+#CodeContent: close({
 	// Information about the Amazon S3 bucket that contains the application code.
-	S3ContentLocation?: _#defs."/$defs/Properties/definitions/S3ContentLocation"
+	S3ContentLocation?: #S3ContentLocation
 
 	// The text-format code for a Flink-based Kinesis Data Analytics application.
 	TextContent?: strings.MaxRunes(102400) & strings.MinRunes(1)
@@ -214,58 +213,56 @@ _#defs: "/$defs/Properties/definitions/CodeContent": close({
 })
 
 // The configuration of connectors and user-defined functions.
-_#defs: "/$defs/Properties/definitions/CustomArtifactConfiguration": close({
+#CustomArtifactConfiguration: close({
 	// Set this to either `UDF` or `DEPENDENCY_JAR`. `UDF` stands for user-defined
 	// functions. This type of artifact must be in an S3 bucket. A `DEPENDENCY_JAR`
 	// can be in either Maven or an S3 bucket.
 	ArtifactType!: "DEPENDENCY_JAR" | "UDF"
 
 	// The parameters required to fully specify a Maven reference.
-	MavenReference?: _#defs."/$defs/Properties/definitions/MavenReference"
+	MavenReference?: #MavenReference
 
 	// The location of the custom artifacts.
-	S3ContentLocation?: _#defs."/$defs/Properties/definitions/S3ContentLocation"
+	S3ContentLocation?: #S3ContentLocation
 })
 
 // A list of CustomArtifactConfiguration objects.
-_#defs: "/$defs/Properties/definitions/CustomArtifactsConfiguration": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/CustomArtifactConfiguration"
-]
+#CustomArtifactsConfiguration: list.MaxItems(50) & [...] & [...#CustomArtifactConfiguration]
 
 // The information required to deploy a Kinesis Data Analytics Studio notebook
 // as an application with durable state.
-_#defs: "/$defs/Properties/definitions/DeployAsApplicationConfiguration": close({
+#DeployAsApplicationConfiguration: close({
 	// The description of an Amazon S3 object that contains the Amazon Data
 	// Analytics application, including the Amazon Resource Name (ARN) of the S3
 	// bucket, the name of the Amazon S3 object that contains the data, and the
 	// version number of the Amazon S3 object that contains the data.
-	S3ContentLocation!: _#defs."/$defs/Properties/definitions/S3ContentBaseLocation"
+	S3ContentLocation!: #S3ContentBaseLocation
 })
 
 // Describes execution properties for a Flink-based Kinesis Data Analytics application.
-_#defs: "/$defs/Properties/definitions/EnvironmentProperties": close({
+#EnvironmentProperties: close({
 	// Describes the execution property groups.
-	PropertyGroups?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/PropertyGroup"]
+	PropertyGroups?: list.MaxItems(50) & [...] & [...#PropertyGroup]
 })
 
 // Describes configuration parameters for a Flink-based Kinesis Data Analytics
 // application or a Studio notebook.
-_#defs: "/$defs/Properties/definitions/FlinkApplicationConfiguration": close({
+#FlinkApplicationConfiguration: close({
 	// Describes an application's checkpointing configuration. Checkpointing is the
 	// process of persisting application state for fault tolerance. For more
 	// information, see Checkpoints for Fault Tolerance in the Apache Flink
 	// Documentation.
-	CheckpointConfiguration?: _#defs."/$defs/Properties/definitions/CheckpointConfiguration"
+	CheckpointConfiguration?: #CheckpointConfiguration
 
 	// Describes configuration parameters for Amazon CloudWatch logging for an application.
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+	MonitoringConfiguration?: #MonitoringConfiguration
 
 	// Describes parameters for how an application executes multiple tasks simultaneously.
-	ParallelismConfiguration?: _#defs."/$defs/Properties/definitions/ParallelismConfiguration"
+	ParallelismConfiguration?: #ParallelismConfiguration
 })
 
 // Describes the starting parameters for a Flink-based Kinesis Data Analytics application.
-_#defs: "/$defs/Properties/definitions/FlinkRunConfiguration": close({
+#FlinkRunConfiguration: close({
 	// When restoring from a snapshot, specifies whether the runtime is allowed to
 	// skip a state that cannot be mapped to the new program. Defaults to false. If
 	// you update your application without specifying this parameter,
@@ -276,36 +273,36 @@ _#defs: "/$defs/Properties/definitions/FlinkRunConfiguration": close({
 
 // The configuration of the Glue Data Catalog that you use for Apache Flink SQL
 // queries and table API transforms that you write in an application.
-_#defs: "/$defs/Properties/definitions/GlueDataCatalogConfiguration": close({
+#GlueDataCatalogConfiguration: close({
 	// The Amazon Resource Name (ARN) of the database.
-	DatabaseARN?: _#defs."/$defs/Properties/definitions/Arn"
+	DatabaseARN?: #Arn
 })
 
 // When you configure the application input for a SQL-based Kinesis Data
 // Analytics application, you specify the streaming source, the in-application
 // stream name that is created, and the mapping between the two.
-_#defs: "/$defs/Properties/definitions/Input": close({
+#Input: close({
 	// Describes the number of in-application streams to create.
-	InputParallelism?: _#defs."/$defs/Properties/definitions/InputParallelism"
+	InputParallelism?: #InputParallelism
 
 	// The InputProcessingConfiguration for the input. An input processor transforms
 	// records as they are received from the stream, before the application's SQL
 	// code executes. Currently, the only input processing configuration available
 	// is InputLambdaProcessor.
-	InputProcessingConfiguration?: _#defs."/$defs/Properties/definitions/InputProcessingConfiguration"
+	InputProcessingConfiguration?: #InputProcessingConfiguration
 
 	// Describes the format of the data in the streaming source, and how each data
 	// element maps to corresponding columns in the in-application stream that is
 	// being created.
-	InputSchema!: _#defs."/$defs/Properties/definitions/InputSchema"
+	InputSchema!: #InputSchema
 
 	// If the streaming source is an Amazon Kinesis Data Firehose delivery stream,
 	// identifies the delivery stream's ARN.
-	KinesisFirehoseInput?: _#defs."/$defs/Properties/definitions/KinesisFirehoseInput"
+	KinesisFirehoseInput?: #KinesisFirehoseInput
 
 	// If the streaming source is an Amazon Kinesis data stream, identifies the
 	// stream's Amazon Resource Name (ARN).
-	KinesisStreamsInput?: _#defs."/$defs/Properties/definitions/KinesisStreamsInput"
+	KinesisStreamsInput?: #KinesisStreamsInput
 
 	// The name prefix to use when creating an in-application stream. Suppose that
 	// you specify a prefix `"MyInApplicationStream"`. Kinesis Data Analytics then
@@ -318,14 +315,14 @@ _#defs: "/$defs/Properties/definitions/Input": close({
 // An object that contains the Amazon Resource Name (ARN) of the Amazon Lambda
 // function that is used to preprocess records in the stream in a SQL-based
 // Kinesis Data Analytics application.
-_#defs: "/$defs/Properties/definitions/InputLambdaProcessor": close({
+#InputLambdaProcessor: close({
 	// The ARN of the Amazon Lambda function that operates on records in the stream.
-	ResourceARN!: _#defs."/$defs/Properties/definitions/Arn"
+	ResourceARN!: #Arn
 })
 
 // For a SQL-based Kinesis Data Analytics application, describes the number of
 // in-application streams to create for a given streaming source.
-_#defs: "/$defs/Properties/definitions/InputParallelism": close({
+#InputParallelism: close({
 	// The number of in-application streams to create.
 	Count?: int & <=64 & >=1
 })
@@ -334,29 +331,29 @@ _#defs: "/$defs/Properties/definitions/InputParallelism": close({
 // processor that is used to preprocess the records in the stream before being
 // processed by your application code. Currently, the only input processor
 // available is Amazon Lambda.
-_#defs: "/$defs/Properties/definitions/InputProcessingConfiguration": close({
+#InputProcessingConfiguration: close({
 	// The InputLambdaProcessor that is used to preprocess the records in the stream
 	// before being processed by your application code.
-	InputLambdaProcessor?: _#defs."/$defs/Properties/definitions/InputLambdaProcessor"
+	InputLambdaProcessor?: #InputLambdaProcessor
 })
 
 // For a SQL-based Kinesis Data Analytics application, describes the format of
 // the data in the streaming source, and how each data element maps to
 // corresponding columns created in the in-application stream.
-_#defs: "/$defs/Properties/definitions/InputSchema": close({
+#InputSchema: close({
 	// A list of `RecordColumn` objects.
-	RecordColumns!: list.MaxItems(1000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RecordColumn"]
+	RecordColumns!: list.MaxItems(1000) & list.MinItems(1) & [...#RecordColumn]
 
 	// Specifies the encoding of the records in the streaming source. For example, UTF-8.
 	RecordEncoding?: "UTF-8" & (strings.MaxRunes(5) & strings.MinRunes(5))
 
 	// Specifies the format of the records on the streaming source.
-	RecordFormat!: _#defs."/$defs/Properties/definitions/RecordFormat"
+	RecordFormat!: #RecordFormat
 })
 
 // For a SQL-based Kinesis Data Analytics application, provides additional
 // mapping information when JSON is the record format on the streaming source.
-_#defs: "/$defs/Properties/definitions/JSONMappingParameters": close({
+#JSONMappingParameters: close({
 	// The path to the top-level parent that contains the records.
 	RecordRowPath!: strings.MaxRunes(65535) & strings.MinRunes(1)
 })
@@ -364,34 +361,34 @@ _#defs: "/$defs/Properties/definitions/JSONMappingParameters": close({
 // For a SQL-based Kinesis Data Analytics application, identifies a Kinesis Data
 // Firehose delivery stream as the streaming source. You provide the delivery
 // stream's Amazon Resource Name (ARN).
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseInput": close({
+#KinesisFirehoseInput: close({
 	// The Amazon Resource Name (ARN) of the delivery stream.
-	ResourceARN!: _#defs."/$defs/Properties/definitions/Arn"
+	ResourceARN!: #Arn
 })
 
 // Identifies a Kinesis data stream as the streaming source. You provide the
 // stream's Amazon Resource Name (ARN).
-_#defs: "/$defs/Properties/definitions/KinesisStreamsInput": close({
+#KinesisStreamsInput: close({
 	// The ARN of the input Kinesis data stream to read.
-	ResourceARN!: _#defs."/$defs/Properties/definitions/Arn"
+	ResourceARN!: #Arn
 })
 
 // When you configure a SQL-based Kinesis Data Analytics application's input at
 // the time of creating or updating an application, provides additional mapping
 // information specific to the record format (such as JSON, CSV, or record
 // fields delimited by some delimiter) on the streaming source.
-_#defs: "/$defs/Properties/definitions/MappingParameters": close({
+#MappingParameters: close({
 	// Provides additional mapping information when the record format uses
 	// delimiters (for example, CSV).
-	CSVMappingParameters?: _#defs."/$defs/Properties/definitions/CSVMappingParameters"
+	CSVMappingParameters?: #CSVMappingParameters
 
 	// Provides additional mapping information when JSON is the record format on the streaming source.
-	JSONMappingParameters?: _#defs."/$defs/Properties/definitions/JSONMappingParameters"
+	JSONMappingParameters?: #JSONMappingParameters
 })
 
 // The information required to specify a Maven reference. You can use Maven
 // references to specify dependency JAR files.
-_#defs: "/$defs/Properties/definitions/MavenReference": close({
+#MavenReference: close({
 	// The artifact ID of the Maven reference.
 	ArtifactId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$"
 
@@ -405,7 +402,7 @@ _#defs: "/$defs/Properties/definitions/MavenReference": close({
 // Describes configuration parameters for Amazon CloudWatch logging for a
 // Java-based Kinesis Data Analytics application. For more information about
 // CloudWatch logging, see Monitoring.
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
+#MonitoringConfiguration: close({
 	// Describes whether to use the default CloudWatch logging configuration for an
 	// application. You must set this property to CUSTOM in order to set the
 	// LogLevel or MetricsLevel parameters.
@@ -423,7 +420,7 @@ _#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
 // Describes parameters for how a Flink-based Kinesis Data Analytics application
 // executes multiple tasks simultaneously. For more information about
 // parallelism, see Parallel Execution in the Apache Flink Documentation
-_#defs: "/$defs/Properties/definitions/ParallelismConfiguration": close({
+#ParallelismConfiguration: close({
 	// Describes whether the Kinesis Data Analytics service can increase the
 	// parallelism of the application in response to increased throughput.
 	AutoScalingEnabled?: bool
@@ -448,7 +445,7 @@ _#defs: "/$defs/Properties/definitions/ParallelismConfiguration": close({
 })
 
 // Property key-value pairs passed into an application.
-_#defs: "/$defs/Properties/definitions/PropertyGroup": close({
+#PropertyGroup: close({
 	// Describes the key of an application execution property key-value pair.
 	PropertyGroupId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$"
 
@@ -460,7 +457,7 @@ _#defs: "/$defs/Properties/definitions/PropertyGroup": close({
 // each data element in the streaming source to the corresponding column in the
 // in-application stream.
 // Also used to describe the format of the reference data source.
-_#defs: "/$defs/Properties/definitions/RecordColumn": close({
+#RecordColumn: close({
 	// A reference to the data element in the streaming input or the reference data source.
 	Mapping?: strings.MaxRunes(65535) & strings.MinRunes(1)
 
@@ -474,12 +471,12 @@ _#defs: "/$defs/Properties/definitions/RecordColumn": close({
 // For a SQL-based Kinesis Data Analytics application, describes the record
 // format and relevant mapping information that should be applied to schematize
 // the records on the stream.
-_#defs: "/$defs/Properties/definitions/RecordFormat": close({
+#RecordFormat: close({
 	// When you configure application input at the time of creating or updating an
 	// application, provides additional mapping information specific to the record
 	// format (such as JSON, CSV, or record fields delimited by some delimiter) on
 	// the streaming source.
-	MappingParameters?: _#defs."/$defs/Properties/definitions/MappingParameters"
+	MappingParameters?: #MappingParameters
 
 	// The type of record format.
 	RecordFormatType!: "CSV" | "JSON"
@@ -489,27 +486,27 @@ _#defs: "/$defs/Properties/definitions/RecordFormat": close({
 // Analytics application. This section is evaluated only on stack updates for
 // applications in running RUNNING state and has no effect during manual
 // application start.
-_#defs: "/$defs/Properties/definitions/RunConfiguration": close({
+#RunConfiguration: close({
 	// Describes the restore behavior of a restarting application.
-	ApplicationRestoreConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationRestoreConfiguration"
+	ApplicationRestoreConfiguration?: #ApplicationRestoreConfiguration
 
 	// Describes the starting parameters for a Flink-based Kinesis Data Analytics application.
-	FlinkRunConfiguration?: _#defs."/$defs/Properties/definitions/FlinkRunConfiguration"
+	FlinkRunConfiguration?: #FlinkRunConfiguration
 })
 
 // The base location of the Amazon Data Analytics application.
-_#defs: "/$defs/Properties/definitions/S3ContentBaseLocation": close({
+#S3ContentBaseLocation: close({
 	// The base path for the S3 bucket.
 	BasePath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/!-_.*'()]+$"
 
 	// The Amazon Resource Name (ARN) of the S3 bucket.
-	BucketARN!: _#defs."/$defs/Properties/definitions/Arn"
+	BucketARN!: #Arn
 })
 
 // The location of an application or a custom artifact.
-_#defs: "/$defs/Properties/definitions/S3ContentLocation": close({
+#S3ContentLocation: close({
 	// The Amazon Resource Name (ARN) for the S3 bucket containing the application code.
-	BucketARN!: _#defs."/$defs/Properties/definitions/Arn"
+	BucketARN!: #Arn
 
 	// The file key for the object containing the application code.
 	FileKey!: strings.MaxRunes(1024) & strings.MinRunes(1)
@@ -520,13 +517,13 @@ _#defs: "/$defs/Properties/definitions/S3ContentLocation": close({
 
 // Describes the inputs, outputs, and reference data sources for a SQL-based
 // Kinesis Data Analytics application.
-_#defs: "/$defs/Properties/definitions/SqlApplicationConfiguration": close({
+#SqlApplicationConfiguration: close({
 	// The array of Input objects describing the input streams used by the application.
-	Inputs?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/Input"]
+	Inputs?: list.MaxItems(1) & [...#Input]
 })
 
 // A key-value pair that identifies an application.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that's 1 to 128 Unicode
 	// characters in length and can't be prefixed with aws:. You can use any of the
 	// following characters: the set of Unicode letters, digits, whitespace, _, .,
@@ -538,7 +535,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Describes the parameters of a VPC used by the application.
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	// The array of SecurityGroup IDs used by the VPC configuration.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
@@ -547,30 +544,28 @@ _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 })
 
 // The array of descriptions of VPC configurations available to the application.
-_#defs: "/$defs/Properties/definitions/VpcConfigurations": list.MaxItems(1) & [
-	..._#defs."/$defs/Properties/definitions/VpcConfiguration"
-]
+#VpcConfigurations: list.MaxItems(1) & [...#VpcConfiguration]
 
 // The configuration of a Kinesis Data Analytics Studio notebook.
-_#defs: "/$defs/Properties/definitions/ZeppelinApplicationConfiguration": close({
+#ZeppelinApplicationConfiguration: close({
 	// The Amazon Glue Data Catalog that you use in queries in a Kinesis Data Analytics Studio notebook.
-	CatalogConfiguration?: _#defs."/$defs/Properties/definitions/CatalogConfiguration"
+	CatalogConfiguration?: #CatalogConfiguration
 
 	// A list of CustomArtifactConfiguration objects.
-	CustomArtifactsConfiguration?: _#defs."/$defs/Properties/definitions/CustomArtifactsConfiguration"
+	CustomArtifactsConfiguration?: #CustomArtifactsConfiguration
 
 	// The information required to deploy a Kinesis Data Analytics Studio notebook
 	// as an application with durable state.
-	DeployAsApplicationConfiguration?: _#defs."/$defs/Properties/definitions/DeployAsApplicationConfiguration"
+	DeployAsApplicationConfiguration?: #DeployAsApplicationConfiguration
 
 	// The monitoring configuration of a Kinesis Data Analytics Studio notebook.
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/ZeppelinMonitoringConfiguration"
+	MonitoringConfiguration?: #ZeppelinMonitoringConfiguration
 })
 
 // Describes configuration parameters for Amazon CloudWatch logging for a
 // Kinesis Data Analytics Studio notebook. For more information about
 // CloudWatch logging, see Monitoring.
-_#defs: "/$defs/Properties/definitions/ZeppelinMonitoringConfiguration": close({
+#ZeppelinMonitoringConfiguration: close({
 	// The verbosity of the CloudWatch Logs for an application. You can set it to
 	// `INFO`, `WARN`, `ERROR`, or `DEBUG`.
 	LogLevel?: "DEBUG" | "INFO" | "WARN" | "ERROR"

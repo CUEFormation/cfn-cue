@@ -9,29 +9,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::IdentityPoolRoleAttachment
-#Properties: close({
-	IdentityPoolId!: string | fn.#StringExpression
-	RoleMappings?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::IdentityPoolRoleAttachment"
+	Properties!: close({
+		IdentityPoolId!: string | fn.#StringExpression
+		RoleMappings?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/RoleMapping"}}) |
-	fn.#ValueExpression
-	Roles?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	close({
+			{[=~"^.+$"]: #RoleMapping}}) |
+		fn.#ValueExpression
+		Roles?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ValueExpression
-})
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ValueExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/MappingRule": close({
+#MappingRule: close({
 	Claim!:     string | fn.#StringExpression
 	MatchType!: string | fn.#StringExpression
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -40,19 +43,12 @@ _#defs: "/$defs/Properties/definitions/MappingRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleMapping": close({
+#RoleMapping: close({
 	AmbiguousRoleResolution?: string | fn.#StringExpression
 	IdentityProvider?:        string | fn.#StringExpression
-	RulesConfiguration?:      _#defs."/$defs/Properties/definitions/RulesConfigurationType"
+	RulesConfiguration?:      #RulesConfigurationType
 	Type!:                    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RulesConfigurationType": close(
-	{Rules!: [..._#defs."/$defs/Properties/definitions/MappingRule"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::IdentityPoolRoleAttachment"
-	Properties!: #Properties
-}
+#RulesConfigurationType: close({Rules!: [...#MappingRule] | fn.#ListExpression}) | fn.#ObjectExpression

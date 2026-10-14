@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -18,23 +18,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::GameServerGroup resource creates an Amazon GameLift
 // (GameLift) GameServerGroup.
-#Properties: close({
-	AutoScalingPolicy?:   _#defs."/$defs/Properties/definitions/AutoScalingPolicy" | fn.#ObjectExpression
-	BalancingStrategy?:   _#defs."/$defs/Properties/definitions/BalancingStrategy" | fn.#StringExpression
-	DeleteOption?:        _#defs."/$defs/Properties/definitions/DeleteOption" | fn.#StringExpression
-	GameServerGroupName!: _#defs."/$defs/Properties/definitions/GameServerGroupName" | fn.#StringExpression
-	GameServerProtectionPolicy?: _#defs."/$defs/Properties/definitions/GameServerProtectionPolicy" |
-		fn.#StringExpression
-	InstanceDefinitions!: _#defs."/$defs/Properties/definitions/InstanceDefinitions" | fn.#ListExpression
-	LaunchTemplate?:      _#defs."/$defs/Properties/definitions/LaunchTemplate" | fn.#ObjectExpression
-	MaxSize?:             _#defs."/$defs/Properties/definitions/MaxSize" | fn.#NumberExpression
-	MinSize?:             _#defs."/$defs/Properties/definitions/MinSize" | fn.#NumberExpression
-	RoleArn!:             _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	Tags?:                _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
-	VpcSubnets?:          _#defs."/$defs/Properties/definitions/VpcSubnets" | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::GameServerGroup"
+	Properties!: close({
+		// Configuration settings to define a scaling policy for the Auto Scaling group
+		// that is optimized for game hosting. Updating this game server group property
+		// will not take effect for the created EC2 Auto Scaling group, please update
+		// the EC2 Auto Scaling group directly after creating the resource.
+		AutoScalingPolicy?: #AutoScalingPolicy
 
-_#defs: "/$defs/Properties/definitions/AutoScalingGroupArn": strings.MaxRunes(256) &
+		// The fallback balancing method to use for the game server group when Spot
+		// Instances in a Region become unavailable or are not viable for game hosting.
+		BalancingStrategy?: #BalancingStrategy
+
+		// The type of delete to perform.
+		DeleteOption?: #DeleteOption
+
+		// An identifier for the new game server group.
+		GameServerGroupName!: #GameServerGroupName
+
+		// A flag that indicates whether instances in the game server group are
+		// protected from early termination.
+		GameServerProtectionPolicy?: #GameServerProtectionPolicy
+
+		// A set of EC2 instance types to use when creating instances in the group.
+		InstanceDefinitions!: #InstanceDefinitions
+
+		// The EC2 launch template that contains configuration settings and game server
+		// code to be deployed to all instances in the game server group. Updating this
+		// game server group property will not take effect for the created EC2 Auto
+		// Scaling group, please update the EC2 Auto Scaling group directly after
+		// creating the resource.
+		LaunchTemplate?: #LaunchTemplate
+
+		// The maximum number of instances allowed in the EC2 Auto Scaling group.
+		// Updating this game server group property will not take effect for the
+		// created EC2 Auto Scaling group, please update the EC2 Auto Scaling group
+		// directly after creating the resource.
+		MaxSize?: #MaxSize
+
+		// The minimum number of instances allowed in the EC2 Auto Scaling group.
+		// Updating this game server group property will not take effect for the
+		// created EC2 Auto Scaling group, please update the EC2 Auto Scaling group
+		// directly after creating the resource.
+		MinSize?: #MinSize
+
+		// The Amazon Resource Name (ARN) for an IAM role that allows Amazon GameLift to
+		// access your EC2 Auto Scaling groups.
+		RoleArn!: #RoleArn
+
+		// A list of labels to assign to the new game server group resource. Updating
+		// game server group tags with CloudFormation will not take effect. Please
+		// update this property using AWS GameLift APIs instead.
+		Tags?: #Tags
+
+		// A list of virtual private cloud (VPC) subnets to use with instances in the
+		// game server group. Updating this game server group property will not take
+		// effect for the created EC2 Auto Scaling group, please update the EC2 Auto
+		// Scaling group directly after creating the resource.
+		VpcSubnets?: #VpcSubnets
+	})
+}
+
+#AutoScalingGroupArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"""
 	[ -\ud7ff\ue000-�𐀀-\U0010ffff\r
@@ -42,22 +88,19 @@ strings.MinRunes(0) &
 	""" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingPolicy": close({
-	EstimatedInstanceWarmup?:     _#defs."/$defs/Properties/definitions/EstimatedInstanceWarmup"
-	TargetTrackingConfiguration!: _#defs."/$defs/Properties/definitions/TargetTrackingConfiguration"
+#AutoScalingPolicy: close({
+	EstimatedInstanceWarmup?:     #EstimatedInstanceWarmup
+	TargetTrackingConfiguration!: #TargetTrackingConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BalancingStrategy": "SPOT_ONLY" |
-	"SPOT_PREFERRED" |
-	"ON_DEMAND_ONLY" |
-	fn.#StringExpression
+#BalancingStrategy: "SPOT_ONLY" | "SPOT_PREFERRED" | "ON_DEMAND_ONLY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CreationTime": string | fn.#StringExpression
+#CreationTime: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeleteOption": "SAFE_DELETE" | "FORCE_DELETE" | "RETAIN" | fn.#StringExpression
+#DeleteOption: "SAFE_DELETE" | "FORCE_DELETE" | "RETAIN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EstimatedInstanceWarmup": >=1 |
+#EstimatedInstanceWarmup: >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -77,67 +120,54 @@ _#defs: "/$defs/Properties/definitions/EstimatedInstanceWarmup": >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/GameServerGroup": close({
-	AutoScalingGroupArn?:        _#defs."/$defs/Properties/definitions/AutoScalingGroupArn"
-	BalancingStrategy?:          _#defs."/$defs/Properties/definitions/BalancingStrategy"
-	CreationTime?:               _#defs."/$defs/Properties/definitions/CreationTime"
-	GameServerGroupArn?:         _#defs."/$defs/Properties/definitions/GameServerGroupArn"
-	GameServerGroupName?:        _#defs."/$defs/Properties/definitions/GameServerGroupName"
-	GameServerProtectionPolicy?: _#defs."/$defs/Properties/definitions/GameServerProtectionPolicy"
-	InstanceDefinitions?:        _#defs."/$defs/Properties/definitions/InstanceDefinitions"
-	LastUpdatedTime?:            _#defs."/$defs/Properties/definitions/LastUpdatedTime"
-	RoleArn?:                    _#defs."/$defs/Properties/definitions/RoleArn"
-	Status?:                     _#defs."/$defs/Properties/definitions/Status"
-	StatusReason?:               _#defs."/$defs/Properties/definitions/StatusReason"
-	SuspendedActions?:           _#defs."/$defs/Properties/definitions/SuspendedActions"
+#GameServerGroup: close({
+	AutoScalingGroupArn?:        #AutoScalingGroupArn
+	BalancingStrategy?:          #BalancingStrategy
+	CreationTime?:               #CreationTime
+	GameServerGroupArn?:         #GameServerGroupArn
+	GameServerGroupName?:        #GameServerGroupName
+	GameServerProtectionPolicy?: #GameServerProtectionPolicy
+	InstanceDefinitions?:        #InstanceDefinitions
+	LastUpdatedTime?:            #LastUpdatedTime
+	RoleArn?:                    #RoleArn
+	Status?:                     #Status
+	StatusReason?:               #StatusReason
+	SuspendedActions?:           #SuspendedActions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GameServerGroupArn": strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:.*:gameservergroup\\/[a-zA-Z0-9-\\.]*" |
+#GameServerGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:.*:gameservergroup\\/[a-zA-Z0-9-\\.]*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GameServerGroupName": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9-\\.]+" |
-fn.#StringExpression
+#GameServerGroupName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GameServerProtectionPolicy": "NO_PROTECTION" |
-	"FULL_PROTECTION" |
-	fn.#StringExpression
+#GameServerProtectionPolicy: "NO_PROTECTION" | "FULL_PROTECTION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceDefinition": close({
-	InstanceType!:     _#defs."/$defs/Properties/definitions/InstanceType"
-	WeightedCapacity?: _#defs."/$defs/Properties/definitions/WeightedCapacity"
+#InstanceDefinition: close({
+	InstanceType!:     #InstanceType
+	WeightedCapacity?: #WeightedCapacity
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceDefinitions": list.MaxItems(20) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/InstanceDefinition"
-] |
-	fn.#ListExpression
+#InstanceDefinitions: list.MaxItems(20) & list.MinItems(2) & [...#InstanceDefinition] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceType": string | fn.#StringExpression
+#InstanceType: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastUpdatedTime": string | fn.#StringExpression
+#LastUpdatedTime: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplate": close({
-	LaunchTemplateId?:   _#defs."/$defs/Properties/definitions/LaunchTemplateId"
-	LaunchTemplateName?: _#defs."/$defs/Properties/definitions/LaunchTemplateName"
-	Version?:            _#defs."/$defs/Properties/definitions/Version"
+#LaunchTemplate: close({
+	LaunchTemplateId?:   #LaunchTemplateId
+	LaunchTemplateName?: #LaunchTemplateName
+	Version?:            #Version
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateId": strings.MaxRunes(255) & strings.MinRunes(1) |
+#LaunchTemplateId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+#LaunchTemplateName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateName": strings.MaxRunes(128) &
-strings.MinRunes(3) &
-=~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/MaxSize": >=1 |
+#MaxSize: >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -157,7 +187,7 @@ _#defs: "/$defs/Properties/definitions/MaxSize": >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MinSize": >=0 |
+#MinSize: >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -177,44 +207,29 @@ _#defs: "/$defs/Properties/definitions/MinSize": >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:.*:role\\/[\\w+=,.@-]+" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "NEW" |
-	"ACTIVATING" |
-	"ACTIVE" |
-	"DELETE_SCHEDULED" |
-	"DELETING" |
-	"DELETED" |
-	"ERROR" |
-	fn.#StringExpression
+#Status: "NEW" | "ACTIVATING" | "ACTIVE" | "DELETE_SCHEDULED" | "DELETING" | "DELETED" | "ERROR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StatusReason": strings.MaxRunes(1024) & strings.MinRunes(1) |
-fn.#StringExpression
+#StatusReason: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SuspendedActions": [..."REPLACE_INSTANCE_TYPES" | fn.#StringExpression] |
-	fn.#ListExpression
+#SuspendedActions: [..."REPLACE_INSTANCE_TYPES" | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close(
-	{TargetValue!: _#defs."/$defs/Properties/definitions/TargetValue"},
-) |
-	fn.#ObjectExpression
+#TargetTrackingConfiguration: close({TargetValue!: #TargetValue}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetValue": >=0 |
+#TargetValue: >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -234,16 +249,11 @@ _#defs: "/$defs/Properties/definitions/TargetValue": >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Version": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Version: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcSubnets": list.MaxItems(20) & list.MinItems(1) & [
+#VpcSubnets: list.MaxItems(20) & list.MinItems(1) & [
 	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-z]+$" | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/WeightedCapacity": =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$" |
-	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::GameServerGroup"
-	Properties!: #Properties
-}
+#WeightedCapacity: =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$" | fn.#StringExpression

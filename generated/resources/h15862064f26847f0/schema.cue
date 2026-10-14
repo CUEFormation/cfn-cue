@@ -9,41 +9,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualService
-#Properties: close({
-	MeshName!:           string | fn.#StringExpression
-	MeshOwner?:          string | fn.#StringExpression
-	Spec!:               _#defs."/$defs/Properties/definitions/VirtualServiceSpec"
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VirtualServiceName!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::VirtualService"
+	Properties!: close({
+		MeshName!:           string | fn.#StringExpression
+		MeshOwner?:          string | fn.#StringExpression
+		Spec!:               #VirtualServiceSpec
+		Tags?:               [...#Tag] | fn.#ListExpression
+		VirtualServiceName!: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeServiceProvider": close(
-	{VirtualNodeName!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#VirtualNodeServiceProvider: close({VirtualNodeName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualRouterServiceProvider": close(
-	{VirtualRouterName!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#VirtualRouterServiceProvider: close({VirtualRouterName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualServiceProvider": close({
-	VirtualNode?:   _#defs."/$defs/Properties/definitions/VirtualNodeServiceProvider"
-	VirtualRouter?: _#defs."/$defs/Properties/definitions/VirtualRouterServiceProvider"
+#VirtualServiceProvider: close({
+	VirtualNode?:   #VirtualNodeServiceProvider
+	VirtualRouter?: #VirtualRouterServiceProvider
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualServiceSpec": close(
-	{Provider?: _#defs."/$defs/Properties/definitions/VirtualServiceProvider"},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::VirtualService"
-	Properties!: #Properties
-}
+#VirtualServiceSpec: close({Provider?: #VirtualServiceProvider}) | fn.#ObjectExpression

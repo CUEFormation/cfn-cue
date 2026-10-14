@@ -9,21 +9,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SqlHaStandbyDetectedInstance
-#Properties: close({
-	InstanceId!:           _#defs."/$defs/Properties/definitions/InstanceId"
-	SqlServerCredentials?: _#defs."/$defs/Properties/definitions/SqlServerCredentials"
-})
-
-_#defs: "/$defs/Properties/definitions/HaStatus": "processing" | "active" | "standby" | "invalid" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/InstanceId": =~"^i-[0-9a-f]{8,17}$" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/LastUpdatedTime": string | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/SqlServerCredentials": string | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/SqlServerLicenseUsage": "full" | "waived" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SqlHaStandbyDetectedInstance"
-	Properties!: #Properties
+	Type!: "AWS::EC2::SqlHaStandbyDetectedInstance"
+	Properties!: close({
+		InstanceId!:           #InstanceId
+		SqlServerCredentials?: #SqlServerCredentials
+	})
 }
+
+#HaStatus: "processing" | "active" | "standby" | "invalid" | fn.#StringExpression
+
+#InstanceId: =~"^i-[0-9a-f]{8,17}$" | fn.#StringExpression
+
+#LastUpdatedTime: string | fn.#StringExpression
+
+#SqlServerCredentials: string | fn.#StringExpression
+
+#SqlServerLicenseUsage: "full" | "waived" | fn.#StringExpression

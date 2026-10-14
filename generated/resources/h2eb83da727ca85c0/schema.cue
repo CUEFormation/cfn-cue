@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,32 +13,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ModelPackageGroup
-#Properties: close({
-	ModelPackageGroupDescription?: _#defs."/$defs/Properties/definitions/ModelPackageGroupDescription"
-	ModelPackageGroupName!:        _#defs."/$defs/Properties/definitions/ModelPackageGroupName"
-	ModelPackageGroupPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::ModelPackageGroup"
+	Properties!: close({
+		ModelPackageGroupDescription?: #ModelPackageGroupDescription
+		ModelPackageGroupName!:        #ModelPackageGroupName
+		ModelPackageGroupPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:                         list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ModelPackageGroupArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*" |
-fn.#StringExpression
+#ModelPackageGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageGroupDescription": strings.MaxRunes(1024) &
+#ModelPackageGroupDescription: strings.MaxRunes(1024) &
 strings.MinRunes(0) &
 =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModelPackageGroupName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+#ModelPackageGroupName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::ModelPackageGroup"
-	Properties!: #Properties
-}

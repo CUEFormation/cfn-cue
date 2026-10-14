@@ -17,41 +17,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Set up Custom Domain Name for an API in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	DomainName?:              string | fn.#StringExpression
-	EndpointAccessMode?:      string | fn.#StringExpression
-	EndpointConfiguration?:   _#defs."/$defs/Properties/definitions/EndpointConfiguration" | fn.#ObjectExpression
-	MutualTlsAuthentication?: _#defs."/$defs/Properties/definitions/MutualTlsAuthentication" | fn.#ObjectExpression
-	OwnershipVerificationCertificateArn?: string | fn.#StringExpression
-	RegionalCertificateArn?:              string | fn.#StringExpression
-	RoutingMode?: "BASE_PATH_MAPPING_ONLY" |
-		"ROUTING_RULE_THEN_BASE_PATH_MAPPING" |
-		"ROUTING_RULE_ONLY" |
-		fn.#StringExpression
-	SecurityPolicy?: string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::DomainName"
+	Properties?: close({
+		CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		DomainName?:         string | fn.#StringExpression
+		EndpointAccessMode?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+		// The endpoint configuration of this DomainName showing the endpoint types and
+		// IP address types of the domain name.
+		EndpointConfiguration?:               #EndpointConfiguration
+		MutualTlsAuthentication?:             #MutualTlsAuthentication
+		OwnershipVerificationCertificateArn?: string | fn.#StringExpression
+		RegionalCertificateArn?:              string | fn.#StringExpression
+		RoutingMode?: "BASE_PATH_MAPPING_ONLY" |
+			"ROUTING_RULE_THEN_BASE_PATH_MAPPING" |
+			"ROUTING_RULE_ONLY" |
+			fn.#StringExpression
+		SecurityPolicy?: string | fn.#StringExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+	})
+}
+
+#EndpointConfiguration: close({
 	IpAddressType?: string | fn.#StringExpression
 	Types?:         [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MutualTlsAuthentication": close({
+#MutualTlsAuthentication: close({
 	TruststoreUri?:     string | fn.#StringExpression
 	TruststoreVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::DomainName"
-	Properties?: #Properties
-}

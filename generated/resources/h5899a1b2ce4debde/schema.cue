@@ -13,55 +13,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::LogicallyAirGappedBackupVault
-#Properties: close({
-	AccessPolicy?:    fn.#Object & {...} | string | fn.#StringObjectExpression
-	BackupVaultName!: _#defs."/$defs/Properties/definitions/BackupVaultNamePattern"
-	BackupVaultTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::LogicallyAirGappedBackupVault"
+	Properties!: close({
+		AccessPolicy?:    fn.#Object & {...} | string | fn.#StringObjectExpression
+		BackupVaultName!: #BackupVaultNamePattern
+		BackupVaultTags?: close({
 
-		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	EncryptionKeyArn?: string | fn.#StringExpression
-	MaxRetentionDays!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MinRetentionDays!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MpaApprovalTeamArn?: string | fn.#StringExpression
-	Notifications?:      _#defs."/$defs/Properties/definitions/NotificationObjectType"
-})
+			{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		EncryptionKeyArn?: string | fn.#StringExpression
+		MaxRetentionDays!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MinRetentionDays!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MpaApprovalTeamArn?: string | fn.#StringExpression
+		Notifications?:      #NotificationObjectType
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BackupVaultNamePattern": =~"^[a-zA-Z0-9\\-\\_]{2,50}$" | fn.#StringExpression
+#BackupVaultNamePattern: =~"^[a-zA-Z0-9\\-\\_]{2,50}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationObjectType": close({
+#NotificationObjectType: close({
 	BackupVaultEvents!: [...string | fn.#StringExpression] | fn.#ListExpression
 	SNSTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::LogicallyAirGappedBackupVault"
-	Properties!: #Properties
-}

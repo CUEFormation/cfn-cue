@@ -28,11 +28,11 @@ import (
 	PortalProductId?: strings.MaxRunes(30) & strings.MinRunes(10) & =~"^[a-z0-9]+$"
 
 	// The collection of tags associated with the portal product.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

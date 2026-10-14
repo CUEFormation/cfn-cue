@@ -9,16 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PCAConnectorAD::DirectoryRegistration Resource Type
-#Properties: close({
-	DirectoryId!: =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCAConnectorAD::DirectoryRegistration"
+	Properties!: close({
+		DirectoryId!: =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
+		Tags?:        #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCAConnectorAD::DirectoryRegistration"
-	Properties!: #Properties
-}

@@ -16,111 +16,128 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::FlowOutput
-#Properties: close({
-	CidrAllowList?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Description?:   string | fn.#StringExpression
-	Destination?:   string | fn.#StringExpression
-	Encryption?:    _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
-	FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-		fn.#StringExpression
-	MaxLatency?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MediaStreamOutputConfigurations?: [..._#defs."/$defs/Properties/definitions/MediaStreamOutputConfiguration"] |
-		fn.#ListExpression
-	MinLatency?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name?:                    string | fn.#StringExpression
-	NdiOutputTimecodeSource?: "EMBEDDED_TIMECODE" | "UTC_SYSTEM_TIME" | fn.#StringExpression
-	NdiProgramName?:          string | fn.#StringExpression
-	NdiSpeedHqQuality?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	OutputStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Protocol?: "zixi-push" |
-		"rtp-fec" |
-		"rtp" |
-		"zixi-pull" |
-		"rist" |
-		"srt-listener" |
-		"srt-caller" |
-		"st2110-jpegxs" |
-		"cdi" |
-		"ndi-speed-hq" |
-		fn.#StringExpression
-	RemoteId?:                           string | fn.#StringExpression
-	RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
-	RouterIntegrationTransitEncryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
-	SmoothingLatency?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StreamId?:               string | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::FlowOutput"
+	Properties!: close({
+		CidrAllowList?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Description?:   string | fn.#StringExpression
+		Destination?:   string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({}) | fn.#ObjectExpression
+		// The type of key used for the encryption. If no keyType is provided, the
+		// service will use the default setting (static-key).
+		Encryption?: #Encryption
+		FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
+			fn.#StringExpression
+		MaxLatency?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MediaStreamOutputConfigurations?: [...#MediaStreamOutputConfiguration] | fn.#ListExpression
+		MinLatency?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name?:                    string | fn.#StringExpression
+		NdiOutputTimecodeSource?: "EMBEDDED_TIMECODE" | "UTC_SYSTEM_TIME" | fn.#StringExpression
+		NdiProgramName?:          string | fn.#StringExpression
+		NdiSpeedHqQuality?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		OutputStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		Port?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Protocol?: "zixi-push" |
+			"rtp-fec" |
+			"rtp" |
+			"zixi-pull" |
+			"rist" |
+			"srt-listener" |
+			"srt-caller" |
+			"st2110-jpegxs" |
+			"cdi" |
+			"ndi-speed-hq" |
+			fn.#StringExpression
+		RemoteId?:                           string | fn.#StringExpression
+		RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
+		RouterIntegrationTransitEncryption?: #FlowTransitEncryption
+		SmoothingLatency?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StreamId?: string | fn.#StringExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close({
+		// The name of the VPC interface attachment to use for this output.
+		VpcInterfaceAttachment?: #VpcInterfaceAttachment
+	})
+}
+
+#AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
+
+#DestinationConfiguration: close({
 	DestinationIp!: string | fn.#StringExpression
 	DestinationPort!: int |
 		{
@@ -136,11 +153,13 @@ _#defs: "/$defs/Properties/definitions/DestinationConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Interface!: _#defs."/$defs/Properties/definitions/Interface" | fn.#ObjectExpression
+
+	// The VPC interface that is used for the media stream associated with the output.
+	Interface!: #Interface
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncodingParameters": close({
+#EncodingParameters: close({
 	CompressionFactor!: number |
 		{
 			string &
@@ -164,7 +183,7 @@ _#defs: "/$defs/Properties/definitions/EncodingParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	Algorithm?: "aes128" | "aes192" | "aes256" | fn.#StringExpression
 	KeyType?:   "static-key" | "srt-password" | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -175,35 +194,35 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
+#FlowTransitEncryption: close({
+	EncryptionKeyConfiguration!: #FlowTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #FlowTransitEncryptionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#FlowTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyType": "SECRETS_MANAGER" |
-	"AUTOMATIC" |
-	fn.#StringExpression
+#FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Interface": close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Interface: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaStreamOutputConfiguration": close({
-	DestinationConfigurations?: [..._#defs."/$defs/Properties/definitions/DestinationConfiguration"] |
-		fn.#ListExpression
-	EncodingName!:       "jxsv" | "raw" | "smpte291" | "pcm" | fn.#StringExpression
-	EncodingParameters?: _#defs."/$defs/Properties/definitions/EncodingParameters" | fn.#ObjectExpression
+#MediaStreamOutputConfiguration: close({
+	DestinationConfigurations?: [...#DestinationConfiguration] | fn.#ListExpression
+	EncodingName!:              "jxsv" | "raw" | "smpte291" | "pcm" | fn.#StringExpression
+
+	// A collection of parameters that determine how MediaConnect will convert the
+	// content. These fields only apply to outputs on flows that have a CDI source.
+	EncodingParameters?: #EncodingParameters
 	MediaStreamName!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
+#SecretsManagerEncryptionKeyConfiguration: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
 		fn.#StringExpression
@@ -212,17 +231,10 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close(
-	{VpcInterfaceName?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::FlowOutput"
-	Properties!: #Properties
-}
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression

@@ -15,10 +15,10 @@ import (
 	Authentication!: "GITHUB_HMAC" | "IP" | "UNAUTHENTICATED"
 
 	// Properties that configure the authentication applied to incoming webhook trigger requests
-	AuthenticationConfiguration!: _#defs."/$defs/Properties/definitions/WebhookAuthConfiguration"
+	AuthenticationConfiguration!: #WebhookAuthConfiguration
 
 	// A list of rules applied to the body/payload sent in the POST request to a webhook URL
-	Filters!: [..._#defs."/$defs/Properties/definitions/WebhookFilterRule"]
+	Filters!: [...#WebhookFilterRule]
 
 	// logical id of the webhook
 	Id?: string
@@ -31,7 +31,7 @@ import (
 	RegisterWithThirdParty?: bool
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The name of the action in a pipeline you want to connect to the webhook.
 	TargetAction!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+"
@@ -47,7 +47,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -62,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Properties that configure the authentication applied to incoming webhook trigger requests
-_#defs: "/$defs/Properties/definitions/WebhookAuthConfiguration": close({
+#WebhookAuthConfiguration: close({
 	// The property used to configure acceptance of webhooks in an IP address range.
 	// For IP, only the AllowedIPRange property must be set. This property must be
 	// set to a valid CIDR range.
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/WebhookAuthConfiguration": close({
 // A list of rules applied to the body/payload sent in the POST request to a
 // webhook URL. All defined rules must pass for the request to be accepted and
 // the pipeline started.
-_#defs: "/$defs/Properties/definitions/WebhookFilterRule": close({
+#WebhookFilterRule: close({
 	// A JsonPath expression that is applied to the body/payload of the webhook. The
 	// value selected by the JsonPath expression must match the value specified in
 	// the MatchEquals field. Otherwise, the request is ignored.

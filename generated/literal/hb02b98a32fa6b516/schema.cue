@@ -21,14 +21,14 @@ import (
 	Critical?:     bool
 	DaemonArn?:    string
 	DaemonName?:   string
-	DaemonStatus?: _#defs."/$defs/Properties/definitions/DaemonStatus"
+	DaemonStatus?: #DaemonStatus
 
 	// The Amazon Resource Name (ARN) of the daemon task definition used by this revision.
 	DaemonTaskDefinitionArn?: string
 	DeploymentArn?:           string
 
 	// The deployment configuration used for this daemon deployment.
-	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DaemonDeploymentConfiguration"
+	DeploymentConfiguration?: #DaemonDeploymentConfiguration
 
 	// Specifies whether Amazon ECS managed tags are turned on for the daemon tasks.
 	EnableECSManagedTags?: bool
@@ -38,13 +38,13 @@ import (
 
 	// Specifies whether tags are propagated from the daemon to the daemon tasks.
 	PropagateTags?: "DAEMON" | "NONE"
-	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          list.MaxItems(50) & [...] & [...#Tag]
 	UpdatedAt?:     time.Time
 })
 
 // The CloudWatch alarm configuration for a daemon. When enabled, CloudWatch
 // alarms determine whether a daemon deployment has failed.
-_#defs: "/$defs/Properties/definitions/DaemonAlarmConfiguration": close({
+#DaemonAlarmConfiguration: close({
 	// The CloudWatch alarm names to monitor during a daemon deployment.
 	AlarmNames?: [...string]
 
@@ -55,11 +55,11 @@ _#defs: "/$defs/Properties/definitions/DaemonAlarmConfiguration": close({
 
 // Optional deployment parameters that control how a daemon rolls out updates
 // across container instances.
-_#defs: "/$defs/Properties/definitions/DaemonDeploymentConfiguration": close({
+#DaemonDeploymentConfiguration: close({
 	// The CloudWatch alarm configuration for the daemon deployment. When alarms are
 	// triggered during a deployment, the deployment can be automatically rolled
 	// back.
-	Alarms?: _#defs."/$defs/Properties/definitions/DaemonAlarmConfiguration"
+	Alarms?: #DaemonAlarmConfiguration
 
 	// The amount of time (in minutes) to wait after a successful deployment step
 	// before proceeding. This allows time to monitor for issues before continuing.
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/DaemonDeploymentConfiguration": close({
 	DrainPercent?: <=100 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/DaemonStatus": "ACTIVE" | "DELETE_IN_PROGRESS"
+#DaemonStatus: "ACTIVE" | "DELETE_IN_PROGRESS"
 
 // The metadata that you apply to a resource to help you categorize and organize
 // them. Each tag consists of a key and an optional value. You define them.
@@ -89,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/DaemonStatus": "ACTIVE" | "DELETE_IN_PROG
 // such as a prefix for either keys or values as it is reserved for AWS use.
 // You cannot edit or delete tag keys or values with this prefix. Tags with
 // this prefix do not count against your tags per resource limit.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// One part of a key-value pair that make up a tag. A ``key`` is a general label
 	// that acts like a category for more specific tag values.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"

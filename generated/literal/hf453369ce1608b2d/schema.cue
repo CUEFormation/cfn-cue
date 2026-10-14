@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -26,8 +26,8 @@ import (
 	// End User Messaging SMS and Voice responds with a customizable message.
 	// Keywords "HELP" and "STOP" are mandatory keywords
 	MandatoryKeywords!: close({
-		HELP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword"
-		STOP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword"
+		HELP!: #MandatoryKeyword
+		STOP!: #MandatoryKeyword
 	})
 
 	// Indicates if the phone number will be used for text messages, voice messages, or both.
@@ -45,7 +45,7 @@ import (
 	// number to elicit a response, such as an informational message or a special
 	// offer. When your number receives a message that begins with a keyword, AWS
 	// End User Messaging SMS and Voice responds with a customizable message.
-	OptionalKeywords?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OptionalKeyword"]
+	OptionalKeywords?: list.UniqueItems() & [...#OptionalKeyword]
 	PhoneNumber?:      string
 	PhoneNumberId?:    string
 
@@ -58,7 +58,7 @@ import (
 	SelfManagedOptOutsEnabled?: bool
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// When you set up two-way SMS, you can receive incoming messages from your
 	// customers. When one of your customers sends a message to your phone number,
@@ -83,21 +83,21 @@ import (
 // offer. When your number receives a message that begins with a keyword, AWS
 // End User Messaging SMS and Voice responds with a customizable message.
 // Keywords "HELP" and "STOP" are mandatory keywords
-_#defs: "/$defs/Properties/definitions/MandatoryKeyword": close({Message!: strings.MaxRunes(1600)})
+#MandatoryKeyword: close({Message!: strings.MaxRunes(1600)})
 
 // A keyword is a word that you can search for on a particular phone number or
 // pool. It is also a specific word or phrase that an end user can send to your
 // number to elicit a response, such as an informational message or a special
 // offer. When your number receives a message that begins with a keyword, AWS
 // End User Messaging SMS and Voice responds with a customizable message.
-_#defs: "/$defs/Properties/definitions/OptionalKeyword": close({
+#OptionalKeyword: close({
 	Action!:  "AUTOMATIC_RESPONSE" | "OPT_OUT" | "OPT_IN"
 	Keyword!: strings.MaxRunes(30)
 	Message!: strings.MaxRunes(1600)
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

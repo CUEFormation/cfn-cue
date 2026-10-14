@@ -7,47 +7,45 @@ package schema
 // Resource schema for AWS::EC2::NetworkInsightsAccessScope
 #Properties: close({
 	CreatedDate?:                   string
-	ExcludePaths?:                  [..._#defs."/$defs/Properties/definitions/AccessScopePathRequest"]
-	MatchPaths?:                    [..._#defs."/$defs/Properties/definitions/AccessScopePathRequest"]
+	ExcludePaths?:                  [...#AccessScopePathRequest]
+	MatchPaths?:                    [...#AccessScopePathRequest]
 	NetworkInsightsAccessScopeArn?: string
 	NetworkInsightsAccessScopeId?:  string
-	Tags?:                          [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                          [...#Tag]
 	UpdatedDate?:                   string
 })
 
-_#defs: "/$defs/Properties/definitions/AccessScopePathRequest": close({
-	Destination?:      _#defs."/$defs/Properties/definitions/PathStatementRequest"
-	Source?:           _#defs."/$defs/Properties/definitions/PathStatementRequest"
-	ThroughResources?: [..._#defs."/$defs/Properties/definitions/ThroughResourcesStatementRequest"]
+#AccessScopePathRequest: close({
+	Destination?:      #PathStatementRequest
+	Source?:           #PathStatementRequest
+	ThroughResources?: [...#ThroughResourcesStatementRequest]
 })
 
-_#defs: "/$defs/Properties/definitions/PacketHeaderStatementRequest": close({
+#PacketHeaderStatementRequest: close({
 	DestinationAddresses?:   [...string]
 	DestinationPorts?:       [...string]
 	DestinationPrefixLists?: [...string]
-	Protocols?:              [..._#defs."/$defs/Properties/definitions/Protocol"]
+	Protocols?:              [...#Protocol]
 	SourceAddresses?:        [...string]
 	SourcePorts?:            [...string]
 	SourcePrefixLists?:      [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/PathStatementRequest": close({
-	PacketHeaderStatement?: _#defs."/$defs/Properties/definitions/PacketHeaderStatementRequest"
-	ResourceStatement?:     _#defs."/$defs/Properties/definitions/ResourceStatementRequest"
+#PathStatementRequest: close({
+	PacketHeaderStatement?: #PacketHeaderStatementRequest
+	ResourceStatement?:     #ResourceStatementRequest
 })
 
-_#defs: "/$defs/Properties/definitions/Protocol": "tcp" | "udp"
+#Protocol: "tcp" | "udp"
 
-_#defs: "/$defs/Properties/definitions/ResourceStatementRequest": close({
+#ResourceStatementRequest: close({
 	ResourceTypes?: [...string]
 	Resources?:     [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ThroughResourcesStatementRequest": close(
-	{ResourceStatement?: _#defs."/$defs/Properties/definitions/ResourceStatementRequest"},
-)
+#ThroughResourcesStatementRequest: close({ResourceStatement?: #ResourceStatementRequest})

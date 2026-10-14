@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,69 +19,66 @@ import (
 	strings.MinRunes(20) &
 	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+"
 	DocumentClassifierName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
-	InputDataConfig!:        _#defs."/$defs/Properties/definitions/DocumentClassifierInputDataConfig"
+	InputDataConfig!:        #DocumentClassifierInputDataConfig
 	LanguageCode!:           "en" | "es" | "fr" | "it" | "de" | "pt"
 	Mode?:                   "MULTI_CLASS" | "MULTI_LABEL"
-	ModelKmsKeyId?:          _#defs."/$defs/Properties/definitions/KmsKeyId"
+	ModelKmsKeyId?:          #KmsKeyId
 	ModelPolicy?: strings.MaxRunes(20000) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+"
-	OutputDataConfig?: _#defs."/$defs/Properties/definitions/DocumentClassifierOutputDataConfig"
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	OutputDataConfig?: #DocumentClassifierOutputDataConfig
+	Tags?:             list.UniqueItems() & [...#Tag]
 	VersionName?:      strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
-	VolumeKmsKeyId?:   _#defs."/$defs/Properties/definitions/KmsKeyId"
-	VpcConfig?:        _#defs."/$defs/Properties/definitions/VpcConfig"
+	VolumeKmsKeyId?:   #KmsKeyId
+	VpcConfig?:        #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
+#AugmentedManifestsListItem: close({
 	AttributeNames!: list.MaxItems(63) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*"
 	]
-	S3Uri!: _#defs."/$defs/Properties/definitions/S3Uri"
+	S3Uri!: #S3Uri
 	Split?: "TRAIN" | "TEST"
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentClassifierDocuments": close({
-	S3Uri!:     _#defs."/$defs/Properties/definitions/S3Uri"
-	TestS3Uri?: _#defs."/$defs/Properties/definitions/S3Uri"
+#DocumentClassifierDocuments: close({
+	S3Uri!:     #S3Uri
+	TestS3Uri?: #S3Uri
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentClassifierInputDataConfig": close({
-	AugmentedManifests?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AugmentedManifestsListItem"]
+#DocumentClassifierInputDataConfig: close({
+	AugmentedManifests?:   list.UniqueItems() & [...#AugmentedManifestsListItem]
 	DataFormat?:           "COMPREHEND_CSV" | "AUGMENTED_MANIFEST"
-	DocumentReaderConfig?: _#defs."/$defs/Properties/definitions/DocumentReaderConfig"
+	DocumentReaderConfig?: #DocumentReaderConfig
 	DocumentType?:         "PLAIN_TEXT_DOCUMENT" | "SEMI_STRUCTURED_DOCUMENT"
-	Documents?:            _#defs."/$defs/Properties/definitions/DocumentClassifierDocuments"
+	Documents?:            #DocumentClassifierDocuments
 	LabelDelimiter?:       strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[ ~!@#$%^*\\-_+=|\\\\:;\\t>?/]$"
-	S3Uri?:                _#defs."/$defs/Properties/definitions/S3Uri"
-	TestS3Uri?:            _#defs."/$defs/Properties/definitions/S3Uri"
+	S3Uri?:                #S3Uri
+	TestS3Uri?:            #S3Uri
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentClassifierOutputDataConfig": close({
-	KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
-	S3Uri?:    _#defs."/$defs/Properties/definitions/S3Uri"
+#DocumentClassifierOutputDataConfig: close({
+	KmsKeyId?: #KmsKeyId
+	S3Uri?:    #S3Uri
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentReaderConfig": close({
+#DocumentReaderConfig: close({
 	DocumentReadAction!: "TEXTRACT_DETECT_DOCUMENT_TEXT" | "TEXTRACT_ANALYZE_DOCUMENT"
 	DocumentReadMode?:   "SERVICE_DEFAULT" | "FORCE_DOCUMENT_READ_ACTION"
 	FeatureTypes?:       list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [..."TABLES" | "FORMS"]
 })
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-	string) &
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^\\p{ASCII}+$"
 
-_#defs: "/$defs/Properties/definitions/S3Uri": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?"
+#S3Uri: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &

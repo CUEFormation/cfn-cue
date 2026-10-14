@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"math"
 )
 
@@ -13,26 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A real-time log configuration.
-#Properties: close({
-	EndPoints!:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EndPoint"] | fn.#ListExpression
-	Fields!:       list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:         string | fn.#StringExpression
-	SamplingRate!: math.MultipleOf(1) & <=100 & >=1 | fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::RealtimeLogConfig"
+	Properties!: close({
+		EndPoints!:    list.MinItems(1) & [...#EndPoint] | fn.#ListExpression
+		Fields!:       list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		Name!:         string | fn.#StringExpression
+		SamplingRate!: math.MultipleOf(1) & <=100 & >=1 | fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EndPoint": close({
-	KinesisStreamConfig!: _#defs."/$defs/Properties/definitions/KinesisStreamConfig" | fn.#ObjectExpression
+#EndPoint: close({
+	// Contains information about the Amazon Kinesis data stream where you are
+	// sending real-time log data in a real-time log configuration.
+	KinesisStreamConfig!: #KinesisStreamConfig
 	StreamType!:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamConfig": close({
+#KinesisStreamConfig: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	StreamArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::RealtimeLogConfig"
-	Properties!: #Properties
-}

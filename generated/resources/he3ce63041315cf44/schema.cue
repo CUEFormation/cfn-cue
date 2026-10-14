@@ -23,213 +23,203 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // appropriately. Any actions associated with the new state are then executed.
 // When you update an existing alarm, its state is left unchanged, but the
 // update completely overwrites the previous configuration of the alarm.
-#Properties: matchN(12, [
-	matchN(0, [null | bool | number | string | [...] | {
-		ExtendedStatistic!: _
-		Statistic!:         _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:    _
-		MetricName!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:    _
-		Dimensions!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!: _
-		Period!:  _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:   _
-		Namespace!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:   _
-		Statistic!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!:           _
-		ExtendedStatistic!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Metrics!: _
-		Unit!:    _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Statistic!:         _
-		ExtendedStatistic!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		Threshold!:         _
-		ThresholdMetricId!: _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		ThresholdMetricId!: _
-		Threshold!:         _
-		...
-	}]) & {...},
-	matchN(1, [{
-		Metrics!: _
-		...
-	}, {
-		MetricName!: _
-		...
-	}, {
-		EvaluationCriteria!: _
-		...
-	}])
-]) & close({
-	ActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AlarmActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
-		"GreaterThanThreshold" |
-		"GreaterThanUpperThreshold" |
-		"LessThanLowerOrGreaterThanUpperThreshold" |
-		"LessThanLowerThreshold" |
-		"LessThanOrEqualToThreshold" |
-		"LessThanThreshold" |
-		fn.#StringExpression
-	DatapointsToAlarm?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
-	EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	EvaluationCriteria?:               _#defs."/$defs/Properties/definitions/EvaluationCriteria" | fn.#ObjectExpression
-	EvaluationInterval?: int & <=3600 & >=10 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=3600 &
-							>=10,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EvaluationPeriods?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EvaluationWindow?:  _#defs."/$defs/Properties/definitions/EvaluationWindow" | fn.#ObjectExpression
-	ExtendedStatistic?: string | fn.#StringExpression
-	InsufficientDataActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Metrics?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"] | fn.#ListExpression
-	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
-	OKActions?:  [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Period?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Statistic?: "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Threshold?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ThresholdMetricId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TreatMissingData?: ("breaching" | "ignore" | "missing" | "notBreaching") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Unit?: "Bits" |
-		"Bits/Second" |
-		"Bytes" |
-		"Bytes/Second" |
-		"Count" |
-		"Count/Second" |
-		"Gigabits" |
-		"Gigabits/Second" |
-		"Gigabytes" |
-		"Gigabytes/Second" |
-		"Kilobits" |
-		"Kilobits/Second" |
-		"Kilobytes" |
-		"Kilobytes/Second" |
-		"Megabits" |
-		"Megabits/Second" |
-		"Megabytes" |
-		"Megabytes/Second" |
-		"Microseconds" |
-		"Milliseconds" |
-		"None" |
-		"Percent" |
-		"Seconds" |
-		"Terabits" |
-		"Terabits/Second" |
-		"Terabytes" |
-		"Terabytes/Second" |
-		fn.#StringExpression
-	WarmUpConfiguration?: _#defs."/$defs/Properties/definitions/WarmUpConfiguration" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::Alarm"
+	Properties?: close({
+		ActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AlarmActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
+			"GreaterThanThreshold" |
+			"GreaterThanUpperThreshold" |
+			"LessThanLowerOrGreaterThanUpperThreshold" |
+			"LessThanLowerThreshold" |
+			"LessThanOrEqualToThreshold" |
+			"LessThanThreshold" |
+			fn.#StringExpression
+		DatapointsToAlarm?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Dimensions?:                       list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
+		EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AlarmPromQLCriteria": close({
+		// The evaluation criteria for the alarm.
+		EvaluationCriteria?: #EvaluationCriteria
+		EvaluationInterval?: int & <=3600 & >=10 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=3600 &
+								>=10,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EvaluationPeriods?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+
+		// The evaluation window that the alarm uses to select the range of metric data
+		// that it evaluates. This is either a sliding window or a wall clock window.
+		// For more information, see [Alarm evaluation
+		// windows](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-evaluation-window.html)
+		// in the *CloudWatch User Guide*.
+		EvaluationWindow?:  #EvaluationWindow
+		ExtendedStatistic?: string | fn.#StringExpression
+		InsufficientDataActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Metrics?:    list.UniqueItems() & [...#MetricDataQuery] | fn.#ListExpression
+		Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
+		OKActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		Period?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Statistic?: "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum" | fn.#StringExpression
+		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Threshold?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
+							64,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ThresholdMetricId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		TreatMissingData?: ("breaching" | "ignore" | "missing" | "notBreaching") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		Unit?: "Bits" |
+			"Bits/Second" |
+			"Bytes" |
+			"Bytes/Second" |
+			"Count" |
+			"Count/Second" |
+			"Gigabits" |
+			"Gigabits/Second" |
+			"Gigabytes" |
+			"Gigabytes/Second" |
+			"Kilobits" |
+			"Kilobits/Second" |
+			"Kilobytes" |
+			"Kilobytes/Second" |
+			"Megabits" |
+			"Megabits/Second" |
+			"Megabytes" |
+			"Megabytes/Second" |
+			"Microseconds" |
+			"Milliseconds" |
+			"None" |
+			"Percent" |
+			"Seconds" |
+			"Terabits" |
+			"Terabits/Second" |
+			"Terabytes" |
+			"Terabytes/Second" |
+			fn.#StringExpression
+
+		// The warm-up configuration for the alarm. A warm-up period delays alarm
+		// evaluation after you create or update the alarm. During the warm-up period,
+		// the alarm stays in ``INSUFFICIENT_DATA`` and does not perform alarm actions.
+		// For more information, see [Alarm warm-up
+		// periods](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-warm-up.html)
+		// in the *Amazon CloudWatch User Guide*.
+		WarmUpConfiguration?: #WarmUpConfiguration
+		if ExtendedStatistic != _|_ if ExtendedStatistic."Fn::If" == _|_ {
+			Statistic?: close({"Fn::If": _}) | error("Statistic cannot be used with ExtendedStatistic")
+		}
+		if Metrics != _|_ if Metrics."Fn::If" == _|_ {
+			MetricName?:        close({"Fn::If": _}) | error("MetricName cannot be used with Metrics")
+			Dimensions?:        close({"Fn::If": _}) | error("Dimensions cannot be used with Metrics")
+			Period?:            close({"Fn::If": _}) | error("Period cannot be used with Metrics")
+			Namespace?:         close({"Fn::If": _}) | error("Namespace cannot be used with Metrics")
+			Statistic?:         close({"Fn::If": _}) | error("Statistic cannot be used with Metrics")
+			ExtendedStatistic?: close({"Fn::If": _}) | error("ExtendedStatistic cannot be used with Metrics")
+			Unit?:              close({"Fn::If": _}) | error("Unit cannot be used with Metrics")
+		}
+		if Threshold != _|_ if Threshold."Fn::If" == _|_ {
+			ThresholdMetricId?: close({"Fn::If": _}) | error("ThresholdMetricId cannot be used with Threshold")
+		}
+		if Metrics != _|_ if Metrics."Fn::If" == _|_ {
+			MetricName?: close({"Fn::If": _}) | error(
+				"MetricName cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
+			)
+			EvaluationCriteria?: close({"Fn::If": _}) | error(
+				"EvaluationCriteria cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
+			)
+		}
+		if MetricName != _|_ if MetricName."Fn::If" == _|_ {
+			EvaluationCriteria?: close({"Fn::If": _}) | error(
+				"EvaluationCriteria cannot be used with MetricName; set exactly one of Metrics, MetricName, EvaluationCriteria",
+			)
+		}
+	}) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}])
+}
+
+#AlarmPromQLCriteria: close({
 	PendingPeriod?: int |
 		{
 			string &
@@ -262,42 +252,52 @@ _#defs: "/$defs/Properties/definitions/AlarmPromQLCriteria": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Dimension": close({
+#Dimension: close({
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationCriteria": close(
-	{PromQLCriteria?: _#defs."/$defs/Properties/definitions/AlarmPromQLCriteria" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/EvaluationWindow": matchN(1, [{
-	WallClockWindow!: _
-	...
-}, {
-	SlidingWindow!: _
-	...
-}]) & close({
-	SlidingWindow?:   close({}) | fn.#ObjectExpression
-	WallClockWindow?: _#defs."/$defs/Properties/definitions/WallClockWindow" | fn.#ObjectExpression
+#EvaluationCriteria: close({
+	// The PromQL criteria for the alarm evaluation.
+	PromQLCriteria?: #AlarmPromQLCriteria
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Metric": close({
-	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
+#EvaluationWindow: close({
+	SlidingWindow?: close({}) | fn.#ObjectExpression
+
+	// A wall clock window, which aligns the evaluated range to fixed clock
+	// boundaries that match the alarm's period, such as the top of the hour,
+	// midnight, or the start of the calendar week.
+	WallClockWindow?: #WallClockWindow
+	if WallClockWindow != _|_ if WallClockWindow."Fn::If" == _|_ {
+		SlidingWindow?: close({"Fn::If": _}) | error(
+			"SlidingWindow cannot be used with WallClockWindow; set exactly one of WallClockWindow, SlidingWindow",
+		)
+	}
+}) & matchN(>=1, [{WallClockWindow!: _}, {SlidingWindow!: _}]) |
+fn.#ObjectExpression
+
+#Metric: close({
+	Dimensions?: list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
+#MetricDataQuery: close({
 	AccountId?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Id!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-z])([A-Za-z0-9\\_]*)$" | fn.#StringExpression
 	Label?:      string | fn.#StringExpression
-	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat" | fn.#ObjectExpression
+
+	// The metric to be returned, along with statistics, period, and units. Use this
+	// parameter only if this object is retrieving a metric and not performing a
+	// math expression on returned data.
+	// Within one MetricDataQuery object, you must specify either ``Expression`` or
+	// ``MetricStat`` but not both.
+	MetricStat?: #MetricStat
 	Period?: int & >=1 |
 		{
 			string &
@@ -317,8 +317,9 @@ _#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric" | fn.#ObjectExpression
+#MetricStat: close({
+	// The metric to return, including the metric name, namespace, and dimensions.
+	Metric!: #Metric
 	Period!: int & >=1 |
 		{
 			string &
@@ -366,16 +367,15 @@ _#defs: "/$defs/Properties/definitions/MetricStat": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WallClockWindow": close({Timezone?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#WallClockWindow: close({Timezone?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmUpConfiguration": close({
+#WarmUpConfiguration: close({
 	OnlyStartEvaluatingAfterWarmUpPeriodEnds?: bool |
 		"true" |
 		"True" |
@@ -402,7 +402,3 @@ _#defs: "/$defs/Properties/definitions/WarmUpConfiguration": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::Alarm"
-	Properties?: #Properties
-}

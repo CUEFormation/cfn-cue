@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,29 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Endpoint
-#Properties: close({
-	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig" | fn.#ObjectExpression
-	EndpointConfigName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	EndpointName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	ExcludeRetainedVariantProperties?: [..._#defs."/$defs/Properties/definitions/VariantProperty"] | fn.#ListExpression
-	RetainAllVariantProperties?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RetainDeploymentConfig?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Endpoint"
+	Properties!: close({
+		// Specifies deployment configuration for updating the SageMaker endpoint.
+		// Includes rollback and update policies.
+		DeploymentConfig?: #DeploymentConfig
+		EndpointConfigName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		EndpointName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		ExcludeRetainedVariantProperties?: [...#VariantProperty] | fn.#ListExpression
+		RetainAllVariantProperties?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		RetainDeploymentConfig?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Alarm": close(
-	{AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#Alarm: close({AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoRollbackConfig": close(
-	{Alarms!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Alarm"] | fn.#ListExpression},
-) |
+#AutoRollbackConfig: close({Alarms!: list.MaxItems(10) & [...] & [...#Alarm] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlueGreenUpdatePolicy": close({
+#BlueGreenUpdatePolicy: close({
 	MaximumExecutionTimeoutInSeconds?: int & <=28800 & >=600 |
 		{
 			string &
@@ -72,11 +79,13 @@ _#defs: "/$defs/Properties/definitions/BlueGreenUpdatePolicy": close({
 				)
 		} |
 		fn.#NumberExpression
-	TrafficRoutingConfiguration!: _#defs."/$defs/Properties/definitions/TrafficRoutingConfig" | fn.#ObjectExpression
+
+	// The traffic routing configuration for the blue/green deployment.
+	TrafficRoutingConfiguration!: #TrafficRoutingConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacitySize": close({
+#CapacitySize: close({
 	Type!: "CAPACITY_PERCENT" | "INSTANCE_COUNT" | fn.#StringExpression
 	Value!: int & >=1 |
 		{
@@ -96,15 +105,21 @@ _#defs: "/$defs/Properties/definitions/CapacitySize": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfig": close({
-	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfig" | fn.#ObjectExpression
-	BlueGreenUpdatePolicy?:     _#defs."/$defs/Properties/definitions/BlueGreenUpdatePolicy" | fn.#ObjectExpression
-	RollingUpdatePolicy?:       _#defs."/$defs/Properties/definitions/RollingUpdatePolicy" | fn.#ObjectExpression
+#DeploymentConfig: close({
+	// Configuration for automatic rollback if an error occurs during deployment.
+	AutoRollbackConfiguration?: #AutoRollbackConfig
+
+	// Configuration for blue-green update deployment policies.
+	BlueGreenUpdatePolicy?: #BlueGreenUpdatePolicy
+
+	// Configuration for rolling update deployment policies.
+	RollingUpdatePolicy?: #RollingUpdatePolicy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RollingUpdatePolicy": close({
-	MaximumBatchSize!: _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
+#RollingUpdatePolicy: close({
+	// Specifies the maximum batch size for each rolling update.
+	MaximumBatchSize!: #CapacitySize
 	MaximumExecutionTimeoutInSeconds?: int & <=28800 & >=600 |
 		{
 			string &
@@ -121,7 +136,9 @@ _#defs: "/$defs/Properties/definitions/RollingUpdatePolicy": close({
 				)
 		} |
 		fn.#NumberExpression
-	RollbackMaximumBatchSize?: _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
+
+	// The maximum batch size for rollback during an update failure.
+	RollbackMaximumBatchSize?: #CapacitySize
 	WaitIntervalInSeconds!: int & <=3600 & >=0 |
 		{
 			string &
@@ -141,15 +158,18 @@ _#defs: "/$defs/Properties/definitions/RollingUpdatePolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficRoutingConfig": close({
-	CanarySize?:     _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
-	LinearStepSize?: _#defs."/$defs/Properties/definitions/CapacitySize" | fn.#ObjectExpression
+#TrafficRoutingConfig: close({
+	// Specifies the size of the canary traffic in a canary deployment.
+	CanarySize?: #CapacitySize
+
+	// Specifies the step size for linear traffic routing.
+	LinearStepSize?: #CapacitySize
 	Type!:           "ALL_AT_ONCE" | "CANARY" | "LINEAR" | fn.#StringExpression
 	WaitIntervalInSeconds?: int & <=3600 & >=0 |
 		{
@@ -170,9 +190,4 @@ _#defs: "/$defs/Properties/definitions/TrafficRoutingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VariantProperty": close({VariantPropertyType?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Endpoint"
-	Properties!: #Properties
-}
+#VariantProperty: close({VariantPropertyType?: string | fn.#StringExpression}) | fn.#ObjectExpression

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"time"
+	"list"
 	"strings"
 )
 
@@ -15,17 +15,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a copy of an entire cluster or replication group as of the time
 // when the snapshot was taken.
-#Properties: close({
-	CacheClusterId?: string | fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	ReplicationGroupId?: string | fn.#StringExpression
-	SnapshotName!:       string | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElastiCache::Snapshot"
+	Properties!: close({
+		CacheClusterId?: string | fn.#StringExpression
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		ReplicationGroupId?: string | fn.#StringExpression
+		SnapshotName!:       string | fn.#StringExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/NodeSnapshot": close({
+#NodeSnapshot: close({
 	CacheClusterId?:      string | fn.#StringExpression
 	CacheNodeCreateTime?: time.Time | fn.#StringExpression
 	CacheNodeId?:         string | fn.#StringExpression
@@ -35,12 +38,8 @@ _#defs: "/$defs/Properties/definitions/NodeSnapshot": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::Snapshot"
-	Properties!: #Properties
-}

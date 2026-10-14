@@ -24,14 +24,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Required permissions: events:PutResourcePolicy, events:GetResourcePolicy,
 // and events:DeleteResourcePolicy. Listing resources of this type also
 // requires events:ListEventBuses and events:ListResourcePolicies.
-#Properties: close({
-	EventBusArn!: strings.MaxRunes(1011) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
-	fn.#StringExpression
-	PolicyDocument!: fn.#Object & {...} & struct.MinFields(1) | fn.#ObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventsV2::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::EventsV2::ResourcePolicy"
+	Properties!: close({
+		EventBusArn!: strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
+		fn.#StringExpression
+		PolicyDocument!: fn.#Object & {...} & struct.MinFields(1) | fn.#ObjectExpression
+	})
 }

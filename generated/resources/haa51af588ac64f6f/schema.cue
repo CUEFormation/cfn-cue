@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -20,34 +20,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // channel exchange messages within it. Every channel operation is performed on
 // behalf of an AppInstanceUser or AppInstanceBot, whose ARN is supplied as
 // ChimeBearer and forms part of the channel's CloudFormation identifier.
-#Properties: close({
-	AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	ChannelId?: strings.MaxRunes(64) &
-	strings.MinRunes(1) &
-	=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" |
-	fn.#StringExpression
-	ChimeBearer!:                 strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	ElasticChannelConfiguration?: _#defs."/$defs/Properties/definitions/ElasticChannelConfiguration"
-	ExpirationSettings?:          _#defs."/$defs/Properties/definitions/ExpirationSettings"
-	MemberArns?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Mode?:     "UNRESTRICTED" | "RESTRICTED" | fn.#StringExpression
-	ModeratorArns?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Name!: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}𐀀-\U0010ffff]*$" |
-	fn.#StringExpression
-	Privacy?: "PUBLIC" | "PRIVATE" | fn.#StringExpression
-	Tags?:    list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chime::Channel"
+	Properties!: close({
+		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		ChannelId?: strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" |
+		fn.#StringExpression
+		ChimeBearer!:                 strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		ElasticChannelConfiguration?: #ElasticChannelConfiguration
+		ExpirationSettings?:          #ExpirationSettings
+		MemberArns?: list.MaxItems(10) & list.MinItems(1) & [
+			...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Mode?:     "UNRESTRICTED" | "RESTRICTED" | fn.#StringExpression
+		ModeratorArns?: list.MaxItems(10) & list.MinItems(1) & [
+			...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name!: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}𐀀-\U0010ffff]*$" |
+		fn.#StringExpression
+		Privacy?: "PUBLIC" | "PRIVATE" | fn.#StringExpression
+		Tags?:    list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ElasticChannelConfiguration": close({
+#ElasticChannelConfiguration: close({
 	MaximumSubChannels!: int & >=2 |
 		{
 			string &
@@ -97,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/ElasticChannelConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpirationSettings": close({
+#ExpirationSettings: close({
 	ExpirationCriterion!: "CREATED_TIMESTAMP" | "LAST_MESSAGE_TIMESTAMP" | fn.#StringExpression
 	ExpirationDays!: int & <=5475 & >=1 |
 		{
@@ -118,18 +121,14 @@ _#defs: "/$defs/Properties/definitions/ExpirationSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Identity": close({
+#Identity: close({
 	Arn?:  strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chime::Channel"
-	Properties!: #Properties
-}

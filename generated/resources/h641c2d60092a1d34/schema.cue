@@ -17,55 +17,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ElastiCache::ServerlessCache resource creates an Amazon ElastiCache Serverless Cache.
-#Properties: close({
-	CacheUsageLimits?:  _#defs."/$defs/Properties/definitions/CacheUsageLimits"
-	ConnectionType?:    _#defs."/$defs/Properties/definitions/ConnectionType"
-	DailySnapshotTime?: string | fn.#StringExpression
-	Description?:       string | fn.#StringExpression
-	Endpoint?:          close({}) | fn.#ObjectExpression
-	Engine!:            string | fn.#StringExpression
-	FinalSnapshotName?: string | fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	MajorEngineVersion?: string | fn.#StringExpression
-	NetworkType?:        _#defs."/$defs/Properties/definitions/NetworkType"
-	ReaderEndpoint?:     close({}) | fn.#ObjectExpression
-	SecurityGroupIds?: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElastiCache::ServerlessCache"
+	Properties!: close({
+		CacheUsageLimits?:  #CacheUsageLimits
+		ConnectionType?:    #ConnectionType
+		DailySnapshotTime?: string | fn.#StringExpression
+		Description?:       string | fn.#StringExpression
+		Endpoint?:          close({}) | fn.#ObjectExpression
+		Engine!:            string | fn.#StringExpression
+		FinalSnapshotName?: string | fn.#StringExpression
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	ServerlessCacheName!:   string | fn.#StringExpression
-	SnapshotArnsToRestore?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnapshotRetentionLimit?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SubnetIds?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserGroupId?: string | fn.#StringExpression
-})
+		MajorEngineVersion?: string | fn.#StringExpression
+		NetworkType?:        #NetworkType
+		ReaderEndpoint?:     close({}) | fn.#ObjectExpression
+		SecurityGroupIds?: list.UniqueItems() & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		ServerlessCacheName!:   string | fn.#StringExpression
+		SnapshotArnsToRestore?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		SnapshotRetentionLimit?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SubnetIds?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UserGroupId?: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CacheUsageLimits": close({
-	DataStorage?:   _#defs."/$defs/Properties/definitions/DataStorage"
-	ECPUPerSecond?: _#defs."/$defs/Properties/definitions/ECPUPerSecond"
+#CacheUsageLimits: close({
+	DataStorage?:   #DataStorage
+	ECPUPerSecond?: #ECPUPerSecond
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionType": =~"(?i)^(?:public|vpc)$" | fn.#StringExpression
+#ConnectionType: =~"(?i)^(?:public|vpc)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataStorage": close({
+#DataStorage: close({
 	Maximum?: int |
 		{
 			string &
@@ -98,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/DataStorage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ECPUPerSecond": close({
+#ECPUPerSecond: close({
 	Maximum?: int |
 		{
 			string &
@@ -130,20 +135,16 @@ _#defs: "/$defs/Properties/definitions/ECPUPerSecond": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string | fn.#StringExpression
 	Port?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkType": =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
+#NetworkType: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::ServerlessCache"
-	Properties!: #Properties
-}

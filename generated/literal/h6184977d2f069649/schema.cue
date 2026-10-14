@@ -20,14 +20,14 @@ import (
 	Frequency!: "DAILY" | "IMMEDIATE" | "WEEKLY"
 
 	// A list of cost anomaly monitors.
-	MonitorArnList!: [..._#defs."/$defs/Properties/definitions/Arn"]
+	MonitorArnList!: [...#Arn]
 
 	// Tags to assign to subscription.
-	ResourceTags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"]
+	ResourceTags?: list.MaxItems(200) & [...] & [...#ResourceTag]
 
 	// A list of subscriber
-	Subscribers!:     [..._#defs."/$defs/Properties/definitions/Subscriber"]
-	SubscriptionArn?: _#defs."/$defs/Properties/definitions/Arn"
+	Subscribers!:     [...#Subscriber]
+	SubscriptionArn?: #Arn
 
 	// The name of the subscription.
 	SubscriptionName!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*"
@@ -41,10 +41,10 @@ import (
 })
 
 // Subscription ARN
-_#defs: "/$defs/Properties/definitions/Arn": =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$"
+#Arn: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	// The key name for the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/ResourceTag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Subscriber": close({
+#Subscriber: close({
 	Address!:
 		=~"(^[a-zA-Z0-9.!#$%&'*+=?^_‘{|}~-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$)|(^arn:(aws[a-zA-Z-]*):sns:[a-zA-Z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+(\\.fifo)?$)"
 	Status?: "CONFIRMED" | "DECLINED"

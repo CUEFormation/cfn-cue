@@ -13,57 +13,55 @@ import (
 // Definition of AWS::QBusiness::Plugin Resource Type
 #Properties: close({
 	ApplicationId?:             strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	AuthConfiguration!:         _#defs."/$defs/Properties/definitions/PluginAuthConfiguration"
-	BuildStatus?:               _#defs."/$defs/Properties/definitions/PluginBuildStatus"
+	AuthConfiguration!:         #PluginAuthConfiguration
+	BuildStatus?:               #PluginBuildStatus
 	CreatedAt?:                 time.Time
-	CustomPluginConfiguration?: _#defs."/$defs/Properties/definitions/CustomPluginConfiguration"
+	CustomPluginConfiguration?: #CustomPluginConfiguration
 	DisplayName!:               strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
 	PluginArn?:                 strings.MaxRunes(1284) & strings.MinRunes(0)
 	PluginId?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 	ServerUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$"
-	State?:     _#defs."/$defs/Properties/definitions/PluginState"
-	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type!:      _#defs."/$defs/Properties/definitions/PluginType"
+	State?:     #PluginState
+	Tags?:      list.MaxItems(200) & [...] & [...#Tag]
+	Type!:      #PluginType
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/APISchema": matchN(1, [
-	close({Payload!: string}), close({S3!: _#defs."/$defs/Properties/definitions/S3"}),
-])
+#APISchema: matchN(1, [close({Payload!: string}), close({S3!: #S3})])
 
-_#defs: "/$defs/Properties/definitions/APISchemaType": "OPEN_API_V3"
+#APISchemaType: "OPEN_API_V3"
 
-_#defs: "/$defs/Properties/definitions/BasicAuthConfiguration": close({
+#BasicAuthConfiguration: close({
 	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	SecretArn!: strings.MaxRunes(1284) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/CustomPluginConfiguration": close({
-	ApiSchema!:     _#defs."/$defs/Properties/definitions/APISchema"
-	ApiSchemaType!: _#defs."/$defs/Properties/definitions/APISchemaType"
+#CustomPluginConfiguration: close({
+	ApiSchema!:     #APISchema
+	ApiSchemaType!: #APISchemaType
 	Description!:   strings.MaxRunes(200) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/NoAuthConfiguration": string | {...}
+#NoAuthConfiguration: string | {...}
 
-_#defs: "/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration": close({
+#OAuth2ClientCredentialConfiguration: close({
 	AuthorizationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$"
 	RoleArn!:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
 	SecretArn!:        strings.MaxRunes(1284) & strings.MinRunes(0)
 	TokenUrl?:         strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/PluginAuthConfiguration": matchN(1, [close(
-	{BasicAuthConfiguration!: _#defs."/$defs/Properties/definitions/BasicAuthConfiguration"},
+#PluginAuthConfiguration: matchN(1, [close(
+	{BasicAuthConfiguration!: #BasicAuthConfiguration},
 ), close(
-	{OAuth2ClientCredentialConfiguration!: _#defs."/$defs/Properties/definitions/OAuth2ClientCredentialConfiguration"},
+	{OAuth2ClientCredentialConfiguration!: #OAuth2ClientCredentialConfiguration},
 ), close(
-	{NoAuthConfiguration!: _#defs."/$defs/Properties/definitions/NoAuthConfiguration"},
+	{NoAuthConfiguration!: #NoAuthConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/PluginBuildStatus": "READY" |
+#PluginBuildStatus: "READY" |
 	"CREATE_IN_PROGRESS" |
 	"CREATE_FAILED" |
 	"UPDATE_IN_PROGRESS" |
@@ -71,9 +69,9 @@ _#defs: "/$defs/Properties/definitions/PluginBuildStatus": "READY" |
 	"DELETE_IN_PROGRESS" |
 	"DELETE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/PluginState": "ENABLED" | "DISABLED"
+#PluginState: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/PluginType": "SERVICE_NOW" |
+#PluginType: "SERVICE_NOW" |
 	"SALESFORCE" |
 	"JIRA" |
 	"ZENDESK" |
@@ -91,12 +89,12 @@ _#defs: "/$defs/Properties/definitions/PluginType": "SERVICE_NOW" |
 	"SMARTSHEET" |
 	"ASANA"
 
-_#defs: "/$defs/Properties/definitions/S3": close({
+#S3: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 	Key!:    strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

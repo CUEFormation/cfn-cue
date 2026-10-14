@@ -3,74 +3,67 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::NetworkConnector
 #Properties: close({
-	Arn?:              _#defs."/$defs/Properties/definitions/Arn"
-	Configuration!:    _#defs."/$defs/Properties/definitions/Config"
-	LatestVersion?:    _#defs."/$defs/Properties/definitions/LatestVersion"
-	LatestVersionArn?: _#defs."/$defs/Properties/definitions/LatestVersionArn"
-	Name?:             _#defs."/$defs/Properties/definitions/Name"
-	OperatorRole?:     _#defs."/$defs/Properties/definitions/RoleArn"
-	State?:            _#defs."/$defs/Properties/definitions/State"
+	Arn?:              #Arn
+	Configuration!:    #Config
+	LatestVersion?:    #LatestVersion
+	LatestVersionArn?: #LatestVersionArn
+	Name?:             #Name
+	OperatorRole?:     #RoleArn
+	State?:            #State
 
 	// A list of tags to apply to the network connector. Use tags to categorize
 	// network connectors for cost allocation, access control, or operational
 	// management.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The Amazon Resource Name (ARN) of the network connector.
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(140) &
+#Arn: strings.MaxRunes(140) &
 strings.MinRunes(1) &
 =~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$"
 
 // The network configuration for the connector. Specify a VpcEgressConfiguration
 // to enable outbound traffic routing through your VPC.
-_#defs: "/$defs/Properties/definitions/Config": close(
-	{VpcEgressConfiguration!: _#defs."/$defs/Properties/definitions/VpcEgressConfiguration"},
-)
+#Config: close({VpcEgressConfiguration!: #VpcEgressConfiguration})
 
 // The version number of the network connector's latest version. Updates to the
 // connector's configuration create a new immutable version; this attribute
 // exposes the most recent one.
-_#defs: "/$defs/Properties/definitions/LatestVersion": int & >=1
+#LatestVersion: int & >=1
 
 // The qualified Amazon Resource Name (ARN) of the network connector's latest
 // version. Includes the immutable version suffix and can be used to pin to a
 // specific version.
-_#defs: "/$defs/Properties/definitions/LatestVersionArn": strings.MaxRunes(140) &
+#LatestVersionArn: strings.MaxRunes(140) &
 strings.MinRunes(1) &
 =~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$"
 
 // A unique name for the network connector within your account and Region. Must
 // be 1 to 64 alphanumeric characters, hyphens, or underscores.
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(140) &
+#Name: strings.MaxRunes(140) &
 strings.MinRunes(1) &
 =~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)|[a-zA-Z0-9_-]{1,64}$"
 
 // The ARN of the IAM role that Lambda assumes to manage elastic network
 // interfaces in your VPC. This role must have permissions for
 // ec2:CreateNetworkInterface and related describe operations.
-_#defs: "/$defs/Properties/definitions/RoleArn": strings.MaxRunes(10000) &
+#RoleArn: strings.MaxRunes(10000) &
 strings.MinRunes(0) &
 =~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 // The current state of the network connector.
-_#defs: "/$defs/Properties/definitions/State": "PENDING" |
-	"ACTIVE" |
-	"INACTIVE" |
-	"FAILED" |
-	"DELETING" |
-	"DELETE_FAILED"
+#State: "PENDING" | "ACTIVE" | "INACTIVE" | "FAILED" | "DELETING" | "DELETE_FAILED"
 
 // A key-value pair that provides metadata for the network connector.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -81,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // The VPC egress configuration for the network connector. Specifies the
 // subnets, security groups, and network protocol for routing outbound traffic
 // through your VPC.
-_#defs: "/$defs/Properties/definitions/VpcEgressConfiguration": close({
+#VpcEgressConfiguration: close({
 	// The types of Lambda compute resources that can use this connector. Supported
 	// values are MicroVm and WebFunction.
 	AssociatedComputeResourceTypes!: list.MaxItems(1) & list.MinItems(1) & [..."MicroVm" | "WebFunction"]

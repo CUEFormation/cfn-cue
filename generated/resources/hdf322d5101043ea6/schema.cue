@@ -13,40 +13,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SystemsManagerSAP::Application
-#Properties: close({
-	ApplicationId!:   =~"[\\w\\d\\.-]{1,60}" | fn.#StringExpression
-	ApplicationType!: "HANA" | "SAP_ABAP" | fn.#StringExpression
-	ComponentsInfo?:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentInfo"] | fn.#ListExpression
-	Credentials?:     list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Credential"] | fn.#ListExpression
-	DatabaseArn?:     =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$" | fn.#StringExpression
-	Instances?:       list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Instance"] | fn.#ListExpression
-	SapInstanceNumber?: =~"[0-9]{2}" | fn.#StringExpression
-	Sid?:               =~"[A-Z][A-Z0-9]{2}" | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SystemsManagerSAP::Application"
+	Properties!: close({
+		ApplicationId!:     =~"[\\w\\d\\.-]{1,60}" | fn.#StringExpression
+		ApplicationType!:   "HANA" | "SAP_ABAP" | fn.#StringExpression
+		ComponentsInfo?:    list.MinItems(1) & [...#ComponentInfo] | fn.#ListExpression
+		Credentials?:       list.MinItems(1) & [...#Credential] | fn.#ListExpression
+		DatabaseArn?:       =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$" | fn.#StringExpression
+		Instances?:         list.MinItems(1) & [...#Instance] | fn.#ListExpression
+		SapInstanceNumber?: =~"[0-9]{2}" | fn.#StringExpression
+		Sid?:               =~"[A-Z][A-Z0-9]{2}" | fn.#StringExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ComponentInfo": {
+#ComponentInfo: {
 	ComponentType?: "HANA" | "HANA_NODE" | "ABAP" | "ASCS" | "DIALOG" | "WEBDISP" | "WD" | "ERS" | fn.#StringExpression
 	Ec2InstanceId?: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$" | fn.#StringExpression
 	Sid?:           =~"[A-Z][A-Z0-9]{2}" | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Credential": close({
+#Credential: close({
 	CredentialType?: "ADMIN" | fn.#StringExpression
 	DatabaseName?:   string | fn.#StringExpression
 	SecretId?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Instance": =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$" | fn.#StringExpression
+#Instance: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SystemsManagerSAP::Application"
-	Properties!: #Properties
-}

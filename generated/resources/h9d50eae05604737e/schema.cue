@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,84 +17,83 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Queue
-#Properties: close({
-	AdditionalEmailAddresses?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/EmailAddress"] |
-		fn.#ListExpression
-	Description?: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
-	HoursOfOperationArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/operating-hours/[-a-zA-Z0-9]*$" |
-		fn.#StringExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	MaxContacts?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:                 strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	OutboundCallerConfig?: _#defs."/$defs/Properties/definitions/OutboundCallerConfig" | fn.#ObjectExpression
-	OutboundEmailConfig?:  _#defs."/$defs/Properties/definitions/OutboundEmailConfig" | fn.#ObjectExpression
-	QuickConnectArns?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/QuickConnectArn"] |
-		fn.#ListExpression
-	Status?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::Queue"
+	Properties!: close({
+		AdditionalEmailAddresses?: list.MaxItems(50) & [...] & [...#EmailAddress] | fn.#ListExpression
+		Description?:              strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
+		HoursOfOperationArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/operating-hours/[-a-zA-Z0-9]*$" |
+			fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		MaxContacts?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EmailAddress": close({
+		// The outbound caller ID name, number, and outbound whisper flow.
+		OutboundCallerConfig?: #OutboundCallerConfig
+
+		// The outbound email configuration for a specified queue.
+		OutboundEmailConfig?: #OutboundEmailConfig
+		QuickConnectArns?:    list.MinItems(1) & [...#QuickConnectArn] | fn.#ListExpression
+		Status?:              "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#EmailAddress: close({
 	EmailAddressArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-f0-9]{8}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{12}/email-address/[-a-f0-9]{8}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{12}$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Key: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutboundCallerConfig": close({
-	OutboundCallerIdName?:      _#defs."/$defs/Properties/definitions/OutboundCallerIdName"
-	OutboundCallerIdNumberArn?: _#defs."/$defs/Properties/definitions/OutboundCallerIdNumberArn"
-	OutboundFlowArn?:           _#defs."/$defs/Properties/definitions/OutboundFlowArn"
+#OutboundCallerConfig: close({
+	OutboundCallerIdName?:      #OutboundCallerIdName
+	OutboundCallerIdNumberArn?: #OutboundCallerIdNumberArn
+	OutboundFlowArn?:           #OutboundFlowArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutboundCallerIdName": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#OutboundCallerIdName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutboundCallerIdNumberArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:phone-number/[-a-zA-Z0-9]*$" |
+#OutboundCallerIdNumberArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:phone-number/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutboundEmailAddressId": strings.MaxRunes(500) &
+#OutboundEmailAddressId: strings.MaxRunes(500) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/email-address/[-a-zA-Z0-9]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutboundEmailConfig": close(
-	{OutboundEmailAddressId?: _#defs."/$defs/Properties/definitions/OutboundEmailAddressId"},
-) |
-	fn.#ObjectExpression
+#OutboundEmailConfig: close({OutboundEmailAddressId?: #OutboundEmailAddressId}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutboundFlowArn": strings.MaxRunes(500) &
+#OutboundFlowArn: strings.MaxRunes(500) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/QuickConnectArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/transfer-destination/[-a-zA-Z0-9]*$" |
+#QuickConnectArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/transfer-destination/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
-	Key!:   _#defs."/$defs/Properties/definitions/Key"
-	Value!: _#defs."/$defs/Properties/definitions/Value"
+#Tag: close({
+	Key!:   #Key
+	Value!: #Value
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Value": strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::Queue"
-	Properties!: #Properties
-}
+#Value: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression

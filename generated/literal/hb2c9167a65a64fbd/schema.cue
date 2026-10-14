@@ -21,10 +21,10 @@ import (
 	SubnetIds!: list.MaxItems(20) & list.MinItems(1) & [...string]
 
 	// One or more tags to be assigned to the db subnet group
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

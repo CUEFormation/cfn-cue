@@ -15,25 +15,19 @@ import (
 	// Catalog is the persistent metadata store. It contains database definitions,
 	// table definitions, and other control information to manage your Lake
 	// Formation environment.
-	CatalogId?: _#defs."/$defs/Properties/definitions/CatalogIdString"
+	CatalogId?: #CatalogIdString
 
 	// The key-name for the LF-tag.
-	TagKey!: _#defs."/$defs/Properties/definitions/LFTagKey"
+	TagKey!: #LFTagKey
 
 	// A list of possible values an attribute can take.
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList"
+	TagValues!: #TagValueList
 })
 
-_#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(12) & strings.MinRunes(12)
+#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12)
 
-_#defs: "/$defs/Properties/definitions/LFTagKey": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^([{a-zA-Z}{\\s}{0-9}_.:\\/=+\\-@%]*)$"
+#LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([{a-zA-Z}{\\s}{0-9}_.:\\/=+\\-@%]*)$"
 
-_#defs: "/$defs/Properties/definitions/LFTagValue": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^([{a-zA-Z}{\\s}{0-9}_.:\\*\\/=+\\-@%]*)$"
+#LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([{a-zA-Z}{\\s}{0-9}_.:\\*\\/=+\\-@%]*)$"
 
-_#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(1000) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue"
-]
+#TagValueList: list.MaxItems(1000) & list.MinItems(1) & [...#LFTagValue]

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,70 +13,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Metric Stream
-#Properties: matchN(2, [{
-	FirehoseArn!:  _
-	RoleArn!:      _
-	OutputFormat!: _
-	...
-}, matchN(1, [
-	{...},
-	{
-		IncludeFilters!: _
-		ExcludeFilters!: _
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::MetricStream"
+	Properties?: matchN(2, [{
+		FirehoseArn!:  _
+		RoleArn!:      _
+		OutputFormat!: _
 		...
-	}
-])]) & close({
-	ExcludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamFilter"
-	] |
-		fn.#ListExpression
-	FirehoseArn?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	IncludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamFilter"
-	] |
-		fn.#ListExpression
-	IncludeLinkedAccountsMetrics?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name?:                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	OutputFormat?: ("json" | "opentelemetry0.7" | "opentelemetry1.0") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	StatisticsConfigurations?: list.MaxItems(100) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamStatisticsConfiguration"
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+	}, matchN(1, [
+		{...},
+		{
+			IncludeFilters!: _
+			ExcludeFilters!: _
+			...
+		}
+	])]) & close({
+		ExcludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter] | fn.#ListExpression
+		FirehoseArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		IncludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter] | fn.#ListExpression
+		IncludeLinkedAccountsMetrics?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		OutputFormat?: ("json" | "opentelemetry0.7" | "opentelemetry1.0") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		StatisticsConfigurations?: list.MaxItems(100) & list.UniqueItems() & [...#MetricStreamStatisticsConfiguration] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/MetricStreamFilter": close({
+#MetricStreamFilter: close({
 	MetricNames?: list.MaxItems(999) & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricStreamStatisticsConfiguration": close({
+#MetricStreamStatisticsConfiguration: close({
 	AdditionalStatistics!: list.MaxItems(20) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	IncludeMetrics!: list.MaxItems(100) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamStatisticsMetric"
-	] |
-		fn.#ListExpression
+	IncludeMetrics!: list.MaxItems(100) & list.UniqueItems() & [...#MetricStreamStatisticsMetric] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricStreamStatisticsMetric": close({
+#MetricStreamStatisticsMetric: close({
 	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Namespace!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::MetricStream"
-	Properties?: #Properties
-}

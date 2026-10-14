@@ -9,19 +9,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EventSchemas::Discoverer
-#Properties: close({
-	CrossAccount?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:  string | fn.#StringExpression
-	SourceArn!:    string | fn.#StringExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EventSchemas::Discoverer"
+	Properties!: close({
+		CrossAccount?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?:  string | fn.#StringExpression
+		SourceArn!:    string | fn.#StringExpression
+		Tags?:         [...#TagsEntry] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventSchemas::Discoverer"
-	Properties!: #Properties
-}

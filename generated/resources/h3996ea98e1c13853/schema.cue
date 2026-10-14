@@ -17,32 +17,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource represents a schema of Glue Schema Registry.
-#Properties: close({
-	CheckpointVersion?: _#defs."/$defs/Properties/definitions/SchemaVersion"
-	Compatibility!: "NONE" |
-		"DISABLED" |
-		"BACKWARD" |
-		"BACKWARD_ALL" |
-		"FORWARD" |
-		"FORWARD_ALL" |
-		"FULL" |
-		"FULL_ALL" |
-		fn.#StringExpression
-	DataFormat!:       "AVRO" | "JSON" | "PROTOBUF" | fn.#StringExpression
-	Description?:      strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Registry?:         _#defs."/$defs/Properties/definitions/Registry"
-	SchemaDefinition?: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Tags?:             list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Schema"
+	Properties!: close({
+		CheckpointVersion?: #SchemaVersion
+		Compatibility!: "NONE" |
+			"DISABLED" |
+			"BACKWARD" |
+			"BACKWARD_ALL" |
+			"FORWARD" |
+			"FORWARD_ALL" |
+			"FULL" |
+			"FULL_ALL" |
+			fn.#StringExpression
+		DataFormat!:       "AVRO" | "JSON" | "PROTOBUF" | fn.#StringExpression
+		Description?:      strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Registry?:         #Registry
+		SchemaDefinition?: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		Tags?:             list.MaxItems(10) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Registry": close({
+#Registry: close({
 	Arn?:  =~"arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:.*" | fn.#StringExpression
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaVersion": close({
+#SchemaVersion: close({
 	IsLatest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VersionNumber?: int & <=100000 & >=1 |
 		{
@@ -63,12 +66,8 @@ _#defs: "/$defs/Properties/definitions/SchemaVersion": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Schema"
-	Properties!: #Properties
-}

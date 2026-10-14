@@ -18,10 +18,10 @@ import (
 	AuthProxyUrl?: string
 
 	// The certificate authority for the managed endpoint.
-	CertificateAuthority?: _#defs."/$defs/Properties/definitions/Certificate"
+	CertificateAuthority?: #Certificate
 
 	// The configuration overrides for the managed endpoint.
-	ConfigurationOverrides?: _#defs."/$defs/Properties/definitions/ConfigurationOverrides"
+	ConfigurationOverrides?: #ConfigurationOverrides
 
 	// The date and time when the managed endpoint was created.
 	CreatedAt?: string
@@ -60,7 +60,7 @@ import (
 	StateDetails?: string
 
 	// An array of key-value pairs to apply to this managed endpoint.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The type of the managed endpoint.
 	Type!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S"
@@ -69,50 +69,48 @@ import (
 	VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Certificate": close({
+#Certificate: close({
 	CertificateArn?:  string
 	CertificateData?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchMonitoringConfiguration": close({
+#CloudWatchMonitoringConfiguration: close({
 	LogGroupName!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
 	LogStreamNamePrefix?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S"
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationOverrides": close({
-	ApplicationConfiguration?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EMREKSConfiguration"
-	]
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+#ConfigurationOverrides: close({
+	ApplicationConfiguration?: list.MaxItems(100) & [...] & [...#EMREKSConfiguration]
+	MonitoringConfiguration?:  #MonitoringConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerLogRotationConfiguration": close({
+#ContainerLogRotationConfiguration: close({
 	MaxFilesToKeep!: int & <=50 & >=1
 	RotationSize!:   strings.MaxRunes(12) & strings.MinRunes(3) & =~"^\\d+(\\.\\d+)?[KMG][Bb]?$"
 })
 
-_#defs: "/$defs/Properties/definitions/EMREKSConfiguration": close({
+#EMREKSConfiguration: close({
 	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S"
-	Configurations?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/EMREKSConfiguration"]
+	Configurations?: list.MaxItems(100) & [...] & [...#EMREKSConfiguration]
 	Properties?: close({
 
 		{[=~".*"]: string}})
 })
 
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
-	CloudWatchMonitoringConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchMonitoringConfiguration"
-	ContainerLogRotationConfiguration?: _#defs."/$defs/Properties/definitions/ContainerLogRotationConfiguration"
+#MonitoringConfiguration: close({
+	CloudWatchMonitoringConfiguration?: #CloudWatchMonitoringConfiguration
+	ContainerLogRotationConfiguration?: #ContainerLogRotationConfiguration
 	PersistentAppUI?:                   "ENABLED" | "DISABLED"
-	S3MonitoringConfiguration?:         _#defs."/$defs/Properties/definitions/S3MonitoringConfiguration"
+	S3MonitoringConfiguration?:         #S3MonitoringConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/S3MonitoringConfiguration": close({
+#S3MonitoringConfiguration: close({
 	LogUri!: strings.MaxRunes(10280) &
 	strings.MinRunes(1) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\r\\n\\t]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A user-defined key, which is the minimum required information for a valid tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -17,10 +17,10 @@ import (
 // [CreateDelivery](https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_CreateDelivery.html).
 #Properties: close({
 	// The Amazon Resource Name (ARN) that uniquely identifies this delivery.
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// The ARN of the delivery destination that is associated with this delivery.
-	DeliveryDestinationArn!: _#defs."/$defs/Properties/definitions/Arn"
+	DeliveryDestinationArn!: #Arn
 
 	// Displays whether the delivery destination associated with this delivery is
 	// CloudWatch Logs, Amazon S3, or Kinesis Data Firehose.
@@ -39,7 +39,7 @@ import (
 	// The list of record fields to be delivered to the destination, in order. If
 	// the delivery's log source has mandatory fields, they must be included in
 	// this list.
-	RecordFields?: list.MaxItems(128) & [...] & [..._#defs."/$defs/Properties/definitions/FieldHeader"]
+	RecordFields?: list.MaxItems(128) & [...] & [...#FieldHeader]
 
 	// This parameter causes the S3 objects that contain delivered logs to use a
 	// prefix structure that allows for integration with Apache Hive.
@@ -53,17 +53,17 @@ import (
 	S3SuffixPath?: strings.MaxRunes(256) & strings.MinRunes(0)
 
 	// The tags that have been assigned to this delivery.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Amazon Resource Name (ARN) that uniquely identify AWS resource.
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?"
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?"
 
 // A single record field to be delivered to the destination.
-_#defs: "/$defs/Properties/definitions/FieldHeader": strings.MaxRunes(50) & strings.MinRunes(1)
+#FieldHeader: strings.MaxRunes(50) & strings.MinRunes(1)
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"list"
 	"time"
-	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,12 +18,10 @@ import (
 
 	// Client-side filters that target specific instances. Each object is
 	// AND-matched on keys, multiple objects are OR-matched.
-	AttributeFilters?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AttributeFilterGroup"
-	]
+	AttributeFilters?: list.MaxItems(10) & list.MinItems(1) & [...#AttributeFilterGroup]
 
 	// Specifies what to capture when the instrumentation point is hit.
-	CaptureConfiguration!: close({CodeCapture!: _#defs."/$defs/Properties/definitions/CodeCaptureConfiguration"})
+	CaptureConfiguration!: close({CodeCapture!: #CodeCaptureConfiguration})
 
 	// The server-generated creation timestamp for this instrumentation configuration.
 	CreatedAt?: time.Time
@@ -43,7 +41,7 @@ import (
 	InstrumentationType!: "BREAKPOINT" | "PROBE"
 
 	// The location where instrumentation should be applied.
-	Location!: close({CodeLocation!: _#defs."/$defs/Properties/definitions/CodeLocation"})
+	Location!: close({CodeLocation!: #CodeLocation})
 
 	// A stable hash computed from the location that uniquely identifies this instrumentation point.
 	LocationHash?: strings.MaxRunes(16) & strings.MinRunes(16)
@@ -56,16 +54,16 @@ import (
 	SignalType!: "SNAPSHOT"
 
 	// An optional list of key-value pairs to associate with the instrumentation configuration.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // A string-to-string map of OpenTelemetry resource attributes that must all match.
-_#defs: "/$defs/Properties/definitions/AttributeFilterGroup": close({
+#AttributeFilterGroup: close({
 
 	{[=~"^.{1,50}$"]: strings.MaxRunes(100) & strings.MinRunes(1)}})
 
 // Safety limits that bound what is captured.
-_#defs: "/$defs/Properties/definitions/CaptureLimitsConfig": close({
+#CaptureLimitsConfig: close({
 	// Maximum nesting depth to traverse inside collections.
 	MaxCollectionDepth?: int & <=5 & >=1
 
@@ -92,10 +90,10 @@ _#defs: "/$defs/Properties/definitions/CaptureLimitsConfig": close({
 })
 
 // Defines what data to capture for code-level instrumentation.
-_#defs: "/$defs/Properties/definitions/CodeCaptureConfiguration": close({
+#CodeCaptureConfiguration: close({
 	// The function arguments to capture.
 	CaptureArguments?: list.MaxItems(10) & [...strings.MaxRunes(80) & strings.MinRunes(1)]
-	CaptureLimits!:    _#defs."/$defs/Properties/definitions/CaptureLimitsConfig"
+	CaptureLimits!:    #CaptureLimitsConfig
 
 	// The local variables to capture by name.
 	CaptureLocals?: list.MaxItems(20) & [...strings.MaxRunes(80) & strings.MinRunes(1)]
@@ -108,7 +106,7 @@ _#defs: "/$defs/Properties/definitions/CodeCaptureConfiguration": close({
 })
 
 // Identifies a code location to instrument.
-_#defs: "/$defs/Properties/definitions/CodeLocation": close({
+#CodeLocation: close({
 	// The class or type name that contains the method.
 	ClassName?: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -129,7 +127,7 @@ _#defs: "/$defs/Properties/definitions/CodeLocation": close({
 })
 
 // A key-value pair to associate with the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -26,12 +26,12 @@ package schema
 	})
 	RemoveSubnetIds?:  [...string]
 	SubnetIds!:        [...string]
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:             [...#Tag]
 	TransitGatewayId!: string
 	VpcId!:            =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

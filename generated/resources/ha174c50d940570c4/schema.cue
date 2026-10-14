@@ -17,36 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Files::FileSystem
-#Properties: close({
-	AcceptBucketWarning?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Bucket!:              =~"^(arn:aws[a-zA-Z0-9-]*:s3:::.+)$" | fn.#StringExpression
-	ClientToken?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(.+)$" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+|(arn:aws[-a-z]*:kms:[a-z0-9-]+:\\d{12}:((key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|(key/mrk-[0-9a-f]{32})|(alias/[a-zA-Z0-9/_-]+))))$" |
-	fn.#StringExpression
-	Prefix?: strings.MaxRunes(1024) & =~"^(|.*/)$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	SynchronizationConfiguration?: close({
-		ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/ExpirationDataRule"
-		] |
-			fn.#ListExpression
-		ImportDataRules!: list.MaxItems(10) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/ImportDataRule"
-		] |
-			fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Files::FileSystem"
+	Properties!: close({
+		AcceptBucketWarning?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Bucket!:              =~"^(arn:aws[a-zA-Z0-9-]*:s3:::.+)$" | fn.#StringExpression
+		ClientToken?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(.+)$" | fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+|(arn:aws[-a-z]*:kms:[a-z0-9-]+:\\d{12}:((key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|(key/mrk-[0-9a-f]{32})|(alias/[a-zA-Z0-9/_-]+))))$" |
+		fn.#StringExpression
+		Prefix?: strings.MaxRunes(1024) & =~"^(|.*/)$" | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		SynchronizationConfiguration?: close({
+			ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [...#ExpirationDataRule] | fn.#ListExpression
+			ImportDataRules!:     list.MaxItems(10) & list.MinItems(1) & [...#ImportDataRule] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ExpirationDataRule": close({
+#ExpirationDataRule: close({
 	DaysAfterLastAccess!: int & <=365 & >=1 |
 		{
 			string &
@@ -66,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/ExpirationDataRule": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImportDataRule": close({
+#ImportDataRule: close({
 	Prefix!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|.*/)$" | fn.#StringExpression
 	SizeLessThan!: int & <=52673613135872 & >=0 |
 		{
@@ -88,13 +84,9 @@ _#defs: "/$defs/Properties/definitions/ImportDataRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SynchronizationConfiguration": close({
-	ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ExpirationDataRule"
-	] |
-		fn.#ListExpression
-	ImportDataRules!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ImportDataRule"] |
-		fn.#ListExpression
+#SynchronizationConfiguration: close({
+	ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [...#ExpirationDataRule] | fn.#ListExpression
+	ImportDataRules!:     list.MaxItems(10) & list.MinItems(1) & [...#ImportDataRule] | fn.#ListExpression
 	LatestVersionNumber?: int |
 		{
 			string &
@@ -112,12 +104,8 @@ _#defs: "/$defs/Properties/definitions/SynchronizationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Files::FileSystem"
-	Properties!: #Properties
-}

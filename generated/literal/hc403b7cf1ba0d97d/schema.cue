@@ -63,7 +63,7 @@ import (
 
 	// An optional set of key-value pairs to associate arbitrary data of your
 	// choosing with the DB shard group.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Metadata assigned to an Amazon RDS resource consisting of a key-value pair.
@@ -72,7 +72,7 @@ import (
 // in the *Amazon RDS User Guide* or [Tagging Amazon Aurora and Amazon RDS
 // resources](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_Tagging.html)
 // in the *Amazon Aurora User Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key is the required name of the tag. The string value can be from 1 to 128
 	// Unicode characters in length and can't be prefixed with ``aws:`` or
 	// ``rds:``. The string can only contain only the set of Unicode letters,

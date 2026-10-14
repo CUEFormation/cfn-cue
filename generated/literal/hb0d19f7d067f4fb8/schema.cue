@@ -18,52 +18,46 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$"
-	Status?: _#defs."/$defs/Properties/definitions/TrainingDatasetStatus"
+	Status?: #TrainingDatasetStatus
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms-ml training dataset.
-	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TrainingData!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Dataset"]
+	Tags?:         list.UniqueItems() & [...#Tag]
+	TrainingData!: list.MaxItems(1) & list.MinItems(1) & [...#Dataset]
 	TrainingDatasetArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z]*:cleanrooms-ml:[-a-z0-9]+:[0-9]{12}:training-dataset/[-a-zA-Z0-9_/.]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnSchema": close({
+#ColumnSchema: close({
 	ColumnName!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
-	ColumnTypes!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnType"]
+	ColumnTypes!: list.MaxItems(1) & list.MinItems(1) & [...#ColumnType]
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnType": "USER_ID" |
-	"ITEM_ID" |
-	"TIMESTAMP" |
-	"CATEGORICAL_FEATURE" |
-	"NUMERICAL_FEATURE"
+#ColumnType: "USER_ID" | "ITEM_ID" | "TIMESTAMP" | "CATEGORICAL_FEATURE" | "NUMERICAL_FEATURE"
 
-_#defs: "/$defs/Properties/definitions/DataSource": close(
-	{GlueDataSource!: _#defs."/$defs/Properties/definitions/GlueDataSource"},
-)
+#DataSource: close({GlueDataSource!: #GlueDataSource})
 
-_#defs: "/$defs/Properties/definitions/Dataset": close({
-	InputConfig!: _#defs."/$defs/Properties/definitions/DatasetInputConfig"
-	Type!:        _#defs."/$defs/Properties/definitions/DatasetType"
+#Dataset: close({
+	InputConfig!: #DatasetInputConfig
+	Type!:        #DatasetType
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetInputConfig": close({
-	DataSource!: _#defs."/$defs/Properties/definitions/DataSource"
-	Schema!:     list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSchema"]
+#DatasetInputConfig: close({
+	DataSource!: #DataSource
+	Schema!:     list.MaxItems(100) & list.MinItems(1) & [...#ColumnSchema]
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetType": "INTERACTIONS"
+#DatasetType: "INTERACTIONS"
 
-_#defs: "/$defs/Properties/definitions/GlueDataSource": close({
+#GlueDataSource: close({
 	CatalogId?:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 	DatabaseName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_]+-)*([a-zA-Z0-9_]+))?$"
 	TableName!:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TrainingDatasetStatus": "ACTIVE"
+#TrainingDatasetStatus: "ACTIVE"

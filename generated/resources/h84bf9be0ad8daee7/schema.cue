@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,22 +12,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticBeanstalk::Environment
-#Properties: close({
-	ApplicationName!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	CNAMEPrefix?:       strings.MaxRunes(63) & strings.MinRunes(4) | fn.#StringExpression
-	Description?:       strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	EnvironmentName?:   strings.MaxRunes(40) & strings.MinRunes(4) | fn.#StringExpression
-	OperationsRole?:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OptionSettings?:    [..._#defs."/$defs/Properties/definitions/OptionSetting"] | fn.#ListExpression
-	PlatformArn?:       string | fn.#StringExpression
-	SolutionStackName?: string | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TemplateName?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tier?:              _#defs."/$defs/Properties/definitions/Tier" | fn.#ObjectExpression
-	VersionLabel?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticBeanstalk::Environment"
+	Properties!: close({
+		ApplicationName!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		CNAMEPrefix?:       strings.MaxRunes(63) & strings.MinRunes(4) | fn.#StringExpression
+		Description?:       strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		EnvironmentName?:   strings.MaxRunes(40) & strings.MinRunes(4) | fn.#StringExpression
+		OperationsRole?:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		OptionSettings?:    [...#OptionSetting] | fn.#ListExpression
+		PlatformArn?:       string | fn.#StringExpression
+		SolutionStackName?: string | fn.#StringExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+		TemplateName?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OptionSetting": close({
+		// Specifies the tier to use in creating this environment. The environment tier
+		// that you choose determines whether Elastic Beanstalk provisions resources to
+		// support a web application that handles HTTP(S) requests or a web application
+		// that handles background-processing tasks.
+		Tier?:         #Tier
+		VersionLabel?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
+
+#OptionSetting: close({
 	Namespace!:    string | fn.#StringExpression
 	OptionName!:   string | fn.#StringExpression
 	ResourceName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -35,19 +43,15 @@ _#defs: "/$defs/Properties/definitions/OptionSetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tier": close({
+#Tier: close({
 	Name?:    string | fn.#StringExpression
 	Type?:    string | fn.#StringExpression
 	Version?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticBeanstalk::Environment"
-	Properties!: #Properties
-}

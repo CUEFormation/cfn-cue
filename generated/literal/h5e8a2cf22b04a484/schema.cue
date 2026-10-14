@@ -41,7 +41,7 @@ import (
 	RequireEncryption!: bool
 
 	// The tags assigned to the Voice Connector.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 
 	// The Voice Connector updated timestamp, in ISO 8601 format.
 	UpdatedTimestamp?: time.Time
@@ -53,7 +53,7 @@ import (
 	VoiceConnectorId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

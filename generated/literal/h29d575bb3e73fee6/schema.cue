@@ -7,27 +7,27 @@ package schema
 // Resource Type definition for AWS::Pinpoint::ApplicationSettings
 #Properties: close({
 	ApplicationId!:            string
-	CampaignHook?:             _#defs."/$defs/Properties/definitions/CampaignHook"
+	CampaignHook?:             #CampaignHook
 	CloudWatchMetricsEnabled?: bool
 	Id?:                       string
-	Limits?:                   _#defs."/$defs/Properties/definitions/Limits"
-	QuietTime?:                _#defs."/$defs/Properties/definitions/QuietTime"
+	Limits?:                   #Limits
+	QuietTime?:                #QuietTime
 })
 
-_#defs: "/$defs/Properties/definitions/CampaignHook": close({
+#CampaignHook: close({
 	LambdaFunctionName?: string
 	Mode?:               string
 	WebUrl?:             string
 })
 
-_#defs: "/$defs/Properties/definitions/Limits": close({
+#Limits: close({
 	Daily?:             int
 	MaximumDuration?:   int
 	MessagesPerSecond?: int
 	Total?:             int
 })
 
-_#defs: "/$defs/Properties/definitions/QuietTime": close({
+#QuietTime: close({
 	End!:   string
 	Start!: string
 })

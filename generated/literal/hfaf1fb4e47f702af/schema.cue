@@ -6,24 +6,23 @@ package schema
 
 // Resource Type definition for AWS::FSx::StorageVirtualMachine
 #Properties: close({
-	ActiveDirectoryConfiguration?: _#defs."/$defs/Properties/definitions/ActiveDirectoryConfiguration"
+	ActiveDirectoryConfiguration?: #ActiveDirectoryConfiguration
 	FileSystemId!:                 string
 	Name!:                         string
 	ResourceARN?:                  string
 	RootVolumeSecurityStyle?:      string
 	StorageVirtualMachineId?:      string
 	SvmAdminPassword?:             string
-	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                         [...#Tag]
 	UUID?:                         string
 })
 
-_#defs: "/$defs/Properties/definitions/ActiveDirectoryConfiguration": close({
-	NetBiosName?: string
-	SelfManagedActiveDirectoryConfiguration?:
-		_#defs."/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration"
+#ActiveDirectoryConfiguration: close({
+	NetBiosName?:                             string
+	SelfManagedActiveDirectoryConfiguration?: #SelfManagedActiveDirectoryConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration": close({
+#SelfManagedActiveDirectoryConfiguration: close({
 	DnsIps?:                              [...string]
 	DomainJoinServiceAccountSecret?:      string
 	DomainName?:                          string
@@ -33,7 +32,7 @@ _#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration":
 	UserName?:                            string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,7 +13,7 @@ import (
 // connection requests, but you can define additional rules. Each rule consists
 // of a priority, one or more actions, and one or more conditions.
 #Properties: close({
-	Action!: _#defs."/$defs/Properties/definitions/Action"
+	Action!: #Action
 	Arn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}/listener/listener-[0-9a-z]{17}/rule/((rule-[0-9a-z]{17})|(default))$"
@@ -21,66 +21,62 @@ import (
 	ListenerIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((listener-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}/listener/listener-[0-9a-z]{17}))$"
-	Match!:    _#defs."/$defs/Properties/definitions/Match"
+	Match!:    #Match
 	Name?:     strings.MaxRunes(63) & strings.MinRunes(3)
 	Priority!: int & <=2000 & >=1
 	ServiceIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((svc-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}))$"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Forward
-_#defs: "/$defs/Properties/definitions/Action": close({
-	FixedResponse?: _#defs."/$defs/Properties/definitions/FixedResponse"
-	Forward?:       _#defs."/$defs/Properties/definitions/Forward"
+#Action: close({
+	FixedResponse?: #FixedResponse
+	Forward?:       #Forward
 })
 
-_#defs: "/$defs/Properties/definitions/FixedResponse": close({StatusCode!: int & <=599 & >=100})
+#FixedResponse: close({StatusCode!: int & <=599 & >=100})
 
-_#defs: "/$defs/Properties/definitions/Forward": close({
-	TargetGroups!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/WeightedTargetGroup"
-	]
-})
+#Forward: close({TargetGroups!: list.MaxItems(10) & list.MinItems(1) & [...#WeightedTargetGroup]})
 
-_#defs: "/$defs/Properties/definitions/HeaderMatch": close({
+#HeaderMatch: close({
 	CaseSensitive?: bool
-	Match!:         _#defs."/$defs/Properties/definitions/HeaderMatchType"
+	Match!:         #HeaderMatchType
 	Name!:          strings.MaxRunes(40) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/HeaderMatchType": close({
+#HeaderMatchType: close({
 	Contains?: strings.MaxRunes(128) & strings.MinRunes(1)
 	Exact?:    strings.MaxRunes(128) & strings.MinRunes(1)
 	Prefix?:   strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/HttpMatch": close({
-	HeaderMatches?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/HeaderMatch"]
+#HttpMatch: close({
+	HeaderMatches?: list.MaxItems(5) & [...#HeaderMatch]
 	Method?:        "CONNECT" | "DELETE" | "GET" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "TRACE"
-	PathMatch?:     _#defs."/$defs/Properties/definitions/PathMatch"
+	PathMatch?:     #PathMatch
 })
 
 // HttpMatch
-_#defs: "/$defs/Properties/definitions/Match": close({HttpMatch!: _#defs."/$defs/Properties/definitions/HttpMatch"})
+#Match: close({HttpMatch!: #HttpMatch})
 
-_#defs: "/$defs/Properties/definitions/PathMatch": close({
+#PathMatch: close({
 	CaseSensitive?: bool
-	Match!:         _#defs."/$defs/Properties/definitions/PathMatchType"
+	Match!:         #PathMatchType
 })
 
-_#defs: "/$defs/Properties/definitions/PathMatchType": close({
+#PathMatchType: close({
 	Exact?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\/[a-zA-Z0-9@:%_+.~#?&\\/=-]*$"
 	Prefix?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\/[a-zA-Z0-9@:%_+.~#?&\\/=-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/WeightedTargetGroup": close({
+#WeightedTargetGroup: close({
 	TargetGroupIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((tg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}))$"

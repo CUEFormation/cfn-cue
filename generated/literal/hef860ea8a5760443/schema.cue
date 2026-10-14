@@ -21,7 +21,7 @@ import (
 	Name?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 
 	// The type of the Kinesis Video Signaling Channel to create. Currently,
 	// SINGLE_MASTER is the only supported channel type.
@@ -29,7 +29,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. Specify a value that is 1 to 128 Unicode characters
 	// in length and cannot be prefixed with aws:. The following characters can be
 	// used: the set of Unicode letters, digits, whitespace, _, ., /, =, +, and -.

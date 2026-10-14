@@ -19,21 +19,21 @@ import (
 	// <p>The time that the folder was created.</p>
 	CreatedTime?: time.Time
 	FolderId?:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
-	FolderType?:  _#defs."/$defs/Properties/definitions/FolderType"
+	FolderType?:  #FolderType
 
 	// <p>The time that the folder was last updated.</p>
 	LastUpdatedTime?: time.Time
 	Name?:            strings.MaxRunes(200) & strings.MinRunes(1)
 	ParentFolderArn?: string
-	Permissions?:  list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"]
-	SharingModel?: _#defs."/$defs/Properties/definitions/SharingModel"
-	Tags?:         list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Permissions?:     list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission]
+	SharingModel?:    #SharingModel
+	Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/FolderType": "SHARED" | "RESTRICTED"
+#FolderType: "SHARED" | "RESTRICTED"
 
 // <p>Permission for the resource.</p>
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	// <p>The IAM action to grant or revoke permissions on.</p>
 	Actions!: list.MaxItems(20) & list.MinItems(1) & [...string]
 
@@ -57,11 +57,11 @@ _#defs: "/$defs/Properties/definitions/ResourcePermission": close({
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:.*"
 })
 
-_#defs: "/$defs/Properties/definitions/SharingModel": "ACCOUNT" | "NAMESPACE"
+#SharingModel: "ACCOUNT" | "NAMESPACE"
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

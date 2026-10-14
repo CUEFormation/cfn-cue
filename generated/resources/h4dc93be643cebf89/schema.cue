@@ -18,19 +18,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // This schema provides construct and validation rules for AWS-XRay SamplingRule
 // resource parameters.
-#Properties: close({
-	RuleName?:           _#defs."/$defs/Properties/definitions/RuleName"
-	SamplingRule?:       _#defs."/$defs/Properties/definitions/SamplingRule"
-	SamplingRuleRecord?: _#defs."/$defs/Properties/definitions/SamplingRuleRecord"
-	SamplingRuleUpdate?: _#defs."/$defs/Properties/definitions/SamplingRuleUpdate"
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::XRay::SamplingRule"
+	Properties?: close({
+		RuleName?:           #RuleName
+		SamplingRule?:       #SamplingRule
+		SamplingRuleRecord?: #SamplingRuleRecord
+		SamplingRuleUpdate?: #SamplingRuleUpdate
+		Tags?:               #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/RuleARN": string | fn.#StringExpression
+#RuleARN: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuleName": strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+#RuleName: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SamplingRateBoost": close({
+#SamplingRateBoost: close({
 	CooldownWindowMinutes!: int & >=1 |
 		{
 			string &
@@ -69,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/SamplingRateBoost": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SamplingRule": close({
+#SamplingRule: close({
 	Attributes?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -128,9 +131,9 @@ _#defs: "/$defs/Properties/definitions/SamplingRule": close({
 		} |
 		fn.#NumberExpression
 	ResourceARN!:       strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	RuleARN?:           _#defs."/$defs/Properties/definitions/RuleARN"
-	RuleName?:          _#defs."/$defs/Properties/definitions/RuleName"
-	SamplingRateBoost?: _#defs."/$defs/Properties/definitions/SamplingRateBoost"
+	RuleARN?:           #RuleARN
+	RuleName?:          #RuleName
+	SamplingRateBoost?: #SamplingRateBoost
 	ServiceName!:       strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	ServiceType!:       strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	URLPath!:           strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
@@ -152,14 +155,14 @@ _#defs: "/$defs/Properties/definitions/SamplingRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SamplingRuleRecord": close({
+#SamplingRuleRecord: close({
 	CreatedAt?:    string | fn.#StringExpression
 	ModifiedAt?:   string | fn.#StringExpression
-	SamplingRule?: _#defs."/$defs/Properties/definitions/SamplingRule"
+	SamplingRule?: #SamplingRule
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SamplingRuleUpdate": close({
+#SamplingRuleUpdate: close({
 	Attributes?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -218,26 +221,19 @@ _#defs: "/$defs/Properties/definitions/SamplingRuleUpdate": close({
 		} |
 		fn.#NumberExpression
 	ResourceARN?:       strings.MaxRunes(500) | fn.#StringExpression
-	RuleARN?:           _#defs."/$defs/Properties/definitions/RuleARN"
-	RuleName?:          _#defs."/$defs/Properties/definitions/RuleName"
-	SamplingRateBoost?: _#defs."/$defs/Properties/definitions/SamplingRateBoost"
+	RuleARN?:           #RuleARN
+	RuleName?:          #RuleName
+	SamplingRateBoost?: #SamplingRateBoost
 	ServiceName?:       strings.MaxRunes(64) | fn.#StringExpression
 	ServiceType?:       strings.MaxRunes(64) | fn.#StringExpression
 	URLPath?:           strings.MaxRunes(128) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::XRay::SamplingRule"
-	Properties?: #Properties
-}
+#Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression

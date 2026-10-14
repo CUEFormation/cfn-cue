@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,38 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Evidently::Launch.
-#Properties: close({
-	Description?:     strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-	ExecutionStatus?: _#defs."/$defs/Properties/definitions/ExecutionStatusObject" | fn.#ObjectExpression
-	Groups!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LaunchGroupObject"
-	] |
-		fn.#ListExpression
-	MetricMonitors?: list.MaxItems(3) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDefinitionObject"
-	] |
-		fn.#ListExpression
-	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Project!: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
-	fn.#StringExpression
-	RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	ScheduledSplitsConfig!: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StepConfig"
-	] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Evidently::Launch"
+	Properties!: close({
+		Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionStatusObject": close({
+		// Start or Stop Launch Launch. Default is not started.
+		ExecutionStatus?: #ExecutionStatusObject
+		Groups!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#LaunchGroupObject] | fn.#ListExpression
+		MetricMonitors?: list.MaxItems(3) & list.UniqueItems() & [...] & [...#MetricDefinitionObject] |
+			fn.#ListExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+		Project!: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
+		fn.#StringExpression
+		RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+		ScheduledSplitsConfig!: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [...#StepConfig] |
+			fn.#ListExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#ExecutionStatusObject: close({
 	DesiredState?: string | fn.#StringExpression
 	Reason?:       string | fn.#StringExpression
 	Status!:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GroupToWeight": close({
+#GroupToWeight: close({
 	GroupName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
 	SplitWeight!: int |
 		{
@@ -67,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/GroupToWeight": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchGroupObject": close({
+#LaunchGroupObject: close({
 	Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
 	Feature!:     string | fn.#StringExpression
 	GroupName!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
@@ -75,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/LaunchGroupObject": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDefinitionObject": close({
+#MetricDefinitionObject: close({
 	EntityIdKey!:  string | fn.#StringExpression
 	EventPattern?: string | fn.#StringExpression
 	MetricName!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression
@@ -84,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/MetricDefinitionObject": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentOverride": close({
+#SegmentOverride: close({
 	EvaluationOrder!: int |
 		{
 			string &
@@ -103,24 +101,19 @@ _#defs: "/$defs/Properties/definitions/SegmentOverride": close({
 	strings.MinRunes(1) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)" |
 	fn.#StringExpression
-	Weights!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupToWeight"] | fn.#ListExpression
+	Weights!: list.UniqueItems() & [...#GroupToWeight] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StepConfig": close({
-	GroupWeights!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupToWeight"] | fn.#ListExpression
-	SegmentOverrides?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SegmentOverride"] |
-		fn.#ListExpression
-	StartTime!: string | fn.#StringExpression
+#StepConfig: close({
+	GroupWeights!:     list.UniqueItems() & [...#GroupToWeight] | fn.#ListExpression
+	SegmentOverrides?: list.UniqueItems() & [...#SegmentOverride] | fn.#ListExpression
+	StartTime!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Evidently::Launch"
-	Properties!: #Properties
-}

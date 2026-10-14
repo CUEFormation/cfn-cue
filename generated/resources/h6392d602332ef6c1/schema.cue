@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityLake::DataLake
-#Properties: close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	LifecycleConfiguration?:  _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
-	MetaStoreManagerRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:.*$" |
-		fn.#StringExpression
-	ReplicationConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationConfiguration"
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityLake::DataLake"
+	Properties?: close({
+		EncryptionConfiguration?: #EncryptionConfiguration
+		LifecycleConfiguration?:  #LifecycleConfiguration
+		MetaStoreManagerRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:.*$" |
+			fn.#StringExpression
+		ReplicationConfiguration?: #ReplicationConfiguration
+		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Days": int & >=1 |
+#Days: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -43,43 +46,42 @@ _#defs: "/$defs/Properties/definitions/Days": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Expiration": close({Days?: _#defs."/$defs/Properties/definitions/Days"}) |
-	fn.#ObjectExpression
+#Expiration: close({Days?: #Days}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
-	Expiration?:  _#defs."/$defs/Properties/definitions/Expiration"
-	Transitions?: [..._#defs."/$defs/Properties/definitions/Transitions"] | fn.#ListExpression
+#LifecycleConfiguration: close({
+	Expiration?:  #Expiration
+	Transitions?: [...#Transitions] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Regions": list.UniqueItems() & [
+#Regions: list.UniqueItems() & [
 	...=~"^(us(-gov)?|af|ap|ca|eu|me|sa)-(central|north|(north(?:east|west))|south|south(?:east|west)|east|west)-\\d+$" |
 		fn.#StringExpression
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
-	Regions?: _#defs."/$defs/Properties/definitions/Regions"
+#ReplicationConfiguration: close({
+	Regions?: #Regions
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Transitions": close({
+#Transitions: close({
 	Days?: int & >=1 |
 		{
 			string &
@@ -98,7 +100,3 @@ _#defs: "/$defs/Properties/definitions/Transitions": close({
 	StorageClass?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityLake::DataLake"
-	Properties?: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -19,38 +19,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Use the AWS::IoT::Job resource to declare an AWS IoT job. A job can be used
 // to define a set of remote operations that are sent to and run on one or more
 // devices (things or thing groups) connected to AWS IoT.
-#Properties: close({
-	AbortConfig?: _#defs."/$defs/Properties/definitions/AbortConfig"
-	Description?: strings.MaxRunes(2028) & strings.MinRunes(1) & =~"^[^\\p{C}]+$" | fn.#StringExpression
-	DestinationPackageVersions?: [
-		...strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Document?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
-	DocumentParameters?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::Job"
+	Properties!: close({
+		AbortConfig?: #AbortConfig
+		Description?: strings.MaxRunes(2028) & strings.MinRunes(1) & =~"^[^\\p{C}]+$" | fn.#StringExpression
+		DestinationPackageVersions?: [
+			...strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Document?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
+		DocumentParameters?: close({
 
-		{[=~"^[a-zA-Z0-9_-]+$"]: strings.MaxRunes(30720) & strings.MinRunes(1) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
-	JobExecutionsRetryConfig?:   _#defs."/$defs/Properties/definitions/JobExecutionsRetryConfig"
-	JobExecutionsRolloutConfig?: _#defs."/$defs/Properties/definitions/JobExecutionsRolloutConfig"
-	JobId!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	JobTemplateArn?:     strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
-	PresignedUrlConfig?: _#defs."/$defs/Properties/definitions/PresignedUrlConfig"
-	SchedulingConfig?:   _#defs."/$defs/Properties/definitions/SchedulingConfig"
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetSelection?:    "CONTINUOUS" | "SNAPSHOT" | fn.#StringExpression
-	Targets!: list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
-	fn.#ListExpression
-	TimeoutConfig?: _#defs."/$defs/Properties/definitions/TimeoutConfig"
-})
+			{[=~"^[a-zA-Z0-9_-]+$"]: strings.MaxRunes(30720) & strings.MinRunes(1) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
+		JobExecutionsRetryConfig?:   #JobExecutionsRetryConfig
+		JobExecutionsRolloutConfig?: #JobExecutionsRolloutConfig
+		JobId!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		JobTemplateArn?:     strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
+		PresignedUrlConfig?: #PresignedUrlConfig
+		SchedulingConfig?:   #SchedulingConfig
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetSelection?:    "CONTINUOUS" | "SNAPSHOT" | fn.#StringExpression
+		Targets!: list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
+		fn.#ListExpression
+		TimeoutConfig?: #TimeoutConfig
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AbortConfig": close(
-	{CriteriaList!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AbortCriteria"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#AbortConfig: close({CriteriaList!: list.MinItems(1) & [...#AbortCriteria] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AbortCriteria": close({
+#AbortCriteria: close({
 	Action!:      "CANCEL" | fn.#StringExpression
 	FailureType!: "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
 	MinNumberOfExecutedThings!: int & >=1 |
@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/AbortCriteria": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExponentialRolloutRate": close({
+#ExponentialRolloutRate: close({
 	BaseRatePerMinute!: int & <=1000 & >=1 |
 		{
 			string &
@@ -127,18 +127,17 @@ _#defs: "/$defs/Properties/definitions/ExponentialRolloutRate": close({
 				)
 		} |
 		fn.#NumberExpression
-	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/RateIncreaseCriteria"
+	RateIncreaseCriteria!: #RateIncreaseCriteria
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobExecutionsRetryConfig": close({
-	CriteriaList!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RetryCriteria"] |
-		fn.#ListExpression
-}) |
+#JobExecutionsRetryConfig: close(
+	{CriteriaList!: list.MaxItems(2) & list.MinItems(1) & [...#RetryCriteria] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobExecutionsRolloutConfig": close({
-	ExponentialRate?: _#defs."/$defs/Properties/definitions/ExponentialRolloutRate"
+#JobExecutionsRolloutConfig: close({
+	ExponentialRate?: #ExponentialRolloutRate
 	MaximumPerMinute?: int & >=1 |
 		{
 			string &
@@ -157,7 +156,7 @@ _#defs: "/$defs/Properties/definitions/JobExecutionsRolloutConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	DurationInMinutes!: int & <=1430 & >=1 |
 		{
 			string &
@@ -178,7 +177,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PresignedUrlConfig": close({
+#PresignedUrlConfig: close({
 	ExpiresInSec?: int & <=3600 & >=60 |
 		{
 			string &
@@ -200,7 +199,7 @@ _#defs: "/$defs/Properties/definitions/PresignedUrlConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateIncreaseCriteria": close({
+#RateIncreaseCriteria: close({
 	NumberOfNotifiedThings?: int & >=1 |
 		{
 			string &
@@ -234,7 +233,7 @@ _#defs: "/$defs/Properties/definitions/RateIncreaseCriteria": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetryCriteria": close({
+#RetryCriteria: close({
 	FailureType!: "FAILED" | "TIMED_OUT" | "ALL" | fn.#StringExpression
 	NumberOfRetries!: int & <=10 & >=0 |
 		{
@@ -255,21 +254,21 @@ _#defs: "/$defs/Properties/definitions/RetryCriteria": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulingConfig": close({
+#SchedulingConfig: close({
 	EndBehavior?:        "STOP_ROLLOUT" | "CANCEL" | "FORCE_CANCEL" | fn.#StringExpression
 	EndTime?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	MaintenanceWindows?: [..._#defs."/$defs/Properties/definitions/MaintenanceWindow"] | fn.#ListExpression
+	MaintenanceWindows?: [...#MaintenanceWindow] | fn.#ListExpression
 	StartTime?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeoutConfig": close({
+#TimeoutConfig: close({
 	InProgressTimeoutInMinutes?: int |
 		{
 			string &
@@ -286,7 +285,3 @@ _#defs: "/$defs/Properties/definitions/TimeoutConfig": close({
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::Job"
-	Properties!: #Properties
-}

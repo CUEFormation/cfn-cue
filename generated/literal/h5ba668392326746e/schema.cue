@@ -33,7 +33,7 @@ import "time"
 	SourceApiArn?: =~"^arn:aws(-(cn|us-gov))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 
 	// Customized configuration for SourceApiAssociation.
-	SourceApiAssociationConfig?: _#defs."/$defs/Properties/definitions/SourceApiAssociationConfig"
+	SourceApiAssociationConfig?: #SourceApiAssociationConfig
 
 	// Current status of SourceApiAssociation.
 	SourceApiAssociationStatus?: "MERGE_SCHEDULED" |
@@ -55,7 +55,7 @@ import "time"
 	SourceApiIdentifier?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SourceApiAssociationConfig": null |
+#SourceApiAssociationConfig: null |
 bool |
 number |
 string |

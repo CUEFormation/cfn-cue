@@ -14,17 +14,17 @@ import (
 	Id?: string
 
 	// The tags (keys and values) associated with the email template.
-	Tags?:     list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Template?: _#defs."/$defs/Properties/definitions/Template"
+	Tags?:     list.MaxItems(50) & [...] & [...#Tag]
+	Template?: #Template
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // The content of the email, composed of a subject line, an HTML part, and a text-only part
-_#defs: "/$defs/Properties/definitions/Template": close({
+#Template: close({
 	// The HTML body of the email.
 	HtmlPart?: string
 

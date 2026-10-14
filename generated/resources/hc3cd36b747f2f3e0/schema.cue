@@ -9,20 +9,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::QLDB::Ledger
-#Properties: close({
-	DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KmsKey?:             string | fn.#StringExpression
-	Name?:               string | fn.#StringExpression
-	PermissionsMode!:    string | fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QLDB::Ledger"
+	Properties!: close({
+		DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KmsKey?:             string | fn.#StringExpression
+		Name?:               string | fn.#StringExpression
+		PermissionsMode!:    string | fn.#StringExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QLDB::Ledger"
-	Properties!: #Properties
-}

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,7 +25,7 @@ import (
 	// varies depending on the capability type. For Argo CD capabilities, you can
 	// configure IAM Identity Center integration, RBAC role mappings, and network
 	// access settings.
-	Configuration?: _#defs."/$defs/Properties/definitions/CapabilityConfiguration"
+	Configuration?: #CapabilityConfiguration
 
 	// The Unix epoch timestamp in seconds for when the capability was created.
 	CreatedAt?: string
@@ -55,7 +55,7 @@ import (
 	Status?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The type of capability to create. Valid values are: ACK (AWS Controllers for
 	// Kubernetes, which lets you manage AWS resources directly from Kubernetes),
@@ -68,7 +68,7 @@ import (
 })
 
 // Configuration settings for an ACK (AWS Controllers for Kubernetes) capability.
-_#defs: "/$defs/Properties/definitions/Ack": close({
+#Ack: close({
 	// A list of ACK service names to disable. Controllers for services in this list
 	// are not installed or managed.
 	DisabledServices?: list.MaxItems(200) & [...] & [
@@ -83,8 +83,8 @@ _#defs: "/$defs/Properties/definitions/Ack": close({
 // Configuration settings for an Argo CD capability. This includes the
 // Kubernetes namespace, IAM Identity Center integration, RBAC role mappings,
 // and network access configuration.
-_#defs: "/$defs/Properties/definitions/ArgoCd": close({
-	AwsIdc!: _#defs."/$defs/Properties/definitions/AwsIdc"
+#ArgoCd: close({
+	AwsIdc!: #AwsIdc
 
 	// An optional prefix for the Argo CD server endpoint. When specified, EKS uses
 	// this prefix to generate the server endpoint; otherwise, the endpoint is
@@ -95,12 +95,12 @@ _#defs: "/$defs/Properties/definitions/ArgoCd": close({
 	// The Kubernetes namespace where Argo CD resources will be created. If not
 	// specified, the default namespace is used.
 	Namespace?:     string
-	NetworkAccess?: _#defs."/$defs/Properties/definitions/NetworkAccess"
+	NetworkAccess?: #NetworkAccess
 
 	// A list of role mappings that define which IAM Identity Center users or groups
 	// have which Argo CD roles. Each mapping associates an Argo CD role (ADMIN,
 	// EDITOR, or VIEWER) with one or more IAM Identity Center identities.
-	RbacRoleMappings?: [..._#defs."/$defs/Properties/definitions/ArgoCdRoleMapping"]
+	RbacRoleMappings?: [...#ArgoCdRoleMapping]
 
 	// The URL of the Argo CD server. Use this URL to access the Argo CD web interface and API.
 	ServerUrl?: string
@@ -108,10 +108,10 @@ _#defs: "/$defs/Properties/definitions/ArgoCd": close({
 
 // A mapping between an Argo CD role and IAM Identity Center identities. This
 // defines which users or groups have specific permissions in Argo CD.
-_#defs: "/$defs/Properties/definitions/ArgoCdRoleMapping": close({
+#ArgoCdRoleMapping: close({
 	// A list of IAM Identity Center identities (users or groups) that should be
 	// assigned this Argo CD role.
-	Identities!: [..._#defs."/$defs/Properties/definitions/SsoIdentity"]
+	Identities!: [...#SsoIdentity]
 
 	// The Argo CD role to assign. Valid values are: ADMIN (full administrative
 	// access to Argo CD), EDITOR (edit access to Argo CD resources), or VIEWER
@@ -122,7 +122,7 @@ _#defs: "/$defs/Properties/definitions/ArgoCdRoleMapping": close({
 // Configuration for integrating Argo CD with IAM Identity Center. This allows
 // you to use your organization's identity provider for authentication to Argo
 // CD.
-_#defs: "/$defs/Properties/definitions/AwsIdc": close({
+#AwsIdc: close({
 	// The ARN of the IAM Identity Center instance to use for authentication.
 	IdcInstanceArn!: string
 
@@ -137,16 +137,16 @@ _#defs: "/$defs/Properties/definitions/AwsIdc": close({
 
 // Configuration settings for a capability. The structure of this object varies
 // depending on the capability type.
-_#defs: "/$defs/Properties/definitions/CapabilityConfiguration": close({
-	Ack?:    _#defs."/$defs/Properties/definitions/Ack"
-	ArgoCd?: _#defs."/$defs/Properties/definitions/ArgoCd"
+#CapabilityConfiguration: close({
+	Ack?:    #Ack
+	ArgoCd?: #ArgoCd
 })
 
 // Configuration for network access to the Argo CD capability's managed API
 // server endpoint. By default, the Argo CD server is accessible via a public
 // endpoint. You can optionally specify one or more VPC endpoint IDs to enable
 // private connectivity from your VPCs.
-_#defs: "/$defs/Properties/definitions/NetworkAccess": close({
+#NetworkAccess: close({
 	// A list of VPC endpoint IDs to associate with the managed Argo CD API server
 	// endpoint. Each VPC endpoint provides private connectivity from a specific
 	// VPC to the Argo CD server. You can specify multiple VPC endpoint IDs to
@@ -155,7 +155,7 @@ _#defs: "/$defs/Properties/definitions/NetworkAccess": close({
 })
 
 // An IAM Identity Center identity (user or group) that can be assigned permissions in a capability.
-_#defs: "/$defs/Properties/definitions/SsoIdentity": close({
+#SsoIdentity: close({
 	// The unique identifier of the IAM Identity Center user or group.
 	Id!: string
 
@@ -164,7 +164,7 @@ _#defs: "/$defs/Properties/definitions/SsoIdentity": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

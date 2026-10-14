@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -57,40 +57,35 @@ import (
 	ServiceRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
 
 	// The single-sign on configuration of the Amazon DataZone domain.
-	SingleSignOn?: _#defs."/$defs/Properties/definitions/SingleSignOn"
+	SingleSignOn?: #SingleSignOn
 
 	// The status of the Amazon DataZone domain.
-	Status?: _#defs."/$defs/Properties/definitions/DomainStatus"
+	Status?: #DomainStatus
 
 	// The tags specified for the Amazon DataZone domain.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The type of single sign-on in Amazon DataZone.
-_#defs: "/$defs/Properties/definitions/AuthType": "IAM_IDC" | "DISABLED"
+#AuthType: "IAM_IDC" | "DISABLED"
 
 // The status of the Amazon DataZone domain.
-_#defs: "/$defs/Properties/definitions/DomainStatus": "CREATING" |
-	"AVAILABLE" |
-	"CREATION_FAILED" |
-	"DELETING" |
-	"DELETED" |
-	"DELETION_FAILED"
+#DomainStatus: "CREATING" | "AVAILABLE" | "CREATION_FAILED" | "DELETING" | "DELETED" | "DELETION_FAILED"
 
 // The ARN of the AWS Identity Center instance.
-_#defs: "/$defs/Properties/definitions/IdcInstanceArn": strings.MaxRunes(1224) &
+#IdcInstanceArn: strings.MaxRunes(1224) &
 strings.MinRunes(10) &
 =~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}"
 
 // The single-sign on configuration of the Amazon DataZone domain.
-_#defs: "/$defs/Properties/definitions/SingleSignOn": close({
-	IdcInstanceArn?: _#defs."/$defs/Properties/definitions/IdcInstanceArn"
-	Type?:           _#defs."/$defs/Properties/definitions/AuthType"
-	UserAssignment?: _#defs."/$defs/Properties/definitions/UserAssignment"
+#SingleSignOn: close({
+	IdcInstanceArn?: #IdcInstanceArn
+	Type?:           #AuthType
+	UserAssignment?: #UserAssignment
 })
 
 // A key-value pair to associate with the domain.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -99,4 +94,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The single sign-on user assignment in Amazon DataZone.
-_#defs: "/$defs/Properties/definitions/UserAssignment": "AUTOMATIC" | "MANUAL"
+#UserAssignment: "AUTOMATIC" | "MANUAL"

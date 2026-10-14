@@ -11,27 +11,27 @@ import (
 
 // Resource Type definition for AWS::SES::EmailIdentity
 #Properties: close({
-	ConfigurationSetAttributes?: _#defs."/$defs/Properties/definitions/ConfigurationSetAttributes"
-	DkimAttributes?:             _#defs."/$defs/Properties/definitions/DkimAttributes"
+	ConfigurationSetAttributes?: #ConfigurationSetAttributes
+	DkimAttributes?:             #DkimAttributes
 	DkimDNSTokenName1?:          string
 	DkimDNSTokenName2?:          string
 	DkimDNSTokenName3?:          string
 	DkimDNSTokenValue1?:         string
 	DkimDNSTokenValue2?:         string
 	DkimDNSTokenValue3?:         string
-	DkimSigningAttributes?:      _#defs."/$defs/Properties/definitions/DkimSigningAttributes"
+	DkimSigningAttributes?:      #DkimSigningAttributes
 
 	// The email address or domain to verify.
 	EmailIdentity!:      string
-	FeedbackAttributes?: _#defs."/$defs/Properties/definitions/FeedbackAttributes"
-	MailFromAttributes?: _#defs."/$defs/Properties/definitions/MailFromAttributes"
+	FeedbackAttributes?: #FeedbackAttributes
+	MailFromAttributes?: #MailFromAttributes
 
 	// The tags (keys and values) associated with the email identity.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // Used to associate a configuration set with an email identity.
-_#defs: "/$defs/Properties/definitions/ConfigurationSetAttributes": close({
+#ConfigurationSetAttributes: close({
 	// The configuration set to use by default when sending from this identity. Note
 	// that any configuration set defined in the email sending request takes
 	// precedence.
@@ -39,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/ConfigurationSetAttributes": close({
 })
 
 // Used to enable or disable DKIM authentication for an email identity.
-_#defs: "/$defs/Properties/definitions/DkimAttributes": close({
+#DkimAttributes: close({
 	// Sets the DKIM signing configuration for the identity. When you set this value
 	// true, then the messages that are sent from the identity are signed using
 	// DKIM. If you set this value to false, your messages are sent without DKIM
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/DkimAttributes": close({
 // If your request includes this object, Amazon SES configures the identity to
 // use Bring Your Own DKIM (BYODKIM) for DKIM authentication purposes, or,
 // configures the key length to be used for Easy DKIM.
-_#defs: "/$defs/Properties/definitions/DkimSigningAttributes": close({
+#DkimSigningAttributes: close({
 	// [Bring Your Own DKIM] A private key that's used to generate a DKIM signature.
 	// The private key must use 1024 or 2048-bit RSA encryption, and must be
 	// encoded using base64 encoding.
@@ -66,13 +66,13 @@ _#defs: "/$defs/Properties/definitions/DkimSigningAttributes": close({
 })
 
 // Used to enable or disable feedback forwarding for an identity.
-_#defs: "/$defs/Properties/definitions/FeedbackAttributes": close({
+#FeedbackAttributes: close({
 	// If the value is true, you receive email notifications when bounce or complaint events occur
 	EmailForwardingEnabled?: bool
 })
 
 // Used to enable or disable the custom Mail-From domain configuration for an email identity.
-_#defs: "/$defs/Properties/definitions/MailFromAttributes": close({
+#MailFromAttributes: close({
 	// The action to take if the required MX record isn't found when you send an
 	// email. When you set this value to UseDefaultValue , the mail is sent using
 	// amazonses.com as the MAIL FROM domain. When you set this value to
@@ -84,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/MailFromAttributes": close({
 	MailFromDomain?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::CoreNetwork Resource Type Definition.
-#Properties: close({
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	PolicyDocument?: fn.#Object & {...} |
-	strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
-	fn.#StringObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkManager::CoreNetwork"
+	Properties!: close({
+		Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		PolicyDocument?: fn.#Object & {...} |
+		strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		fn.#StringObjectExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CoreNetworkEdge": close({
+#CoreNetworkEdge: close({
 	Asn?: number |
 		{
 			string &
@@ -51,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/CoreNetworkEdge": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CoreNetworkNetworkFunctionGroup": close({
+#CoreNetworkNetworkFunctionGroup: close({
 	EdgeLocations?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Name?:          string | fn.#StringExpression
 	Segments?: close({
@@ -62,19 +65,15 @@ _#defs: "/$defs/Properties/definitions/CoreNetworkNetworkFunctionGroup": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CoreNetworkSegment": close({
+#CoreNetworkSegment: close({
 	EdgeLocations?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	Name?:           string | fn.#StringExpression
 	SharedSegments?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::CoreNetwork"
-	Properties!: #Properties
-}

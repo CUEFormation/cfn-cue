@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::EC2::SecondaryNetwork. Creates a secondary
 // network for RDMA (Remote Direct Memory Access) connectivity.
-#Properties: close({
-	Ipv4CidrBlock!: string | fn.#StringExpression
-	NetworkType!:   "rdma" | fn.#StringExpression
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::SecondaryNetwork"
+	Properties!: close({
+		Ipv4CidrBlock!: string | fn.#StringExpression
+		NetworkType!:   "rdma" | fn.#StringExpression
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Ipv4CidrBlockAssociation": close({
+#Ipv4CidrBlockAssociation: close({
 	AssociationId?: string | fn.#StringExpression
 	CidrBlock?:     string | fn.#StringExpression
 	State?: "associating" |
@@ -33,12 +36,8 @@ _#defs: "/$defs/Properties/definitions/Ipv4CidrBlockAssociation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SecondaryNetwork"
-	Properties!: #Properties
-}

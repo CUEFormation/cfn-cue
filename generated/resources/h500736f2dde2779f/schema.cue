@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,125 +17,127 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53::HealthCheck.
-#Properties: close({
-	HealthCheckConfig!: close({
-		AlarmIdentifier?: _#defs."/$defs/Properties/definitions/AlarmIdentifier"
-		ChildHealthChecks?: list.MaxItems(256) & [...] & [
-			...strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-		] |
-		fn.#ListExpression
-		EnableSNI?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		FailureThreshold?: int & <=10 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=10 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		FullyQualifiedDomainName?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-		HealthThreshold?: int & <=256 & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=256 &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		IPAddress?: strings.MaxRunes(45) &
-		strings.MinRunes(0) &
-		=~"^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$|^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$" |
-		fn.#StringExpression
-		InsufficientDataHealthStatus?: "Healthy" | "LastKnownStatus" | "Unhealthy" | fn.#StringExpression
-		Inverted?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		MeasureLatency?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Port?: int & <=65535 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=65535 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		Regions?: list.MaxItems(64) & list.MinItems(3) & [
-			..."ap-northeast-1" |
-				"ap-southeast-1" |
-				"ap-southeast-2" |
-				"eu-west-1" |
-				"sa-east-1" |
-				"us-east-1" |
-				"us-west-1" |
-				"us-west-2" |
-				fn.#StringExpression
-		] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53::HealthCheck"
+	Properties!: close({
+		HealthCheckConfig!: close({
+			AlarmIdentifier?: #AlarmIdentifier
+			ChildHealthChecks?: list.MaxItems(256) & [...] & [
+				...strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+			] |
 			fn.#ListExpression
-		RequestInterval?: int & <=30 & >=10 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=30 &
-								>=10,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ResourcePath?:      strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-		RoutingControlArn?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		SearchString?:      strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-		Type!: "CALCULATED" |
-			"CLOUDWATCH_METRIC" |
-			"HTTP" |
-			"HTTP_STR_MATCH" |
-			"HTTPS" |
-			"HTTPS_STR_MATCH" |
-			"TCP" |
-			"RECOVERY_CONTROL" |
+			EnableSNI?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			FailureThreshold?: int & <=10 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=10 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			FullyQualifiedDomainName?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+			HealthThreshold?: int & <=256 & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=256 &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			IPAddress?: strings.MaxRunes(45) &
+			strings.MinRunes(0) &
+			=~"^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$|^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$" |
 			fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	HealthCheckTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/HealthCheckTag"] |
-		fn.#ListExpression
-})
+			InsufficientDataHealthStatus?: "Healthy" | "LastKnownStatus" | "Unhealthy" | fn.#StringExpression
+			Inverted?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			MeasureLatency?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Port?: int & <=65535 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=65535 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			Regions?: list.MaxItems(64) & list.MinItems(3) & [
+				..."ap-northeast-1" |
+					"ap-southeast-1" |
+					"ap-southeast-2" |
+					"eu-west-1" |
+					"sa-east-1" |
+					"us-east-1" |
+					"us-west-1" |
+					"us-west-2" |
+					fn.#StringExpression
+			] |
+				fn.#ListExpression
+			RequestInterval?: int & <=30 & >=10 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=30 &
+									>=10,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ResourcePath?:      strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+			RoutingControlArn?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+			SearchString?:      strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+			Type!: "CALCULATED" |
+				"CLOUDWATCH_METRIC" |
+				"HTTP" |
+				"HTTP_STR_MATCH" |
+				"HTTPS" |
+				"HTTPS_STR_MATCH" |
+				"TCP" |
+				"RECOVERY_CONTROL" |
+				fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		HealthCheckTags?: list.UniqueItems() & [...#HealthCheckTag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AlarmIdentifier": close({
+#AlarmIdentifier: close({
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Region!: "af-south-1" |
 		"ap-east-1" |
@@ -187,12 +189,8 @@ _#defs: "/$defs/Properties/definitions/AlarmIdentifier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckTag": close({
+#HealthCheckTag: close({
 	Key!:   strings.MaxRunes(128) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::HealthCheck"
-	Properties!: #Properties
-}

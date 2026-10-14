@@ -16,56 +16,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	ApiId!:          string | fn.#StringExpression
-	Code?:           strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
-	CodeS3Location?: string | fn.#StringExpression
-	DataSourceName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-	Description?:    string | fn.#StringExpression
-	FunctionVersion?: string | fn.#StringExpression
-	MaxBatchSize?: int & <=2000 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2000 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-	RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(0) | fn.#StringExpression
-	RequestMappingTemplateS3Location?:  string | fn.#StringExpression
-	ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(0) | fn.#StringExpression
-	ResponseMappingTemplateS3Location?: string | fn.#StringExpression
-	Runtime?:                           _#defs."/$defs/Properties/definitions/AppSyncRuntime" | fn.#ObjectExpression
-	SyncConfig?:                        _#defs."/$defs/Properties/definitions/SyncConfig" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::FunctionConfiguration"
+	Properties!: close({
+		ApiId!:          string | fn.#StringExpression
+		Code?:           strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
+		CodeS3Location?: string | fn.#StringExpression
+		DataSourceName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		fn.#StringExpression
+		Description?:     string | fn.#StringExpression
+		FunctionVersion?: string | fn.#StringExpression
+		MaxBatchSize?: int & <=2000 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2000 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+		RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(0) | fn.#StringExpression
+		RequestMappingTemplateS3Location?:  string | fn.#StringExpression
+		ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(0) | fn.#StringExpression
+		ResponseMappingTemplateS3Location?: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AppSyncRuntime": close({
+		// Describes a runtime used by an AWS AppSync pipeline resolver or AWS AppSync
+		// function. Specifies the name and version of the runtime to use. Note that if
+		// a runtime is specified, code must also be specified.
+		Runtime?: #AppSyncRuntime
+
+		// Describes a Sync configuration for a resolver. Specifies which Conflict
+		// Detection strategy and Resolution strategy to use when the resolver is
+		// invoked.
+		SyncConfig?: #SyncConfig
+	})
+}
+
+#AppSyncRuntime: close({
 	Name!:           "APPSYNC_JS" | fn.#StringExpression
 	RuntimeVersion!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConflictHandlerConfig": close(
-	{LambdaConflictHandlerArn?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#LambdaConflictHandlerConfig: close({LambdaConflictHandlerArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SyncConfig": close({
+#SyncConfig: close({
 	ConflictDetection!:           "NONE" | "VERSION" | fn.#StringExpression
 	ConflictHandler?:             "AUTOMERGE" | "LAMBDA" | "NONE" | "OPTIMISTIC_CONCURRENCY" | fn.#StringExpression
-	LambdaConflictHandlerConfig?: _#defs."/$defs/Properties/definitions/LambdaConflictHandlerConfig"
+	LambdaConflictHandlerConfig?: #LambdaConflictHandlerConfig
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::FunctionConfiguration"
-	Properties!: #Properties
-}

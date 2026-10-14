@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -70,7 +70,7 @@ import (
 	]
 
 	// The function layer archive.
-	Content!: _#defs."/$defs/Properties/definitions/Content"
+	Content!: #Content
 
 	// The description of the version.
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0)
@@ -85,7 +85,7 @@ import (
 	LicenseInfo?: strings.MaxRunes(512) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Content": close({
+#Content: close({
 	// The Amazon S3 bucket of the layer archive.
 	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3)
 

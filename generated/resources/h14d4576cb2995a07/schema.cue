@@ -18,32 +18,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::ApiGateway::Authorizer`` resource creates an authorization layer
 // that API Gateway activates for methods that have authorization enabled. API
 // Gateway activates the authorizer when a client calls those methods.
-#Properties: close({
-	AuthType?:              string | fn.#StringExpression
-	AuthorizerCredentials?: string | fn.#StringExpression
-	AuthorizerResultTtlInSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AuthorizerUri?:                string | fn.#StringExpression
-	IdentitySource?:               string | fn.#StringExpression
-	IdentityValidationExpression?: string | fn.#StringExpression
-	Name!:                         string | fn.#StringExpression
-	ProviderARNs?:                 list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	RestApiId!:                    string | fn.#StringExpression
-	Type!:                         string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::Authorizer"
-	Properties!: #Properties
+	Type!: "AWS::ApiGateway::Authorizer"
+	Properties!: close({
+		AuthType?:              string | fn.#StringExpression
+		AuthorizerCredentials?: string | fn.#StringExpression
+		AuthorizerResultTtlInSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AuthorizerUri?:                string | fn.#StringExpression
+		IdentitySource?:               string | fn.#StringExpression
+		IdentityValidationExpression?: string | fn.#StringExpression
+		Name!:                         string | fn.#StringExpression
+		ProviderARNs?:                 list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		RestApiId!:                    string | fn.#StringExpression
+		Type!:                         string | fn.#StringExpression
+	})
 }

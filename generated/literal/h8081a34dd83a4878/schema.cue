@@ -27,12 +27,12 @@ import (
 
 	// The status of the Identity Center (SSO) Instance, create_in_progress/delete_in_progress/active
 	Status?: "CREATE_IN_PROGRESS" | "DELETE_IN_PROGRESS" | "ACTIVE"
-	Tags?:   list.MaxItems(75) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:   list.MaxItems(75) & [...#Tag]
 })
 
 // The metadata that you apply to the Identity Center (SSO) Instance to help you
 // categorize and organize them.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w+=,.@-]+"
 })

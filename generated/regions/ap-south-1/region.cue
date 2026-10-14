@@ -6324,5 +6324,13 @@ import Alexa_ASK_Skill "github.com/cueformation/cfn-cue/resources/h91ec4fb5c8231
 	AWS_XRay_SamplingRule.#Resource |
 	AWS_XRay_TransactionSearchConfig.#Resource |
 	Alexa_ASK_Skill.#Resource
-#Resources: [base.#LogicalID]: #Resource
+#Resources: [base.#LogicalID]~(_,R): {
+	Type!: string
+	if R.Type =~ "^Custom::" {
+		#ResourceTypes["AWS::CloudFormation::CustomResource"]
+	}
+	if R.Type !~ "^Custom::" {
+		#ResourceTypes[R.Type]
+	}
+}
 #Template: base.#Template & {Resources!: #Resources}

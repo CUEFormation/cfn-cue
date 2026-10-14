@@ -3,22 +3,20 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An environment created within the EVS service
 #Properties: close({
-	Checks?: [..._#defs."/$defs/Properties/definitions/Check"]
-	ConnectivityInfo?: close({
-		PrivateRouteServerPeerings!: list.MaxItems(2) & list.MinItems(2) & [
-			..._#defs."/$defs/Properties/definitions/RouteServerPeering"
-		]
-	})
-	CreatedAt?:   _#defs."/$defs/Properties/definitions/Timestamp"
-	Credentials?: [..._#defs."/$defs/Properties/definitions/Secret"]
+	Checks?: [...#Check]
+	ConnectivityInfo?: close(
+		{PrivateRouteServerPeerings!: list.MaxItems(2) & list.MinItems(2) & [...#RouteServerPeering]},
+	)
+	CreatedAt?:   #Timestamp
+	Credentials?: [...#Secret]
 	EnvironmentArn?: strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):evs:[a-z]{2}-[a-z]+-[0-9]:[0-9]{12}:environment/[a-zA-Z0-9_-]+$"
@@ -26,27 +24,27 @@ import (
 
 	// The name of an EVS environment
 	EnvironmentName?:  =~"^[a-zA-Z0-9_-]{1,100}$"
-	EnvironmentState?: _#defs."/$defs/Properties/definitions/EnvironmentState"
+	EnvironmentState?: #EnvironmentState
 
 	// The initial hosts for environment only required upon creation. Modification
 	// after creation will have no effect
-	Hosts?: list.MaxItems(4) & list.MinItems(4) & [..._#defs."/$defs/Properties/definitions/HostInfoForCreate"]
+	Hosts?: list.MaxItems(4) & list.MinItems(4) & [...#HostInfoForCreate]
 
 	// The initial Vlan configuration only required upon creation. Modification
 	// after creation will have no effect
 	InitialVlans?: close({
-		EdgeVTep!:        _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		ExpansionVlan1!:  _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		ExpansionVlan2!:  _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		Hcx!:             _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		HcxNetworkAclId?: _#defs."/$defs/Properties/definitions/NetworkAclId"
+		EdgeVTep!:        #InitialVlanInfo
+		ExpansionVlan1!:  #InitialVlanInfo
+		ExpansionVlan2!:  #InitialVlanInfo
+		Hcx!:             #InitialVlanInfo
+		HcxNetworkAclId?: #NetworkAclId
 		IsHcxPublic?:     bool
-		NsxUpLink!:       _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VMotion!:         _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VSan!:            _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VTep!:            _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VmManagement!:    _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VmkManagement!:   _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		NsxUpLink!:       #InitialVlanInfo
+		VMotion!:         #InitialVlanInfo
+		VSan!:            #InitialVlanInfo
+		VTep!:            #InitialVlanInfo
+		VmManagement!:    #InitialVlanInfo
+		VmkManagement!:   #InitialVlanInfo
 	})
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
@@ -55,27 +53,25 @@ import (
 		SolutionKey!: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$"
 		VsanKey!:     =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$"
 	})
-	ModifiedAt?: _#defs."/$defs/Properties/definitions/Timestamp"
-	ServiceAccessSecurityGroups?: close(
-		{SecurityGroups?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/SecurityGroupId"]},
-	)
-	ServiceAccessSubnetId!: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[a-f0-9]{8}([a-f0-9]{9})?$"
-	SiteId?:                string
-	StateDetails?:          string
+	ModifiedAt?:                  #Timestamp
+	ServiceAccessSecurityGroups?: close({SecurityGroups?: list.MaxItems(2) & [...#SecurityGroupId]})
+	ServiceAccessSubnetId!:       strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[a-f0-9]{8}([a-f0-9]{9})?$"
+	SiteId?:                      string
+	StateDetails?:                string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          list.UniqueItems() & [...#Tag]
 	TermsAccepted!: bool
 	VcfHostnames?: close({
-		CloudBuilder!: _#defs."/$defs/Properties/definitions/HostName"
-		Nsx!:          _#defs."/$defs/Properties/definitions/HostName"
-		NsxEdge1!:     _#defs."/$defs/Properties/definitions/HostName"
-		NsxEdge2!:     _#defs."/$defs/Properties/definitions/HostName"
-		NsxManager1!:  _#defs."/$defs/Properties/definitions/HostName"
-		NsxManager2!:  _#defs."/$defs/Properties/definitions/HostName"
-		NsxManager3!:  _#defs."/$defs/Properties/definitions/HostName"
-		SddcManager!:  _#defs."/$defs/Properties/definitions/HostName"
-		VCenter!:      _#defs."/$defs/Properties/definitions/HostName"
+		CloudBuilder!: #HostName
+		Nsx!:          #HostName
+		NsxEdge1!:     #HostName
+		NsxEdge2!:     #HostName
+		NsxManager1!:  #HostName
+		NsxManager2!:  #HostName
+		NsxManager3!:  #HostName
+		SddcManager!:  #HostName
+		VCenter!:      #HostName
 	})
 	VcfVersion!: "VCF-5.2.1" | "VCF-5.2.2" | "SELF_DEPLOYED"
 	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
@@ -84,21 +80,17 @@ import (
 	=~"^vpc-[a-f0-9]{8}([a-f0-9]{9})?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Check": close({
+#Check: close({
 	ImpairedSince?: string
-	Result!:        _#defs."/$defs/Properties/definitions/CheckResult"
+	Result!:        #CheckResult
 	Type!:          "KEY_REUSE" | "KEY_COVERAGE" | "REACHABILITY" | "VCF_VERSION" | "HOST_COUNT"
 })
 
-_#defs: "/$defs/Properties/definitions/CheckResult": "PASSED" | "FAILED" | "UNKNOWN"
+#CheckResult: "PASSED" | "FAILED" | "UNKNOWN"
 
-_#defs: "/$defs/Properties/definitions/EnvironmentState": "CREATING" |
-	"CREATED" |
-	"DELETING" |
-	"DELETED" |
-	"CREATE_FAILED"
+#EnvironmentState: "CREATING" | "CREATED" | "DELETING" | "DELETED" | "CREATE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/HostInfoForCreate": close({
+#HostInfoForCreate: close({
 	PlacementGroupId?: _
 	if PlacementGroupId != _|_ {
 		matchN(1, [
@@ -111,34 +103,32 @@ _#defs: "/$defs/Properties/definitions/HostInfoForCreate": close({
 	}
 	{}
 	DedicatedHostId?:    strings.MaxRunes(25) & strings.MinRunes(1) & =~"^h-[a-f0-9]{8}([a-f0-9]{9})?$"
-	HostName!:           _#defs."/$defs/Properties/definitions/HostName"
+	HostName!:           #HostName
 	InstanceType!:       "i4i.metal" | "i7i.metal-24xl" | "i7i.metal-48xl"
 	KeyName!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	"PlacementGroupId"?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^pg-[a-f0-9]{8}([a-f0-9]{9})?$"
 })
 
-_#defs: "/$defs/Properties/definitions/HostName": =~"^([a-zA-Z0-9\\-]*)$"
+#HostName: =~"^([a-zA-Z0-9\\-]*)$"
 
-_#defs: "/$defs/Properties/definitions/InitialVlanInfo": close({
+#InitialVlanInfo: close({
 	Cidr!:
 		=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2][0-9]|[0-9])$"
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkAclId": strings.MaxRunes(21) &
-strings.MinRunes(4) &
-=~"^acl-[a-zA-Z0-9_-]+$"
+#NetworkAclId: strings.MaxRunes(21) & strings.MinRunes(4) & =~"^acl-[a-zA-Z0-9_-]+$"
 
-_#defs: "/$defs/Properties/definitions/RouteServerPeering": strings.MaxRunes(21) & strings.MinRunes(3)
+#RouteServerPeering: strings.MaxRunes(21) & strings.MinRunes(3)
 
-_#defs: "/$defs/Properties/definitions/Secret": close({SecretArn?: string})
+#Secret: close({SecretArn?: string})
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 strings.MaxRunes(25) &
 strings.MinRunes(3) &
 =~"^sg-[0-9a-zA-Z]*$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -152,4 +142,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string
+#Timestamp: string

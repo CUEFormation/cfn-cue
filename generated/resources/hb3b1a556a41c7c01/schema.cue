@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,58 +17,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::Fleet
-#Properties: close({
-	Configuration!:     _#defs."/$defs/Properties/definitions/FleetConfiguration"
-	Description?:       strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName!:       strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	FarmId!:            =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	HostConfiguration?: _#defs."/$defs/Properties/definitions/HostConfiguration"
-	MaxWorkerCount!: int & <=2147483647 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2147483647 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MinWorkerCount?: int & <=2147483647 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2147483647 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
-		fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Deadline::Fleet"
+	Properties!: close({
+		Configuration!:     #FleetConfiguration
+		Description?:       strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName!:       strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		FarmId!:            =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		HostConfiguration?: #HostConfiguration
+		MaxWorkerCount!: int & <=2147483647 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2147483647 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MinWorkerCount?: int & <=2147483647 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2147483647 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
+			fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AcceleratorCapabilities": close({
-	Count?: _#defs."/$defs/Properties/definitions/AcceleratorCountRange"
-	Selections!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AcceleratorSelection"] |
-		fn.#ListExpression
+#AcceleratorCapabilities: close({
+	Count?:      #AcceleratorCountRange
+	Selections!: list.MinItems(1) & [...#AcceleratorSelection] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorCountRange": close({
+#AcceleratorCountRange: close({
 	Max?: int & <=2147483647 & >=0 |
 		{
 			string &
@@ -104,13 +110,13 @@ _#defs: "/$defs/Properties/definitions/AcceleratorCountRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorSelection": close({
+#AcceleratorSelection: close({
 	Name!:    "t4" | "a10g" | "l4" | "l40s" | "rtx-pro-server-6000" | fn.#StringExpression
 	Runtime?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRange": close({
+#AcceleratorTotalMemoryMiBRange: close({
 	Max?: int & <=2147483647 & >=0 |
 		{
 			string &
@@ -146,15 +152,13 @@ _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorType": "gpu" | fn.#StringExpression
+#AcceleratorType: "gpu" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingMode": "NO_SCALING" |
-	"EVENT_BASED_AUTO_SCALING" |
-	fn.#StringExpression
+#AutoScalingMode: "NO_SCALING" | "EVENT_BASED_AUTO_SCALING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CpuArchitectureType": "x86_64" | "arm64" | fn.#StringExpression
+#CpuArchitectureType: "x86_64" | "arm64" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedAutoScalingConfiguration": close({
+#CustomerManagedAutoScalingConfiguration: close({
 	ScaleOutWorkersPerMinute?: int & <=2147483647 & >=1 |
 		{
 			string &
@@ -206,40 +210,31 @@ _#defs: "/$defs/Properties/definitions/CustomerManagedAutoScalingConfiguration":
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedFleetConfiguration": close({
-	AutoScalingConfiguration?: _#defs."/$defs/Properties/definitions/CustomerManagedAutoScalingConfiguration"
-	Mode!:                     _#defs."/$defs/Properties/definitions/AutoScalingMode"
+#CustomerManagedFleetConfiguration: close({
+	AutoScalingConfiguration?: #CustomerManagedAutoScalingConfiguration
+	Mode!:                     #AutoScalingMode
 	StorageProfileId?:         =~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
-	TagPropagationMode?:       _#defs."/$defs/Properties/definitions/TagPropagationMode"
-	WorkerCapabilities!:       _#defs."/$defs/Properties/definitions/CustomerManagedWorkerCapabilities"
+	TagPropagationMode?:       #TagPropagationMode
+	WorkerCapabilities!:       #CustomerManagedWorkerCapabilities
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedFleetOperatingSystemFamily": "WINDOWS" |
-	"LINUX" |
-	"MACOS" |
-	fn.#StringExpression
+#CustomerManagedFleetOperatingSystemFamily: "WINDOWS" | "LINUX" | "MACOS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedWorkerCapabilities": close({
-	AcceleratorCount?:          _#defs."/$defs/Properties/definitions/AcceleratorCountRange"
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRange"
-	AcceleratorTypes?:          [..._#defs."/$defs/Properties/definitions/AcceleratorType"] | fn.#ListExpression
-	CpuArchitectureType!:       _#defs."/$defs/Properties/definitions/CpuArchitectureType"
-	CustomAmounts?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAmountCapability"
-	] |
-		fn.#ListExpression
-	CustomAttributes?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAttributeCapability"
-	] |
-		fn.#ListExpression
-	MemoryMiB!: _#defs."/$defs/Properties/definitions/MemoryMiBRange"
-	OsFamily!:  _#defs."/$defs/Properties/definitions/CustomerManagedFleetOperatingSystemFamily"
-	VCpuCount!: _#defs."/$defs/Properties/definitions/VCpuCountRange"
+#CustomerManagedWorkerCapabilities: close({
+	AcceleratorCount?:          #AcceleratorCountRange
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRange
+	AcceleratorTypes?:          [...#AcceleratorType] | fn.#ListExpression
+	CpuArchitectureType!:       #CpuArchitectureType
+	CustomAmounts?:             list.MaxItems(15) & list.MinItems(1) & [...#FleetAmountCapability] | fn.#ListExpression
+	CustomAttributes?: list.MaxItems(15) & list.MinItems(1) & [...#FleetAttributeCapability] | fn.#ListExpression
+	MemoryMiB!:        #MemoryMiBRange
+	OsFamily!:         #CustomerManagedFleetOperatingSystemFamily
+	VCpuCount!:        #VCpuCountRange
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ec2EbsVolume": close({
+#Ec2EbsVolume: close({
 	Iops?: int & <=16000 & >=3000 |
 		{
 			string &
@@ -289,9 +284,9 @@ _#defs: "/$defs/Properties/definitions/Ec2EbsVolume": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ec2MarketType": "on-demand" | "spot" | "wait-and-save" | fn.#StringExpression
+#Ec2MarketType: "on-demand" | "spot" | "wait-and-save" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FleetAmountCapability": close({
+#FleetAmountCapability: close({
 	Max?: number |
 		{
 			string &
@@ -337,7 +332,7 @@ _#defs: "/$defs/Properties/definitions/FleetAmountCapability": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FleetAttributeCapability": close({
+#FleetAttributeCapability: close({
 	Name!: strings.MaxRunes(100) &
 	strings.MinRunes(1) &
 	=~"^([a-zA-Z][a-zA-Z0-9]{0,63}:)?attr(\\.[a-zA-Z][a-zA-Z0-9]{0,63})+$" |
@@ -349,31 +344,24 @@ _#defs: "/$defs/Properties/definitions/FleetAttributeCapability": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FleetCapabilities": close({
-	Amounts?: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FleetAmountCapability"] |
-		fn.#ListExpression
-	Attributes?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAttributeCapability"
-	] |
-		fn.#ListExpression
+#FleetCapabilities: close({
+	Amounts?:    list.MaxItems(15) & list.MinItems(1) & [...#FleetAmountCapability] | fn.#ListExpression
+	Attributes?: list.MaxItems(15) & list.MinItems(1) & [...#FleetAttributeCapability] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FleetConfiguration": matchN(1, [close(
-	{CustomerManaged!: _#defs."/$defs/Properties/definitions/CustomerManagedFleetConfiguration"},
+#FleetConfiguration: matchN(1, [close(
+	{CustomerManaged!: #CustomerManagedFleetConfiguration},
 ), close(
-	{ServiceManagedEc2!: _#defs."/$defs/Properties/definitions/ServiceManagedEc2FleetConfiguration"},
+	{ServiceManagedEc2!: #ServiceManagedEc2FleetConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FleetSoftwareAddOn": close(
-	{Name!: _#defs."/$defs/Properties/definitions/FleetSoftwareAddOnName"},
-) |
-	fn.#ObjectExpression
+#FleetSoftwareAddOn: close({Name!: #FleetSoftwareAddOnName}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FleetSoftwareAddOnName": "docker" | fn.#StringExpression
+#FleetSoftwareAddOnName: "docker" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FleetStatus": "ACTIVE" |
+#FleetStatus: "ACTIVE" |
 	"CREATE_IN_PROGRESS" |
 	"UPDATE_IN_PROGRESS" |
 	"CREATE_FAILED" |
@@ -381,7 +369,7 @@ _#defs: "/$defs/Properties/definitions/FleetStatus": "ACTIVE" |
 	"SUSPENDED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HostConfiguration": close({
+#HostConfiguration: close({
 	ScriptBody!: strings.MaxRunes(15000) & strings.MinRunes(0) | fn.#StringExpression
 	ScriptTimeoutSeconds?: int & <=3600 & >=300 |
 		{
@@ -402,7 +390,7 @@ _#defs: "/$defs/Properties/definitions/HostConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryMiBRange": close({
+#MemoryMiBRange: close({
 	Max?: int & <=2147483647 & >=512 |
 		{
 			string &
@@ -438,7 +426,7 @@ _#defs: "/$defs/Properties/definitions/MemoryMiBRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PersistentVolumeConfiguration": close({
+#PersistentVolumeConfiguration: close({
 	Iops?: int & <=80000 & >=100 |
 		{
 			string &
@@ -507,7 +495,7 @@ _#defs: "/$defs/Properties/definitions/PersistentVolumeConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedEc2AutoScalingConfiguration": close({
+#ServiceManagedEc2AutoScalingConfiguration: close({
 	ScaleOutWorkersPerMinute?: int & <=2147483647 & >=1 |
 		{
 			string &
@@ -559,66 +547,50 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedEc2AutoScalingConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedEc2FleetConfiguration": close({
-	AutoScalingConfiguration?:      _#defs."/$defs/Properties/definitions/ServiceManagedEc2AutoScalingConfiguration"
-	InstanceCapabilities!:          _#defs."/$defs/Properties/definitions/ServiceManagedEc2InstanceCapabilities"
-	InstanceMarketOptions!:         _#defs."/$defs/Properties/definitions/ServiceManagedEc2InstanceMarketOptions"
-	PersistentVolumeConfiguration?: _#defs."/$defs/Properties/definitions/PersistentVolumeConfiguration"
+#ServiceManagedEc2FleetConfiguration: close({
+	AutoScalingConfiguration?:      #ServiceManagedEc2AutoScalingConfiguration
+	InstanceCapabilities!:          #ServiceManagedEc2InstanceCapabilities
+	InstanceMarketOptions!:         #ServiceManagedEc2InstanceMarketOptions
+	PersistentVolumeConfiguration?: #PersistentVolumeConfiguration
 	StorageProfileId?:              =~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
-	VpcConfiguration?:              _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	VpcConfiguration?:              #VpcConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedEc2InstanceCapabilities": close({
-	AcceleratorCapabilities?: _#defs."/$defs/Properties/definitions/AcceleratorCapabilities"
+#ServiceManagedEc2InstanceCapabilities: close({
+	AcceleratorCapabilities?: #AcceleratorCapabilities
 	AllowedInstanceTypes?: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CpuArchitectureType!: _#defs."/$defs/Properties/definitions/CpuArchitectureType"
-	CustomAmounts?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAmountCapability"
-	] |
-		fn.#ListExpression
-	CustomAttributes?: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FleetAttributeCapability"
-	] |
-		fn.#ListExpression
+	CpuArchitectureType!: #CpuArchitectureType
+	CustomAmounts?:       list.MaxItems(15) & list.MinItems(1) & [...#FleetAmountCapability] | fn.#ListExpression
+	CustomAttributes?:    list.MaxItems(15) & list.MinItems(1) & [...#FleetAttributeCapability] | fn.#ListExpression
 	ExcludedInstanceTypes?: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	MemoryMiB!:     _#defs."/$defs/Properties/definitions/MemoryMiBRange"
-	OsFamily!:      _#defs."/$defs/Properties/definitions/ServiceManagedFleetOperatingSystemFamily"
-	RootEbsVolume?: _#defs."/$defs/Properties/definitions/Ec2EbsVolume"
-	SoftwareAddOns?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/FleetSoftwareAddOn"
-	] |
-		fn.#ListExpression
-	VCpuCount!: _#defs."/$defs/Properties/definitions/VCpuCountRange"
+	MemoryMiB!:      #MemoryMiBRange
+	OsFamily!:       #ServiceManagedFleetOperatingSystemFamily
+	RootEbsVolume?:  #Ec2EbsVolume
+	SoftwareAddOns?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#FleetSoftwareAddOn] | fn.#ListExpression
+	VCpuCount!:      #VCpuCountRange
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedEc2InstanceMarketOptions": close(
-	{Type!: _#defs."/$defs/Properties/definitions/Ec2MarketType"},
-) |
-	fn.#ObjectExpression
+#ServiceManagedEc2InstanceMarketOptions: close({Type!: #Ec2MarketType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedFleetOperatingSystemFamily": "LINUX" |
-	"WINDOWS" |
-	fn.#StringExpression
+#ServiceManagedFleetOperatingSystemFamily: "LINUX" | "WINDOWS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagPropagationMode": "NO_PROPAGATION" |
-	"PROPAGATE_TAGS_TO_WORKERS_AT_LAUNCH" |
-	fn.#StringExpression
+#TagPropagationMode: "NO_PROPAGATION" | "PROPAGATE_TAGS_TO_WORKERS_AT_LAUNCH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VCpuCountRange": close({
+#VCpuCountRange: close({
 	Max?: int & <=10000 & >=1 |
 		{
 			string &
@@ -654,12 +626,8 @@ _#defs: "/$defs/Properties/definitions/VCpuCountRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	ResourceConfigurationArns?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::Fleet"
-	Properties!: #Properties
-}

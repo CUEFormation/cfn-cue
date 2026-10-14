@@ -3,34 +3,34 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Tables::Table
 #Properties: close({
-	Compaction?:                _#defs."/$defs/Properties/definitions/Compaction"
-	IcebergMetadata?:           _#defs."/$defs/Properties/definitions/IcebergMetadata"
-	Namespace!:                 _#defs."/$defs/Properties/definitions/Namespace"
-	OpenTableFormat!:           _#defs."/$defs/Properties/definitions/OpenTableFormat"
-	SnapshotManagement?:        _#defs."/$defs/Properties/definitions/SnapshotManagement"
-	StorageClassConfiguration?: _#defs."/$defs/Properties/definitions/StorageClassConfiguration"
-	TableARN?:                  _#defs."/$defs/Properties/definitions/TableARN"
-	TableBucketARN!:            _#defs."/$defs/Properties/definitions/TableBucketARN"
-	TableName!:                 _#defs."/$defs/Properties/definitions/TableName"
+	Compaction?:                #Compaction
+	IcebergMetadata?:           #IcebergMetadata
+	Namespace!:                 #Namespace
+	OpenTableFormat!:           #OpenTableFormat
+	SnapshotManagement?:        #SnapshotManagement
+	StorageClassConfiguration?: #StorageClassConfiguration
+	TableARN?:                  #TableARN
+	TableBucketARN!:            #TableBucketARN
+	TableName!:                 #TableName
 
 	// User tags (key-value pairs) to associate with the table.
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VersionToken?:      _#defs."/$defs/Properties/definitions/VersionToken"
-	WarehouseLocation?: _#defs."/$defs/Properties/definitions/WarehouseLocation"
-	WithoutMetadata?:   _#defs."/$defs/Properties/definitions/WithoutMetadata"
+	Tags?:              list.UniqueItems() & [...#Tag]
+	VersionToken?:      #VersionToken
+	WarehouseLocation?: #WarehouseLocation
+	WithoutMetadata?:   #WithoutMetadata
 })
 
 // Settings governing the Compaction maintenance action. Contains details about
 // the compaction settings for an Iceberg table.
-_#defs: "/$defs/Properties/definitions/Compaction": close({
+#Compaction: close({
 	// Indicates whether the Compaction maintenance action is enabled.
 	Status?: "enabled" | "disabled"
 
@@ -42,22 +42,22 @@ _#defs: "/$defs/Properties/definitions/Compaction": close({
 // IcebergSchema (for simple flat schemas with primitive types only) or
 // IcebergSchemaV2 (for schemas with nested types like struct, list, map), but
 // not both.
-_#defs: "/$defs/Properties/definitions/IcebergMetadata": close({
-	IcebergPartitionSpec?: _#defs."/$defs/Properties/definitions/IcebergPartitionSpec"
+#IcebergMetadata: close({
+	IcebergPartitionSpec?: #IcebergPartitionSpec
 
 	// Schema definition for flat tables with primitive types only. Mutually
 	// exclusive with IcebergSchemaV2.
-	IcebergSchema?: _#defs."/$defs/Properties/definitions/IcebergSchema"
+	IcebergSchema?: #IcebergSchema
 
 	// Schema definition that supports Apache Iceberg nested types (struct, list,
 	// map) and primitive types. Mutually exclusive with IcebergSchema.
-	IcebergSchemaV2?:  _#defs."/$defs/Properties/definitions/IcebergSchemaV2"
-	IcebergSortOrder?: _#defs."/$defs/Properties/definitions/IcebergSortOrder"
-	TableProperties?:  _#defs."/$defs/Properties/definitions/TableProperties"
+	IcebergSchemaV2?:  #IcebergSchemaV2
+	IcebergSortOrder?: #IcebergSortOrder
+	TableProperties?:  #TableProperties
 })
 
 // A partition field specification for an Iceberg table
-_#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
+#IcebergPartitionField: close({
 	// The partition field ID (auto-assigned starting from 1000 if not specified)
 	FieldId?: int
 
@@ -72,28 +72,24 @@ _#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
 })
 
 // List of partition fields for an Iceberg table
-_#defs: "/$defs/Properties/definitions/IcebergPartitionFieldList": [
-	..._#defs."/$defs/Properties/definitions/IcebergPartitionField"
-]
+#IcebergPartitionFieldList: [...#IcebergPartitionField]
 
 // Partition specification for an Iceberg table
-_#defs: "/$defs/Properties/definitions/IcebergPartitionSpec": close({
+#IcebergPartitionSpec: close({
 	// List of partition fields
-	Fields!: _#defs."/$defs/Properties/definitions/IcebergPartitionFieldList"
+	Fields!: #IcebergPartitionFieldList
 
 	// The partition spec ID (defaults to 0 if not specified)
 	SpecId?: int
 })
 
 // Contains details about the schema for an Iceberg table
-_#defs: "/$defs/Properties/definitions/IcebergSchema": close(
-	{SchemaFieldList!: _#defs."/$defs/Properties/definitions/SchemaFieldList"},
-)
+#IcebergSchema: close({SchemaFieldList!: #SchemaFieldList})
 
 // Contains details about the schema version 2 (V2) for an Iceberg table that
 // supports Apache Iceberg Nested Types (struct, list, map). Primitive types
 // are also supported.
-_#defs: "/$defs/Properties/definitions/IcebergSchemaV2": close({
+#IcebergSchemaV2: close({
 	// A list of field IDs that are used as the identifier fields for the table.
 	// Identifier fields uniquely identify a row in the table.
 	IdentifierFieldIds?: [...int]
@@ -102,14 +98,14 @@ _#defs: "/$defs/Properties/definitions/IcebergSchemaV2": close({
 	SchemaId?: int
 
 	// The schema fields for the table
-	SchemaV2FieldList!: _#defs."/$defs/Properties/definitions/SchemaV2FieldList"
+	SchemaV2FieldList!: #SchemaV2FieldList
 
 	// The type of the top-level schema, which is always 'struct'
 	SchemaV2FieldType!: "struct"
 })
 
 // A sort field specification for an Iceberg table
-_#defs: "/$defs/Properties/definitions/IcebergSortField": close({
+#IcebergSortField: close({
 	// Sort direction (asc or desc)
 	Direction!: "asc" | "desc"
 
@@ -124,27 +120,25 @@ _#defs: "/$defs/Properties/definitions/IcebergSortField": close({
 })
 
 // List of sort fields for an Iceberg table
-_#defs: "/$defs/Properties/definitions/IcebergSortFieldList": [
-	..._#defs."/$defs/Properties/definitions/IcebergSortField"
-]
+#IcebergSortFieldList: [...#IcebergSortField]
 
 // Sort order specification for an Iceberg table
-_#defs: "/$defs/Properties/definitions/IcebergSortOrder": close({
+#IcebergSortOrder: close({
 	// List of sort fields
-	Fields!: _#defs."/$defs/Properties/definitions/IcebergSortFieldList"
+	Fields!: #IcebergSortFieldList
 
 	// The sort order ID (defaults to 1 if not specified, 0 is reserved for unsorted)
 	OrderId?: int
 })
 
 // The namespace that the table belongs to.
-_#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$"
+#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$"
 
 // Format of the table.
-_#defs: "/$defs/Properties/definitions/OpenTableFormat": "ICEBERG"
+#OpenTableFormat: "ICEBERG"
 
 // Contains details about the schema for an Iceberg table
-_#defs: "/$defs/Properties/definitions/SchemaField": close({
+#SchemaField: close({
 	// The unique identifier for the field
 	Id?: int
 
@@ -159,11 +153,11 @@ _#defs: "/$defs/Properties/definitions/SchemaField": close({
 })
 
 // Contains details about the schema for an Iceberg table
-_#defs: "/$defs/Properties/definitions/SchemaFieldList": [..._#defs."/$defs/Properties/definitions/SchemaField"]
+#SchemaFieldList: [...#SchemaField]
 
 // Contains details about a schema field for an Iceberg table that supports
 // nested types (struct, list, map)
-_#defs: "/$defs/Properties/definitions/SchemaV2Field": close({
+#SchemaV2Field: close({
 	// Optional documentation for the field
 	Doc?: string
 
@@ -185,12 +179,12 @@ _#defs: "/$defs/Properties/definitions/SchemaV2Field": close({
 })
 
 // List of schema fields that support nested types
-_#defs: "/$defs/Properties/definitions/SchemaV2FieldList": [..._#defs."/$defs/Properties/definitions/SchemaV2Field"]
+#SchemaV2FieldList: [...#SchemaV2Field]
 
 // Contains details about the snapshot management settings for an Iceberg table.
 // A snapshot is expired when it exceeds MinSnapshotsToKeep and
 // MaxSnapshotAgeHours.
-_#defs: "/$defs/Properties/definitions/SnapshotManagement": close({
+#SnapshotManagement: close({
 	// The maximum age of a snapshot before it can be expired.
 	MaxSnapshotAgeHours?: int & >=1
 
@@ -202,26 +196,26 @@ _#defs: "/$defs/Properties/definitions/SnapshotManagement": close({
 })
 
 // Specifies storage class settings for the table
-_#defs: "/$defs/Properties/definitions/StorageClassConfiguration": close({
+#StorageClassConfiguration: close({
 	// The storage class for the table
 	StorageClass?: "STANDARD" | "INTELLIGENT_TIERING"
 })
 
 // The Amazon Resource Name (ARN) of the specified table.
-_#defs: "/$defs/Properties/definitions/TableARN": string
+#TableARN: string
 
 // The Amazon Resource Name (ARN) of the specified table bucket.
-_#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"
 
 // The name for the table.
-_#defs: "/$defs/Properties/definitions/TableName": string
+#TableName: string
 
 // Iceberg table properties (e.g., format-version, write.parquet.compression-codec)
-_#defs: "/$defs/Properties/definitions/TableProperties": close({
+#TableProperties: close({
 
 	{[=~"^.+$"]: string}})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key must be between 1 to 128 characters in length. Tag key cannot start
 	// with 'aws:' and can only contain alphanumeric characters, spaces, _, ., /,
 	// =, +, -, and @.
@@ -233,12 +227,12 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The version token of the table
-_#defs: "/$defs/Properties/definitions/VersionToken": string
+#VersionToken: string
 
 // The warehouse location of the table.
-_#defs: "/$defs/Properties/definitions/WarehouseLocation": string
+#WarehouseLocation: string
 
 // Indicates that you don't want to specify a schema for the table. This
 // property is mutually exclusive to 'IcebergMetadata', and its only possible
 // value is 'Yes'.
-_#defs: "/$defs/Properties/definitions/WithoutMetadata": "Yes"
+#WithoutMetadata: "Yes"

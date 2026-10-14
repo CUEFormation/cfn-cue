@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,33 +13,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::WebExperience Resource Type
-#Properties: close({
-	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
-	fn.#StringExpression
-	BrowserExtensionConfiguration?: _#defs."/$defs/Properties/definitions/BrowserExtensionConfiguration"
-	CustomizationConfiguration?:    _#defs."/$defs/Properties/definitions/CustomizationConfiguration"
-	IdentityProviderConfiguration?: _#defs."/$defs/Properties/definitions/IdentityProviderConfiguration"
-	Origins?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Origin"] | fn.#ListExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	SamplePromptsControlMode?: _#defs."/$defs/Properties/definitions/WebExperienceSamplePromptsControlMode"
-	Subtitle?:                 strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?:           list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Title?:          strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	WelcomeMessage?: strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QBusiness::WebExperience"
+	Properties!: close({
+		ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		fn.#StringExpression
+		BrowserExtensionConfiguration?: #BrowserExtensionConfiguration
+		CustomizationConfiguration?:    #CustomizationConfiguration
+		IdentityProviderConfiguration?: #IdentityProviderConfiguration
+		Origins?:                       list.MaxItems(10) & [...] & [...#Origin] | fn.#ListExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		SamplePromptsControlMode?: #WebExperienceSamplePromptsControlMode
+		Subtitle?:                 strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Tags?:                     list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Title?:                    strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		WelcomeMessage?:           strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BrowserExtension": "FIREFOX" | "CHROME" | fn.#StringExpression
+#BrowserExtension: "FIREFOX" | "CHROME" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserExtensionConfiguration": close({
-	EnabledBrowserExtensions!: list.MaxItems(2) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/BrowserExtension"
-	] |
+#BrowserExtensionConfiguration: close({
+	EnabledBrowserExtensions!: list.MaxItems(2) & list.UniqueItems() & [...] & [...#BrowserExtension] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomizationConfiguration": close({
+#CustomizationConfiguration: close({
 	CustomCSSUrl?: strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.css)?$" |
 	fn.#StringExpression
 	FaviconUrl?: strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(svg|ico))?$" |
@@ -51,46 +52,33 @@ _#defs: "/$defs/Properties/definitions/CustomizationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderConfiguration": matchN(1, [close(
-	{SamlConfiguration!: _#defs."/$defs/Properties/definitions/SamlProviderConfiguration"},
+#IdentityProviderConfiguration: matchN(1, [close(
+	{SamlConfiguration!: #SamlProviderConfiguration},
 ), close(
-	{OpenIDConnectConfiguration!: _#defs."/$defs/Properties/definitions/OpenIDConnectProviderConfiguration"},
+	{OpenIDConnectConfiguration!: #OpenIDConnectProviderConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIDConnectProviderConfiguration": close({
+#OpenIDConnectProviderConfiguration: close({
 	SecretsArn!:  strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
 	SecretsRole!: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Origin": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^(http:\\/\\/|https:\\/\\/)[a-zA-Z0-9-_.]+(?::[0-9]{1,5})?$" |
+#Origin: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(http:\\/\\/|https:\\/\\/)[a-zA-Z0-9-_.]+(?::[0-9]{1,5})?$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SamlProviderConfiguration": close(
+#SamlProviderConfiguration: close(
 	{AuthenticationUrl!: strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebExperienceSamplePromptsControlMode": "ENABLED" |
-	"DISABLED" |
-	fn.#StringExpression
+#WebExperienceSamplePromptsControlMode: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebExperienceStatus": "CREATING" |
-	"ACTIVE" |
-	"DELETING" |
-	"FAILED" |
-	"PENDING_AUTH_CONFIG" |
-	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QBusiness::WebExperience"
-	Properties!: #Properties
-}
+#WebExperienceStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "PENDING_AUTH_CONFIG" | fn.#StringExpression

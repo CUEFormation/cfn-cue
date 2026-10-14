@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,45 +17,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AnomalyDetector schema for cloudformation.
-#Properties: close({
-	Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/AnomalyDetectorConfiguration" | fn.#ObjectExpression
-	EvaluationIntervalInSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Labels?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Label"] | fn.#ListExpression
-	MissingDataAction?: _#defs."/$defs/Properties/definitions/MissingDataAction" | fn.#ValueExpression
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::APS::AnomalyDetector"
+	Properties!: close({
+		Alias!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AnomalyDetectorConfiguration": close(
-	{RandomCutForest!: _#defs."/$defs/Properties/definitions/RandomCutForestConfiguration"},
-) |
-	fn.#ObjectExpression
+		// Determines the anomaly detector's algorithm and its configuration.
+		Configuration!: #AnomalyDetectorConfiguration
+		EvaluationIntervalInSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Labels?: list.UniqueItems() & [...#Label] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IgnoreNearExpected": matchN(1, [
-	null | bool | number | string | [...] | {
-		Amount!: _
-		...
-	},
-	null | bool | number | string | [...] | {
-		Ratio!: _
-		...
-	}
-]) &
-(null |
+		// The action to perform when running the expression returns no data.
+		MissingDataAction?: #MissingDataAction
+		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" |
+			fn.#StringExpression
+	})
+}
+
+#AnomalyDetectorConfiguration: close({RandomCutForest!: #RandomCutForestConfiguration}) | fn.#ObjectExpression
+
+#IgnoreNearExpected: null |
 bool |
 number |
 string |
@@ -63,26 +60,19 @@ string |
 close({
 	Amount?: number | fn.#NumberExpression
 	Ratio?:  number | fn.#NumberExpression
-})) |
+	if Amount != _|_ if Amount."Fn::If" == _|_ {
+		Ratio?: close({"Fn::If": _}) | error("Ratio cannot be used with Amount; set exactly one of Amount, Ratio")
+	}
+}) & matchN(>=1, [{Amount!: _}, {Ratio!: _}]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MissingDataAction": matchN(1, [
-	null | bool | number | string | [...] | {
-		MarkAsAnomaly!: _
-		...
-	},
-	null | bool | number | string | [...] | {
-		Skip!: _
-		...
-	}
-]) &
-(null |
+#MissingDataAction: null |
 bool |
 number |
 string |
@@ -90,12 +80,17 @@ string |
 close({
 	MarkAsAnomaly?: bool | fn.#BooleanExpression
 	Skip?:          bool | fn.#BooleanExpression
-})) |
+	if MarkAsAnomaly != _|_ if MarkAsAnomaly."Fn::If" == _|_ {
+		Skip?: close({"Fn::If": _}) | error(
+			"Skip cannot be used with MarkAsAnomaly; set exactly one of MarkAsAnomaly, Skip",
+		)
+	}
+}) & matchN(>=1, [{MarkAsAnomaly!: _}, {Skip!: _}]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RandomCutForestConfiguration": close({
-	IgnoreNearExpectedFromAbove?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected"
-	IgnoreNearExpectedFromBelow?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected"
+#RandomCutForestConfiguration: close({
+	IgnoreNearExpectedFromAbove?: #IgnoreNearExpected
+	IgnoreNearExpectedFromBelow?: #IgnoreNearExpected
 	Query!:                       strings.MinRunes(1) | fn.#StringExpression
 	SampleSize?: int & <=1024 & >=256 |
 		{
@@ -132,12 +127,8 @@ _#defs: "/$defs/Properties/definitions/RandomCutForestConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::APS::AnomalyDetector"
-	Properties!: #Properties
-}

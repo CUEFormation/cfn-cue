@@ -9,23 +9,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::StorageVirtualMachine
-#Properties: close({
-	ActiveDirectoryConfiguration?: _#defs."/$defs/Properties/definitions/ActiveDirectoryConfiguration"
-	FileSystemId!:                 string | fn.#StringExpression
-	Name!:                         string | fn.#StringExpression
-	RootVolumeSecurityStyle?:      string | fn.#StringExpression
-	SvmAdminPassword?:             string | fn.#StringExpression
-	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FSx::StorageVirtualMachine"
+	Properties!: close({
+		ActiveDirectoryConfiguration?: #ActiveDirectoryConfiguration
+		FileSystemId!:                 string | fn.#StringExpression
+		Name!:                         string | fn.#StringExpression
+		RootVolumeSecurityStyle?:      string | fn.#StringExpression
+		SvmAdminPassword?:             string | fn.#StringExpression
+		Tags?:                         [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ActiveDirectoryConfiguration": close({
-	NetBiosName?: string | fn.#StringExpression
-	SelfManagedActiveDirectoryConfiguration?:
-		_#defs."/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration"
+#ActiveDirectoryConfiguration: close({
+	NetBiosName?:                             string | fn.#StringExpression
+	SelfManagedActiveDirectoryConfiguration?: #SelfManagedActiveDirectoryConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration": close({
+#SelfManagedActiveDirectoryConfiguration: close({
 	DnsIps?:                              [...string | fn.#StringExpression] | fn.#ListExpression
 	DomainJoinServiceAccountSecret?:      string | fn.#StringExpression
 	DomainName?:                          string | fn.#StringExpression
@@ -36,12 +38,8 @@ _#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration":
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FSx::StorageVirtualMachine"
-	Properties!: #Properties
-}

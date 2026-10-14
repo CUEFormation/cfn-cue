@@ -6,7 +6,7 @@ package schema
 
 // Resource Type definition for AWS::Batch::ServiceEnvironment
 #Properties: close({
-	CapacityLimits!:         _#defs."/$defs/Properties/definitions/CapacityLimits"
+	CapacityLimits!:         #CapacityLimits
 	ServiceEnvironmentArn?:  string
 	ServiceEnvironmentName?: string
 	ServiceEnvironmentType!: =~"(?i)^(?:sagemaker_training)$"
@@ -18,9 +18,9 @@ package schema
 		{[=~".*"]: string}})
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityLimit": close({
+#CapacityLimit: close({
 	CapacityUnit?: string
 	MaxCapacity?:  int
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityLimits": [..._#defs."/$defs/Properties/definitions/CapacityLimit"]
+#CapacityLimits: [...#CapacityLimit]

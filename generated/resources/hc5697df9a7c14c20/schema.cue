@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,42 +13,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::AppBlockBuilder.
-#Properties: close({
-	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AccessEndpoint"
-	] |
-		fn.#ListExpression
-	AppBlockArns?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Arn"] | fn.#ListExpression
-	Description?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DisableIMDSV1?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisplayName?:   strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	EnableDefaultInternetAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	InstanceType!: strings.MinRunes(1) | fn.#StringExpression
-	Name!:         =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	Platform!:     _#defs."/$defs/Properties/definitions/PlatformType"
-	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfig!:    _#defs."/$defs/Properties/definitions/VpcConfig"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::AppBlockBuilder"
+	Properties!: close({
+		AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [...#AccessEndpoint] |
+			fn.#ListExpression
+		AppBlockArns?:  list.UniqueItems() & [...#Arn] | fn.#ListExpression
+		Description?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		DisableIMDSV1?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DisplayName?:   strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		EnableDefaultInternetAccess?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		InstanceType!: strings.MinRunes(1) | fn.#StringExpression
+		Name!:         =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+		Platform!:     #PlatformType
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VpcConfig!:    #VpcConfig
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
+#AccessEndpoint: close({
 	EndpointType!: "STREAMING" | fn.#StringExpression
 	VpceId!:       strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PlatformType": "WINDOWS_SERVER_2019" | fn.#StringExpression
+#PlatformType: "WINDOWS_SERVER_2019" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
 		fn.#StringExpression
@@ -57,7 +65,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	SubnetIds?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::AppBlockBuilder"
-	Properties!: #Properties
-}

@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,34 +19,27 @@ import (
 	DataSourceId?:                    strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
 	Description?:                     strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 	DisplayName!:                     strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
-	DocumentEnrichmentConfiguration?: _#defs."/$defs/Properties/definitions/DocumentEnrichmentConfiguration"
+	DocumentEnrichmentConfiguration?: #DocumentEnrichmentConfiguration
 	IndexId!:                         strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	MediaExtractionConfiguration?:    _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration"
+	MediaExtractionConfiguration?:    #MediaExtractionConfiguration
 	RoleArn?:                         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
-	Status?:                          _#defs."/$defs/Properties/definitions/DataSourceStatus"
+	Status?:                          #DataSourceStatus
 	SyncSchedule?:                    strings.MaxRunes(998) & =~"^[\\s\\S]*$"
-	Tags?:                            list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                            list.MaxItems(200) & [...] & [...#Tag]
 	Type?:                            strings.MaxRunes(2048) & strings.MinRunes(1)
 	UpdatedAt?:                       time.Time
-	VpcConfiguration?:                _#defs."/$defs/Properties/definitions/DataSourceVpcConfiguration"
+	VpcConfiguration?:                #DataSourceVpcConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeValueOperator": "DELETE"
+#AttributeValueOperator: "DELETE"
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionConfiguration": close(
-	{AudioExtractionStatus!: _#defs."/$defs/Properties/definitions/AudioExtractionStatus"},
-)
+#AudioExtractionConfiguration: close({AudioExtractionStatus!: #AudioExtractionStatus})
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionStatus": "ENABLED" | "DISABLED"
+#AudioExtractionStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/DataSourceStatus": "PENDING_CREATION" |
-	"CREATING" |
-	"ACTIVE" |
-	"DELETING" |
-	"FAILED" |
-	"UPDATING"
+#DataSourceStatus: "PENDING_CREATION" | "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING"
 
-_#defs: "/$defs/Properties/definitions/DataSourceVpcConfiguration": close({
+#DataSourceVpcConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(200) &
@@ -56,19 +49,19 @@ _#defs: "/$defs/Properties/definitions/DataSourceVpcConfiguration": close({
 	SubnetIds!: [...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+$"]
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeCondition": close({
+#DocumentAttributeCondition: close({
 	Key!:      strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$"
-	Operator!: _#defs."/$defs/Properties/definitions/DocumentEnrichmentConditionOperator"
-	Value?:    _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
+	Operator!: #DocumentEnrichmentConditionOperator
+	Value?:    #DocumentAttributeValue
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeTarget": close({
-	AttributeValueOperator?: _#defs."/$defs/Properties/definitions/AttributeValueOperator"
+#DocumentAttributeTarget: close({
+	AttributeValueOperator?: #AttributeValueOperator
 	Key!:                    strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$"
-	Value?:                  _#defs."/$defs/Properties/definitions/DocumentAttributeValue"
+	Value?:                  #DocumentAttributeValue
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeValue": matchN(1, [close(
+#DocumentAttributeValue: matchN(1, [close(
 	{StringValue!: strings.MaxRunes(2048)},
 ), close(
 	{StringListValue!: [...strings.MaxRunes(2048) & strings.MinRunes(1)]},
@@ -78,9 +71,9 @@ _#defs: "/$defs/Properties/definitions/DocumentAttributeValue": matchN(1, [close
 	{DateValue!: time.Time},
 )])
 
-_#defs: "/$defs/Properties/definitions/DocumentContentOperator": "DELETE"
+#DocumentContentOperator: "DELETE"
 
-_#defs: "/$defs/Properties/definitions/DocumentEnrichmentConditionOperator": "GREATER_THAN" |
+#DocumentEnrichmentConditionOperator: "GREATER_THAN" |
 	"GREATER_THAN_OR_EQUALS" |
 	"LESS_THAN" |
 	"LESS_THAN_OR_EQUALS" |
@@ -92,16 +85,14 @@ _#defs: "/$defs/Properties/definitions/DocumentEnrichmentConditionOperator": "GR
 	"NOT_EXISTS" |
 	"BEGINS_WITH"
 
-_#defs: "/$defs/Properties/definitions/DocumentEnrichmentConfiguration": close({
-	InlineConfigurations?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/InlineDocumentEnrichmentConfiguration"
-	]
-	PostExtractionHookConfiguration?: _#defs."/$defs/Properties/definitions/HookConfiguration"
-	PreExtractionHookConfiguration?:  _#defs."/$defs/Properties/definitions/HookConfiguration"
+#DocumentEnrichmentConfiguration: close({
+	InlineConfigurations?: list.MaxItems(100) & list.MinItems(1) & [...#InlineDocumentEnrichmentConfiguration]
+	PostExtractionHookConfiguration?: #HookConfiguration
+	PreExtractionHookConfiguration?:  #HookConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/HookConfiguration": close({
-	InvocationCondition?: _#defs."/$defs/Properties/definitions/DocumentAttributeCondition"
+#HookConfiguration: close({
+	InvocationCondition?: #DocumentAttributeCondition
 	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -110,31 +101,27 @@ _#defs: "/$defs/Properties/definitions/HookConfiguration": close({
 	S3BucketName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 })
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionConfiguration": close(
-	{ImageExtractionStatus!: _#defs."/$defs/Properties/definitions/ImageExtractionStatus"},
-)
+#ImageExtractionConfiguration: close({ImageExtractionStatus!: #ImageExtractionStatus})
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionStatus": "ENABLED" | "DISABLED"
+#ImageExtractionStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/InlineDocumentEnrichmentConfiguration": close({
-	Condition?:               _#defs."/$defs/Properties/definitions/DocumentAttributeCondition"
-	DocumentContentOperator?: _#defs."/$defs/Properties/definitions/DocumentContentOperator"
-	Target?:                  _#defs."/$defs/Properties/definitions/DocumentAttributeTarget"
+#InlineDocumentEnrichmentConfiguration: close({
+	Condition?:               #DocumentAttributeCondition
+	DocumentContentOperator?: #DocumentContentOperator
+	Target?:                  #DocumentAttributeTarget
 })
 
-_#defs: "/$defs/Properties/definitions/MediaExtractionConfiguration": close({
-	AudioExtractionConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionConfiguration"
-	ImageExtractionConfiguration?: _#defs."/$defs/Properties/definitions/ImageExtractionConfiguration"
-	VideoExtractionConfiguration?: _#defs."/$defs/Properties/definitions/VideoExtractionConfiguration"
+#MediaExtractionConfiguration: close({
+	AudioExtractionConfiguration?: #AudioExtractionConfiguration
+	ImageExtractionConfiguration?: #ImageExtractionConfiguration
+	VideoExtractionConfiguration?: #VideoExtractionConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionConfiguration": close(
-	{VideoExtractionStatus!: _#defs."/$defs/Properties/definitions/VideoExtractionStatus"},
-)
+#VideoExtractionConfiguration: close({VideoExtractionStatus!: #VideoExtractionStatus})
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionStatus": "ENABLED" | "DISABLED"
+#VideoExtractionStatus: "ENABLED" | "DISABLED"

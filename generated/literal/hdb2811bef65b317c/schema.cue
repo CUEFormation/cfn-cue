@@ -5,22 +5,7 @@ package schema
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SecurityGroupIngress
-#Properties: matchN(1, [{
-	CidrIp!: _
-	...
-}, {
-	CidrIpv6!: _
-	...
-}, {
-	SourcePrefixListId!: _
-	...
-}, {
-	SourceSecurityGroupId!: _
-	...
-}, {
-	SourceSecurityGroupName!: _
-	...
-}]) & close({
+#Properties: close({
 	// The IPv4 ranges
 	CidrIp?: string
 
@@ -92,4 +77,45 @@ package schema
 	//
 	// Use this for ICMP and any protocol that uses ports.
 	ToPort?: int & >=-1
-})
+	if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
+		CidrIpv6?: close({"Fn::If": _}) | error(
+			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourcePrefixListId?: close({"Fn::If": _}) | error(
+			"SourcePrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if CidrIpv6 != _|_ if CidrIpv6."Fn::If" == _|_ {
+		SourcePrefixListId?: close({"Fn::If": _}) | error(
+			"SourcePrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if SourcePrefixListId != _|_ if SourcePrefixListId."Fn::If" == _|_ {
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupId cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if SourceSecurityGroupId != _|_ if SourceSecurityGroupId."Fn::If" == _|_ {
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with SourceSecurityGroupId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{CidrIp!: _}, {CidrIpv6!: _}, {SourcePrefixListId!: _}, {SourceSecurityGroupId!: _}, {SourceSecurityGroupName!: _}],
+)

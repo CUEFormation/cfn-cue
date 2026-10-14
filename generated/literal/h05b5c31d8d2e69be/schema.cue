@@ -11,93 +11,85 @@ import (
 
 // Resource schema for AWS:ObservabilityAdmin:OrganizationCentralizationRule
 #Properties: close({
-	Rule!: _#defs."/$defs/Properties/definitions/CentralizationRule"
+	Rule!: #CentralizationRule
 	RuleArn?: strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$"
 	RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AccountIdentifier": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
+#AccountIdentifier: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 
-_#defs: "/$defs/Properties/definitions/CentralizationRule": close({
-	Destination!: _#defs."/$defs/Properties/definitions/CentralizationRuleDestination"
-	Source!:      _#defs."/$defs/Properties/definitions/CentralizationRuleSource"
+#CentralizationRule: close({
+	Destination!: #CentralizationRuleDestination
+	Source!:      #CentralizationRuleSource
 })
 
-_#defs: "/$defs/Properties/definitions/CentralizationRuleDestination": close({
-	Account?:                         _#defs."/$defs/Properties/definitions/AccountIdentifier"
-	DestinationLogsConfiguration?:    _#defs."/$defs/Properties/definitions/DestinationLogsConfiguration"
-	DestinationMetricsConfiguration?: _#defs."/$defs/Properties/definitions/DestinationMetricsConfiguration"
-	Region!:                          _#defs."/$defs/Properties/definitions/Region"
+#CentralizationRuleDestination: close({
+	Account?:                         #AccountIdentifier
+	DestinationLogsConfiguration?:    #DestinationLogsConfiguration
+	DestinationMetricsConfiguration?: #DestinationMetricsConfiguration
+	Region!:                          #Region
 })
 
-_#defs: "/$defs/Properties/definitions/CentralizationRuleSource": close({
-	Regions!:                    _#defs."/$defs/Properties/definitions/Regions"
+#CentralizationRuleSource: close({
+	Regions!:                    #Regions
 	Scope?:                      strings.MaxRunes(2000) & strings.MinRunes(1)
-	SourceLogsConfiguration?:    _#defs."/$defs/Properties/definitions/SourceLogsConfiguration"
-	SourceMetricsConfiguration?: _#defs."/$defs/Properties/definitions/SourceMetricsConfiguration"
+	SourceLogsConfiguration?:    #SourceLogsConfiguration
+	SourceMetricsConfiguration?: #SourceMetricsConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationLogsConfiguration": close({
-	BackupConfiguration?:         _#defs."/$defs/Properties/definitions/LogsBackupConfiguration"
-	LogGroupNameConfiguration?:   _#defs."/$defs/Properties/definitions/LogGroupNameConfiguration"
-	LogsEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/LogsEncryptionConfiguration"
-	TagPropagationConfiguration?: _#defs."/$defs/Properties/definitions/TagPropagationConfiguration"
+#DestinationLogsConfiguration: close({
+	BackupConfiguration?:         #LogsBackupConfiguration
+	LogGroupNameConfiguration?:   #LogGroupNameConfiguration
+	LogsEncryptionConfiguration?: #LogsEncryptionConfiguration
+	TagPropagationConfiguration?: #TagPropagationConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationMetricsConfiguration": close(
-	{BackupConfiguration?: _#defs."/$defs/Properties/definitions/MetricsBackupConfiguration"},
-)
+#DestinationMetricsConfiguration: close({BackupConfiguration?: #MetricsBackupConfiguration})
 
-_#defs: "/$defs/Properties/definitions/LogGroupNameConfiguration": close({
+#LogGroupNameConfiguration: close({
 	LogGroupNamePattern!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^(?:[\\._\\-/#A-Za-z0-9]+|\\$\\{[A-Za-z]+(?:\\.[A-Za-z]+){1,2}\\})+$"
 })
 
-_#defs: "/$defs/Properties/definitions/LogsBackupConfiguration": close({
-	KmsKeyArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
-	Region!:    _#defs."/$defs/Properties/definitions/Region"
+#LogsBackupConfiguration: close({
+	KmsKeyArn?: #ResourceArn
+	Region!:    #Region
 })
 
-_#defs: "/$defs/Properties/definitions/LogsEncryptionConfiguration": close({
+#LogsEncryptionConfiguration: close({
 	EncryptionConflictResolutionStrategy?: "ALLOW" | "SKIP"
 	EncryptionScope?:                      "ENCRYPTED_SOURCE_ONLY" | "NEW_DESTINATION_LOG_GROUPS"
 	EncryptionStrategy!:                   "CUSTOMER_MANAGED" | "AWS_OWNED"
-	KmsKeyArn?:                            _#defs."/$defs/Properties/definitions/ResourceArn"
+	KmsKeyArn?:                            #ResourceArn
 })
 
-_#defs: "/$defs/Properties/definitions/MetricsBackupConfiguration": close(
-	{Region!: _#defs."/$defs/Properties/definitions/Region"},
-)
+#MetricsBackupConfiguration: close({Region!: #Region})
 
-_#defs: "/$defs/Properties/definitions/Region": strings.MinRunes(1)
+#Region: strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Regions": list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Region"
-]
+#Regions: list.MinItems(1) & list.UniqueItems() & [...#Region]
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+#ResourceArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 strings.MaxRunes(1011) &
 strings.MinRunes(1) &
 =~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$"
 
-_#defs: "/$defs/Properties/definitions/SourceLogsConfiguration": close({
+#SourceLogsConfiguration: close({
 	DataSourceSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1)
 	EncryptedLogGroupStrategy!:   "ALLOW" | "SKIP"
 	LogGroupSelectionCriteria?:   strings.MaxRunes(2000) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/SourceMetricsConfiguration": close(
-	{MetricsSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1)},
-)
+#SourceMetricsConfiguration: close({MetricsSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1)})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -111,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TagPropagationConfiguration": close({
+#TagPropagationConfiguration: close({
 	// The ARN of the destination account IAM role used for tag propagation.
 	DestinationRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &

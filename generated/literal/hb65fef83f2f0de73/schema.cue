@@ -8,40 +8,40 @@ import "strings"
 
 // Resource Type definition for AWS::Connect::InstanceStorageConfig
 #Properties: close({
-	AssociationId?: _#defs."/$defs/Properties/definitions/AssociationId"
+	AssociationId?: #AssociationId
 
 	// Connect Instance ID with which the storage config will be associated
 	InstanceArn!:              =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
-	KinesisFirehoseConfig?:    _#defs."/$defs/Properties/definitions/KinesisFirehoseConfig"
-	KinesisStreamConfig?:      _#defs."/$defs/Properties/definitions/KinesisStreamConfig"
-	KinesisVideoStreamConfig?: _#defs."/$defs/Properties/definitions/KinesisVideoStreamConfig"
-	ResourceType!:             _#defs."/$defs/Properties/definitions/InstanceStorageResourceType"
-	S3Config?:                 _#defs."/$defs/Properties/definitions/S3Config"
-	StorageType!:              _#defs."/$defs/Properties/definitions/StorageType"
+	KinesisFirehoseConfig?:    #KinesisFirehoseConfig
+	KinesisStreamConfig?:      #KinesisStreamConfig
+	KinesisVideoStreamConfig?: #KinesisVideoStreamConfig
+	ResourceType!:             #InstanceStorageResourceType
+	S3Config?:                 #S3Config
+	StorageType!:              #StorageType
 })
 
 // An associationID is automatically generated when a storage config is associated with an instance
-_#defs: "/$defs/Properties/definitions/AssociationId": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$"
+#AssociationId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$"
 
 // A name for the S3 Bucket
-_#defs: "/$defs/Properties/definitions/BucketName": strings.MaxRunes(128) & strings.MinRunes(1)
+#BucketName: strings.MaxRunes(128) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
-	EncryptionType!: _#defs."/$defs/Properties/definitions/EncryptionType"
-	KeyId!:          _#defs."/$defs/Properties/definitions/KeyId"
+#EncryptionConfig: close({
+	EncryptionType!: #EncryptionType
+	KeyId!:          #KeyId
 })
 
 // Specifies default encryption using AWS KMS-Managed Keys
-_#defs: "/$defs/Properties/definitions/EncryptionType": "KMS"
+#EncryptionType: "KMS"
 
 // An ARN is a unique AWS resource identifier.
-_#defs: "/$defs/Properties/definitions/FirehoseDeliveryStreamArn": =~"^arn:aws[-a-z0-9]*:firehose:[-a-z0-9]*:[0-9]{12}:deliverystream/[-a-zA-Z0-9_.]*$"
+#FirehoseDeliveryStreamArn: =~"^arn:aws[-a-z0-9]*:firehose:[-a-z0-9]*:[0-9]{12}:deliverystream/[-a-zA-Z0-9_.]*$"
 
 // Number of hours
-_#defs: "/$defs/Properties/definitions/Hours": number
+#Hours: number
 
 // Specifies the type of storage resource available for the instance
-_#defs: "/$defs/Properties/definitions/InstanceStorageResourceType": "CHAT_TRANSCRIPTS" |
+#InstanceStorageResourceType: "CHAT_TRANSCRIPTS" |
 	"CALL_RECORDINGS" |
 	"SCHEDULED_REPORTS" |
 	"MEDIA_STREAMS" |
@@ -56,36 +56,29 @@ _#defs: "/$defs/Properties/definitions/InstanceStorageResourceType": "CHAT_TRANS
 	"EMAIL_MESSAGES"
 
 // Specifies the encryption key id
-_#defs: "/$defs/Properties/definitions/KeyId": strings.MaxRunes(128) & strings.MinRunes(1)
+#KeyId: strings.MaxRunes(128) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseConfig": close(
-	{FirehoseArn!: _#defs."/$defs/Properties/definitions/FirehoseDeliveryStreamArn"},
-)
+#KinesisFirehoseConfig: close({FirehoseArn!: #FirehoseDeliveryStreamArn})
 
 // An ARN is a unique AWS resource identifier.
-_#defs: "/$defs/Properties/definitions/KinesisStreamArn": =~"^arn:aws[-a-z0-9]*:kinesis:[-a-z0-9]*:[0-9]{12}:stream/[-a-zA-Z0-9_.]*$"
+#KinesisStreamArn: =~"^arn:aws[-a-z0-9]*:kinesis:[-a-z0-9]*:[0-9]{12}:stream/[-a-zA-Z0-9_.]*$"
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamConfig": close(
-	{StreamArn!: _#defs."/$defs/Properties/definitions/KinesisStreamArn"},
-)
+#KinesisStreamConfig: close({StreamArn!: #KinesisStreamArn})
 
-_#defs: "/$defs/Properties/definitions/KinesisVideoStreamConfig": close({
-	EncryptionConfig!:     _#defs."/$defs/Properties/definitions/EncryptionConfig"
-	Prefix!:               _#defs."/$defs/Properties/definitions/Prefix"
-	RetentionPeriodHours!: _#defs."/$defs/Properties/definitions/Hours"
+#KinesisVideoStreamConfig: close({
+	EncryptionConfig!:     #EncryptionConfig
+	Prefix!:               #Prefix
+	RetentionPeriodHours!: #Hours
 })
 
 // Prefixes are used to infer logical hierarchy
-_#defs: "/$defs/Properties/definitions/Prefix": strings.MaxRunes(128) & strings.MinRunes(1)
+#Prefix: strings.MaxRunes(128) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/S3Config": close({
-	BucketName!:       _#defs."/$defs/Properties/definitions/BucketName"
-	BucketPrefix!:     _#defs."/$defs/Properties/definitions/Prefix"
-	EncryptionConfig?: _#defs."/$defs/Properties/definitions/EncryptionConfig"
+#S3Config: close({
+	BucketName!:       #BucketName
+	BucketPrefix!:     #Prefix
+	EncryptionConfig?: #EncryptionConfig
 })
 
 // Specifies the storage type to be associated with the instance
-_#defs: "/$defs/Properties/definitions/StorageType": "S3" |
-	"KINESIS_VIDEO_STREAM" |
-	"KINESIS_STREAM" |
-	"KINESIS_FIREHOSE"
+#StorageType: "S3" | "KINESIS_VIDEO_STREAM" | "KINESIS_STREAM" | "KINESIS_FIREHOSE"

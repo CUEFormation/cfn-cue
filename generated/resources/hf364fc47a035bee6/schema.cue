@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,44 +13,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Evidently::Project
-#Properties: close({
-	AppConfigResource?: _#defs."/$defs/Properties/definitions/AppConfigResourceObject"
-	DataDelivery?:      _#defs."/$defs/Properties/definitions/DataDeliveryObject"
-	Description?:       strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:              strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Evidently::Project"
+	Properties!: close({
+		AppConfigResource?: #AppConfigResourceObject
+		DataDelivery?:      #DataDeliveryObject
+		Description?:       strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:              strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AppConfigResourceObject": close({
+#AppConfigResourceObject: close({
 	ApplicationId!: =~"[a-z0-9]{4,7}" | fn.#StringExpression
 	EnvironmentId!: =~"[a-z0-9]{4,7}" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataDeliveryObject": matchN(1, [{
-	S3!: _
-	...
-}, {
-	LogGroup!: _
-	...
-}]) & close({
+#DataDeliveryObject: close({
 	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9._/]+$" | fn.#StringExpression
-	S3?:       _#defs."/$defs/Properties/definitions/S3Destination"
-}) |
+	S3?:       #S3Destination
+	if S3 != _|_ if S3."Fn::If" == _|_ {
+		LogGroup?: close({"Fn::If": _}) | error("LogGroup cannot be used with S3; set exactly one of S3, LogGroup")
+	}
+}) & matchN(>=1, [{S3!: _}, {LogGroup!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Destination": close({
+#S3Destination: close({
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]*[a-z0-9]$" | fn.#StringExpression
 	Prefix?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9!_.*'()/]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Evidently::Project"
-	Properties!: #Properties
-}

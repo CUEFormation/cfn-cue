@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,42 +13,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::Dataset Resource Type
-#Properties: close({
-	DatasetName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	Description?: strings.MaxRunes(200) | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	SchemaType!: "AGENTCORE_EVALUATION_PREDEFINED_V1" |
-		"AGENTCORE_EVALUATION_SIMULATED_V1" |
-		"GENERIC_EVALUATION_PREDEFINED_V1" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::Dataset"
+	Properties!: close({
+		DatasetName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(200) | fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 		fn.#StringExpression
-	Source?: _#defs."/$defs/Properties/definitions/DataSourceType"
-	Tags?:   list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		SchemaType!: "AGENTCORE_EVALUATION_PREDEFINED_V1" |
+			"AGENTCORE_EVALUATION_SIMULATED_V1" |
+			"GENERIC_EVALUATION_PREDEFINED_V1" |
+			fn.#StringExpression
+		Source?: #DataSourceType
+		Tags?:   list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DataSourceType": close({
-	InlineExamples?: _#defs."/$defs/Properties/definitions/InlineExamplesSource"
-	S3Source?:       _#defs."/$defs/Properties/definitions/S3Source"
+#DataSourceType: close({
+	InlineExamples?: #InlineExamplesSource
+	S3Source?:       #S3Source
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InlineExamplesSource": close({
+#InlineExamplesSource: close({
 	Examples!: list.MaxItems(1000) & list.MinItems(1) & [...fn.#Object & {...} | fn.#ObjectExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Source": close({S3Uri!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#S3Source: close({S3Uri!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::Dataset"
-	Properties!: #Properties
-}

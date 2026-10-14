@@ -36,20 +36,20 @@ import (
 	Name?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+"
 
 	// Configuration for the storage tier of the Kinesis Video Stream.
-	StreamStorageConfiguration?: _#defs."/$defs/Properties/definitions/StreamStorageConfiguration"
+	StreamStorageConfiguration?: #StreamStorageConfiguration
 
 	// An array of key-value pairs associated with the Kinesis Video Stream.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 })
 
 // Configuration for the storage tier of the Kinesis Video Stream.
-_#defs: "/$defs/Properties/definitions/StreamStorageConfiguration": close({
+#StreamStorageConfiguration: close({
 	// The storage tier for the Kinesis Video Stream. Determines the storage class used for stream data.
 	DefaultStorageTier?: "HOT" | "WARM"
 })
 
 // A key-value pair to associated with the Kinesis Video Stream.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. Specify a value that is 1 to 128 Unicode characters
 	// in length and cannot be prefixed with aws:. The following characters can be
 	// used: the set of Unicode letters, digits, whitespace, _, ., /, =, +, and -.

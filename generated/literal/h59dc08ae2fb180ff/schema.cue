@@ -22,7 +22,7 @@ import (
 	S3BucketArn?: strings.MaxRunes(156) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):s3:[a-z\\-0-9]*:[0-9]*:.*$"
-	S3Config!: _#defs."/$defs/Properties/definitions/S3Config"
+	S3Config!: #S3Config
 
 	// The Amazon S3 storage class you want to store your files in when this
 	// location is used as a task destination.
@@ -40,11 +40,11 @@ import (
 	Subdirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // The Amazon Resource Name (ARN) of the AWS IAM role that is used to access an Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/S3Config": close({
+#S3Config: close({
 	// The ARN of the IAM role of the Amazon S3 bucket.
 	BucketAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/S3Config": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 

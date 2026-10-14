@@ -7,7 +7,7 @@ package schema
 // Resource type definition for AWS::Config::DeliveryChannel
 #Properties: close({
 	// The options for how often AWS Config delivers configuration snapshots to the Amazon S3 bucket.
-	ConfigSnapshotDeliveryProperties?: _#defs."/$defs/Properties/definitions/ConfigSnapshotDeliveryProperties"
+	ConfigSnapshotDeliveryProperties?: #ConfigSnapshotDeliveryProperties
 
 	// The name of the delivery channel. By default, AWS Config assigns the name
 	// "default" when creating the delivery channel. To change the delivery channel
@@ -33,7 +33,7 @@ package schema
 	SnsTopicARN?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigSnapshotDeliveryProperties": close({
+#ConfigSnapshotDeliveryProperties: close({
 	// The frequency with which AWS Config delivers configuration snapshots.
 	DeliveryFrequency?: "One_Hour" | "Three_Hours" | "Six_Hours" | "Twelve_Hours" | "TwentyFour_Hours"
 })

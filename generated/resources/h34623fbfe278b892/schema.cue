@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -13,32 +13,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ManagedBlockchain::com.amazonaws.taiga.webservice.api#Accessor Resource Type
-#Properties: close({
-	AccessorType!: _#defs."/$defs/Properties/definitions/AccessorType"
-	NetworkType?:  _#defs."/$defs/Properties/definitions/NetworkAccessorType"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ManagedBlockchain::Accessor"
+	Properties!: close({
+		AccessorType!: #AccessorType
+		NetworkType?:  #NetworkAccessorType
+		Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccessorStatus": "AVAILABLE" |
-	"PENDING_DELETION" |
-	"DELETED" |
-	fn.#StringExpression
+#AccessorStatus: "AVAILABLE" | "PENDING_DELETION" | "DELETED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccessorType": "BILLING_TOKEN" | fn.#StringExpression
+#AccessorType: "BILLING_TOKEN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAccessorType": "ETHEREUM_GOERLI" |
+#NetworkAccessorType: "ETHEREUM_GOERLI" |
 	"ETHEREUM_MAINNET" |
 	"ETHEREUM_MAINNET_AND_GOERLI" |
 	"POLYGON_MAINNET" |
 	"POLYGON_MUMBAI" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ManagedBlockchain::Accessor"
-	Properties!: #Properties
-}

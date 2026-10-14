@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"struct"
 )
 
@@ -13,31 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an application that runs on an AWS Mainframe Modernization Environment
-#Properties: close({
-	Definition?:  _#defs."/$defs/Properties/definitions/Definition"
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	EngineType!:  _#defs."/$defs/Properties/definitions/EngineType"
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & strings.MaxRunes(2048) |
-	fn.#StringExpression
-	Name!: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::M2::Application"
+	Properties!: close({
+		Definition?:  #Definition
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		EngineType!:  #EngineType
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & strings.MaxRunes(2048) |
 		fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
-})
+		Name!: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Tags?: #TagMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Definition": matchN(1, [close(
+#Definition: matchN(1, [close(
 	{S3Location!: string | fn.#StringExpression},
 ), close(
 	{Content!: strings.MaxRunes(6500) & strings.MinRunes(1) | fn.#StringExpression},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/EngineType": "microfocus" | "bluage" | fn.#StringExpression
+#EngineType: "microfocus" | "bluage" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(200) & struct.MinFields(0) & {...} |
-fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::M2::Application"
-	Properties!: #Properties
-}
+#TagMap: struct.MaxFields(200) & struct.MinFields(0) & {...} | fn.#ObjectExpression

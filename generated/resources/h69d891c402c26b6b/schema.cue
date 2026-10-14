@@ -13,32 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Outposts::Outpost Resource Type
-#Properties: matchN(>=1, [{
-	AvailabilityZone!: _
-	...
-}, {
-	AvailabilityZoneId!: _
-	...
-}]) & close({
-	AvailabilityZone?: strings.MaxRunes(1000) &
-	strings.MinRunes(1) &
-	=~"^([a-zA-Z]+-){1,3}([a-zA-Z]+)?(\\d+[a-zA-Z]?)?$" |
-	fn.#StringExpression
-	AvailabilityZoneId?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z]+\\d-[a-zA-Z]+\\d$" |
-	fn.#StringExpression
-	Description?:           strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]*$" | fn.#StringExpression
-	Name!:                  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
-	SiteId!:                strings.MaxRunes(255) & strings.MinRunes(1) & =~"^os-[a-f0-9]{17}$" | fn.#StringExpression
-	SupportedHardwareType?: "RACK" | "SERVER" | fn.#StringExpression
-	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Outposts::Outpost"
+	Properties!: close({
+		AvailabilityZone?: strings.MaxRunes(1000) &
+		strings.MinRunes(1) &
+		=~"^([a-zA-Z]+-){1,3}([a-zA-Z]+)?(\\d+[a-zA-Z]?)?$" |
+		fn.#StringExpression
+		AvailabilityZoneId?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z]+\\d-[a-zA-Z]+\\d$" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]*$" | fn.#StringExpression
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
+		SiteId!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^os-[a-f0-9]{17}$" | fn.#StringExpression
+		SupportedHardwareType?: "RACK" | "SERVER" | fn.#StringExpression
+		Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	}) & matchN(>=1, [{AvailabilityZone!: _}, {AvailabilityZoneId!: _}])
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Outposts::Outpost"
-	Properties!: #Properties
-}

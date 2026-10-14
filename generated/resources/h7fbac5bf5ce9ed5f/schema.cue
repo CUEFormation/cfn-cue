@@ -13,25 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::Content Resource Type
-#Properties: close({
-	KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
-	Metadata?: struct.MaxFields(10) & close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::Content"
+	Properties!: close({
+		KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
+		Metadata?: struct.MaxFields(10) & close({
 
-		{[=~"^.+$"]: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Name!:               strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	OverrideLinkOutUri?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Title?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	UploadId?:           strings.MaxRunes(1200) & strings.MinRunes(1) | fn.#StringExpression
-})
+			{[=~"^.+$"]: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		OverrideLinkOutUri?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+		Title?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		UploadId?:           strings.MaxRunes(1200) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::Content"
-	Properties!: #Properties
-}

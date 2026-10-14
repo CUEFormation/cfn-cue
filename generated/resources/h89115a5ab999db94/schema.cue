@@ -13,17 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerAddonInstance Resource Type
-#Properties: close({
-	AddonSubscriptionId!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^as-[a-zA-Z0-9]{1,64}$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::MailManagerAddonInstance"
+	Properties!: close({
+		AddonSubscriptionId!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^as-[a-zA-Z0-9]{1,64}$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::MailManagerAddonInstance"
-	Properties!: #Properties
-}

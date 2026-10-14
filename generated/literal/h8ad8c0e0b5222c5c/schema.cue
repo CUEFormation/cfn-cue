@@ -12,7 +12,7 @@ import "strings"
 	ClusterArn?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[A-Za-z0-9:\\/_-]*$"
 
 	// Endpoints for the cluster.
-	ClusterEndpoints?: [..._#defs."/$defs/Properties/definitions/ClusterEndpoint"]
+	ClusterEndpoints?: [...#ClusterEndpoint]
 
 	// Name of a Cluster. You can use any non-white space character in the name
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -26,15 +26,15 @@ import "strings"
 	Status?: "PENDING" | "DEPLOYED" | "PENDING_DELETION"
 
 	// A collection of tags associated with a resource
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ClusterEndpoint": close({
+#ClusterEndpoint: close({
 	Endpoint?: strings.MaxRunes(128) & strings.MinRunes(1)
 	Region?:   strings.MaxRunes(32) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256)
 })

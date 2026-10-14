@@ -18,12 +18,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A distribution tells CloudFront where you want content to be delivered from,
 // and the details about how to track and manage content delivery.
-#Properties: close({
-	DistributionConfig!: _#defs."/$defs/Properties/definitions/DistributionConfig" | fn.#ObjectExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::Distribution"
+	Properties!: close({
+		// The distribution's configuration.
+		DistributionConfig!: #DistributionConfig
+		Tags?:               [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CacheBehavior": close({
+#CacheBehavior: close({
 	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
 	CachePolicyId?:  string | fn.#StringExpression
 	CachedMethods?:  [...string | fn.#StringExpression] | fn.#ListExpression
@@ -48,11 +52,34 @@ _#defs: "/$defs/Properties/definitions/CacheBehavior": close({
 		} |
 		fn.#NumberExpression
 	FieldLevelEncryptionId?: string | fn.#StringExpression
-	ForwardedValues?:        _#defs."/$defs/Properties/definitions/ForwardedValues" | fn.#ObjectExpression
-	FunctionAssociations?:   [..._#defs."/$defs/Properties/definitions/FunctionAssociation"] | fn.#ListExpression
-	GrpcConfig?:             _#defs."/$defs/Properties/definitions/GrpcConfig" | fn.#ObjectExpression
-	LambdaFunctionAssociations?: [..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation"] |
-		fn.#ListExpression
+
+	// This field is deprecated. We recommend that you use a cache policy or an
+	// origin request policy instead of this field. For more information, see
+	// [Working with
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/working-with-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to include values in the cache key, use a cache policy. For more
+	// information, see [Creating cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy)
+	// or [Using the managed cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to send values to the origin but not include them in the cache
+	// key, use an origin request policy. For more information, see [Creating
+	// origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy)
+	// or [Using the managed origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// A ``CacheBehavior`` must include either a ``CachePolicyId`` or
+	// ``ForwardedValues``. We recommend that you use a ``CachePolicyId``.
+	// A complex type that specifies how CloudFront handles query strings, cookies, and HTTP headers.
+	ForwardedValues?:      #ForwardedValues
+	FunctionAssociations?: [...#FunctionAssociation] | fn.#ListExpression
+
+	// The gRPC configuration for your cache behavior.
+	GrpcConfig?:                 #GrpcConfig
+	LambdaFunctionAssociations?: [...#LambdaFunctionAssociation] | fn.#ListExpression
 	MaxTTL?: number |
 		{
 			string &
@@ -103,23 +130,20 @@ _#defs: "/$defs/Properties/definitions/CacheBehavior": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CacheTagConfig": close({HeaderName!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CacheTagConfig: close({HeaderName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionFunctionAssociation": close(
-	{Id!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#ConnectionFunctionAssociation: close({Id!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionMode": "direct" | "tenant-only" | fn.#StringExpression
+#ConnectionMode: "direct" | "tenant-only" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Cookies": close({
+#Cookies: close({
 	Forward!:          string | fn.#StringExpression
 	WhitelistedNames?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomErrorResponse": close({
+#CustomErrorResponse: close({
 	ResponseCode?: _
 	if ResponseCode != _|_ {
 		ResponsePagePath!: _
@@ -153,7 +177,7 @@ _#defs: "/$defs/Properties/definitions/CustomErrorResponse": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
+#CustomOriginConfig: close({
 	HTTPPort?: int |
 		{
 			string &
@@ -197,7 +221,9 @@ _#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	OriginMtlsConfig?:     _#defs."/$defs/Properties/definitions/OriginMtlsConfig" | fn.#ObjectExpression
+
+	// Configures mutual TLS authentication between CloudFront and your origin server.
+	OriginMtlsConfig?:     #OriginMtlsConfig
 	OriginProtocolPolicy!: string | fn.#StringExpression
 	OriginReadTimeout?: int |
 		{
@@ -217,7 +243,7 @@ _#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
+#DefaultCacheBehavior: close({
 	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
 	CachePolicyId?:  string | fn.#StringExpression
 	CachedMethods?:  [...string | fn.#StringExpression] | fn.#ListExpression
@@ -242,11 +268,34 @@ _#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
 		} |
 		fn.#NumberExpression
 	FieldLevelEncryptionId?: string | fn.#StringExpression
-	ForwardedValues?:        _#defs."/$defs/Properties/definitions/ForwardedValues" | fn.#ObjectExpression
-	FunctionAssociations?:   [..._#defs."/$defs/Properties/definitions/FunctionAssociation"] | fn.#ListExpression
-	GrpcConfig?:             _#defs."/$defs/Properties/definitions/GrpcConfig" | fn.#ObjectExpression
-	LambdaFunctionAssociations?: [..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation"] |
-		fn.#ListExpression
+
+	// This field is deprecated. We recommend that you use a cache policy or an
+	// origin request policy instead of this field. For more information, see
+	// [Working with
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/working-with-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to include values in the cache key, use a cache policy. For more
+	// information, see [Creating cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy)
+	// or [Using the managed cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to send values to the origin but not include them in the cache
+	// key, use an origin request policy. For more information, see [Creating
+	// origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy)
+	// or [Using the managed origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	// A ``DefaultCacheBehavior`` must include either a ``CachePolicyId`` or
+	// ``ForwardedValues``. We recommend that you use a ``CachePolicyId``.
+	// A complex type that specifies how CloudFront handles query strings, cookies, and HTTP headers.
+	ForwardedValues?:      #ForwardedValues
+	FunctionAssociations?: [...#FunctionAssociation] | fn.#ListExpression
+
+	// The gRPC configuration for your cache behavior.
+	GrpcConfig?:                 #GrpcConfig
+	LambdaFunctionAssociations?: [...#LambdaFunctionAssociation] | fn.#ListExpression
 	MaxTTL?: number |
 		{
 			string &
@@ -296,56 +345,117 @@ _#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DistributionConfig": close({
+#DistributionConfig: close({
 	Aliases?:         [...string | fn.#StringExpression] | fn.#ListExpression
 	AnycastIpListId?: string | fn.#StringExpression
 	CNAMEs?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	CacheBehaviors?:  [..._#defs."/$defs/Properties/definitions/CacheBehavior"] | fn.#ListExpression
-	CacheTagConfig?:  _#defs."/$defs/Properties/definitions/CacheTagConfig" | fn.#ObjectExpression
-	Comment?:         string | fn.#StringExpression
-	ConnectionFunctionAssociation?: _#defs."/$defs/Properties/definitions/ConnectionFunctionAssociation" |
-		fn.#ObjectExpression
-	ConnectionMode?:               _#defs."/$defs/Properties/definitions/ConnectionMode" | fn.#StringExpression
+	CacheBehaviors?:  [...#CacheBehavior] | fn.#ListExpression
+
+	// Configuration for cache tag extraction from origin responses. When specified,
+	// CloudFront reads the header named in ``HeaderName`` from origin responses
+	// and stores the comma-separated values as cache tags on the object.
+	// Distributions without ``CacheTagConfig`` do not extract tags. When
+	// ``CacheTagConfig`` is removed from a distribution via
+	// ``UpdateDistribution``, CloudFront stops extracting tags from origin
+	// responses.
+	// Changing the ``HeaderName`` on an existing distribution does not
+	// retroactively affect previously cached objects. Tag-based invalidations will
+	// not apply to objects already cached using a previous header. To ensure tag
+	// invalidations function after updating the header name, use path-based
+	// invalidations to recache all objects that use cache tags.
+	CacheTagConfig?: #CacheTagConfig
+	Comment?:        string | fn.#StringExpression
+
+	// The distribution's connection function association.
+	ConnectionFunctionAssociation?: #ConnectionFunctionAssociation
+
+	// This field specifies whether the connection mode is through a standard
+	// distribution (direct) or a multi-tenant distribution with distribution
+	// tenants (tenant-only).
+	ConnectionMode?:               #ConnectionMode
 	ContinuousDeploymentPolicyId?: string | fn.#StringExpression
-	CustomErrorResponses?:         [..._#defs."/$defs/Properties/definitions/CustomErrorResponse"] | fn.#ListExpression
-	CustomOrigin?:                 _#defs."/$defs/Properties/definitions/LegacyCustomOrigin" | fn.#ObjectExpression
-	DefaultCacheBehavior!:         _#defs."/$defs/Properties/definitions/DefaultCacheBehavior" | fn.#ObjectExpression
-	DefaultRootObject?:            string | fn.#StringExpression
-	Enabled!:                      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HttpVersion?:                  "http1.1" | "http2" | "http2and3" | "http3" | fn.#StringExpression
-	IPV6Enabled?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Logging?:                      _#defs."/$defs/Properties/definitions/Logging" | fn.#ObjectExpression
-	OriginGroups?:                 _#defs."/$defs/Properties/definitions/OriginGroups" | fn.#ObjectExpression
-	Origins?:                      [..._#defs."/$defs/Properties/definitions/Origin"] | fn.#ListExpression
+	CustomErrorResponses?:         [...#CustomErrorResponse] | fn.#ListExpression
+
+	// The user-defined HTTP server that serves as the origin for content that CF distributes.
+	// This property is legacy. We recommend that you use
+	// [Origin](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-origin.html)
+	// instead.
+	CustomOrigin?: #LegacyCustomOrigin
+
+	// A complex type that describes the default cache behavior if you don't specify
+	// a ``CacheBehavior`` element or if files don't match any of the values of
+	// ``PathPattern`` in ``CacheBehavior`` elements. You must create exactly one
+	// default cache behavior.
+	DefaultCacheBehavior!: #DefaultCacheBehavior
+	DefaultRootObject?:    string | fn.#StringExpression
+	Enabled!:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HttpVersion?:          "http1.1" | "http2" | "http2and3" | "http3" | fn.#StringExpression
+	IPV6Enabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// A complex type that controls whether access logs are written for the distribution.
+	// For more information about logging, see [Access
+	// Logs](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	Logging?: #Logging
+
+	// A complex type that contains information about origin groups for this distribution.
+	// Specify a value for either the ``Origins`` or ``OriginGroups`` property.
+	OriginGroups?: #OriginGroups
+	Origins?:      [...#Origin] | fn.#ListExpression
 	PriceClass?:   "None" | "PriceClass_100" | "PriceClass_200" | "PriceClass_All" | fn.#StringExpression
-	Restrictions?: _#defs."/$defs/Properties/definitions/Restrictions" | fn.#ObjectExpression
-	S3Origin?:     _#defs."/$defs/Properties/definitions/LegacyS3Origin" | fn.#ObjectExpression
+
+	// A complex type that identifies ways in which you want to restrict distribution of your content.
+	Restrictions?: #Restrictions
+
+	// The origin as an S3 bucket.
+	// This property is legacy. We recommend that you use
+	// [Origin](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-origin.html)
+	// instead.
+	S3Origin?:     #LegacyS3Origin
 	Staging?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TenantConfig?: close(
-		{ParameterDefinitions?: [..._#defs."/$defs/Properties/definitions/ParameterDefinition"] | fn.#ListExpression},
-	) |
-		fn.#ObjectExpression
-	ViewerCertificate?: _#defs."/$defs/Properties/definitions/ViewerCertificate" | fn.#ObjectExpression
-	ViewerMtlsConfig?:  _#defs."/$defs/Properties/definitions/ViewerMtlsConfig" | fn.#ObjectExpression
-	WebACLId?:          string | fn.#StringExpression
+	TenantConfig?: close({ParameterDefinitions?: [...#ParameterDefinition] | fn.#ListExpression}) | fn.#ObjectExpression
+
+	// A complex type that determines the distribution's SSL/TLS configuration for
+	// communicating with viewers.
+	ViewerCertificate?: #ViewerCertificate
+
+	// The distribution's viewer mTLS configuration.
+	ViewerMtlsConfig?: #ViewerMtlsConfig
+	WebACLId?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ForwardedValues": close({
-	Cookies?:              _#defs."/$defs/Properties/definitions/Cookies" | fn.#ObjectExpression
+#ForwardedValues: close({
+	// This field is deprecated. We recommend that you use a cache policy or an
+	// origin request policy instead of this field.
+	// If you want to include cookies in the cache key, use a cache policy. For more
+	// information, see [Creating cache
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy)
+	// in the *Amazon CloudFront Developer Guide*.
+	// If you want to send cookies to the origin but not include them in the cache
+	// key, use an origin request policy. For more information, see [Creating
+	// origin request
+	// policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy)
+	// in the *Amazon CloudFront Developer Guide*.
+	// A complex type that specifies whether you want CloudFront to forward cookies
+	// to the origin and, if so, which ones. For more information about forwarding
+	// cookies to the origin, see [How CloudFront Forwards, Caches, and Logs
+	// Cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Cookies.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	Cookies?:              #Cookies
 	Headers?:              [...string | fn.#StringExpression] | fn.#ListExpression
 	QueryString!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QueryStringCacheKeys?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FunctionAssociation": close({
+#FunctionAssociation: close({
 	EventType?:   string | fn.#StringExpression
 	FunctionARN?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeoRestriction": close({
+#GeoRestriction: close({
 	Locations?: [
 		..."AD" |
 			"AE" |
@@ -603,19 +713,17 @@ _#defs: "/$defs/Properties/definitions/GeoRestriction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcConfig": close(
-	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#GrpcConfig: close({Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaFunctionAssociation": close({
+#LambdaFunctionAssociation: close({
 	EventType?:         string | fn.#StringExpression
 	IncludeBody?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LambdaFunctionARN?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LegacyCustomOrigin": close({
+#LegacyCustomOrigin: close({
 	DNSName!: string | fn.#StringExpression
 	HTTPPort?: int |
 		{
@@ -650,31 +758,20 @@ _#defs: "/$defs/Properties/definitions/LegacyCustomOrigin": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LegacyS3Origin": close({
+#LegacyS3Origin: close({
 	DNSName!:              string | fn.#StringExpression
 	OriginAccessIdentity?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Logging": close({
+#Logging: close({
 	Bucket?:         string | fn.#StringExpression
 	IncludeCookies?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
-	matchN(0, [null | bool | number | string | [...] | {
-		CustomOriginConfig!: _
-		S3OriginConfig!:     _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		S3OriginConfig!:     _
-		CustomOriginConfig!: _
-		...
-	}]) & {...}
-]) & close({
+#Origin: close({
 	ConnectionAttempts?: int |
 		{
 			string &
@@ -703,13 +800,23 @@ _#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
 				)
 		} |
 		fn.#NumberExpression
-	CustomOriginConfig?:    _#defs."/$defs/Properties/definitions/CustomOriginConfig" | fn.#ObjectExpression
+
+	// Use this type to specify an origin that is not an Amazon S3 bucket, with one
+	// exception. If the Amazon S3 bucket is configured with static website
+	// hosting, use this type. If the Amazon S3 bucket is not configured with
+	// static website hosting, use the ``S3OriginConfig`` type instead.
+	CustomOriginConfig?:    #CustomOriginConfig
 	DomainName!:            string | fn.#StringExpression
 	Id!:                    string | fn.#StringExpression
 	OriginAccessControlId?: string | fn.#StringExpression
-	OriginCustomHeaders?:   [..._#defs."/$defs/Properties/definitions/OriginCustomHeader"] | fn.#ListExpression
+	OriginCustomHeaders?:   [...#OriginCustomHeader] | fn.#ListExpression
 	OriginPath?:            string | fn.#StringExpression
-	OriginShield?:          _#defs."/$defs/Properties/definitions/OriginShield" | fn.#ObjectExpression
+
+	// CloudFront Origin Shield. Using Origin Shield can help reduce the load on your origin.
+	// For more information, see [Using Origin
+	// Shield](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html)
+	// in the *Amazon CloudFront Developer Guide*.
+	OriginShield?: #OriginShield
 	ResponseCompletionTimeout?: int |
 		{
 			string &
@@ -724,36 +831,54 @@ _#defs: "/$defs/Properties/definitions/Origin": matchN(2, [
 				)
 		} |
 		fn.#NumberExpression
-	S3OriginConfig?:  _#defs."/$defs/Properties/definitions/S3OriginConfig" | fn.#ObjectExpression
-	VpcOriginConfig?: _#defs."/$defs/Properties/definitions/VpcOriginConfig" | fn.#ObjectExpression
+
+	// Use this type to specify an origin that is an Amazon S3 bucket that is not
+	// configured with static website hosting. To specify any other type of origin,
+	// including an Amazon S3 bucket that is configured with static website
+	// hosting, use the ``CustomOriginConfig`` type instead.
+	S3OriginConfig?: #S3OriginConfig
+
+	// The VPC origin configuration.
+	VpcOriginConfig?: #VpcOriginConfig
+	if CustomOriginConfig != _|_ if CustomOriginConfig."Fn::If" == _|_ {
+		S3OriginConfig?: close({"Fn::If": _}) | error("S3OriginConfig cannot be used with CustomOriginConfig")
+	}
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginCustomHeader": close({
+#OriginCustomHeader: close({
 	HeaderName!:  string | fn.#StringExpression
 	HeaderValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroup": close({
-	FailoverCriteria!:  _#defs."/$defs/Properties/definitions/OriginGroupFailoverCriteria" | fn.#ObjectExpression
-	Id!:                string | fn.#StringExpression
-	Members!:           _#defs."/$defs/Properties/definitions/OriginGroupMembers" | fn.#ObjectExpression
-	SelectionCriteria?: _#defs."/$defs/Properties/definitions/OriginGroupSelectionCriteria" | fn.#StringExpression
+#OriginGroup: close({
+	// A complex type that contains information about the failover criteria for an origin group.
+	FailoverCriteria!: #OriginGroupFailoverCriteria
+	Id!:               string | fn.#StringExpression
+
+	// A complex type that contains information about the origins in an origin group.
+	Members!: #OriginGroupMembers
+
+	// The selection criteria for the origin group. For more information, see
+	// [Create an origin
+	// group](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/high_availability_origin_failover.html#concept_origin_groups.creating)
+	// in the *Amazon CloudFront Developer Guide*.
+	SelectionCriteria?: #OriginGroupSelectionCriteria
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroupFailoverCriteria": close(
-	{StatusCodes!: _#defs."/$defs/Properties/definitions/StatusCodes" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#OriginGroupFailoverCriteria: close({
+	// The status codes that, when returned from the primary origin, will trigger
+	// CloudFront to failover to the second origin.
+	StatusCodes!: #StatusCodes
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroupMember": close({OriginId!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#OriginGroupMember: close({OriginId!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroupMembers": close({
-	Items!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/OriginGroupMember"] |
-		fn.#ListExpression
+#OriginGroupMembers: close({
+	Items!: list.MaxItems(2) & list.MinItems(2) & [...#OriginGroupMember] | fn.#ListExpression
 	Quantity!: int |
 		{
 			string &
@@ -771,12 +896,10 @@ _#defs: "/$defs/Properties/definitions/OriginGroupMembers": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroupSelectionCriteria": "default" |
-	"media-quality-based" |
-	fn.#StringExpression
+#OriginGroupSelectionCriteria: "default" | "media-quality-based" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroups": close({
-	Items?: [..._#defs."/$defs/Properties/definitions/OriginGroup"] | fn.#ListExpression
+#OriginGroups: close({
+	Items?: [...#OriginGroup] | fn.#ListExpression
 	Quantity!: int |
 		{
 			string &
@@ -794,16 +917,15 @@ _#defs: "/$defs/Properties/definitions/OriginGroups": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginMtlsConfig": close({ClientCertificateArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#OriginMtlsConfig: close({ClientCertificateArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginShield": close({
+#OriginShield: close({
 	Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OriginShieldRegion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterDefinition": close({
+#ParameterDefinition: close({
 	Definition!: close({
 		StringSchema?: close({
 			Comment?:      string | fn.#StringExpression
@@ -817,12 +939,17 @@ _#defs: "/$defs/Properties/definitions/ParameterDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Restrictions": close(
-	{GeoRestriction!: _#defs."/$defs/Properties/definitions/GeoRestriction" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#Restrictions: close({
+	// A complex type that controls the countries in which your content is
+	// distributed. CF determines the location of your users using ``MaxMind``
+	// GeoIP databases. To disable geo restriction, remove the
+	// [Restrictions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-distributionconfig.html#cfn-cloudfront-distribution-distributionconfig-restrictions)
+	// property from your stack template.
+	GeoRestriction!: #GeoRestriction
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3OriginConfig": close({
+#S3OriginConfig: close({
 	OriginAccessIdentity?: string | fn.#StringExpression
 	OriginReadTimeout?: int |
 		{
@@ -841,7 +968,7 @@ _#defs: "/$defs/Properties/definitions/S3OriginConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatusCodes": close({
+#StatusCodes: close({
 	Items!: list.MinItems(1) & [
 		...int |
 			{
@@ -878,29 +1005,20 @@ _#defs: "/$defs/Properties/definitions/StatusCodes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrustStoreConfig": close({
+#TrustStoreConfig: close({
 	AdvertiseTrustStoreCaNames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnoreCertificateExpiry?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TrustStoreId!:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
-	AcmCertificateArn!: _
-	...
-}, {
-	CloudFrontDefaultCertificate!: _
-	...
-}, {
-	IamCertificateId!: _
-	...
-}]) & close({
+#ViewerCertificate: close({
 	AcmCertificateArn?: _
 	if AcmCertificateArn != _|_ {
 		SslSupportMethod!: _
@@ -910,10 +1028,10 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 		SslSupportMethod!: _
 	}
 	{}
-	"AcmCertificateArn"?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+	AcmCertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	CloudFrontDefaultCertificate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	"IamCertificateId"?:           strings.MaxRunes(32) | fn.#StringExpression
+	IamCertificateId?:             strings.MaxRunes(32) | fn.#StringExpression
 	MinimumProtocolVersion?: "SSLv3" |
 		"TLSv1" |
 		"TLSv1.1_2016" |
@@ -925,18 +1043,34 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": matchN(1, [{
 		"TLSv1_2016" |
 		fn.#StringExpression
 	SslSupportMethod?: "sni-only" | "static-ip" | "vip" | fn.#StringExpression
+	if AcmCertificateArn != _|_ if AcmCertificateArn."Fn::If" == _|_ {
+		CloudFrontDefaultCertificate?: close({"Fn::If": _}) | error(
+			"CloudFrontDefaultCertificate cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+		IamCertificateId?: close({"Fn::If": _}) | error(
+			"IamCertificateId cannot be used with AcmCertificateArn; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+	}
+	if CloudFrontDefaultCertificate != _|_ if CloudFrontDefaultCertificate."Fn::If" == _|_ {
+		IamCertificateId?: close({"Fn::If": _}) | error(
+			"IamCertificateId cannot be used with CloudFrontDefaultCertificate; set exactly one of AcmCertificateArn, CloudFrontDefaultCertificate, IamCertificateId",
+		)
+	}
+}) & matchN(>=1, [{AcmCertificateArn!: _}, {CloudFrontDefaultCertificate!: _}, {IamCertificateId!: _}]) |
+fn.#ObjectExpression
+
+#ViewerMtlsConfig: close({
+	// The viewer mTLS mode.
+	Mode?: #ViewerMtlsMode
+
+	// The trust store configuration associated with the viewer mTLS configuration.
+	TrustStoreConfig?: #TrustStoreConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ViewerMtlsConfig": close({
-	Mode?:             _#defs."/$defs/Properties/definitions/ViewerMtlsMode" | fn.#StringExpression
-	TrustStoreConfig?: _#defs."/$defs/Properties/definitions/TrustStoreConfig" | fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
+#ViewerMtlsMode: "required" | "optional" | "passthrough" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ViewerMtlsMode": "required" | "optional" | "passthrough" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/VpcOriginConfig": close({
+#VpcOriginConfig: close({
 	OriginKeepaliveTimeout?: int |
 		{
 			string &
@@ -969,7 +1103,3 @@ _#defs: "/$defs/Properties/definitions/VpcOriginConfig": close({
 	VpcOriginId!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::Distribution"
-	Properties!: #Properties
-}

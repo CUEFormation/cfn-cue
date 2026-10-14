@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,38 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Notifications::EventRule
-#Properties: close({
-	EventPattern?: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
-	EventType!:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9 \\-\\(\\)])+$" | fn.#StringExpression
-	NotificationConfigurationArn!: =~"^arn:[a-z-]{3,10}:notifications::[0-9]{12}:configuration/[a-z0-9]{27}$" |
-		fn.#StringExpression
-	Regions!: list.MinItems(1) & [
-		...strings.MaxRunes(25) & strings.MinRunes(2) & =~"^([a-z]{1,4})-([a-z]{1,15}-)+([0-9])$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Source!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^aws.([a-z0-9\\-])+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Notifications::EventRule"
+	Properties!: close({
+		EventPattern?: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
+		EventType!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9 \\-\\(\\)])+$" | fn.#StringExpression
+		NotificationConfigurationArn!: =~"^arn:[a-z-]{3,10}:notifications::[0-9]{12}:configuration/[a-z0-9]{27}$" |
+			fn.#StringExpression
+		Regions!: list.MinItems(1) & [
+			...strings.MaxRunes(25) & strings.MinRunes(2) & =~"^([a-z]{1,4})-([a-z]{1,15}-)+([0-9])$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Source!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^aws.([a-z0-9\\-])+$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/EventRuleStatus": "ACTIVE" |
-	"INACTIVE" |
-	"CREATING" |
-	"UPDATING" |
-	"DELETING" |
-	fn.#StringExpression
+#EventRuleStatus: "ACTIVE" | "INACTIVE" | "CREATING" | "UPDATING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventRuleStatusSummary": close({
+#EventRuleStatusSummary: close({
 	Reason!: string | fn.#StringExpression
-	Status!: _#defs."/$defs/Properties/definitions/EventRuleStatus"
+	Status!: #EventRuleStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatusSummaryByRegion": close({
+#StatusSummaryByRegion: close({
 
-	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: _#defs."/$defs/Properties/definitions/EventRuleStatusSummary"}}) |
+	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: #EventRuleStatusSummary}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Notifications::EventRule"
-	Properties!: #Properties
-}
+#Unit: close({}) | fn.#ObjectExpression

@@ -16,13 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::TrustStoreRevocation
-#Properties: close({
-	RevocationContents?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RevocationContent"] |
-		fn.#ListExpression
-	TrustStoreArn?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancingV2::TrustStoreRevocation"
+	Properties?: close({
+		RevocationContents?: list.UniqueItems() & [...#RevocationContent] | fn.#ListExpression
+		TrustStoreArn?:      string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/RevocationContent": close({
+#RevocationContent: close({
 	RevocationType?:  "CRL" | fn.#StringExpression
 	S3Bucket?:        string | fn.#StringExpression
 	S3Key?:           string | fn.#StringExpression
@@ -30,9 +32,9 @@ _#defs: "/$defs/Properties/definitions/RevocationContent": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RevocationId": string | fn.#StringExpression
+#RevocationId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TrustStoreRevocation": close({
+#TrustStoreRevocation: close({
 	NumberOfRevokedEntries?: int |
 		{
 			string &
@@ -52,7 +54,3 @@ _#defs: "/$defs/Properties/definitions/TrustStoreRevocation": close({
 	TrustStoreArn?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancingV2::TrustStoreRevocation"
-	Properties?: #Properties
-}

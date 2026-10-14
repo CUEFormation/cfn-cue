@@ -12,20 +12,20 @@ import (
 // Creates an Amazon S3 Tables table bucket in the same AWS Region where you
 // create the AWS CloudFormation stack.
 #Properties: close({
-	EncryptionConfiguration?:   _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	MetricsConfiguration?:      _#defs."/$defs/Properties/definitions/MetricsConfiguration"
-	ReplicationConfiguration?:  _#defs."/$defs/Properties/definitions/ReplicationConfiguration"
-	StorageClassConfiguration?: _#defs."/$defs/Properties/definitions/StorageClassConfiguration"
-	TableBucketARN?:            _#defs."/$defs/Properties/definitions/TableBucketARN"
-	TableBucketName!:           _#defs."/$defs/Properties/definitions/TableBucketName"
+	EncryptionConfiguration?:   #EncryptionConfiguration
+	MetricsConfiguration?:      #MetricsConfiguration
+	ReplicationConfiguration?:  #ReplicationConfiguration
+	StorageClassConfiguration?: #StorageClassConfiguration
+	TableBucketARN?:            #TableBucketARN
+	TableBucketName!:           #TableBucketName
 
 	// User tags (key-value pairs) to associate with the table bucket.
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	UnreferencedFileRemoval?: _#defs."/$defs/Properties/definitions/UnreferencedFileRemoval"
+	Tags?:                    list.UniqueItems() & [...#Tag]
+	UnreferencedFileRemoval?: #UnreferencedFileRemoval
 })
 
 // Specifies encryption settings for the table bucket
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// ARN of the KMS key to use for encryption
 	KMSKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 
@@ -34,47 +34,45 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 })
 
 // Settings governing the Metric configuration for the table bucket.
-_#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
+#MetricsConfiguration: close({
 	// Indicates whether Metrics are enabled.
 	Status?: "Enabled" | "Disabled"
 })
 
 // Specifies replication configuration for the table bucket
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
+#ReplicationConfiguration: close({
 	// The ARN of the IAM role to use for replication
 	Role!: string
 
 	// List of replication rules
-	Rules!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ReplicationRule"]
+	Rules!: list.MaxItems(1) & list.MinItems(1) & [...#ReplicationRule]
 })
 
 // A replication destination
-_#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
+#ReplicationDestination: close({
 	// The ARN of the destination table bucket
 	DestinationTableBucketARN!: string
 })
 
 // A replication rule for the table bucket
-_#defs: "/$defs/Properties/definitions/ReplicationRule": close({
+#ReplicationRule: close({
 	// List of replication destinations
-	Destinations!: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReplicationDestination"
-	]
+	Destinations!: list.MaxItems(5) & list.MinItems(1) & [...#ReplicationDestination]
 })
 
 // Specifies storage class settings for the table bucket
-_#defs: "/$defs/Properties/definitions/StorageClassConfiguration": close({
+#StorageClassConfiguration: close({
 	// The storage class for the table bucket
 	StorageClass?: "STANDARD" | "INTELLIGENT_TIERING"
 })
 
 // The Amazon Resource Name (ARN) of the specified table bucket.
-_#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"
 
 // A name for the table bucket.
-_#defs: "/$defs/Properties/definitions/TableBucketName": strings.MaxRunes(63) & strings.MinRunes(3)
+#TableBucketName: strings.MaxRunes(63) & strings.MinRunes(3)
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key must be between 1 to 128 characters in length. Tag key cannot start
 	// with 'aws:' and can only contain alphanumeric characters, spaces, _, ., /,
 	// =, +, -, and @.
@@ -88,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // Settings governing the Unreferenced File Removal maintenance action.
 // Unreferenced file removal identifies and deletes all objects that are not
 // referenced by any table snapshots.
-_#defs: "/$defs/Properties/definitions/UnreferencedFileRemoval": close({
+#UnreferencedFileRemoval: close({
 	// S3 permanently deletes noncurrent objects after the number of days specified
 	// by the NoncurrentDays property.
 	NoncurrentDays?: int & >=1

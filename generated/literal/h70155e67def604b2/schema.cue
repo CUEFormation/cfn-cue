@@ -28,7 +28,7 @@ import (
 
 	// A Boolean value indicating whether the snapshot was created from an automatic snapshot.
 	IsFromAutoSnapshot?: bool
-	Location?:           _#defs."/$defs/Properties/definitions/Location"
+	Location?:           #Location
 
 	// The type of resource (usually InstanceSnapshot).
 	ResourceType?: string
@@ -43,11 +43,11 @@ import (
 	SupportCode?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The region name and Availability Zone where you created the snapshot.
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	// The Availability Zone. Follows the format us-east-2a (case-sensitive).
 	AvailabilityZone?: string
 
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/Location": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

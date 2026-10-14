@@ -4,8 +4,8 @@ package schema
 
 import (
 	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,18 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS::CloudWatch::OTelEnrichment enables OTel metric enrichment in CloudWatch,
 // allowing CloudWatch vended metrics to be available for PromQL querying
 // enriched with AWS resource tags and metadata.
-#Properties: close({
-	ExcludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/OTelEnrichmentMetricSelector"
-	] |
-		fn.#ListExpression
-	IncludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/OTelEnrichmentMetricSelector"
-	] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::OTelEnrichment"
+	Properties?: close({
+		ExcludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector] |
+			fn.#ListExpression
+		IncludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector] |
+			fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/OTelEnrichmentMetricSelector": close({
+#OTelEnrichmentMetricSelector: close({
 	MetricNames?: list.MaxItems(100) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -35,8 +34,4 @@ _#defs: "/$defs/Properties/definitions/OTelEnrichmentMetricSelector": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "RUNNING" | "STOPPED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::OTelEnrichment"
-	Properties?: #Properties
-}
+#Status: "RUNNING" | "STOPPED" | fn.#StringExpression

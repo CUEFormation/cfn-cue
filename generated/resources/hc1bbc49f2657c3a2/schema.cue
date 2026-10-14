@@ -12,34 +12,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a custom DB engine version (CEV).
-#Properties: close({
-	DatabaseInstallationFiles?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	DatabaseInstallationFilesS3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	DatabaseInstallationFilesS3Prefix?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:                           strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	Engine!:        strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]{1,35}$" | fn.#StringExpression
-	EngineVersion!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-z0-9_.-]{1,60}$" | fn.#StringExpression
-	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	KMSKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9_:\\-\\/]+$" |
-	fn.#StringExpression
-	Manifest?: strings.MaxRunes(51000) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	SourceCustomDbEngineVersionIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Status?: "available" | "inactive" | "inactive-except-restore" | "pending-validation" | fn.#StringExpression
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UseAwsProvidedLatestImage?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::CustomDBEngineVersion"
+	Properties!: close({
+		DatabaseInstallationFiles?:             [...string | fn.#StringExpression] | fn.#ListExpression
+		DatabaseInstallationFilesS3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		DatabaseInstallationFilesS3Prefix?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:                           strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		Engine!:        strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]{1,35}$" | fn.#StringExpression
+		EngineVersion!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-z0-9_.-]{1,60}$" | fn.#StringExpression
+		ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		KMSKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9_:\\-\\/]+$" |
+		fn.#StringExpression
+		Manifest?: strings.MaxRunes(51000) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		SourceCustomDbEngineVersionIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Status?: "available" | "inactive" | "inactive-except-restore" | "pending-validation" | fn.#StringExpression
+		Tags?:   [...#Tag] | fn.#ListExpression
+		UseAwsProvidedLatestImage?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::CustomDBEngineVersion"
-	Properties!: #Properties
-}

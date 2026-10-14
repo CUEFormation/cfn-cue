@@ -3,44 +3,44 @@
 package schema
 
 import (
-	"list"
 	"time"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::Index
 #Properties: close({
-	CreationTime?:            _#defs."/$defs/Properties/definitions/CreationTime"
-	DataType!:                _#defs."/$defs/Properties/definitions/DataType"
-	Dimension!:               _#defs."/$defs/Properties/definitions/Dimension"
-	DistanceMetric!:          _#defs."/$defs/Properties/definitions/DistanceMetric"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	IndexArn?:                _#defs."/$defs/Properties/definitions/IndexArn"
-	IndexName?:               _#defs."/$defs/Properties/definitions/IndexName"
-	MetadataConfiguration?:   _#defs."/$defs/Properties/definitions/MetadataConfiguration"
+	CreationTime?:            #CreationTime
+	DataType!:                #DataType
+	Dimension!:               #Dimension
+	DistanceMetric!:          #DistanceMetric
+	EncryptionConfiguration?: #EncryptionConfiguration
+	IndexArn?:                #IndexArn
+	IndexName?:               #IndexName
+	MetadataConfiguration?:   #MetadataConfiguration
 
 	// User tags (key-value pairs) to associate with the index.
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VectorBucketArn?:  _#defs."/$defs/Properties/definitions/VectorBucketArn"
-	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName"
+	Tags?:             list.UniqueItems() & [...#Tag]
+	VectorBucketArn?:  #VectorBucketArn
+	VectorBucketName?: #VectorBucketName
 })
 
 // Date and time when the vector index was created.
-_#defs: "/$defs/Properties/definitions/CreationTime": time.Time
+#CreationTime: time.Time
 
 // The data type of the vectors to be inserted into the vector index.
-_#defs: "/$defs/Properties/definitions/DataType": "float32"
+#DataType: "float32"
 
 // The dimensions of the vectors to be inserted into the vector index.
-_#defs: "/$defs/Properties/definitions/Dimension": int & <=4096 & >=1
+#Dimension: int & <=4096 & >=1
 
 // The distance metric to be used for similarity search.
-_#defs: "/$defs/Properties/definitions/DistanceMetric": "cosine" | "euclidean"
+#DistanceMetric: "cosine" | "euclidean"
 
 // The encryption configuration for the index.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// AWS Key Management Service (KMS) customer managed key ID to use for the
 	// encryption configuration. This parameter is allowed if and only if sseType
 	// is set to aws:kms
@@ -55,13 +55,13 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 })
 
 // The Amazon Resource Name (ARN) of the index
-_#defs: "/$defs/Properties/definitions/IndexArn": string
+#IndexArn: string
 
 // The name of the vector index to create.
-_#defs: "/$defs/Properties/definitions/IndexName": strings.MaxRunes(63) & strings.MinRunes(3)
+#IndexName: strings.MaxRunes(63) & strings.MinRunes(3)
 
 // The metadata configuration for the vector index.
-_#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
+#MetadataConfiguration: close({
 	// Non-filterable metadata keys allow you to enrich vectors with additional
 	// context during storage and retrieval. Unlike default metadata keys, these
 	// keys cannot be used as query filters. Non-filterable metadata keys can be
@@ -72,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key must be between 1 to 128 characters in length. Tag key cannot start
 	// with 'aws:' and can only contain alphanumeric characters, spaces, _, ., /,
 	// =, +, -, and @.
@@ -84,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The Amazon Resource Name (ARN) of the vector bucket.
-_#defs: "/$defs/Properties/definitions/VectorBucketArn": =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$"
+#VectorBucketArn: =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$"
 
 // The name of the vector bucket that contains the vector index.
-_#defs: "/$defs/Properties/definitions/VectorBucketName": strings.MaxRunes(63) & strings.MinRunes(3)
+#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3)

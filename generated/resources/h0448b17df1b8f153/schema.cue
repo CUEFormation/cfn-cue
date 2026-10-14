@@ -12,47 +12,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::SignalMap Resource Type
-#Properties: close({
-	CloudWatchAlarmTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
-	Description?:                             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	DiscoveryEntryPointArn!:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
-	ForceRediscovery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Tags?:             _#defs."/$defs/Properties/definitions/TagMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::SignalMap"
+	Properties!: close({
+		CloudWatchAlarmTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
+		Description?:                             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		DiscoveryEntryPointArn!:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
+		ForceRediscovery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		Tags?:             #TagMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/FailedMediaResourceMap": close({
+#FailedMediaResourceMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/MediaResource"}}) |
+	{[=~".+"]: #MediaResource}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaResource": close({
-	Destinations?: [..._#defs."/$defs/Properties/definitions/MediaResourceNeighbor"] | fn.#ListExpression
+#MediaResource: close({
+	Destinations?: [...#MediaResourceNeighbor] | fn.#ListExpression
 	Name?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Sources?:      [..._#defs."/$defs/Properties/definitions/MediaResourceNeighbor"] | fn.#ListExpression
+	Sources?:      [...#MediaResourceNeighbor] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaResourceMap": close({
+#MediaResourceMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/MediaResource"}}) |
+	{[=~".+"]: #MediaResource}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaResourceNeighbor": close({
+#MediaResourceNeighbor: close({
 	Arn!:  strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn.+$" | fn.#StringExpression
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonitorDeployment": close({
+#MonitorDeployment: close({
 	DetailsUri?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	ErrorMessage?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:       _#defs."/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus"
+	Status!:       #SignalMapMonitorDeploymentStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus": "NOT_DEPLOYED" |
+#SignalMapMonitorDeploymentStatus: "NOT_DEPLOYED" |
 	"DRY_RUN_DEPLOYMENT_COMPLETE" |
 	"DRY_RUN_DEPLOYMENT_FAILED" |
 	"DRY_RUN_DEPLOYMENT_IN_PROGRESS" |
@@ -64,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus": "NOT_D
 	"DELETE_IN_PROGRESS" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SignalMapStatus": "CREATE_IN_PROGRESS" |
+#SignalMapStatus: "CREATE_IN_PROGRESS" |
 	"CREATE_COMPLETE" |
 	"CREATE_FAILED" |
 	"UPDATE_IN_PROGRESS" |
@@ -75,19 +78,15 @@ _#defs: "/$defs/Properties/definitions/SignalMapStatus": "CREATE_IN_PROGRESS" |
 	"NOT_READY" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SuccessfulMonitorDeployment": close({
+#SuccessfulMonitorDeployment: close({
 	DetailsUri!: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:     _#defs."/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus"
+	Status!:     #SignalMapMonitorDeploymentStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::SignalMap"
-	Properties!: #Properties
-}
+#Unit: close({}) | fn.#ObjectExpression

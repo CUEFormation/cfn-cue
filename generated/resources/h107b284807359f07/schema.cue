@@ -17,62 +17,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RolesAnywhere::Profile Resource Type
-#Properties: close({
-	AcceptRoleSessionName?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AttributeMappings?:     [..._#defs."/$defs/Properties/definitions/AttributeMapping"] | fn.#ListExpression
-	DurationSeconds?: <=43200 & >=900 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RolesAnywhere::Profile"
+	Properties!: close({
+		AcceptRoleSessionName?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AttributeMappings?:     [...#AttributeMapping] | fn.#ListExpression
+		DurationSeconds?: <=43200 & >=900 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=43200 &
+								>=900,
+							"g",
+							-1,
 							64,
-						) &
-							<=43200 &
-							>=900,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ManagedPolicyArns?: list.MaxItems(50) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" | fn.#StringExpression
-	RequireInstanceProperties?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleArns!: list.MaxItems(250) & [...] & [
-		...strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam(:.*){2}(:role.*)$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SessionPolicy?: string | fn.#StringExpression
-	Tags?:          list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ManagedPolicyArns?: list.MaxItems(50) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" | fn.#StringExpression
+		RequireInstanceProperties?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		RoleArns!: list.MaxItems(250) & [...] & [
+			...strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam(:.*){2}(:role.*)$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		SessionPolicy?: string | fn.#StringExpression
+		Tags?:          list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AttributeMapping": close({
-	CertificateField!: _#defs."/$defs/Properties/definitions/CertificateField"
-	MappingRules!:     [..._#defs."/$defs/Properties/definitions/MappingRule"] | fn.#ListExpression
+#AttributeMapping: close({
+	CertificateField!: #CertificateField
+	MappingRules!:     [...#MappingRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateField": "x509Subject" |
-	"x509Issuer" |
-	"x509SAN" |
-	fn.#StringExpression
+#CertificateField: "x509Subject" | "x509Issuer" | "x509SAN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MappingRule": close({Specifier!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#MappingRule: close({Specifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RolesAnywhere::Profile"
-	Properties!: #Properties
-}

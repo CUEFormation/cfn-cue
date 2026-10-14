@@ -17,32 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS Route53 Recovery Control basic constructs and validation rules.
-#Properties: matchN(1, [{
-	AssertionRule!:   _
-	Name!:            _
-	ControlPanelArn!: _
-	RuleConfig!:      _
-	...
-}, {
-	GatingRule!:      _
-	Name!:            _
-	ControlPanelArn!: _
-	RuleConfig!:      _
-	...
-}]) & close({
-	AssertionRule?:   _#defs."/$defs/Properties/definitions/AssertionRule"
-	ControlPanelArn?: string | fn.#StringExpression
-	GatingRule?:      _#defs."/$defs/Properties/definitions/GatingRule"
-	Name?:            _#defs."/$defs/Properties/definitions/SafetyRuleName"
-	RuleConfig?:      _#defs."/$defs/Properties/definitions/RuleConfig"
-	Tags?: [
-		..._#defs."/$defs/Properties/definitions/Tag" & (null | bool | number | string | list.MaxItems(20) | {...}) |
-		fn.#ObjectExpression
-	] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53RecoveryControl::SafetyRule"
+	Properties?: matchN(1, [{
+		AssertionRule!:   _
+		Name!:            _
+		ControlPanelArn!: _
+		RuleConfig!:      _
+		...
+	}, {
+		GatingRule!:      _
+		Name!:            _
+		ControlPanelArn!: _
+		RuleConfig!:      _
+		...
+	}]) & close({
+		AssertionRule?:   #AssertionRule
+		ControlPanelArn?: string | fn.#StringExpression
+		GatingRule?:      #GatingRule
+		Name?:            #SafetyRuleName
+		RuleConfig?:      #RuleConfig
+		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AssertionRule": close({
+#AssertionRule: close({
 	AssertedControls!: [...string | fn.#StringExpression] | fn.#ListExpression
 	WaitPeriodMs!: int |
 		{
@@ -61,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/AssertionRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatingRule": close({
+#GatingRule: close({
 	GatingControls!: [...string | fn.#StringExpression] | fn.#ListExpression
 	TargetControls!: [...string | fn.#StringExpression] | fn.#ListExpression
 	WaitPeriodMs!: int |
@@ -81,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/GatingRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleConfig": close({
+#RuleConfig: close({
 	Inverted!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Threshold!: int |
 		{
@@ -97,20 +97,16 @@ _#defs: "/$defs/Properties/definitions/RuleConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	Type!: _#defs."/$defs/Properties/definitions/RuleType"
+	Type!: #RuleType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleType": "AND" | "OR" | "ATLEAST" | fn.#StringExpression
+#RuleType: "AND" | "OR" | "ATLEAST" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SafetyRuleName": string | fn.#StringExpression
+#SafetyRuleName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryControl::SafetyRule"
-	Properties?: #Properties
-}

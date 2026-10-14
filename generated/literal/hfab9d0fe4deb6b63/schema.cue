@@ -13,12 +13,12 @@ import (
 #Properties: close({
 	// The time at which the data source was created.
 	CreatedAt?:               string
-	DataDeletionPolicy?:      _#defs."/$defs/Properties/definitions/DataDeletionPolicy"
-	DataSourceConfiguration!: _#defs."/$defs/Properties/definitions/DataSourceConfiguration"
+	DataDeletionPolicy?:      #DataDeletionPolicy
+	DataSourceConfiguration!: #DataSourceConfiguration
 
 	// Identifier for a resource.
 	DataSourceId?:     =~"^[0-9a-zA-Z]{10}$"
-	DataSourceStatus?: _#defs."/$defs/Properties/definitions/DataSourceStatus"
+	DataSourceStatus?: #DataSourceStatus
 
 	// Description of the Resource.
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
@@ -31,44 +31,40 @@ import (
 
 	// The name of the data source.
 	Name!:                              =~"^([0-9a-zA-Z][_-]?){1,100}$"
-	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration"
+	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
 
 	// The time at which the knowledge base was last updated.
 	UpdatedAt?:                    string
-	VectorIngestionConfiguration?: _#defs."/$defs/Properties/definitions/VectorIngestionConfiguration"
+	VectorIngestionConfiguration?: #VectorIngestionConfiguration
 })
 
 // Configuration for audio extraction.
-_#defs: "/$defs/Properties/definitions/AudioExtractionConfiguration": close(
-	{AudioExtractionStatus!: _#defs."/$defs/Properties/definitions/EnabledOrDisabledState"},
-)
+#AudioExtractionConfiguration: close({AudioExtractionStatus!: #EnabledOrDisabledState})
 
 // Settings for a Bedrock Data Automation used to parse documents for a data source.
-_#defs: "/$defs/Properties/definitions/BedrockDataAutomationConfiguration": close(
-	{ParsingModality?: _#defs."/$defs/Properties/definitions/ParsingModality"},
-)
+#BedrockDataAutomationConfiguration: close({ParsingModality?: #ParsingModality})
 
 // Settings for a foundation model used to parse documents for a data source.
-_#defs: "/$defs/Properties/definitions/BedrockFoundationModelConfiguration": close({
-	ModelArn!:        _#defs."/$defs/Properties/definitions/ModelArn"
-	ParsingModality?: _#defs."/$defs/Properties/definitions/ParsingModality"
-	ParsingPrompt?:   _#defs."/$defs/Properties/definitions/ParsingPrompt"
+#BedrockFoundationModelConfiguration: close({
+	ModelArn!:        #ModelArn
+	ParsingModality?: #ParsingModality
+	ParsingPrompt?:   #ParsingPrompt
 })
 
 // Bedrock Foundation Model configuration to be used for Context Enrichment.
-_#defs: "/$defs/Properties/definitions/BedrockFoundationModelContextEnrichmentConfiguration": close({
-	EnrichmentStrategyConfiguration!: _#defs."/$defs/Properties/definitions/EnrichmentStrategyConfiguration"
-	ModelArn!:                        _#defs."/$defs/Properties/definitions/ModelArn"
+#BedrockFoundationModelContextEnrichmentConfiguration: close({
+	EnrichmentStrategyConfiguration!: #EnrichmentStrategyConfiguration
+	ModelArn!:                        #ModelArn
 })
 
 // Details about how to chunk the documents in the data source. A chunk refers
 // to an excerpt from a data source that is returned when the knowledge base
 // that it belongs to is queried.
-_#defs: "/$defs/Properties/definitions/ChunkingConfiguration": close({
-	ChunkingStrategy!:                  _#defs."/$defs/Properties/definitions/ChunkingStrategy"
-	FixedSizeChunkingConfiguration?:    _#defs."/$defs/Properties/definitions/FixedSizeChunkingConfiguration"
-	HierarchicalChunkingConfiguration?: _#defs."/$defs/Properties/definitions/HierarchicalChunkingConfiguration"
-	SemanticChunkingConfiguration?:     _#defs."/$defs/Properties/definitions/SemanticChunkingConfiguration"
+#ChunkingConfiguration: close({
+	ChunkingStrategy!:                  #ChunkingStrategy
+	FixedSizeChunkingConfiguration?:    #FixedSizeChunkingConfiguration
+	HierarchicalChunkingConfiguration?: #HierarchicalChunkingConfiguration
+	SemanticChunkingConfiguration?:     #SemanticChunkingConfiguration
 })
 
 // Knowledge base can split your source data into chunks. A chunk refers to an
@@ -76,22 +72,20 @@ _#defs: "/$defs/Properties/definitions/ChunkingConfiguration": close({
 // belongs to is queried. You have the following options for chunking your
 // data. If you opt for NONE, then you may want to pre-process your files by
 // splitting them up such that each file corresponds to a chunk.
-_#defs: "/$defs/Properties/definitions/ChunkingStrategy": "FIXED_SIZE" | "NONE" | "HIERARCHICAL" | "SEMANTIC"
+#ChunkingStrategy: "FIXED_SIZE" | "NONE" | "HIERARCHICAL" | "SEMANTIC"
 
 // The configuration of the Confluence content. For example, configuring
 // specific types of Confluence content.
-_#defs: "/$defs/Properties/definitions/ConfluenceCrawlerConfiguration": close(
-	{FilterConfiguration?: _#defs."/$defs/Properties/definitions/CrawlFilterConfiguration"},
-)
+#ConfluenceCrawlerConfiguration: close({FilterConfiguration?: #CrawlFilterConfiguration})
 
 // The configuration information to connect to Confluence as your data source.
-_#defs: "/$defs/Properties/definitions/ConfluenceDataSourceConfiguration": close({
-	CrawlerConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceCrawlerConfiguration"
-	SourceConfiguration!:  _#defs."/$defs/Properties/definitions/ConfluenceSourceConfiguration"
+#ConfluenceDataSourceConfiguration: close({
+	CrawlerConfiguration?: #ConfluenceCrawlerConfiguration
+	SourceConfiguration!:  #ConfluenceSourceConfiguration
 })
 
 // The endpoint information to connect to your Confluence data source.
-_#defs: "/$defs/Properties/definitions/ConfluenceSourceConfiguration": close({
+#ConfluenceSourceConfiguration: close({
 	// The supported authentication type to authenticate and connect to your Confluence instance.
 	AuthType!: "BASIC" | "OAUTH2_CLIENT_CREDENTIALS"
 
@@ -111,61 +105,54 @@ _#defs: "/$defs/Properties/definitions/ConfluenceSourceConfiguration": close({
 })
 
 // Additional Enrichment Configuration for example when using GraphRag.
-_#defs: "/$defs/Properties/definitions/ContextEnrichmentConfiguration": close({
-	BedrockFoundationModelConfiguration?:
-		_#defs."/$defs/Properties/definitions/BedrockFoundationModelContextEnrichmentConfiguration"
-	Type!: _#defs."/$defs/Properties/definitions/ContextEnrichmentType"
+#ContextEnrichmentConfiguration: close({
+	BedrockFoundationModelConfiguration?: #BedrockFoundationModelContextEnrichmentConfiguration
+	Type!:                                #ContextEnrichmentType
 })
 
 // Enrichment type to be used for the vector database.
-_#defs: "/$defs/Properties/definitions/ContextEnrichmentType": "BEDROCK_FOUNDATION_MODEL"
+#ContextEnrichmentType: "BEDROCK_FOUNDATION_MODEL"
 
 // The type of filtering that you want to apply to certain objects or content of
 // the data source. For example, the PATTERN type is regular expression
 // patterns you can apply to filter your content.
-_#defs: "/$defs/Properties/definitions/CrawlFilterConfiguration": close({
-	PatternObjectFilter?: _#defs."/$defs/Properties/definitions/PatternObjectFilterConfiguration"
+#CrawlFilterConfiguration: close({
+	PatternObjectFilter?: #PatternObjectFilterConfiguration
 
 	// The crawl filter type.
 	Type!: "PATTERN"
 })
 
 // Settings for customizing steps in the data source content ingestion pipeline.
-_#defs: "/$defs/Properties/definitions/CustomTransformationConfiguration": close({
-	IntermediateStorage!: _#defs."/$defs/Properties/definitions/IntermediateStorage"
+#CustomTransformationConfiguration: close({
+	IntermediateStorage!: #IntermediateStorage
 
 	// A list of Lambda functions that process documents.
-	Transformations!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Transformation"]
+	Transformations!: list.MaxItems(1) & list.MinItems(1) & [...#Transformation]
 })
 
 // A daily refresh. The run time is system-chosen (off-peak) and not customer-configurable.
-_#defs: "/$defs/Properties/definitions/DailySchedule": close({})
+#DailySchedule: close({})
 
 // The deletion policy for the data source.
-_#defs: "/$defs/Properties/definitions/DataDeletionPolicy": "RETAIN" | "DELETE"
+#DataDeletionPolicy: "RETAIN" | "DELETE"
 
 // Specifies a raw data source location to ingest.
-_#defs: "/$defs/Properties/definitions/DataSourceConfiguration": close({
-	ConfluenceConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceDataSourceConfiguration"
-	ManagedKnowledgeBaseConnectorConfiguration?:
-		_#defs."/$defs/Properties/definitions/ManagedKnowledgeBaseConnectorConfiguration"
-	S3Configuration?:         _#defs."/$defs/Properties/definitions/S3DataSourceConfiguration"
-	SalesforceConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceDataSourceConfiguration"
-	SharePointConfiguration?: _#defs."/$defs/Properties/definitions/SharePointDataSourceConfiguration"
-	Type!:                    _#defs."/$defs/Properties/definitions/DataSourceType"
-	WebConfiguration?:        _#defs."/$defs/Properties/definitions/WebDataSourceConfiguration"
+#DataSourceConfiguration: close({
+	ConfluenceConfiguration?:                    #ConfluenceDataSourceConfiguration
+	ManagedKnowledgeBaseConnectorConfiguration?: #ManagedKnowledgeBaseConnectorConfiguration
+	S3Configuration?:                            #S3DataSourceConfiguration
+	SalesforceConfiguration?:                    #SalesforceDataSourceConfiguration
+	SharePointConfiguration?:                    #SharePointDataSourceConfiguration
+	Type!:                                       #DataSourceType
+	WebConfiguration?:                           #WebDataSourceConfiguration
 })
 
 // The status of a data source.
-_#defs: "/$defs/Properties/definitions/DataSourceStatus": "AVAILABLE" |
-	"DELETING" |
-	"DELETE_UNSUCCESSFUL" |
-	"CREATING" |
-	"UPDATING" |
-	"FAILED"
+#DataSourceStatus: "AVAILABLE" | "DELETING" | "DELETE_UNSUCCESSFUL" | "CREATING" | "UPDATING" | "FAILED"
 
 // The type of the data source location.
-_#defs: "/$defs/Properties/definitions/DataSourceType": "S3" |
+#DataSourceType: "S3" |
 	"CONFLUENCE" |
 	"SALESFORCE" |
 	"SHAREPOINT" |
@@ -176,54 +163,45 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": "S3" |
 
 // Day of the month on which a monthly refresh runs. Exactly one variant is set:
 // an explicit day number, or the last calendar day of the month.
-_#defs: "/$defs/Properties/definitions/DayOfMonth": matchN(1, [{
-	DayNumber!: _
-	...
-}, {
-	LastDayOfMonth!: _
-	...
-}]) & close({
+#DayOfMonth: close({
 	// Specific day of the month, 1 through 28 (capped at 28 to avoid month-length ambiguity).
 	DayNumber?: int & <=28 & >=1
 
 	// Run on the last calendar day of each month.
 	LastDayOfMonth?: close({})
-})
+	if DayNumber != _|_ if DayNumber."Fn::If" == _|_ {
+		LastDayOfMonth?: close({"Fn::If": _}) | error(
+			"LastDayOfMonth cannot be used with DayNumber; set exactly one of DayNumber, LastDayOfMonth",
+		)
+	}
+}) & matchN(>=1, [{DayNumber!: _}, {LastDayOfMonth!: _}])
 
 // Day of the week.
-_#defs: "/$defs/Properties/definitions/DayOfWeek": "SUNDAY" |
-	"MONDAY" |
-	"TUESDAY" |
-	"WEDNESDAY" |
-	"THURSDAY" |
-	"FRIDAY" |
-	"SATURDAY"
+#DayOfWeek: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY"
 
 // Configuration for deletion protection.
-_#defs: "/$defs/Properties/definitions/DeletionProtectionConfiguration": close({
-	DeletionProtectionStatus!: _#defs."/$defs/Properties/definitions/EnabledOrDisabledState"
+#DeletionProtectionConfiguration: close({
+	DeletionProtectionStatus!: #EnabledOrDisabledState
 
 	// Threshold for deletion protection.
 	DeletionProtectionThreshold?: int & <=100 & >=0
 })
 
 // Indicates whether a feature is enabled or disabled.
-_#defs: "/$defs/Properties/definitions/EnabledOrDisabledState": "ENABLED" | "DISABLED"
+#EnabledOrDisabledState: "ENABLED" | "DISABLED"
 
 // Strategy to be used when using Bedrock Foundation Model for Context Enrichment.
-_#defs: "/$defs/Properties/definitions/EnrichmentStrategyConfiguration": close(
-	{Method!: _#defs."/$defs/Properties/definitions/EnrichmentStrategyMethod"},
-)
+#EnrichmentStrategyConfiguration: close({Method!: #EnrichmentStrategyMethod})
 
 // Enrichment Strategy method.
-_#defs: "/$defs/Properties/definitions/EnrichmentStrategyMethod": "CHUNK_ENTITY_EXTRACTION"
+#EnrichmentStrategyMethod: "CHUNK_ENTITY_EXTRACTION"
 
 // A set of regular expression filter patterns for a type of object.
-_#defs: "/$defs/Properties/definitions/FilterList": list.MaxItems(25) & list.MinItems(1) & [...strings.MaxRunes(1000)]
+#FilterList: list.MaxItems(25) & list.MinItems(1) & [...strings.MaxRunes(1000)]
 
 // Configurations for when you choose fixed-size chunking. If you set the
 // chunkingStrategy as NONE, exclude this field.
-_#defs: "/$defs/Properties/definitions/FixedSizeChunkingConfiguration": close({
+#FixedSizeChunkingConfiguration: close({
 	// The maximum number of tokens to include in a chunk.
 	MaxTokens!: int & >=1
 
@@ -233,86 +211,75 @@ _#defs: "/$defs/Properties/definitions/FixedSizeChunkingConfiguration": close({
 
 // Configurations for when you choose hierarchical chunking. If you set the
 // chunkingStrategy as NONE, exclude this field.
-_#defs: "/$defs/Properties/definitions/HierarchicalChunkingConfiguration": close({
+#HierarchicalChunkingConfiguration: close({
 	// Token settings for each layer.
-	LevelConfigurations!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration"
-	]
+	LevelConfigurations!: list.MaxItems(2) & list.MinItems(2) & [...#HierarchicalChunkingLevelConfiguration]
 
 	// The number of tokens to repeat across chunks in the same layer.
 	OverlapTokens!: int & >=1
 })
 
 // Token settings for a layer in a hierarchical chunking configuration.
-_#defs: "/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration": close({
+#HierarchicalChunkingLevelConfiguration: close({
 	// The maximum number of tokens that a chunk can contain in this layer.
 	MaxTokens!: int & <=8192 & >=1
 })
 
 // Configuration for image extraction.
-_#defs: "/$defs/Properties/definitions/ImageExtractionConfiguration": close(
-	{ImageExtractionStatus!: _#defs."/$defs/Properties/definitions/EnabledOrDisabledState"},
-)
+#ImageExtractionConfiguration: close({ImageExtractionStatus!: #EnabledOrDisabledState})
 
 // A location for storing content from data sources temporarily as it is
 // processed by custom components in the ingestion pipeline.
-_#defs: "/$defs/Properties/definitions/IntermediateStorage": close(
-	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
-)
+#IntermediateStorage: close({S3Location!: #S3Location})
 
 // Configuration for managed knowledge base connector data sources.
-_#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseConnectorConfiguration": close({
+#ManagedKnowledgeBaseConnectorConfiguration: close({
 	// Connector-specific parameters.
 	ConnectorParameters?:             {...}
-	DeletionProtectionConfiguration?: _#defs."/$defs/Properties/definitions/DeletionProtectionConfiguration"
-	MediaExtractionConfiguration?:    _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration"
-	SyncSchedule?:                    _#defs."/$defs/Properties/definitions/SyncSchedule"
+	DeletionProtectionConfiguration?: #DeletionProtectionConfiguration
+	MediaExtractionConfiguration?:    #MediaExtractionConfiguration
+	SyncSchedule?:                    #SyncSchedule
 })
 
 // Configuration for media extraction settings.
-_#defs: "/$defs/Properties/definitions/MediaExtractionConfiguration": close({
-	AudioExtractionConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionConfiguration"
-	ImageExtractionConfiguration?: _#defs."/$defs/Properties/definitions/ImageExtractionConfiguration"
-	VideoExtractionConfiguration?: _#defs."/$defs/Properties/definitions/VideoExtractionConfiguration"
+#MediaExtractionConfiguration: close({
+	AudioExtractionConfiguration?: #AudioExtractionConfiguration
+	ImageExtractionConfiguration?: #ImageExtractionConfiguration
+	VideoExtractionConfiguration?: #VideoExtractionConfiguration
 })
 
 // The model's ARN.
-_#defs: "/$defs/Properties/definitions/ModelArn": strings.MaxRunes(2048) &
+#ModelArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:(bedrock):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$"
 
 // A monthly refresh on a specified day of the month.
-_#defs: "/$defs/Properties/definitions/MonthlySchedule": close(
-	{DayOfMonth!: _#defs."/$defs/Properties/definitions/DayOfMonth"},
-)
+#MonthlySchedule: close({DayOfMonth!: #DayOfMonth})
 
 // Settings for parsing document contents
-_#defs: "/$defs/Properties/definitions/ParsingConfiguration": close({
-	BedrockDataAutomationConfiguration?:  _#defs."/$defs/Properties/definitions/BedrockDataAutomationConfiguration"
-	BedrockFoundationModelConfiguration?: _#defs."/$defs/Properties/definitions/BedrockFoundationModelConfiguration"
-	ParsingStrategy!:                     _#defs."/$defs/Properties/definitions/ParsingStrategy"
+#ParsingConfiguration: close({
+	BedrockDataAutomationConfiguration?:  #BedrockDataAutomationConfiguration
+	BedrockFoundationModelConfiguration?: #BedrockFoundationModelConfiguration
+	ParsingStrategy!:                     #ParsingStrategy
 })
 
 // Determine how will parsed content be stored.
-_#defs: "/$defs/Properties/definitions/ParsingModality": "MULTIMODAL"
+#ParsingModality: "MULTIMODAL"
 
 // Instructions for interpreting the contents of a document.
-_#defs: "/$defs/Properties/definitions/ParsingPrompt": close({
+#ParsingPrompt: close({
 	// Instructions for interpreting the contents of a document.
 	ParsingPromptText!: strings.MaxRunes(10000) & strings.MinRunes(1)
 })
 
 // The parsing strategy for the data source.
-_#defs: "/$defs/Properties/definitions/ParsingStrategy": "BEDROCK_FOUNDATION_MODEL" |
-	"BEDROCK_DATA_AUTOMATION" |
-	"SMART_PARSING" |
-	"MULTI_MODAL_EMBEDDINGS"
+#ParsingStrategy: "BEDROCK_FOUNDATION_MODEL" | "BEDROCK_DATA_AUTOMATION" | "SMART_PARSING" | "MULTI_MODAL_EMBEDDINGS"
 
 // The specific filters applied to your data source content. You can filter out
 // or include certain content.
-_#defs: "/$defs/Properties/definitions/PatternObjectFilter": close({
-	ExclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
-	InclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
+#PatternObjectFilter: close({
+	ExclusionFilters?: #FilterList
+	InclusionFilters?: #FilterList
 
 	// The supported object type or content type of the data source.
 	ObjectType!: strings.MaxRunes(50) & strings.MinRunes(1)
@@ -320,17 +287,13 @@ _#defs: "/$defs/Properties/definitions/PatternObjectFilter": close({
 
 // The configuration of specific filters applied to your data source content.
 // You can filter out or include certain content.
-_#defs: "/$defs/Properties/definitions/PatternObjectFilterConfiguration": close(
-	{Filters!: _#defs."/$defs/Properties/definitions/PatternObjectFilterList"},
-)
+#PatternObjectFilterConfiguration: close({Filters!: #PatternObjectFilterList})
 
 // Contains information
-_#defs: "/$defs/Properties/definitions/PatternObjectFilterList": list.MaxItems(25) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PatternObjectFilter"
-]
+#PatternObjectFilterList: list.MaxItems(25) & list.MinItems(1) & [...#PatternObjectFilter]
 
 // The configuration information to connect to Amazon S3 as your data source.
-_#defs: "/$defs/Properties/definitions/S3DataSourceConfiguration": close({
+#S3DataSourceConfiguration: close({
 	// The ARN of the bucket that contains the data source.
 	BucketArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -344,7 +307,7 @@ _#defs: "/$defs/Properties/definitions/S3DataSourceConfiguration": close({
 })
 
 // An Amazon S3 location.
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The location's URI
 	URI!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$"
 })
@@ -352,18 +315,16 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 // The configuration of filtering the Salesforce content. For example,
 // configuring regular expression patterns to include or exclude certain
 // content.
-_#defs: "/$defs/Properties/definitions/SalesforceCrawlerConfiguration": close(
-	{FilterConfiguration?: _#defs."/$defs/Properties/definitions/CrawlFilterConfiguration"},
-)
+#SalesforceCrawlerConfiguration: close({FilterConfiguration?: #CrawlFilterConfiguration})
 
 // The configuration information to connect to Salesforce as your data source.
-_#defs: "/$defs/Properties/definitions/SalesforceDataSourceConfiguration": close({
-	CrawlerConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceCrawlerConfiguration"
-	SourceConfiguration!:  _#defs."/$defs/Properties/definitions/SalesforceSourceConfiguration"
+#SalesforceDataSourceConfiguration: close({
+	CrawlerConfiguration?: #SalesforceCrawlerConfiguration
+	SourceConfiguration!:  #SalesforceSourceConfiguration
 })
 
 // The endpoint information to connect to your Salesforce data source.
-_#defs: "/$defs/Properties/definitions/SalesforceSourceConfiguration": close({
+#SalesforceSourceConfiguration: close({
 	// The supported authentication type to authenticate and connect to your Salesforce instance.
 	AuthType!: "OAUTH2_CLIENT_CREDENTIALS"
 
@@ -380,19 +341,17 @@ _#defs: "/$defs/Properties/definitions/SalesforceSourceConfiguration": close({
 })
 
 // A seed url object.
-_#defs: "/$defs/Properties/definitions/SeedUrl": close({
+#SeedUrl: close({
 	// A web url.
 	Url!: =~"^https?://[A-Za-z0-9][^\\s]*$"
 })
 
 // A list of web urls.
-_#defs: "/$defs/Properties/definitions/SeedUrls": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SeedUrl"
-]
+#SeedUrls: list.MaxItems(100) & list.MinItems(1) & [...#SeedUrl]
 
 // Configurations for when you choose semantic chunking. If you set the
 // chunkingStrategy as NONE, exclude this field.
-_#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
+#SemanticChunkingConfiguration: close({
 	// The dissimilarity threshold for splitting chunks.
 	BreakpointPercentileThreshold!: int & <=99 & >=50
 
@@ -404,7 +363,7 @@ _#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
 })
 
 // Contains details about the server-side encryption for the data source.
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+#ServerSideEncryptionConfiguration: close({
 	// The ARN of the AWS KMS key used to encrypt the resource.
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -414,18 +373,16 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close
 
 // The configuration of the SharePoint content. For example, configuring
 // specific types of SharePoint content.
-_#defs: "/$defs/Properties/definitions/SharePointCrawlerConfiguration": close(
-	{FilterConfiguration?: _#defs."/$defs/Properties/definitions/CrawlFilterConfiguration"},
-)
+#SharePointCrawlerConfiguration: close({FilterConfiguration?: #CrawlFilterConfiguration})
 
 // The configuration information to connect to SharePoint as your data source.
-_#defs: "/$defs/Properties/definitions/SharePointDataSourceConfiguration": close({
-	CrawlerConfiguration?: _#defs."/$defs/Properties/definitions/SharePointCrawlerConfiguration"
-	SourceConfiguration!:  _#defs."/$defs/Properties/definitions/SharePointSourceConfiguration"
+#SharePointDataSourceConfiguration: close({
+	CrawlerConfiguration?: #SharePointCrawlerConfiguration
+	SourceConfiguration!:  #SharePointSourceConfiguration
 })
 
 // The endpoint information to connect to your SharePoint data source.
-_#defs: "/$defs/Properties/definitions/SharePointSourceConfiguration": close({
+#SharePointSourceConfiguration: close({
 	// The supported authentication type to authenticate and connect to your SharePoint site/sites.
 	AuthType!: "OAUTH2_CLIENT_CREDENTIALS" | "OAUTH2_SHAREPOINT_APP_ONLY_CLIENT_CREDENTIALS"
 
@@ -452,35 +409,37 @@ _#defs: "/$defs/Properties/definitions/SharePointSourceConfiguration": close({
 
 // Recurring schedule on which the connector automatically refreshes ingested
 // content. Exactly one frequency variant is set.
-_#defs: "/$defs/Properties/definitions/SyncSchedule": matchN(1, [{
-	Daily!: _
-	...
-}, {
-	Weekly!: _
-	...
-}, {
-	Monthly!: _
-	...
-}]) & close({
-	Daily?:   _#defs."/$defs/Properties/definitions/DailySchedule"
-	Monthly?: _#defs."/$defs/Properties/definitions/MonthlySchedule"
-	Weekly?:  _#defs."/$defs/Properties/definitions/WeeklySchedule"
-})
+#SyncSchedule: close({
+	Daily?:   #DailySchedule
+	Monthly?: #MonthlySchedule
+	Weekly?:  #WeeklySchedule
+	if Daily != _|_ if Daily."Fn::If" == _|_ {
+		Weekly?: close({"Fn::If": _}) | error(
+			"Weekly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly",
+		)
+		Monthly?: close({"Fn::If": _}) | error(
+			"Monthly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly",
+		)
+	}
+	if Weekly != _|_ if Weekly."Fn::If" == _|_ {
+		Monthly?: close({"Fn::If": _}) | error(
+			"Monthly cannot be used with Weekly; set exactly one of Daily, Weekly, Monthly",
+		)
+	}
+}) & matchN(>=1, [{Daily!: _}, {Weekly!: _}, {Monthly!: _}])
 
 // A Lambda function that processes documents.
-_#defs: "/$defs/Properties/definitions/Transformation": close({
+#Transformation: close({
 	// When the service applies the transformation.
 	StepToApply!:            "POST_CHUNKING"
-	TransformationFunction!: _#defs."/$defs/Properties/definitions/TransformationFunction"
+	TransformationFunction!: #TransformationFunction
 })
 
 // A Lambda function that processes documents.
-_#defs: "/$defs/Properties/definitions/TransformationFunction": close(
-	{TransformationLambdaConfiguration!: _#defs."/$defs/Properties/definitions/TransformationLambdaConfiguration"},
-)
+#TransformationFunction: close({TransformationLambdaConfiguration!: #TransformationLambdaConfiguration})
 
 // A Lambda function that processes documents.
-_#defs: "/$defs/Properties/definitions/TransformationLambdaConfiguration": close({
+#TransformationLambdaConfiguration: close({
 	// The function's ARN identifier.
 	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
@@ -489,31 +448,27 @@ _#defs: "/$defs/Properties/definitions/TransformationLambdaConfiguration": close
 })
 
 // A url configuration.
-_#defs: "/$defs/Properties/definitions/UrlConfiguration": close(
-	{SeedUrls!: _#defs."/$defs/Properties/definitions/SeedUrls"},
-)
+#UrlConfiguration: close({SeedUrls!: #SeedUrls})
 
 // Details about how to chunk the documents in the data source. A chunk refers
 // to an excerpt from a data source that is returned when the knowledge base
 // that it belongs to is queried.
-_#defs: "/$defs/Properties/definitions/VectorIngestionConfiguration": close({
-	ChunkingConfiguration?:             _#defs."/$defs/Properties/definitions/ChunkingConfiguration"
-	ContextEnrichmentConfiguration?:    _#defs."/$defs/Properties/definitions/ContextEnrichmentConfiguration"
-	CustomTransformationConfiguration?: _#defs."/$defs/Properties/definitions/CustomTransformationConfiguration"
-	ParsingConfiguration?:              _#defs."/$defs/Properties/definitions/ParsingConfiguration"
+#VectorIngestionConfiguration: close({
+	ChunkingConfiguration?:             #ChunkingConfiguration
+	ContextEnrichmentConfiguration?:    #ContextEnrichmentConfiguration
+	CustomTransformationConfiguration?: #CustomTransformationConfiguration
+	ParsingConfiguration?:              #ParsingConfiguration
 })
 
 // Configuration for video extraction.
-_#defs: "/$defs/Properties/definitions/VideoExtractionConfiguration": close(
-	{VideoExtractionStatus!: _#defs."/$defs/Properties/definitions/EnabledOrDisabledState"},
-)
+#VideoExtractionConfiguration: close({VideoExtractionStatus!: #EnabledOrDisabledState})
 
 // Configuration for the web crawler.
-_#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
-	CrawlerLimits?:    _#defs."/$defs/Properties/definitions/WebCrawlerLimits"
-	ExclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
-	InclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
-	Scope?:            _#defs."/$defs/Properties/definitions/WebScopeType"
+#WebCrawlerConfiguration: close({
+	CrawlerLimits?:    #WebCrawlerLimits
+	ExclusionFilters?: #FilterList
+	InclusionFilters?: #FilterList
+	Scope?:            #WebScopeType
 
 	// The suffix that will be included in the user agent header.
 	UserAgent?: strings.MaxRunes(40) & strings.MinRunes(15)
@@ -523,7 +478,7 @@ _#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
 })
 
 // Limit settings for the web crawler.
-_#defs: "/$defs/Properties/definitions/WebCrawlerLimits": close({
+#WebCrawlerLimits: close({
 	// Maximum number of pages the crawler can crawl.
 	MaxPages?: int & >=1
 
@@ -532,20 +487,16 @@ _#defs: "/$defs/Properties/definitions/WebCrawlerLimits": close({
 })
 
 // Configures a web data source location.
-_#defs: "/$defs/Properties/definitions/WebDataSourceConfiguration": close({
-	CrawlerConfiguration?: _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration"
-	SourceConfiguration!:  _#defs."/$defs/Properties/definitions/WebSourceConfiguration"
+#WebDataSourceConfiguration: close({
+	CrawlerConfiguration?: #WebCrawlerConfiguration
+	SourceConfiguration!:  #WebSourceConfiguration
 })
 
 // The scope that a web crawl job will be restricted to.
-_#defs: "/$defs/Properties/definitions/WebScopeType": "HOST_ONLY" | "SUBDOMAINS"
+#WebScopeType: "HOST_ONLY" | "SUBDOMAINS"
 
 // A web source configuration.
-_#defs: "/$defs/Properties/definitions/WebSourceConfiguration": close(
-	{UrlConfiguration!: _#defs."/$defs/Properties/definitions/UrlConfiguration"},
-)
+#WebSourceConfiguration: close({UrlConfiguration!: #UrlConfiguration})
 
 // A weekly refresh on a specified day of the week.
-_#defs: "/$defs/Properties/definitions/WeeklySchedule": close(
-	{DayOfWeek!: _#defs."/$defs/Properties/definitions/DayOfWeek"},
-)
+#WeeklySchedule: close({DayOfWeek!: #DayOfWeek})

@@ -14,7 +14,7 @@ import (
 // ([AWS::EFS::MountTarget](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-efs-mounttarget.html))
 // to mount your EFS file system on an EC2 or other AWS cloud compute resource.
 #Properties: close({
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// For One Zone file systems, specify the AWS Availability Zone in which to
 	// create the file system. Use the format ``us-east-1a`` to specify the
@@ -27,7 +27,7 @@ import (
 	AvailabilityZoneName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$"
 
 	// Use the ``BackupPolicy`` to turn automatic backups on or off for the file system.
-	BackupPolicy?: _#defs."/$defs/Properties/definitions/BackupPolicy"
+	BackupPolicy?: #BackupPolicy
 
 	// (Optional) A boolean that specifies whether or not to bypass the
 	// ``FileSystemPolicy`` lockout safety check. The lockout safety check
@@ -52,7 +52,7 @@ import (
 	FileSystemPolicy?: string | {...}
 
 	// Describes the protection on the file system.
-	FileSystemProtection?: _#defs."/$defs/Properties/definitions/FileSystemProtection"
+	FileSystemProtection?: #FileSystemProtection
 
 	// Use to create one or more tags associated with the file system. Each tag is a
 	// user-defined key-value pair. Name your file system on creation by including
@@ -60,7 +60,7 @@ import (
 	// unique. For more information, see [Tagging
 	// resources](https://docs.aws.amazon.com/general/latest/gr/aws_tagging.html)
 	// in the *General Reference Guide*.
-	FileSystemTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ElasticFileSystemTag"]
+	FileSystemTags?: list.UniqueItems() & [...#ElasticFileSystemTag]
 
 	// The ID of the kms-key-long to be used to protect the encrypted file system.
 	// This parameter is only required if you want to use a nondefault kms-key. If
@@ -92,9 +92,7 @@ import (
 	// each transition, ``TransitionToIA``,
 	// ``TransitionToArchive````TransitionToPrimaryStorageClass``. See the example
 	// requests in the following section for more information.
-	LifecyclePolicies?: list.MaxItems(3) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/LifecyclePolicy"
-	]
+	LifecyclePolicies?: list.MaxItems(3) & list.UniqueItems() & [...] & [...#LifecyclePolicy]
 
 	// The performance mode of the file system. We recommend ``generalPurpose``
 	// performance mode for all file systems. File systems using the ``maxIO``
@@ -118,7 +116,7 @@ import (
 	ProvisionedThroughputInMibps?: >=1
 
 	// Describes the replication configuration for a specific file system.
-	ReplicationConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationConfiguration"
+	ReplicationConfiguration?: #ReplicationConfiguration
 
 	// Specifies the throughput mode for the file system. The mode can be
 	// ``bursting``, ``provisioned``, or ``elastic``. If you set ``ThroughputMode``
@@ -133,10 +131,10 @@ import (
 	ThroughputMode?: "bursting" | "elastic" | "provisioned"
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
 // The backup policy turns automatic backups for the file system on or off.
-_#defs: "/$defs/Properties/definitions/BackupPolicy": close({
+#BackupPolicy: close({
 	// Set the backup policy status for the file system.
 	// + *ENABLED* - Turns automatic backups on for the file system.
 	// + *DISABLED* - Turns automatic backups off for the file system.
@@ -147,7 +145,7 @@ _#defs: "/$defs/Properties/definitions/BackupPolicy": close({
 // the ``Key`` and ``Value`` properties are letters, white space, and numbers
 // that can be represented in UTF-8, and the following characters:``+ - = . _ :
 // /``
-_#defs: "/$defs/Properties/definitions/ElasticFileSystemTag": close({
+#ElasticFileSystemTag: close({
 	// The tag key (String). The key can't start with ``aws:``.
 	Key!: string
 
@@ -156,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/ElasticFileSystemTag": close({
 })
 
 // Describes the protection on the file system.
-_#defs: "/$defs/Properties/definitions/FileSystemProtection": close({
+#FileSystemProtection: close({
 	// The status of the file system's replication overwrite protection.
 	// + ``ENABLED`` – The file system cannot be used as the destination file system
 	// in a replication configuration. The file system is writeable. Replication
@@ -184,7 +182,7 @@ _#defs: "/$defs/Properties/definitions/FileSystemProtection": close({
 // ``TransitionToPrimaryStorageClass``.
 // + See the AWS::EFS::FileSystem examples for the correct ``LifecyclePolicy``
 // structure. Do not use the syntax shown on this page.
-_#defs: "/$defs/Properties/definitions/LifecyclePolicy": close({
+#LifecyclePolicy: close({
 	// The number of days after files were last accessed in primary storage (the
 	// Standard storage class) at which to move them to Archive storage. Metadata
 	// operations such as listing the contents of a directory don't count as file
@@ -220,15 +218,13 @@ _#defs: "/$defs/Properties/definitions/LifecyclePolicy": close({
 })
 
 // Describes the replication configuration for a specific file system.
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
+#ReplicationConfiguration: close({
 	// An array of destination objects. Only one destination object is supported.
-	Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicationDestination"
-	]
+	Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationDestination]
 })
 
 // Describes the destination file system in the replication configuration.
-_#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
+#ReplicationDestination: close({
 	// For One Zone file systems, the replication configuration must specify the
 	// Availability Zone in which the destination file system is located.
 	// Use the format ``us-east-1a`` to specify the Availability Zone. For more

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,44 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for SSO InstanceAccessControlAttributeConfiguration
-#Properties: close({
-	AccessControlAttributes?: _#defs."/$defs/Properties/definitions/AccessControlAttributeList"
-	InstanceAccessControlAttributeConfiguration?: close(
-		{AccessControlAttributes!: _#defs."/$defs/Properties/definitions/AccessControlAttributeList"},
-	) |
-		fn.#ObjectExpression
-	InstanceArn!: strings.MaxRunes(1224) &
-	strings.MinRunes(10) &
-	=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSO::InstanceAccessControlAttributeConfiguration"
+	Properties!: close({
+		AccessControlAttributes?: #AccessControlAttributeList
+		InstanceAccessControlAttributeConfiguration?: close({AccessControlAttributes!: #AccessControlAttributeList}) |
+			fn.#ObjectExpression
+		InstanceArn!: strings.MaxRunes(1224) &
+		strings.MinRunes(10) &
+		=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttribute": close({
+#AccessControlAttribute: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]+" | fn.#StringExpression
-	Value!: _#defs."/$defs/Properties/definitions/AccessControlAttributeValue"
+	Value!: #AccessControlAttributeValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttributeList": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/AccessControlAttribute"
-] |
-	fn.#ListExpression
+#AccessControlAttributeList: list.MaxItems(50) & [...#AccessControlAttribute] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttributeValue": close(
-	{Source!: _#defs."/$defs/Properties/definitions/AccessControlAttributeValueSourceList"},
-) |
-	fn.#ObjectExpression
+#AccessControlAttributeValue: close({Source!: #AccessControlAttributeValueSourceList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttributeValueSource": strings.MaxRunes(256) &
+#AccessControlAttributeValueSource: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@\\[\\]\\{\\}\\$\\\\\"]*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttributeValueSourceList": list.MaxItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AccessControlAttributeValueSource"
-] |
-	fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSO::InstanceAccessControlAttributeConfiguration"
-	Properties!: #Properties
-}
+#AccessControlAttributeValueSourceList: list.MaxItems(1) & [...#AccessControlAttributeValueSource] | fn.#ListExpression

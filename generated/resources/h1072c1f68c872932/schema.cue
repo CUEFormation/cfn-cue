@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -16,27 +16,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::WorkspacesPool
-#Properties: close({
-	ApplicationSettings?: _#defs."/$defs/Properties/definitions/ApplicationSettings"
-	BundleId!:            =~"^wsb-[0-9a-z]{8,63}$" | fn.#StringExpression
-	Capacity!:            _#defs."/$defs/Properties/definitions/Capacity"
-	Description?:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./() -]+$" | fn.#StringExpression
-	DirectoryId!:         strings.MaxRunes(65) & strings.MinRunes(10) & =~"^wsd-[0-9a-z]{8,63}$" | fn.#StringExpression
-	PoolName!:            =~"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" | fn.#StringExpression
-	RunningMode?:         _#defs."/$defs/Properties/definitions/RunningMode"
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeoutSettings?:     _#defs."/$defs/Properties/definitions/TimeoutSettings"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpaces::WorkspacesPool"
+	Properties!: close({
+		ApplicationSettings?: #ApplicationSettings
+		BundleId!:            =~"^wsb-[0-9a-z]{8,63}$" | fn.#StringExpression
+		Capacity!:            #Capacity
+		Description?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./() -]+$" | fn.#StringExpression
+		DirectoryId!:     strings.MaxRunes(65) & strings.MinRunes(10) & =~"^wsd-[0-9a-z]{8,63}$" | fn.#StringExpression
+		PoolName!:        =~"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" | fn.#StringExpression
+		RunningMode?:     #RunningMode
+		Tags?:            [...#Tag] | fn.#ListExpression
+		TimeoutSettings?: #TimeoutSettings
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ApplicationSettings": close({
+#ApplicationSettings: close({
 	SettingsGroup?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[A-Za-z0-9_./()!*'-]+$" | fn.#StringExpression
-	Status!:        _#defs."/$defs/Properties/definitions/ApplicationSettingsStatus"
+	Status!:        #ApplicationSettingsStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationSettingsStatus": "DISABLED" | "ENABLED" | fn.#StringExpression
+#ApplicationSettingsStatus: "DISABLED" | "ENABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Capacity": close({
+#Capacity: close({
 	DesiredUserSessions!: int & >=0 |
 		{
 			string &
@@ -55,15 +58,15 @@ _#defs: "/$defs/Properties/definitions/Capacity": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RunningMode": "ALWAYS_ON" | "AUTO_STOP" | fn.#StringExpression
+#RunningMode: "ALWAYS_ON" | "AUTO_STOP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeoutSettings": close({
+#TimeoutSettings: close({
 	DisconnectTimeoutInSeconds?: int & <=36000 & >=60 |
 		{
 			string &
@@ -114,7 +117,3 @@ _#defs: "/$defs/Properties/definitions/TimeoutSettings": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpaces::WorkspacesPool"
-	Properties!: #Properties
-}

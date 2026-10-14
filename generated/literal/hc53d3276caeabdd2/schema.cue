@@ -8,7 +8,7 @@ package schema
 #Properties: close({
 	// Available Quantity of ConsumableResource.
 	AvailableQuantity?:     int
-	ConsumableResourceArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
+	ConsumableResourceArn?: #ResourceArn
 
 	// Name of ConsumableResource.
 	ConsumableResourceName?: =~""
@@ -16,7 +16,7 @@ package schema
 
 	// In-use Quantity of ConsumableResource.
 	InUseQuantity?: int
-	ResourceType!:  _#defs."/$defs/Properties/definitions/ResourceType"
+	ResourceType!:  #ResourceType
 
 	// A key-value pair to associate with a resource.
 	Tags?: close({
@@ -28,7 +28,7 @@ package schema
 })
 
 // ARN of the Consumable Resource.
-_#defs: "/$defs/Properties/definitions/ResourceArn": string
+#ResourceArn: string
 
 // Type of Consumable Resource.
-_#defs: "/$defs/Properties/definitions/ResourceType": "REPLENISHABLE" | "NON_REPLENISHABLE"
+#ResourceType: "REPLENISHABLE" | "NON_REPLENISHABLE"

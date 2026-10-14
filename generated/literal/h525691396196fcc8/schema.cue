@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,8 +17,8 @@ import (
 
 	// The URL of the NFS location that was described.
 	LocationUri?:  strings.MaxRunes(4356) & =~"^(efs|nfs|s3|smb|fsxw)://[a-zA-Z0-9./\\-]+$"
-	MountOptions?: _#defs."/$defs/Properties/definitions/MountOptions"
-	OnPremConfig!: _#defs."/$defs/Properties/definitions/OnPremConfig"
+	MountOptions?: #MountOptions
+	OnPremConfig!: #OnPremConfig
 
 	// The name of the NFS server. This value is the IP address or DNS name of the NFS server.
 	ServerHostname?: strings.MaxRunes(255) &
@@ -30,17 +30,17 @@ import (
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // The NFS mount options that DataSync can use to mount your NFS share.
-_#defs: "/$defs/Properties/definitions/MountOptions": close({
+#MountOptions: close({
 	// The specific NFS version that you want DataSync to use to mount your NFS share.
 	Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1" | "NFS4_2"
 })
 
 // Contains a list of Amazon Resource Names (ARNs) of agents that are used to connect an NFS server.
-_#defs: "/$defs/Properties/definitions/OnPremConfig": close({
+#OnPremConfig: close({
 	// ARN(s) of the agent(s) to use for an NFS location.
 	AgentArns!: list.MaxItems(8) & list.MinItems(1) & [
 		...strings.MaxRunes(128) &
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/OnPremConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 

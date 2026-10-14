@@ -9,167 +9,161 @@ import "strings"
 // Resource Type definition for AWS::MSK::Cluster
 #Properties: close({
 	Arn?:                  string
-	BrokerNodeGroupInfo!:  _#defs."/$defs/Properties/definitions/BrokerNodeGroupInfo"
-	ClientAuthentication?: _#defs."/$defs/Properties/definitions/ClientAuthentication"
+	BrokerNodeGroupInfo!:  #BrokerNodeGroupInfo
+	ClientAuthentication?: #ClientAuthentication
 	ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1)
-	ConfigurationInfo?:    _#defs."/$defs/Properties/definitions/ConfigurationInfo"
+	ConfigurationInfo?:    #ConfigurationInfo
 
 	// The current version of the MSK cluster
 	CurrentVersion?: string
-	EncryptionInfo?: _#defs."/$defs/Properties/definitions/EncryptionInfo"
+	EncryptionInfo?: #EncryptionInfo
 	EnhancedMonitoring?: ("DEFAULT" | "PER_BROKER" | "PER_TOPIC_PER_BROKER" | "PER_TOPIC_PER_PARTITION") & (strings.MaxRunes(23) & strings.MinRunes(7))
 	KafkaVersion!:        strings.MaxRunes(128) & strings.MinRunes(1)
-	LoggingInfo?:         _#defs."/$defs/Properties/definitions/LoggingInfo"
+	LoggingInfo?:         #LoggingInfo
 	NumberOfBrokerNodes!: int & >=1
-	OpenMonitoring?:      _#defs."/$defs/Properties/definitions/OpenMonitoring"
-	Rebalancing?:         _#defs."/$defs/Properties/definitions/Rebalancing"
+	OpenMonitoring?:      #OpenMonitoring
+	Rebalancing?:         #Rebalancing
 	StorageMode?:         ("LOCAL" | "TIERED") & (strings.MaxRunes(6) & strings.MinRunes(5))
 
 	// A key-value pair to associate with a resource.
 	Tags?: close({
 
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string}})
-	ZookeeperAccess?: _#defs."/$defs/Properties/definitions/ZookeeperAccess"
+	ZookeeperAccess?: #ZookeeperAccess
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizerLogs": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogs"
-	Firehose?:       _#defs."/$defs/Properties/definitions/Firehose"
-	S3?:             _#defs."/$defs/Properties/definitions/S3"
+#AuthorizerLogs: close({
+	CloudWatchLogs?: #CloudWatchLogs
+	Firehose?:       #Firehose
+	S3?:             #S3
 })
 
-_#defs: "/$defs/Properties/definitions/BrokerLogs": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogs"
-	Firehose?:       _#defs."/$defs/Properties/definitions/Firehose"
-	S3?:             _#defs."/$defs/Properties/definitions/S3"
+#BrokerLogs: close({
+	CloudWatchLogs?: #CloudWatchLogs
+	Firehose?:       #Firehose
+	S3?:             #S3
 })
 
-_#defs: "/$defs/Properties/definitions/BrokerNodeGroupInfo": close({
+#BrokerNodeGroupInfo: close({
 	BrokerAZDistribution?: "DEFAULT" & (strings.MaxRunes(9) & strings.MinRunes(6))
 	ClientSubnets!:        [...string]
-	ConnectivityInfo?:     _#defs."/$defs/Properties/definitions/ConnectivityInfo"
+	ConnectivityInfo?:     #ConnectivityInfo
 	InstanceType!:         strings.MaxRunes(32) & strings.MinRunes(5)
 	SecurityGroups?:       [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
-	StorageInfo?:          _#defs."/$defs/Properties/definitions/StorageInfo"
+	StorageInfo?:          #StorageInfo
 })
 
-_#defs: "/$defs/Properties/definitions/ClientAuthentication": close({
-	Sasl?:            _#defs."/$defs/Properties/definitions/Sasl"
-	Tls?:             _#defs."/$defs/Properties/definitions/Tls"
-	Unauthenticated?: _#defs."/$defs/Properties/definitions/Unauthenticated"
+#ClientAuthentication: close({
+	Sasl?:            #Sasl
+	Tls?:             #Tls
+	Unauthenticated?: #Unauthenticated
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogs": close({
+#CloudWatchLogs: close({
 	Enabled!:  bool
 	LogGroup?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationInfo": close({
+#ConfigurationInfo: close({
 	Arn!:      string
 	Revision!: int
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectivityInfo": close({
-	NetworkType?:     _#defs."/$defs/Properties/definitions/NetworkType"
-	PublicAccess?:    _#defs."/$defs/Properties/definitions/PublicAccess"
-	VpcConnectivity?: _#defs."/$defs/Properties/definitions/VpcConnectivity"
+#ConnectivityInfo: close({
+	NetworkType?:     #NetworkType
+	PublicAccess?:    #PublicAccess
+	VpcConnectivity?: #VpcConnectivity
 })
 
-_#defs: "/$defs/Properties/definitions/EBSStorageInfo": close({
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput"
+#EBSStorageInfo: close({
+	ProvisionedThroughput?: #ProvisionedThroughput
 	VolumeSize?:            int & <=16384 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionAtRest": close({DataVolumeKMSKeyId!: string})
+#EncryptionAtRest: close({DataVolumeKMSKeyId!: string})
 
-_#defs: "/$defs/Properties/definitions/EncryptionInTransit": close({
+#EncryptionInTransit: close({
 	ClientBroker?: "TLS" | "TLS_PLAINTEXT" | "PLAINTEXT"
 	InCluster?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionInfo": close({
-	EncryptionAtRest?:    _#defs."/$defs/Properties/definitions/EncryptionAtRest"
-	EncryptionInTransit?: _#defs."/$defs/Properties/definitions/EncryptionInTransit"
+#EncryptionInfo: close({
+	EncryptionAtRest?:    #EncryptionAtRest
+	EncryptionInTransit?: #EncryptionInTransit
 })
 
-_#defs: "/$defs/Properties/definitions/Firehose": close({
+#Firehose: close({
 	DeliveryStream?: string
 	Enabled!:        bool
 })
 
-_#defs: "/$defs/Properties/definitions/Iam": close({Enabled!: bool})
+#Iam: close({Enabled!: bool})
 
-_#defs: "/$defs/Properties/definitions/JmxExporter": close({EnabledInBroker!: bool})
+#JmxExporter: close({EnabledInBroker!: bool})
 
-_#defs: "/$defs/Properties/definitions/LoggingInfo": close({
-	AuthorizerLogs?: _#defs."/$defs/Properties/definitions/AuthorizerLogs"
-	BrokerLogs?:     _#defs."/$defs/Properties/definitions/BrokerLogs"
+#LoggingInfo: close({
+	AuthorizerLogs?: #AuthorizerLogs
+	BrokerLogs?:     #BrokerLogs
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkType": "IPV4" | "DUAL"
+#NetworkType: "IPV4" | "DUAL"
 
-_#defs: "/$defs/Properties/definitions/NodeExporter": close({EnabledInBroker!: bool})
+#NodeExporter: close({EnabledInBroker!: bool})
 
-_#defs: "/$defs/Properties/definitions/OpenMonitoring": close(
-	{Prometheus!: _#defs."/$defs/Properties/definitions/Prometheus"},
-)
+#OpenMonitoring: close({Prometheus!: #Prometheus})
 
-_#defs: "/$defs/Properties/definitions/Prometheus": close({
-	JmxExporter?:  _#defs."/$defs/Properties/definitions/JmxExporter"
-	NodeExporter?: _#defs."/$defs/Properties/definitions/NodeExporter"
+#Prometheus: close({
+	JmxExporter?:  #JmxExporter
+	NodeExporter?: #NodeExporter
 })
 
-_#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
+#ProvisionedThroughput: close({
 	Enabled?:          bool
 	VolumeThroughput?: int
 })
 
-_#defs: "/$defs/Properties/definitions/PublicAccess": close({Type?: strings.MaxRunes(23) & strings.MinRunes(7)})
+#PublicAccess: close({Type?: strings.MaxRunes(23) & strings.MinRunes(7)})
 
-_#defs: "/$defs/Properties/definitions/Rebalancing": close({Status!: "PAUSED" | "ACTIVE"})
+#Rebalancing: close({Status!: "PAUSED" | "ACTIVE"})
 
-_#defs: "/$defs/Properties/definitions/S3": close({
+#S3: close({
 	Bucket?:  string
 	Enabled!: bool
 	Prefix?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/Sasl": close({
-	Iam?:   _#defs."/$defs/Properties/definitions/Iam"
-	Scram?: _#defs."/$defs/Properties/definitions/Scram"
+#Sasl: close({
+	Iam?:   #Iam
+	Scram?: #Scram
 })
 
-_#defs: "/$defs/Properties/definitions/Scram": close({Enabled!: bool})
+#Scram: close({Enabled!: bool})
 
-_#defs: "/$defs/Properties/definitions/StorageInfo": close(
-	{EBSStorageInfo?: _#defs."/$defs/Properties/definitions/EBSStorageInfo"},
-)
+#StorageInfo: close({EBSStorageInfo?: #EBSStorageInfo})
 
-_#defs: "/$defs/Properties/definitions/Tls": close({
+#Tls: close({
 	CertificateAuthorityArnList?: [...string]
 	Enabled?:                     bool
 })
 
-_#defs: "/$defs/Properties/definitions/Unauthenticated": close({Enabled!: bool})
+#Unauthenticated: close({Enabled!: bool})
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivity": close(
-	{ClientAuthentication?: _#defs."/$defs/Properties/definitions/VpcConnectivityClientAuthentication"},
-)
+#VpcConnectivity: close({ClientAuthentication?: #VpcConnectivityClientAuthentication})
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityClientAuthentication": close({
-	Sasl?: _#defs."/$defs/Properties/definitions/VpcConnectivitySasl"
-	Tls?:  _#defs."/$defs/Properties/definitions/VpcConnectivityTls"
+#VpcConnectivityClientAuthentication: close({
+	Sasl?: #VpcConnectivitySasl
+	Tls?:  #VpcConnectivityTls
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityIam": close({Enabled!: bool})
+#VpcConnectivityIam: close({Enabled!: bool})
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivitySasl": close({
-	Iam?:   _#defs."/$defs/Properties/definitions/VpcConnectivityIam"
-	Scram?: _#defs."/$defs/Properties/definitions/VpcConnectivityScram"
+#VpcConnectivitySasl: close({
+	Iam?:   #VpcConnectivityIam
+	Scram?: #VpcConnectivityScram
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityScram": close({Enabled!: bool})
+#VpcConnectivityScram: close({Enabled!: bool})
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityTls": close({Enabled!: bool})
+#VpcConnectivityTls: close({Enabled!: bool})
 
-_#defs: "/$defs/Properties/definitions/ZookeeperAccess": close({Enabled?: bool})
+#ZookeeperAccess: close({Enabled?: bool})

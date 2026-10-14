@@ -18,17 +18,15 @@ import "strings"
 	IntegrationType!: "OPENSEARCH"
 
 	// OpenSearchResourceConfig for the given Integration
-	ResourceConfig!: close({OpenSearchResourceConfig?: _#defs."/$defs/Properties/definitions/OpenSearchResourceConfig"})
+	ResourceConfig!: close({OpenSearchResourceConfig?: #OpenSearchResourceConfig})
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"[\\w#+=/:,.@-]*\\*?"
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"[\\w#+=/:,.@-]*\\*?"
 
-_#defs: "/$defs/Properties/definitions/OpenSearchResourceConfig": close({
-	ApplicationARN?:            _#defs."/$defs/Properties/definitions/Arn"
-	DashboardViewerPrincipals!: [..._#defs."/$defs/Properties/definitions/Arn"]
-	DataSourceRoleArn!: _#defs."/$defs/Properties/definitions/Arn" &
-		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	KmsKeyArn?: _#defs."/$defs/Properties/definitions/Arn" &
-		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
-	RetentionDays?: int & <=3650 & >=1
+#OpenSearchResourceConfig: close({
+	ApplicationARN?:            #Arn
+	DashboardViewerPrincipals!: [...#Arn]
+	DataSourceRoleArn!:         #Arn & =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
+	KmsKeyArn?:                 #Arn & =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
+	RetentionDays?:             int & <=3650 & >=1
 })

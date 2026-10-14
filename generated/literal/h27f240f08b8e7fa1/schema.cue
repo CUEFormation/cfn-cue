@@ -34,7 +34,7 @@ import (
 	PoolId?: strings.MaxRunes(100) & strings.MinRunes(1)
 
 	// A list of up to 50 tags to assign to the virtual tape.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the virtual tape.
 	TapeARN?: strings.MaxRunes(500) &
@@ -62,7 +62,7 @@ import (
 })
 
 // A key-value pair to associate with the virtual tape.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. Cannot be prefixed with aws:.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

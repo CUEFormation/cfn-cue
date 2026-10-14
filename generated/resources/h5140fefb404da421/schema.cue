@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::TieringConfiguration
-#Properties: close({
-	BackupVaultName!:          string | fn.#StringExpression
-	ResourceSelection!:        [..._#defs."/$defs/Properties/definitions/ResourceSelection"] | fn.#ListExpression
-	TieringConfigurationName!: string | fn.#StringExpression
-	TieringConfigurationTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::TieringConfiguration"
+	Properties!: close({
+		BackupVaultName!:          string | fn.#StringExpression
+		ResourceSelection!:        [...#ResourceSelection] | fn.#ListExpression
+		TieringConfigurationName!: string | fn.#StringExpression
+		TieringConfigurationTags?: close({
 
-		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ResourceSelection": close({
+#ResourceSelection: close({
 	ResourceType!: string | fn.#StringExpression
 	Resources!:    [...string | fn.#StringExpression] | fn.#ListExpression
 	TieringDownSettingsInDays!: int |
@@ -42,7 +45,3 @@ _#defs: "/$defs/Properties/definitions/ResourceSelection": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::TieringConfiguration"
-	Properties!: #Properties
-}

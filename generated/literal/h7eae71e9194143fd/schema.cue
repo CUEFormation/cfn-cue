@@ -11,72 +11,66 @@ package schema
 	MeshName!:        string
 	MeshOwner?:       string
 	ResourceOwner?:   string
-	Spec!:            _#defs."/$defs/Properties/definitions/VirtualNodeSpec"
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"]
+	Spec!:            #VirtualNodeSpec
+	Tags?:            [...#Tag]
 	Uid?:             string
 	VirtualNodeName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/AccessLog": close({File?: _#defs."/$defs/Properties/definitions/FileAccessLog"})
+#AccessLog: close({File?: #FileAccessLog})
 
-_#defs: "/$defs/Properties/definitions/AwsCloudMapInstanceAttribute": close({
+#AwsCloudMapInstanceAttribute: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/AwsCloudMapServiceDiscovery": close({
-	Attributes?:    [..._#defs."/$defs/Properties/definitions/AwsCloudMapInstanceAttribute"]
+#AwsCloudMapServiceDiscovery: close({
+	Attributes?:    [...#AwsCloudMapInstanceAttribute]
 	IpPreference?:  string
 	NamespaceName!: string
 	ServiceName!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/Backend": close(
-	{VirtualService?: _#defs."/$defs/Properties/definitions/VirtualServiceBackend"},
-)
+#Backend: close({VirtualService?: #VirtualServiceBackend})
 
-_#defs: "/$defs/Properties/definitions/BackendDefaults": close(
-	{ClientPolicy?: _#defs."/$defs/Properties/definitions/ClientPolicy"},
-)
+#BackendDefaults: close({ClientPolicy?: #ClientPolicy})
 
-_#defs: "/$defs/Properties/definitions/ClientPolicy": close(
-	{TLS?: _#defs."/$defs/Properties/definitions/ClientPolicyTls"},
-)
+#ClientPolicy: close({TLS?: #ClientPolicyTls})
 
-_#defs: "/$defs/Properties/definitions/ClientPolicyTls": close({
-	Certificate?: _#defs."/$defs/Properties/definitions/ClientTlsCertificate"
+#ClientPolicyTls: close({
+	Certificate?: #ClientTlsCertificate
 	Enforce?:     bool
 	Ports?:       [...int]
-	Validation!:  _#defs."/$defs/Properties/definitions/TlsValidationContext"
+	Validation!:  #TlsValidationContext
 })
 
-_#defs: "/$defs/Properties/definitions/ClientTlsCertificate": close({
-	File?: _#defs."/$defs/Properties/definitions/ListenerTlsFileCertificate"
-	SDS?:  _#defs."/$defs/Properties/definitions/ListenerTlsSdsCertificate"
+#ClientTlsCertificate: close({
+	File?: #ListenerTlsFileCertificate
+	SDS?:  #ListenerTlsSdsCertificate
 })
 
-_#defs: "/$defs/Properties/definitions/DnsServiceDiscovery": close({
+#DnsServiceDiscovery: close({
 	Hostname!:     string
 	IpPreference?: string
 	ResponseType?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Duration": close({
+#Duration: close({
 	Unit!:  string
 	Value!: int
 })
 
-_#defs: "/$defs/Properties/definitions/FileAccessLog": close({
-	Format?: _#defs."/$defs/Properties/definitions/LoggingFormat"
+#FileAccessLog: close({
+	Format?: #LoggingFormat
 	Path!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
+#GrpcTimeout: close({
+	Idle?:       #Duration
+	PerRequest?: #Duration
 })
 
-_#defs: "/$defs/Properties/definitions/HealthCheck": close({
+#HealthCheck: close({
 	HealthyThreshold!:   int
 	IntervalMillis!:     int
 	Path?:               string
@@ -86,146 +80,144 @@ _#defs: "/$defs/Properties/definitions/HealthCheck": close({
 	UnhealthyThreshold!: int
 })
 
-_#defs: "/$defs/Properties/definitions/HttpTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
+#HttpTimeout: close({
+	Idle?:       #Duration
+	PerRequest?: #Duration
 })
 
-_#defs: "/$defs/Properties/definitions/JsonFormatRef": close({
+#JsonFormatRef: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Listener": close({
-	ConnectionPool?:   _#defs."/$defs/Properties/definitions/VirtualNodeConnectionPool"
-	HealthCheck?:      _#defs."/$defs/Properties/definitions/HealthCheck"
-	OutlierDetection?: _#defs."/$defs/Properties/definitions/OutlierDetection"
-	PortMapping!:      _#defs."/$defs/Properties/definitions/PortMapping"
-	TLS?:              _#defs."/$defs/Properties/definitions/ListenerTls"
-	Timeout?:          _#defs."/$defs/Properties/definitions/ListenerTimeout"
+#Listener: close({
+	ConnectionPool?:   #VirtualNodeConnectionPool
+	HealthCheck?:      #HealthCheck
+	OutlierDetection?: #OutlierDetection
+	PortMapping!:      #PortMapping
+	TLS?:              #ListenerTls
+	Timeout?:          #ListenerTimeout
 })
 
-_#defs: "/$defs/Properties/definitions/ListenerTimeout": close({
-	GRPC?:  _#defs."/$defs/Properties/definitions/GrpcTimeout"
-	HTTP?:  _#defs."/$defs/Properties/definitions/HttpTimeout"
-	HTTP2?: _#defs."/$defs/Properties/definitions/HttpTimeout"
-	TCP?:   _#defs."/$defs/Properties/definitions/TcpTimeout"
+#ListenerTimeout: close({
+	GRPC?:  #GrpcTimeout
+	HTTP?:  #HttpTimeout
+	HTTP2?: #HttpTimeout
+	TCP?:   #TcpTimeout
 })
 
-_#defs: "/$defs/Properties/definitions/ListenerTls": close({
-	Certificate!: _#defs."/$defs/Properties/definitions/ListenerTlsCertificate"
+#ListenerTls: close({
+	Certificate!: #ListenerTlsCertificate
 	Mode!:        string
-	Validation?:  _#defs."/$defs/Properties/definitions/ListenerTlsValidationContext"
+	Validation?:  #ListenerTlsValidationContext
 })
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsAcmCertificate": close(
+#ListenerTlsAcmCertificate: close(
 	{CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"},
 )
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsCertificate": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/ListenerTlsAcmCertificate"
-	File?: _#defs."/$defs/Properties/definitions/ListenerTlsFileCertificate"
-	SDS?:  _#defs."/$defs/Properties/definitions/ListenerTlsSdsCertificate"
+#ListenerTlsCertificate: close({
+	ACM?:  #ListenerTlsAcmCertificate
+	File?: #ListenerTlsFileCertificate
+	SDS?:  #ListenerTlsSdsCertificate
 })
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsFileCertificate": close({
+#ListenerTlsFileCertificate: close({
 	CertificateChain!: string
 	PrivateKey!:       string
 })
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsSdsCertificate": close({SecretName!: string})
+#ListenerTlsSdsCertificate: close({SecretName!: string})
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
-	Trust!:                   _#defs."/$defs/Properties/definitions/ListenerTlsValidationContextTrust"
+#ListenerTlsValidationContext: close({
+	SubjectAlternativeNames?: #SubjectAlternativeNames
+	Trust!:                   #ListenerTlsValidationContextTrust
 })
 
-_#defs: "/$defs/Properties/definitions/ListenerTlsValidationContextTrust": close({
-	File?: _#defs."/$defs/Properties/definitions/TlsValidationContextFileTrust"
-	SDS?:  _#defs."/$defs/Properties/definitions/TlsValidationContextSdsTrust"
+#ListenerTlsValidationContextTrust: close({
+	File?: #TlsValidationContextFileTrust
+	SDS?:  #TlsValidationContextSdsTrust
 })
 
-_#defs: "/$defs/Properties/definitions/Logging": close({AccessLog?: _#defs."/$defs/Properties/definitions/AccessLog"})
+#Logging: close({AccessLog?: #AccessLog})
 
-_#defs: "/$defs/Properties/definitions/LoggingFormat": close({
-	Json?: [..._#defs."/$defs/Properties/definitions/JsonFormatRef"]
+#LoggingFormat: close({
+	Json?: [...#JsonFormatRef]
 	Text?: string
 })
 
-_#defs: "/$defs/Properties/definitions/OutlierDetection": close({
-	BaseEjectionDuration!: _#defs."/$defs/Properties/definitions/Duration"
-	Interval!:             _#defs."/$defs/Properties/definitions/Duration"
+#OutlierDetection: close({
+	BaseEjectionDuration!: #Duration
+	Interval!:             #Duration
 	MaxEjectionPercent!:   int
 	MaxServerErrors!:      int
 })
 
-_#defs: "/$defs/Properties/definitions/PortMapping": close({
+#PortMapping: close({
 	Port!:     int
 	Protocol!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ServiceDiscovery": close({
-	AWSCloudMap?: _#defs."/$defs/Properties/definitions/AwsCloudMapServiceDiscovery"
-	DNS?:         _#defs."/$defs/Properties/definitions/DnsServiceDiscovery"
+#ServiceDiscovery: close({
+	AWSCloudMap?: #AwsCloudMapServiceDiscovery
+	DNS?:         #DnsServiceDiscovery
 })
 
-_#defs: "/$defs/Properties/definitions/SubjectAlternativeNameMatchers": close({Exact?: [...string]})
+#SubjectAlternativeNameMatchers: close({Exact?: [...string]})
 
-_#defs: "/$defs/Properties/definitions/SubjectAlternativeNames": close(
-	{Match!: _#defs."/$defs/Properties/definitions/SubjectAlternativeNameMatchers"},
-)
+#SubjectAlternativeNames: close({Match!: #SubjectAlternativeNameMatchers})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TcpTimeout": close({Idle?: _#defs."/$defs/Properties/definitions/Duration"})
+#TcpTimeout: close({Idle?: #Duration})
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
-	Trust!:                   _#defs."/$defs/Properties/definitions/TlsValidationContextTrust"
+#TlsValidationContext: close({
+	SubjectAlternativeNames?: #SubjectAlternativeNames
+	Trust!:                   #TlsValidationContextTrust
 })
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContextAcmTrust": close({CertificateAuthorityArns!: [...string]})
+#TlsValidationContextAcmTrust: close({CertificateAuthorityArns!: [...string]})
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContextFileTrust": close({CertificateChain!: string})
+#TlsValidationContextFileTrust: close({CertificateChain!: string})
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContextSdsTrust": close({SecretName!: string})
+#TlsValidationContextSdsTrust: close({SecretName!: string})
 
-_#defs: "/$defs/Properties/definitions/TlsValidationContextTrust": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/TlsValidationContextAcmTrust"
-	File?: _#defs."/$defs/Properties/definitions/TlsValidationContextFileTrust"
-	SDS?:  _#defs."/$defs/Properties/definitions/TlsValidationContextSdsTrust"
+#TlsValidationContextTrust: close({
+	ACM?:  #TlsValidationContextAcmTrust
+	File?: #TlsValidationContextFileTrust
+	SDS?:  #TlsValidationContextSdsTrust
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeConnectionPool": close({
-	GRPC?:  _#defs."/$defs/Properties/definitions/VirtualNodeGrpcConnectionPool"
-	HTTP?:  _#defs."/$defs/Properties/definitions/VirtualNodeHttpConnectionPool"
-	HTTP2?: _#defs."/$defs/Properties/definitions/VirtualNodeHttp2ConnectionPool"
-	TCP?:   _#defs."/$defs/Properties/definitions/VirtualNodeTcpConnectionPool"
+#VirtualNodeConnectionPool: close({
+	GRPC?:  #VirtualNodeGrpcConnectionPool
+	HTTP?:  #VirtualNodeHttpConnectionPool
+	HTTP2?: #VirtualNodeHttp2ConnectionPool
+	TCP?:   #VirtualNodeTcpConnectionPool
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeGrpcConnectionPool": close({MaxRequests!: int})
+#VirtualNodeGrpcConnectionPool: close({MaxRequests!: int})
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeHttp2ConnectionPool": close({MaxRequests!: int})
+#VirtualNodeHttp2ConnectionPool: close({MaxRequests!: int})
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeHttpConnectionPool": close({
+#VirtualNodeHttpConnectionPool: close({
 	MaxConnections!:     int
 	MaxPendingRequests?: int
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeSpec": close({
-	BackendDefaults?:  _#defs."/$defs/Properties/definitions/BackendDefaults"
-	Backends?:         [..._#defs."/$defs/Properties/definitions/Backend"]
-	Listeners?:        [..._#defs."/$defs/Properties/definitions/Listener"]
-	Logging?:          _#defs."/$defs/Properties/definitions/Logging"
-	ServiceDiscovery?: _#defs."/$defs/Properties/definitions/ServiceDiscovery"
+#VirtualNodeSpec: close({
+	BackendDefaults?:  #BackendDefaults
+	Backends?:         [...#Backend]
+	Listeners?:        [...#Listener]
+	Logging?:          #Logging
+	ServiceDiscovery?: #ServiceDiscovery
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeTcpConnectionPool": close({MaxConnections!: int})
+#VirtualNodeTcpConnectionPool: close({MaxConnections!: int})
 
-_#defs: "/$defs/Properties/definitions/VirtualServiceBackend": close({
-	ClientPolicy?:       _#defs."/$defs/Properties/definitions/ClientPolicy"
+#VirtualServiceBackend: close({
+	ClientPolicy?:       #ClientPolicy
 	VirtualServiceName!: string
 })

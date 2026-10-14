@@ -11,24 +11,24 @@ import (
 
 // Definition of AWS::SES::MailManagerRelay Resource Type
 #Properties: close({
-	Authentication!: _#defs."/$defs/Properties/definitions/RelayAuthentication"
+	Authentication!: #RelayAuthentication
 	RelayArn?:       string
 	RelayId?:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 	RelayName?:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$"
 	ServerName!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\.]+$"
 	ServerPort!:     <=65535 & >=1
-	Tags?:           list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:           list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/NoAuthentication": close({})
+#NoAuthentication: close({})
 
-_#defs: "/$defs/Properties/definitions/RelayAuthentication": matchN(1, [close({
+#RelayAuthentication: matchN(1, [close({
 	SecretArn!: =~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=,.@-]+$"
 }), close(
-	{NoAuthentication!: _#defs."/$defs/Properties/definitions/NoAuthentication"},
+	{NoAuthentication!: #NoAuthentication},
 )])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

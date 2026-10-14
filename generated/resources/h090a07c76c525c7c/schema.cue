@@ -9,17 +9,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::GroupVersion
-#Properties: close({
-	ConnectorDefinitionVersionArn?:    string | fn.#StringExpression
-	CoreDefinitionVersionArn?:         string | fn.#StringExpression
-	DeviceDefinitionVersionArn?:       string | fn.#StringExpression
-	FunctionDefinitionVersionArn?:     string | fn.#StringExpression
-	GroupId!:                          string | fn.#StringExpression
-	LoggerDefinitionVersionArn?:       string | fn.#StringExpression
-	ResourceDefinitionVersionArn?:     string | fn.#StringExpression
-	SubscriptionDefinitionVersionArn?: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::GroupVersion"
-	Properties!: #Properties
+	Type!: "AWS::Greengrass::GroupVersion"
+	Properties!: close({
+		ConnectorDefinitionVersionArn?:    string | fn.#StringExpression
+		CoreDefinitionVersionArn?:         string | fn.#StringExpression
+		DeviceDefinitionVersionArn?:       string | fn.#StringExpression
+		FunctionDefinitionVersionArn?:     string | fn.#StringExpression
+		GroupId!:                          string | fn.#StringExpression
+		LoggerDefinitionVersionArn?:       string | fn.#StringExpression
+		ResourceDefinitionVersionArn?:     string | fn.#StringExpression
+		SubscriptionDefinitionVersionArn?: string | fn.#StringExpression
+	})
 }

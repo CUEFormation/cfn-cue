@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,16 +16,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticBeanstalk::ApplicationVersion
-#Properties: close({
-	ApplicationName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	BuildConfiguration?: _#defs."/$defs/Properties/definitions/BuildConfiguration" | fn.#ObjectExpression
-	Description?:        strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfiguration" | fn.#ObjectExpression
-	Process?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceBundle?:       _#defs."/$defs/Properties/definitions/SourceBundle" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticBeanstalk::ApplicationVersion"
+	Properties!: close({
+		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BuildConfiguration": close({
+		// Settings for an AWS CodeBuild build that packages and builds an application
+		// version from source code.
+		BuildConfiguration?: #BuildConfiguration
+		Description?:        strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+
+		// Configuration for image-based application versions.
+		ImageConfiguration?: #ImageConfiguration
+		Process?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+		// The Amazon S3 bucket and key that identify the location of the source bundle for this version.
+		SourceBundle?: #SourceBundle
+	})
+}
+
+#BuildConfiguration: close({
 	ArtifactName?:         string | fn.#StringExpression
 	CodeBuildServiceRole!: =~"\\S" | fn.#StringExpression
 	ComputeType?: "BUILD_GENERAL1_SMALL" | "BUILD_GENERAL1_MEDIUM" | "BUILD_GENERAL1_LARGE" | fn.#StringExpression
@@ -47,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/BuildConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageBuildConfiguration": close({
+#ImageBuildConfiguration: close({
 	Architecture?:         "amd64" | "arm64" | fn.#StringExpression
 	Buildpack?:            string | fn.#StringExpression
 	CodeBuildServiceRole!: =~"\\S" | fn.#StringExpression
@@ -71,26 +81,22 @@ _#defs: "/$defs/Properties/definitions/ImageBuildConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageConfiguration": matchN(1, [{
-	Source!: _
-	...
-}, {
-	Build!: _
-	...
-}]) & close({
-	Build?:  _#defs."/$defs/Properties/definitions/ImageBuildConfiguration" | fn.#ObjectExpression
-	Source?: _#defs."/$defs/Properties/definitions/ImageSource" | fn.#ObjectExpression
-}) |
+#ImageConfiguration: close({
+	// Configuration for building a container image from source code.
+	Build?: #ImageBuildConfiguration
+
+	// The container image source for this version, as an ECR image URI.
+	Source?: #ImageSource
+	if Source != _|_ if Source."Fn::If" == _|_ {
+		Build?: close({"Fn::If": _}) | error("Build cannot be used with Source; set exactly one of Source, Build")
+	}
+}) & matchN(>=1, [{Source!: _}, {Build!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageSource": close({Uri?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ImageSource: close({Uri?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceBundle": close({
+#SourceBundle: close({
 	S3Bucket!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	S3Key!:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticBeanstalk::ApplicationVersion"
-	Properties!: #Properties
-}

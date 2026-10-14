@@ -8,10 +8,10 @@ package schema
 #Properties: close({
 	Id?:       string
 	PoolName?: string
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tags"]
+	Tags?:     [...#Tags]
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string
 	Value?: string
 })

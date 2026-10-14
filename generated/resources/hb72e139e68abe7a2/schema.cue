@@ -17,61 +17,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a privacy budget within a collaboration
-#Properties: close({
-	AutoRefresh!: "CALENDAR_MONTH" | "NONE" | fn.#StringExpression
-	MembershipIdentifier!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
-	fn.#StringExpression
-	Parameters!: close({
-		BudgetParameters?: list.MaxItems(2) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/BudgetParameter"
-		] |
-			fn.#ListExpression
-		Epsilon?: int & <=20 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=20 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ResourceArn?: strings.MaxRunes(200) | fn.#StringExpression
-		UsersNoisePerQuery?: int & <=100 & >=10 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=100 &
-								>=10,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	PrivacyBudgetType!: "DIFFERENTIAL_PRIVACY" | "ACCESS_BUDGET" | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::PrivacyBudgetTemplate"
+	Properties!: close({
+		AutoRefresh!: "CALENDAR_MONTH" | "NONE" | fn.#StringExpression
+		MembershipIdentifier!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		fn.#StringExpression
+		Parameters!: close({
+			BudgetParameters?: list.MaxItems(2) & list.MinItems(1) & [...#BudgetParameter] | fn.#ListExpression
+			Epsilon?: int & <=20 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=20 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ResourceArn?: strings.MaxRunes(200) | fn.#StringExpression
+			UsersNoisePerQuery?: int & <=100 & >=10 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=100 &
+									>=10,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+		}) |
+		fn.#ObjectExpression
+		PrivacyBudgetType!: "DIFFERENTIAL_PRIVACY" | "ACCESS_BUDGET" | fn.#StringExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/BudgetParameter": close({
+#BudgetParameter: close({
 	AutoRefresh?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	Budget!: int & >=0 |
 		{
@@ -92,12 +92,8 @@ _#defs: "/$defs/Properties/definitions/BudgetParameter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::PrivacyBudgetTemplate"
-	Properties!: #Properties
-}

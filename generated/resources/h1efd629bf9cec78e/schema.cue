@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,35 +17,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a capacity provider that manages compute resources for Lambda functions
-#Properties: close({
-	CapacityProviderName?: strings.MaxRunes(140) &
-	strings.MinRunes(1) &
-	=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" |
-	fn.#StringExpression
-	CapacityProviderScalingConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderScalingConfig" |
-		fn.#ObjectExpression
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(10000) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
-	fn.#StringExpression
-	PermissionsConfig!: _#defs."/$defs/Properties/definitions/CapacityProviderPermissionsConfig" | fn.#ObjectExpression
-	PropagateTags?:     _#defs."/$defs/Properties/definitions/PropagateTagsConfig" | fn.#ObjectExpression
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TelemetryConfig?:   _#defs."/$defs/Properties/definitions/CapacityProviderTelemetryConfig" | fn.#ObjectExpression
-	VpcConfig!:         _#defs."/$defs/Properties/definitions/CapacityProviderVpcConfig" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::CapacityProvider"
+	Properties!: close({
+		CapacityProviderName?: strings.MaxRunes(140) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" |
+		fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Architecture": "x86_64" | "arm64" | fn.#StringExpression
+		// The scaling configuration for the capacity provider.
+		CapacityProviderScalingConfig?: #CapacityProviderScalingConfig
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderLoggingConfig": close({
+		// The instance requirements for compute resources managed by the capacity provider.
+		InstanceRequirements?: #InstanceRequirements
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		fn.#StringExpression
+
+		// The permissions configuration for the capacity provider.
+		PermissionsConfig!: #CapacityProviderPermissionsConfig
+
+		// Configuration for tag propagation to managed resources launched by the capacity provider.
+		PropagateTags?: #PropagateTagsConfig
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+
+		// The telemetry configuration for the capacity provider, including logging settings.
+		TelemetryConfig?: #CapacityProviderTelemetryConfig
+
+		// The VPC configuration for the capacity provider.
+		VpcConfig!: #CapacityProviderVpcConfig
+	})
+}
+
+#Architecture: "x86_64" | "arm64" | fn.#StringExpression
+
+#CapacityProviderLoggingConfig: close({
 	LogGroup?:       strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 	SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderPermissionsConfig": close({
+#CapacityProviderPermissionsConfig: close({
 	CapacityProviderOperatorRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
@@ -54,11 +68,11 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderPermissionsConfig": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderPredefinedMetricType": "LambdaCapacityProviderAverageCPUUtilization" |
+#CapacityProviderPredefinedMetricType: "LambdaCapacityProviderAverageCPUUtilization" |
 	"LambdaCapacityProviderAverageGPUUtilization" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderScalingConfig": close({
+#CapacityProviderScalingConfig: close({
 	MaxVCpuCount?: int & <=15000 & >=2 |
 		{
 			string &
@@ -75,28 +89,24 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderScalingConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	ScalingMode?: _#defs."/$defs/Properties/definitions/CapacityProviderScalingMode" | fn.#StringExpression
-	ScalingPolicies?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicy"
-	] |
-		fn.#ListExpression
+
+	// The scaling mode that determines how the capacity provider responds to changes in demand.
+	ScalingMode?:     #CapacityProviderScalingMode
+	ScalingPolicies?: list.MaxItems(10) & list.MinItems(1) & [...#TargetTrackingScalingPolicy] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderScalingMode": "Auto" | "Manual" | fn.#StringExpression
+#CapacityProviderScalingMode: "Auto" | "Manual" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderState": "Pending" |
-	"Active" |
-	"Failed" |
-	"Deleting" |
-	fn.#StringExpression
+#CapacityProviderState: "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderTelemetryConfig": close(
-	{LoggingConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderLoggingConfig" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#CapacityProviderTelemetryConfig: close({
+	// The capacity provider's Amazon CloudWatch Logs configuration settings.
+	LoggingConfig?: #CapacityProviderLoggingConfig
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderVpcConfig": close({
+#CapacityProviderVpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(1024) &
@@ -112,13 +122,12 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderVpcConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
+#InstanceRequirements: close({
 	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Architectures?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Architecture"] |
-		fn.#ListExpression
+	Architectures?: list.MaxItems(1) & list.MinItems(1) & [...#Architecture] | fn.#ListExpression
 	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
@@ -126,24 +135,26 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PropagateTagsConfig": close({
-	ExplicitTags?: list.MaxItems(40) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Mode?: _#defs."/$defs/Properties/definitions/PropagateTagsMode" | fn.#StringExpression
+#PropagateTagsConfig: close({
+	ExplicitTags?: list.MaxItems(40) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+
+	// The mode for tag propagation. Use ``Explicit`` to propagate specific tags, or
+	// ``None`` to disable propagation.
+	Mode?: #PropagateTagsMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PropagateTagsMode": "None" | "Explicit" | fn.#StringExpression
+#PropagateTagsMode: "None" | "Explicit" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicy": close({
-	PredefinedMetricType!: _#defs."/$defs/Properties/definitions/CapacityProviderPredefinedMetricType" |
-		fn.#StringExpression
+#TargetTrackingScalingPolicy: close({
+	// The predefined metric type to track for scaling decisions.
+	PredefinedMetricType!: #CapacityProviderPredefinedMetricType
 	TargetValue!: <=100 & >=0 |
 		{
 			string &
@@ -166,7 +177,3 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicy": close({
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::CapacityProvider"
-	Properties!: #Properties
-}

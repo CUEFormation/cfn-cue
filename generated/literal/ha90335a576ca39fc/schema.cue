@@ -14,40 +14,40 @@ import (
 	AllowClassicFlow?:               bool
 	AllowUnauthenticatedIdentities!: bool
 	CognitoEvents?:                  string | {...}
-	CognitoIdentityProviders?:       [..._#defs."/$defs/Properties/definitions/CognitoIdentityProvider"]
-	CognitoStreams?:                 _#defs."/$defs/Properties/definitions/CognitoStreams"
+	CognitoIdentityProviders?:       [...#CognitoIdentityProvider]
+	CognitoStreams?:                 #CognitoStreams
 	DeveloperProviderName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._-]+$"
 	Id?:                             string
 	IdentityPoolName?:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	IdentityPoolTags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	IdentityPoolTags?:          list.UniqueItems() & [...#Tag]
 	Name?:                      string
 	OpenIdConnectProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20)]
-	PushSync?:                  _#defs."/$defs/Properties/definitions/PushSync"
+	PushSync?:                  #PushSync
 	SamlProviderARNs?:          [...strings.MaxRunes(2048) & strings.MinRunes(20)]
 	SupportedLoginProviders?:   string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/CognitoIdentityProvider": close({
+#CognitoIdentityProvider: close({
 	ClientId!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w_]+$"
 	ProviderName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._:/-]+$"
 	ServerSideTokenCheck?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/CognitoStreams": close({
+#CognitoStreams: close({
 	RoleArn?:         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	StreamName?:      string
 	StreamingStatus?: string
 })
 
-_#defs: "/$defs/Properties/definitions/PushSync": close({
+#PushSync: close({
 	ApplicationArns?: [...string]
 	RoleArn?:         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -19,37 +19,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::AutoScaling::LaunchConfiguration resource specifies the launch
 // configuration that can be used by an Auto Scaling group to configure Amazon
 // EC2 instances.
-#Properties: close({
-	AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BlockDeviceMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AutoScaling::LaunchConfiguration"
+	Properties!: close({
+		AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		BlockDeviceMappings?:      list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
+		ClassicLinkVPCId?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ClassicLinkVPCSecurityGroups?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 		fn.#ListExpression
-	ClassicLinkVPCId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ClassicLinkVPCSecurityGroups?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IamInstanceProfile?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	InstanceId?:              strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceMonitoring?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceType!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	KernelId?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	KeyName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	MetadataOptions?:         _#defs."/$defs/Properties/definitions/MetadataOptions" | fn.#ObjectExpression
-	PlacementTenancy?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	RamDiskId?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SecurityGroups?: [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SpotPrice?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	UserData?:  strings.MaxRunes(21847) & strings.MinRunes(0) | fn.#StringExpression
-})
+		EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IamInstanceProfile?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		InstanceId?:              strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceMonitoring?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstanceType!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		KernelId?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		KeyName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BlockDevice": close({
+		// The metadata options for the instances.
+		MetadataOptions?:  #MetadataOptions
+		PlacementTenancy?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		RamDiskId?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		SecurityGroups?: [...] & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				string |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SpotPrice?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		UserData?:  strings.MaxRunes(21847) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
+
+#BlockDevice: close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int & <=20000 & >=100 |
@@ -105,24 +109,30 @@ _#defs: "/$defs/Properties/definitions/BlockDevice": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": matchN(1, [{
-	VirtualName!: _
-	...
-}, {
-	Ebs!: _
-	...
-}, {
-	NoDevice!: _
-	...
-}]) & close({
-	DeviceName!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/BlockDevice" | fn.#ObjectExpression
+#BlockDeviceMapping: close({
+	DeviceName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+	// Parameters used to automatically set up EBS volumes when an instance is launched.
+	Ebs?:         #BlockDevice
 	NoDevice?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-}) |
+	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
+		Ebs?: close({"Fn::If": _}) | error(
+			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+	}
+	if Ebs != _|_ if Ebs."Fn::If" == _|_ {
+		NoDevice?: close({"Fn::If": _}) | error(
+			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
+		)
+	}
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataOptions": close({
+#MetadataOptions: close({
 	HttpEndpoint?: "disabled" | "enabled" | fn.#StringExpression
 	HttpPutResponseHopLimit?: int & <=64 & >=1 |
 		{
@@ -143,7 +153,3 @@ _#defs: "/$defs/Properties/definitions/MetadataOptions": close({
 	HttpTokens?: "optional" | "required" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AutoScaling::LaunchConfiguration"
-	Properties!: #Properties
-}

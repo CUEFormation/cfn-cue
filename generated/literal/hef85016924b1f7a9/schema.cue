@@ -16,14 +16,14 @@ import "strings"
 	DownlinkLossPercent?:   int & <=100 & >=0
 	Name!:                  strings.MaxRunes(256) & strings.MinRunes(1)
 	ProjectArn!:            strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+"
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                  [...#Tag]
 	UplinkBandwidthBits?:   int & <=104857600 & >=0
 	UplinkDelayMs?:         int & <=2000 & >=0
 	UplinkJitterMs?:        int & <=2000 & >=0
 	UplinkLossPercent?:     int & <=100 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

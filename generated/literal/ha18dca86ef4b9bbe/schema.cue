@@ -33,7 +33,7 @@ import (
 
 	// The timestamp when the configuration bundle was created.
 	CreatedAt?: time.Time
-	CreatedBy?: _#defs."/$defs/Properties/definitions/VersionCreatedBySource"
+	CreatedBy?: #VersionCreatedBySource
 
 	// The description for the configuration bundle.
 	Description?: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$"
@@ -43,10 +43,10 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
-	LineageMetadata?: _#defs."/$defs/Properties/definitions/VersionLineageMetadata"
+	LineageMetadata?: #VersionLineageMetadata
 
 	// Tags to assign to the configuration bundle.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The timestamp when the configuration bundle was last updated.
 	UpdatedAt?: time.Time
@@ -56,19 +56,19 @@ import (
 })
 
 // The configuration for a component within a configuration bundle.
-_#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
+#ComponentConfiguration: close({
 	// The configuration values as a flexible JSON document.
 	Configuration!: {...}
 })
 
 // A tag consisting of a key-value pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 })
 
 // The source that created a configuration bundle version.
-_#defs: "/$defs/Properties/definitions/VersionCreatedBySource": close({
+#VersionCreatedBySource: close({
 	// The Amazon Resource Name (ARN) of the source, if applicable.
 	Arn?: string
 
@@ -77,13 +77,13 @@ _#defs: "/$defs/Properties/definitions/VersionCreatedBySource": close({
 })
 
 // The version lineage metadata that tracks parent versions and creation source.
-_#defs: "/$defs/Properties/definitions/VersionLineageMetadata": close({
+#VersionLineageMetadata: close({
 	// The branch name for this version.
 	BranchName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_/-]{0,127}$"
 
 	// A commit message describing the changes in this version.
 	CommitMessage?: strings.MaxRunes(500) & strings.MinRunes(1)
-	CreatedBy?:     _#defs."/$defs/Properties/definitions/VersionCreatedBySource"
+	CreatedBy?:     #VersionCreatedBySource
 
 	// A list of parent version identifiers.
 	ParentVersionIds?: [...=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"]

@@ -13,12 +13,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // AWS::S3ObjectLambda::AccessPointPolicy resource is an Amazon S3ObjectLambda
 // policy type that you can use to control permissions for your S3ObjectLambda
-#Properties: close({
-	ObjectLambdaAccessPoint!: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" |
-	fn.#StringExpression
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3ObjectLambda::AccessPointPolicy"
-	Properties!: #Properties
+	Type!: "AWS::S3ObjectLambda::AccessPointPolicy"
+	Properties!: close({
+		ObjectLambdaAccessPoint!: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" |
+		fn.#StringExpression
+		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

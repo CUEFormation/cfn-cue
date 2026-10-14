@@ -17,21 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Active Directory groups to manage and update user statuses and so Amazon
 // DataZone domain administrators can use these group memberships to implement
 // Amazon DataZone domain policies.
-#Properties: close({
-	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	GroupIdentifier?: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+)" |
-		fn.#StringExpression
-	GroupType?:        _#defs."/$defs/Properties/definitions/GroupType"
-	RolePrincipalArn?: string | fn.#StringExpression
-	Status?:           _#defs."/$defs/Properties/definitions/GroupProfileStatus"
-})
-
-_#defs: "/$defs/Properties/definitions/GroupProfileStatus": "ASSIGNED" | "NOT_ASSIGNED" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/GroupType": "DATAZONE_SSO_GROUP" |
-	"IAM_ROLE_SESSION_GROUP" |
-	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::GroupProfile"
-	Properties!: #Properties
+	Type!: "AWS::DataZone::GroupProfile"
+	Properties!: close({
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		GroupIdentifier?: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+)" |
+			fn.#StringExpression
+		GroupType?:        #GroupType
+		RolePrincipalArn?: string | fn.#StringExpression
+		Status?:           #GroupProfileStatus
+	})
 }
+
+#GroupProfileStatus: "ASSIGNED" | "NOT_ASSIGNED" | fn.#StringExpression
+
+#GroupType: "DATAZONE_SSO_GROUP" | "IAM_ROLE_SESSION_GROUP" | fn.#StringExpression

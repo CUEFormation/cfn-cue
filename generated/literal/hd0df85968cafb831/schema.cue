@@ -18,17 +18,15 @@ import (
 
 	// The arn of the connection resource to be used in IAM policies.
 	ArnForPolicy?:      =~"^arn:aws([a-z]|\\-)*:events:([a-z]|\\d|\\-)*:([0-9]{12})?:connection\\/[\\.\\-_A-Za-z0-9]+$"
-	AuthParameters?:    _#defs."/$defs/Properties/definitions/AuthParameters"
+	AuthParameters?:    #AuthParameters
 	AuthorizationType?: "API_KEY" | "BASIC" | "OAUTH_CLIENT_CREDENTIALS"
 
 	// Description of the connection.
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0)
 
 	// The private resource the HTTP request will be sent to.
-	InvocationConnectivityParameters?: close(
-		{ResourceParameters!: _#defs."/$defs/Properties/definitions/ResourceParameters"},
-	)
-	KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$"
+	InvocationConnectivityParameters?: close({ResourceParameters!: #ResourceParameters})
+	KmsKeyIdentifier?:                 strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$"
 
 	// Name of the connection.
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+"
@@ -38,7 +36,7 @@ import (
 		=~"^arn:aws([a-z]|\\-)*:secretsmanager:([a-z]|\\d|\\-)*:([0-9]{12})?:secret:([a-z]|\\d|\\-)*(!)*[\\/_+=\\.@\\-A-Za-z0-9]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ApiKeyAuthParameters": close({
+#ApiKeyAuthParameters: close({
 	ApiKeyName!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$"
@@ -47,24 +45,28 @@ _#defs: "/$defs/Properties/definitions/ApiKeyAuthParameters": close({
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/AuthParameters": matchN(1, [{
-	BasicAuthParameters!: _
-	...
-}, {
-	OAuthParameters!: _
-	...
-}, {
-	ApiKeyAuthParameters!: _
-	...
-}]) & (struct.MaxFields(2) & struct.MinFields(1) & close({
-	ApiKeyAuthParameters?:     _#defs."/$defs/Properties/definitions/ApiKeyAuthParameters"
-	BasicAuthParameters?:      _#defs."/$defs/Properties/definitions/BasicAuthParameters"
-	ConnectivityParameters?:   _#defs."/$defs/Properties/definitions/ConnectivityParameters"
-	InvocationHttpParameters?: _#defs."/$defs/Properties/definitions/ConnectionHttpParameters"
-	OAuthParameters?:          _#defs."/$defs/Properties/definitions/OAuthParameters"
-}))
+#AuthParameters: struct.MaxFields(2) & struct.MinFields(1) & (close({
+	ApiKeyAuthParameters?:     #ApiKeyAuthParameters
+	BasicAuthParameters?:      #BasicAuthParameters
+	ConnectivityParameters?:   #ConnectivityParameters
+	InvocationHttpParameters?: #ConnectionHttpParameters
+	OAuthParameters?:          #OAuthParameters
+	if BasicAuthParameters != _|_ if BasicAuthParameters."Fn::If" == _|_ {
+		OAuthParameters?: close({"Fn::If": _}) | error(
+			"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+		)
+		ApiKeyAuthParameters?: close({"Fn::If": _}) | error(
+			"ApiKeyAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+		)
+	}
+	if OAuthParameters != _|_ if OAuthParameters."Fn::If" == _|_ {
+		ApiKeyAuthParameters?: close({"Fn::If": _}) | error(
+			"ApiKeyAuthParameters cannot be used with OAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+		)
+	}
+}) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}]))
 
-_#defs: "/$defs/Properties/definitions/BasicAuthParameters": close({
+#BasicAuthParameters: close({
 	Password!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$"
@@ -73,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/BasicAuthParameters": close({
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/ClientParameters": close({
+#ClientParameters: close({
 	ClientID!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$"
@@ -82,32 +84,30 @@ _#defs: "/$defs/Properties/definitions/ClientParameters": close({
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionHttpParameters": close({
-	BodyParameters?:        list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Parameter"]
-	HeaderParameters?:      list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Parameter"]
-	QueryStringParameters?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Parameter"]
+#ConnectionHttpParameters: close({
+	BodyParameters?:        list.MaxItems(100) & [...] & [...#Parameter]
+	HeaderParameters?:      list.MaxItems(100) & [...] & [...#Parameter]
+	QueryStringParameters?: list.MaxItems(100) & [...] & [...#Parameter]
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectivityParameters": close(
-	{ResourceParameters!: _#defs."/$defs/Properties/definitions/ResourceParameters"},
-)
+#ConnectivityParameters: close({ResourceParameters!: #ResourceParameters})
 
-_#defs: "/$defs/Properties/definitions/OAuthParameters": close({
+#OAuthParameters: close({
 	AuthorizationEndpoint!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^((%[0-9A-Fa-f]{2}|[-()_.!~*';/?:@\\x26=+$,A-Za-z0-9])+)([).!';/?:,])?$"
-	ClientParameters!:    _#defs."/$defs/Properties/definitions/ClientParameters"
+	ClientParameters!:    #ClientParameters
 	HttpMethod!:          "GET" | "POST" | "PUT"
-	OAuthHttpParameters?: _#defs."/$defs/Properties/definitions/ConnectionHttpParameters"
+	OAuthHttpParameters?: #ConnectionHttpParameters
 })
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	IsValueSecret?: bool
 	Key!:           strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[!#$%&'*+-.^_`|~0-9a-zA-Z]+$"
 	Value!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[ \\t]*[\\x20-\\x7E]+([ \\t]+[\\x20-\\x7E]+)*[ \\t]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceParameters": close({
+#ResourceParameters: close({
 	ResourceAssociationArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/snra-[0-9a-z]{17}$"

@@ -16,28 +16,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::SubnetCidrBlock resource creates association between subnet and IPv6 CIDR
-#Properties: close({
-	Ipv6CidrBlock?:  strings.MaxRunes(42) | fn.#StringExpression
-	Ipv6IpamPoolId?: string | fn.#StringExpression
-	Ipv6NetmaskLength?: int & <=128 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=128 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SubnetId!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SubnetCidrBlock"
-	Properties!: #Properties
+	Type!: "AWS::EC2::SubnetCidrBlock"
+	Properties!: close({
+		Ipv6CidrBlock?:  strings.MaxRunes(42) | fn.#StringExpression
+		Ipv6IpamPoolId?: string | fn.#StringExpression
+		Ipv6NetmaskLength?: int & <=128 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=128 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SubnetId!: string | fn.#StringExpression
+	})
 }

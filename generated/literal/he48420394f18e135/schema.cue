@@ -30,10 +30,10 @@ import (
 	PolicyEnabled?: bool
 
 	// The configuration options for customer provided KMS encryption.
-	SseSpecification?: _#defs."/$defs/Properties/definitions/SseSpecification"
+	SseSpecification?: #SseSpecification
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The ARN of the Verified Access group.
 	VerifiedAccessGroupArn?: string
@@ -46,7 +46,7 @@ import (
 })
 
 // The configuration options for customer provided KMS encryption.
-_#defs: "/$defs/Properties/definitions/SseSpecification": close({
+#SseSpecification: close({
 	// Whether to encrypt the policy with the provided key or disable encryption
 	CustomerManagedKeyEnabled?: bool
 
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/SseSpecification": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

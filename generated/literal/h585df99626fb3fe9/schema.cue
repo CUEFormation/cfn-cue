@@ -7,8 +7,8 @@ package schema
 // Resource Type definition for AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption
 #Properties: close({
 	ApplicationName!:         string
-	CloudWatchLoggingOption!: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOption"
+	CloudWatchLoggingOption!: #CloudWatchLoggingOption
 	Id?:                      string
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLoggingOption": close({LogStreamARN!: string})
+#CloudWatchLoggingOption: close({LogStreamARN!: string})

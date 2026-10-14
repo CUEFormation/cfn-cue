@@ -14,113 +14,87 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This is a CloudFormation resource for activating the first-party AWS::Hooks::GuardHook.
-#Properties: close({
-	Alias!:         string | fn.#StringExpression
-	ExecutionRole!: _#defs."/$defs/Properties/definitions/Role" | fn.#StringExpression
-	FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
-	HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
-	LogBucket?:     string | fn.#StringExpression
-	Options?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	close({
-		InputParams?: matchN(1, [
-			_#defs."/$defs/Properties/definitions/S3Location",
-			list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/S3Location"],
-		]) |
-		fn.#ValueExpression
-	}) |
-	fn.#ValueExpression
-	RuleLocation!: _#defs."/$defs/Properties/definitions/S3Location"
-	StackFilters?: close({
-		FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
-		StackNames?: struct.MinFields(1) & close({
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackName"
-			] |
-				fn.#ListExpression
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackName"
-			] |
-				fn.#ListExpression
-		}) |
-		fn.#ObjectExpression
-		StackRoles?: struct.MinFields(1) & close({
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackRole"
-			] |
-				fn.#ListExpression
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/StackRole"
-			] |
-				fn.#ListExpression
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	TargetFilters?: fn.#Object & {...} & matchN(1, [
-		struct.MinFields(1) & close({
-			Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/Action"
-			] |
-				fn.#ListExpression
-			InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/InvocationPoint"
-			] |
-				fn.#ListExpression
-			TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/TargetName"
-			] |
-				fn.#ListExpression
-		}),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFormation::GuardHook"
+	Properties!: close({
+		Alias!: string | fn.#StringExpression
+
+		// The execution role ARN assumed by hooks to read Guard rules from S3 and write
+		// Guard outputs to S3.
+		ExecutionRole!: #Role
+		FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
+		HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
+		LogBucket?:     string | fn.#StringExpression
+		Options?: null |
+		bool |
+		number |
+		string |
+		[...] |
 		close({
-			Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/HookTarget"
-			] |
-				fn.#ListExpression
-		})
-	]) |
-	fn.#ObjectExpression
-	TargetOperations!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetOperation"] |
-		fn.#ListExpression
-})
+			InputParams?: matchN(1, [#S3Location, list.MaxItems(10) & list.MinItems(1) & [...#S3Location]]) |
+			fn.#ValueExpression
+		}) |
+		fn.#ValueExpression
+		RuleLocation!: #S3Location
+		StackFilters?: close({
+			FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
+			StackNames?: struct.MinFields(1) & close({
+				Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] |
+					fn.#ListExpression
+				Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+			StackRoles?: struct.MinFields(1) & close({
+				Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] |
+					fn.#ListExpression
+				Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+		}) |
+		fn.#ObjectExpression
+		TargetFilters?: fn.#Object & {...} & matchN(1, [
+			struct.MinFields(1) & close({
+				Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
+				InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#InvocationPoint] |
+					fn.#ListExpression
+				TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#TargetName] |
+					fn.#ListExpression
+			}),
+			close({
+				Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#HookTarget] |
+					fn.#ListExpression
+			})
+		]) |
+		fn.#ObjectExpression
+		TargetOperations!: list.UniqueItems() & [...#TargetOperation] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Action": "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
+#Action: "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HookTarget": close({
-	Action!:          _#defs."/$defs/Properties/definitions/Action"
-	InvocationPoint!: _#defs."/$defs/Properties/definitions/InvocationPoint"
-	TargetName!:      _#defs."/$defs/Properties/definitions/TargetName"
+#HookTarget: close({
+	Action!:          #Action
+	InvocationPoint!: #InvocationPoint
+	TargetName!:      #TargetName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InvocationPoint": "PRE_PROVISION" | fn.#StringExpression
+#InvocationPoint: "PRE_PROVISION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Role": strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" |
-fn.#StringExpression
+#Role: strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Uri!:       string | fn.#StringExpression
 	VersionId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StackName": strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" |
-fn.#StringExpression
+#StackName: strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StackRole": (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) |
-fn.#StringExpression
+#StackRole: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TargetName": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#TargetName: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TargetOperation": "RESOURCE" |
-	"STACK" |
-	"CHANGE_SET" |
-	"CLOUD_CONTROL" |
-	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::GuardHook"
-	Properties!: #Properties
-}
+#TargetOperation: "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL" | fn.#StringExpression

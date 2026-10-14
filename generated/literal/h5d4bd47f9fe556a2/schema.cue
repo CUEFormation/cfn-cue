@@ -13,25 +13,25 @@ import (
 #Properties: close({
 	// The timestamp of when the domain object type was created.
 	CreatedAt?:     string
-	Description?:   _#defs."/$defs/Properties/definitions/Description"
-	DomainName!:    _#defs."/$defs/Properties/definitions/DomainName"
-	EncryptionKey?: _#defs."/$defs/Properties/definitions/EncryptionKey"
-	Fields!:        _#defs."/$defs/Properties/definitions/DomainObjectTypeFields"
+	Description?:   #Description
+	DomainName!:    #DomainName
+	EncryptionKey?: #EncryptionKey
+	Fields!:        #DomainObjectTypeFields
 
 	// The timestamp of when the domain object type was most recently edited.
 	LastUpdatedAt?:  string
-	ObjectTypeName!: _#defs."/$defs/Properties/definitions/ObjectTypeName"
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags"
+	ObjectTypeName!: #ObjectTypeName
+	Tags?:           #Tags
 })
 
 // Description of the domain object type.
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(10000) & strings.MinRunes(1)
+#Description: strings.MaxRunes(10000) & strings.MinRunes(1)
 
 // The unique name of the domain.
-_#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
 // Represents a field in a DomainObjectType.
-_#defs: "/$defs/Properties/definitions/DomainObjectTypeField": close({
+#DomainObjectTypeField: close({
 	// The content type of the field.
 	ContentType?: "STRING" | "NUMBER"
 
@@ -46,20 +46,18 @@ _#defs: "/$defs/Properties/definitions/DomainObjectTypeField": close({
 })
 
 // A map of the name and ObjectType field.
-_#defs: "/$defs/Properties/definitions/DomainObjectTypeFields": close({
+#DomainObjectTypeFields: close({
 
-	{[=~"^[a-zA-Z0-9_.-]+$"]: _#defs."/$defs/Properties/definitions/DomainObjectTypeField"}})
+	{[=~"^[a-zA-Z0-9_.-]+$"]: #DomainObjectTypeField}})
 
 // The default encryption key
-_#defs: "/$defs/Properties/definitions/EncryptionKey": strings.MaxRunes(255) & strings.MinRunes(0)
+#EncryptionKey: strings.MaxRunes(255) & strings.MinRunes(0)
 
 // The name of the domain object type.
-_#defs: "/$defs/Properties/definitions/ObjectTypeName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"
+#ObjectTypeName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -74,6 +72,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An array of key-value pairs to apply to this resource.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]

@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"list"
-	"time"
 	"strings"
+	"list"
 	"struct"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,10 +15,10 @@ import (
 // assertions, and service functions.
 #Properties: close({
 	// Assertions associated with this service.
-	Assertions?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/AssertionDefinition"]
+	Assertions?: list.MaxItems(20) & [...#AssertionDefinition]
 
 	// Systems associated with this service.
-	AssociatedSystems?: list.MaxItems(1000) & [..._#defs."/$defs/Properties/definitions/AssociatedSystem"]
+	AssociatedSystems?: list.MaxItems(1000) & [...#AssociatedSystem]
 
 	// The timestamp when the service was created.
 	CreatedAt?: time.Time
@@ -28,10 +28,10 @@ import (
 
 	// The description of the service.
 	Description?:           strings.MaxRunes(615)
-	EffectivePolicyValues?: _#defs."/$defs/Properties/definitions/EffectivePolicyValues"
+	EffectivePolicyValues?: #EffectivePolicyValues
 
 	// Input sources for this service.
-	InputSources?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/InputSourceDefinition"]
+	InputSources?: list.MaxItems(20) & [...#InputSourceDefinition]
 
 	// The KMS key ID for encrypting service data.
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
@@ -41,7 +41,7 @@ import (
 
 	// The name of the service.
 	Name!:            =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$"
-	PermissionModel?: _#defs."/$defs/Properties/definitions/PermissionModel"
+	PermissionModel?: #PermissionModel
 
 	// The ARN of the resilience policy to associate.
 	PolicyArn?: string
@@ -50,25 +50,25 @@ import (
 	Regions!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MinRunes(6) & =~"^[a-z]{2}-((iso[a-z]{0,1}-)|(gov-)){0,1}[a-z]+-[0-9]$"
 	]
-	ReportConfiguration?: _#defs."/$defs/Properties/definitions/ServiceReportConfiguration"
+	ReportConfiguration?: #ServiceReportConfiguration
 
 	// The ARN of the service.
 	ServiceArn?: string
 
 	// Tags assigned to the service.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The timestamp when the service was last updated.
 	UpdatedAt?: time.Time
 })
 
 // An assertion about the service's resilience posture.
-_#defs: "/$defs/Properties/definitions/AssertionDefinition": close({
+#AssertionDefinition: close({
 	// The text of the assertion.
 	Text!: strings.MaxRunes(1000) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/AssociatedSystem": close({
+#AssociatedSystem: close({
 	// The system ARN.
 	SystemArn!: string
 
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/AssociatedSystem": close({
 	UserJourneyIds?: list.MaxItems(50) & [...=~"^\\S{1,255}$"]
 })
 
-_#defs: "/$defs/Properties/definitions/CrossAccountRoleConfiguration": close({
+#CrossAccountRoleConfiguration: close({
 	// ARN of the cross-account IAM role.
 	CrossAccountRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -87,20 +87,20 @@ _#defs: "/$defs/Properties/definitions/CrossAccountRoleConfiguration": close({
 	ExternalId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/DisasterRecoverySource": close({
+#DisasterRecoverySource: close({
 	PolicyName?: string
 	Value?:      string
 })
 
 // Effective policy values computed from the associated policy.
-_#defs: "/$defs/Properties/definitions/EffectivePolicyValues": close({
-	AvailabilitySlo?:       _#defs."/$defs/Properties/definitions/SloSource"
-	MultiAzDrApproach?:     _#defs."/$defs/Properties/definitions/DisasterRecoverySource"
-	MultiAzRpo?:            _#defs."/$defs/Properties/definitions/TargetSource"
-	MultiAzRto?:            _#defs."/$defs/Properties/definitions/TargetSource"
-	MultiRegionDrApproach?: _#defs."/$defs/Properties/definitions/DisasterRecoverySource"
-	MultiRegionRpo?:        _#defs."/$defs/Properties/definitions/TargetSource"
-	MultiRegionRto?:        _#defs."/$defs/Properties/definitions/TargetSource"
+#EffectivePolicyValues: close({
+	AvailabilitySlo?:       #SloSource
+	MultiAzDrApproach?:     #DisasterRecoverySource
+	MultiAzRpo?:            #TargetSource
+	MultiAzRto?:            #TargetSource
+	MultiRegionDrApproach?: #DisasterRecoverySource
+	MultiRegionRpo?:        #TargetSource
+	MultiRegionRto?:        #TargetSource
 })
 
 // Kubernetes label selector that scopes discovery to matching objects in the
@@ -108,12 +108,10 @@ _#defs: "/$defs/Properties/definitions/EffectivePolicyValues": close({
 // MatchExpressions. Specify at least one of them; a selector carrying neither
 // is treated as though no selector were supplied, and all supported objects in
 // the specified namespaces are discovered.
-_#defs: "/$defs/Properties/definitions/EksLabelSelector": close({
+#EksLabelSelector: close({
 	// Label selector requirements an object must satisfy to be discovered. Up to 20
 	// requirements, all of which must match.
-	MatchExpressions?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EksLabelSelectorRequirement"
-	]
+	MatchExpressions?: list.MaxItems(20) & list.MinItems(1) & [...#EksLabelSelectorRequirement]
 
 	// Label key/value pairs an object must carry to be discovered. Up to 20 pairs.
 	MatchLabels?: struct.MaxFields(20) & struct.MinFields(1) & close({
@@ -123,7 +121,7 @@ _#defs: "/$defs/Properties/definitions/EksLabelSelector": close({
 
 // A single label selector requirement. Specify Values when Operator is IN or
 // NOT_IN, and omit Values when Operator is EXISTS or DOES_NOT_EXIST.
-_#defs: "/$defs/Properties/definitions/EksLabelSelectorRequirement": close({
+#EksLabelSelectorRequirement: close({
 	// Label key the requirement applies to.
 	Key!: strings.MaxRunes(317) &
 	strings.MinRunes(1) &
@@ -137,66 +135,84 @@ _#defs: "/$defs/Properties/definitions/EksLabelSelectorRequirement": close({
 	Values?: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(63) & strings.MinRunes(0)]
 })
 
-_#defs: "/$defs/Properties/definitions/EksSource": close({
+#EksSource: close({
 	// ARN of the EKS cluster.
 	ClusterArn!:    string
-	LabelSelector?: _#defs."/$defs/Properties/definitions/EksLabelSelector"
+	LabelSelector?: #EksLabelSelector
 
 	// EKS namespaces.
 	Namespaces!: list.MaxItems(10) & list.MinItems(1) & [...string]
 })
 
 // An input source for the service.
-_#defs: "/$defs/Properties/definitions/InputSourceDefinition": close(
-	{ResourceConfiguration!: _#defs."/$defs/Properties/definitions/ResourceConfiguration"},
-)
+#InputSourceDefinition: close({ResourceConfiguration!: #ResourceConfiguration})
 
-_#defs: "/$defs/Properties/definitions/PermissionModel": close({
+#PermissionModel: close({
 	// Cross-account role ARNs.
-	CrossAccountRoleArns?: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/CrossAccountRoleConfiguration"]
+	CrossAccountRoleArns?: list.MaxItems(10) & [...#CrossAccountRoleConfiguration]
 
 	// Name of the invoker IAM role.
 	InvokerRoleName!: =~"^(([A-Za-z0-9_+=,.@\\-]+/){1,511})?[A-Za-z0-9_+=,.@\\-]{1,64}$"
 })
 
 // Configuration for a report output destination.
-_#defs: "/$defs/Properties/definitions/ReportOutputConfiguration": {
-	S3!: _
-	...
-} & close({S3?: _#defs."/$defs/Properties/definitions/S3ReportOutputConfiguration"})
+#ReportOutputConfiguration: close({S3?: #S3ReportOutputConfiguration}) & matchN(>=1, [{S3!: _}])
 
 // Resource configuration for an input source. Provide exactly one field.
-_#defs: "/$defs/Properties/definitions/ResourceConfiguration": matchN(1, [{
-	ResourceTags!: _
-	...
-}, {
-	CfnStackArn!: _
-	...
-}, {
-	TfStateFileUrl!: _
-	...
-}, {
-	Eks!: _
-	...
-}, {
-	DesignFileS3Url!: _
-	...
-}]) & close({
+#ResourceConfiguration: close({
 	// ARN of a CloudFormation stack.
 	CfnStackArn?: string
 
 	// S3 URL of a design file.
 	DesignFileS3Url?: string
-	Eks?:             _#defs."/$defs/Properties/definitions/EksSource"
+	Eks?:             #EksSource
 
 	// Resource tags to discover resources.
-	ResourceTags?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourceTag"]
+	ResourceTags?: list.MaxItems(10) & list.MinItems(1) & [...#ResourceTag]
 
 	// URL of a Terraform state file.
 	TfStateFileUrl?: string
-})
+	if ResourceTags != _|_ if ResourceTags."Fn::If" == _|_ {
+		CfnStackArn?: close({"Fn::If": _}) | error(
+			"CfnStackArn cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		TfStateFileUrl?: close({"Fn::If": _}) | error(
+			"TfStateFileUrl cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		Eks?: close({"Fn::If": _}) | error(
+			"Eks cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
+			"DesignFileS3Url cannot be used with ResourceTags; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+	if CfnStackArn != _|_ if CfnStackArn."Fn::If" == _|_ {
+		TfStateFileUrl?: close({"Fn::If": _}) | error(
+			"TfStateFileUrl cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		Eks?: close({"Fn::If": _}) | error(
+			"Eks cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
+			"DesignFileS3Url cannot be used with CfnStackArn; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+	if TfStateFileUrl != _|_ if TfStateFileUrl."Fn::If" == _|_ {
+		Eks?: close({"Fn::If": _}) | error(
+			"Eks cannot be used with TfStateFileUrl; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
+			"DesignFileS3Url cannot be used with TfStateFileUrl; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+	if Eks != _|_ if Eks."Fn::If" == _|_ {
+		DesignFileS3Url?: close({"Fn::If": _}) | error(
+			"DesignFileS3Url cannot be used with Eks; set exactly one of ResourceTags, CfnStackArn, TfStateFileUrl, Eks, DesignFileS3Url",
+		)
+	}
+}) & matchN(>=1, [{ResourceTags!: _}, {CfnStackArn!: _}, {TfStateFileUrl!: _}, {Eks!: _}, {DesignFileS3Url!: _}])
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	// Tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -205,7 +221,7 @@ _#defs: "/$defs/Properties/definitions/ResourceTag": close({
 })
 
 // S3 configuration for report output.
-_#defs: "/$defs/Properties/definitions/S3ReportOutputConfiguration": close({
+#S3ReportOutputConfiguration: close({
 	// Account ID of the bucket owner.
 	BucketOwner!: =~"^\\d{12}$"
 
@@ -214,19 +230,17 @@ _#defs: "/$defs/Properties/definitions/S3ReportOutputConfiguration": close({
 })
 
 // Configuration for automatic report generation on a Service.
-_#defs: "/$defs/Properties/definitions/ServiceReportConfiguration": close({
+#ServiceReportConfiguration: close({
 	// Output destinations for generated reports.
-	ReportOutput!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReportOutputConfiguration"
-	]
+	ReportOutput!: list.MaxItems(1) & list.MinItems(1) & [...#ReportOutputConfiguration]
 })
 
-_#defs: "/$defs/Properties/definitions/SloSource": close({
+#SloSource: close({
 	PolicyName?: string
 	Value?:      number
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -234,7 +248,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TargetSource": close({
+#TargetSource: close({
 	PolicyName?: string
 	Value?:      int
 })

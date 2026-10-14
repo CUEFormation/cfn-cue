@@ -15,19 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::CloudWatch::View. A view is a named,
 // reusable SQL query that can be referenced from CloudWatch telemetry queries.
 // View names must be unique within the account and region.
-#Properties: close({
-	Definition!:  strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
-	Description?: strings.MaxRunes(1024) | fn.#StringExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(6) & =~"^view\\.[a-z0-9][a-z0-9_-]{0,250}$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::View"
+	Properties!: close({
+		Definition!:  strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) | fn.#StringExpression
+		Name?: strings.MaxRunes(256) & strings.MinRunes(6) & =~"^view\\.[a-z0-9][a-z0-9_-]{0,250}$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::View"
-	Properties!: #Properties
-}

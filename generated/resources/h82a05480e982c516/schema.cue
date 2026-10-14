@@ -13,23 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Neptune::EventSubscription
-#Properties: close({
-	Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventCategories?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SourceIds?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SourceType?:       string | fn.#StringExpression
-	SubscriptionName?: strings.MaxRunes(255) | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Neptune::EventSubscription"
+	Properties!: close({
+		Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EventCategories?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		SourceIds?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		SourceType?:       string | fn.#StringExpression
+		SubscriptionName?: strings.MaxRunes(255) | fn.#StringExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Neptune::EventSubscription"
-	Properties!: #Properties
-}

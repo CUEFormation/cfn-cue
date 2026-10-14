@@ -12,39 +12,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::App
-#Properties: close({
-	AppSource?: _#defs."/$defs/Properties/definitions/Source"
-	Attributes?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
-		...
-	} | fn.#ObjectExpression
-	DataSources?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DataSource"] | fn.#ListExpression
-	Description?:      string | fn.#StringExpression
-	Domains?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	EnableSsl?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Environment?:      [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] | fn.#ListExpression
-	Name!:             string | fn.#StringExpression
-	Shortname?:        string | fn.#StringExpression
-	SslConfiguration?: _#defs."/$defs/Properties/definitions/SslConfiguration"
-	StackId!:          string | fn.#StringExpression
-	Type!:             string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpsWorks::App"
+	Properties!: close({
+		AppSource?: #Source
+		Attributes?: {
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			...
+		} | fn.#ObjectExpression
+		DataSources?:      list.UniqueItems() & [...#DataSource] | fn.#ListExpression
+		Description?:      string | fn.#StringExpression
+		Domains?:          [...string | fn.#StringExpression] | fn.#ListExpression
+		EnableSsl?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Environment?:      [...#EnvironmentVariable] | fn.#ListExpression
+		Name!:             string | fn.#StringExpression
+		Shortname?:        string | fn.#StringExpression
+		SslConfiguration?: #SslConfiguration
+		StackId!:          string | fn.#StringExpression
+		Type!:             string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DataSource": close({
+#DataSource: close({
 	Arn?:          string | fn.#StringExpression
 	DatabaseName?: string | fn.#StringExpression
 	Type?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Key!:    string | fn.#StringExpression
 	Secure?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Value!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
+#Source: close({
 	Password?: string | fn.#StringExpression
 	Revision?: string | fn.#StringExpression
 	SshKey?:   string | fn.#StringExpression
@@ -54,13 +57,9 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SslConfiguration": close({
+#SslConfiguration: close({
 	Certificate?: string | fn.#StringExpression
 	Chain?:       string | fn.#StringExpression
 	PrivateKey?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpsWorks::App"
-	Properties!: #Properties
-}

@@ -9,13 +9,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::CoreDefinition
-#Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/CoreDefinitionVersion"
-	Name!:           string | fn.#StringExpression
-	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::CoreDefinition"
+	Properties!: close({
+		InitialVersion?: #CoreDefinitionVersion
+		Name!:           string | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Core": close({
+#Core: close({
 	CertificateArn!: string | fn.#StringExpression
 	Id!:             string | fn.#StringExpression
 	SyncShadow?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -23,11 +26,4 @@ _#defs: "/$defs/Properties/definitions/Core": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CoreDefinitionVersion": close(
-	{Cores!: [..._#defs."/$defs/Properties/definitions/Core"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::CoreDefinition"
-	Properties!: #Properties
-}
+#CoreDefinitionVersion: close({Cores!: [...#Core] | fn.#ListExpression}) | fn.#ObjectExpression

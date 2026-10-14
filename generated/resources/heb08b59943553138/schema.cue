@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,23 +12,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::DataZone::EnvironmentActions Resource Type
-#Properties: close({
-	Description?:           strings.MaxRunes(2048) | fn.#StringExpression
-	DomainIdentifier?:      =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnvironmentIdentifier?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Identifier?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Name!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	Parameters?: _#defs."/$defs/Properties/definitions/AwsConsoleLinkParameters" | fn.#ObjectExpression
-})
-
-_#defs: "/$defs/Properties/definitions/AwsConsoleLinkParameters": close(
-	{Uri?: _#defs."/$defs/Properties/definitions/EnvironmentActionURI"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/EnvironmentActionURI": strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::EnvironmentActions"
-	Properties!: #Properties
+	Type!: "AWS::DataZone::EnvironmentActions"
+	Properties!: close({
+		Description?:      strings.MaxRunes(2048) | fn.#StringExpression
+		DomainIdentifier?: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		EnvironmentIdentifier?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]{1,36}$" |
+		fn.#StringExpression
+		Identifier?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		Name!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+
+		// The parameters of the environment action.
+		Parameters?: #AwsConsoleLinkParameters
+	})
 }
+
+#AwsConsoleLinkParameters: close({Uri?: #EnvironmentActionURI}) | fn.#ObjectExpression
+
+#EnvironmentActionURI: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression

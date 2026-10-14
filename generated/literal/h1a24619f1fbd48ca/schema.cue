@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -28,21 +28,21 @@ import (
 
 	// The time at which the template was created or last modified.
 	LastModifiedTime?:    time.Time
-	LayoutConfiguration?: _#defs."/$defs/Properties/definitions/LayoutConfiguration"
+	LayoutConfiguration?: #LayoutConfiguration
 
 	// A name for the template. It must be unique per domain.
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$"
 
 	// A list of fields that must contain a value for a case to be successfully
 	// created with this template.
-	RequiredFields?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/RequiredField"]
+	RequiredFields?: list.MaxItems(100) & [...#RequiredField]
 
 	// A list of case rules (also known as case field conditions) on a template.
-	Rules?:  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/TemplateRule"]
-	Status?: _#defs."/$defs/Properties/definitions/TemplateStatus"
+	Rules?:  list.MaxItems(50) & [...#TemplateRule]
+	Status?: #TemplateStatus
 
 	// The tags that you attach to this template.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the template.
 	TemplateArn?: strings.MaxRunes(500) & strings.MinRunes(1)
@@ -54,18 +54,18 @@ import (
 // Specifies the default layout to use when displaying cases created from this
 // template. The layout determines which fields are visible and their
 // arrangement in the agent interface.
-_#defs: "/$defs/Properties/definitions/LayoutConfiguration": close({
+#LayoutConfiguration: close({
 	// The unique identifier of a layout.
 	DefaultLayout?: strings.MaxRunes(500) & strings.MinRunes(1)
 })
 
 // Wrapper object containing a field identifier
-_#defs: "/$defs/Properties/definitions/RequiredField": close({
+#RequiredField: close({
 	// The unique identifier of a field.
 	FieldId!: strings.MaxRunes(500) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -82,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // Links a case rule to a specific field within this template. When specified,
 // the rule's conditions will be evaluated for the associated field,
 // controlling behavior like required status, visibility, or available options.
-_#defs: "/$defs/Properties/definitions/TemplateRule": close({
+#TemplateRule: close({
 	// The unique identifier of a case rule.
 	CaseRuleId!: strings.MaxRunes(500) & strings.MinRunes(1)
 
@@ -93,4 +93,4 @@ _#defs: "/$defs/Properties/definitions/TemplateRule": close({
 // The current status of the template. Active templates can be used to create
 // new cases, while Inactive templates are disabled but preserved for existing
 // cases.
-_#defs: "/$defs/Properties/definitions/TemplateStatus": "Active" | "Inactive"
+#TemplateStatus: "Active" | "Inactive"

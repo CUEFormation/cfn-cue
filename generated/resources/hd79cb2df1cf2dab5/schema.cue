@@ -13,21 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::MemoryDB::ParameterGroup resource creates an Amazon MemoryDB ParameterGroup.
-#Properties: close({
-	Description?:        string | fn.#StringExpression
-	Family!:             string | fn.#StringExpression
-	ParameterGroupName!: string | fn.#StringExpression
-	Parameters?:         fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MemoryDB::ParameterGroup"
+	Properties!: close({
+		Description?:        string | fn.#StringExpression
+		Family!:             string | fn.#StringExpression
+		ParameterGroupName!: string | fn.#StringExpression
+		Parameters?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MemoryDB::ParameterGroup"
-	Properties!: #Properties
-}

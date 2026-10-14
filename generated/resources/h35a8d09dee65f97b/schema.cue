@@ -13,22 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::DevOpsAgent::Trigger. A trigger defines an
 // automated action that fires on a schedule within an Agent Space.
-#Properties: close({
-	Action!:       fn.#Object & {...} | fn.#ObjectExpression
-	AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Condition!:    _#defs."/$defs/Properties/definitions/Condition"
-	Status?:       ("Active" | "Inactive") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
-	Type!:         "TIME_BASED" & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
-})
-
-_#defs: "/$defs/Properties/definitions/Condition": close({Schedule!: _#defs."/$defs/Properties/definitions/Schedule"}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/Schedule": close(
-	{Expression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsAgent::Trigger"
-	Properties!: #Properties
+	Type!: "AWS::DevOpsAgent::Trigger"
+	Properties!: close({
+		Action!:       fn.#Object & {...} | fn.#ObjectExpression
+		AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Condition!:    #Condition
+		Status?:       ("Active" | "Inactive") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
+		Type!:         "TIME_BASED" & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
+	})
 }
+
+#Condition: close({Schedule!: #Schedule}) | fn.#ObjectExpression
+
+#Schedule: close({Expression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+fn.#ObjectExpression

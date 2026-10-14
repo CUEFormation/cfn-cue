@@ -16,10 +16,10 @@ import (
 
 	// The authorization behavior for the ACME endpoint.
 	AuthorizationBehavior!: "PRE_APPROVED"
-	CertificateAuthority!:  _#defs."/$defs/Properties/definitions/CertificateAuthority"
+	CertificateAuthority!:  #CertificateAuthority
 
 	// Tags applied to certificates issued via this endpoint.
-	CertificateTags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	CertificateTags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 
 	// Whether contact information is required for the ACME endpoint.
 	Contact?: "NOT_REQUIRED" | "REQUIRED"
@@ -38,18 +38,16 @@ import (
 })
 
 // The certificate authority configuration for the ACME endpoint.
-_#defs: "/$defs/Properties/definitions/CertificateAuthority": close(
-	{PublicCertificateAuthority!: _#defs."/$defs/Properties/definitions/PublicCertificateAuthority"},
-)
+#CertificateAuthority: close({PublicCertificateAuthority!: #PublicCertificateAuthority})
 
 // Configuration for the public certificate authority.
-_#defs: "/$defs/Properties/definitions/PublicCertificateAuthority": close({
+#PublicCertificateAuthority: close({
 	// The allowed key algorithms for certificates issued via this endpoint.
 	AllowedKeyAlgorithms?: [...string]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

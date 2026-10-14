@@ -19,99 +19,99 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::SSM::Association resource associates an SSM document in AWS Systems
 // Manager with EC2 instances that contain a configuration agent to process the
 // document.
-#Properties: close({
-	ApplyOnlyAtCronInterval?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AssociationDispatchAssumeRole?: strings.MaxRunes(512) &
-	strings.MinRunes(1) &
-	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
-	fn.#StringExpression
-	AssociationName?:               =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-	AutomationTargetParameterName?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	CalendarNames?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-	ComplianceSeverity?:            "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "UNSPECIFIED" | fn.#StringExpression
-	DocumentVersion?:               =~"([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)" | fn.#StringExpression
-	InstanceId?:                    =~"(^i-(\\w{8}|\\w{17})$)|(^mi-\\w{17}$)" | fn.#StringExpression
-	MaxConcurrency?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,6}|[1-9][0-9]%|[1-9]%|100%)$" |
-	fn.#StringExpression
-	MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,6}|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
-	fn.#StringExpression
-	Name!:           =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
-	OutputLocation?: _#defs."/$defs/Properties/definitions/InstanceAssociationOutputLocation"
-	Parameters?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSM::Association"
+	Properties!: close({
+		ApplyOnlyAtCronInterval?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AssociationDispatchAssumeRole?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+		fn.#StringExpression
+		AssociationName?:               =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+		AutomationTargetParameterName?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+		CalendarNames?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+		ComplianceSeverity?:            "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "UNSPECIFIED" | fn.#StringExpression
+		DocumentVersion?:               =~"([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)" | fn.#StringExpression
+		InstanceId?:                    =~"(^i-(\\w{8}|\\w{17})$)|(^mi-\\w{17}$)" | fn.#StringExpression
+		MaxConcurrency?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,6}|[1-9][0-9]%|[1-9]%|100%)$" |
+		fn.#StringExpression
+		MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,6}|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
+		fn.#StringExpression
+		Name!:           =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
+		OutputLocation?: #InstanceAssociationOutputLocation
+		Parameters?: close({
 
-		{[=~".{1,255}"]: _#defs."/$defs/Properties/definitions/ParameterValues"}}) |
-	fn.#ObjectExpression
-	ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ScheduleOffset?: int & <=6 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=6 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SyncCompliance?: "AUTO" | "MANUAL" | fn.#StringExpression
-	Tags?:           list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Targets?:        list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Target"] | fn.#ListExpression
-	WaitForSuccessTimeoutSeconds?: int & <=172800 & >=15 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=172800 &
-							>=15,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+			{[=~".{1,255}"]: #ParameterValues}}) |
+		fn.#ObjectExpression
+		ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		ScheduleOffset?: int & <=6 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=6 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SyncCompliance?: "AUTO" | "MANUAL" | fn.#StringExpression
+		Tags?:           list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
+		Targets?:        list.MaxItems(5) & [...] & [...#Target] | fn.#ListExpression
+		WaitForSuccessTimeoutSeconds?: int & <=172800 & >=15 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=172800 &
+								>=15,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/InstanceAssociationOutputLocation": close(
-	{S3Location?: _#defs."/$defs/Properties/definitions/S3OutputLocation"},
-) |
-	fn.#ObjectExpression
+#InstanceAssociationOutputLocation: close({S3Location?: #S3OutputLocation}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValues": [...string | fn.#StringExpression] | fn.#ListExpression
+#ParameterValues: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3KeyPrefix": strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+#S3KeyPrefix: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3OutputLocation": close({
-	OutputS3BucketName?: _#defs."/$defs/Properties/definitions/S3BucketName"
-	OutputS3KeyPrefix?:  _#defs."/$defs/Properties/definitions/S3KeyPrefix"
-	OutputS3Region?:     _#defs."/$defs/Properties/definitions/S3Region"
+#S3OutputLocation: close({
+	OutputS3BucketName?: #S3BucketName
+	OutputS3KeyPrefix?:  #S3KeyPrefix
+	OutputS3Region?:     #S3Region
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Region": strings.MaxRunes(20) & strings.MinRunes(3) | fn.#StringExpression
+#S3Region: strings.MaxRunes(20) & strings.MinRunes(3) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	Key!: strings.MaxRunes(163) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]{1,128}$|resource-groups:Name" |
 	fn.#StringExpression
 	Values!: list.MaxItems(50) & [...] & [...string & string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::Association"
-	Properties!: #Properties
-}

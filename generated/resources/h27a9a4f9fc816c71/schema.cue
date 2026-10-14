@@ -12,19 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IdentityStore::Group
-#Properties: close({
-	Description?: strings.MaxRunes(1024) &
-	strings.MinRunes(1) &
-	=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  \u3000]+$" |
-	fn.#StringExpression
-	DisplayName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+$" |
-	fn.#StringExpression
-	IdentityStoreId!: strings.MaxRunes(36) &
-	strings.MinRunes(1) &
-	=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IdentityStore::Group"
-	Properties!: #Properties
+	Type!: "AWS::IdentityStore::Group"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  \u3000]+$" |
+		fn.#StringExpression
+		DisplayName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+$" |
+		fn.#StringExpression
+		IdentityStoreId!: strings.MaxRunes(36) &
+		strings.MinRunes(1) &
+		=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+		fn.#StringExpression
+	})
 }

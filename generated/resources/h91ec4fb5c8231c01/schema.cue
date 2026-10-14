@@ -9,33 +9,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Alexa::ASK::Skill
-#Properties: close({
-	AuthenticationConfiguration!: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration"
-	SkillPackage!:                _#defs."/$defs/Properties/definitions/SkillPackage"
-	VendorId!:                    string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "Alexa::ASK::Skill"
+	Properties!: close({
+		AuthenticationConfiguration!: #AuthenticationConfiguration
+		SkillPackage!:                #SkillPackage
+		VendorId!:                    string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
+#AuthenticationConfiguration: close({
 	ClientId!:     string | fn.#StringExpression
 	ClientSecret!: string | fn.#StringExpression
 	RefreshToken!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Overrides": close(
-	{Manifest?: fn.#Object & {...} | string | fn.#StringObjectExpression},
-) |
-fn.#ObjectExpression
+#Overrides: close({Manifest?: fn.#Object & {...} | string | fn.#StringObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SkillPackage": close({
-	Overrides?:       _#defs."/$defs/Properties/definitions/Overrides"
+#SkillPackage: close({
+	Overrides?:       #Overrides
 	S3Bucket!:        string | fn.#StringExpression
 	S3BucketRole?:    string | fn.#StringExpression
 	S3Key!:           string | fn.#StringExpression
 	S3ObjectVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "Alexa::ASK::Skill"
-	Properties!: #Properties
-}

@@ -8,53 +8,52 @@ import "list"
 
 // Resource Type definition for AWS::Cognito::UserPoolRiskConfigurationAttachment
 #Properties: close({
-	AccountTakeoverRiskConfiguration?: _#defs."/$defs/Properties/definitions/AccountTakeoverRiskConfigurationType"
-	ClientId!:                         string
-	CompromisedCredentialsRiskConfiguration?:
-		_#defs."/$defs/Properties/definitions/CompromisedCredentialsRiskConfigurationType"
-	RiskExceptionConfiguration?: _#defs."/$defs/Properties/definitions/RiskExceptionConfigurationType"
-	UserPoolId!:                 string
+	AccountTakeoverRiskConfiguration?:        #AccountTakeoverRiskConfigurationType
+	ClientId!:                                string
+	CompromisedCredentialsRiskConfiguration?: #CompromisedCredentialsRiskConfigurationType
+	RiskExceptionConfiguration?:              #RiskExceptionConfigurationType
+	UserPoolId!:                              string
 })
 
-_#defs: "/$defs/Properties/definitions/AccountTakeoverActionType": close({
+#AccountTakeoverActionType: close({
 	EventAction!: string
 	Notify!:      bool
 })
 
-_#defs: "/$defs/Properties/definitions/AccountTakeoverActionsType": close({
-	HighAction?:   _#defs."/$defs/Properties/definitions/AccountTakeoverActionType"
-	LowAction?:    _#defs."/$defs/Properties/definitions/AccountTakeoverActionType"
-	MediumAction?: _#defs."/$defs/Properties/definitions/AccountTakeoverActionType"
+#AccountTakeoverActionsType: close({
+	HighAction?:   #AccountTakeoverActionType
+	LowAction?:    #AccountTakeoverActionType
+	MediumAction?: #AccountTakeoverActionType
 })
 
-_#defs: "/$defs/Properties/definitions/AccountTakeoverRiskConfigurationType": close({
-	Actions!:             _#defs."/$defs/Properties/definitions/AccountTakeoverActionsType"
-	NotifyConfiguration?: _#defs."/$defs/Properties/definitions/NotifyConfigurationType"
+#AccountTakeoverRiskConfigurationType: close({
+	Actions!:             #AccountTakeoverActionsType
+	NotifyConfiguration?: #NotifyConfigurationType
 })
 
-_#defs: "/$defs/Properties/definitions/CompromisedCredentialsActionsType": close({EventAction!: string})
+#CompromisedCredentialsActionsType: close({EventAction!: string})
 
-_#defs: "/$defs/Properties/definitions/CompromisedCredentialsRiskConfigurationType": close({
-	Actions!:     _#defs."/$defs/Properties/definitions/CompromisedCredentialsActionsType"
+#CompromisedCredentialsRiskConfigurationType: close({
+	Actions!:     #CompromisedCredentialsActionsType
 	EventFilter?: list.UniqueItems() & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/NotifyConfigurationType": close({
-	BlockEmail?:    _#defs."/$defs/Properties/definitions/NotifyEmailType"
+#NotifyConfigurationType: close({
+	BlockEmail?:    #NotifyEmailType
 	From?:          string
-	MfaEmail?:      _#defs."/$defs/Properties/definitions/NotifyEmailType"
-	NoActionEmail?: _#defs."/$defs/Properties/definitions/NotifyEmailType"
+	MfaEmail?:      #NotifyEmailType
+	NoActionEmail?: #NotifyEmailType
 	ReplyTo?:       string
 	SourceArn!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/NotifyEmailType": close({
+#NotifyEmailType: close({
 	HtmlBody?: string
 	Subject!:  string
 	TextBody?: string
 })
 
-_#defs: "/$defs/Properties/definitions/RiskExceptionConfigurationType": close({
+#RiskExceptionConfigurationType: close({
 	BlockedIPRangeList?: list.UniqueItems() & [...string]
 	SkippedIPRangeList?: list.UniqueItems() & [...string]
 })

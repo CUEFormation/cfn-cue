@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -17,53 +17,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::Queue
-#Properties: close({
-	AllowedStorageProfileIds?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		...=~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
-	] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Deadline::Queue"
+	Properties!: close({
+		AllowedStorageProfileIds?: list.MaxItems(20) & list.UniqueItems() & [...] & [
+			...=~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		DefaultBudgetAction?:   #DefaultQueueBudgetAction
+		Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		JobAttachmentSettings?: #JobAttachmentSettings
+		JobRunAsUser?:          #JobRunAsUser
+		RequiredFileSystemLocationNames?: list.MaxItems(20) & list.UniqueItems() & [...] & [
+			...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	DefaultBudgetAction?:   _#defs."/$defs/Properties/definitions/DefaultQueueBudgetAction"
-	Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	JobAttachmentSettings?: _#defs."/$defs/Properties/definitions/JobAttachmentSettings"
-	JobRunAsUser?:          _#defs."/$defs/Properties/definitions/JobRunAsUser"
-	RequiredFileSystemLocationNames?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
-		fn.#StringExpression
-	SchedulingConfiguration?: _#defs."/$defs/Properties/definitions/SchedulingConfiguration"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
+			fn.#StringExpression
+		SchedulingConfiguration?: #SchedulingConfiguration
+		Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/DefaultQueueBudgetAction": "NONE" |
+#DefaultQueueBudgetAction: "NONE" |
 	"STOP_SCHEDULING_AND_COMPLETE_TASKS" |
 	"STOP_SCHEDULING_AND_CANCEL_TASKS" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/JobAttachmentSettings": close({
+#JobAttachmentSettings: close({
 	RootPrefix!:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]+$" | fn.#StringExpression
 	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobRunAsUser": close({
-	Posix?:   _#defs."/$defs/Properties/definitions/PosixUser"
-	RunAs!:   _#defs."/$defs/Properties/definitions/RunAs"
-	Windows?: _#defs."/$defs/Properties/definitions/WindowsUser"
+#JobRunAsUser: close({
+	Posix?:   #PosixUser
+	RunAs!:   #RunAs
+	Windows?: #WindowsUser
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PosixUser": close({
+#PosixUser: close({
 	Group!: strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$" | fn.#StringExpression
 	User!:  strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration": close({
+#PriorityBalancedSchedulingConfiguration: close({
 	RenderingTaskBuffer?: int & <=1000 & >=0 |
 		{
 			string &
@@ -83,42 +86,36 @@ _#defs: "/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration":
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration": close({}) | fn.#ObjectExpression
+#PriorityFifoSchedulingConfiguration: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RunAs": "QUEUE_CONFIGURED_USER" | "WORKER_AGENT_USER" | fn.#StringExpression
+#RunAs: "QUEUE_CONFIGURED_USER" | "WORKER_AGENT_USER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulingConfiguration": fn.#Object & {...} & matchN(1, [close(
-	{PriorityFifo!: _#defs."/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration"},
+#SchedulingConfiguration: fn.#Object & {...} & matchN(1, [close(
+	{PriorityFifo!: #PriorityFifoSchedulingConfiguration},
 ), close(
-	{PriorityBalanced!: _#defs."/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration"},
+	{PriorityBalanced!: #PriorityBalancedSchedulingConfiguration},
 ), close(
-	{WeightedBalanced!: _#defs."/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration"},
+	{WeightedBalanced!: #WeightedBalancedSchedulingConfiguration},
 )]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulingMaxPriorityOverride": close(
-	{AlwaysScheduleFirst!: _#defs."/$defs/Properties/definitions/SchedulingMaxPriorityOverrideAlwaysScheduleFirst"},
-) |
+#SchedulingMaxPriorityOverride: close({AlwaysScheduleFirst!: #SchedulingMaxPriorityOverrideAlwaysScheduleFirst}) |
 	fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulingMaxPriorityOverrideAlwaysScheduleFirst": close({}) |
-	fn.#ObjectExpression
+#SchedulingMaxPriorityOverrideAlwaysScheduleFirst: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulingMinPriorityOverride": close(
-	{AlwaysScheduleLast!: _#defs."/$defs/Properties/definitions/SchedulingMinPriorityOverrideAlwaysScheduleLast"},
-) |
+#SchedulingMinPriorityOverride: close({AlwaysScheduleLast!: #SchedulingMinPriorityOverrideAlwaysScheduleLast}) |
 	fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulingMinPriorityOverrideAlwaysScheduleLast": close({}) |
-	fn.#ObjectExpression
+#SchedulingMinPriorityOverrideAlwaysScheduleLast: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration": close({
+#WeightedBalancedSchedulingConfiguration: close({
 	ErrorWeight?: <=10000 & >=-10000 |
 		{
 			string &
@@ -139,8 +136,8 @@ _#defs: "/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration":
 				)
 		} |
 		fn.#NumberExpression
-	MaxPriorityOverride?: _#defs."/$defs/Properties/definitions/SchedulingMaxPriorityOverride"
-	MinPriorityOverride?: _#defs."/$defs/Properties/definitions/SchedulingMinPriorityOverride"
+	MaxPriorityOverride?: #SchedulingMaxPriorityOverride
+	MinPriorityOverride?: #SchedulingMinPriorityOverride
 	PriorityWeight?: <=10000 & >=0 |
 		{
 			string &
@@ -220,12 +217,8 @@ _#defs: "/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration":
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WindowsUser": close({
+#WindowsUser: close({
 	PasswordArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 	User!:        strings.MaxRunes(111) & strings.MinRunes(0) & =~"^[^\"'/\\[\\]:;|=,+*?<>\\s]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::Queue"
-	Properties!: #Properties
-}

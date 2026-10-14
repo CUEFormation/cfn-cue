@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,13 +23,13 @@ import (
 	Description?: strings.MaxRunes(200) & strings.MinRunes(0)
 
 	// The enablement status of the connector.
-	EnablementStatus?: _#defs."/$defs/Properties/definitions/ConnectorState"
+	EnablementStatus?: #ConnectorState
 
 	// Reason for the current enablement status, if applicable.
 	EnablementStatusReason?: string
 
 	// Health status of the connector.
-	Health?: _#defs."/$defs/Properties/definitions/ConnectorHealth"
+	Health?: #ConnectorHealth
 
 	// Timestamp when the connector was last updated.
 	LastUpdatedAt?: time.Time
@@ -38,16 +38,16 @@ import (
 	Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}_-]+$"
 
 	// The cloud provider for this connector.
-	Provider!: _#defs."/$defs/Properties/definitions/CloudProvider"
+	Provider!: #CloudProvider
 
 	// Provider-specific configuration including regions and scope.
-	ProviderConfiguration!: _#defs."/$defs/Properties/definitions/ProviderConfiguration"
+	ProviderConfiguration!: #ProviderConfiguration
 
 	// Tags to apply to the connector.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AzureProviderConfiguration": close({
+#AzureProviderConfiguration: close({
 	// Whether to automatically install the VM scanner. Defaults to true.
 	AutoInstallVMScanner?: bool
 
@@ -58,32 +58,32 @@ _#defs: "/$defs/Properties/definitions/AzureProviderConfiguration": close({
 
 	// List of Azure regions to scan.
 	AzureRegions!:       list.MinItems(1) & [...string]
-	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/AzureScopeConfigurationMap"
+	ScopeConfiguration!: #AzureScopeConfigurationMap
 })
 
 // Defines which resource types to scan and at what scope level.
-_#defs: "/$defs/Properties/definitions/AzureScopeConfigurationMap": close({
-	ContainerImageScanning?: _#defs."/$defs/Properties/definitions/ScopeConfiguration"
-	ServerlessScanning?:     _#defs."/$defs/Properties/definitions/ScopeConfiguration"
-	VmScanning?:             _#defs."/$defs/Properties/definitions/ScopeConfiguration"
+#AzureScopeConfigurationMap: close({
+	ContainerImageScanning?: #ScopeConfiguration
+	ServerlessScanning?:     #ScopeConfiguration
+	VmScanning?:             #ScopeConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/CloudProvider": "AZURE"
+#CloudProvider: "AZURE"
 
-_#defs: "/$defs/Properties/definitions/ConnectorHealth": close({
-	ConnectorStatus?: _#defs."/$defs/Properties/definitions/ConnectorHealthStatus"
+#ConnectorHealth: close({
+	ConnectorStatus?: #ConnectorHealthStatus
 	LastCheckedAt?:   time.Time
 	Message?:         string
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorHealthStatus": "CONNECTED" |
+#ConnectorHealthStatus: "CONNECTED" |
 	"DEGRADED" |
 	"FAILED_TO_CONNECT" |
 	"PENDING_AUTHORIZATION" |
 	"PENDING_CONFIGURATION" |
 	"UNKNOWN"
 
-_#defs: "/$defs/Properties/definitions/ConnectorState": "ENABLED" |
+#ConnectorState: "ENABLED" |
 	"PENDING_ENABLEMENT" |
 	"FAILED_TO_ENABLE" |
 	"PENDING_UPDATE" |
@@ -92,27 +92,25 @@ _#defs: "/$defs/Properties/definitions/ConnectorState": "ENABLED" |
 	"DELETED" |
 	"FAILED_TO_DELETE"
 
-_#defs: "/$defs/Properties/definitions/ProviderConfiguration": close(
-	{Azure!: _#defs."/$defs/Properties/definitions/AzureProviderConfiguration"},
-)
+#ProviderConfiguration: close({Azure!: #AzureProviderConfiguration})
 
 // Defines the scope of Azure resources to monitor for a specific resource type.
-_#defs: "/$defs/Properties/definitions/ScopeConfiguration": close({
-	ScopeType!: _#defs."/$defs/Properties/definitions/ScopeType"
+#ScopeConfiguration: close({
+	ScopeType!: #ScopeType
 
 	// List of subscription IDs. Empty for TENANT scope.
 	ScopeValues?: list.MaxItems(100) & [...string]
-	State?:       _#defs."/$defs/Properties/definitions/ScopeState"
+	State?:       #ScopeState
 
 	// Reason for the current scope state.
 	StateReason?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ScopeState": "ACTIVE" | "PENDING" | "ERROR" | "DISABLED"
+#ScopeState: "ACTIVE" | "PENDING" | "ERROR" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/ScopeType": "TENANT" | "SUBSCRIPTION"
+#ScopeType: "TENANT" | "SUBSCRIPTION"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.:/=+\\-@]+$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$"
 })

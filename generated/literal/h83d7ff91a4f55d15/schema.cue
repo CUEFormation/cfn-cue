@@ -16,12 +16,11 @@ package schema
 	DestinationTransitGatewayAttachmentId?: string
 
 	// The type of the attachment through which traffic leaves a transit gateway
-	DestinationTransitGatewayAttachmentType?:
-		_#defs."/$defs/Properties/definitions/TransitGatewayAttachmentResourceType"
+	DestinationTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType
 
 	// The resource owner information responsible for paying default billable
 	// charges for the traffic flow
-	MeteredAccount!: _#defs."/$defs/Properties/definitions/TransitGatewayMeteringPayerType"
+	MeteredAccount!: #TransitGatewayMeteringPayerType
 
 	// The rule number of the metering policy entry
 	PolicyRuleNumber!: int
@@ -40,7 +39,7 @@ package schema
 	SourceTransitGatewayAttachmentId?: string
 
 	// The type of the attachment through which traffic enters a transit gateway
-	SourceTransitGatewayAttachmentType?: _#defs."/$defs/Properties/definitions/TransitGatewayAttachmentResourceType"
+	SourceTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType
 
 	// State of the transit gateway metering policy
 	State?: string
@@ -53,7 +52,7 @@ package schema
 	UpdateEffectiveAt?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentResourceType": "vpc" |
+#TransitGatewayAttachmentResourceType: "vpc" |
 	"vpn" |
 	"direct-connect-gateway" |
 	"peering" |
@@ -61,6 +60,4 @@ _#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentResourceType": "v
 	"vpn-concentrator" |
 	"client-vpn"
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayMeteringPayerType": "source-attachment-owner" |
-	"destination-attachment-owner" |
-	"transit-gateway-owner"
+#TransitGatewayMeteringPayerType: "source-attachment-owner" | "destination-attachment-owner" | "transit-gateway-owner"

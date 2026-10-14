@@ -28,48 +28,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // See [Update Behaviors of Stack
 // Resources](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html)
 // in the *User Guide*.
-#Properties: close({
-	ApiId!:          string | fn.#StringExpression
-	CachingConfig?:  _#defs."/$defs/Properties/definitions/CachingConfig" | fn.#ObjectExpression
-	Code?:           strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
-	CodeS3Location?: string | fn.#StringExpression
-	DataSourceName?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-	FieldName!:      strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-	Kind?:           "PIPELINE" | "UNIT" | fn.#StringExpression
-	MaxBatchSize?: int & <=2000 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2000 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MetricsConfig?:                     "ENABLED" | "DISABLED" | fn.#StringExpression
-	PipelineConfig?:                    _#defs."/$defs/Properties/definitions/PipelineConfig" | fn.#ObjectExpression
-	RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	RequestMappingTemplateS3Location?:  string | fn.#StringExpression
-	ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	ResponseMappingTemplateS3Location?: string | fn.#StringExpression
-	Runtime?:                           _#defs."/$defs/Properties/definitions/AppSyncRuntime" | fn.#ObjectExpression
-	SyncConfig?:                        _#defs."/$defs/Properties/definitions/SyncConfig" | fn.#ObjectExpression
-	TypeName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::Resolver"
+	Properties!: close({
+		ApiId!: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AppSyncRuntime": close({
+		// The caching configuration for the resolver.
+		CachingConfig?:  #CachingConfig
+		Code?:           strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
+		CodeS3Location?: string | fn.#StringExpression
+		DataSourceName?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		fn.#StringExpression
+		FieldName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+		Kind?:      "PIPELINE" | "UNIT" | fn.#StringExpression
+		MaxBatchSize?: int & <=2000 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2000 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MetricsConfig?: "ENABLED" | "DISABLED" | fn.#StringExpression
+
+		// Functions linked with the pipeline resolver.
+		PipelineConfig?:                    #PipelineConfig
+		RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
+		RequestMappingTemplateS3Location?:  string | fn.#StringExpression
+		ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
+		ResponseMappingTemplateS3Location?: string | fn.#StringExpression
+
+		// Describes a runtime used by an APSYlong resolver or APSYlong function.
+		// Specifies the name and version of the runtime to use. Note that if a runtime
+		// is specified, code must also be specified.
+		Runtime?: #AppSyncRuntime
+
+		// The ``SyncConfig`` for a resolver attached to a versioned data source.
+		SyncConfig?: #SyncConfig
+		TypeName!:   strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+	})
+}
+
+#AppSyncRuntime: close({
 	Name!:           "APPSYNC_JS" | fn.#StringExpression
 	RuntimeVersion!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CachingConfig": close({
+#CachingConfig: close({
 	CachingKeys?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Ttl!: number |
 		{
@@ -93,24 +109,15 @@ _#defs: "/$defs/Properties/definitions/CachingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConflictHandlerConfig": close(
-	{LambdaConflictHandlerArn?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#LambdaConflictHandlerConfig: close({LambdaConflictHandlerArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipelineConfig": close(
-	{Functions?: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#PipelineConfig: close({Functions?: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SyncConfig": close({
+#SyncConfig: close({
 	ConflictDetection!: "NONE" | "VERSION" | fn.#StringExpression
 	ConflictHandler?:   "AUTOMERGE" | "LAMBDA" | "NONE" | "OPTIMISTIC_CONCURRENCY" | fn.#StringExpression
-	LambdaConflictHandlerConfig?: _#defs."/$defs/Properties/definitions/LambdaConflictHandlerConfig" |
-		fn.#ObjectExpression
+
+	// The ``LambdaConflictHandlerConfig`` when configuring ``LAMBDA`` as the Conflict Handler.
+	LambdaConflictHandlerConfig?: #LambdaConflictHandlerConfig
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::Resolver"
-	Properties!: #Properties
-}

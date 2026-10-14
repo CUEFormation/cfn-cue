@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::RefreshSchedule Resource Type.
-#Properties: close({
-	AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	DataSetId?:    string | fn.#StringExpression
-	Schedule?:     _#defs."/$defs/Properties/definitions/RefreshScheduleMap"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::RefreshSchedule"
+	Properties?: close({
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		DataSetId?:    string | fn.#StringExpression
+		Schedule?:     #RefreshScheduleMap
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/RefreshScheduleMap": close({
+#RefreshScheduleMap: close({
 	RefreshType?: "FULL_REFRESH" | "INCREMENTAL_REFRESH" | fn.#StringExpression
 	ScheduleFrequency?: close({
 		Interval?: "MINUTE15" | "MINUTE30" | "HOURLY" | "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
@@ -45,7 +48,3 @@ _#defs: "/$defs/Properties/definitions/RefreshScheduleMap": close({
 	StartAfterDateTime?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::RefreshSchedule"
-	Properties?: #Properties
-}

@@ -17,48 +17,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppConfig::ExperimentRun
-#Properties: close({
-	ApplicationIdentifier!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:                    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ExperimentDefinitionIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ExposurePercentage!: <=100 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppConfig::ExperimentRun"
+	Properties!: close({
+		ApplicationIdentifier!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:                    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ExperimentDefinitionIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		ExposurePercentage!: <=100 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=100 &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							<=100 &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TreatmentOverrides?: _#defs."/$defs/Properties/definitions/TreatmentOverrides"
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TreatmentOverrides?: #TreatmentOverrides
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TreatmentOverrides": close({
+#TreatmentOverrides: close({
 	Inline?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppConfig::ExperimentRun"
-	Properties!: #Properties
-}

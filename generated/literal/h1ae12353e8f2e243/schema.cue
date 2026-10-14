@@ -13,16 +13,16 @@ package schema
 	Id?: string
 
 	// Overrides the integration configuration for an API Gateway-managed integration.
-	Integration?: _#defs."/$defs/Properties/definitions/IntegrationOverrides"
+	Integration?: #IntegrationOverrides
 
 	// Overrides the route configuration for an API Gateway-managed route.
-	Route?: _#defs."/$defs/Properties/definitions/RouteOverrides"
+	Route?: #RouteOverrides
 
 	// Overrides the stage configuration for an API Gateway-managed stage.
-	Stage?: _#defs."/$defs/Properties/definitions/StageOverrides"
+	Stage?: #StageOverrides
 })
 
-_#defs: "/$defs/Properties/definitions/AccessLogSettings": close({
+#AccessLogSettings: close({
 	// The ARN of the CloudWatch Logs log group to receive access logs.
 	DestinationArn?: string
 
@@ -31,7 +31,7 @@ _#defs: "/$defs/Properties/definitions/AccessLogSettings": close({
 	Format?: string
 })
 
-_#defs: "/$defs/Properties/definitions/IntegrationOverrides": close({
+#IntegrationOverrides: close({
 	// The description of the integration.
 	Description?: string
 
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/IntegrationOverrides": close({
 	TimeoutInMillis?: int
 })
 
-_#defs: "/$defs/Properties/definitions/RouteOverrides": close({
+#RouteOverrides: close({
 	// The authorization scopes supported by this route.
 	AuthorizationScopes?: [...string]
 
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/RouteOverrides": close({
 	Target?: string
 })
 
-_#defs: "/$defs/Properties/definitions/RouteSettings": close({
+#RouteSettings: close({
 	// Specifies whether detailed metrics are enabled.
 	DetailedMetricsEnabled?: bool
 
@@ -82,16 +82,16 @@ _#defs: "/$defs/Properties/definitions/RouteSettings": close({
 	ThrottlingRateLimit?: number
 })
 
-_#defs: "/$defs/Properties/definitions/StageOverrides": close({
+#StageOverrides: close({
 	// Settings for logging access in a stage.
-	AccessLogSettings?: _#defs."/$defs/Properties/definitions/AccessLogSettings"
+	AccessLogSettings?: #AccessLogSettings
 
 	// Specifies whether updates to an API automatically trigger a new deployment.
 	// The default value is true.
 	AutoDeploy?: bool
 
 	// The default route settings for the stage.
-	DefaultRouteSettings?: _#defs."/$defs/Properties/definitions/RouteSettings"
+	DefaultRouteSettings?: #RouteSettings
 
 	// The description for the API stage.
 	Description?:    string

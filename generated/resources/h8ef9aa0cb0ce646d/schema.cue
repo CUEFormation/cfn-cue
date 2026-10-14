@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::ServiceCatalogAppRegistry::AttributeGroup.
-#Properties: close({
-	Attributes!: fn.#Object & {...} |
-	strings.MaxRunes(8000) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
-	fn.#StringObjectExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ServiceCatalogAppRegistry::AttributeGroup"
+	Properties!: close({
+		Attributes!: fn.#Object & {...} |
+		strings.MaxRunes(8000) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+		fn.#StringObjectExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+" | fn.#StringExpression
+		Tags?:        #Tags
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & close({
+#Tags: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalogAppRegistry::AttributeGroup"
-	Properties!: #Properties
-}

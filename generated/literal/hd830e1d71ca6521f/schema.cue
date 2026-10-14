@@ -21,8 +21,8 @@ import (
 	// A time stamp indicating when this data object was created. Format is a number
 	// expressed in Unix time as milliseconds (for example "1469498468.057").
 	CreationTime?:            string
-	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentConfiguration"
-	DeploymentDetails?:       _#defs."/$defs/Properties/definitions/DeploymentDetails"
+	DeploymentConfiguration?: #DeploymentConfiguration
+	DeploymentDetails?:       #DeploymentDetails
 
 	// A human-readable description of a fleet.
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1)
@@ -60,23 +60,21 @@ import (
 
 	// A policy that limits the number of game sessions an individual player can
 	// create over a span of time for this fleet.
-	GameSessionCreationLimitPolicy?: _#defs."/$defs/Properties/definitions/GameSessionCreationLimitPolicy"
-	InstanceConnectionPortRange?:    _#defs."/$defs/Properties/definitions/ConnectionPortRange"
+	GameSessionCreationLimitPolicy?: #GameSessionCreationLimitPolicy
+	InstanceConnectionPortRange?:    #ConnectionPortRange
 
 	// A range of IP addresses and port settings that allow inbound traffic to
 	// connect to server processes on an Amazon GameLift server.
-	InstanceInboundPermissions?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/IpPermission"]
+	InstanceInboundPermissions?: list.MaxItems(50) & [...] & [...#IpPermission]
 
 	// The name of an EC2 instance type that is supported in Amazon GameLift. A
 	// fleet instance type determines the computing resources of each instance in
 	// the fleet, including CPU, memory, storage, and networking capacity. Amazon
 	// GameLift supports the following EC2 instance types. See Amazon EC2 Instance
 	// Types for detailed descriptions.
-	InstanceType?: strings.MaxRunes(1024) & strings.MinRunes(1)
-	Locations?: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/LocationConfiguration"
-	]
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	InstanceType?:     strings.MaxRunes(1024) & strings.MinRunes(1)
+	Locations?:        list.MaxItems(100) & list.MinItems(1) & [...#LocationConfiguration]
+	LogConfiguration?: #LogConfiguration
 
 	// The maximum number of game server container groups per instance, a number between 1-5000.
 	MaximumGameServerContainerGroupsPerInstance?: int & <=5000 & >=1
@@ -112,18 +110,18 @@ import (
 	PlayerGatewayMode?: "DISABLED" | "ENABLED" | "REQUIRED"
 
 	// A list of rules that control how a fleet is scaled.
-	ScalingPolicies?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/ScalingPolicy"]
+	ScalingPolicies?: list.MaxItems(50) & [...#ScalingPolicy]
 
 	// The current status of the container fleet.
 	Status?: "PENDING" | "CREATING" | "CREATED" | "ACTIVATING" | "ACTIVE" | "UPDATING" | "DELETING" | "EXPIRED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Defines the range of ports on the instance that allow inbound traffic to
 // connect with containers in a fleet.
-_#defs: "/$defs/Properties/definitions/ConnectionPortRange": close({
+#ConnectionPortRange: close({
 	// A starting value for a range of allowed port numbers.
 	FromPort!: int & <=60000 & >=1
 
@@ -133,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionPortRange": close({
 })
 
 // Provides details about how to drain old tasks and replace them with new updated tasks.
-_#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
+#DeploymentConfiguration: close({
 	// The strategy to apply in case of impairment; defaults to MAINTAIN.
 	ImpairmentStrategy?: "MAINTAIN" | "ROLLBACK"
 
@@ -145,7 +143,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
 })
 
 // Provides information about the last deployment ID and its status.
-_#defs: "/$defs/Properties/definitions/DeploymentDetails": close({
+#DeploymentDetails: close({
 	// The ID of the last deployment on the container fleet. This field will be
 	// empty if the container fleet does not have a ContainerGroupDefinition
 	// attached.
@@ -163,7 +161,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentDetails": close({
 // of 60 minutes. On receiving a CreateGameSession request, Amazon GameLift
 // checks that the player (identified by CreatorId) has created fewer than 10
 // game sessions in the past 60 minutes.
-_#defs: "/$defs/Properties/definitions/GameSessionCreationLimitPolicy": close({
+#GameSessionCreationLimitPolicy: close({
 	// The maximum number of game sessions that an individual can create during the policy period.
 	NewGameSessionsPerCreator?: int & >=0
 
@@ -179,7 +177,7 @@ _#defs: "/$defs/Properties/definitions/GameSessionCreationLimitPolicy": close({
 // game session assignments. For Realtime Servers fleets, Amazon GameLift
 // automatically opens two port ranges, one for TCP messaging and one for UDP,
 // for use by the Realtime servers.
-_#defs: "/$defs/Properties/definitions/IpPermission": close({
+#IpPermission: close({
 	// A starting value for a range of allowed port numbers.
 	FromPort!: int & <=60000 & >=1
 
@@ -197,11 +195,11 @@ _#defs: "/$defs/Properties/definitions/IpPermission": close({
 	ToPort!: int & <=60000 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Location": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+"
+#Location: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+"
 
 // Current resource capacity settings in a specified fleet or location. The
 // location value might refer to a fleet's remote location or its home Region.
-_#defs: "/$defs/Properties/definitions/LocationCapacity": close({
+#LocationCapacity: close({
 	// Defaults to MinSize if not defined. The number of EC2 instances you want to
 	// maintain in the specified fleet location. This value must fall between the
 	// minimum and maximum size limits. If any auto-scaling policy is defined for
@@ -214,7 +212,7 @@ _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
 	DesiredEC2Instances?: int & >=0
 
 	// Configuration options for Amazon GameLift Servers-managed capacity behavior.
-	ManagedCapacityConfiguration?: _#defs."/$defs/Properties/definitions/ManagedCapacityConfiguration"
+	ManagedCapacityConfiguration?: #ManagedCapacityConfiguration
 
 	// The maximum value that is allowed for the fleet's instance count for a location.
 	MaxSize!: int & >=0
@@ -224,18 +222,18 @@ _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
 })
 
 // A remote location where a multi-location fleet can deploy EC2 instances for game hosting.
-_#defs: "/$defs/Properties/definitions/LocationConfiguration": close({
-	Location!:         _#defs."/$defs/Properties/definitions/Location"
-	LocationCapacity?: _#defs."/$defs/Properties/definitions/LocationCapacity"
+#LocationConfiguration: close({
+	Location!:         #Location
+	LocationCapacity?: #LocationCapacity
 
 	// The player gateway status for the location.
 	PlayerGatewayStatus?: "DISABLED" | "ENABLED"
-	StoppedActions?:      _#defs."/$defs/Properties/definitions/StoppedActions"
+	StoppedActions?:      #StoppedActions
 })
 
 // A policy the location and provider of logs from the fleet.
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
-	LogDestination?: _#defs."/$defs/Properties/definitions/LogDestination"
+#LogConfiguration: close({
+	LogDestination?: #LogDestination
 
 	// If log destination is CLOUDWATCH, logs are sent to the specified log group in Amazon CloudWatch.
 	LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/\\-\\*]+"
@@ -245,10 +243,10 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 })
 
 // Configures the service that provides logs.
-_#defs: "/$defs/Properties/definitions/LogDestination": "NONE" | "CLOUDWATCH" | "S3"
+#LogDestination: "NONE" | "CLOUDWATCH" | "S3"
 
 // Configuration options for Amazon GameLift Servers managed capacity behavior.
-_#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
+#ManagedCapacityConfiguration: close({
 	// Length of time, in minutes, that Amazon GameLift Servers will wait before
 	// scaling in your MinSize and DesiredInstances to 0 after a period with no
 	// game session activity.
@@ -264,7 +262,7 @@ _#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
 
 // Rule that controls how a fleet is scaled. Scaling policies are uniquely
 // identified by the combination of name and fleet ID.
-_#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
+#ScalingPolicy: close({
 	// Comparison operator to use when measuring a metric against the threshold value.
 	ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
 		"GreaterThanThreshold" |
@@ -308,17 +306,17 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 	ScalingAdjustmentType?: "ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity"
 
 	// An object that contains settings for a target-based scaling policy.
-	TargetConfiguration?: _#defs."/$defs/Properties/definitions/TargetConfiguration"
+	TargetConfiguration?: #TargetConfiguration
 
 	// Metric value used to trigger a scaling event.
 	Threshold?: number
 })
 
 // A list of fleet actions that have been suspended in the fleet location.
-_#defs: "/$defs/Properties/definitions/StoppedActions": list.MaxItems(1) & [..."AUTO_SCALING"]
+#StoppedActions: list.MaxItems(1) & [..."AUTO_SCALING"]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -332,7 +330,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // that the metric returns to the target value. The target configuration
 // specifies settings as needed for the target based policy, including the
 // target value.
-_#defs: "/$defs/Properties/definitions/TargetConfiguration": close({
+#TargetConfiguration: close({
 	// Desired value to use with a target-based scaling policy. The value must be
 	// relevant for whatever metric the scaling policy is using. For example, in a
 	// policy using the metric PercentAvailableGameSessions, the target value

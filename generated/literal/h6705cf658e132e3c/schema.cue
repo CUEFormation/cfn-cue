@@ -7,7 +7,7 @@ package schema
 // AWS::EC2::TransitGatewayPolicyTableEntry Resource Definition
 #Properties: close({
 	// The policy rule associated with the entry.
-	PolicyRule!: _#defs."/$defs/Properties/definitions/TransitGatewayPolicyRule"
+	PolicyRule!: #TransitGatewayPolicyRule
 
 	// The rule number for the policy table entry.
 	PolicyRuleNumber!: string
@@ -22,7 +22,7 @@ package schema
 	TransitGatewayPolicyTableId!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayPolicyRule": close({
+#TransitGatewayPolicyRule: close({
 	// The destination CIDR block for the transit gateway policy rule.
 	DestinationCidrBlock?: string
 

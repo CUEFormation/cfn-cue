@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -16,37 +16,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SecurityGroup
-#Properties: close({
-	SecurityGroupEgress?: _
-	if SecurityGroupEgress != _|_ {
-		VpcId!: _
-	}
-	{}
-	GroupDescription!: strings.MaxRunes(255) &
-	strings.MinRunes(0) &
-	=~"^([a-z,A-Z,0-9,. _\\-:/()#,@[\\]+=&;\\{\\}!$*])*$" |
-	fn.#StringExpression
-	GroupName?:             string | fn.#StringExpression
-	"SecurityGroupEgress"?: [..._#defs."/$defs/Properties/definitions/Egress"] | fn.#ListExpression
-	SecurityGroupIngress?:  [..._#defs."/$defs/Properties/definitions/Ingress"] | fn.#ListExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::SecurityGroup"
+	Properties!: close({
+		SecurityGroupEgress?: _
+		if SecurityGroupEgress != _|_ {
+			VpcId!: _
+		}
+		{}
+		GroupDescription!: strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^([a-z,A-Z,0-9,. _\\-:/()#,@[\\]+=&;\\{\\}!$*])*$" |
 		fn.#StringExpression
-})
+		GroupName?:             string | fn.#StringExpression
+		"SecurityGroupEgress"?: [...#Egress] | fn.#ListExpression
+		SecurityGroupIngress?:  [...#Ingress] | fn.#ListExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Egress": matchN(1, [{
-	CidrIp!: _
-	...
-}, {
-	CidrIpv6!: _
-	...
-}, {
-	DestinationSecurityGroupId!: _
-	...
-}, {
-	DestinationPrefixListId!: _
-	...
-}]) & close({
+#Egress: close({
 	CidrIp?:                  string | fn.#StringExpression
 	CidrIpv6?:                string | fn.#StringExpression
 	Description?:             string | fn.#StringExpression
@@ -84,25 +75,34 @@ _#defs: "/$defs/Properties/definitions/Egress": matchN(1, [{
 				)
 		} |
 		fn.#NumberExpression
-}) |
+	if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
+		CidrIpv6?: close({"Fn::If": _}) | error(
+			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+		DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
+			"DestinationSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
+			"DestinationPrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+	}
+	if CidrIpv6 != _|_ if CidrIpv6."Fn::If" == _|_ {
+		DestinationSecurityGroupId?: close({"Fn::If": _}) | error(
+			"DestinationSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
+			"DestinationPrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+	}
+	if DestinationSecurityGroupId != _|_ if DestinationSecurityGroupId."Fn::If" == _|_ {
+		DestinationPrefixListId?: close({"Fn::If": _}) | error(
+			"DestinationPrefixListId cannot be used with DestinationSecurityGroupId; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
+		)
+	}
+}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationSecurityGroupId!: _}, {DestinationPrefixListId!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ingress": matchN(1, [{
-	CidrIp!: _
-	...
-}, {
-	CidrIpv6!: _
-	...
-}, {
-	SourcePrefixListId!: _
-	...
-}, {
-	SourceSecurityGroupId!: _
-	...
-}, {
-	SourceSecurityGroupName!: _
-	...
-}]) & close({
+#Ingress: close({
 	CidrIp?:      string | fn.#StringExpression
 	CidrIpv6?:    string | fn.#StringExpression
 	Description?: string | fn.#StringExpression
@@ -142,15 +142,52 @@ _#defs: "/$defs/Properties/definitions/Ingress": matchN(1, [{
 				)
 		} |
 		fn.#NumberExpression
-}) |
+	if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
+		CidrIpv6?: close({"Fn::If": _}) | error(
+			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourcePrefixListId?: close({"Fn::If": _}) | error(
+			"SourcePrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if CidrIpv6 != _|_ if CidrIpv6."Fn::If" == _|_ {
+		SourcePrefixListId?: close({"Fn::If": _}) | error(
+			"SourcePrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if SourcePrefixListId != _|_ if SourcePrefixListId."Fn::If" == _|_ {
+		SourceSecurityGroupId?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupId cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+	if SourceSecurityGroupId != _|_ if SourceSecurityGroupId."Fn::If" == _|_ {
+		SourceSecurityGroupName?: close({"Fn::If": _}) | error(
+			"SourceSecurityGroupName cannot be used with SourceSecurityGroupId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{CidrIp!: _}, {CidrIpv6!: _}, {SourcePrefixListId!: _}, {SourceSecurityGroupId!: _}, {SourceSecurityGroupName!: _}],
+) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SecurityGroup"
-	Properties!: #Properties
-}

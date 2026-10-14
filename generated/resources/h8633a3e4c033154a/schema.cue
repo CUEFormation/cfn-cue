@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"math"
 )
@@ -28,17 +28,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Adding or removing HTTP headers in CloudFront
 // responses](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/modifying-response-headers.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({
-	ResponseHeadersPolicyConfig!: _#defs."/$defs/Properties/definitions/ResponseHeadersPolicyConfig" |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::ResponseHeadersPolicy"
+	Properties!: close({
+		// A response headers policy configuration.
+		ResponseHeadersPolicyConfig!: #ResponseHeadersPolicyConfig
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccessControlAllowHeaders": close(
-	{Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#AccessControlAllowHeaders: close({Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlAllowMethods": close({
+#AccessControlAllowMethods: close({
 	Items!: list.MinItems(1) & [
 		..."ALL" | "DELETE" | "GET" | "HEAD" | "OPTIONS" | "PATCH" | "POST" | "PUT" | fn.#StringExpression
 	] |
@@ -46,28 +47,24 @@ _#defs: "/$defs/Properties/definitions/AccessControlAllowMethods": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlAllowOrigins": close(
-	{Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#AccessControlAllowOrigins: close({Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlExposeHeaders": close(
-	{Items!: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#AccessControlExposeHeaders: close({Items!: [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentSecurityPolicy": close({
+#ContentSecurityPolicy: close({
 	ContentSecurityPolicy!: string | fn.#StringExpression
 	Override!:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentTypeOptions": close(
+#ContentTypeOptions: close(
 	{Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CorsConfig": close({
+#CorsConfig: close({
 	AccessControlAllowCredentials!: bool |
 		"true" |
 		"True" |
@@ -76,11 +73,38 @@ _#defs: "/$defs/Properties/definitions/CorsConfig": close({
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	AccessControlAllowHeaders!: _#defs."/$defs/Properties/definitions/AccessControlAllowHeaders" | fn.#ObjectExpression
-	AccessControlAllowMethods!: _#defs."/$defs/Properties/definitions/AccessControlAllowMethods" | fn.#ObjectExpression
-	AccessControlAllowOrigins!: _#defs."/$defs/Properties/definitions/AccessControlAllowOrigins" | fn.#ObjectExpression
-	AccessControlExposeHeaders?: _#defs."/$defs/Properties/definitions/AccessControlExposeHeaders" |
-		fn.#ObjectExpression
+
+	// A list of HTTP header names that CloudFront includes as values for the
+	// ``Access-Control-Allow-Headers`` HTTP response header.
+	// For more information about the ``Access-Control-Allow-Headers`` HTTP response
+	// header, see
+	// [Access-Control-Allow-Headers](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Headers)
+	// in the MDN Web Docs.
+	AccessControlAllowHeaders!: #AccessControlAllowHeaders
+
+	// A list of HTTP methods that CloudFront includes as values for the
+	// ``Access-Control-Allow-Methods`` HTTP response header.
+	// For more information about the ``Access-Control-Allow-Methods`` HTTP response
+	// header, see
+	// [Access-Control-Allow-Methods](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods)
+	// in the MDN Web Docs.
+	AccessControlAllowMethods!: #AccessControlAllowMethods
+
+	// A list of origins (domain names) that CloudFront can use as the value for the
+	// ``Access-Control-Allow-Origin`` HTTP response header.
+	// For more information about the ``Access-Control-Allow-Origin`` HTTP response
+	// header, see
+	// [Access-Control-Allow-Origin](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin)
+	// in the MDN Web Docs.
+	AccessControlAllowOrigins!: #AccessControlAllowOrigins
+
+	// A list of HTTP headers that CloudFront includes as values for the
+	// ``Access-Control-Expose-Headers`` HTTP response header.
+	// For more information about the ``Access-Control-Expose-Headers`` HTTP
+	// response header, see
+	// [Access-Control-Expose-Headers](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Expose-Headers)
+	// in the MDN Web Docs.
+	AccessControlExposeHeaders?: #AccessControlExposeHeaders
 	AccessControlMaxAgeSec?: int |
 		{
 			string &
@@ -99,67 +123,112 @@ _#defs: "/$defs/Properties/definitions/CorsConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomHeader": close({
+#CustomHeader: close({
 	Header!:   string | fn.#StringExpression
 	Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Value!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomHeadersConfig": close(
-	{Items!: [..._#defs."/$defs/Properties/definitions/CustomHeader"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#CustomHeadersConfig: close({Items!: [...#CustomHeader] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FrameOptions": close({
+#FrameOptions: close({
 	FrameOption!: =~"^(DENY|SAMEORIGIN)$" | fn.#StringExpression
 	Override!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReferrerPolicy": close({
+#ReferrerPolicy: close({
 	Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReferrerPolicy!: =~"^(no-referrer|no-referrer-when-downgrade|origin|origin-when-cross-origin|same-origin|strict-origin|strict-origin-when-cross-origin|unsafe-url)$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveHeader": close({Header!: string | fn.#StringExpression}) |
+#RemoveHeader: close({Header!: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#RemoveHeadersConfig: close({Items!: list.UniqueItems() & [...#RemoveHeader] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveHeadersConfig": close(
-	{Items!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RemoveHeader"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#ResponseHeadersPolicyConfig: close({
+	Comment?: strings.MaxRunes(128) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseHeadersPolicyConfig": close({
-	Comment?:                   strings.MaxRunes(128) | fn.#StringExpression
-	CorsConfig?:                _#defs."/$defs/Properties/definitions/CorsConfig" | fn.#ObjectExpression
-	CustomHeadersConfig?:       _#defs."/$defs/Properties/definitions/CustomHeadersConfig" | fn.#ObjectExpression
-	Name!:                      string | fn.#StringExpression
-	RemoveHeadersConfig?:       _#defs."/$defs/Properties/definitions/RemoveHeadersConfig" | fn.#ObjectExpression
-	SecurityHeadersConfig?:     _#defs."/$defs/Properties/definitions/SecurityHeadersConfig" | fn.#ObjectExpression
-	ServerTimingHeadersConfig?: _#defs."/$defs/Properties/definitions/ServerTimingHeadersConfig" | fn.#ObjectExpression
+	// A configuration for a set of HTTP response headers that are used for
+	// cross-origin resource sharing (CORS).
+	CorsConfig?: #CorsConfig
+
+	// A configuration for a set of custom HTTP response headers.
+	CustomHeadersConfig?: #CustomHeadersConfig
+	Name!:                string | fn.#StringExpression
+
+	// A configuration for a set of HTTP headers to remove from the HTTP response.
+	RemoveHeadersConfig?: #RemoveHeadersConfig
+
+	// A configuration for a set of security-related HTTP response headers.
+	SecurityHeadersConfig?: #SecurityHeadersConfig
+
+	// A configuration for enabling the ``Server-Timing`` header in HTTP responses sent from CloudFront.
+	ServerTimingHeadersConfig?: #ServerTimingHeadersConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityHeadersConfig": close({
-	ContentSecurityPolicy?:   _#defs."/$defs/Properties/definitions/ContentSecurityPolicy" | fn.#ObjectExpression
-	ContentTypeOptions?:      _#defs."/$defs/Properties/definitions/ContentTypeOptions" | fn.#ObjectExpression
-	FrameOptions?:            _#defs."/$defs/Properties/definitions/FrameOptions" | fn.#ObjectExpression
-	ReferrerPolicy?:          _#defs."/$defs/Properties/definitions/ReferrerPolicy" | fn.#ObjectExpression
-	StrictTransportSecurity?: _#defs."/$defs/Properties/definitions/StrictTransportSecurity" | fn.#ObjectExpression
-	XSSProtection?:           _#defs."/$defs/Properties/definitions/XSSProtection" | fn.#ObjectExpression
+#SecurityHeadersConfig: close({
+	// The policy directives and their values that CloudFront includes as values for
+	// the ``Content-Security-Policy`` HTTP response header.
+	// For more information about the ``Content-Security-Policy`` HTTP response
+	// header, see
+	// [Content-Security-Policy](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy)
+	// in the MDN Web Docs.
+	ContentSecurityPolicy?: #ContentSecurityPolicy
+
+	// Determines whether CloudFront includes the ``X-Content-Type-Options`` HTTP
+	// response header with its value set to ``nosniff``.
+	// For more information about the ``X-Content-Type-Options`` HTTP response
+	// header, see
+	// [X-Content-Type-Options](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options)
+	// in the MDN Web Docs.
+	ContentTypeOptions?: #ContentTypeOptions
+
+	// Determines whether CloudFront includes the ``X-Frame-Options`` HTTP response
+	// header and the header's value.
+	// For more information about the ``X-Frame-Options`` HTTP response header, see
+	// [X-Frame-Options](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options)
+	// in the MDN Web Docs.
+	FrameOptions?: #FrameOptions
+
+	// Determines whether CloudFront includes the ``Referrer-Policy`` HTTP response
+	// header and the header's value.
+	// For more information about the ``Referrer-Policy`` HTTP response header, see
+	// [Referrer-Policy](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy)
+	// in the MDN Web Docs.
+	ReferrerPolicy?: #ReferrerPolicy
+
+	// Determines whether CloudFront includes the ``Strict-Transport-Security`` HTTP
+	// response header and the header's value.
+	// For more information about the ``Strict-Transport-Security`` HTTP response
+	// header, see [Security
+	// headers](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/understanding-response-headers-policies.html#understanding-response-headers-policies-security)
+	// in the *Amazon CloudFront Developer Guide* and
+	// [Strict-Transport-Security](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security)
+	// in the MDN Web Docs.
+	StrictTransportSecurity?: #StrictTransportSecurity
+
+	// Determines whether CloudFront includes the ``X-XSS-Protection`` HTTP response
+	// header and the header's value.
+	// For more information about the ``X-XSS-Protection`` HTTP response header, see
+	// [X-XSS-Protection](https://docs.aws.amazon.com/https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection)
+	// in the MDN Web Docs.
+	XSSProtection?: #XSSProtection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerTimingHeadersConfig": close({
+#ServerTimingHeadersConfig: close({
 	Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SamplingRate?: math.MultipleOf(0.0001) & <=100 & >=0 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StrictTransportSecurity": close({
+#StrictTransportSecurity: close({
 	AccessControlMaxAgeSec!: int |
 		{
 			string &
@@ -180,14 +249,10 @@ _#defs: "/$defs/Properties/definitions/StrictTransportSecurity": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/XSSProtection": close({
+#XSSProtection: close({
 	ModeBlock?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Override!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Protection!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReportUri?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::ResponseHeadersPolicy"
-	Properties!: #Properties
-}

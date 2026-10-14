@@ -46,7 +46,7 @@ import "list"
 
 	// The table mappings for the task, in JSON format.
 	TableMappings!: string
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          list.UniqueItems() & [...#Tag]
 
 	// An Amazon Resource Name (ARN) that uniquely identifies the target endpoint.
 	TargetEndpointArn!: string
@@ -56,7 +56,7 @@ import "list"
 	TaskData?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key
 	Key!: string
 

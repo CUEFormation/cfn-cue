@@ -14,26 +14,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::DevOpsAgent::Association defining how the
 // AgentSpace interacts with external services like GitHub, Slack, AWS
 // accounts, and others.
-#Properties: close({
-	AgentSpaceId!:         _#defs."/$defs/Properties/definitions/AgentSpaceId" | fn.#StringExpression
-	Configuration!:        _#defs."/$defs/Properties/definitions/ServiceConfiguration" | fn.#ObjectExpression
-	LinkedAssociationIds?: [..._#defs."/$defs/Properties/definitions/AssociationId"] | fn.#ListExpression
-	ServiceId!:            _#defs."/$defs/Properties/definitions/ServiceId" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DevOpsAgent::Association"
+	Properties!: close({
+		// The unique identifier of the AgentSpace
+		AgentSpaceId!: #AgentSpaceId
 
-_#defs: "/$defs/Properties/definitions/AWSConfiguration": close({
+		// The configuration that directs how AgentSpace interacts with the given service
+		Configuration!:        #ServiceConfiguration
+		LinkedAssociationIds?: [...#AssociationId] | fn.#ListExpression
+
+		// The identifier for the associated service
+		ServiceId!: #ServiceId
+	})
+}
+
+#AWSConfiguration: close({
 	AccountId!:   =~"\\d{12}" | fn.#StringExpression
 	AccountType!: "monitor" | fn.#StringExpression
 	AgentElevatedRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	AssumableRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	Resources?: _#defs."/$defs/Properties/definitions/AWSResourceList"
-	Tags?:      _#defs."/$defs/Properties/definitions/AWSTagList"
+	Resources?: #AWSResourceList
+	Tags?:      #AWSTagList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AWSResource": close({
+#AWSResource: close({
 	ResourceArn!:      string | fn.#StringExpression
 	ResourceMetadata?: fn.#Object & {...} | fn.#ObjectExpression
 	ResourceType?: "AWS::CloudFormation::Stack" |
@@ -44,33 +52,29 @@ _#defs: "/$defs/Properties/definitions/AWSResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AWSResourceList": [..._#defs."/$defs/Properties/definitions/AWSResource"] |
-	fn.#ListExpression
+#AWSResourceList: [...#AWSResource] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AWSTagList": [..._#defs."/$defs/Properties/definitions/KeyValuePair"] |
-	fn.#ListExpression
+#AWSTagList: [...#KeyValuePair] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AgentSpaceId": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#AgentSpaceId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AssociationId": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#AssociationId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AzureConfiguration": close({SubscriptionId!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#AzureConfiguration: close({SubscriptionId!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynatraceConfiguration": close({
+#DynatraceConfiguration: close({
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnvId!:                string | fn.#StringExpression
 	Resources?:            [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventChannelConfiguration": close(
+#EventChannelConfiguration: close(
 	{EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitHubConfiguration": close({
+#GitHubConfiguration: close({
 	Owner!:     string | fn.#StringExpression
 	OwnerType!: "organization" | "user" | fn.#StringExpression
 	RepoId!:    string | fn.#StringExpression
@@ -78,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/GitHubConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GitLabConfiguration": close({
+#GitLabConfiguration: close({
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceIdentifier?:   string | fn.#StringExpression
 	ProjectId!:            string | fn.#StringExpression
@@ -86,13 +90,13 @@ _#defs: "/$defs/Properties/definitions/GitLabConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	Key!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerConfiguration": close({
+#MCPServerConfiguration: close({
 	Description?:          string | fn.#StringExpression
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Endpoint?:             =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
@@ -101,7 +105,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerDatadogConfiguration": close({
+#MCPServerDatadogConfiguration: close({
 	Description?:          string | fn.#StringExpression
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnabledElevatedTools?: [
@@ -113,7 +117,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerDatadogConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerGrafanaConfiguration": close({
+#MCPServerGrafanaConfiguration: close({
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnabledElevatedTools?: [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
@@ -146,18 +150,16 @@ _#defs: "/$defs/Properties/definitions/MCPServerGrafanaConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerNewRelicConfiguration": close({
+#MCPServerNewRelicConfiguration: close({
 	AccountId!: strings.MinRunes(6) & =~"^[0-9]+$" | fn.#StringExpression
 	Endpoint!:  =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerSigV4Configuration": close(
-	{Tools!: [...=~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] | fn.#ListExpression},
-) |
+#MCPServerSigV4Configuration: close({Tools!: [...=~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MCPServerSplunkConfiguration": close({
+#MCPServerSplunkConfiguration: close({
 	Description?:          string | fn.#StringExpression
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Endpoint?:             =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
@@ -165,57 +167,57 @@ _#defs: "/$defs/Properties/definitions/MCPServerSplunkConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PagerDutyConfiguration": close({
+#PagerDutyConfiguration: close({
 	CustomerEmail!:        string | fn.#StringExpression
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Services!:             [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConfiguration": fn.#Object & {...} & matchN(1, [close(
-	{SourceAws!: _#defs."/$defs/Properties/definitions/SourceAwsConfiguration"},
+#ServiceConfiguration: fn.#Object & {...} & matchN(1, [close(
+	{SourceAws!: #SourceAwsConfiguration},
 ), close(
-	{Aws!: _#defs."/$defs/Properties/definitions/AWSConfiguration"},
+	{Aws!: #AWSConfiguration},
 ), close(
-	{GitHub!: _#defs."/$defs/Properties/definitions/GitHubConfiguration"},
+	{GitHub!: #GitHubConfiguration},
 ), close(
-	{Slack!: _#defs."/$defs/Properties/definitions/SlackConfiguration"},
+	{Slack!: #SlackConfiguration},
 ), close(
-	{Dynatrace!: _#defs."/$defs/Properties/definitions/DynatraceConfiguration"},
+	{Dynatrace!: #DynatraceConfiguration},
 ), close(
-	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowConfiguration"},
+	{ServiceNow!: #ServiceNowConfiguration},
 ), close(
-	{MCPServer!: _#defs."/$defs/Properties/definitions/MCPServerConfiguration"},
+	{MCPServer!: #MCPServerConfiguration},
 ), close(
-	{GitLab!: _#defs."/$defs/Properties/definitions/GitLabConfiguration"},
+	{GitLab!: #GitLabConfiguration},
 ), close(
-	{MCPServerDatadog!: _#defs."/$defs/Properties/definitions/MCPServerDatadogConfiguration"},
+	{MCPServerDatadog!: #MCPServerDatadogConfiguration},
 ), close(
-	{MCPServerSplunk!: _#defs."/$defs/Properties/definitions/MCPServerSplunkConfiguration"},
+	{MCPServerSplunk!: #MCPServerSplunkConfiguration},
 ), close(
-	{MCPServerNewRelic!: _#defs."/$defs/Properties/definitions/MCPServerNewRelicConfiguration"},
+	{MCPServerNewRelic!: #MCPServerNewRelicConfiguration},
 ), close(
-	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaConfiguration"},
+	{MCPServerGrafana!: #MCPServerGrafanaConfiguration},
 ), close(
-	{PagerDuty!: _#defs."/$defs/Properties/definitions/PagerDutyConfiguration"},
+	{PagerDuty!: #PagerDutyConfiguration},
 ), close(
-	{EventChannel!: _#defs."/$defs/Properties/definitions/EventChannelConfiguration"},
+	{EventChannel!: #EventChannelConfiguration},
 ), close(
-	{Azure!: _#defs."/$defs/Properties/definitions/AzureConfiguration"},
+	{Azure!: #AzureConfiguration},
 ), close(
-	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/MCPServerSigV4Configuration"},
+	{MCPServerSigV4!: #MCPServerSigV4Configuration},
 )]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceId": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#ServiceId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConfiguration": close({
+#ServiceNowConfiguration: close({
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceId?:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlackBidirectionalConfiguration": close({
+#SlackBidirectionalConfiguration: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(255) &
@@ -225,37 +227,34 @@ _#defs: "/$defs/Properties/definitions/SlackBidirectionalConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlackChannel": close({
+#SlackChannel: close({
 	ChannelId!:   strings.MaxRunes(16) & strings.MinRunes(8) & =~"^[CGD][A-Z0-9]+$" | fn.#StringExpression
 	ChannelName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlackConfiguration": close({
-	Bidirectional?:      _#defs."/$defs/Properties/definitions/SlackBidirectionalConfiguration"
-	TransmissionTarget!: _#defs."/$defs/Properties/definitions/SlackTransmissionTarget"
+#SlackConfiguration: close({
+	Bidirectional?:      #SlackBidirectionalConfiguration
+	TransmissionTarget!: #SlackTransmissionTarget
 	WorkspaceId!:        =~"^[TE][A-Z0-9]+$" | fn.#StringExpression
 	WorkspaceName!:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlackTransmissionTarget": close(
-	{IncidentResponseTarget!: _#defs."/$defs/Properties/definitions/SlackChannel" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#SlackTransmissionTarget: close({
+	// Destination for IncidentResponse agent.
+	IncidentResponseTarget!: #SlackChannel
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceAwsConfiguration": close({
+#SourceAwsConfiguration: close({
 	AccountId!:   =~"\\d{12}" | fn.#StringExpression
 	AccountType!: "source" | fn.#StringExpression
 	AgentElevatedRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	AssumableRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	Resources?: _#defs."/$defs/Properties/definitions/AWSResourceList"
-	Tags?:      _#defs."/$defs/Properties/definitions/AWSTagList"
+	Resources?: #AWSResourceList
+	Tags?:      #AWSTagList
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsAgent::Association"
-	Properties!: #Properties
-}

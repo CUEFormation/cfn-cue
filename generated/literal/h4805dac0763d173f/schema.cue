@@ -11,35 +11,35 @@ import (
 
 // Resource Type definition for AWS::AppStream::AppBlock
 #Properties: close({
-	Arn?:                    _#defs."/$defs/Properties/definitions/Arn"
+	Arn?:                    #Arn
 	CreatedTime?:            string
 	Description?:            strings.MaxRunes(256) & strings.MinRunes(0)
 	DisplayName?:            strings.MaxRunes(100) & strings.MinRunes(0)
 	Name!:                   =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$"
-	PackagingType?:          _#defs."/$defs/Properties/definitions/PackagingType"
-	PostSetupScriptDetails?: _#defs."/$defs/Properties/definitions/ScriptDetails"
-	SetupScriptDetails?:     _#defs."/$defs/Properties/definitions/ScriptDetails"
-	SourceS3Location!:       _#defs."/$defs/Properties/definitions/S3Location"
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	PackagingType?:          #PackagingType
+	PostSetupScriptDetails?: #ScriptDetails
+	SetupScriptDetails?:     #ScriptDetails
+	SourceS3Location!:       #S3Location
+	Tags?:                   list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
-_#defs: "/$defs/Properties/definitions/PackagingType": "APPSTREAM2" | "CUSTOM"
+#PackagingType: "APPSTREAM2" | "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3)
 	S3Key?:    strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ScriptDetails": close({
+#ScriptDetails: close({
 	ExecutableParameters?: strings.MinRunes(1)
 	ExecutablePath!:       strings.MinRunes(1)
-	ScriptS3Location!:     _#defs."/$defs/Properties/definitions/S3Location"
+	ScriptS3Location!:     #S3Location
 	TimeoutInSeconds!:     int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": matchN(1, [close({
+#Tag: matchN(1, [close({
 	Key!:   string
 	Value!: string
 }), close({

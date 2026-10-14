@@ -16,7 +16,7 @@ import (
 
 	// The Amazon Resource Name (ARN) of the dataset group to add the dataset to
 	DatasetGroupArn!:  strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+"
-	DatasetImportJob?: _#defs."/$defs/Properties/definitions/DatasetImportJob"
+	DatasetImportJob?: #DatasetImportJob
 
 	// The type of dataset
 	DatasetType!: ("Interactions" | "Items" | "Users") & (strings.MaxRunes(256) & strings.MinRunes(0))
@@ -28,11 +28,11 @@ import (
 	SchemaArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+"
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // Initial DatasetImportJob for the created dataset
-_#defs: "/$defs/Properties/definitions/DatasetImportJob": close({
+#DatasetImportJob: close({
 	// The Amazon S3 bucket that contains the training data to import.
 	DataSource?: close({
 		// The path to the Amazon S3 bucket where the data that you want to upload to
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/DatasetImportJob": close({
 	=~"arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

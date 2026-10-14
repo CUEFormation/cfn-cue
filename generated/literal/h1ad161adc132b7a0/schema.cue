@@ -10,13 +10,7 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Kinesis::Channel
-#Properties: matchN(1, [{
-	S3DestinationConfiguration!: _
-	...
-}, {
-	S3TablesDestinationConfiguration!: _
-	...
-}]) & close({
+#Properties: close({
 	// The ARN of the channel.
 	ChannelARN?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws.*:kinesis:.*:\\d{12}:channel/\\S+"
 
@@ -33,20 +27,20 @@ import (
 	ChannelStatus?: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "FAILED"
 
 	// Server-side encryption configuration for data at rest.
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration?: #EncryptionConfiguration
 
 	// Configuration for delivering channel operational logs. Defaults to CloudWatch Logs disabled.
-	LoggingConfiguration?: _#defs."/$defs/Properties/definitions/LoggingConfiguration"
+	LoggingConfiguration?: #LoggingConfiguration
 
 	// Configuration for delivery to a vanilla S3 bucket destination. Exactly one of
 	// S3DestinationConfiguration and S3TablesDestinationConfiguration must be
 	// specified.
-	S3DestinationConfiguration?: _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+	S3DestinationConfiguration?: #S3DestinationConfiguration
 
 	// Configuration for delivery to S3 Tables destinations. Exactly one of
 	// S3DestinationConfiguration and S3TablesDestinationConfiguration must be
 	// specified.
-	S3TablesDestinationConfiguration?: _#defs."/$defs/Properties/definitions/S3TablesDestinationConfiguration"
+	S3TablesDestinationConfiguration?: #S3TablesDestinationConfiguration
 
 	// The ARN of the IAM role that the channel assumes to read from the source
 	// stream, deliver records to the destination, and (when enabled) write
@@ -59,19 +53,22 @@ import (
 	// List of stream configurations associated with the channel. v1 supports a
 	// single element; the list shape allows future extensibility to fan in from
 	// multiple streams.
-	StreamConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/StreamConfiguration"
-	]
+	StreamConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [...#StreamConfiguration]
 
 	// An arbitrary set of tags (key-value pairs) to associate with the Kinesis channel.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
-})
+	Tags?: list.MaxItems(50) & [...#Tag]
+	if S3DestinationConfiguration != _|_ if S3DestinationConfiguration."Fn::If" == _|_ {
+		S3TablesDestinationConfiguration?: close({"Fn::If": _}) | error(
+			"S3TablesDestinationConfiguration cannot be used with S3DestinationConfiguration; set exactly one of S3DestinationConfiguration, S3TablesDestinationConfiguration",
+		)
+	}
+}) & matchN(>=1, [{S3DestinationConfiguration!: _}, {S3TablesDestinationConfiguration!: _}])
 
 // CloudWatch Logs configuration for the channel. When Enabled is true and
 // LogGroupName is omitted, the service uses a default group derived from the
 // channel name and id; LogStreamName defaults to the literal string
 // 'DestinationDelivery'.
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsConfiguration": close({
+#CloudWatchLogsConfiguration: close({
 	// Whether CloudWatch Logs delivery is enabled.
 	Enabled!: bool
 
@@ -87,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLogsConfiguration": close({
 
 // Configuration of the S3 bucket used to capture records that cannot be
 // delivered to the primary destination.
-_#defs: "/$defs/Properties/definitions/DeadLetterQueueS3Configuration": close({
+#DeadLetterQueueS3Configuration: close({
 	// The ARN of the S3 bucket for storing failed records.
 	BucketARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws[-a-z0-9]*:s3:::[a-z0-9._-]{3,63}$"
 
@@ -103,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/DeadLetterQueueS3Configuration": close({
 
 // Server-side encryption configuration for data at rest in the destination.
 // Data delivered to S3 / S3 Tables is encrypted with the same key.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// The encryption type. KMS is the only supported value.
 	EncryptionType!: "KMS"
 
@@ -115,14 +112,14 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 })
 
 // Configuration for delivering channel operational logs.
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
+#LoggingConfiguration: close({
 	// CloudWatch Logs configuration block. When provided, controls whether and
 	// where the channel writes operational logs.
-	CloudWatchLogs!: _#defs."/$defs/Properties/definitions/CloudWatchLogsConfiguration"
+	CloudWatchLogs!: #CloudWatchLogsConfiguration
 })
 
 // A single partition field consisting of a transform applied to a source column.
-_#defs: "/$defs/Properties/definitions/PartitionField": close({
+#PartitionField: close({
 	// The name of the source column on which the transform is applied.
 	SourceName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._]+$"
 
@@ -132,14 +129,14 @@ _#defs: "/$defs/Properties/definitions/PartitionField": close({
 
 // Partitioning specification for the destination Iceberg table. Follows the S3
 // Tables / Iceberg PartitionSpec format.
-_#defs: "/$defs/Properties/definitions/PartitionSpec": close({
+#PartitionSpec: close({
 	// List of partition fields that define how records are partitioned when written
 	// to the destination table.
-	PartitionFields!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PartitionField"]
+	PartitionFields!: list.MaxItems(10) & list.MinItems(1) & [...#PartitionField]
 })
 
 // The configuration that describes how records on the source stream are encoded.
-_#defs: "/$defs/Properties/definitions/RecordConfiguration": close({
+#RecordConfiguration: close({
 	// The ARN of the AWS Glue Schema Registry (GSR) schema. Required for the S3
 	// Tables destination, where it is used to create the S3 Table and to validate
 	// that the record format matches the table schema. Also used when
@@ -157,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/RecordConfiguration": close({
 // Configuration for delivery to a vanilla S3 bucket destination. Exactly one of
 // S3DestinationConfiguration and S3TablesDestinationConfiguration must be
 // specified on the channel.
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
+#S3DestinationConfiguration: close({
 	// The maximum time in seconds the channel buffers records before delivery if
 	// the minimum target file size is not reached.
 	DataFreshnessInSeconds?: int
@@ -165,16 +162,16 @@ _#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
 	// Optional dead-letter queue (DLQ) configuration for records that cannot be
 	// delivered to the destination. When omitted, the service auto-fills using the
 	// storage BucketARN with an error prefix.
-	DeadLetterQueueS3Configuration?: _#defs."/$defs/Properties/definitions/DeadLetterQueueS3Configuration"
+	DeadLetterQueueS3Configuration?: #DeadLetterQueueS3Configuration
 
 	// S3 storage configuration including the destination bucket, output key
 	// template, storage class, and compression type.
-	StorageConfiguration!: _#defs."/$defs/Properties/definitions/S3StorageConfiguration"
+	StorageConfiguration!: #S3StorageConfiguration
 })
 
 // S3 storage configuration that describes the destination bucket and how
 // delivered objects are stored.
-_#defs: "/$defs/Properties/definitions/S3StorageConfiguration": close({
+#S3StorageConfiguration: close({
 	// The ARN of the S3 bucket for record delivery. Different channels can deliver
 	// to the same bucket. Buckets can be cross-account but must be in the same
 	// region as the channel.
@@ -200,7 +197,7 @@ _#defs: "/$defs/Properties/definitions/S3StorageConfiguration": close({
 })
 
 // An S3 Tables destination including its table bucket, namespace, table name, and partition spec.
-_#defs: "/$defs/Properties/definitions/S3TableConfiguration": close({
+#S3TableConfiguration: close({
 	// The compression algorithm applied to objects delivered to the S3 Tables destination.
 	CompressionType!: "NONE" | "ZSTD" | "SNAPPY"
 
@@ -208,7 +205,7 @@ _#defs: "/$defs/Properties/definitions/S3TableConfiguration": close({
 	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]+$"
 
 	// The partition specification used by the destination Iceberg table.
-	PartitionSpec?: _#defs."/$defs/Properties/definitions/PartitionSpec"
+	PartitionSpec?: #PartitionSpec
 
 	// The ARN of the S3 Tables table bucket for record delivery. Buckets can be
 	// cross-account but must be in the same region as the channel.
@@ -224,7 +221,7 @@ _#defs: "/$defs/Properties/definitions/S3TableConfiguration": close({
 // Configuration for delivery to S3 Tables destinations. Exactly one of
 // S3DestinationConfiguration and S3TablesDestinationConfiguration must be
 // specified on the channel.
-_#defs: "/$defs/Properties/definitions/S3TablesDestinationConfiguration": close({
+#S3TablesDestinationConfiguration: close({
 	// The maximum time in seconds the channel buffers records before delivery if
 	// the minimum target file size is not reached.
 	DataFreshnessInSeconds?: int
@@ -232,26 +229,24 @@ _#defs: "/$defs/Properties/definitions/S3TablesDestinationConfiguration": close(
 	// The dead-letter queue (DLQ) configuration for records that cannot be
 	// delivered to the S3 Tables destination. Required for S3 Tables: there is no
 	// safe fallback because S3 Tables metadata writes are critical-path.
-	DeadLetterQueueS3Configuration!: _#defs."/$defs/Properties/definitions/DeadLetterQueueS3Configuration"
+	DeadLetterQueueS3Configuration!: #DeadLetterQueueS3Configuration
 
 	// The list of S3 Tables destinations. v1 supports a single element; the list
 	// shape allows future extensibility to fan out to multiple tables.
-	S3TablesConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/S3TableConfiguration"
-	]
+	S3TablesConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [...#S3TableConfiguration]
 })
 
 // The configuration of a Kinesis stream that the channel reads from.
-_#defs: "/$defs/Properties/definitions/StreamConfiguration": close({
+#StreamConfiguration: close({
 	// The configuration that describes how records on the source stream are encoded.
-	RecordConfiguration!: _#defs."/$defs/Properties/definitions/RecordConfiguration"
+	RecordConfiguration!: #RecordConfiguration
 
 	// The Amazon resource name (ARN) of the Kinesis data stream that the channel reads from.
 	StreamARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+"
 })
 
 // An arbitrary set of tags (key-value pairs) to associate with the Kinesis channel.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

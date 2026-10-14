@@ -14,40 +14,36 @@ import (
 #Properties: close({
 	ActionName!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,64}$"
 	AliasName?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$"
-	Attachments?: [..._#defs."/$defs/Properties/definitions/CustomActionAttachment"]
+	Attachments?: [...#CustomActionAttachment]
 	CustomActionArn?: strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:chatbot:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:custom-action/[a-zA-Z0-9_-]{1,64}$"
-	Definition!: _#defs."/$defs/Properties/definitions/CustomActionDefinition"
-	Tags?:       list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Definition!: #CustomActionDefinition
+	Tags?:       list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CustomActionAttachment": close({
-	ButtonText?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\S\\s]+$"
-	Criteria?: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CustomActionAttachmentCriteria"
-	]
+#CustomActionAttachment: close({
+	ButtonText?:       strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\S\\s]+$"
+	Criteria?:         list.MaxItems(5) & list.MinItems(1) & [...#CustomActionAttachmentCriteria]
 	NotificationType?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
-	Variables?:        _#defs."/$defs/Properties/definitions/CustomActionAttachmentVariables"
+	Variables?:        #CustomActionAttachmentVariables
 })
 
-_#defs: "/$defs/Properties/definitions/CustomActionAttachmentCriteria": close({
-	Operator!:     _#defs."/$defs/Properties/definitions/CustomActionAttachmentCriteriaOperator"
+#CustomActionAttachmentCriteria: close({
+	Operator!:     #CustomActionAttachmentCriteriaOperator
 	Value?:        strings.MaxRunes(1024) & strings.MinRunes(0)
 	VariableName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/CustomActionAttachmentCriteriaOperator": "HAS_VALUE" | "EQUALS"
+#CustomActionAttachmentCriteriaOperator: "HAS_VALUE" | "EQUALS"
 
-_#defs: "/$defs/Properties/definitions/CustomActionAttachmentVariables": struct.MaxFields(5) & struct.MinFields(1) & close({
+#CustomActionAttachmentVariables: struct.MaxFields(5) & struct.MinFields(1) & close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/CustomActionDefinition": close(
-	{CommandText!: strings.MaxRunes(5000) & strings.MinRunes(1)},
-)
+#CustomActionDefinition: close({CommandText!: strings.MaxRunes(5000) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

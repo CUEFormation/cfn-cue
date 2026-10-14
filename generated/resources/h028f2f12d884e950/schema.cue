@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,45 +13,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::QuickResponse Resource Type.
-#Properties: close({
-	Channels?:              [..._#defs."/$defs/Properties/definitions/ChannelType"] | fn.#ListExpression
-	Content!:               _#defs."/$defs/Properties/definitions/QuickResponseContentProvider"
-	ContentType?:           =~"^(application/x\\.quickresponse;format=(plain|markdown))$" | fn.#StringExpression
-	Description?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	GroupingConfiguration?: _#defs."/$defs/Properties/definitions/GroupingConfiguration"
-	IsActive?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KnowledgeBaseArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
-		fn.#StringExpression
-	Language?:    strings.MaxRunes(5) & strings.MinRunes(2) | fn.#StringExpression
-	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ShortcutKey?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::QuickResponse"
+	Properties!: close({
+		Channels?:              [...#ChannelType] | fn.#ListExpression
+		Content!:               #QuickResponseContentProvider
+		ContentType?:           =~"^(application/x\\.quickresponse;format=(plain|markdown))$" | fn.#StringExpression
+		Description?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		GroupingConfiguration?: #GroupingConfiguration
+		IsActive?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KnowledgeBaseArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
+			fn.#StringExpression
+		Language?:    strings.MaxRunes(5) & strings.MinRunes(2) | fn.#StringExpression
+		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ShortcutKey?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ChannelType": ("Chat" | "Email") & (strings.MaxRunes(10) & strings.MinRunes(1)) |
-fn.#StringExpression
+#ChannelType: ("Chat" | "Email") & (strings.MaxRunes(10) & strings.MinRunes(1)) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GroupingConfiguration": close({
+#GroupingConfiguration: close({
 	Criteria!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Values!:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupingValue"] | fn.#ListExpression
+	Values!:   list.UniqueItems() & [...#GroupingValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GroupingValue": strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
+#GroupingValue: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/QuickResponseContentProvider": close(
-	{Content?: strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#QuickResponseContentProvider: close({Content?: strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuickResponseContents": close({
-	Markdown?:  _#defs."/$defs/Properties/definitions/QuickResponseContentProvider"
-	PlainText?: _#defs."/$defs/Properties/definitions/QuickResponseContentProvider"
+#QuickResponseContents: close({
+	Markdown?:  #QuickResponseContentProvider
+	PlainText?: #QuickResponseContentProvider
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "CREATE_IN_PROGRESS" |
+#Status: "CREATE_IN_PROGRESS" |
 	"CREATE_FAILED" |
 	"CREATED" |
 	"DELETE_IN_PROGRESS" |
@@ -61,12 +60,8 @@ _#defs: "/$defs/Properties/definitions/Status": "CREATE_IN_PROGRESS" |
 	"UPDATE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::QuickResponse"
-	Properties!: #Properties
-}

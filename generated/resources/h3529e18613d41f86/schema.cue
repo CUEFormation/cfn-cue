@@ -17,38 +17,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::EndpointConfig
-#Properties: close({
-	AsyncInferenceConfig?:   _#defs."/$defs/Properties/definitions/AsyncInferenceConfig" | fn.#ObjectExpression
-	DataCaptureConfig?:      _#defs."/$defs/Properties/definitions/DataCaptureConfig" | fn.#ObjectExpression
-	EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndpointConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	ExplainerConfig?: _#defs."/$defs/Properties/definitions/ExplainerConfig" | fn.#ObjectExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^[a-zA-Z0-9:/_-]*$" |
-	fn.#StringExpression
-	MetricsConfig?: _#defs."/$defs/Properties/definitions/MetricsConfig" | fn.#ObjectExpression
-	ProductionVariants!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ProductionVariant"
-	] |
-		fn.#ListExpression
-	ShadowProductionVariants?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ProductionVariant"
-	] |
-		fn.#ListExpression
-	Tags?:      list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::EndpointConfig"
+	Properties!: close({
+		// Specifies configuration for how an endpoint performs asynchronous inference.
+		AsyncInferenceConfig?: #AsyncInferenceConfig
 
-_#defs: "/$defs/Properties/definitions/AsyncInferenceClientConfig": close({
+		// Specifies how to capture endpoint data for model monitor. The data capture
+		// configuration applies to all production variants hosted at the endpoint.
+		DataCaptureConfig?:      #DataCaptureConfig
+		EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EndpointConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+
+		// A parameter to activate explainers.
+		ExplainerConfig?: #ExplainerConfig
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9:/_-]*$" |
+		fn.#StringExpression
+
+		// Specifies the metrics that the endpoint publishes to Amazon CloudWatch, the
+		// frequency of publication, and whether to enable enhanced or detailed
+		// observability metrics.
+		MetricsConfig?:            #MetricsConfig
+		ProductionVariants!:       list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
+		ShadowProductionVariants?: list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
+		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+
+		// Specifies an Amazon Virtual Private Cloud (VPC) that your SageMaker jobs,
+		// hosted models, and compute resources have access to. You can control access
+		// to and from your resources by configuring a VPC.
+		VpcConfig?: #VpcConfig
+	})
+}
+
+#AsyncInferenceClientConfig: close({
 	MaxConcurrentInvocationsPerInstance?: int & <=1000 & >=1 |
 		{
 			string &
@@ -68,13 +79,17 @@ _#defs: "/$defs/Properties/definitions/AsyncInferenceClientConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AsyncInferenceConfig": close({
-	ClientConfig?: _#defs."/$defs/Properties/definitions/AsyncInferenceClientConfig" | fn.#ObjectExpression
-	OutputConfig!: _#defs."/$defs/Properties/definitions/AsyncInferenceOutputConfig" | fn.#ObjectExpression
+#AsyncInferenceConfig: close({
+	// Configures the behavior of the client used by SageMaker to interact with the
+	// model container during asynchronous inference.
+	ClientConfig?: #AsyncInferenceClientConfig
+
+	// Specifies the configuration for asynchronous inference invocation outputs.
+	OutputConfig!: #AsyncInferenceOutputConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AsyncInferenceNotificationConfig": close({
+#AsyncInferenceNotificationConfig: close({
 	ErrorTopic?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[a-z\\-]*:sns:[a-z0-9\\-]*:[0-9]{12}:[a-zA-Z0-9_.-]+$" |
@@ -90,20 +105,22 @@ _#defs: "/$defs/Properties/definitions/AsyncInferenceNotificationConfig": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AsyncInferenceOutputConfig": close({
+#AsyncInferenceOutputConfig: close({
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9:/_-]*$" |
 	fn.#StringExpression
-	NotificationConfig?: _#defs."/$defs/Properties/definitions/AsyncInferenceNotificationConfig" | fn.#ObjectExpression
+
+	// Specifies the configuration for notifications of inference results for asynchronous inference.
+	NotificationConfig?: #AsyncInferenceNotificationConfig
 	S3FailurePath?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
 	S3OutputPath?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationConfig": close({
+#CapacityReservationConfig: close({
 	CapacityReservationPreference?: =~"capacity-reservations-only" | fn.#StringExpression
 	MlReservationArn?: strings.MaxRunes(258) &
 	strings.MinRunes(20) &
@@ -112,7 +129,7 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
+#CaptureContentTypeHeader: close({
 	CsvContentTypes?: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(256) &
 		strings.MinRunes(1) &
@@ -130,19 +147,21 @@ _#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaptureOption": close(
-	{CaptureMode!: "Input" | "InputAndOutput" | "Output" | fn.#StringExpression},
-) |
+#CaptureOption: close({CaptureMode!: "Input" | "InputAndOutput" | "Output" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyExplainerConfig": close({
+#ClarifyExplainerConfig: close({
 	EnableExplanations?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	InferenceConfig?:    _#defs."/$defs/Properties/definitions/ClarifyInferenceConfig" | fn.#ObjectExpression
-	ShapConfig!:         _#defs."/$defs/Properties/definitions/ClarifyShapConfig" | fn.#ObjectExpression
+
+	// The inference configuration parameter for the model container.
+	InferenceConfig?: #ClarifyInferenceConfig
+
+	// The configuration for SHAP analysis.
+	ShapConfig!: #ClarifyShapConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyInferenceConfig": close({
+#ClarifyInferenceConfig: close({
 	ContentTemplate?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	FeatureHeaders?: list.MaxItems(256) & list.MinItems(1) & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
@@ -221,7 +240,7 @@ _#defs: "/$defs/Properties/definitions/ClarifyInferenceConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyShapBaselineConfig": close({
+#ClarifyShapBaselineConfig: close({
 	MimeType?: strings.MaxRunes(255) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9+.])*" |
@@ -232,7 +251,7 @@ _#defs: "/$defs/Properties/definitions/ClarifyShapBaselineConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyShapConfig": close({
+#ClarifyShapConfig: close({
 	NumberOfSamples?: int & >=1 |
 		{
 			string &
@@ -262,20 +281,26 @@ _#defs: "/$defs/Properties/definitions/ClarifyShapConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	ShapBaselineConfig!: _#defs."/$defs/Properties/definitions/ClarifyShapBaselineConfig" | fn.#ObjectExpression
-	TextConfig?:         _#defs."/$defs/Properties/definitions/ClarifyTextConfig" | fn.#ObjectExpression
-	UseLogit?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+
+	// The configuration for the SHAP baseline of the Kernal SHAP algorithm.
+	ShapBaselineConfig!: #ClarifyShapBaselineConfig
+
+	// A parameter that indicates if text features are treated as text and
+	// explanations are provided for individual units of text. Required for natural
+	// language processing (NLP) explainability only.
+	TextConfig?: #ClarifyTextConfig
+	UseLogit?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyTextConfig": close({
+#ClarifyTextConfig: close({
 	Granularity!: =~"token|sentence|paragraph" | fn.#StringExpression
 	Language!: =~"af|sq|ar|hy|eu|bn|bg|ca|zh|hr|cs|da|nl|en|et|fi|fr|de|el|gu|he|hi|hu|is|id|ga|it|kn|ky|lv|lt|lb|mk|ml|mr|ne|nb|fa|pl|pt|ro|ru|sa|sr|tn|si|sk|sl|es|sv|tl|ta|tt|te|tr|uk|ur|yo|lij|xx" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CoreDumpConfig": close({
+#CoreDumpConfig: close({
 	DestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
 	fn.#StringExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -287,10 +312,10 @@ _#defs: "/$defs/Properties/definitions/CoreDumpConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataCaptureConfig": close({
-	CaptureContentTypeHeader?: _#defs."/$defs/Properties/definitions/CaptureContentTypeHeader" | fn.#ObjectExpression
-	CaptureOptions!: list.MaxItems(32) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CaptureOption"] |
-		fn.#ListExpression
+#DataCaptureConfig: close({
+	// A list of the JSON and CSV content type that the endpoint captures.
+	CaptureContentTypeHeader?: #CaptureContentTypeHeader
+	CaptureOptions!:           list.MaxItems(32) & list.MinItems(1) & [...#CaptureOption] | fn.#ListExpression
 	DestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
 	fn.#StringExpression
 	EnableCapture?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -319,12 +344,14 @@ _#defs: "/$defs/Properties/definitions/DataCaptureConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExplainerConfig": close(
-	{ClarifyExplainerConfig?: _#defs."/$defs/Properties/definitions/ClarifyExplainerConfig" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#ExplainerConfig: close({
+	// A member of ExplainerConfig that contains configuration parameters for the
+	// SageMaker Clarify explainer.
+	ClarifyExplainerConfig?: #ClarifyExplainerConfig
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstancePool": close({
+#InstancePool: close({
 	InstanceType!: "ml.c4.2xlarge" |
 		"ml.c4.4xlarge" |
 		"ml.c4.8xlarge" |
@@ -624,7 +651,7 @@ _#defs: "/$defs/Properties/definitions/InstancePool": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstanceScaling": close({
+#ManagedInstanceScaling: close({
 	MaxInstanceCount?: int & >=1 |
 		{
 			string &
@@ -655,19 +682,21 @@ _#defs: "/$defs/Properties/definitions/ManagedInstanceScaling": close({
 				)
 		} |
 		fn.#NumberExpression
-	ScaleInPolicy?: _#defs."/$defs/Properties/definitions/ScaleInPolicy" | fn.#ObjectExpression
+
+	// Configures the scale-in behavior for managed instance scaling.
+	ScaleInPolicy?: #ScaleInPolicy
 	Status?:        ("DISABLED" | "ENABLED") & (strings.MaxRunes(10) & strings.MinRunes(1)) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsConfig": close({
+#MetricsConfig: close({
 	EnableDetailedObservability?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableEnhancedMetrics?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MetricPublishFrequencyInSeconds?: (==10 | ==30 | ==60 | ==120 | ==180 | ==240 | ==300) & int | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrefixAwareRoutingConfig": close({
+#PrefixAwareRoutingConfig: close({
 	ConcurrencyThreshold?: int & <=1024 & >=1 |
 		{
 			string &
@@ -703,8 +732,10 @@ _#defs: "/$defs/Properties/definitions/PrefixAwareRoutingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProductionVariant": close({
-	CapacityReservationConfig?: _#defs."/$defs/Properties/definitions/CapacityReservationConfig" | fn.#ObjectExpression
+#ProductionVariant: close({
+	// Settings for the capacity reservation for the compute instances that
+	// SageMaker AI reserves for an endpoint.
+	CapacityReservationConfig?: #CapacityReservationConfig
 	ContainerStartupHealthCheckTimeoutInSeconds?: int & <=3600 & >=60 |
 		{
 			string &
@@ -721,7 +752,9 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 				)
 		} |
 		fn.#NumberExpression
-	CoreDumpConfig?:  _#defs."/$defs/Properties/definitions/CoreDumpConfig" | fn.#ObjectExpression
+
+	// Specifies configuration for a core dump from the model container when the process crashes.
+	CoreDumpConfig?:  #CoreDumpConfig
 	EnableSSMAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InferenceAmiVersion?: "al2-ami-sagemaker-inference-gpu-2" |
 		"al2-ami-sagemaker-inference-gpu-2-1" |
@@ -763,8 +796,7 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 				)
 		} |
 		fn.#NumberExpression
-	InstancePools?: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InstancePool"] |
-		fn.#ListExpression
+	InstancePools?: list.MaxItems(5) & list.MinItems(1) & [...#InstancePool] | fn.#ListExpression
 	InstanceType?: "ml.c4.2xlarge" |
 		"ml.c4.4xlarge" |
 		"ml.c4.8xlarge" |
@@ -1043,7 +1075,7 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 		"ml.trn1n.32xlarge" |
 		"ml.trn2.48xlarge" |
 		fn.#StringExpression
-	ManagedInstanceScaling?: _#defs."/$defs/Properties/definitions/ManagedInstanceScaling"
+	ManagedInstanceScaling?: #ManagedInstanceScaling
 	ModelDataDownloadTimeoutInSeconds?: int & <=3600 & >=60 |
 		{
 			string &
@@ -1062,8 +1094,14 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 		fn.#NumberExpression
 	ModelName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" |
 	fn.#StringExpression
-	RoutingConfig?:    _#defs."/$defs/Properties/definitions/RoutingConfig" | fn.#ObjectExpression
-	ServerlessConfig?: _#defs."/$defs/Properties/definitions/ServerlessConfig" | fn.#ObjectExpression
+
+	// Settings that control how the endpoint routes incoming traffic to the
+	// instances that the endpoint hosts.
+	RoutingConfig?: #RoutingConfig
+
+	// The serverless configuration for an endpoint. Specifies a serverless endpoint
+	// configuration instead of an instance-based endpoint configuration.
+	ServerlessConfig?: #ServerlessConfig
 	VariantInstanceProvisionTimeoutInSeconds?: int & <=3600 & >=300 |
 		{
 			string &
@@ -1101,14 +1139,16 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingConfig": close({
-	PrefixAwareRoutingConfig?: _#defs."/$defs/Properties/definitions/PrefixAwareRoutingConfig" | fn.#ObjectExpression
+#RoutingConfig: close({
+	// The configuration for prefix-aware routing. Specify this property only when
+	// you set RoutingStrategy to PREFIX_AWARE.
+	PrefixAwareRoutingConfig?: #PrefixAwareRoutingConfig
 	RoutingStrategy?: ("LEAST_OUTSTANDING_REQUESTS" | "PREFIX_AWARE" | "RANDOM") & (strings.MaxRunes(63) & strings.MinRunes(1)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
+#ScaleInPolicy: close({
 	CooldownInMinutes?: int & <=1440 & >=5 |
 		{
 			string &
@@ -1145,7 +1185,7 @@ _#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerlessConfig": close({
+#ServerlessConfig: close({
 	MaxConcurrency!: int & <=200 & >=1 |
 		{
 			string &
@@ -1197,13 +1237,13 @@ _#defs: "/$defs/Properties/definitions/ServerlessConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &
@@ -1218,7 +1258,3 @@ _#defs: "/$defs/Properties/definitions/VpcConfig": close({
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::EndpointConfig"
-	Properties!: #Properties
-}

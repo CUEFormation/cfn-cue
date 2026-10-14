@@ -13,46 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Policy Statement defined in AWS Entity Resolution Service
-#Properties: close({
-	Action?:      _#defs."/$defs/Properties/definitions/StatementActionList"
-	Arn!:         _#defs."/$defs/Properties/definitions/VeniceGlobalArn"
-	Condition?:   _#defs."/$defs/Properties/definitions/StatementCondition"
-	Effect?:      _#defs."/$defs/Properties/definitions/StatementEffect"
-	Principal?:   _#defs."/$defs/Properties/definitions/StatementPrincipalList"
-	StatementId!: _#defs."/$defs/Properties/definitions/StatementId"
-})
-
-_#defs: "/$defs/Properties/definitions/StatementAction": strings.MaxRunes(64) &
-strings.MinRunes(3) &
-=~"^(entityresolution:[a-zA-Z0-9]+)$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/StatementActionList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/StatementAction"
-] |
-	fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/StatementCondition": strings.MaxRunes(40960) & strings.MinRunes(1) |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/StatementEffect": "Allow" | "Deny" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/StatementId": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/StatementPrincipal": strings.MaxRunes(64) &
-strings.MinRunes(12) &
-=~"^(\\\\d{12})|([a-z0-9\\\\.]+)$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/StatementPrincipalList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/StatementPrincipal"
-] |
-	fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/VeniceGlobalArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:((schemamapping|matchingworkflow|idmappingworkflow|idnamespace)/[a-zA-Z_0-9-]{1,255})$" |
-	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EntityResolution::PolicyStatement"
-	Properties!: #Properties
+	Type!: "AWS::EntityResolution::PolicyStatement"
+	Properties!: close({
+		Action?:      #StatementActionList
+		Arn!:         #VeniceGlobalArn
+		Condition?:   #StatementCondition
+		Effect?:      #StatementEffect
+		Principal?:   #StatementPrincipalList
+		StatementId!: #StatementId
+	})
 }
+
+#StatementAction: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^(entityresolution:[a-zA-Z0-9]+)$" |
+fn.#StringExpression
+
+#StatementActionList: list.MinItems(1) & [...#StatementAction] | fn.#ListExpression
+
+#StatementCondition: strings.MaxRunes(40960) & strings.MinRunes(1) | fn.#StringExpression
+
+#StatementEffect: "Allow" | "Deny" | fn.#StringExpression
+
+#StatementId: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
+
+#StatementPrincipal: strings.MaxRunes(64) & strings.MinRunes(12) & =~"^(\\\\d{12})|([a-z0-9\\\\.]+)$" |
+fn.#StringExpression
+
+#StatementPrincipalList: list.MinItems(1) & [...#StatementPrincipal] | fn.#ListExpression
+
+#VeniceGlobalArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:((schemamapping|matchingworkflow|idmappingworkflow|idnamespace)/[a-zA-Z_0-9-]{1,255})$" |
+	fn.#StringExpression

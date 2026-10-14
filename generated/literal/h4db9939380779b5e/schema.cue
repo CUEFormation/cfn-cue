@@ -13,68 +13,66 @@ import "strings"
 	AppId?:                    strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+"
 	AppName?:                  strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+"
 	Arn?:                      strings.MaxRunes(1000) & =~"(?s).*"
-	AutoBranchCreationConfig?: _#defs."/$defs/Properties/definitions/AutoBranchCreationConfig"
-	BasicAuthConfig?:          _#defs."/$defs/Properties/definitions/BasicAuthConfig"
+	AutoBranchCreationConfig?: #AutoBranchCreationConfig
+	BasicAuthConfig?:          #BasicAuthConfig
 	BuildSpec?:                strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+"
-	CacheConfig?:              _#defs."/$defs/Properties/definitions/CacheConfig"
+	CacheConfig?:              #CacheConfig
 	ComputeRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(1000) &
 	strings.MinRunes(0) &
 	=~"(?s).*"
 	CustomHeaders?:            strings.MaxRunes(25000) & strings.MinRunes(0) & =~"(?s).*"
-	CustomRules?:              [..._#defs."/$defs/Properties/definitions/CustomRule"]
+	CustomRules?:              [...#CustomRule]
 	DefaultDomain?:            strings.MaxRunes(1000) & strings.MinRunes(0)
 	Description?:              strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*"
 	EnableBranchAutoDeletion?: bool
-	EnvironmentVariables?:     [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"]
+	EnvironmentVariables?:     [...#EnvironmentVariable]
 	IAMServiceRole?:           strings.MaxRunes(1000) & strings.MinRunes(1) & =~"(?s).*"
-	JobConfig?:                _#defs."/$defs/Properties/definitions/JobConfig"
+	JobConfig?:                #JobConfig
 	Name!:                     strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+"
 	OauthToken?:               strings.MaxRunes(4096) & strings.MinRunes(0) & =~"(?s).*"
 	Platform?:                 "WEB" | "WEB_DYNAMIC" | "WEB_COMPUTE"
 	Repository?:               strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*"
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                     [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AutoBranchCreationConfig": close({
+#AutoBranchCreationConfig: close({
 	AutoBranchCreationPatterns?: [...strings.MaxRunes(2048) & strings.MinRunes(1)]
-	BasicAuthConfig?:            _#defs."/$defs/Properties/definitions/BasicAuthConfig"
+	BasicAuthConfig?:            #BasicAuthConfig
 	BuildSpec?:                  strings.MaxRunes(25000) & strings.MinRunes(1) & =~"^(?s).+$"
 	EnableAutoBranchCreation?:   bool
 	EnableAutoBuild?:            bool
 	EnablePerformanceMode?:      bool
 	EnablePullRequestPreview?:   bool
-	EnvironmentVariables?:       [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"]
+	EnvironmentVariables?:       [...#EnvironmentVariable]
 	Framework?:                  strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*"
 	PullRequestEnvironmentName?: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*"
 	Stage?:                      "EXPERIMENTAL" | "BETA" | "PULL_REQUEST" | "PRODUCTION" | "DEVELOPMENT"
 })
 
-_#defs: "/$defs/Properties/definitions/BasicAuthConfig": close({
+#BasicAuthConfig: close({
 	EnableBasicAuth?: bool
 	Password?:        strings.MaxRunes(255) & strings.MinRunes(1)
 	Username?:        strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/CacheConfig": close({Type?: "AMPLIFY_MANAGED" | "AMPLIFY_MANAGED_NO_COOKIES"})
+#CacheConfig: close({Type?: "AMPLIFY_MANAGED" | "AMPLIFY_MANAGED_NO_COOKIES"})
 
-_#defs: "/$defs/Properties/definitions/CustomRule": close({
+#CustomRule: close({
 	Condition?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"(?s).*"
 	Source!:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(?s).+"
 	Status?:    strings.MaxRunes(7) & strings.MinRunes(3) & =~".{3,7}"
 	Target!:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(?s).+"
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Name!:  strings.MaxRunes(255) & =~"(?s).*"
 	Value!: strings.MaxRunes(5500) & =~"(?s).*"
 })
 
-_#defs: "/$defs/Properties/definitions/JobConfig": close(
-	{BuildComputeType!: "STANDARD_8GB" | "LARGE_16GB" | "XLARGE_72GB"},
-)
+#JobConfig: close({BuildComputeType!: "STANDARD_8GB" | "LARGE_16GB" | "XLARGE_72GB"})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

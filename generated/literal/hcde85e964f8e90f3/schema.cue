@@ -45,16 +45,16 @@ import (
 	// Amazon GameLift uploads the latest version of the zip file; if you have S3
 	// object versioning turned on, you can use the ObjectVersion parameter to
 	// specify an earlier version.
-	StorageLocation!: _#defs."/$defs/Properties/definitions/S3Location"
+	StorageLocation!: #S3Location
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The version that is associated with a script. Version strings do not need to be unique.
 	Version?: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// An Amazon S3 bucket identifier. This is the name of the S3 bucket.
 	Bucket!: strings.MinRunes(1)
 
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -15,20 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::CloudWatch::InsightRule. Creates a
 // Contributor Insights rule that analyzes log data to identify top
 // contributors and usage patterns.
-#Properties: close({
-	ApplyOnTransformedLogs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RuleBody!:               string | fn.#StringExpression
-	RuleName!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x20-\\x7E]+$" | fn.#StringExpression
-	RuleState!: ("ENABLED" | "DISABLED") & (strings.MaxRunes(32) & strings.MinRunes(1)) | fn.#StringExpression
-	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::InsightRule"
+	Properties!: close({
+		ApplyOnTransformedLogs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RuleBody!:               string | fn.#StringExpression
+		RuleName!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x20-\\x7E]+$" | fn.#StringExpression
+		RuleState!: ("ENABLED" | "DISABLED") & (strings.MaxRunes(32) & strings.MinRunes(1)) | fn.#StringExpression
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::InsightRule"
-	Properties!: #Properties
-}

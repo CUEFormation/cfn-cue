@@ -19,24 +19,22 @@ import (
 
 	// A shell script that runs only once, when you create a notebook instance. The
 	// shell script must be a base64-encoded string.
-	OnCreate?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/NotebookInstanceLifecycleHook"]
+	OnCreate?: list.MaxItems(1) & [...] & [...#NotebookInstanceLifecycleHook]
 
 	// A shell script that runs every time you start a notebook instance, including
 	// when you create the notebook instance. The shell script must be a
 	// base64-encoded string.
-	OnStart?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/NotebookInstanceLifecycleHook"]
+	OnStart?: list.MaxItems(1) & [...] & [...#NotebookInstanceLifecycleHook]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // Specifies the notebook instance lifecycle configuration script. Each
 // lifecycle configuration script has a limit of 16384 characters.
-_#defs: "/$defs/Properties/definitions/NotebookInstanceLifecycleHook": close(
-	{Content?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$"},
-)
+#NotebookInstanceLifecycleHook: close({Content?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$"})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

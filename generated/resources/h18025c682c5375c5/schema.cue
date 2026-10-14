@@ -13,30 +13,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ServiceCatalog::CloudFormationProduct
-#Properties: close({
-	AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	Distributor?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:           strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	Owner!:          strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	ProductType?: "CLOUD_FORMATION_TEMPLATE" |
-		"MARKETPLACE_AMI" |
-		"MARKETPLACE_CAR" |
-		"TERRAFORM_OPEN_SOURCE" |
-		"TERRAFORM_CLOUD" |
-		"EXTERNAL" |
-		fn.#StringExpression
-	ProvisioningArtifactParameters?: [..._#defs."/$defs/Properties/definitions/ProvisioningArtifactProperties"] |
-		fn.#ListExpression
-	ReplaceProvisioningArtifacts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceConnection?:             _#defs."/$defs/Properties/definitions/SourceConnection" | fn.#ObjectExpression
-	SupportDescription?:           strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	SupportEmail?:                 strings.MaxRunes(254) & strings.MinRunes(0) | fn.#StringExpression
-	SupportUrl?:                   strings.MaxRunes(2083) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ServiceCatalog::CloudFormationProduct"
+	Properties!: close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		Description?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		Distributor?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:           strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		Owner!:          strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		ProductType?: "CLOUD_FORMATION_TEMPLATE" |
+			"MARKETPLACE_AMI" |
+			"MARKETPLACE_CAR" |
+			"TERRAFORM_OPEN_SOURCE" |
+			"TERRAFORM_CLOUD" |
+			"EXTERNAL" |
+			fn.#StringExpression
+		ProvisioningArtifactParameters?: [...#ProvisioningArtifactProperties] | fn.#ListExpression
+		ReplaceProvisioningArtifacts?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/CodeStarParameters": close({
+		// A top level ProductViewDetail response containing details about the product's
+		// connection. AWS Service Catalog returns this field for the CreateProduct,
+		// UpdateProduct, DescribeProductAsAdmin, and SearchProductAsAdmin APIs. This
+		// response contains the same fields as the ConnectionParameters request, with
+		// the addition of the LastSync response.
+		SourceConnection?:   #SourceConnection
+		SupportDescription?: strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		SupportEmail?:       strings.MaxRunes(254) & strings.MinRunes(0) | fn.#StringExpression
+		SupportUrl?:         strings.MaxRunes(2083) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:               list.MaxItems(20) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#CodeStarParameters: close({
 	ArtifactPath!:  strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	Branch!:        strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
 	ConnectionArn!: strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
@@ -44,12 +59,13 @@ _#defs: "/$defs/Properties/definitions/CodeStarParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionParameters": close(
-	{CodeStar?: _#defs."/$defs/Properties/definitions/CodeStarParameters" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#ConnectionParameters: close({
+	// The connection details based on the connection Type.
+	CodeStar?: #CodeStarParameters
+}) |
+fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisioningArtifactProperties": close({
+#ProvisioningArtifactProperties: close({
 	Description?:               string | fn.#StringExpression
 	DisableTemplateValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Info!:                      fn.#Object & {...} | string | fn.#StringObjectExpression
@@ -64,19 +80,14 @@ _#defs: "/$defs/Properties/definitions/ProvisioningArtifactProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConnection": close({
-	ConnectionParameters!: close({CodeStar?: _#defs."/$defs/Properties/definitions/CodeStarParameters"}) |
-		fn.#ObjectExpression
-	Type!: "CODESTAR" | fn.#StringExpression
+#SourceConnection: close({
+	ConnectionParameters!: close({CodeStar?: #CodeStarParameters}) | fn.#ObjectExpression
+	Type!:                 "CODESTAR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::CloudFormationProduct"
-	Properties!: #Properties
-}

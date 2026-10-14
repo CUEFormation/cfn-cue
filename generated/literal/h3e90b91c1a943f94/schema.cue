@@ -13,7 +13,7 @@ import (
 // data set revisions to Amazon S3 when a revision is published.
 #Properties: close({
 	// What occurs after a certain event.
-	Action!: _#defs."/$defs/Properties/definitions/Action"
+	Action!: #Action
 
 	// The ARN for the event action.
 	Arn?: string
@@ -22,26 +22,24 @@ import (
 	CreatedAt?: time.Time
 
 	// What occurs to start an action.
-	Event!: _#defs."/$defs/Properties/definitions/Event"
+	Event!: #Event
 
 	// The unique identifier for the event action.
 	EventActionId?: =~"^[a-zA-Z0-9]{30,40}$"
 
 	// The tags for the event action.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The date and time that the event action was last updated, in ISO 8601 format.
 	UpdatedAt?: time.Time
 })
 
 // What occurs after a certain event.
-_#defs: "/$defs/Properties/definitions/Action": close(
-	{ExportRevisionToS3?: _#defs."/$defs/Properties/definitions/AutoExportRevisionToS3RequestDetails"},
-)
+#Action: close({ExportRevisionToS3?: #AutoExportRevisionToS3RequestDetails})
 
 // A revision destination is the Amazon S3 bucket folder destination to where
 // the export will be sent.
-_#defs: "/$defs/Properties/definitions/AutoExportRevisionDestinationEntry": close({
+#AutoExportRevisionDestinationEntry: close({
 	// The Amazon S3 bucket that is the destination for the event action.
 	Bucket!: string
 
@@ -50,18 +48,16 @@ _#defs: "/$defs/Properties/definitions/AutoExportRevisionDestinationEntry": clos
 })
 
 // Details of the operation to be performed by the job.
-_#defs: "/$defs/Properties/definitions/AutoExportRevisionToS3RequestDetails": close({
-	Encryption?:          _#defs."/$defs/Properties/definitions/ExportServerSideEncryption"
-	RevisionDestination!: _#defs."/$defs/Properties/definitions/AutoExportRevisionDestinationEntry"
+#AutoExportRevisionToS3RequestDetails: close({
+	Encryption?:          #ExportServerSideEncryption
+	RevisionDestination!: #AutoExportRevisionDestinationEntry
 })
 
 // What occurs to start an action.
-_#defs: "/$defs/Properties/definitions/Event": close(
-	{RevisionPublished?: _#defs."/$defs/Properties/definitions/RevisionPublished"},
-)
+#Event: close({RevisionPublished?: #RevisionPublished})
 
 // Encryption configuration of the export job.
-_#defs: "/$defs/Properties/definitions/ExportServerSideEncryption": close({
+#ExportServerSideEncryption: close({
 	// The Amazon Resource Name (ARN) of the AWS KMS key you want to use to encrypt
 	// the Amazon S3 objects.
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
@@ -71,13 +67,13 @@ _#defs: "/$defs/Properties/definitions/ExportServerSideEncryption": close({
 })
 
 // Information about the published revision.
-_#defs: "/$defs/Properties/definitions/RevisionPublished": close({
+#RevisionPublished: close({
 	// The data set ID of the published revision.
 	DataSetId!: =~"^[a-zA-Z0-9]{30,40}$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: string
 

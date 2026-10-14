@@ -14,14 +14,14 @@ package schema
 	Status?:           string
 
 	// A complex type that contains zero or more ``Tag`` elements.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The VPC origin endpoint configuration.
-	VpcOriginEndpointConfig!: _#defs."/$defs/Properties/definitions/VpcOriginEndpointConfig"
+	VpcOriginEndpointConfig!: #VpcOriginEndpointConfig
 })
 
 // A complex type that contains ``Tag`` key and ``Tag`` value.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that contains ``Tag`` key.
 	// The string length should be between 1 and 128 characters. Valid characters
 	// include ``a-z``, ``A-Z``, ``0-9``, space, and the special characters ``_ - .
@@ -36,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An Amazon CloudFront VPC origin endpoint configuration.
-_#defs: "/$defs/Properties/definitions/VpcOriginEndpointConfig": close({
+#VpcOriginEndpointConfig: close({
 	// The ARN of the CloudFront VPC origin endpoint configuration.
 	Arn!: string
 

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 	"time"
 )
 
@@ -21,9 +21,7 @@ import (
 	// existing data source. If the <code>AlternateDataSourceParameters</code> list is null,
 	// the <code>Credentials</code> originally used with this <code>DataSourceParameters</code>
 	// are automatically allowed.</p>
-	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSourceParameters"
-	]
+	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [...#DataSourceParameters]
 
 	// <p>The Amazon Resource Name (ARN) of the data source.</p>
 	Arn?:          string
@@ -31,40 +29,40 @@ import (
 
 	// <p>The time that this data source was created.</p>
 	CreatedTime?:          time.Time
-	Credentials?:          _#defs."/$defs/Properties/definitions/DataSourceCredentials"
+	Credentials?:          #DataSourceCredentials
 	DataSourceId?:         string
-	DataSourceParameters?: _#defs."/$defs/Properties/definitions/DataSourceParameters"
-	ErrorInfo?:            _#defs."/$defs/Properties/definitions/DataSourceErrorInfo"
+	DataSourceParameters?: #DataSourceParameters
+	ErrorInfo?:            #DataSourceErrorInfo
 	FolderArns?:           list.MaxItems(10) & [...] & [...string]
 
 	// <p>The last time that this data source was updated.</p>
-	LastUpdatedTime?: time.Time
-	Name!:            strings.MaxRunes(128) & strings.MinRunes(1)
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"]
-	SslProperties?:           _#defs."/$defs/Properties/definitions/SslProperties"
-	Status?:                  _#defs."/$defs/Properties/definitions/ResourceStatus"
-	Tags?:                    list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type!:                    _#defs."/$defs/Properties/definitions/DataSourceType"
-	VpcConnectionProperties?: _#defs."/$defs/Properties/definitions/VpcConnectionProperties"
+	LastUpdatedTime?:         time.Time
+	Name!:                    strings.MaxRunes(128) & strings.MinRunes(1)
+	Permissions?:             list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission]
+	SslProperties?:           #SslProperties
+	Status?:                  #ResourceStatus
+	Tags?:                    list.MaxItems(200) & list.MinItems(1) & [...#Tag]
+	Type!:                    #DataSourceType
+	VpcConnectionProperties?: #VpcConnectionProperties
 })
 
 // <p>The parameters for OpenSearch.</p>
-_#defs: "/$defs/Properties/definitions/AmazonElasticsearchParameters": close({
+#AmazonElasticsearchParameters: close({
 	// <p>The OpenSearch domain.</p>
 	Domain!: strings.MaxRunes(64) & strings.MinRunes(1)
 })
 
 // <p>The parameters for OpenSearch.</p>
-_#defs: "/$defs/Properties/definitions/AmazonOpenSearchParameters": close({
+#AmazonOpenSearchParameters: close({
 	// <p>The OpenSearch domain.</p>
 	Domain!: strings.MaxRunes(64) & strings.MinRunes(1)
 })
 
 // <p>Parameters for Amazon Athena.</p>
-_#defs: "/$defs/Properties/definitions/AthenaParameters": close({
+#AthenaParameters: close({
 	ConsumerAccountRoleArn?:
 		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
-	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
+	IdentityCenterConfiguration?: #IdentityCenterConfiguration
 
 	// <p>Use the <code>RoleArn</code> structure to override an account-wide role
 	// for a specific Athena data source. For example, say an account administrator
@@ -80,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/AthenaParameters": close({
 })
 
 // <p>Parameters for Amazon Aurora.</p>
-_#defs: "/$defs/Properties/definitions/AuroraParameters": close({
+#AuroraParameters: close({
 	// <p>Database.</p>
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -92,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/AuroraParameters": close({
 })
 
 // <p>Parameters for Amazon Aurora PostgreSQL-Compatible Edition.</p>
-_#defs: "/$defs/Properties/definitions/AuroraPostgreSqlParameters": close({
+#AuroraPostgreSqlParameters: close({
 	// <p>The Amazon Aurora PostgreSQL database to connect to.</p>
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -103,16 +101,16 @@ _#defs: "/$defs/Properties/definitions/AuroraPostgreSqlParameters": close({
 	Port!: <=65535 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "PASSWORD" | "TOKEN" | "X509" | "KEYPAIR"
+#AuthenticationType: "PASSWORD" | "TOKEN" | "X509" | "KEYPAIR"
 
 // <p>The parameters for IoT Analytics.</p>
-_#defs: "/$defs/Properties/definitions/AwsIotAnalyticsParameters": close({
+#AwsIotAnalyticsParameters: close({
 	// <p>Dataset name.</p>
 	DataSetName!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // <p>The combination of user name and password that are used as credentials.</p>
-_#defs: "/$defs/Properties/definitions/CredentialPair": close({
+#CredentialPair: close({
 	// <p>A set of alternate data source parameters that you want to share for these
 	// credentials. The credentials are applied in tandem with the data source parameters when
 	// you copy a data source by using a create or update request. The API operation compares
@@ -122,9 +120,7 @@ _#defs: "/$defs/Properties/definitions/CredentialPair": close({
 	// the existing credentials. If the <code>AlternateDataSourceParameters</code> list is
 	// null, the <code>DataSourceParameters</code> originally used with these
 	// <code>Credentials</code> is automatically allowed.</p>
-	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSourceParameters"
-	]
+	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [...#DataSourceParameters]
 
 	// <p>Password.</p>
 	Password!: strings.MaxRunes(1024) & strings.MinRunes(1)
@@ -135,14 +131,14 @@ _#defs: "/$defs/Properties/definitions/CredentialPair": close({
 
 // <p>Data source credentials. This is a variant type structure. For this structure to be
 // valid, only one of the attributes can be non-null.</p>
-_#defs: "/$defs/Properties/definitions/DataSourceCredentials": close({
+#DataSourceCredentials: close({
 	// <p>The Amazon Resource Name (ARN) of a data source that has the credential pair that you
 	// want to use. When <code>CopySourceArn</code> is not null, the credential pair from the
 	// data source in the ARN is used as the credentials for the
 	// <code>DataSourceCredentials</code> structure.</p>
 	CopySourceArn?:      =~"^arn:[-a-z0-9]*:quicksight:[-a-z0-9]*:[0-9]{12}:datasource/.+$"
-	CredentialPair?:     _#defs."/$defs/Properties/definitions/CredentialPair"
-	KeyPairCredentials?: _#defs."/$defs/Properties/definitions/KeyPairCredentials"
+	CredentialPair?:     #CredentialPair
+	KeyPairCredentials?: #KeyPairCredentials
 
 	// <p>The Amazon Resource Name (ARN) of the secret associated with the data
 	// source in Amazon Secrets Manager.</p>
@@ -152,13 +148,13 @@ _#defs: "/$defs/Properties/definitions/DataSourceCredentials": close({
 })
 
 // <p>Error information for the data source creation or update.</p>
-_#defs: "/$defs/Properties/definitions/DataSourceErrorInfo": close({
+#DataSourceErrorInfo: close({
 	// <p>Error message.</p>
 	Message?: string
-	Type?:    _#defs."/$defs/Properties/definitions/DataSourceErrorInfoType"
+	Type?:    #DataSourceErrorInfoType
 })
 
-_#defs: "/$defs/Properties/definitions/DataSourceErrorInfoType": "ACCESS_DENIED" |
+#DataSourceErrorInfoType: "ACCESS_DENIED" |
 	"COPY_SOURCE_NOT_FOUND" |
 	"TIMEOUT" |
 	"ENGINE_VERSION_NOT_SUPPORTED" |
@@ -170,31 +166,31 @@ _#defs: "/$defs/Properties/definitions/DataSourceErrorInfoType": "ACCESS_DENIED"
 // <p>The parameters that Amazon QuickSight uses to connect to your underlying data source.
 // This is a variant type structure. For this structure to be valid, only one of the
 // attributes can be non-null.</p>
-_#defs: "/$defs/Properties/definitions/DataSourceParameters": close({
-	AmazonElasticsearchParameters?: _#defs."/$defs/Properties/definitions/AmazonElasticsearchParameters"
-	AmazonOpenSearchParameters?:    _#defs."/$defs/Properties/definitions/AmazonOpenSearchParameters"
-	AthenaParameters?:              _#defs."/$defs/Properties/definitions/AthenaParameters"
-	AuroraParameters?:              _#defs."/$defs/Properties/definitions/AuroraParameters"
-	AuroraPostgreSqlParameters?:    _#defs."/$defs/Properties/definitions/AuroraPostgreSqlParameters"
-	DatabricksParameters?:          _#defs."/$defs/Properties/definitions/DatabricksParameters"
-	MariaDbParameters?:             _#defs."/$defs/Properties/definitions/MariaDbParameters"
-	MySqlParameters?:               _#defs."/$defs/Properties/definitions/MySqlParameters"
-	OracleParameters?:              _#defs."/$defs/Properties/definitions/OracleParameters"
-	PostgreSqlParameters?:          _#defs."/$defs/Properties/definitions/PostgreSqlParameters"
-	PrestoParameters?:              _#defs."/$defs/Properties/definitions/PrestoParameters"
-	RdsParameters?:                 _#defs."/$defs/Properties/definitions/RdsParameters"
-	RedshiftParameters?:            _#defs."/$defs/Properties/definitions/RedshiftParameters"
-	S3Parameters?:                  _#defs."/$defs/Properties/definitions/S3Parameters"
-	S3TablesParameters?:            _#defs."/$defs/Properties/definitions/S3TablesParameters"
-	SnowflakeParameters?:           _#defs."/$defs/Properties/definitions/SnowflakeParameters"
-	SparkParameters?:               _#defs."/$defs/Properties/definitions/SparkParameters"
-	SqlServerParameters?:           _#defs."/$defs/Properties/definitions/SqlServerParameters"
-	StarburstParameters?:           _#defs."/$defs/Properties/definitions/StarburstParameters"
-	TeradataParameters?:            _#defs."/$defs/Properties/definitions/TeradataParameters"
-	TrinoParameters?:               _#defs."/$defs/Properties/definitions/TrinoParameters"
+#DataSourceParameters: close({
+	AmazonElasticsearchParameters?: #AmazonElasticsearchParameters
+	AmazonOpenSearchParameters?:    #AmazonOpenSearchParameters
+	AthenaParameters?:              #AthenaParameters
+	AuroraParameters?:              #AuroraParameters
+	AuroraPostgreSqlParameters?:    #AuroraPostgreSqlParameters
+	DatabricksParameters?:          #DatabricksParameters
+	MariaDbParameters?:             #MariaDbParameters
+	MySqlParameters?:               #MySqlParameters
+	OracleParameters?:              #OracleParameters
+	PostgreSqlParameters?:          #PostgreSqlParameters
+	PrestoParameters?:              #PrestoParameters
+	RdsParameters?:                 #RdsParameters
+	RedshiftParameters?:            #RedshiftParameters
+	S3Parameters?:                  #S3Parameters
+	S3TablesParameters?:            #S3TablesParameters
+	SnowflakeParameters?:           #SnowflakeParameters
+	SparkParameters?:               #SparkParameters
+	SqlServerParameters?:           #SqlServerParameters
+	StarburstParameters?:           #StarburstParameters
+	TeradataParameters?:            #TeradataParameters
+	TrinoParameters?:               #TrinoParameters
 })
 
-_#defs: "/$defs/Properties/definitions/DataSourceType": "ADOBE_ANALYTICS" |
+#DataSourceType: "ADOBE_ANALYTICS" |
 	"AMAZON_ELASTICSEARCH" |
 	"AMAZON_OPENSEARCH" |
 	"ATHENA" |
@@ -253,7 +249,7 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": "ADOBE_ANALYTICS" |
 	"ATLAN"
 
 // <p>The parameters that are required to connect to a Databricks data source.</p>
-_#defs: "/$defs/Properties/definitions/DatabricksParameters": close({
+#DatabricksParameters: close({
 	// <p>The host name of the Databricks data source.</p>
 	Host!: strings.MaxRunes(256) & strings.MinRunes(1)
 
@@ -265,18 +261,18 @@ _#defs: "/$defs/Properties/definitions/DatabricksParameters": close({
 })
 
 // <p>The parameters for an IAM Identity Center configuration.</p>
-_#defs: "/$defs/Properties/definitions/IdentityCenterConfiguration": close({
+#IdentityCenterConfiguration: close({
 	// <p>A Boolean option that controls whether Trusted Identity Propagation should be used.</p>
 	EnableIdentityPropagation?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/ImpalaParameters": close({
+#ImpalaParameters: close({
 	Host!:            strings.MaxRunes(256) & strings.MinRunes(1)
 	Port!:            <=65535 & >=1
 	SqlEndpointPath!: strings.MaxRunes(4096) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/KeyPairCredentials": close({
+#KeyPairCredentials: close({
 	KeyPairUsername!: strings.MaxRunes(64) & strings.MinRunes(1)
 	PrivateKey!: strings.MaxRunes(8000) &
 	strings.MinRunes(1600) &
@@ -285,7 +281,7 @@ _#defs: "/$defs/Properties/definitions/KeyPairCredentials": close({
 })
 
 // <p>Amazon S3 manifest file location.</p>
-_#defs: "/$defs/Properties/definitions/ManifestFileLocation": close({
+#ManifestFileLocation: close({
 	// <p>Amazon S3 bucket.</p>
 	Bucket!: strings.MaxRunes(1024) & strings.MinRunes(1)
 
@@ -294,7 +290,7 @@ _#defs: "/$defs/Properties/definitions/ManifestFileLocation": close({
 })
 
 // <p>The parameters for MariaDB.</p>
-_#defs: "/$defs/Properties/definitions/MariaDbParameters": close({
+#MariaDbParameters: close({
 	// <p>Database.</p>
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -306,7 +302,7 @@ _#defs: "/$defs/Properties/definitions/MariaDbParameters": close({
 })
 
 // <p>The parameters for MySQL.</p>
-_#defs: "/$defs/Properties/definitions/MySqlParameters": close({
+#MySqlParameters: close({
 	// <p>Database.</p>
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -317,15 +313,15 @@ _#defs: "/$defs/Properties/definitions/MySqlParameters": close({
 	Port!: <=65535 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/OAuthParameters": close({
+#OAuthParameters: close({
 	IdentityProviderResourceUri?:             strings.MaxRunes(2048) & strings.MinRunes(1)
-	IdentityProviderVpcConnectionProperties?: _#defs."/$defs/Properties/definitions/VpcConnectionProperties"
+	IdentityProviderVpcConnectionProperties?: #VpcConnectionProperties
 	OAuthScope?:                              strings.MaxRunes(128) & strings.MinRunes(1)
 	TokenProviderUrl!:                        strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
 // <p>The parameters for Oracle.</p>
-_#defs: "/$defs/Properties/definitions/OracleParameters": close({
+#OracleParameters: close({
 	// <p>The database.</p>
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -338,7 +334,7 @@ _#defs: "/$defs/Properties/definitions/OracleParameters": close({
 })
 
 // <p>The parameters for PostgreSQL.</p>
-_#defs: "/$defs/Properties/definitions/PostgreSqlParameters": close({
+#PostgreSqlParameters: close({
 	// <p>Database.</p>
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -350,7 +346,7 @@ _#defs: "/$defs/Properties/definitions/PostgreSqlParameters": close({
 })
 
 // <p>The parameters for Presto.</p>
-_#defs: "/$defs/Properties/definitions/PrestoParameters": close({
+#PrestoParameters: close({
 	// <p>Catalog.</p>
 	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0)
 
@@ -362,7 +358,7 @@ _#defs: "/$defs/Properties/definitions/PrestoParameters": close({
 })
 
 // <p>The parameters for Amazon RDS.</p>
-_#defs: "/$defs/Properties/definitions/RdsParameters": close({
+#RdsParameters: close({
 	// <p>Database.</p>
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -376,7 +372,7 @@ _#defs: "/$defs/Properties/definitions/RdsParameters": close({
 // href="https://docs.aws.amazon.com/redshift/latest/APIReference/API_GetClusterCredentials.html">
 // <code>GetClusterCredentials</code>
 // </a>.</p>
-_#defs: "/$defs/Properties/definitions/RedshiftIAMParameters": close({
+#RedshiftIAMParameters: close({
 	// <p>Automatically creates a database user. If your database doesn't have a
 	// <code>DatabaseUser</code>, set this parameter to <code>True</code>. If there
 	// is no <code>DatabaseUser</code>, Amazon QuickSight can't connect to your
@@ -412,7 +408,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftIAMParameters": close({
 // <code>Host</code> and <code>Port</code> are both set. The <code>Host</code>
 // and <code>Port</code> fields can be blank if the <code>ClusterId</code>
 // field is set.</p>
-_#defs: "/$defs/Properties/definitions/RedshiftParameters": close({
+#RedshiftParameters: close({
 	// <p>Cluster ID. This field can be blank if the <code>Host</code> and <code>Port</code> are
 	// provided.</p>
 	ClusterId?: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -422,15 +418,15 @@ _#defs: "/$defs/Properties/definitions/RedshiftParameters": close({
 
 	// <p>Host. This field can be blank if <code>ClusterId</code> is provided.</p>
 	Host?:                        strings.MaxRunes(256) & strings.MinRunes(1)
-	IAMParameters?:               _#defs."/$defs/Properties/definitions/RedshiftIAMParameters"
-	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
+	IAMParameters?:               #RedshiftIAMParameters
+	IdentityCenterConfiguration?: #IdentityCenterConfiguration
 
 	// <p>Port. This field can be blank if the <code>ClusterId</code> is provided.</p>
 	Port?: <=65535 & >=0
 })
 
 // <p>Permission for the resource.</p>
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	// <p>The IAM action to grant or revoke permissions on.</p>
 	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string]
 
@@ -455,7 +451,7 @@ _#defs: "/$defs/Properties/definitions/ResourcePermission": close({
 	Resource?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceStatus": "CREATION_IN_PROGRESS" |
+#ResourceStatus: "CREATION_IN_PROGRESS" |
 	"CREATION_SUCCESSFUL" |
 	"CREATION_FAILED" |
 	"UPDATE_IN_PROGRESS" |
@@ -465,8 +461,8 @@ _#defs: "/$defs/Properties/definitions/ResourceStatus": "CREATION_IN_PROGRESS" |
 	"DELETED"
 
 // <p>The parameters for S3.</p>
-_#defs: "/$defs/Properties/definitions/S3Parameters": close({
-	ManifestFileLocation!: _#defs."/$defs/Properties/definitions/ManifestFileLocation"
+#S3Parameters: close({
+	ManifestFileLocation!: #ManifestFileLocation
 
 	// <p>Use the <code>RoleArn</code> structure to override an account-wide role
 	// for a specific S3 data source. For example, say an account administrator has
@@ -477,13 +473,13 @@ _#defs: "/$defs/Properties/definitions/S3Parameters": close({
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
-_#defs: "/$defs/Properties/definitions/S3TablesParameters": close(
+#S3TablesParameters: close(
 	{TableBucketArn?: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-zA-Z0-9-_]{3,63})$"},
 )
 
 // <p>The parameters for Snowflake.</p>
-_#defs: "/$defs/Properties/definitions/SnowflakeParameters": close({
-	AuthenticationType?: _#defs."/$defs/Properties/definitions/AuthenticationType"
+#SnowflakeParameters: close({
+	AuthenticationType?: #AuthenticationType
 
 	// <p>Database.</p>
 	Database!:                  strings.MaxRunes(128) & strings.MinRunes(1)
@@ -491,14 +487,14 @@ _#defs: "/$defs/Properties/definitions/SnowflakeParameters": close({
 
 	// <p>Host.</p>
 	Host!:            strings.MaxRunes(256) & strings.MinRunes(1)
-	OAuthParameters?: _#defs."/$defs/Properties/definitions/OAuthParameters"
+	OAuthParameters?: #OAuthParameters
 
 	// <p>Warehouse.</p>
 	Warehouse!: strings.MaxRunes(128) & strings.MinRunes(0)
 })
 
 // <p>The parameters for Spark.</p>
-_#defs: "/$defs/Properties/definitions/SparkParameters": close({
+#SparkParameters: close({
 	// <p>Host.</p>
 	Host!: strings.MaxRunes(256) & strings.MinRunes(1)
 
@@ -507,7 +503,7 @@ _#defs: "/$defs/Properties/definitions/SparkParameters": close({
 })
 
 // <p>The parameters for SQL Server.</p>
-_#defs: "/$defs/Properties/definitions/SqlServerParameters": close({
+#SqlServerParameters: close({
 	// <p>Database.</p>
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -520,14 +516,14 @@ _#defs: "/$defs/Properties/definitions/SqlServerParameters": close({
 
 // <p>Secure Socket Layer (SSL) properties that apply when Amazon QuickSight connects to your
 // underlying data source.</p>
-_#defs: "/$defs/Properties/definitions/SslProperties": close({
+#SslProperties: close({
 	// <p>A Boolean option to control whether SSL should be disabled.</p>
 	DisableSsl?: bool
 })
 
 // <p>The parameters that are required to connect to a Starburst data source.</p>
-_#defs: "/$defs/Properties/definitions/StarburstParameters": close({
-	AuthenticationType?: _#defs."/$defs/Properties/definitions/AuthenticationType"
+#StarburstParameters: close({
+	AuthenticationType?: #AuthenticationType
 
 	// <p>The catalog name for the Starburst data source.</p>
 	Catalog!:                   strings.MaxRunes(128) & strings.MinRunes(0)
@@ -535,18 +531,18 @@ _#defs: "/$defs/Properties/definitions/StarburstParameters": close({
 
 	// <p>The host name of the Starburst data source.</p>
 	Host!:            strings.MaxRunes(256) & strings.MinRunes(1)
-	OAuthParameters?: _#defs."/$defs/Properties/definitions/OAuthParameters"
+	OAuthParameters?: #OAuthParameters
 
 	// <p>The port for the Starburst data source.</p>
 	Port!:        <=65535 & >=1
-	ProductType?: _#defs."/$defs/Properties/definitions/StarburstProductType"
+	ProductType?: #StarburstProductType
 })
 
-_#defs: "/$defs/Properties/definitions/StarburstProductType": "GALAXY" | "ENTERPRISE"
+#StarburstProductType: "GALAXY" | "ENTERPRISE"
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -555,7 +551,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // <p>The parameters for Teradata.</p>
-_#defs: "/$defs/Properties/definitions/TeradataParameters": close({
+#TeradataParameters: close({
 	// <p>Database.</p>
 	Database!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -567,7 +563,7 @@ _#defs: "/$defs/Properties/definitions/TeradataParameters": close({
 })
 
 // <p>The parameters that are required to connect to a Trino data source.</p>
-_#defs: "/$defs/Properties/definitions/TrinoParameters": close({
+#TrinoParameters: close({
 	// <p>The catalog name for the Trino data source.</p>
 	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0)
 
@@ -579,7 +575,7 @@ _#defs: "/$defs/Properties/definitions/TrinoParameters": close({
 })
 
 // <p>VPC connection properties.</p>
-_#defs: "/$defs/Properties/definitions/VpcConnectionProperties": close({
+#VpcConnectionProperties: close({
 	// <p>The Amazon Resource Name (ARN) for the VPC connection.</p>
 	VpcConnectionArn!: string
 })

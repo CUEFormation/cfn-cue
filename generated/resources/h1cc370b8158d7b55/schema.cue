@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,25 +15,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::Rekognition::Collection type creates an Amazon Rekognition
 // Collection. A collection is a logical grouping of information about detected
 // faces which can later be referenced for searches on the group
-#Properties: close({
-	CollectionId!: _#defs."/$defs/Properties/definitions/CollectionId"
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Rekognition::Collection"
+	Properties!: close({
+		CollectionId!: #CollectionId
+		Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CollectionId": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"\\A[a-zA-Z0-9_\\.\\-]+$" |
-fn.#StringExpression
+#CollectionId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Rekognition::Collection"
-	Properties!: #Properties
-}

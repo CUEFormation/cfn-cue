@@ -12,50 +12,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This schema is for testing purpose only.
-#Properties: close({
-	CurrentRevisionId?:       string | fn.#StringExpression
-	Environment?:             string | fn.#StringExpression
-	Name?:                    strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]*" | fn.#StringExpression
-	RenderingEngine?:         _#defs."/$defs/Properties/definitions/RenderingEngine" | fn.#ObjectExpression
-	RobotSoftwareSuite!:      _#defs."/$defs/Properties/definitions/RobotSoftwareSuite" | fn.#ObjectExpression
-	SimulationSoftwareSuite!: _#defs."/$defs/Properties/definitions/SimulationSoftwareSuite" | fn.#ObjectExpression
-	Sources?:                 [..._#defs."/$defs/Properties/definitions/SourceConfig"] | fn.#ListExpression
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RoboMaker::SimulationApplication"
+	Properties!: close({
+		CurrentRevisionId?: string | fn.#StringExpression
+		Environment?:       string | fn.#StringExpression
+		Name?:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
-	fn.#StringExpression
+		// The rendering engine for the simulation application.
+		RenderingEngine?: #RenderingEngine
 
-_#defs: "/$defs/Properties/definitions/RenderingEngine": close({
+		// The robot software suite used by the simulation application.
+		RobotSoftwareSuite!: #RobotSoftwareSuite
+
+		// The simulation software suite used by the simulation application.
+		SimulationSoftwareSuite!: #SimulationSoftwareSuite
+		Sources?:                 [...#SourceConfig] | fn.#ListExpression
+		Tags?:                    #Tags
+	})
+}
+
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
+
+#RenderingEngine: close({
 	Name!:    "OGRE" | fn.#StringExpression
 	Version!: =~"1.x" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RobotSoftwareSuite": close({
+#RobotSoftwareSuite: close({
 	Name!:    "ROS" | "ROS2" | "General" | fn.#StringExpression
 	Version?: "Kinetic" | "Melodic" | "Dashing" | "Foxy" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SimulationSoftwareSuite": close({
+#SimulationSoftwareSuite: close({
 	Name!:    "Gazebo" | "RosbagPlay" | "SimulationRuntime" | fn.#StringExpression
 	Version?: "7" | "9" | "11" | "Kinetic" | "Melodic" | "Dashing" | "Foxy" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConfig": close({
+#SourceConfig: close({
 	Architecture!: "X86_64" | "ARM64" | "ARMHF" | fn.#StringExpression
 	S3Bucket!:     =~"[a-z0-9][a-z0-9.\\-]*[a-z0-9]" | fn.#StringExpression
 	S3Key!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RoboMaker::SimulationApplication"
-	Properties!: #Properties
-}

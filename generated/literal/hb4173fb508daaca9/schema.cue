@@ -6,30 +6,30 @@ package schema
 
 // Resource Type definition for AWS::MediaLive::Channel
 #Properties: close({
-	AnywhereSettings?:      _#defs."/$defs/Properties/definitions/AnywhereSettings"
+	AnywhereSettings?:      #AnywhereSettings
 	Arn?:                   string
-	CdiInputSpecification?: _#defs."/$defs/Properties/definitions/CdiInputSpecification"
+	CdiInputSpecification?: #CdiInputSpecification
 	ChannelClass?:          string
-	ChannelEngineVersion?:  _#defs."/$defs/Properties/definitions/ChannelEngineVersionRequest"
+	ChannelEngineVersion?:  #ChannelEngineVersionRequest
 	ChannelSecurityGroups?: [...string]
-	Destinations?:          [..._#defs."/$defs/Properties/definitions/OutputDestination"]
+	Destinations?:          [...#OutputDestination]
 	DryRun?:                bool
-	EncoderSettings?:       _#defs."/$defs/Properties/definitions/EncoderSettings"
+	EncoderSettings?:       #EncoderSettings
 	Id?:                    string
-	InferenceSettings?:     _#defs."/$defs/Properties/definitions/InferenceSettings"
-	InputAttachments?:      [..._#defs."/$defs/Properties/definitions/InputAttachment"]
-	InputSpecification?:    _#defs."/$defs/Properties/definitions/InputSpecification"
+	InferenceSettings?:     #InferenceSettings
+	InputAttachments?:      [...#InputAttachment]
+	InputSpecification?:    #InputSpecification
 	Inputs?:                [...string]
-	LinkedChannelSettings?: _#defs."/$defs/Properties/definitions/LinkedChannelSettings"
+	LinkedChannelSettings?: #LinkedChannelSettings
 	LogLevel?:              string
-	Maintenance?:           _#defs."/$defs/Properties/definitions/MaintenanceCreateSettings"
+	Maintenance?:           #MaintenanceCreateSettings
 	Name?:                  string
 	RoleArn?:               =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Tags?:                  string | {...}
-	Vpc?:                   _#defs."/$defs/Properties/definitions/VpcOutputSettings"
+	Vpc?:                   #VpcOutputSettings
 })
 
-_#defs: "/$defs/Properties/definitions/AacSettings": close({
+#AacSettings: close({
 	Bitrate?:         number
 	CodingMode?:      string
 	InputType?:       string
@@ -41,13 +41,13 @@ _#defs: "/$defs/Properties/definitions/AacSettings": close({
 	VbrQuality?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/AbWatermarkingCustomProfile": close({
+#AbWatermarkingCustomProfile: close({
 	EmbeddingFrequency?: number
 	SceneCut?:           number
 	TargetPsnr?:         number
 })
 
-_#defs: "/$defs/Properties/definitions/Ac3Settings": close({
+#Ac3Settings: close({
 	AttenuationControl?: string
 	Bitrate?:            number
 	BitstreamMode?:      string
@@ -58,89 +58,85 @@ _#defs: "/$defs/Properties/definitions/Ac3Settings": close({
 	MetadataControl?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalDestinations": close(
-	{Destination?: _#defs."/$defs/Properties/definitions/OutputLocationRef"},
-)
+#AdditionalDestinations: close({Destination?: #OutputLocationRef})
 
-_#defs: "/$defs/Properties/definitions/AncillarySourceSettings": close({SourceAncillaryChannelNumber?: int})
+#AncillarySourceSettings: close({SourceAncillaryChannelNumber?: int})
 
-_#defs: "/$defs/Properties/definitions/AnywhereSettings": close({
+#AnywhereSettings: close({
 	ChannelPlacementGroupId?: string
 	ClusterId?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/ArchiveCdnSettings": close(
-	{ArchiveS3Settings?: _#defs."/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings"},
-)
+#ArchiveCdnSettings: close({ArchiveS3Settings?: #ArchiveFrameCaptureHlsS3Settings})
 
-_#defs: "/$defs/Properties/definitions/ArchiveContainerSettings": close({
-	M2tsSettings?: _#defs."/$defs/Properties/definitions/M2tsSettings"
-	RawSettings?:  _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+#ArchiveContainerSettings: close({
+	M2tsSettings?: #M2tsSettings
+	RawSettings?:  #EmptyConfigurationSettings
 })
 
-_#defs: "/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings": close({CannedAcl?: string})
+#ArchiveFrameCaptureHlsS3Settings: close({CannedAcl?: string})
 
-_#defs: "/$defs/Properties/definitions/ArchiveGroupSettings": close({
-	ArchiveCdnSettings?: _#defs."/$defs/Properties/definitions/ArchiveCdnSettings"
-	Destination?:        _#defs."/$defs/Properties/definitions/OutputLocationRef"
+#ArchiveGroupSettings: close({
+	ArchiveCdnSettings?: #ArchiveCdnSettings
+	Destination?:        #OutputLocationRef
 	RolloverInterval?:   int
 })
 
-_#defs: "/$defs/Properties/definitions/ArchiveOutputSettings": close({
-	ContainerSettings?: _#defs."/$defs/Properties/definitions/ArchiveContainerSettings"
+#ArchiveOutputSettings: close({
+	ContainerSettings?: #ArchiveContainerSettings
 	Extension?:         string
 	NameModifier?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/AudioChannelMapping": close({
-	InputChannelLevels?: [..._#defs."/$defs/Properties/definitions/InputChannelLevel"]
+#AudioChannelMapping: close({
+	InputChannelLevels?: [...#InputChannelLevel]
 	OutputChannel?:      int
 })
 
-_#defs: "/$defs/Properties/definitions/AudioCodecSettings": close({
-	AacSettings?:         _#defs."/$defs/Properties/definitions/AacSettings"
-	Ac3Settings?:         _#defs."/$defs/Properties/definitions/Ac3Settings"
-	Eac3AtmosSettings?:   _#defs."/$defs/Properties/definitions/Eac3AtmosSettings"
-	Eac3Settings?:        _#defs."/$defs/Properties/definitions/Eac3Settings"
-	Mp2Settings?:         _#defs."/$defs/Properties/definitions/Mp2Settings"
-	PassThroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	WavSettings?:         _#defs."/$defs/Properties/definitions/WavSettings"
+#AudioCodecSettings: close({
+	AacSettings?:         #AacSettings
+	Ac3Settings?:         #Ac3Settings
+	Eac3AtmosSettings?:   #Eac3AtmosSettings
+	Eac3Settings?:        #Eac3Settings
+	Mp2Settings?:         #Mp2Settings
+	PassThroughSettings?: #EmptyConfigurationSettings
+	WavSettings?:         #WavSettings
 })
 
-_#defs: "/$defs/Properties/definitions/AudioDescription": close({
+#AudioDescription: close({
 	AudioDashRoles?:             [...string]
-	AudioNormalizationSettings?: _#defs."/$defs/Properties/definitions/AudioNormalizationSettings"
+	AudioNormalizationSettings?: #AudioNormalizationSettings
 	AudioSelectorName?:          string
 	AudioType?:                  string
 	AudioTypeControl?:           string
-	AudioWatermarkingSettings?:  _#defs."/$defs/Properties/definitions/AudioWatermarkSettings"
-	CodecSettings?:              _#defs."/$defs/Properties/definitions/AudioCodecSettings"
+	AudioWatermarkingSettings?:  #AudioWatermarkSettings
+	CodecSettings?:              #AudioCodecSettings
 	DvbDashAccessibility?:       string
 	LanguageCode?:               string
 	LanguageCodeControl?:        string
 	Name?:                       string
-	RemixSettings?:              _#defs."/$defs/Properties/definitions/RemixSettings"
+	RemixSettings?:              #RemixSettings
 	StreamName?:                 string
 })
 
-_#defs: "/$defs/Properties/definitions/AudioDolbyEDecode": close({ProgramSelection?: string})
+#AudioDolbyEDecode: close({ProgramSelection?: string})
 
-_#defs: "/$defs/Properties/definitions/AudioFeedInput": close({
+#AudioFeedInput: close({
 	AudioSelectorName?: string
 	FeedInput?:         string
 })
 
-_#defs: "/$defs/Properties/definitions/AudioHlsRenditionSelection": close({
+#AudioHlsRenditionSelection: close({
 	GroupId?: string
 	Name?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/AudioLanguageSelection": close({
+#AudioLanguageSelection: close({
 	LanguageCode?:            string
 	LanguageSelectionPolicy?: string
 })
 
-_#defs: "/$defs/Properties/definitions/AudioNormalizationSettings": close({
+#AudioNormalizationSettings: close({
 	Algorithm?:            string
 	AlgorithmControl?:     string
 	PeakCalculation?:      string
@@ -148,83 +144,81 @@ _#defs: "/$defs/Properties/definitions/AudioNormalizationSettings": close({
 	TargetLkfs?:           number
 })
 
-_#defs: "/$defs/Properties/definitions/AudioOnlyHlsSettings": close({
+#AudioOnlyHlsSettings: close({
 	AudioGroupId?:   string
-	AudioOnlyImage?: _#defs."/$defs/Properties/definitions/InputLocation"
+	AudioOnlyImage?: #InputLocation
 	AudioTrackType?: string
 	SegmentType?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/AudioPid": close({
-	DolbyEDecode?:   _#defs."/$defs/Properties/definitions/AudioDolbyEDecode"
+#AudioPid: close({
+	DolbyEDecode?:   #AudioDolbyEDecode
 	Pid?:            int
-	PremixSettings?: _#defs."/$defs/Properties/definitions/AudioPreMixerSettings"
+	PremixSettings?: #AudioPreMixerSettings
 })
 
-_#defs: "/$defs/Properties/definitions/AudioPidSelection": close({
+#AudioPidSelection: close({
 	Pid?:  int
-	Pids?: [..._#defs."/$defs/Properties/definitions/AudioPid"]
+	Pids?: [...#AudioPid]
 })
 
-_#defs: "/$defs/Properties/definitions/AudioPreMixerSettings": close({
-	AudioNormalizationSettings?: _#defs."/$defs/Properties/definitions/AudioNormalizationSettings"
+#AudioPreMixerSettings: close({
+	AudioNormalizationSettings?: #AudioNormalizationSettings
 	Channels?:                   int
 	GainDb?:                     number
-	RemixSettings?:              _#defs."/$defs/Properties/definitions/RemixSettings"
+	RemixSettings?:              #RemixSettings
 })
 
-_#defs: "/$defs/Properties/definitions/AudioSelector": close({
+#AudioSelector: close({
 	Name?:             string
-	SelectorSettings?: _#defs."/$defs/Properties/definitions/AudioSelectorSettings"
+	SelectorSettings?: #AudioSelectorSettings
 })
 
-_#defs: "/$defs/Properties/definitions/AudioSelectorSettings": close({
-	AudioHlsRenditionSelection?: _#defs."/$defs/Properties/definitions/AudioHlsRenditionSelection"
-	AudioLanguageSelection?:     _#defs."/$defs/Properties/definitions/AudioLanguageSelection"
-	AudioPidSelection?:          _#defs."/$defs/Properties/definitions/AudioPidSelection"
-	AudioTrackSelection?:        _#defs."/$defs/Properties/definitions/AudioTrackSelection"
+#AudioSelectorSettings: close({
+	AudioHlsRenditionSelection?: #AudioHlsRenditionSelection
+	AudioLanguageSelection?:     #AudioLanguageSelection
+	AudioPidSelection?:          #AudioPidSelection
+	AudioTrackSelection?:        #AudioTrackSelection
 })
 
-_#defs: "/$defs/Properties/definitions/AudioSilenceFailoverSettings": close({
+#AudioSilenceFailoverSettings: close({
 	AudioSelectorName?:         string
 	AudioSilenceThresholdMsec?: int
 })
 
-_#defs: "/$defs/Properties/definitions/AudioTrack": close({
-	PremixSettings?: _#defs."/$defs/Properties/definitions/AudioPreMixerSettings"
+#AudioTrack: close({
+	PremixSettings?: #AudioPreMixerSettings
 	Track?:          int
 })
 
-_#defs: "/$defs/Properties/definitions/AudioTrackSelection": close({
-	DolbyEDecode?: _#defs."/$defs/Properties/definitions/AudioDolbyEDecode"
-	Tracks?:       [..._#defs."/$defs/Properties/definitions/AudioTrack"]
+#AudioTrackSelection: close({
+	DolbyEDecode?: #AudioDolbyEDecode
+	Tracks?:       [...#AudioTrack]
 })
 
-_#defs: "/$defs/Properties/definitions/AudioWatermarkSettings": close(
-	{NielsenWatermarksSettings?: _#defs."/$defs/Properties/definitions/NielsenWatermarksSettings"},
-)
+#AudioWatermarkSettings: close({NielsenWatermarksSettings?: #NielsenWatermarksSettings})
 
-_#defs: "/$defs/Properties/definitions/AutomaticInputFailoverSettings": close({
+#AutomaticInputFailoverSettings: close({
 	ErrorClearTimeMsec?: int
-	FailoverConditions?: [..._#defs."/$defs/Properties/definitions/FailoverCondition"]
+	FailoverConditions?: [...#FailoverCondition]
 	InputPreference?:    string
 	SecondaryInputId?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/Av1ColorSpaceSettings": close({
-	ColorSpacePassthroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Hdr10Settings?:                 _#defs."/$defs/Properties/definitions/Hdr10Settings"
-	Hlg2020Settings?:               _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Rec601Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Rec709Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+#Av1ColorSpaceSettings: close({
+	ColorSpacePassthroughSettings?: #EmptyConfigurationSettings
+	Hdr10Settings?:                 #Hdr10Settings
+	Hlg2020Settings?:               #EmptyConfigurationSettings
+	Rec601Settings?:                #EmptyConfigurationSettings
+	Rec709Settings?:                #EmptyConfigurationSettings
 })
 
-_#defs: "/$defs/Properties/definitions/Av1Settings": close({
+#Av1Settings: close({
 	AfdSignaling?:           string
 	BitDepth?:               string
 	Bitrate?:                int
 	BufSize?:                int
-	ColorSpaceSettings?:     _#defs."/$defs/Properties/definitions/Av1ColorSpaceSettings"
+	ColorSpaceSettings?:     #Av1ColorSpaceSettings
 	FixedAfd?:               string
 	FramerateDenominator?:   int
 	FramerateNumerator?:     int
@@ -242,44 +236,44 @@ _#defs: "/$defs/Properties/definitions/Av1Settings": close({
 	SceneChangeDetect?:      string
 	SpatialAq?:              string
 	TemporalAq?:             string
-	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
+	TimecodeBurninSettings?: #TimecodeBurninSettings
 	TimecodeInsertion?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/AvailBlanking": close({
-	AvailBlankingImage?: _#defs."/$defs/Properties/definitions/InputLocation"
+#AvailBlanking: close({
+	AvailBlankingImage?: #InputLocation
 	State?:              string
 })
 
-_#defs: "/$defs/Properties/definitions/AvailConfiguration": close({
-	AvailSettings?:           _#defs."/$defs/Properties/definitions/AvailSettings"
+#AvailConfiguration: close({
+	AvailSettings?:           #AvailSettings
 	Scte35SegmentationScope?: string
 })
 
-_#defs: "/$defs/Properties/definitions/AvailSettings": close({
-	Esam?:                 _#defs."/$defs/Properties/definitions/Esam"
-	Scte35SpliceInsert?:   _#defs."/$defs/Properties/definitions/Scte35SpliceInsertTimeSignalAposSettings"
-	Scte35TimeSignalApos?: _#defs."/$defs/Properties/definitions/Scte35SpliceInsertTimeSignalAposSettings"
+#AvailSettings: close({
+	Esam?:                 #Esam
+	Scte35SpliceInsert?:   #Scte35SpliceInsertTimeSignalAposSettings
+	Scte35TimeSignalApos?: #Scte35SpliceInsertTimeSignalAposSettings
 })
 
-_#defs: "/$defs/Properties/definitions/BandwidthReductionFilterSettings": close({
+#BandwidthReductionFilterSettings: close({
 	PostFilterSharpening?: string
 	Strength?:             string
 })
 
-_#defs: "/$defs/Properties/definitions/BlackoutSlate": close({
-	BlackoutSlateImage?:      _#defs."/$defs/Properties/definitions/InputLocation"
+#BlackoutSlate: close({
+	BlackoutSlateImage?:      #InputLocation
 	NetworkEndBlackout?:      string
-	NetworkEndBlackoutImage?: _#defs."/$defs/Properties/definitions/InputLocation"
+	NetworkEndBlackoutImage?: #InputLocation
 	NetworkId?:               string
 	State?:                   string
 })
 
-_#defs: "/$defs/Properties/definitions/BurnInDvbSubDestinationSettings": close({
+#BurnInDvbSubDestinationSettings: close({
 	Alignment?:           string
 	BackgroundColor?:     string
 	BackgroundOpacity?:   int
-	Font?:                _#defs."/$defs/Properties/definitions/InputLocation"
+	Font?:                #InputLocation
 	FontColor?:           string
 	FontOpacity?:         int
 	FontResolution?:      int
@@ -296,78 +290,78 @@ _#defs: "/$defs/Properties/definitions/BurnInDvbSubDestinationSettings": close({
 	YPosition?:           int
 })
 
-_#defs: "/$defs/Properties/definitions/CaptionDescription": close({
+#CaptionDescription: close({
 	Accessibility?:        string
 	CaptionDashRoles?:     [...string]
 	CaptionSelectorName?:  string
-	DestinationSettings?:  _#defs."/$defs/Properties/definitions/CaptionDestinationSettings"
+	DestinationSettings?:  #CaptionDestinationSettings
 	DvbDashAccessibility?: string
 	LanguageCode?:         string
 	LanguageDescription?:  string
 	Name?:                 string
 })
 
-_#defs: "/$defs/Properties/definitions/CaptionDestinationSettings": close({
-	AribDestinationSettings?:               _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	BurnInDestinationSettings?:             _#defs."/$defs/Properties/definitions/BurnInDvbSubDestinationSettings"
-	DvbSubDestinationSettings?:             _#defs."/$defs/Properties/definitions/BurnInDvbSubDestinationSettings"
-	EbuTtDDestinationSettings?:             _#defs."/$defs/Properties/definitions/EbuTtDDestinationSettings"
-	EmbeddedDestinationSettings?:           _#defs."/$defs/Properties/definitions/EmbeddedDestinationSettings"
-	EmbeddedPlusScte20DestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	RtmpCaptionInfoDestinationSettings?:    _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Scte20PlusEmbeddedDestinationSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Scte27DestinationSettings?:             _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	SmpteTtDestinationSettings?:            _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	TeletextDestinationSettings?:           _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	TtmlDestinationSettings?:               _#defs."/$defs/Properties/definitions/TtmlDestinationSettings"
-	WebvttDestinationSettings?:             _#defs."/$defs/Properties/definitions/WebvttDestinationSettings"
+#CaptionDestinationSettings: close({
+	AribDestinationSettings?:               #EmptyConfigurationSettings
+	BurnInDestinationSettings?:             #BurnInDvbSubDestinationSettings
+	DvbSubDestinationSettings?:             #BurnInDvbSubDestinationSettings
+	EbuTtDDestinationSettings?:             #EbuTtDDestinationSettings
+	EmbeddedDestinationSettings?:           #EmbeddedDestinationSettings
+	EmbeddedPlusScte20DestinationSettings?: #EmptyConfigurationSettings
+	RtmpCaptionInfoDestinationSettings?:    #EmptyConfigurationSettings
+	Scte20PlusEmbeddedDestinationSettings?: #EmptyConfigurationSettings
+	Scte27DestinationSettings?:             #EmptyConfigurationSettings
+	SmpteTtDestinationSettings?:            #EmptyConfigurationSettings
+	TeletextDestinationSettings?:           #EmptyConfigurationSettings
+	TtmlDestinationSettings?:               #TtmlDestinationSettings
+	WebvttDestinationSettings?:             #WebvttDestinationSettings
 })
 
-_#defs: "/$defs/Properties/definitions/CaptionLanguageMapping": close({
+#CaptionLanguageMapping: close({
 	CaptionChannel?:      int
 	LanguageCode?:        string
 	LanguageDescription?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CaptionRectangle": close({
+#CaptionRectangle: close({
 	Height?:     number
 	LeftOffset?: number
 	TopOffset?:  number
 	Width?:      number
 })
 
-_#defs: "/$defs/Properties/definitions/CaptionSelector": close({
+#CaptionSelector: close({
 	LanguageCode?:     string
 	Name?:             string
-	SelectorSettings?: _#defs."/$defs/Properties/definitions/CaptionSelectorSettings"
+	SelectorSettings?: #CaptionSelectorSettings
 })
 
-_#defs: "/$defs/Properties/definitions/CaptionSelectorSettings": close({
-	AncillarySourceSettings?:     _#defs."/$defs/Properties/definitions/AncillarySourceSettings"
-	AribSourceSettings?:          _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	DvbSubSourceSettings?:        _#defs."/$defs/Properties/definitions/Scte27DvbSubSourceSettings"
-	EmbeddedSourceSettings?:      _#defs."/$defs/Properties/definitions/EmbeddedSourceSettings"
-	Scte20SourceSettings?:        _#defs."/$defs/Properties/definitions/Scte20SourceSettings"
-	Scte27SourceSettings?:        _#defs."/$defs/Properties/definitions/Scte27DvbSubSourceSettings"
-	SmartSubtitleSourceSettings?: _#defs."/$defs/Properties/definitions/SmartSubtitleSourceSettings"
-	TeletextSourceSettings?:      _#defs."/$defs/Properties/definitions/TeletextSourceSettings"
+#CaptionSelectorSettings: close({
+	AncillarySourceSettings?:     #AncillarySourceSettings
+	AribSourceSettings?:          #EmptyConfigurationSettings
+	DvbSubSourceSettings?:        #Scte27DvbSubSourceSettings
+	EmbeddedSourceSettings?:      #EmbeddedSourceSettings
+	Scte20SourceSettings?:        #Scte20SourceSettings
+	Scte27SourceSettings?:        #Scte27DvbSubSourceSettings
+	SmartSubtitleSourceSettings?: #SmartSubtitleSourceSettings
+	TeletextSourceSettings?:      #TeletextSourceSettings
 })
 
-_#defs: "/$defs/Properties/definitions/CdiInputSpecification": close({Resolution?: string})
+#CdiInputSpecification: close({Resolution?: string})
 
-_#defs: "/$defs/Properties/definitions/ChannelEngineVersionRequest": close({Version?: string})
+#ChannelEngineVersionRequest: close({Version?: string})
 
-_#defs: "/$defs/Properties/definitions/CmafIngestCaptionLanguageMapping": close({
+#CmafIngestCaptionLanguageMapping: close({
 	CaptionChannel?: int
 	LanguageCode?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/CmafIngestFrameCaptureOutputSettings": close({NameModifier?: string})
+#CmafIngestFrameCaptureOutputSettings: close({NameModifier?: string})
 
-_#defs: "/$defs/Properties/definitions/CmafIngestGroupSettings": close({
-	AdditionalDestinations?:   [..._#defs."/$defs/Properties/definitions/AdditionalDestinations"]
-	CaptionLanguageMappings?:  [..._#defs."/$defs/Properties/definitions/CmafIngestCaptionLanguageMapping"]
-	Destination?:              _#defs."/$defs/Properties/definitions/OutputLocationRef"
+#CmafIngestGroupSettings: close({
+	AdditionalDestinations?:   [...#AdditionalDestinations]
+	CaptionLanguageMappings?:  [...#CmafIngestCaptionLanguageMapping]
+	Destination?:              #OutputLocationRef
 	Id3Behavior?:              string
 	Id3NameModifier?:          string
 	KlvBehavior?:              string
@@ -382,13 +376,13 @@ _#defs: "/$defs/Properties/definitions/CmafIngestGroupSettings": close({
 	TimedMetadataId3Frame?:    string
 	TimedMetadataId3Period?:   int
 	TimedMetadataPassthrough?: string
-	WatermarkingSettings?:     _#defs."/$defs/Properties/definitions/CmafIngestWatermarkingSettings"
+	WatermarkingSettings?:     #CmafIngestWatermarkingSettings
 })
 
-_#defs: "/$defs/Properties/definitions/CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings": close({
-	AdditionalDestinationsAlternateDestinations?: [..._#defs."/$defs/Properties/definitions/OutputLocationRef"]
-	AlternateDestination?:                        _#defs."/$defs/Properties/definitions/OutputLocationRef"
-	CustomProfile?:                               _#defs."/$defs/Properties/definitions/AbWatermarkingCustomProfile"
+#CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings: close({
+	AdditionalDestinationsAlternateDestinations?: [...#OutputLocationRef]
+	AlternateDestination?:                        #OutputLocationRef
+	CustomProfile?:                               #AbWatermarkingCustomProfile
 	License?:                                     string
 	OperatorId?:                                  int
 	PolyPeriod?:                                  int
@@ -396,39 +390,36 @@ _#defs: "/$defs/Properties/definitions/CmafIngestMediaPackageV2AbWatermarkerIrde
 	WatermarkIdLength?:                           string
 })
 
-_#defs: "/$defs/Properties/definitions/CmafIngestWatermarkingSettings": close({
-	CmafIngestAbWatermarkerIrdetoSettings?:
-		_#defs."/$defs/Properties/definitions/CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings"
-})
+#CmafIngestWatermarkingSettings: close(
+	{CmafIngestAbWatermarkerIrdetoSettings?: #CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings},
+)
 
-_#defs: "/$defs/Properties/definitions/ColorCorrection": close({
+#ColorCorrection: close({
 	InputColorSpace?:  string
 	OutputColorSpace?: string
 	Uri?:              string
 })
 
-_#defs: "/$defs/Properties/definitions/ColorCorrectionSettings": close(
-	{GlobalColorCorrections?: [..._#defs."/$defs/Properties/definitions/ColorCorrection"]},
-)
+#ColorCorrectionSettings: close({GlobalColorCorrections?: [...#ColorCorrection]})
 
-_#defs: "/$defs/Properties/definitions/DisabledLockingSettings": close({CustomEpoch?: string})
+#DisabledLockingSettings: close({CustomEpoch?: string})
 
-_#defs: "/$defs/Properties/definitions/DvbNitSettings": close({
+#DvbNitSettings: close({
 	NetworkId?:   int
 	NetworkName?: string
 	RepInterval?: int
 })
 
-_#defs: "/$defs/Properties/definitions/DvbSdtSettings": close({
+#DvbSdtSettings: close({
 	OutputSdt?:           string
 	RepInterval?:         int
 	ServiceName?:         string
 	ServiceProviderName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/DvbTdtSettings": close({RepInterval?: int})
+#DvbTdtSettings: close({RepInterval?: int})
 
-_#defs: "/$defs/Properties/definitions/Eac3AtmosSettings": close({
+#Eac3AtmosSettings: close({
 	Bitrate?:      number
 	CodingMode?:   string
 	Dialnorm?:     int
@@ -438,7 +429,7 @@ _#defs: "/$defs/Properties/definitions/Eac3AtmosSettings": close({
 	SurroundTrim?: number
 })
 
-_#defs: "/$defs/Properties/definitions/Eac3Settings": close({
+#Eac3Settings: close({
 	AttenuationControl?:   string
 	Bitrate?:              number
 	BitstreamMode?:        string
@@ -461,7 +452,7 @@ _#defs: "/$defs/Properties/definitions/Eac3Settings": close({
 	SurroundMode?:         string
 })
 
-_#defs: "/$defs/Properties/definitions/EbuTtDDestinationSettings": close({
+#EbuTtDDestinationSettings: close({
 	CopyrightHolder?:   string
 	DefaultFontSize?:   int
 	DefaultLineHeight?: int
@@ -470,42 +461,42 @@ _#defs: "/$defs/Properties/definitions/EbuTtDDestinationSettings": close({
 	StyleControl?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/EmbeddedCaptionPositionSettings": close({YPositionLine?: int})
+#EmbeddedCaptionPositionSettings: close({YPositionLine?: int})
 
-_#defs: "/$defs/Properties/definitions/EmbeddedDestinationSettings": string | {...}
+#EmbeddedDestinationSettings: string | {...}
 
-_#defs: "/$defs/Properties/definitions/EmbeddedSourceSettings": close({
+#EmbeddedSourceSettings: close({
 	Convert608To708?:        string
 	Scte20Detection?:        string
 	Source608ChannelNumber?: int
 	Source608TrackNumber?:   int
 })
 
-_#defs: "/$defs/Properties/definitions/EmptyConfigurationSettings": close({})
+#EmptyConfigurationSettings: close({})
 
-_#defs: "/$defs/Properties/definitions/EncoderSettings": close({
-	AudioDescriptions?:           [..._#defs."/$defs/Properties/definitions/AudioDescription"]
-	AvailBlanking?:               _#defs."/$defs/Properties/definitions/AvailBlanking"
-	AvailConfiguration?:          _#defs."/$defs/Properties/definitions/AvailConfiguration"
-	BlackoutSlate?:               _#defs."/$defs/Properties/definitions/BlackoutSlate"
-	CaptionDescriptions?:         [..._#defs."/$defs/Properties/definitions/CaptionDescription"]
-	ColorCorrectionSettings?:     _#defs."/$defs/Properties/definitions/ColorCorrectionSettings"
-	FeatureActivations?:          _#defs."/$defs/Properties/definitions/FeatureActivations"
-	GlobalConfiguration?:         _#defs."/$defs/Properties/definitions/GlobalConfiguration"
-	MotionGraphicsConfiguration?: _#defs."/$defs/Properties/definitions/MotionGraphicsConfiguration"
-	NielsenConfiguration?:        _#defs."/$defs/Properties/definitions/NielsenConfiguration"
-	OutputGroups?:                [..._#defs."/$defs/Properties/definitions/OutputGroup"]
-	ThumbnailConfiguration?:      _#defs."/$defs/Properties/definitions/ThumbnailConfiguration"
-	TimecodeConfig?:              _#defs."/$defs/Properties/definitions/TimecodeConfig"
-	VideoDescriptions?:           [..._#defs."/$defs/Properties/definitions/VideoDescription"]
+#EncoderSettings: close({
+	AudioDescriptions?:           [...#AudioDescription]
+	AvailBlanking?:               #AvailBlanking
+	AvailConfiguration?:          #AvailConfiguration
+	BlackoutSlate?:               #BlackoutSlate
+	CaptionDescriptions?:         [...#CaptionDescription]
+	ColorCorrectionSettings?:     #ColorCorrectionSettings
+	FeatureActivations?:          #FeatureActivations
+	GlobalConfiguration?:         #GlobalConfiguration
+	MotionGraphicsConfiguration?: #MotionGraphicsConfiguration
+	NielsenConfiguration?:        #NielsenConfiguration
+	OutputGroups?:                [...#OutputGroup]
+	ThumbnailConfiguration?:      #ThumbnailConfiguration
+	TimecodeConfig?:              #TimecodeConfig
+	VideoDescriptions?:           [...#VideoDescription]
 })
 
-_#defs: "/$defs/Properties/definitions/EpochLockingSettings": close({
+#EpochLockingSettings: close({
 	CustomEpoch?: string
 	JamSyncTime?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Esam": close({
+#Esam: close({
 	AcquisitionPointId?: string
 	AdAvailOffset?:      int
 	PasswordParam?:      string
@@ -514,84 +505,80 @@ _#defs: "/$defs/Properties/definitions/Esam": close({
 	ZoneIdentity?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/FailoverCondition": close(
-	{FailoverConditionSettings?: _#defs."/$defs/Properties/definitions/FailoverConditionSettings"},
-)
+#FailoverCondition: close({FailoverConditionSettings?: #FailoverConditionSettings})
 
-_#defs: "/$defs/Properties/definitions/FailoverConditionSettings": close({
-	AudioSilenceSettings?: _#defs."/$defs/Properties/definitions/AudioSilenceFailoverSettings"
-	InputLossSettings?:    _#defs."/$defs/Properties/definitions/InputLossFailoverSettings"
-	VideoBlackSettings?:   _#defs."/$defs/Properties/definitions/VideoBlackFailoverSettings"
+#FailoverConditionSettings: close({
+	AudioSilenceSettings?: #AudioSilenceFailoverSettings
+	InputLossSettings?:    #InputLossFailoverSettings
+	VideoBlackSettings?:   #VideoBlackFailoverSettings
 })
 
-_#defs: "/$defs/Properties/definitions/FeatureActivations": close({
+#FeatureActivations: close({
 	InputPrepareScheduleActions?:             string
 	OutputStaticImageOverlayScheduleActions?: string
 })
 
-_#defs: "/$defs/Properties/definitions/FecOutputSettings": close({
+#FecOutputSettings: close({
 	ColumnDepth?: int
 	IncludeFec?:  string
 	RowLength?:   int
 })
 
-_#defs: "/$defs/Properties/definitions/Fmp4HlsSettings": close({
+#Fmp4HlsSettings: close({
 	AudioRenditionSets?:    string
 	NielsenId3Behavior?:    string
 	TimedMetadataBehavior?: string
 })
 
-_#defs: "/$defs/Properties/definitions/FollowerChannelSettings": close({
+#FollowerChannelSettings: close({
 	LinkedChannelType?: string
 	PrimaryChannelArn?: string
 })
 
-_#defs: "/$defs/Properties/definitions/FrameCaptureCdnSettings": close(
-	{FrameCaptureS3Settings?: _#defs."/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings"},
-)
+#FrameCaptureCdnSettings: close({FrameCaptureS3Settings?: #ArchiveFrameCaptureHlsS3Settings})
 
-_#defs: "/$defs/Properties/definitions/FrameCaptureGroupSettings": close({
-	Destination?:             _#defs."/$defs/Properties/definitions/OutputLocationRef"
-	FrameCaptureCdnSettings?: _#defs."/$defs/Properties/definitions/FrameCaptureCdnSettings"
+#FrameCaptureGroupSettings: close({
+	Destination?:             #OutputLocationRef
+	FrameCaptureCdnSettings?: #FrameCaptureCdnSettings
 })
 
-_#defs: "/$defs/Properties/definitions/FrameCaptureSettings": close({
+#FrameCaptureSettings: close({
 	CaptureInterval?:        int
 	CaptureIntervalUnits?:   string
-	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
+	TimecodeBurninSettings?: #TimecodeBurninSettings
 })
 
-_#defs: "/$defs/Properties/definitions/GlobalConfiguration": close({
+#GlobalConfiguration: close({
 	InitialAudioGain?:          int
 	InputEndAction?:            string
-	InputLossBehavior?:         _#defs."/$defs/Properties/definitions/InputLossBehavior"
+	InputLossBehavior?:         #InputLossBehavior
 	OutputLockingMode?:         string
-	OutputLockingSettings?:     _#defs."/$defs/Properties/definitions/OutputLockingSettings"
+	OutputLockingSettings?:     #OutputLockingSettings
 	OutputTimingSource?:        string
 	SupportLowFramerateInputs?: string
 })
 
-_#defs: "/$defs/Properties/definitions/H264ColorSpaceSettings": close({
-	ColorSpacePassthroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Rec601Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Rec709Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+#H264ColorSpaceSettings: close({
+	ColorSpacePassthroughSettings?: #EmptyConfigurationSettings
+	Rec601Settings?:                #EmptyConfigurationSettings
+	Rec709Settings?:                #EmptyConfigurationSettings
 })
 
-_#defs: "/$defs/Properties/definitions/H264H265FilterSettings": close({
-	BandwidthReductionFilterSettings?: _#defs."/$defs/Properties/definitions/BandwidthReductionFilterSettings"
-	TemporalFilterSettings?:           _#defs."/$defs/Properties/definitions/TemporalFilterSettings"
+#H264H265FilterSettings: close({
+	BandwidthReductionFilterSettings?: #BandwidthReductionFilterSettings
+	TemporalFilterSettings?:           #TemporalFilterSettings
 })
 
-_#defs: "/$defs/Properties/definitions/H264Settings": close({
+#H264Settings: close({
 	AdaptiveQuantization?:   string
 	AfdSignaling?:           string
 	Bitrate?:                int
 	BufFillPct?:             int
 	BufSize?:                int
 	ColorMetadata?:          string
-	ColorSpaceSettings?:     _#defs."/$defs/Properties/definitions/H264ColorSpaceSettings"
+	ColorSpaceSettings?:     #H264ColorSpaceSettings
 	EntropyEncoding?:        string
-	FilterSettings?:         _#defs."/$defs/Properties/definitions/H264H265FilterSettings"
+	FilterSettings?:         #H264H265FilterSettings
 	FixedAfd?:               string
 	FlickerAq?:              string
 	ForceFieldPictures?:     string
@@ -625,29 +612,29 @@ _#defs: "/$defs/Properties/definitions/H264Settings": close({
 	SubgopLength?:           string
 	Syntax?:                 string
 	TemporalAq?:             string
-	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
+	TimecodeBurninSettings?: #TimecodeBurninSettings
 	TimecodeInsertion?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/H265ColorSpaceSettings": close({
-	ColorSpacePassthroughSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	DolbyVision81Settings?:         _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Hdr10Settings?:                 _#defs."/$defs/Properties/definitions/Hdr10Settings"
-	Hlg2020Settings?:               _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Rec601Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	Rec709Settings?:                _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
+#H265ColorSpaceSettings: close({
+	ColorSpacePassthroughSettings?: #EmptyConfigurationSettings
+	DolbyVision81Settings?:         #EmptyConfigurationSettings
+	Hdr10Settings?:                 #Hdr10Settings
+	Hlg2020Settings?:               #EmptyConfigurationSettings
+	Rec601Settings?:                #EmptyConfigurationSettings
+	Rec709Settings?:                #EmptyConfigurationSettings
 })
 
-_#defs: "/$defs/Properties/definitions/H265Settings": close({
+#H265Settings: close({
 	AdaptiveQuantization?:        string
 	AfdSignaling?:                string
 	AlternativeTransferFunction?: string
 	Bitrate?:                     int
 	BufSize?:                     int
 	ColorMetadata?:               string
-	ColorSpaceSettings?:          _#defs."/$defs/Properties/definitions/H265ColorSpaceSettings"
+	ColorSpaceSettings?:          #H265ColorSpaceSettings
 	Deblocking?:                  string
-	FilterSettings?:              _#defs."/$defs/Properties/definitions/H264H265FilterSettings"
+	FilterSettings?:              #H264H265FilterSettings
 	FixedAfd?:                    string
 	FlickerAq?:                   string
 	FramerateDenominator?:        int
@@ -678,17 +665,17 @@ _#defs: "/$defs/Properties/definitions/H265Settings": close({
 	TileHeight?:                  int
 	TilePadding?:                 string
 	TileWidth?:                   int
-	TimecodeBurninSettings?:      _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
+	TimecodeBurninSettings?:      #TimecodeBurninSettings
 	TimecodeInsertion?:           string
 	TreeblockSize?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/Hdr10Settings": close({
+#Hdr10Settings: close({
 	MaxCll?:  int
 	MaxFall?: int
 })
 
-_#defs: "/$defs/Properties/definitions/HlsAkamaiSettings": close({
+#HlsAkamaiSettings: close({
 	ConnectionRetryInterval?: int
 	FilecacheDuration?:       int
 	HttpTransferMode?:        string
@@ -698,37 +685,37 @@ _#defs: "/$defs/Properties/definitions/HlsAkamaiSettings": close({
 	Token?:                   string
 })
 
-_#defs: "/$defs/Properties/definitions/HlsBasicPutSettings": close({
+#HlsBasicPutSettings: close({
 	ConnectionRetryInterval?: int
 	FilecacheDuration?:       int
 	NumRetries?:              int
 	RestartDelay?:            int
 })
 
-_#defs: "/$defs/Properties/definitions/HlsCdnSettings": close({
-	HlsAkamaiSettings?:     _#defs."/$defs/Properties/definitions/HlsAkamaiSettings"
-	HlsBasicPutSettings?:   _#defs."/$defs/Properties/definitions/HlsBasicPutSettings"
-	HlsMediaStoreSettings?: _#defs."/$defs/Properties/definitions/HlsMediaStoreSettings"
-	HlsS3Settings?:         _#defs."/$defs/Properties/definitions/ArchiveFrameCaptureHlsS3Settings"
-	HlsWebdavSettings?:     _#defs."/$defs/Properties/definitions/HlsWebdavSettings"
+#HlsCdnSettings: close({
+	HlsAkamaiSettings?:     #HlsAkamaiSettings
+	HlsBasicPutSettings?:   #HlsBasicPutSettings
+	HlsMediaStoreSettings?: #HlsMediaStoreSettings
+	HlsS3Settings?:         #ArchiveFrameCaptureHlsS3Settings
+	HlsWebdavSettings?:     #HlsWebdavSettings
 })
 
-_#defs: "/$defs/Properties/definitions/HlsGroupSettings": close({
+#HlsGroupSettings: close({
 	AdMarkers?:                  [...string]
 	BaseUrlContent?:             string
 	BaseUrlContent1?:            string
 	BaseUrlManifest?:            string
 	BaseUrlManifest1?:           string
-	CaptionLanguageMappings?:    [..._#defs."/$defs/Properties/definitions/CaptionLanguageMapping"]
+	CaptionLanguageMappings?:    [...#CaptionLanguageMapping]
 	CaptionLanguageSetting?:     string
 	ClientCache?:                string
 	CodecSpecification?:         string
 	ConstantIv?:                 string
-	Destination?:                _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	Destination?:                #OutputLocationRef
 	DirectoryStructure?:         string
 	DiscontinuityTags?:          string
 	EncryptionType?:             string
-	HlsCdnSettings?:             _#defs."/$defs/Properties/definitions/HlsCdnSettings"
+	HlsCdnSettings?:             #HlsCdnSettings
 	HlsId3SegmentTagging?:       string
 	IFrameOnlyPlaylists?:        string
 	IncompleteSegmentBehavior?:  string
@@ -739,7 +726,7 @@ _#defs: "/$defs/Properties/definitions/HlsGroupSettings": close({
 	KeepSegments?:               int
 	KeyFormat?:                  string
 	KeyFormatVersions?:          string
-	KeyProviderSettings?:        _#defs."/$defs/Properties/definitions/KeyProviderSettings"
+	KeyProviderSettings?:        #KeyProviderSettings
 	ManifestCompression?:        string
 	ManifestDurationFormat?:     string
 	MinSegmentLength?:           int
@@ -759,7 +746,7 @@ _#defs: "/$defs/Properties/definitions/HlsGroupSettings": close({
 	TsFileMode?:                 string
 })
 
-_#defs: "/$defs/Properties/definitions/HlsInputSettings": close({
+#HlsInputSettings: close({
 	Bandwidth?:      int
 	BufferSegments?: int
 	Retries?:        int
@@ -767,7 +754,7 @@ _#defs: "/$defs/Properties/definitions/HlsInputSettings": close({
 	Scte35Source?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/HlsMediaStoreSettings": close({
+#HlsMediaStoreSettings: close({
 	ConnectionRetryInterval?: int
 	FilecacheDuration?:       int
 	MediaStoreStorageClass?:  string
@@ -775,21 +762,21 @@ _#defs: "/$defs/Properties/definitions/HlsMediaStoreSettings": close({
 	RestartDelay?:            int
 })
 
-_#defs: "/$defs/Properties/definitions/HlsOutputSettings": close({
+#HlsOutputSettings: close({
 	H265PackagingType?: string
-	HlsSettings?:       _#defs."/$defs/Properties/definitions/HlsSettings"
+	HlsSettings?:       #HlsSettings
 	NameModifier?:      string
 	SegmentModifier?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/HlsSettings": close({
-	AudioOnlyHlsSettings?:    _#defs."/$defs/Properties/definitions/AudioOnlyHlsSettings"
-	Fmp4HlsSettings?:         _#defs."/$defs/Properties/definitions/Fmp4HlsSettings"
-	FrameCaptureHlsSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	StandardHlsSettings?:     _#defs."/$defs/Properties/definitions/StandardHlsSettings"
+#HlsSettings: close({
+	AudioOnlyHlsSettings?:    #AudioOnlyHlsSettings
+	Fmp4HlsSettings?:         #Fmp4HlsSettings
+	FrameCaptureHlsSettings?: #EmptyConfigurationSettings
+	StandardHlsSettings?:     #StandardHlsSettings
 })
 
-_#defs: "/$defs/Properties/definitions/HlsWebdavSettings": close({
+#HlsWebdavSettings: close({
 	ConnectionRetryInterval?: int
 	FilecacheDuration?:       int
 	HttpTransferMode?:        string
@@ -797,71 +784,69 @@ _#defs: "/$defs/Properties/definitions/HlsWebdavSettings": close({
 	RestartDelay?:            int
 })
 
-_#defs: "/$defs/Properties/definitions/InferenceSettings": close({
-	AudioFeedInputs?:   [..._#defs."/$defs/Properties/definitions/AudioFeedInput"]
+#InferenceSettings: close({
+	AudioFeedInputs?:   [...#AudioFeedInput]
 	EnrichmentMethods?: [...string]
 	FeedArn?:           string
 })
 
-_#defs: "/$defs/Properties/definitions/InputAttachment": close({
-	AutomaticInputFailoverSettings?: _#defs."/$defs/Properties/definitions/AutomaticInputFailoverSettings"
+#InputAttachment: close({
+	AutomaticInputFailoverSettings?: #AutomaticInputFailoverSettings
 	InputAttachmentName?:            string
 	InputId?:                        string
-	InputSettings?:                  _#defs."/$defs/Properties/definitions/InputSettings"
+	InputSettings?:                  #InputSettings
 	LogicalInterfaceNames?:          [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/InputChannelLevel": close({
+#InputChannelLevel: close({
 	Gain?:         int
 	InputChannel?: int
 })
 
-_#defs: "/$defs/Properties/definitions/InputLocation": close({
+#InputLocation: close({
 	PasswordParam?: string
 	Uri?:           string
 	Username?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/InputLossBehavior": close({
+#InputLossBehavior: close({
 	BlackFrameMsec?:      int
 	InputLossImageColor?: string
-	InputLossImageSlate?: _#defs."/$defs/Properties/definitions/InputLocation"
+	InputLossImageSlate?: #InputLocation
 	InputLossImageType?:  string
 	RepeatFrameMsec?:     int
 })
 
-_#defs: "/$defs/Properties/definitions/InputLossFailoverSettings": close({InputLossThresholdMsec?: int})
+#InputLossFailoverSettings: close({InputLossThresholdMsec?: int})
 
-_#defs: "/$defs/Properties/definitions/InputSettings": close({
-	AudioSelectors?:          [..._#defs."/$defs/Properties/definitions/AudioSelector"]
-	CaptionSelectors?:        [..._#defs."/$defs/Properties/definitions/CaptionSelector"]
+#InputSettings: close({
+	AudioSelectors?:          [...#AudioSelector]
+	CaptionSelectors?:        [...#CaptionSelector]
 	DeblockFilter?:           string
 	DenoiseFilter?:           string
 	FilterStrength?:          int
 	InputFilter?:             string
-	NetworkInputSettings?:    _#defs."/$defs/Properties/definitions/NetworkInputSettings"
+	NetworkInputSettings?:    #NetworkInputSettings
 	Scte35Pid?:               int
 	Smpte2038DataPreference?: string
 	SourceEndBehavior?:       string
-	VideoSelector?:           _#defs."/$defs/Properties/definitions/VideoSelector"
+	VideoSelector?:           #VideoSelector
 })
 
-_#defs: "/$defs/Properties/definitions/InputSpecification": close({
+#InputSpecification: close({
 	Codec?:          string
 	MaximumBitrate?: string
 	Resolution?:     string
 })
 
-_#defs: "/$defs/Properties/definitions/KeyProviderSettings": close(
-	{StaticKeySettings?: _#defs."/$defs/Properties/definitions/StaticKeySettings"},
-)
+#KeyProviderSettings: close({StaticKeySettings?: #StaticKeySettings})
 
-_#defs: "/$defs/Properties/definitions/LinkedChannelSettings": close({
-	FollowerChannelSettings?: _#defs."/$defs/Properties/definitions/FollowerChannelSettings"
-	PrimaryChannelSettings?:  _#defs."/$defs/Properties/definitions/PrimaryChannelSettings"
+#LinkedChannelSettings: close({
+	FollowerChannelSettings?: #FollowerChannelSettings
+	PrimaryChannelSettings?:  #PrimaryChannelSettings
 })
 
-_#defs: "/$defs/Properties/definitions/M2tsSettings": close({
+#M2tsSettings: close({
 	AbsentInputAudioBehavior?:        string
 	Arib?:                            string
 	AribCaptionsPid?:                 string
@@ -873,10 +858,10 @@ _#defs: "/$defs/Properties/definitions/M2tsSettings": close({
 	Bitrate?:                         int
 	BufferModel?:                     string
 	CcDescriptor?:                    string
-	DvbNitSettings?:                  _#defs."/$defs/Properties/definitions/DvbNitSettings"
-	DvbSdtSettings?:                  _#defs."/$defs/Properties/definitions/DvbSdtSettings"
+	DvbNitSettings?:                  #DvbNitSettings
+	DvbSdtSettings?:                  #DvbSdtSettings
 	DvbSubPids?:                      string
-	DvbTdtSettings?:                  _#defs."/$defs/Properties/definitions/DvbTdtSettings"
+	DvbTdtSettings?:                  #DvbTdtSettings
 	DvbTeletextPid?:                  string
 	Ebif?:                            string
 	EbpAudioInterval?:                string
@@ -912,7 +897,7 @@ _#defs: "/$defs/Properties/definitions/M2tsSettings": close({
 	VideoPid?:                        string
 })
 
-_#defs: "/$defs/Properties/definitions/M3u8Settings": close({
+#M3u8Settings: close({
 	AudioFramesPerPes?:     int
 	AudioPids?:             string
 	EcmPid?:                string
@@ -934,35 +919,35 @@ _#defs: "/$defs/Properties/definitions/M3u8Settings": close({
 	VideoPid?:              string
 })
 
-_#defs: "/$defs/Properties/definitions/MaintenanceCreateSettings": close({
+#MaintenanceCreateSettings: close({
 	MaintenanceDay?:       string
 	MaintenanceStartTime?: string
 })
 
-_#defs: "/$defs/Properties/definitions/MediaConnectRouterGroupSettings": close({AvailabilityZones?: [...string]})
+#MediaConnectRouterGroupSettings: close({AvailabilityZones?: [...string]})
 
-_#defs: "/$defs/Properties/definitions/MediaConnectRouterOutputConnectionMap": close({
+#MediaConnectRouterOutputConnectionMap: close({
 	Pipeline0?: string
 	Pipeline1?: string
 })
 
-_#defs: "/$defs/Properties/definitions/MediaConnectRouterOutputDestinationSettings": close({
+#MediaConnectRouterOutputDestinationSettings: close({
 	EncryptionType?: string
 	SecretArn?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/MediaConnectRouterOutputSettings": close({
-	ConnectedRouterInputs?: _#defs."/$defs/Properties/definitions/MediaConnectRouterOutputConnectionMap"
-	ContainerSettings?:     _#defs."/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings"
-	Destination?:           _#defs."/$defs/Properties/definitions/OutputLocationRef"
+#MediaConnectRouterOutputSettings: close({
+	ConnectedRouterInputs?: #MediaConnectRouterOutputConnectionMap
+	ContainerSettings?:     #UdpMediaConnectRouterContainerSettings
+	Destination?:           #OutputLocationRef
 })
 
-_#defs: "/$defs/Properties/definitions/MediaPackageGroupSettings": close({
-	Destination?:                 _#defs."/$defs/Properties/definitions/OutputLocationRef"
-	MediapackageV2GroupSettings?: _#defs."/$defs/Properties/definitions/MediaPackageV2GroupSettings"
+#MediaPackageGroupSettings: close({
+	Destination?:                 #OutputLocationRef
+	MediapackageV2GroupSettings?: #MediaPackageV2GroupSettings
 })
 
-_#defs: "/$defs/Properties/definitions/MediaPackageOutputDestinationSettings": close({
+#MediaPackageOutputDestinationSettings: close({
 	ChannelEndpointId?:      string
 	ChannelGroup?:           string
 	ChannelId?:              string
@@ -970,9 +955,9 @@ _#defs: "/$defs/Properties/definitions/MediaPackageOutputDestinationSettings": c
 	MediaPackageRegionName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/MediaPackageOutputSettings": string | {...}
+#MediaPackageOutputSettings: string | {...}
 
-_#defs: "/$defs/Properties/definitions/MediaPackageV2DestinationSettings": close({
+#MediaPackageV2DestinationSettings: close({
 	AudioGroupId?:       string
 	AudioRenditionSets?: string
 	HlsAutoSelect?:      string
@@ -980,9 +965,9 @@ _#defs: "/$defs/Properties/definitions/MediaPackageV2DestinationSettings": close
 	OutputUsage?:        [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/MediaPackageV2GroupSettings": close({
-	AdditionalDestinations?:   [..._#defs."/$defs/Properties/definitions/AdditionalDestinations"]
-	CaptionLanguageMappings?:  [..._#defs."/$defs/Properties/definitions/CaptionLanguageMapping"]
+#MediaPackageV2GroupSettings: close({
+	AdditionalDestinations?:   [...#AdditionalDestinations]
+	CaptionLanguageMappings?:  [...#CaptionLanguageMapping]
 	Id3Behavior?:              string
 	KlvBehavior?:              string
 	NielsenId3Behavior?:       string
@@ -992,40 +977,35 @@ _#defs: "/$defs/Properties/definitions/MediaPackageV2GroupSettings": close({
 	TimedMetadataId3Frame?:    string
 	TimedMetadataId3Period?:   int
 	TimedMetadataPassthrough?: string
-	WatermarkingSettings?:     _#defs."/$defs/Properties/definitions/MediaPackageV2WatermarkingSettings"
+	WatermarkingSettings?:     #MediaPackageV2WatermarkingSettings
 })
 
-_#defs: "/$defs/Properties/definitions/MediaPackageV2WatermarkingSettings": close({
-	MediaPackageV2AbWatermarkerIrdetoSettings?:
-		_#defs."/$defs/Properties/definitions/CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings"
-})
-
-_#defs: "/$defs/Properties/definitions/MotionGraphicsConfiguration": close({
-	MotionGraphicsInsertion?: string
-	MotionGraphicsSettings?:  _#defs."/$defs/Properties/definitions/MotionGraphicsSettings"
-})
-
-_#defs: "/$defs/Properties/definitions/MotionGraphicsSettings": close(
-	{HtmlMotionGraphicsSettings?: _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"},
+#MediaPackageV2WatermarkingSettings: close(
+	{MediaPackageV2AbWatermarkerIrdetoSettings?: #CmafIngestMediaPackageV2AbWatermarkerIrdetoSettings},
 )
 
-_#defs: "/$defs/Properties/definitions/Mp2Settings": close({
+#MotionGraphicsConfiguration: close({
+	MotionGraphicsInsertion?: string
+	MotionGraphicsSettings?:  #MotionGraphicsSettings
+})
+
+#MotionGraphicsSettings: close({HtmlMotionGraphicsSettings?: #EmptyConfigurationSettings})
+
+#Mp2Settings: close({
 	Bitrate?:    number
 	CodingMode?: string
 	SampleRate?: number
 })
 
-_#defs: "/$defs/Properties/definitions/Mpeg2FilterSettings": close(
-	{TemporalFilterSettings?: _#defs."/$defs/Properties/definitions/TemporalFilterSettings"},
-)
+#Mpeg2FilterSettings: close({TemporalFilterSettings?: #TemporalFilterSettings})
 
-_#defs: "/$defs/Properties/definitions/Mpeg2Settings": close({
+#Mpeg2Settings: close({
 	AdaptiveQuantization?:   string
 	AfdSignaling?:           string
 	ColorMetadata?:          string
 	ColorSpace?:             string
 	DisplayAspectRatio?:     string
-	FilterSettings?:         _#defs."/$defs/Properties/definitions/Mpeg2FilterSettings"
+	FilterSettings?:         #Mpeg2FilterSettings
 	FixedAfd?:               string
 	FramerateDenominator?:   int
 	FramerateNumerator?:     int
@@ -1035,16 +1015,16 @@ _#defs: "/$defs/Properties/definitions/Mpeg2Settings": close({
 	GopSizeUnits?:           string
 	ScanType?:               string
 	SubgopLength?:           string
-	TimecodeBurninSettings?: _#defs."/$defs/Properties/definitions/TimecodeBurninSettings"
+	TimecodeBurninSettings?: #TimecodeBurninSettings
 	TimecodeInsertion?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/MsSmoothGroupSettings": close({
+#MsSmoothGroupSettings: close({
 	AcquisitionPointId?:       string
 	AudioOnlyTimecodeControl?: string
 	CertificateMode?:          string
 	ConnectionRetryInterval?:  int
-	Destination?:              _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	Destination?:              #OutputLocationRef
 	EventId?:                  string
 	EventIdMode?:              string
 	EventStopBehavior?:        string
@@ -1061,18 +1041,16 @@ _#defs: "/$defs/Properties/definitions/MsSmoothGroupSettings": close({
 	TimestampOffsetMode?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/MsSmoothOutputSettings": close({
+#MsSmoothOutputSettings: close({
 	H265PackagingType?: string
 	NameModifier?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/MulticastInputSettings": close({SourceIpAddress?: string})
+#MulticastInputSettings: close({SourceIpAddress?: string})
 
-_#defs: "/$defs/Properties/definitions/MultiplexContainerSettings": close(
-	{MultiplexM2tsSettings?: _#defs."/$defs/Properties/definitions/MultiplexM2tsSettings"},
-)
+#MultiplexContainerSettings: close({MultiplexM2tsSettings?: #MultiplexM2tsSettings})
 
-_#defs: "/$defs/Properties/definitions/MultiplexM2tsSettings": close({
+#MultiplexM2tsSettings: close({
 	AbsentInputAudioBehavior?:        string
 	Arib?:                            string
 	AudioBufferModel?:                string
@@ -1089,65 +1067,65 @@ _#defs: "/$defs/Properties/definitions/MultiplexM2tsSettings": close({
 	Scte35PrerollPullupMilliseconds?: number
 })
 
-_#defs: "/$defs/Properties/definitions/MultiplexOutputSettings": close({
-	ContainerSettings?: _#defs."/$defs/Properties/definitions/MultiplexContainerSettings"
-	Destination?:       _#defs."/$defs/Properties/definitions/OutputLocationRef"
+#MultiplexOutputSettings: close({
+	ContainerSettings?: #MultiplexContainerSettings
+	Destination?:       #OutputLocationRef
 })
 
-_#defs: "/$defs/Properties/definitions/MultiplexProgramChannelDestinationSettings": close({
+#MultiplexProgramChannelDestinationSettings: close({
 	MultiplexId?: string
 	ProgramName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkInputSettings": close({
-	HlsInputSettings?:       _#defs."/$defs/Properties/definitions/HlsInputSettings"
-	MulticastInputSettings?: _#defs."/$defs/Properties/definitions/MulticastInputSettings"
+#NetworkInputSettings: close({
+	HlsInputSettings?:       #HlsInputSettings
+	MulticastInputSettings?: #MulticastInputSettings
 	ServerValidation?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/NielsenCBET": close({
+#NielsenCBET: close({
 	CbetCheckDigitString?: string
 	CbetStepaside?:        string
 	Csid?:                 string
 })
 
-_#defs: "/$defs/Properties/definitions/NielsenConfiguration": close({
+#NielsenConfiguration: close({
 	DistributorId?:          string
 	NielsenPcmToId3Tagging?: string
 })
 
-_#defs: "/$defs/Properties/definitions/NielsenNaesIiNwOnlySettings": close({
+#NielsenNaesIiNwOnlySettings: close({
 	CheckDigitString?: string
 	Sid?:              number
 	Timezone?:         string
 })
 
-_#defs: "/$defs/Properties/definitions/NielsenWatermarksSettings": close({
-	NielsenCbetSettings?:     _#defs."/$defs/Properties/definitions/NielsenCBET"
+#NielsenWatermarksSettings: close({
+	NielsenCbetSettings?:     #NielsenCBET
 	NielsenDistributionType?: string
-	NielsenNaesIiNwSettings?: _#defs."/$defs/Properties/definitions/NielsenNaesIiNwOnlySettings"
-	NielsenNwOnlySettings?:   _#defs."/$defs/Properties/definitions/NielsenNaesIiNwOnlySettings"
+	NielsenNaesIiNwSettings?: #NielsenNaesIiNwOnlySettings
+	NielsenNwOnlySettings?:   #NielsenNaesIiNwOnlySettings
 })
 
-_#defs: "/$defs/Properties/definitions/Output": close({
+#Output: close({
 	AudioDescriptionNames?:   [...string]
 	CaptionDescriptionNames?: [...string]
 	OutputName?:              string
-	OutputSettings?:          _#defs."/$defs/Properties/definitions/OutputSettings"
+	OutputSettings?:          #OutputSettings
 	VideoDescriptionName?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/OutputDestination": close({
+#OutputDestination: close({
 	Id?:                         string
 	LogicalInterfaceNames?:      [...string]
-	MediaConnectRouterSettings?: [..._#defs."/$defs/Properties/definitions/MediaConnectRouterOutputDestinationSettings"]
-	MediaPackageSettings?:       [..._#defs."/$defs/Properties/definitions/MediaPackageOutputDestinationSettings"]
-	MultiplexSettings?:          _#defs."/$defs/Properties/definitions/MultiplexProgramChannelDestinationSettings"
-	Settings?:                   [..._#defs."/$defs/Properties/definitions/OutputDestinationSettings"]
-	SrtSettings?:                [..._#defs."/$defs/Properties/definitions/SrtOutputDestinationSettings"]
+	MediaConnectRouterSettings?: [...#MediaConnectRouterOutputDestinationSettings]
+	MediaPackageSettings?:       [...#MediaPackageOutputDestinationSettings]
+	MultiplexSettings?:          #MultiplexProgramChannelDestinationSettings
+	Settings?:                   [...#OutputDestinationSettings]
+	SrtSettings?:                [...#SrtOutputDestinationSettings]
 })
 
-_#defs: "/$defs/Properties/definitions/OutputDestinationSettings": close({
+#OutputDestinationSettings: close({
 	PasswordParam?:        string
 	StreamName?:           string
 	Url?:                  string
@@ -1155,59 +1133,59 @@ _#defs: "/$defs/Properties/definitions/OutputDestinationSettings": close({
 	VirtualSourceAddress?: string
 })
 
-_#defs: "/$defs/Properties/definitions/OutputGroup": close({
+#OutputGroup: close({
 	Name?:                string
-	OutputGroupSettings?: _#defs."/$defs/Properties/definitions/OutputGroupSettings"
-	Outputs?:             [..._#defs."/$defs/Properties/definitions/Output"]
+	OutputGroupSettings?: #OutputGroupSettings
+	Outputs?:             [...#Output]
 })
 
-_#defs: "/$defs/Properties/definitions/OutputGroupSettings": close({
-	ArchiveGroupSettings?:            _#defs."/$defs/Properties/definitions/ArchiveGroupSettings"
-	CmafIngestGroupSettings?:         _#defs."/$defs/Properties/definitions/CmafIngestGroupSettings"
-	FrameCaptureGroupSettings?:       _#defs."/$defs/Properties/definitions/FrameCaptureGroupSettings"
-	HlsGroupSettings?:                _#defs."/$defs/Properties/definitions/HlsGroupSettings"
-	MediaConnectRouterGroupSettings?: _#defs."/$defs/Properties/definitions/MediaConnectRouterGroupSettings"
-	MediaPackageGroupSettings?:       _#defs."/$defs/Properties/definitions/MediaPackageGroupSettings"
-	MsSmoothGroupSettings?:           _#defs."/$defs/Properties/definitions/MsSmoothGroupSettings"
-	MultiplexGroupSettings?:          _#defs."/$defs/Properties/definitions/EmptyConfigurationSettings"
-	RtmpGroupSettings?:               _#defs."/$defs/Properties/definitions/RtmpGroupSettings"
-	SrtGroupSettings?:                _#defs."/$defs/Properties/definitions/SrtGroupSettings"
-	UdpGroupSettings?:                _#defs."/$defs/Properties/definitions/UdpGroupSettings"
+#OutputGroupSettings: close({
+	ArchiveGroupSettings?:            #ArchiveGroupSettings
+	CmafIngestGroupSettings?:         #CmafIngestGroupSettings
+	FrameCaptureGroupSettings?:       #FrameCaptureGroupSettings
+	HlsGroupSettings?:                #HlsGroupSettings
+	MediaConnectRouterGroupSettings?: #MediaConnectRouterGroupSettings
+	MediaPackageGroupSettings?:       #MediaPackageGroupSettings
+	MsSmoothGroupSettings?:           #MsSmoothGroupSettings
+	MultiplexGroupSettings?:          #EmptyConfigurationSettings
+	RtmpGroupSettings?:               #RtmpGroupSettings
+	SrtGroupSettings?:                #SrtGroupSettings
+	UdpGroupSettings?:                #UdpGroupSettings
 })
 
-_#defs: "/$defs/Properties/definitions/OutputLocationRef": close({DestinationRefId?: string})
+#OutputLocationRef: close({DestinationRefId?: string})
 
-_#defs: "/$defs/Properties/definitions/OutputLockingSettings": close({
-	DisabledLockingSettings?: _#defs."/$defs/Properties/definitions/DisabledLockingSettings"
-	EpochLockingSettings?:    _#defs."/$defs/Properties/definitions/EpochLockingSettings"
-	PipelineLockingSettings?: _#defs."/$defs/Properties/definitions/PipelineLockingSettings"
+#OutputLockingSettings: close({
+	DisabledLockingSettings?: #DisabledLockingSettings
+	EpochLockingSettings?:    #EpochLockingSettings
+	PipelineLockingSettings?: #PipelineLockingSettings
 })
 
-_#defs: "/$defs/Properties/definitions/OutputSettings": close({
-	ArchiveOutputSettings?:            _#defs."/$defs/Properties/definitions/ArchiveOutputSettings"
-	CmafIngestOutputSettings?:         _#defs."/$defs/Properties/definitions/CmafIngestFrameCaptureOutputSettings"
-	FrameCaptureOutputSettings?:       _#defs."/$defs/Properties/definitions/CmafIngestFrameCaptureOutputSettings"
-	HlsOutputSettings?:                _#defs."/$defs/Properties/definitions/HlsOutputSettings"
-	MediaConnectRouterOutputSettings?: _#defs."/$defs/Properties/definitions/MediaConnectRouterOutputSettings"
-	MediaPackageOutputSettings?:       _#defs."/$defs/Properties/definitions/MediaPackageOutputSettings"
-	MsSmoothOutputSettings?:           _#defs."/$defs/Properties/definitions/MsSmoothOutputSettings"
-	MultiplexOutputSettings?:          _#defs."/$defs/Properties/definitions/MultiplexOutputSettings"
-	RtmpOutputSettings?:               _#defs."/$defs/Properties/definitions/RtmpOutputSettings"
-	SrtOutputSettings?:                _#defs."/$defs/Properties/definitions/SrtOutputSettings"
-	UdpOutputSettings?:                _#defs."/$defs/Properties/definitions/UdpOutputSettings"
+#OutputSettings: close({
+	ArchiveOutputSettings?:            #ArchiveOutputSettings
+	CmafIngestOutputSettings?:         #CmafIngestFrameCaptureOutputSettings
+	FrameCaptureOutputSettings?:       #CmafIngestFrameCaptureOutputSettings
+	HlsOutputSettings?:                #HlsOutputSettings
+	MediaConnectRouterOutputSettings?: #MediaConnectRouterOutputSettings
+	MediaPackageOutputSettings?:       #MediaPackageOutputSettings
+	MsSmoothOutputSettings?:           #MsSmoothOutputSettings
+	MultiplexOutputSettings?:          #MultiplexOutputSettings
+	RtmpOutputSettings?:               #RtmpOutputSettings
+	SrtOutputSettings?:                #SrtOutputSettings
+	UdpOutputSettings?:                #UdpOutputSettings
 })
 
-_#defs: "/$defs/Properties/definitions/PipelineLockingSettings": string | {...}
+#PipelineLockingSettings: string | {...}
 
-_#defs: "/$defs/Properties/definitions/PrimaryChannelSettings": close({LinkedChannelType?: string})
+#PrimaryChannelSettings: close({LinkedChannelType?: string})
 
-_#defs: "/$defs/Properties/definitions/RemixSettings": close({
-	ChannelMappings?: [..._#defs."/$defs/Properties/definitions/AudioChannelMapping"]
+#RemixSettings: close({
+	ChannelMappings?: [...#AudioChannelMapping]
 	ChannelsIn?:      int
 	ChannelsOut?:     int
 })
 
-_#defs: "/$defs/Properties/definitions/RtmpGroupSettings": close({
+#RtmpGroupSettings: close({
 	AdMarkers?:             [...string]
 	AuthenticationScheme?:  string
 	CacheFullBehavior?:     string
@@ -1218,37 +1196,37 @@ _#defs: "/$defs/Properties/definitions/RtmpGroupSettings": close({
 	RestartDelay?:          int
 })
 
-_#defs: "/$defs/Properties/definitions/RtmpOutputSettings": close({
+#RtmpOutputSettings: close({
 	CertificateMode?:         string
 	ConnectionRetryInterval?: int
-	Destination?:             _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	Destination?:             #OutputLocationRef
 	NumRetries?:              int
 })
 
-_#defs: "/$defs/Properties/definitions/Scte20SourceSettings": close({
+#Scte20SourceSettings: close({
 	Convert608To708?:        string
 	Source608ChannelNumber?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Scte27DvbSubSourceSettings": close({
+#Scte27DvbSubSourceSettings: close({
 	OcrLanguage?: string
 	Pid?:         int
 })
 
-_#defs: "/$defs/Properties/definitions/Scte35SpliceInsertTimeSignalAposSettings": close({
+#Scte35SpliceInsertTimeSignalAposSettings: close({
 	AdAvailOffset?:          int
 	NoRegionalBlackoutFlag?: string
 	WebDeliveryAllowedFlag?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SmartSubtitleSourceSettings": close({
+#SmartSubtitleSourceSettings: close({
 	CaptionSynchronizationMode?: string
 	InferenceFeedOutput?:        string
 })
 
-_#defs: "/$defs/Properties/definitions/SrtGroupSettings": close({InputLossAction?: string})
+#SrtGroupSettings: close({InputLossAction?: string})
 
-_#defs: "/$defs/Properties/definitions/SrtOutputDestinationSettings": close({
+#SrtOutputDestinationSettings: close({
 	ConnectionMode?:                string
 	EncryptionPassphraseSecretArn?: string
 	ListenerPort?:                  int
@@ -1256,137 +1234,133 @@ _#defs: "/$defs/Properties/definitions/SrtOutputDestinationSettings": close({
 	Url?:                           string
 })
 
-_#defs: "/$defs/Properties/definitions/SrtOutputSettings": close({
+#SrtOutputSettings: close({
 	BufferMsec?:        int
-	ContainerSettings?: _#defs."/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings"
-	Destination?:       _#defs."/$defs/Properties/definitions/OutputLocationRef"
+	ContainerSettings?: #UdpMediaConnectRouterContainerSettings
+	Destination?:       #OutputLocationRef
 	EncryptionType?:    string
 	Latency?:           int
 })
 
-_#defs: "/$defs/Properties/definitions/StandardHlsSettings": close({
+#StandardHlsSettings: close({
 	AudioRenditionSets?: string
-	M3u8Settings?:       _#defs."/$defs/Properties/definitions/M3u8Settings"
+	M3u8Settings?:       #M3u8Settings
 })
 
-_#defs: "/$defs/Properties/definitions/StaticKeySettings": close({
-	KeyProviderServer?: _#defs."/$defs/Properties/definitions/InputLocation"
+#StaticKeySettings: close({
+	KeyProviderServer?: #InputLocation
 	StaticKeyValue?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/TeletextSourceSettings": close({
-	OutputRectangle?: _#defs."/$defs/Properties/definitions/CaptionRectangle"
+#TeletextSourceSettings: close({
+	OutputRectangle?: #CaptionRectangle
 	PageNumber?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/TemporalFilterSettings": close({
+#TemporalFilterSettings: close({
 	PostFilterSharpening?: string
 	Strength?:             string
 })
 
-_#defs: "/$defs/Properties/definitions/TextCaptionPositionSettings": close({YPositionPercentage?: int})
+#TextCaptionPositionSettings: close({YPositionPercentage?: int})
 
-_#defs: "/$defs/Properties/definitions/ThumbnailConfiguration": close({State?: string})
+#ThumbnailConfiguration: close({State?: string})
 
-_#defs: "/$defs/Properties/definitions/TimecodeBurninSettings": close({
+#TimecodeBurninSettings: close({
 	FontSize?: string
 	Position?: string
 	Prefix?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/TimecodeConfig": close({
+#TimecodeConfig: close({
 	Source?:        string
 	SyncThreshold?: int
 })
 
-_#defs: "/$defs/Properties/definitions/TtmlDestinationSettings": close({
-	Position?:     _#defs."/$defs/Properties/definitions/TextCaptionPositionSettings"
+#TtmlDestinationSettings: close({
+	Position?:     #TextCaptionPositionSettings
 	StyleControl?: string
 })
 
-_#defs: "/$defs/Properties/definitions/UdpGroupSettings": close({
+#UdpGroupSettings: close({
 	InputLossAction?:        string
 	TimedMetadataId3Frame?:  string
 	TimedMetadataId3Period?: int
 })
 
-_#defs: "/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings": close(
-	{M2tsSettings?: _#defs."/$defs/Properties/definitions/M2tsSettings"},
-)
+#UdpMediaConnectRouterContainerSettings: close({M2tsSettings?: #M2tsSettings})
 
-_#defs: "/$defs/Properties/definitions/UdpOutputSettings": close({
+#UdpOutputSettings: close({
 	BufferMsec?:        int
-	ContainerSettings?: _#defs."/$defs/Properties/definitions/UdpMediaConnectRouterContainerSettings"
-	Destination?:       _#defs."/$defs/Properties/definitions/OutputLocationRef"
-	FecOutputSettings?: _#defs."/$defs/Properties/definitions/FecOutputSettings"
+	ContainerSettings?: #UdpMediaConnectRouterContainerSettings
+	Destination?:       #OutputLocationRef
+	FecOutputSettings?: #FecOutputSettings
 })
 
-_#defs: "/$defs/Properties/definitions/VideoBlackFailoverSettings": close({
+#VideoBlackFailoverSettings: close({
 	BlackDetectThreshold?:    number
 	VideoBlackThresholdMsec?: int
 })
 
-_#defs: "/$defs/Properties/definitions/VideoCodecSettings": close({
-	Av1Settings?:          _#defs."/$defs/Properties/definitions/Av1Settings"
-	FrameCaptureSettings?: _#defs."/$defs/Properties/definitions/FrameCaptureSettings"
-	H264Settings?:         _#defs."/$defs/Properties/definitions/H264Settings"
-	H265Settings?:         _#defs."/$defs/Properties/definitions/H265Settings"
-	Mpeg2Settings?:        _#defs."/$defs/Properties/definitions/Mpeg2Settings"
+#VideoCodecSettings: close({
+	Av1Settings?:          #Av1Settings
+	FrameCaptureSettings?: #FrameCaptureSettings
+	H264Settings?:         #H264Settings
+	H265Settings?:         #H265Settings
+	Mpeg2Settings?:        #Mpeg2Settings
 })
 
-_#defs: "/$defs/Properties/definitions/VideoDescription": close({
+#VideoDescription: close({
 	Border?:                  int
-	CodecSettings?:           _#defs."/$defs/Properties/definitions/VideoCodecSettings"
-	CropRectangle?:           _#defs."/$defs/Properties/definitions/VideoPositionRectangle"
+	CodecSettings?:           #VideoCodecSettings
+	CropRectangle?:           #VideoPositionRectangle
 	Height?:                  int
 	Name?:                    string
-	OutputPositionRectangle?: _#defs."/$defs/Properties/definitions/VideoPositionRectangle"
+	OutputPositionRectangle?: #VideoPositionRectangle
 	RespondToAfd?:            string
 	ScalingBehavior?:         string
 	Sharpness?:               int
 	Width?:                   int
 })
 
-_#defs: "/$defs/Properties/definitions/VideoPositionRectangle": close({
+#VideoPositionRectangle: close({
 	Height?: int
 	Width?:  int
 	X?:      int
 	Y?:      int
 })
 
-_#defs: "/$defs/Properties/definitions/VideoSelector": close({
+#VideoSelector: close({
 	ColorSpace?:         string
-	ColorSpaceSettings?: _#defs."/$defs/Properties/definitions/VideoSelectorColorSpaceSettings"
+	ColorSpaceSettings?: #VideoSelectorColorSpaceSettings
 	ColorSpaceUsage?:    string
-	SelectorSettings?:   _#defs."/$defs/Properties/definitions/VideoSelectorSettings"
+	SelectorSettings?:   #VideoSelectorSettings
 })
 
-_#defs: "/$defs/Properties/definitions/VideoSelectorColorSpaceSettings": close(
-	{Hdr10Settings?: _#defs."/$defs/Properties/definitions/Hdr10Settings"},
-)
+#VideoSelectorColorSpaceSettings: close({Hdr10Settings?: #Hdr10Settings})
 
-_#defs: "/$defs/Properties/definitions/VideoSelectorPid": close({Pid?: int})
+#VideoSelectorPid: close({Pid?: int})
 
-_#defs: "/$defs/Properties/definitions/VideoSelectorProgramId": close({ProgramId?: int})
+#VideoSelectorProgramId: close({ProgramId?: int})
 
-_#defs: "/$defs/Properties/definitions/VideoSelectorSettings": close({
-	VideoSelectorPid?:       _#defs."/$defs/Properties/definitions/VideoSelectorPid"
-	VideoSelectorProgramId?: _#defs."/$defs/Properties/definitions/VideoSelectorProgramId"
+#VideoSelectorSettings: close({
+	VideoSelectorPid?:       #VideoSelectorPid
+	VideoSelectorProgramId?: #VideoSelectorProgramId
 })
 
-_#defs: "/$defs/Properties/definitions/VpcOutputSettings": close({
+#VpcOutputSettings: close({
 	PublicAddressAllocationIds?: [...string]
 	SecurityGroupIds?:           [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:                  [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/WavSettings": close({
+#WavSettings: close({
 	BitDepth?:   number
 	CodingMode?: string
 	SampleRate?: number
 })
 
-_#defs: "/$defs/Properties/definitions/WebvttDestinationSettings": close({
-	Position?:     _#defs."/$defs/Properties/definitions/TextCaptionPositionSettings"
+#WebvttDestinationSettings: close({
+	Position?:     #TextCaptionPositionSettings
 	StyleControl?: string
 })

@@ -12,26 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::VectorBucketPolicy
-#Properties: matchN(>=1, [{
-	VectorBucketName!: _
-	...
-}, {
-	VectorBucketArn!: _
-	...
-}]) & close({
-	Policy!:           _#defs."/$defs/Properties/definitions/Policy"
-	VectorBucketArn?:  _#defs."/$defs/Properties/definitions/VectorBucketArn"
-	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Vectors::VectorBucketPolicy"
+	Properties!: close({
+		Policy!:           #Policy
+		VectorBucketArn?:  #VectorBucketArn
+		VectorBucketName?: #VectorBucketName
+	}) & matchN(>=1, [{VectorBucketName!: _}, {VectorBucketArn!: _}])
+}
 
-_#defs: "/$defs/Properties/definitions/Policy": fn.#Object & {...} | string | fn.#StringObjectExpression
+#Policy: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorBucketArn": =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$" |
+#VectorBucketArn: =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VectorBucketName": strings.MaxRunes(63) & strings.MinRunes(3) |
-fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Vectors::VectorBucketPolicy"
-	Properties!: #Properties
-}
+#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression

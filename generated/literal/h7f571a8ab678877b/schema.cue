@@ -3,134 +3,124 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Dataset
 #Properties: close({
-	Actions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Action"]
-	ContentDeliveryRules?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DatasetContentDeliveryRule"
-	]
-	DatasetName?:     strings.MaxRunes(128) & strings.MinRunes(1)
-	Id?:              string
-	LateDataRules?:   list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LateDataRule"]
-	RetentionPeriod?: _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	Tags?:            list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Triggers?:        list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Trigger"]
-	VersioningConfiguration?: _#defs."/$defs/Properties/definitions/VersioningConfiguration"
+	Actions!:                 list.MaxItems(1) & list.MinItems(1) & [...#Action]
+	ContentDeliveryRules?:    list.MaxItems(20) & [...] & [...#DatasetContentDeliveryRule]
+	DatasetName?:             strings.MaxRunes(128) & strings.MinRunes(1)
+	Id?:                      string
+	LateDataRules?:           list.MaxItems(1) & list.MinItems(1) & [...#LateDataRule]
+	RetentionPeriod?:         #RetentionPeriod
+	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag]
+	Triggers?:                list.MaxItems(5) & [...] & [...#Trigger]
+	VersioningConfiguration?: #VersioningConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	ActionName!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$"
-	ContainerAction?: _#defs."/$defs/Properties/definitions/ContainerAction"
-	QueryAction?:     _#defs."/$defs/Properties/definitions/QueryAction"
+	ContainerAction?: #ContainerAction
+	QueryAction?:     #QueryAction
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerAction": close({
+#ContainerAction: close({
 	ExecutionRoleArn!:
 		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	Image!:                 strings.MaxRunes(255)
-	ResourceConfiguration!: _#defs."/$defs/Properties/definitions/ResourceConfiguration"
-	Variables?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Variable"]
+	ResourceConfiguration!: #ResourceConfiguration
+	Variables?:             list.MaxItems(50) & [...] & [...#Variable]
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetContentDeliveryRule": close({
-	Destination!: _#defs."/$defs/Properties/definitions/DatasetContentDeliveryRuleDestination"
+#DatasetContentDeliveryRule: close({
+	Destination!: #DatasetContentDeliveryRuleDestination
 	EntryName?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetContentDeliveryRuleDestination": close({
-	IotEventsDestinationConfiguration?: _#defs."/$defs/Properties/definitions/IotEventsDestinationConfiguration"
-	S3DestinationConfiguration?:        _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+#DatasetContentDeliveryRuleDestination: close({
+	IotEventsDestinationConfiguration?: #IotEventsDestinationConfiguration
+	S3DestinationConfiguration?:        #S3DestinationConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetContentVersionValue": close(
-	{DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1)},
-)
+#DatasetContentVersionValue: close({DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/DeltaTime": close({
+#DeltaTime: close({
 	OffsetSeconds!:  int
 	TimeExpression!: string
 })
 
-_#defs: "/$defs/Properties/definitions/DeltaTimeSessionWindowConfiguration": close(
-	{TimeoutInMinutes!: int & <=60 & >=1},
-)
+#DeltaTimeSessionWindowConfiguration: close({TimeoutInMinutes!: int & <=60 & >=1})
 
-_#defs: "/$defs/Properties/definitions/Filter": close({DeltaTime?: _#defs."/$defs/Properties/definitions/DeltaTime"})
+#Filter: close({DeltaTime?: #DeltaTime})
 
-_#defs: "/$defs/Properties/definitions/GlueConfiguration": close({
+#GlueConfiguration: close({
 	DatabaseName!: strings.MaxRunes(150) & strings.MinRunes(1)
 	TableName!:    strings.MaxRunes(150) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/IotEventsDestinationConfiguration": close({
+#IotEventsDestinationConfiguration: close({
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$"
 	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
-_#defs: "/$defs/Properties/definitions/LateDataRule": close({
-	RuleConfiguration!: _#defs."/$defs/Properties/definitions/LateDataRuleConfiguration"
+#LateDataRule: close({
+	RuleConfiguration!: #LateDataRuleConfiguration
 	RuleName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/LateDataRuleConfiguration": close(
-	{DeltaTimeSessionWindowConfiguration?: _#defs."/$defs/Properties/definitions/DeltaTimeSessionWindowConfiguration"},
-)
+#LateDataRuleConfiguration: close({DeltaTimeSessionWindowConfiguration?: #DeltaTimeSessionWindowConfiguration})
 
-_#defs: "/$defs/Properties/definitions/OutputFileUriValue": close({FileName!: =~"^[\\w\\.-]{1,255}$"})
+#OutputFileUriValue: close({FileName!: =~"^[\\w\\.-]{1,255}$"})
 
-_#defs: "/$defs/Properties/definitions/QueryAction": close({
-	Filters?:  list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Filter"]
+#QueryAction: close({
+	Filters?:  list.MaxItems(1) & [...] & [...#Filter]
 	SqlQuery!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceConfiguration": close({
+#ResourceConfiguration: close({
 	ComputeType!:    "ACU_1" | "ACU_2"
 	VolumeSizeInGB!: int & <=50 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	NumberOfDays?: int & <=2147483647 & >=1
 	Unlimited?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
+#S3DestinationConfiguration: close({
 	Bucket!:            strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$"
-	GlueConfiguration?: _#defs."/$defs/Properties/definitions/GlueConfiguration"
+	GlueConfiguration?: #GlueConfiguration
 	Key!:               strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*$"
 	RoleArn!:           =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({ScheduleExpression!: string})
+#Schedule: close({ScheduleExpression!: string})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Trigger": close({
-	Schedule?:          _#defs."/$defs/Properties/definitions/Schedule"
-	TriggeringDataset?: _#defs."/$defs/Properties/definitions/TriggeringDataset"
+#Trigger: close({
+	Schedule?:          #Schedule
+	TriggeringDataset?: #TriggeringDataset
 })
 
-_#defs: "/$defs/Properties/definitions/TriggeringDataset": close(
-	{DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1)},
-)
+#TriggeringDataset: close({DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/Variable": close({
-	DatasetContentVersionValue?: _#defs."/$defs/Properties/definitions/DatasetContentVersionValue"
+#Variable: close({
+	DatasetContentVersionValue?: #DatasetContentVersionValue
 	DoubleValue?:                number
-	OutputFileUriValue?:         _#defs."/$defs/Properties/definitions/OutputFileUriValue"
+	OutputFileUriValue?:         #OutputFileUriValue
 	StringValue?:                strings.MaxRunes(1024) & strings.MinRunes(0)
 	VariableName!:               strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/VersioningConfiguration": close({
+#VersioningConfiguration: close({
 	MaxVersions?: int & <=1000 & >=1
 	Unlimited?:   bool
 })

@@ -11,15 +11,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::SecurityHub::Hub resource represents the implementation of the AWS
 // Security Hub service in your account. One hub resource is created for each
 // Region in which you enable Security Hub.
-#Properties: close({
-	AutoEnableControls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ControlFindingGenerator?: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" | fn.#StringExpression
-	EnableDefaultStandards?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
-})
-
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::Hub"
-	Properties?: #Properties
+	Type!: "AWS::SecurityHub::Hub"
+	Properties?: close({
+		AutoEnableControls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ControlFindingGenerator?: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" | fn.#StringExpression
+		EnableDefaultStandards?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                    #Tags
+	})
 }
+
+#Tags: {...} | fn.#ObjectExpression

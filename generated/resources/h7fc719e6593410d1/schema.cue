@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,77 +13,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::SecurityProfile
-#Properties: close({
-	AllowedAccessControlHierarchyGroupId?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]*$" |
-	fn.#StringExpression
-	AllowedAccessControlTags?: list.MaxItems(4) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	AllowedFlowModules?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/FlowModule"
-	] |
-		fn.#ListExpression
-	Applications?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Application"
-	] |
-		fn.#ListExpression
-	Description?: strings.MaxRunes(250) & strings.MinRunes(0) | fn.#StringExpression
-	GranularAccessControlConfiguration?: close({
-		DataTableAccessControlConfiguration?: _#defs."/$defs/Properties/definitions/DataTableAccessControlConfiguration"
-	}) |
-		fn.#ObjectExpression
-	HierarchyRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResourceName"
-	] |
-		fn.#ListExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Permissions?: list.MaxItems(500) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/Permission"
-	] |
-		fn.#ListExpression
-	SecurityProfileName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_@-]+$" | fn.#StringExpression
-	TagRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceName"
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::SecurityProfile"
+	Properties!: close({
+		AllowedAccessControlHierarchyGroupId?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]*$" |
+		fn.#StringExpression
+		AllowedAccessControlTags?: list.MaxItems(4) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		AllowedFlowModules?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#FlowModule] | fn.#ListExpression
+		Applications?:       list.MaxItems(10) & list.UniqueItems() & [...] & [...#Application] | fn.#ListExpression
+		Description?:        strings.MaxRunes(250) & strings.MinRunes(0) | fn.#StringExpression
+		GranularAccessControlConfiguration?: close(
+			{DataTableAccessControlConfiguration?: #DataTableAccessControlConfiguration},
+		) |
+			fn.#ObjectExpression
+		HierarchyRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...#ResourceName] | fn.#ListExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Permissions?: list.MaxItems(500) & list.UniqueItems() & [...] & [...#Permission] | fn.#ListExpression
+		SecurityProfileName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_@-]+$" |
+		fn.#StringExpression
+		TagRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ResourceName] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Application": close({
-	ApplicationPermissions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ApplicationPermission"
-	] |
+#Application: close({
+	ApplicationPermissions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ApplicationPermission] |
 		fn.#ListExpression
 	Namespace?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Type?:      "MCP" | "THIRD_PARTY_APPLICATION" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationPermission": strings.MaxRunes(128) & strings.MinRunes(1) |
-fn.#StringExpression
+#ApplicationPermission: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataTableAccessControlConfiguration": close({
-	PrimaryAttributeAccessControlConfiguration?:
-		_#defs."/$defs/Properties/definitions/PrimaryAttributeAccessControlConfigurationItem"
-}) |
+#DataTableAccessControlConfiguration: close(
+	{PrimaryAttributeAccessControlConfiguration?: #PrimaryAttributeAccessControlConfigurationItem},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowModule": close({
+#FlowModule: close({
 	FlowModuleId?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Type?:         "MCP" & (strings.MaxRunes(128) & strings.MinRunes(1)) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Permission": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Permission: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PrimaryAttributeAccessControlConfigurationItem": close({
-	PrimaryAttributeValues?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PrimaryAttributeValue"
-	] |
+#PrimaryAttributeAccessControlConfigurationItem: close({
+	PrimaryAttributeValues?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#PrimaryAttributeValue] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrimaryAttributeValue": close({
+#PrimaryAttributeValue: close({
 	AccessType?:    "ALLOW" | fn.#StringExpression
 	AttributeName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Values?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
@@ -96,14 +79,10 @@ _#defs: "/$defs/Properties/definitions/PrimaryAttributeValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::SecurityProfile"
-	Properties!: #Properties
-}

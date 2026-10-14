@@ -24,7 +24,7 @@ import (
 	// an AWS CloudFormation stack. Information about code is only used in resource
 	// creation. Updates to a stack will not reflect changes made to code
 	// properties after initial resource creation.
-	Code?: _#defs."/$defs/Properties/definitions/Code"
+	Code?: #Code
 
 	// The ID of the AWS Key Management Service encryption key used to encrypt and
 	// decrypt the repository.
@@ -46,17 +46,17 @@ import (
 	RepositoryName!: strings.MaxRunes(100) & strings.MinRunes(1)
 
 	// One or more tag key-value pairs to use when tagging this repository.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Information about a trigger for a repository.
-	Triggers?: [..._#defs."/$defs/Properties/definitions/RepositoryTrigger"]
+	Triggers?: [...#RepositoryTrigger]
 })
 
 // Information about code to be committed to a repository after it is created in
 // an AWS CloudFormation stack. Information about code is only used in resource
 // creation. Updates to a stack will not reflect changes made to code
 // properties after initial resource creation.
-_#defs: "/$defs/Properties/definitions/Code": close({
+#Code: close({
 	// Optional. Specifies a branch name to be used as the default branch when
 	// importing code into a repository on initial creation. If this property is
 	// not set, the name main will be used for the default branch for the
@@ -68,11 +68,11 @@ _#defs: "/$defs/Properties/definitions/Code": close({
 	// Information about the Amazon S3 bucket that contains a ZIP file of code to be
 	// committed to the repository. Changes to this property are ignored after
 	// initial resource creation.
-	S3!: _#defs."/$defs/Properties/definitions/S3"
+	S3!: #S3
 })
 
 // Information about a trigger for a repository.
-_#defs: "/$defs/Properties/definitions/RepositoryTrigger": close({
+#RepositoryTrigger: close({
 	// The branches to be included in the trigger configuration. If you specify an
 	// empty array, the trigger applies to all branches.
 	Branches?: [...strings.MaxRunes(256) & strings.MinRunes(1)]
@@ -96,7 +96,7 @@ _#defs: "/$defs/Properties/definitions/RepositoryTrigger": close({
 // Information about the Amazon S3 bucket that contains a ZIP file of code to be
 // committed to the repository. Changes to this property are ignored after
 // initial resource creation.
-_#defs: "/$defs/Properties/definitions/S3": close({
+#S3: close({
 	// The name of the Amazon S3 bucket that contains the ZIP file with the content
 	// that will be committed to the new repository. This can be specified using
 	// the name of the bucket in the AWS account. Changes to this property are
@@ -114,7 +114,7 @@ _#defs: "/$defs/Properties/definitions/S3": close({
 })
 
 // A tag is a key-value pair that is used to manage the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: string
 

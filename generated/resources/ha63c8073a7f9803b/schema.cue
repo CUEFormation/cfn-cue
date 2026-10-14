@@ -13,30 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerIngressPoint Resource Type
-#Properties: close({
-	IngressPointConfiguration?: _#defs."/$defs/Properties/definitions/IngressPointConfiguration"
-	IngressPointName?:     strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	RuleSetId!:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	StatusToUpdate?:       _#defs."/$defs/Properties/definitions/IngressPointStatusToUpdate"
-	Tags?:            list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TlsPolicy?:       _#defs."/$defs/Properties/definitions/TlsPolicy"
-	TrafficPolicyId!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:            _#defs."/$defs/Properties/definitions/IngressPointType"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::MailManagerIngressPoint"
+	Properties!: close({
+		IngressPointConfiguration?: #IngressPointConfiguration
+		IngressPointName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
+		NetworkConfiguration?: #NetworkConfiguration
+		RuleSetId!:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		StatusToUpdate?:       #IngressPointStatusToUpdate
+		Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TlsPolicy?:            #TlsPolicy
+		TrafficPolicyId!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Type!:                 #IngressPointType
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/IngressPointConfiguration": matchN(1, [close({
+#IngressPointConfiguration: matchN(1, [close({
 	SmtpPassword!: strings.MaxRunes(64) & strings.MinRunes(8) & =~"^[A-Za-z0-9!@#$%^&*()_+\\-=\\[\\]{}|.,?]+$" |
 	fn.#StringExpression
 }), close({
 	SecretArn!: =~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=,.@-]+$" |
 		fn.#StringExpression
 }), close(
-	{TlsAuthConfiguration!: _#defs."/$defs/Properties/definitions/TlsAuthConfiguration"},
+	{TlsAuthConfiguration!: #TlsAuthConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/IngressPointStatus": "PROVISIONING" |
+#IngressPointStatus: "PROVISIONING" |
 	"DEPROVISIONING" |
 	"UPDATING" |
 	"ACTIVE" |
@@ -44,43 +47,35 @@ _#defs: "/$defs/Properties/definitions/IngressPointStatus": "PROVISIONING" |
 	"FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressPointStatusToUpdate": "ACTIVE" | "CLOSED" | fn.#StringExpression
+#IngressPointStatusToUpdate: "ACTIVE" | "CLOSED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressPointType": "OPEN" | "AUTH" | "MTLS" | fn.#StringExpression
+#IngressPointType: "OPEN" | "AUTH" | "MTLS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IpType": "IPV4" | "DUAL_STACK" | fn.#StringExpression
+#IpType: "IPV4" | "DUAL_STACK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": matchN(1, [close(
-	{PublicNetworkConfiguration!: _#defs."/$defs/Properties/definitions/PublicNetworkConfiguration"},
+#NetworkConfiguration: matchN(1, [close(
+	{PublicNetworkConfiguration!: #PublicNetworkConfiguration},
 ), close(
-	{PrivateNetworkConfiguration!: _#defs."/$defs/Properties/definitions/PrivateNetworkConfiguration"},
+	{PrivateNetworkConfiguration!: #PrivateNetworkConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateNetworkConfiguration": close(
-	{VpcEndpointId!: =~"^vpce-[a-zA-Z0-9]{17}$" | fn.#StringExpression},
-) |
+#PrivateNetworkConfiguration: close({VpcEndpointId!: =~"^vpce-[a-zA-Z0-9]{17}$" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicNetworkConfiguration": close(
-	{IpType!: _#defs."/$defs/Properties/definitions/IpType" | fn.#ValueExpression},
-) |
-	fn.#ObjectExpression
+#PublicNetworkConfiguration: close({IpType!: #IpType | fn.#ValueExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsAuthConfiguration": close(
-	{TrustStore!: _#defs."/$defs/Properties/definitions/TrustStore"},
-) |
-	fn.#ObjectExpression
+#TlsAuthConfiguration: close({TrustStore!: #TrustStore}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsPolicy": "REQUIRED" | "OPTIONAL" | "FIPS" | fn.#StringExpression
+#TlsPolicy: "REQUIRED" | "OPTIONAL" | "FIPS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TrustStore": close({
+#TrustStore: close({
 	CAContent!:  strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" | fn.#StringExpression
 	CrlContent?: strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -88,7 +83,3 @@ _#defs: "/$defs/Properties/definitions/TrustStore": close({
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::MailManagerIngressPoint"
-	Properties!: #Properties
-}

@@ -13,36 +13,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Cassandra::Keyspace
-#Properties: close({
-	ClientSideTimestampsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyspaceName?:                =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	ReplicationSpecification?:    _#defs."/$defs/Properties/definitions/ReplicationSpecification"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cassandra::Keyspace"
+	Properties?: close({
+		ClientSideTimestampsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		KeyspaceName?:             =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
+		ReplicationSpecification?: #ReplicationSpecification
+		Tags?:                     list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/RegionList": list.MaxItems(20) & list.MinItems(2) & list.UniqueItems() & [
+#RegionList: list.MaxItems(20) & list.MinItems(2) & list.UniqueItems() & [
 	...=~"^[a-z]{2,}-[a-z]+-[0-9]+$" | fn.#StringExpression
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationSpecification": close({
+#ReplicationSpecification: close({
 	RegionList?: _
 	if RegionList != _|_ {
 		ReplicationStrategy!: _
 	}
 	{}
-	"RegionList"?:        _#defs."/$defs/Properties/definitions/RegionList"
+	"RegionList"?:        #RegionList
 	ReplicationStrategy?: "SINGLE_REGION" | "MULTI_REGION" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cassandra::Keyspace"
-	Properties?: #Properties
-}

@@ -21,7 +21,7 @@ import (
 	Status?: "ACTIVE" | "CREATING" | "UPDATING" | "DELETING" | "FAILED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The ARN of the task.
 	TaskArn?: strings.MaxRunes(2048) &
@@ -29,7 +29,7 @@ import (
 	=~"^arn:[\\w+=\\/,.@-]+:[\\w+=\\/,.@-]+:[\\w+=\\/,.@-]*:[0-9]+:[\\w+=\\/,.@-]+$"
 
 	// The task execution configuration.
-	TaskConfiguration!: _#defs."/$defs/Properties/definitions/TaskConfiguration"
+	TaskConfiguration!: #TaskConfiguration
 
 	// The name of the task. Must be unique within the workspace.
 	TaskName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
@@ -39,7 +39,7 @@ import (
 })
 
 // Configuration for running a custom container image on managed compute.
-_#defs: "/$defs/Properties/definitions/ContainerTaskConfiguration": close({
+#ContainerTaskConfiguration: close({
 	// The command to execute in the container.
 	Command?: [...string]
 
@@ -47,12 +47,12 @@ _#defs: "/$defs/Properties/definitions/ContainerTaskConfiguration": close({
 	EcrUri!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^((\\d{12}\\.dkr\\.ecr\\.[a-z0-9-]+\\.[a-z.]+)|public\\.ecr\\.aws/[a-z][a-z0-9]+([._-][a-z0-9]+)*)/[a-z0-9]+((\\.||__|__|-+)[a-z0-9]+)*(/[a-z0-9]+((\\.||__|__|-+)[a-z0-9]+)*)*(:[a-zA-Z0-9._-]+|@sha256:[a-f0-9]{64})?$"
-	EnvironmentVariables?:          _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap"
-	EphemeralStorageConfiguration?: _#defs."/$defs/Properties/definitions/EphemeralStorageConfiguration"
+	EnvironmentVariables?:          #EnvironmentVariablesMap
+	EphemeralStorageConfiguration?: #EphemeralStorageConfiguration
 
 	// Mounts attached to the container filesystem. Each mount exposes an external
 	// data source as a local directory inside the container.
-	Mounts?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Mount"]
+	Mounts?: list.MaxItems(5) & [...] & [...#Mount]
 
 	// The processing type for compute resources.
 	ProcessingType!: "GENERIC_COMPUTE_PROCESSING" | "HARDWARE_ACCELERATED_PROCESSING"
@@ -84,12 +84,12 @@ _#defs: "/$defs/Properties/definitions/ContainerTaskConfiguration": close({
 })
 
 // A map of environment variable key-value pairs.
-_#defs: "/$defs/Properties/definitions/EnvironmentVariablesMap": struct.MaxFields(100) & close({
+#EnvironmentVariablesMap: struct.MaxFields(100) & close({
 
 	{[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: strings.MaxRunes(2048)}})
 
 // Configuration for ephemeral storage attached to the container task.
-_#defs: "/$defs/Properties/definitions/EphemeralStorageConfiguration": close({
+#EphemeralStorageConfiguration: close({
 	// The storage type that determines I/O performance characteristics. Family name
 	// indicates workload pattern, level number indicates performance within that
 	// family.
@@ -101,26 +101,24 @@ _#defs: "/$defs/Properties/definitions/EphemeralStorageConfiguration": close({
 
 // Attaches a data source to the container filesystem for a task at a
 // customer-supplied relative path under the service-owned mount root.
-_#defs: "/$defs/Properties/definitions/Mount": close({
+#Mount: close({
 	// A unique name for the mount within the task.
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
 	// The relative path under the service-owned mount root where this mount is
 	// attached inside the container.
 	RelativePath!: strings.MaxRunes(1024) & strings.MinRunes(1)
-	Source!:       _#defs."/$defs/Properties/definitions/MountSource"
+	Source!:       #MountSource
 
 	// The type of storage used for the mount inside the container.
 	StorageType!: "SHARED_STORAGE"
 })
 
 // The data source configuration for a mount.
-_#defs: "/$defs/Properties/definitions/MountSource": close(
-	{S3AccessPoint!: _#defs."/$defs/Properties/definitions/S3AccessPointSource"},
-)
+#MountSource: close({S3AccessPoint!: #S3AccessPointSource})
 
 // Configures a mount that reads from an Amazon S3 access point.
-_#defs: "/$defs/Properties/definitions/S3AccessPointSource": close({
+#S3AccessPointSource: close({
 	// The Amazon Resource Name (ARN) of the Amazon S3 access point. The mount reads
 	// objects from the bucket associated with this access point. Access is
 	// governed by the access point policy and the task execution role's IAM
@@ -136,7 +134,7 @@ _#defs: "/$defs/Properties/definitions/S3AccessPointSource": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -145,6 +143,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The task execution configuration.
-_#defs: "/$defs/Properties/definitions/TaskConfiguration": close(
-	{ContainerTaskConfiguration!: _#defs."/$defs/Properties/definitions/ContainerTaskConfiguration"},
-)
+#TaskConfiguration: close({ContainerTaskConfiguration!: #ContainerTaskConfiguration})

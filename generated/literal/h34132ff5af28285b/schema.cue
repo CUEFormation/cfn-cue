@@ -27,28 +27,28 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$"
-	LoggingConfiguration?: _#defs."/$defs/Properties/definitions/LoggingConfiguration"
+	LoggingConfiguration?: #LoggingConfiguration
 
 	// AMP Workspace prometheus endpoint
 	PrometheusEndpoint?:        string
-	QueryLoggingConfiguration?: _#defs."/$defs/Properties/definitions/QueryLoggingConfiguration"
+	QueryLoggingConfiguration?: #QueryLoggingConfiguration
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	WorkspaceConfiguration?: _#defs."/$defs/Properties/definitions/WorkspaceConfiguration"
+	Tags?:                   list.UniqueItems() & [...#Tag]
+	WorkspaceConfiguration?: #WorkspaceConfiguration
 
 	// Required to identify a specific APS Workspace.
 	WorkspaceId?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]{1,99}$"
 })
 
 // Represents a cloudwatch logs destination for query logging
-_#defs: "/$defs/Properties/definitions/CloudWatchLogDestination": close({
+#CloudWatchLogDestination: close({
 	// The ARN of the CloudWatch Logs log group
 	LogGroupArn!: strings.MaxRunes(512) & strings.MinRunes(0)
 })
 
 // Series label
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	// Name of the label
 	Name!: strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$"
 
@@ -57,44 +57,44 @@ _#defs: "/$defs/Properties/definitions/Label": close({
 })
 
 // Label set and its associated limits
-_#defs: "/$defs/Properties/definitions/LimitsPerLabelSet": close({
+#LimitsPerLabelSet: close({
 	// An array of series labels
-	LabelSet!: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Label"]
-	Limits!:   _#defs."/$defs/Properties/definitions/LimitsPerLabelSetEntry"
+	LabelSet!: list.UniqueItems() & [...] & [...#Label]
+	Limits!:   #LimitsPerLabelSetEntry
 })
 
 // Limits that can be applied to a label set
-_#defs: "/$defs/Properties/definitions/LimitsPerLabelSetEntry": close({
+#LimitsPerLabelSetEntry: close({
 	// The maximum number of active series that can be ingested for this label set
 	MaxSeries?: int & >=0
 })
 
 // Logging configuration
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
+#LoggingConfiguration: close({
 	// CloudWatch log group ARN
 	LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(0)
 })
 
 // Destinations for query logging
-_#defs: "/$defs/Properties/definitions/LoggingDestination": close({
-	CloudWatchLogs!: _#defs."/$defs/Properties/definitions/CloudWatchLogDestination"
-	Filters!:        _#defs."/$defs/Properties/definitions/LoggingFilter"
+#LoggingDestination: close({
+	CloudWatchLogs!: #CloudWatchLogDestination
+	Filters!:        #LoggingFilter
 })
 
 // Filters for logging
-_#defs: "/$defs/Properties/definitions/LoggingFilter": close({
+#LoggingFilter: close({
 	// Query logs with QSP above this limit are vended
 	QspThreshold!: int & >=0
 })
 
 // Query logging configuration
-_#defs: "/$defs/Properties/definitions/QueryLoggingConfiguration": close({
+#QueryLoggingConfiguration: close({
 	// The destinations configuration for query logging
-	Destinations!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LoggingDestination"]
+	Destinations!: list.MaxItems(1) & list.MinItems(1) & [...#LoggingDestination]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -109,9 +109,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Workspace configuration
-_#defs: "/$defs/Properties/definitions/WorkspaceConfiguration": close({
+#WorkspaceConfiguration: close({
 	// An array of label set and associated limits
-	LimitsPerLabelSets?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/LimitsPerLabelSet"]
+	LimitsPerLabelSets?: list.UniqueItems() & [...] & [...#LimitsPerLabelSet]
 
 	// The time window in seconds for accepting out-of-order samples
 	OutOfOrderTimeWindowInSeconds?: int & >=0

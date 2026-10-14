@@ -16,74 +16,72 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGatewayV2::Integration
-#Properties: close({
-	ApiId!:                   string | fn.#StringExpression
-	ConnectionId?:            string | fn.#StringExpression
-	ConnectionType?:          string | fn.#StringExpression
-	ContentHandlingStrategy?: string | fn.#StringExpression
-	CredentialsArn?:          =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" | fn.#StringExpression
-	Description?:             string | fn.#StringExpression
-	IntegrationMethod?:       string | fn.#StringExpression
-	IntegrationSubtype?:      string | fn.#StringExpression
-	IntegrationType!:         string | fn.#StringExpression
-	IntegrationUri?:          string | fn.#StringExpression
-	PassthroughBehavior?:     string | fn.#StringExpression
-	PayloadFormatVersion?:    string | fn.#StringExpression
-	RequestParameters?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::Integration"
+	Properties!: close({
+		ApiId!:                   string | fn.#StringExpression
+		ConnectionId?:            string | fn.#StringExpression
+		ConnectionType?:          string | fn.#StringExpression
+		ContentHandlingStrategy?: string | fn.#StringExpression
+		CredentialsArn?:       =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" | fn.#StringExpression
+		Description?:          string | fn.#StringExpression
+		IntegrationMethod?:    string | fn.#StringExpression
+		IntegrationSubtype?:   string | fn.#StringExpression
+		IntegrationType!:      string | fn.#StringExpression
+		IntegrationUri?:       string | fn.#StringExpression
+		PassthroughBehavior?:  string | fn.#StringExpression
+		PayloadFormatVersion?: string | fn.#StringExpression
+		RequestParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	RequestTemplates?: close({
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		RequestTemplates?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ResponseParameters?: close({
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ResponseParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: _#defs."/$defs/Properties/definitions/ResponseParameterMap"}}) |
-	fn.#ObjectExpression
-	TemplateSelectionExpression?: string | fn.#StringExpression
-	TimeoutInMillis?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TlsConfig?: _#defs."/$defs/Properties/definitions/TlsConfig" | fn.#ObjectExpression
-})
+			{[=~"[a-zA-Z0-9]+"]: #ResponseParameterMap}}) |
+		fn.#ObjectExpression
+		TemplateSelectionExpression?: string | fn.#StringExpression
+		TimeoutInMillis?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseParameter": close({
+		// The TLS configuration for a private integration. If you specify a TLS
+		// configuration, private integration traffic uses the HTTPS protocol.
+		// Supported only for HTTP APIs.
+		TlsConfig?: #TlsConfig
+	})
+}
+
+#ResponseParameter: close({
 	Destination?: string | fn.#StringExpression
 	Source?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseParameterList": [
-	..._#defs."/$defs/Properties/definitions/ResponseParameter"
-] |
-	fn.#ListExpression
+#ResponseParameterList: [...#ResponseParameter] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseParameterMap": close(
-	{ResponseParameters?: _#defs."/$defs/Properties/definitions/ResponseParameterList"},
-) |
-	fn.#ObjectExpression
+#ResponseParameterMap: close({ResponseParameters?: #ResponseParameterList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsConfig": close({ServerNameToVerify?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Integration"
-	Properties!: #Properties
-}
+#TlsConfig: close({ServerNameToVerify?: string | fn.#StringExpression}) | fn.#ObjectExpression

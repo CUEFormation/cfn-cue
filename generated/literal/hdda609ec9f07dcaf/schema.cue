@@ -12,19 +12,19 @@ package schema
 	DistributionId!: string
 
 	// A subscription configuration for additional CloudWatch metrics.
-	MonitoringSubscription!: _#defs."/$defs/Properties/definitions/MonitoringSubscription"
+	MonitoringSubscription!: #MonitoringSubscription
 })
 
 // A monitoring subscription. This structure contains information about whether
 // additional CloudWatch metrics are enabled for a given CloudFront
 // distribution.
-_#defs: "/$defs/Properties/definitions/MonitoringSubscription": close({
+#MonitoringSubscription: close({
 	// A subscription configuration for additional CloudWatch metrics.
-	RealtimeMetricsSubscriptionConfig?: _#defs."/$defs/Properties/definitions/RealtimeMetricsSubscriptionConfig"
+	RealtimeMetricsSubscriptionConfig?: #RealtimeMetricsSubscriptionConfig
 })
 
 // A subscription configuration for additional CloudWatch metrics.
-_#defs: "/$defs/Properties/definitions/RealtimeMetricsSubscriptionConfig": close({
+#RealtimeMetricsSubscriptionConfig: close({
 	// A flag that indicates whether additional CloudWatch metrics are enabled for a
 	// given CloudFront distribution.
 	RealtimeMetricsSubscriptionStatus!: "Enabled" | "Disabled"

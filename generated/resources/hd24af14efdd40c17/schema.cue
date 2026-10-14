@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,64 +13,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AgentRegistry::Registry Resource Type
-#Properties: close({
-	ApprovalConfiguration?:   _#defs."/$defs/Properties/definitions/ApprovalConfiguration"
-	AuthorizerType?:          _#defs."/$defs/Properties/definitions/RegistryAuthorizerType"
-	AutoDetectionEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutoDetectionScope?:      _#defs."/$defs/Properties/definitions/AutoDetectionScope"
-	Description?:             strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	DiscoveryConfiguration?:  _#defs."/$defs/Properties/definitions/DiscoveryConfiguration"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AgentRegistry::Registry"
+	Properties!: close({
+		ApprovalConfiguration?:   #ApprovalConfiguration
+		AuthorizerType?:          #RegistryAuthorizerType
+		AutoDetectionEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AutoDetectionScope?:      #AutoDetectionScope
+		Description?:             strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		DiscoveryConfiguration?:  #DiscoveryConfiguration
+		EncryptionConfiguration?: #EncryptionConfiguration
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ApprovalConfiguration": close({
-	AutoApprovalRules?: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/AutoApprovalRule"] |
-		fn.#ListExpression
-}) |
+#ApprovalConfiguration: close({AutoApprovalRules?: list.MaxItems(10) & [...#AutoApprovalRule] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-) |
-	fn.#ObjectExpression
+#AuthorizerConfiguration: close({CustomJWTAuthorizer!: #CustomJWTAuthorizerConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
+#AuthorizingClaimMatchValueType: close({
 	ClaimMatchOperator!: "EQUALS" | "CONTAINS" | "CONTAINS_ANY" | fn.#StringExpression
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+	ClaimMatchValue!:    #ClaimMatchValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoApprovalRule": "APPROVE_ALL" | fn.#StringExpression
+#AutoApprovalRule: "APPROVE_ALL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoDetectionScope": "ORGANIZATION" | fn.#StringExpression
+#AutoDetectionScope: "ORGANIZATION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoDetectionStatus": "ACTIVE" | "INACTIVE" | fn.#StringExpression
+#AutoDetectionStatus: "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [{
-	MatchValueString!: _
-	...
-}, {
-	MatchValueStringList!: _
-	...
-}]) & close({
+#ClaimMatchValueType: close({
 	MatchValueString?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression
 	MatchValueStringList?: list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-}) |
+	if MatchValueString != _|_ if MatchValueString."Fn::If" == _|_ {
+		MatchValueStringList?: close({"Fn::If": _}) | error(
+			"MatchValueStringList cannot be used with MatchValueString; set exactly one of MatchValueString, MatchValueStringList",
+		)
+	}
+}) & matchN(>=1, [{MatchValueString!: _}, {MatchValueStringList!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
 	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-:]+$" | fn.#StringExpression
 	InboundTokenClaimValueType!: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
+#CustomJWTAuthorizerConfiguration: close({
 	AllowedAudience?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	AllowedClients?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
@@ -79,19 +76,15 @@ _#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close(
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	CustomClaims?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"] |
-		fn.#ListExpression
+	CustomClaims?: list.MinItems(1) & [...#CustomClaimValidationType] | fn.#ListExpression
 	DiscoveryUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^.+/\\.well-known/openid-configuration$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DiscoveryConfiguration": close(
-	{AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"},
-) |
-	fn.#ObjectExpression
+#DiscoveryConfiguration: close({AuthorizerConfiguration?: #AuthorizerConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsKeyArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -100,9 +93,9 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegistryAuthorizerType": "CUSTOM_JWT" | "AWS_IAM" | fn.#StringExpression
+#RegistryAuthorizerType: "CUSTOM_JWT" | "AWS_IAM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RegistryStatus": "CREATING" |
+#RegistryStatus: "CREATING" |
 	"READY" |
 	"UPDATING" |
 	"CREATE_FAILED" |
@@ -111,12 +104,8 @@ _#defs: "/$defs/Properties/definitions/RegistryStatus": "CREATING" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AgentRegistry::Registry"
-	Properties!: #Properties
-}

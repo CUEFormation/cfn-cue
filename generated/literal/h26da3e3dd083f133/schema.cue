@@ -6,13 +6,7 @@ package schema
 
 // A security control in Security Hub describes a security best practice related
 // to a specific resource.
-#Properties: matchN(>=1, [{
-	SecurityControlId!: _
-	...
-}, {
-	SecurityControlArn!: _
-	...
-}]) & close({
+#Properties: close({
 	// The most recent reason for updating the customizable properties of a security
 	// control. This differs from the UpdateReason field of the
 	// BatchUpdateStandardsControlAssociations API, which tracks the reason for
@@ -22,55 +16,31 @@ package schema
 
 	// An object that identifies the name of a control parameter, its current value,
 	// and whether it has been customized.
-	Parameters!: _#defs."/$defs/Properties/definitions/Parameters"
+	Parameters!: #Parameters
 
 	// The Amazon Resource Name (ARN) for a security control across standards, such
 	// as `arn:aws:securityhub:eu-central-1:123456789012:security-control/S3.1`.
 	// This parameter doesn't mention a specific standard.
-	SecurityControlArn?: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	SecurityControlArn?: #NonEmptyString
 
 	// The unique identifier of a security control across standards. Values for this
 	// field typically consist of an AWS service name and a number, such as
 	// APIGateway.3.
-	SecurityControlId?: _#defs."/$defs/Properties/definitions/NonEmptyString"
-})
+	SecurityControlId?: #NonEmptyString
+}) & matchN(>=1, [{SecurityControlId!: _}, {SecurityControlArn!: _}])
 
-_#defs: "/$defs/Properties/definitions/IntegerList": [...int]
+#IntegerList: [...int]
 
-_#defs: "/$defs/Properties/definitions/NonEmptyString": =~".*\\S.*"
+#NonEmptyString: =~".*\\S.*"
 
-_#defs: "/$defs/Properties/definitions/NonEmptyStringList": [..._#defs."/$defs/Properties/definitions/NonEmptyString"]
+#NonEmptyStringList: [...#NonEmptyString]
 
-_#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
-	Value?:     _#defs."/$defs/Properties/definitions/ParameterValue"
+#ParameterConfiguration: close({
+	Value?:     #ParameterValue
 	ValueType!: "DEFAULT" | "CUSTOM"
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": matchN(1, [{
-	Boolean!: _
-	...
-}, {
-	Double!: _
-	...
-}, {
-	Enum!: _
-	...
-}, {
-	EnumList!: _
-	...
-}, {
-	Integer!: _
-	...
-}, {
-	IntegerList!: _
-	...
-}, {
-	String!: _
-	...
-}, {
-	StringList!: _
-	...
-}]) & close({
+#ParameterValue: close({
 	// A control parameter that is a boolean.
 	Boolean?: bool
 
@@ -78,24 +48,141 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": matchN(1, [{
 	Double?: number
 
 	// A control parameter that is a enum.
-	Enum?: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Enum?: #NonEmptyString
 
 	// A control parameter that is a list of enums.
-	EnumList?: _#defs."/$defs/Properties/definitions/NonEmptyStringList"
+	EnumList?: #NonEmptyStringList
 
 	// A control parameter that is a integer.
 	Integer?: int
 
 	// A control parameter that is a list of integers.
-	IntegerList?: _#defs."/$defs/Properties/definitions/IntegerList"
+	IntegerList?: #IntegerList
 
 	// A control parameter that is a string.
-	String?: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	String?: #NonEmptyString
 
 	// A control parameter that is a list of strings.
-	StringList?: _#defs."/$defs/Properties/definitions/NonEmptyStringList"
-})
+	StringList?: #NonEmptyStringList
+	if Boolean != _|_ if Boolean."Fn::If" == _|_ {
+		Double?: close({"Fn::If": _}) | error(
+			"Double cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Enum?: close({"Fn::If": _}) | error(
+			"Enum cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		EnumList?: close({"Fn::If": _}) | error(
+			"EnumList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Integer?: close({"Fn::If": _}) | error(
+			"Integer cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if Double != _|_ if Double."Fn::If" == _|_ {
+		Enum?: close({"Fn::If": _}) | error(
+			"Enum cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		EnumList?: close({"Fn::If": _}) | error(
+			"EnumList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Integer?: close({"Fn::If": _}) | error(
+			"Integer cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with Double; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if Enum != _|_ if Enum."Fn::If" == _|_ {
+		EnumList?: close({"Fn::If": _}) | error(
+			"EnumList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		Integer?: close({"Fn::If": _}) | error(
+			"Integer cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with Enum; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if EnumList != _|_ if EnumList."Fn::If" == _|_ {
+		Integer?: close({"Fn::If": _}) | error(
+			"Integer cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with EnumList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if Integer != _|_ if Integer."Fn::If" == _|_ {
+		IntegerList?: close({"Fn::If": _}) | error(
+			"IntegerList cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with Integer; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if IntegerList != _|_ if IntegerList."Fn::If" == _|_ {
+		String?: close({"Fn::If": _}) | error(
+			"String cannot be used with IntegerList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with IntegerList; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+	if String != _|_ if String."Fn::If" == _|_ {
+		StringList?: close({"Fn::If": _}) | error(
+			"StringList cannot be used with String; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
+		)
+	}
+}) & matchN(
+	>=1,
+	[{
+		Boolean!: _
+	}, {
+		Double!: _
+	}, {
+		Enum!: _
+	}, {
+		EnumList!: _
+	}, {
+		Integer!: _
+	}, {
+		IntegerList!: _
+	}, {
+		String!: _
+	}, {
+		StringList!: _
+	}],
+)
 
-_#defs: "/$defs/Properties/definitions/Parameters": close({
+#Parameters: close({
 
-	{[=~".*\\S.*"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration"}})
+	{[=~".*\\S.*"]: #ParameterConfiguration}})

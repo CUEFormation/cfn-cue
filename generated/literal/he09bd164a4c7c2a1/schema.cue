@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,43 +18,39 @@ import (
 	DlpSettingId!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$"
 	Enabled!:              bool
 	Name!:                 strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- &]*[A-Za-z0-9])?$"
-	ProviderConfig!:       _#defs."/$defs/Properties/definitions/ProviderConfig"
-	ProviderOutageAction!: _#defs."/$defs/Properties/definitions/DlpAction"
-	ProviderType!:         _#defs."/$defs/Properties/definitions/DlpProviderType"
-	Status?:               _#defs."/$defs/Properties/definitions/DlpSettingStatus"
-	Tags?:                 list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ProviderConfig!:       #ProviderConfig
+	ProviderOutageAction!: #DlpAction
+	ProviderType!:         #DlpProviderType
+	Status?:               #DlpSettingStatus
+	Tags?:                 list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 	UpdatedAt?:            time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/DlpAction": "ALLOW" | "WARN" | "BLOCK"
+#DlpAction: "ALLOW" | "WARN" | "BLOCK"
 
-_#defs: "/$defs/Properties/definitions/DlpProviderType": "MICROSOFT_PURVIEW"
+#DlpProviderType: "MICROSOFT_PURVIEW"
 
-_#defs: "/$defs/Properties/definitions/DlpSettingStatus": "ACTIVE" | "INACTIVE"
+#DlpSettingStatus: "ACTIVE" | "INACTIVE"
 
-_#defs: "/$defs/Properties/definitions/LabelActionMapping": close({
-	Action!:    _#defs."/$defs/Properties/definitions/DlpAction"
+#LabelActionMapping: close({
+	Action!:    #DlpAction
 	LabelId!:   strings.MaxRunes(512) & strings.MinRunes(1)
 	LabelName!: strings.MaxRunes(512) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/MicrosoftPurviewCredentials": close(
-	{SecretArn!: =~"^arn:aws(-[\\w]+)*:secretsmanager:[a-z0-9\\-]+:\\d{12}:secret:.+$"},
-)
+#MicrosoftPurviewCredentials: close({SecretArn!: =~"^arn:aws(-[\\w]+)*:secretsmanager:[a-z0-9\\-]+:\\d{12}:secret:.+$"})
 
-_#defs: "/$defs/Properties/definitions/MicrosoftPurviewProviderConfig": close({
-	Credentials!:         _#defs."/$defs/Properties/definitions/MicrosoftPurviewCredentials"
-	LabelActionMappings!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/LabelActionMapping"]
-	UnmappedAction!:      _#defs."/$defs/Properties/definitions/DlpAction"
+#MicrosoftPurviewProviderConfig: close({
+	Credentials!:         #MicrosoftPurviewCredentials
+	LabelActionMappings!: list.MaxItems(100) & [...#LabelActionMapping]
+	UnmappedAction!:      #DlpAction
 })
 
-_#defs: "/$defs/Properties/definitions/ProviderConfig": close(
-	{MicrosoftPurview!: _#defs."/$defs/Properties/definitions/MicrosoftPurviewProviderConfig"},
-)
+#ProviderConfig: close({MicrosoftPurview!: #MicrosoftPurviewProviderConfig})
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -8,30 +8,30 @@ import "strings"
 
 // Definition of AWS::SSMQuickSetup::ConfigurationManager Resource Type
 #Properties: close({
-	ConfigurationDefinitions!: [..._#defs."/$defs/Properties/definitions/ConfigurationDefinition"]
+	ConfigurationDefinitions!: [...#ConfigurationDefinition]
 	CreatedAt?:                string
 	Description?:              =~"^.{0,512}$"
 	LastModifiedAt?:           string
 	ManagerArn?:               string
 	Name?:                     =~"^[ A-Za-z0-9_-]{1,50}$"
-	StatusSummaries?:          [..._#defs."/$defs/Properties/definitions/StatusSummary"]
-	Tags?:                     _#defs."/$defs/Properties/definitions/TagsMap"
+	StatusSummaries?:          [...#StatusSummary]
+	Tags?:                     #TagsMap
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationDefinition": close({
+#ConfigurationDefinition: close({
 	LocalDeploymentAdministrationRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	LocalDeploymentExecutionRoleName?:     strings.MaxRunes(256) & strings.MinRunes(1)
-	Parameters!:                           _#defs."/$defs/Properties/definitions/ConfigurationParametersMap"
+	Parameters!:                           #ConfigurationParametersMap
 	Type!:                                 =~"^[a-zA-Z0-9_\\-.:/]{3,200}$"
 	TypeVersion?:                          strings.MaxRunes(128) & strings.MinRunes(1)
 	id?:                                   string
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationParametersMap": close({
+#ConfigurationParametersMap: close({
 
 	{[=~"^[A-Za-z0-9+=@_\\/\\s-]+$"]: strings.MaxRunes(40960)}})
 
-_#defs: "/$defs/Properties/definitions/Status": "INITIALIZING" |
+#Status: "INITIALIZING" |
 	"DEPLOYING" |
 	"SUCCEEDED" |
 	"DELETING" |
@@ -42,20 +42,20 @@ _#defs: "/$defs/Properties/definitions/Status": "INITIALIZING" |
 	"STOP_FAILED" |
 	"NONE"
 
-_#defs: "/$defs/Properties/definitions/StatusDetails": close({
+#StatusDetails: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/StatusSummary": close({
+#StatusSummary: close({
 	LastUpdatedAt!: string
-	Status?:        _#defs."/$defs/Properties/definitions/Status"
-	StatusDetails?: _#defs."/$defs/Properties/definitions/StatusDetails"
+	Status?:        #Status
+	StatusDetails?: #StatusDetails
 	StatusMessage?: string
-	StatusType!:    _#defs."/$defs/Properties/definitions/StatusType"
+	StatusType!:    #StatusType
 })
 
-_#defs: "/$defs/Properties/definitions/StatusType": "Deployment" | "AsyncExecutions"
+#StatusType: "Deployment" | "AsyncExecutions"
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$"}})

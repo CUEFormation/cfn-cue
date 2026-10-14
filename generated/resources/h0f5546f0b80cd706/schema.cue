@@ -12,18 +12,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::SecurityRequirementPack
-#Properties: close({
-	Description?: strings.MaxRunes(500) | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & strings.MaxRunes(2048) |
-	fn.#StringExpression
-	Name!:                 strings.MaxRunes(120) & strings.MinRunes(1) | fn.#StringExpression
-	SecurityRequirements?: [..._#defs."/$defs/Properties/definitions/SecurityRequirement"] | fn.#ListExpression
-	Status?:               "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityAgent::SecurityRequirementPack"
+	Properties!: close({
+		Description?: strings.MaxRunes(500) | fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & strings.MaxRunes(2048) |
+		fn.#StringExpression
+		Name!:                 strings.MaxRunes(120) & strings.MinRunes(1) | fn.#StringExpression
+		SecurityRequirements?: [...#SecurityRequirement] | fn.#ListExpression
+		Status?:               "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:                 [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/SecurityRequirement": close({
+#SecurityRequirement: close({
 	Description!: strings.MaxRunes(500) | fn.#StringExpression
 	Domain!:      strings.MaxRunes(10000) | fn.#StringExpression
 	Evaluation!:  strings.MaxRunes(10000) | fn.#StringExpression
@@ -32,12 +35,8 @@ _#defs: "/$defs/Properties/definitions/SecurityRequirement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityAgent::SecurityRequirementPack"
-	Properties!: #Properties
-}

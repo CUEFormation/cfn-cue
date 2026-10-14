@@ -19,19 +19,19 @@ import (
 	FlowId?:          =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 	LastUpdatedTime?: time.Time
 	Name!:            strings.MaxRunes(128) & strings.MinRunes(1)
-	Permissions?:     [..._#defs."/$defs/Properties/definitions/Permission"]
-	PublishState?:    _#defs."/$defs/Properties/definitions/FlowPublishState"
-	StepAliases?:     [..._#defs."/$defs/Properties/definitions/StepAliasMapping"]
+	Permissions?:     [...#Permission]
+	PublishState?:    #FlowPublishState
+	StepAliases?:     [...#StepAliasMapping]
 })
 
-_#defs: "/$defs/Properties/definitions/FlowPublishState": "PUBLISHED" | "DRAFT" | "PENDING_APPROVAL"
+#FlowPublishState: "PUBLISHED" | "DRAFT" | "PENDING_APPROVAL"
 
-_#defs: "/$defs/Properties/definitions/Permission": close({
+#Permission: close({
 	Actions!:   [...strings.MaxRunes(64) & strings.MinRunes(1)]
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/StepAliasMapping": close({
+#StepAliasMapping: close({
 	StepAlias!: string
 	StepId!:    strings.MaxRunes(64) & strings.MinRunes(1)
 })

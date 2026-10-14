@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -40,7 +40,7 @@ import (
 	DesktopType?: "workspaces" | "appstream" | "workspaces-web"
 
 	// An array of key-value pairs to apply to the newly created devices for this environment.
-	DeviceCreationTags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	DeviceCreationTags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Unique identifier of the environment.
 	Id?: =~"^[a-z0-9]{9}$"
@@ -53,7 +53,7 @@ import (
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[0-9]{0,12}:key\\/[a-zA-Z0-9-]+$"
 
 	// A specification for a time window to apply software updates.
-	MaintenanceWindow?: _#defs."/$defs/Properties/definitions/MaintenanceWindow"
+	MaintenanceWindow?: #MaintenanceWindow
 
 	// The name of the environment.
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$"
@@ -78,51 +78,43 @@ import (
 	SoftwareSetUpdateSchedule?: "USE_MAINTENANCE_WINDOW" | "APPLY_IMMEDIATELY"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The timestamp in unix epoch format when environment was last updated.
 	UpdatedAt?: string
 })
 
-_#defs: "/$defs/Properties/definitions/DayOfWeek": "MONDAY" |
-	"TUESDAY" |
-	"WEDNESDAY" |
-	"THURSDAY" |
-	"FRIDAY" |
-	"SATURDAY" |
-	"SUNDAY"
+#DayOfWeek: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
 
-_#defs: "/$defs/Properties/definitions/Hour": int & <=23 & >=0
+#Hour: int & <=23 & >=0
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	// The desired time zone maintenance window.
 	ApplyTimeOf?: "UTC" | "DEVICE"
 
 	// The date of maintenance window.
-	DaysOfTheWeek?: list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DayOfWeek"
-	]
+	DaysOfTheWeek?: list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [...#DayOfWeek]
 
 	// The hour end time of maintenance window.
-	EndTimeHour?: _#defs."/$defs/Properties/definitions/Hour"
+	EndTimeHour?: #Hour
 
 	// The minute end time of maintenance window.
-	EndTimeMinute?: _#defs."/$defs/Properties/definitions/Minute"
+	EndTimeMinute?: #Minute
 
 	// The hour start time of maintenance window.
-	StartTimeHour?: _#defs."/$defs/Properties/definitions/Hour"
+	StartTimeHour?: #Hour
 
 	// The minute start time of maintenance window.
-	StartTimeMinute?: _#defs."/$defs/Properties/definitions/Minute"
+	StartTimeMinute?: #Minute
 
 	// The type of maintenance window.
 	Type!: "SYSTEM" | "CUSTOM"
 })
 
-_#defs: "/$defs/Properties/definitions/Minute": int & <=59 & >=0
+#Minute: int & <=59 & >=0
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

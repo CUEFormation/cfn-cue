@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppConfig::Environment
-#Properties: close({
-	ApplicationId!:           =~"[a-z0-9]{4,7}" | fn.#StringExpression
-	DeletionProtectionCheck?: "ACCOUNT_DEFAULT" | "APPLY" | "BYPASS" | fn.#StringExpression
-	Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Monitors?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Monitor"] | fn.#ListExpression
-	Name!:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppConfig::Environment"
+	Properties!: close({
+		ApplicationId!:           =~"[a-z0-9]{4,7}" | fn.#StringExpression
+		DeletionProtectionCheck?: "ACCOUNT_DEFAULT" | "APPLY" | "BYPASS" | fn.#StringExpression
+		Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Monitors?:                list.MaxItems(5) & [...] & [...#Monitor] | fn.#ListExpression
+		Name!:                    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Monitor": close({
+#Monitor: close({
 	AlarmArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	AlarmRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
@@ -32,12 +35,8 @@ _#defs: "/$defs/Properties/definitions/Monitor": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppConfig::Environment"
-	Properties!: #Properties
-}

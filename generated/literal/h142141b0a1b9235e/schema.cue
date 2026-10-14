@@ -9,12 +9,12 @@ package schema
 // infrastructure metrics with AWS resource tags. For more details:
 // https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/resource-tags-for-telemetry.html
 #Properties: close({
-	Scope!:  _#defs."/$defs/Properties/definitions/Scope"
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+	Scope!:  #Scope
+	Status?: #Status
 })
 
 // Scope of the Telemetry Enrichment
-_#defs: "/$defs/Properties/definitions/Scope": "ACCOUNT"
+#Scope: "ACCOUNT"
 
 // Current status of the resource tags for telemetry feature (Running, Stopped, or Impaired).
-_#defs: "/$defs/Properties/definitions/Status": "RUNNING" | "STOPPED" | "IMPAIRED"
+#Status: "RUNNING" | "STOPPED" | "IMPAIRED"

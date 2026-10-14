@@ -10,7 +10,7 @@ import "strings"
 #Properties: close({
 	// The ID of the Data Catalog in which the settings are created.
 	CatalogId!:                     strings.MaxRunes(255) & strings.MinRunes(1)
-	DataCatalogEncryptionSettings!: _#defs."/$defs/Properties/definitions/DataCatalogEncryptionSettings"
+	DataCatalogEncryptionSettings!: #DataCatalogEncryptionSettings
 })
 
 // When connection password protection is enabled, the Data Catalog uses a
@@ -18,7 +18,7 @@ import "strings"
 // UpdateConnection and store it in the ENCRYPTED_PASSWORD field in the
 // connection properties. You can enable catalog encryption or only password
 // encryption.
-_#defs: "/$defs/Properties/definitions/ConnectionPasswordEncryption": close({
+#ConnectionPasswordEncryption: close({
 	// An AWS KMS key that is used to encrypt the connection password.
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
@@ -29,13 +29,13 @@ _#defs: "/$defs/Properties/definitions/ConnectionPasswordEncryption": close({
 })
 
 // Contains configuration information for maintaining Data Catalog security.
-_#defs: "/$defs/Properties/definitions/DataCatalogEncryptionSettings": close({
-	ConnectionPasswordEncryption?: _#defs."/$defs/Properties/definitions/ConnectionPasswordEncryption"
-	EncryptionAtRest?:             _#defs."/$defs/Properties/definitions/EncryptionAtRest"
+#DataCatalogEncryptionSettings: close({
+	ConnectionPasswordEncryption?: #ConnectionPasswordEncryption
+	EncryptionAtRest?:             #EncryptionAtRest
 })
 
 // Specifies the encryption-at-rest configuration for the Data Catalog.
-_#defs: "/$defs/Properties/definitions/EncryptionAtRest": close({
+#EncryptionAtRest: close({
 	// The encryption-at-rest mode for encrypting Data Catalog data.
 	CatalogEncryptionMode?: "DISABLED" | "SSE-KMS" | "SSE-KMS-WITH-SERVICE-ROLE"
 

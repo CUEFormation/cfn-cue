@@ -9,46 +9,44 @@ import "strings"
 // A signing profile is a signing template that can be used to carry out a pre-defined signing job.
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the specified signing profile.
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// The ID of the target signing platform.
-	PlatformId!: _#defs."/$defs/Properties/definitions/PlatformId"
+	PlatformId!: #PlatformId
 
 	// A name for the signing profile. If you don't specify a name, AWS
 	// CloudFormation generates a unique physical ID and uses that ID for the
 	// signing profile name.
-	ProfileName?: _#defs."/$defs/Properties/definitions/ProfileName"
+	ProfileName?: #ProfileName
 
 	// A version for the signing profile. AWS Signer generates a unique version for
 	// each profile of the same profile name.
-	ProfileVersion?: _#defs."/$defs/Properties/definitions/ProfileVersion"
+	ProfileVersion?: #ProfileVersion
 
 	// The Amazon Resource Name (ARN) of the specified signing profile version.
-	ProfileVersionArn?: _#defs."/$defs/Properties/definitions/Arn"
+	ProfileVersionArn?: #Arn
 
 	// Signature validity period of the profile.
-	SignatureValidityPeriod?: _#defs."/$defs/Properties/definitions/SignatureValidityPeriod"
+	SignatureValidityPeriod?: #SignatureValidityPeriod
 
 	// A list of tags associated with the signing profile.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"^arn:aws(-[a-z]{1,4}){0,2}:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
+#Arn: =~"^arn:aws(-[a-z]{1,4}){0,2}:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 
-_#defs: "/$defs/Properties/definitions/PlatformId": "AWSLambda-SHA384-ECDSA" | "Notation-OCI-SHA384-ECDSA"
+#PlatformId: "AWSLambda-SHA384-ECDSA" | "Notation-OCI-SHA384-ECDSA"
 
-_#defs: "/$defs/Properties/definitions/ProfileName": strings.MaxRunes(64) &
-strings.MinRunes(2) &
-=~"^[0-9a-zA-Z_]{2,64}$"
+#ProfileName: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z_]{2,64}$"
 
-_#defs: "/$defs/Properties/definitions/ProfileVersion": =~"^[0-9a-zA-Z]{10}$"
+#ProfileVersion: =~"^[0-9a-zA-Z]{10}$"
 
-_#defs: "/$defs/Properties/definitions/SignatureValidityPeriod": close({
+#SignatureValidityPeriod: close({
 	Type?:  "DAYS" | "MONTHS" | "YEARS"
 	Value?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1)
 })

@@ -15,7 +15,7 @@ import (
 	// changed to another bundle. You can update a bucket's bundle only one time
 	// within a monthly AWS billing cycle.
 	AbleToUpdateBundle?: bool
-	AccessRules?:        _#defs."/$defs/Properties/definitions/AccessRules"
+	AccessRules?:        #AccessRules
 	BucketArn?:          string
 
 	// The name for the bucket.
@@ -34,14 +34,14 @@ import (
 	ResourcesReceivingAccess?: list.UniqueItems() & [...string]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The URL of the bucket.
 	Url?: string
 })
 
 // An object that sets the public accessibility of objects in the specified bucket.
-_#defs: "/$defs/Properties/definitions/AccessRules": close({
+#AccessRules: close({
 	// A Boolean value that indicates whether the access control list (ACL)
 	// permissions that are applied to individual objects override the getObject
 	// option that is currently specified.
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/AccessRules": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -13,55 +13,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A resource schema for a Variable in Amazon Fraud Detector.
-#Properties: close({
-	DataSource!:   "EVENT" | "EXTERNAL_MODEL_SCORE" | fn.#StringExpression
-	DataType!:     "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | fn.#StringExpression
-	DefaultValue!: string | fn.#StringExpression
-	Description?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:         =~"^[a-z_][a-z0-9_]{0,99}?$" | fn.#StringExpression
-	Tags?:         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VariableType?: "AUTH_CODE" |
-		"AVS" |
-		"BILLING_ADDRESS_L1" |
-		"BILLING_ADDRESS_L2" |
-		"BILLING_CITY" |
-		"BILLING_COUNTRY" |
-		"BILLING_NAME" |
-		"BILLING_PHONE" |
-		"BILLING_STATE" |
-		"BILLING_ZIP" |
-		"CARD_BIN" |
-		"CATEGORICAL" |
-		"CURRENCY_CODE" |
-		"EMAIL_ADDRESS" |
-		"FINGERPRINT" |
-		"FRAUD_LABEL" |
-		"FREE_FORM_TEXT" |
-		"IP_ADDRESS" |
-		"NUMERIC" |
-		"ORDER_ID" |
-		"PAYMENT_TYPE" |
-		"PHONE_NUMBER" |
-		"PRICE" |
-		"PRODUCT_CATEGORY" |
-		"SHIPPING_ADDRESS_L1" |
-		"SHIPPING_ADDRESS_L2" |
-		"SHIPPING_CITY" |
-		"SHIPPING_COUNTRY" |
-		"SHIPPING_NAME" |
-		"SHIPPING_PHONE" |
-		"SHIPPING_STATE" |
-		"SHIPPING_ZIP" |
-		"USERAGENT" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FraudDetector::Variable"
+	Properties!: close({
+		DataSource!:   "EVENT" | "EXTERNAL_MODEL_SCORE" | fn.#StringExpression
+		DataType!:     "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | fn.#StringExpression
+		DefaultValue!: string | fn.#StringExpression
+		Description?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:         =~"^[a-z_][a-z0-9_]{0,99}?$" | fn.#StringExpression
+		Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		VariableType?: "AUTH_CODE" |
+			"AVS" |
+			"BILLING_ADDRESS_L1" |
+			"BILLING_ADDRESS_L2" |
+			"BILLING_CITY" |
+			"BILLING_COUNTRY" |
+			"BILLING_NAME" |
+			"BILLING_PHONE" |
+			"BILLING_STATE" |
+			"BILLING_ZIP" |
+			"CARD_BIN" |
+			"CATEGORICAL" |
+			"CURRENCY_CODE" |
+			"EMAIL_ADDRESS" |
+			"FINGERPRINT" |
+			"FRAUD_LABEL" |
+			"FREE_FORM_TEXT" |
+			"IP_ADDRESS" |
+			"NUMERIC" |
+			"ORDER_ID" |
+			"PAYMENT_TYPE" |
+			"PHONE_NUMBER" |
+			"PRICE" |
+			"PRODUCT_CATEGORY" |
+			"SHIPPING_ADDRESS_L1" |
+			"SHIPPING_ADDRESS_L2" |
+			"SHIPPING_CITY" |
+			"SHIPPING_COUNTRY" |
+			"SHIPPING_NAME" |
+			"SHIPPING_PHONE" |
+			"SHIPPING_STATE" |
+			"SHIPPING_ZIP" |
+			"USERAGENT" |
+			fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FraudDetector::Variable"
-	Properties!: #Properties
-}

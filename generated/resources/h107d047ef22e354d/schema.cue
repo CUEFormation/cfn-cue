@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,21 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DevOpsAgent::PrivateConnection
-#Properties: close({
-	Certificate?:             strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
-	ConnectionConfiguration!: _#defs."/$defs/Properties/definitions/ConnectionConfiguration" | fn.#ObjectExpression
-	Name!: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DevOpsAgent::PrivateConnection"
+	Properties!: close({
+		Certificate?: strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionConfiguration": fn.#Object & {...} & matchN(1, [close(
-	{SelfManaged!: _#defs."/$defs/Properties/definitions/SelfManagedMode"},
-), close(
-	{ServiceManaged!: _#defs."/$defs/Properties/definitions/ServiceManagedMode"},
-)]) |
+		// The connection configuration for the Private Connection.
+		ConnectionConfiguration!: #ConnectionConfiguration
+		Name!: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" | fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#ConnectionConfiguration: fn.#Object & {...} & matchN(1, [
+	close({SelfManaged!: #SelfManagedMode}), close({ServiceManaged!: #ServiceManagedMode}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedMode": close({
+#SelfManagedMode: close({
 	ResourceConfigurationId!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
@@ -39,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/SelfManagedMode": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedMode": close({
+#ServiceManagedMode: close({
 	DnsResolution?: "PUBLIC" | "IN_VPC" | fn.#StringExpression
 	HostAddress!:   strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.:\\-]+$" | fn.#StringExpression
 	IpAddressType?: "IPV4" | "IPV6" | "DUAL_STACK" | fn.#StringExpression
@@ -82,12 +85,8 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedMode": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsAgent::PrivateConnection"
-	Properties!: #Properties
-}

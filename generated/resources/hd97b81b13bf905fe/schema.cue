@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElastiCache::SecurityGroupIngress
-#Properties: close({
-	CacheSecurityGroupName!:  string | fn.#StringExpression
-	EC2SecurityGroupName!:    string | fn.#StringExpression
-	EC2SecurityGroupOwnerId?: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::SecurityGroupIngress"
-	Properties!: #Properties
+	Type!: "AWS::ElastiCache::SecurityGroupIngress"
+	Properties!: close({
+		CacheSecurityGroupName!:  string | fn.#StringExpression
+		EC2SecurityGroupName!:    string | fn.#StringExpression
+		EC2SecurityGroupOwnerId?: string | fn.#StringExpression
+	})
 }

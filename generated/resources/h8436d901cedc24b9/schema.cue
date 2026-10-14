@@ -15,17 +15,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS::S3::MultiRegionAccessPoint is an Amazon S3 resource type that
 // dynamically routes S3 requests to easily satisfy geographic compliance
 // requirements based on customer-defined routing policies.
-#Properties: close({
-	Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" | fn.#StringExpression
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
-		fn.#ObjectExpression
-	Regions!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Region" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::MultiRegionAccessPoint"
+	Properties!: close({
+		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
+		// The PublicAccessBlock configuration that you want to apply to this Multi
+		// Region Access Point. You can enable the configuration options in any
+		// combination. For more information about when Amazon S3 considers a bucket or
+		// object public, see
+		// https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html#access-control-block-public-access-policy-status
+		// 'The Meaning of Public' in the Amazon Simple Storage Service Developer
+		// Guide.
+		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
+		Regions!:                        list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
+	})
+}
+
+#PublicAccessBlockConfiguration: close({
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -33,12 +40,8 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Region": close({
+#Region: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
 	BucketAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::MultiRegionAccessPoint"
-	Properties!: #Properties
-}

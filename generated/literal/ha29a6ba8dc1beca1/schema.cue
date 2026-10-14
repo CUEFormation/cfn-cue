@@ -7,11 +7,11 @@ package schema
 // Resource Type definition for AWS::Greengrass::CoreDefinitionVersion
 #Properties: close({
 	CoreDefinitionId!: string
-	Cores!:            [..._#defs."/$defs/Properties/definitions/Core"]
+	Cores!:            [...#Core]
 	Id?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/Core": close({
+#Core: close({
 	CertificateArn!: string
 	Id!:             string
 	SyncShadow?:     bool

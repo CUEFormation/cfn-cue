@@ -12,7 +12,7 @@ import (
 // Resource Type definition for AWS::Connect::EmailAddress
 #Properties: close({
 	// List of alias configurations for the email address
-	AliasConfigurations?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/AliasConfiguration"]
+	AliasConfigurations?: list.MaxItems(1) & [...#AliasConfiguration]
 
 	// A description for the email address.
 	Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"(^[\\S].*[\\S]$)|(^[\\S]$)"
@@ -33,18 +33,18 @@ import (
 	=~"^arn:(aws|aws-us-gov):connect:[a-z]{2}-[a-z]+-[0-9]{1}:[0-9]{1,20}:instance/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Configuration for an email address alias
-_#defs: "/$defs/Properties/definitions/AliasConfiguration": close({
+#AliasConfiguration: close({
 	// The identifier of the email address alias
 	EmailAddressArn!:
 		=~"^arn:(aws|aws-us-gov):connect:[a-z]{2}-[a-z]+-[0-9]{1}:[0-9]{1,20}:instance/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/email-address/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

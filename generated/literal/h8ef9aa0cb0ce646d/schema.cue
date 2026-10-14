@@ -21,9 +21,9 @@ import (
 
 	// The name of the attribute group.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+"
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & close({
+#Tags: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256)}})

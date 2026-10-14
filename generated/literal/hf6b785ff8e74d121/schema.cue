@@ -34,7 +34,7 @@ import "strings"
 	// secret version is created.
 	// We recommend that you specify the maximum length and include every character
 	// type that the system you are generating a password for can support.
-	GenerateSecretString?: _#defs."/$defs/Properties/definitions/GenerateSecretString"
+	GenerateSecretString?: #GenerateSecretString
 	Id?:                   string
 
 	// The ARN, key ID, or alias of the KMS key that Secrets Manager uses to encrypt
@@ -60,7 +60,7 @@ import "strings"
 	Name?: strings.MaxRunes(512) & strings.MinRunes(0)
 
 	// A custom type that specifies a ``Region`` and the ``KmsKeyId`` for a replica secret.
-	ReplicaRegions?: [..._#defs."/$defs/Properties/definitions/ReplicaRegion"]
+	ReplicaRegions?: [...#ReplicaRegion]
 
 	// The text to encrypt and store in the secret. We recommend you use a JSON
 	// structure of key/value pairs for your secret value. To generate a random
@@ -102,7 +102,7 @@ import "strings"
 	// other services might have restrictions on allowed characters. Generally
 	// allowed characters: letters, spaces, and numbers representable in UTF-8,
 	// plus the following special characters: + - = . _ : / @.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The exact string that identifies the third-party partner that holds the
 	// external secret. For more information, see [Managed external secret
@@ -118,7 +118,7 @@ import "strings"
 // Manager](https://docs.aws.amazon.com/service-authorization/latest/reference/list_awssecretsmanager.html#awssecretsmanager-actions-as-permissions)
 // and [Authentication and access control in Secrets
 // Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/auth-and-access.html).
-_#defs: "/$defs/Properties/definitions/GenerateSecretString": close({
+#GenerateSecretString: close({
 	// A string of the characters that you don't want in the password.
 	ExcludeCharacters?: string
 
@@ -164,7 +164,7 @@ _#defs: "/$defs/Properties/definitions/GenerateSecretString": close({
 })
 
 // Specifies a ``Region`` and the ``KmsKeyId`` for a replica secret.
-_#defs: "/$defs/Properties/definitions/ReplicaRegion": close({
+#ReplicaRegion: close({
 	// The ARN, key ID, or alias of the KMS key to encrypt the secret. If you don't
 	// include this field, Secrets Manager uses ``aws/secretsmanager``.
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
@@ -174,7 +174,7 @@ _#defs: "/$defs/Properties/definitions/ReplicaRegion": close({
 })
 
 // A structure that contains information about a tag.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key identifier, or name, of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

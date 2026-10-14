@@ -15,7 +15,7 @@ package schema
 	AmazonSideAsn?: int
 
 	// Any tags assigned to the virtual private gateway.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The type of VPN connection the virtual private gateway supports.
 	Type!:         string
@@ -24,7 +24,7 @@ package schema
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 

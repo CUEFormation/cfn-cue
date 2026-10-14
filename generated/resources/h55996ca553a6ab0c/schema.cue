@@ -26,42 +26,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // signing
 // process](https://docs.aws.amazon.com/general/latest/gr/sigv4-signed-request-examples.html)
 // in the *General Reference*.
-#Properties: close({
-	ArchivePolicy?:             fn.#Object & {...} | string | fn.#StringObjectExpression
-	ContentBasedDeduplication?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DataProtectionPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
-	DeliveryStatusLogging?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LoggingConfig"] |
-		fn.#ListExpression
-	DisplayName?:         string | fn.#StringExpression
-	FifoThroughputScope?: string | fn.#StringExpression
-	FifoTopic?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KmsMasterKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	MaximumMessageSize?: int & <=1048576 & >=1024 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1048576 &
-							>=1024,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SignatureVersion?: string | fn.#StringExpression
-	Subscription?:     [..._#defs."/$defs/Properties/definitions/Subscription"] | fn.#ListExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TopicName?:        strings.MaxRunes(256) | fn.#StringExpression
-	TracingConfig?:    string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SNS::Topic"
+	Properties?: close({
+		ArchivePolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		ContentBasedDeduplication?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DataProtectionPolicy?:  fn.#Object & {...} | string | fn.#StringObjectExpression
+		DeliveryStatusLogging?: list.UniqueItems() & [...#LoggingConfig] | fn.#ListExpression
+		DisplayName?:           string | fn.#StringExpression
+		FifoThroughputScope?:   string | fn.#StringExpression
+		FifoTopic?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KmsMasterKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		MaximumMessageSize?: int & <=1048576 & >=1024 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1048576 &
+								>=1024,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SignatureVersion?: string | fn.#StringExpression
+		Subscription?:     [...#Subscription] | fn.#ListExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+		TopicName?:        strings.MaxRunes(256) | fn.#StringExpression
+		TracingConfig?:    string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	FailureFeedbackRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	Protocol!: "http/s" | "sqs" | "lambda" | "firehose" | "application" | fn.#StringExpression
@@ -71,18 +82,14 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Subscription": close({
+#Subscription: close({
 	Endpoint!: string | fn.#StringExpression
 	Protocol!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SNS::Topic"
-	Properties?: #Properties
-}

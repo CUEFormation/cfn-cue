@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DocDB::DBSubnetGroup
-#Properties: close({
-	DBSubnetGroupDescription!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	DBSubnetGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z][0-9a-zA-Z-:._ ]*" |
-	fn.#StringExpression
-	SubnetIds!: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DocDB::DBSubnetGroup"
+	Properties!: close({
+		DBSubnetGroupDescription!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		DBSubnetGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z][0-9a-zA-Z-:._ ]*" |
+		fn.#StringExpression
+		SubnetIds!: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DocDB::DBSubnetGroup"
-	Properties!: #Properties
-}

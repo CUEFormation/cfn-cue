@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualRouter
-#Properties: close({
-	MeshName!:          string | fn.#StringExpression
-	MeshOwner?:         string | fn.#StringExpression
-	Spec!:              _#defs."/$defs/Properties/definitions/VirtualRouterSpec"
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VirtualRouterName?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::VirtualRouter"
+	Properties!: close({
+		MeshName!:          string | fn.#StringExpression
+		MeshOwner?:         string | fn.#StringExpression
+		Spec!:              #VirtualRouterSpec
+		Tags?:              [...#Tag] | fn.#ListExpression
+		VirtualRouterName?: string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PortMapping": close({
+#PortMapping: close({
 	Port!: int |
 		{
 			string &
@@ -40,22 +43,12 @@ _#defs: "/$defs/Properties/definitions/PortMapping": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualRouterListener": close(
-	{PortMapping!: _#defs."/$defs/Properties/definitions/PortMapping"},
-) |
-	fn.#ObjectExpression
+#VirtualRouterListener: close({PortMapping!: #PortMapping}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VirtualRouterSpec": close(
-	{Listeners!: [..._#defs."/$defs/Properties/definitions/VirtualRouterListener"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::VirtualRouter"
-	Properties!: #Properties
-}
+#VirtualRouterSpec: close({Listeners!: [...#VirtualRouterListener] | fn.#ListExpression}) | fn.#ObjectExpression

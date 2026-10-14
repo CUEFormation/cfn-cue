@@ -12,27 +12,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::DataTableRecord
-#Properties: close({
-	DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	DataTableRecord!: close({
-		PrimaryValues?: [..._#defs."/$defs/Properties/definitions/Value"] | fn.#ListExpression
-		Values!:        [..._#defs."/$defs/Properties/definitions/Value"] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	InstanceArn!: strings.MaxRunes(100) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::DataTableRecord"
+	Properties!: close({
+		DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		DataTableRecord!: close({
+			PrimaryValues?: [...#Value] | fn.#ListExpression
+			Values!:        [...#Value] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		InstanceArn!: strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AttributeId": strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#AttributeId: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Value": close({
-	AttributeId?:    _#defs."/$defs/Properties/definitions/AttributeId" | fn.#StringExpression
+#Value: close({
+	AttributeId?:    #AttributeId
 	AttributeValue?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::DataTableRecord"
-	Properties!: #Properties
-}

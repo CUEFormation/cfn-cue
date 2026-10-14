@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::PolicyEngine
-#Properties: close({
-	Description?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	EncryptionKeyArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::PolicyEngine"
+	Properties!: close({
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		EncryptionKeyArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/PolicyEngineStatus": "CREATING" |
+#PolicyEngineStatus: "CREATING" |
 	"ACTIVE" |
 	"UPDATING" |
 	"DELETING" |
@@ -32,12 +35,8 @@ _#defs: "/$defs/Properties/definitions/PolicyEngineStatus": "CREATING" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::PolicyEngine"
-	Properties!: #Properties
-}

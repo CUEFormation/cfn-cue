@@ -13,49 +13,47 @@ import (
 // The AWS::S3::StorageLensGroup resource is an Amazon S3 resource type that you
 // can use to create Storage Lens Group.
 #Properties: close({
-	Filter!: _#defs."/$defs/Properties/definitions/Filter"
-	Name!:   _#defs."/$defs/Properties/definitions/Name"
+	Filter!: #Filter
+	Name!:   #Name
 
 	// The ARN for the Amazon S3 Storage Lens Group.
 	StorageLensGroupArn?: string
 
 	// A set of tags (key-value pairs) for this Amazon S3 Storage Lens Group.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The Storage Lens group will include objects that match all of the specified filter values.
-_#defs: "/$defs/Properties/definitions/And": struct.MinFields(2) & close({
-	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix"
-	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix"
-	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag"
-	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge"
-	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize"
+#And: struct.MinFields(2) & close({
+	MatchAnyPrefix?:  #MatchAnyPrefix
+	MatchAnySuffix?:  #MatchAnySuffix
+	MatchAnyTag?:     #MatchAnyTag
+	MatchObjectAge?:  #MatchObjectAge
+	MatchObjectSize?: #MatchObjectSize
 })
 
 // Sets the Storage Lens Group filter.
-_#defs: "/$defs/Properties/definitions/Filter": close({
-	And?:             _#defs."/$defs/Properties/definitions/And"
-	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix"
-	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix"
-	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag"
-	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge"
-	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize"
-	Or?:              _#defs."/$defs/Properties/definitions/Or"
+#Filter: close({
+	And?:             #And
+	MatchAnyPrefix?:  #MatchAnyPrefix
+	MatchAnySuffix?:  #MatchAnySuffix
+	MatchAnyTag?:     #MatchAnyTag
+	MatchObjectAge?:  #MatchObjectAge
+	MatchObjectSize?: #MatchObjectSize
+	Or?:              #Or
 })
 
 // Filter to match any of the specified prefixes.
-_#defs: "/$defs/Properties/definitions/MatchAnyPrefix": list.UniqueItems() & [...strings.MaxRunes(1024)]
+#MatchAnyPrefix: list.UniqueItems() & [...strings.MaxRunes(1024)]
 
 // Filter to match any of the specified suffixes.
-_#defs: "/$defs/Properties/definitions/MatchAnySuffix": list.UniqueItems() & [...strings.MaxRunes(1024)]
+#MatchAnySuffix: list.UniqueItems() & [...strings.MaxRunes(1024)]
 
 // Filter to match any of the specified object tags.
-_#defs: "/$defs/Properties/definitions/MatchAnyTag": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#MatchAnyTag: list.UniqueItems() & [...#Tag]
 
 // Filter to match all of the specified values for the minimum and maximum object age.
-_#defs: "/$defs/Properties/definitions/MatchObjectAge": close({
+#MatchObjectAge: close({
 	// Minimum object age to which the rule applies.
 	DaysGreaterThan?: int & >=1
 
@@ -64,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/MatchObjectAge": close({
 })
 
 // Filter to match all of the specified values for the minimum and maximum object size.
-_#defs: "/$defs/Properties/definitions/MatchObjectSize": close({
+#MatchObjectSize: close({
 	// Minimum object size to which the rule applies.
 	BytesGreaterThan?: int & >=1
 
@@ -73,18 +71,18 @@ _#defs: "/$defs/Properties/definitions/MatchObjectSize": close({
 })
 
 // The name that identifies the Amazon S3 Storage Lens Group.
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$"
+#Name: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$"
 
 // The Storage Lens group will include objects that match any of the specified filter values.
-_#defs: "/$defs/Properties/definitions/Or": struct.MinFields(2) & close({
-	MatchAnyPrefix?:  _#defs."/$defs/Properties/definitions/MatchAnyPrefix"
-	MatchAnySuffix?:  _#defs."/$defs/Properties/definitions/MatchAnySuffix"
-	MatchAnyTag?:     _#defs."/$defs/Properties/definitions/MatchAnyTag"
-	MatchObjectAge?:  _#defs."/$defs/Properties/definitions/MatchObjectAge"
-	MatchObjectSize?: _#defs."/$defs/Properties/definitions/MatchObjectSize"
+#Or: struct.MinFields(2) & close({
+	MatchAnyPrefix?:  #MatchAnyPrefix
+	MatchAnySuffix?:  #MatchAnySuffix
+	MatchAnyTag?:     #MatchAnyTag
+	MatchObjectAge?:  #MatchObjectAge
+	MatchObjectSize?: #MatchObjectSize
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

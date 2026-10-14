@@ -9,14 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaConvert::Preset
-#Properties: close({
-	Category?:     string | fn.#StringExpression
-	Description?:  string | fn.#StringExpression
-	Name?:         string | fn.#StringExpression
-	SettingsJson!: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?:         fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConvert::Preset"
-	Properties!: #Properties
+	Type!: "AWS::MediaConvert::Preset"
+	Properties!: close({
+		Category?:     string | fn.#StringExpression
+		Description?:  string | fn.#StringExpression
+		Name?:         string | fn.#StringExpression
+		SettingsJson!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

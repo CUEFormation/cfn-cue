@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates a specified source account with a resource share.
-#Properties: close({
-	ResourceShareArn!: string | fn.#StringExpression
-	SourceId!:         string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RAM::SourceAssociation"
-	Properties!: #Properties
+	Type!: "AWS::RAM::SourceAssociation"
+	Properties!: close({
+		ResourceShareArn!: string | fn.#StringExpression
+		SourceId!:         string | fn.#StringExpression
+	})
 }

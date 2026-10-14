@@ -20,18 +20,18 @@ import "strings"
 	Id?:      string
 
 	// The import source for the key value store.
-	ImportSource?: _#defs."/$defs/Properties/definitions/ImportSource"
+	ImportSource?: #ImportSource
 
 	// The name of the key value store.
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$"
 	Status?: string
 
 	// A complex type that contains zero or more ``Tag`` elements.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The import source for the key value store.
-_#defs: "/$defs/Properties/definitions/ImportSource": close({
+#ImportSource: close({
 	// The Amazon Resource Name (ARN) of the import source for the key value store.
 	SourceArn!: string
 
@@ -40,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/ImportSource": close({
 })
 
 // A complex type that contains ``Tag`` key and ``Tag`` value.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that contains ``Tag`` key.
 	// The string length should be between 1 and 128 characters. Valid characters
 	// include ``a-z``, ``A-Z``, ``0-9``, space, and the special characters ``_ - .

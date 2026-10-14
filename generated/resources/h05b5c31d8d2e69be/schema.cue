@@ -13,51 +13,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS:ObservabilityAdmin:OrganizationCentralizationRule
-#Properties: close({
-	Rule!:     _#defs."/$defs/Properties/definitions/CentralizationRule"
-	RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" | fn.#StringExpression
-	Tags?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ObservabilityAdmin::OrganizationCentralizationRule"
+	Properties!: close({
+		Rule!:     #CentralizationRule
+		RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" | fn.#StringExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AccountIdentifier": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-fn.#StringExpression
+#AccountIdentifier: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CentralizationRule": close({
-	Destination!: _#defs."/$defs/Properties/definitions/CentralizationRuleDestination"
-	Source!:      _#defs."/$defs/Properties/definitions/CentralizationRuleSource"
+#CentralizationRule: close({
+	Destination!: #CentralizationRuleDestination
+	Source!:      #CentralizationRuleSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CentralizationRuleDestination": close({
-	Account?:                         _#defs."/$defs/Properties/definitions/AccountIdentifier"
-	DestinationLogsConfiguration?:    _#defs."/$defs/Properties/definitions/DestinationLogsConfiguration"
-	DestinationMetricsConfiguration?: _#defs."/$defs/Properties/definitions/DestinationMetricsConfiguration"
-	Region!:                          _#defs."/$defs/Properties/definitions/Region"
+#CentralizationRuleDestination: close({
+	Account?:                         #AccountIdentifier
+	DestinationLogsConfiguration?:    #DestinationLogsConfiguration
+	DestinationMetricsConfiguration?: #DestinationMetricsConfiguration
+	Region!:                          #Region
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CentralizationRuleSource": close({
-	Regions!:                    _#defs."/$defs/Properties/definitions/Regions"
+#CentralizationRuleSource: close({
+	Regions!:                    #Regions
 	Scope?:                      strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression
-	SourceLogsConfiguration?:    _#defs."/$defs/Properties/definitions/SourceLogsConfiguration"
-	SourceMetricsConfiguration?: _#defs."/$defs/Properties/definitions/SourceMetricsConfiguration"
+	SourceLogsConfiguration?:    #SourceLogsConfiguration
+	SourceMetricsConfiguration?: #SourceMetricsConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationLogsConfiguration": close({
-	BackupConfiguration?:         _#defs."/$defs/Properties/definitions/LogsBackupConfiguration"
-	LogGroupNameConfiguration?:   _#defs."/$defs/Properties/definitions/LogGroupNameConfiguration"
-	LogsEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/LogsEncryptionConfiguration"
-	TagPropagationConfiguration?: _#defs."/$defs/Properties/definitions/TagPropagationConfiguration"
+#DestinationLogsConfiguration: close({
+	BackupConfiguration?:         #LogsBackupConfiguration
+	LogGroupNameConfiguration?:   #LogGroupNameConfiguration
+	LogsEncryptionConfiguration?: #LogsEncryptionConfiguration
+	TagPropagationConfiguration?: #TagPropagationConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationMetricsConfiguration": close(
-	{BackupConfiguration?: _#defs."/$defs/Properties/definitions/MetricsBackupConfiguration"},
-) |
-	fn.#ObjectExpression
+#DestinationMetricsConfiguration: close({BackupConfiguration?: #MetricsBackupConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogGroupNameConfiguration": close({
+#LogGroupNameConfiguration: close({
 	LogGroupNamePattern!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^(?:[\\._\\-/#A-Za-z0-9]+|\\$\\{[A-Za-z]+(?:\\.[A-Za-z]+){1,2}\\})+$" |
@@ -65,57 +64,51 @@ _#defs: "/$defs/Properties/definitions/LogGroupNameConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogsBackupConfiguration": close({
-	KmsKeyArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
-	Region!:    _#defs."/$defs/Properties/definitions/Region"
+#LogsBackupConfiguration: close({
+	KmsKeyArn?: #ResourceArn
+	Region!:    #Region
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogsEncryptionConfiguration": close({
+#LogsEncryptionConfiguration: close({
 	EncryptionConflictResolutionStrategy?: "ALLOW" | "SKIP" | fn.#StringExpression
 	EncryptionScope?:                      "ENCRYPTED_SOURCE_ONLY" | "NEW_DESTINATION_LOG_GROUPS" | fn.#StringExpression
 	EncryptionStrategy!:                   "CUSTOMER_MANAGED" | "AWS_OWNED" | fn.#StringExpression
-	KmsKeyArn?:                            _#defs."/$defs/Properties/definitions/ResourceArn"
+	KmsKeyArn?:                            #ResourceArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsBackupConfiguration": close(
-	{Region!: _#defs."/$defs/Properties/definitions/Region"},
-) |
-	fn.#ObjectExpression
+#MetricsBackupConfiguration: close({Region!: #Region}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Region": strings.MinRunes(1) | fn.#StringExpression
+#Region: strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Regions": list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Region"
-] |
-	fn.#ListExpression
+#Regions: list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#ResourceArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(1011) &
 strings.MinRunes(1) &
 =~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourceLogsConfiguration": close({
+#SourceLogsConfiguration: close({
 	DataSourceSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression
 	EncryptedLogGroupStrategy!:   "ALLOW" | "SKIP" | fn.#StringExpression
 	LogGroupSelectionCriteria?:   strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceMetricsConfiguration": close(
+#SourceMetricsConfiguration: close(
 	{MetricsSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagPropagationConfiguration": close({
+#TagPropagationConfiguration: close({
 	DestinationRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -124,7 +117,3 @@ _#defs: "/$defs/Properties/definitions/TagPropagationConfiguration": close({
 	TagConflictResolutionStrategy?: "IN_SYNC" | "ADD_ONLY" | "UPDATE_SYNC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ObservabilityAdmin::OrganizationCentralizationRule"
-	Properties!: #Properties
-}

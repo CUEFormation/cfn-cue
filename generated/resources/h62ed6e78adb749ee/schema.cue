@@ -17,58 +17,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EMRContainers::Endpoint Type
-#Properties: close({
-	ConfigurationOverrides?: _#defs."/$defs/Properties/definitions/ConfigurationOverrides" | fn.#ObjectExpression
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
-	fn.#StringExpression
-	Name?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
-	ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9._/-]+" | fn.#StringExpression
-	SessionIdleTimeoutInMinutes?: int & <=1440 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1440 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMRContainers::Endpoint"
+	Properties!: close({
+		// The configuration overrides for the managed endpoint.
+		ConfigurationOverrides?: #ConfigurationOverrides
+		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
+		ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9._/-]+" | fn.#StringExpression
+		SessionIdleTimeoutInMinutes?: int & <=1440 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1440 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Certificate": close({
+#Certificate: close({
 	CertificateArn?:  string | fn.#StringExpression
 	CertificateData?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchMonitoringConfiguration": close({
+#CloudWatchMonitoringConfiguration: close({
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	LogStreamNamePrefix?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationOverrides": close({
-	ApplicationConfiguration?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EMREKSConfiguration"
-	] |
-		fn.#ListExpression
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+#ConfigurationOverrides: close({
+	ApplicationConfiguration?: list.MaxItems(100) & [...] & [...#EMREKSConfiguration] | fn.#ListExpression
+	MonitoringConfiguration?:  #MonitoringConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerLogRotationConfiguration": close({
+#ContainerLogRotationConfiguration: close({
 	MaxFilesToKeep!: int & <=50 & >=1 |
 		{
 			string &
@@ -89,10 +92,9 @@ _#defs: "/$defs/Properties/definitions/ContainerLogRotationConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EMREKSConfiguration": close({
+#EMREKSConfiguration: close({
 	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Configurations?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/EMREKSConfiguration"] |
-		fn.#ListExpression
+	Configurations?: list.MaxItems(100) & [...] & [...#EMREKSConfiguration] | fn.#ListExpression
 	Properties?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
@@ -100,15 +102,15 @@ _#defs: "/$defs/Properties/definitions/EMREKSConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
-	CloudWatchMonitoringConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchMonitoringConfiguration"
-	ContainerLogRotationConfiguration?: _#defs."/$defs/Properties/definitions/ContainerLogRotationConfiguration"
+#MonitoringConfiguration: close({
+	CloudWatchMonitoringConfiguration?: #CloudWatchMonitoringConfiguration
+	ContainerLogRotationConfiguration?: #ContainerLogRotationConfiguration
 	PersistentAppUI?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
-	S3MonitoringConfiguration?:         _#defs."/$defs/Properties/definitions/S3MonitoringConfiguration"
+	S3MonitoringConfiguration?:         #S3MonitoringConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3MonitoringConfiguration": close({
+#S3MonitoringConfiguration: close({
 	LogUri!: strings.MaxRunes(10280) &
 	strings.MinRunes(1) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\r\\n\\t]*$" |
@@ -116,12 +118,8 @@ _#defs: "/$defs/Properties/definitions/S3MonitoringConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMRContainers::Endpoint"
-	Properties!: #Properties
-}

@@ -14,18 +14,14 @@ import (
 // and manages a Network Security Manager deployment.
 #Properties: close({
 	// List of policies associated with this deployment.
-	AssociatedPolicyList?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AssociatedPolicy"
-	]
+	AssociatedPolicyList?: list.MaxItems(2) & list.MinItems(1) & [...#AssociatedPolicy]
 
 	// List of scopes associated with this deployment.
-	AssociatedScopeList?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AssociatedScope"
-	]
+	AssociatedScopeList?: list.MaxItems(1) & list.MinItems(1) & [...#AssociatedScope]
 
 	// The ARN of the deployment.
 	DeploymentArn?:           string
-	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentConfiguration"
+	DeploymentConfiguration?: #DeploymentConfiguration
 
 	// A description of the deployment.
 	DeploymentDescription?: strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$"
@@ -40,7 +36,7 @@ import (
 	Status?: "DRAFT" | "ACTIVE" | "DISABLED"
 
 	// The tags associated with the deployment.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// An ISO 8601 timestamp indicating when the deployment was last modified.
 	UpdatedAt?: time.Time
@@ -49,24 +45,24 @@ import (
 	Version?: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^[1-9][0-9]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/AssociatedPolicy": close({
+#AssociatedPolicy: close({
 	// ARN of the associated policy.
 	PolicyArn!: string
 })
 
-_#defs: "/$defs/Properties/definitions/AssociatedScope": close({
+#AssociatedScope: close({
 	// ARN of the associated scope.
 	ScopeArn!: string
 })
 
 // Configuration settings for the deployment.
-_#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
+#DeploymentConfiguration: close({
 	// Whether cross-account visibility is enabled for the deployment.
 	EnableCrossAccountVisibility!: bool
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

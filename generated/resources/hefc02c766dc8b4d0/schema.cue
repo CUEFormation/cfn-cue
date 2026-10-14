@@ -20,46 +20,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // represents a single track or stream of media containing video, audio, or
 // ancillary data that is transported using the SMPTE 2110 JPEG XS or CDI
 // protocol.
-#Properties: close({
-	Attributes?: _#defs."/$defs/Properties/definitions/MediaStreamAttributes"
-	ClockRate?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?: string | fn.#StringExpression
-	FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-		fn.#StringExpression
-	MediaStreamId!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MediaStreamName!: string | fn.#StringExpression
-	MediaStreamType!: "video" | "audio" | "ancillary-data" | fn.#StringExpression
-	Tags?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VideoFormat?:     string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::FlowMediaStream"
+	Properties!: close({
+		Attributes?: #MediaStreamAttributes
+		ClockRate?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Description?: string | fn.#StringExpression
+		FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
+			fn.#StringExpression
+		MediaStreamId!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MediaStreamName!: string | fn.#StringExpression
+		MediaStreamType!: "video" | "audio" | "ancillary-data" | fn.#StringExpression
+		Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VideoFormat?:     string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/Fmtp": close({
+#Fmtp: close({
 	ChannelOrder?:   string | fn.#StringExpression
 	Colorimetry?:    "BT601" | "BT709" | "BT2020" | "BT2100" | "ST2065-1" | "ST2065-3" | "XYZ" | fn.#StringExpression
 	ExactFramerate?: string | fn.#StringExpression
@@ -79,18 +86,14 @@ _#defs: "/$defs/Properties/definitions/Fmtp": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaStreamAttributes": close({
-	Fmtp?: _#defs."/$defs/Properties/definitions/Fmtp"
+#MediaStreamAttributes: close({
+	Fmtp?: #Fmtp
 	Lang?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::FlowMediaStream"
-	Properties!: #Properties
-}

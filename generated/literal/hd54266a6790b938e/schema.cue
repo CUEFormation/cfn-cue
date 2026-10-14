@@ -12,7 +12,7 @@ import (
 // Resource schema for AWS::EMR::Studio
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the EMR Studio.
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// Specifies whether the Studio authenticates users using single sign-on (SSO)
 	// or IAM. Amazon EMR Studio currently only supports SSO authentication.
@@ -28,7 +28,7 @@ import (
 
 	// The AWS KMS key identifier (ARN) used to encrypt AWS EMR Studio workspace and
 	// notebook files when backed up to AWS S3.
-	EncryptionKeyArn?: _#defs."/$defs/Properties/definitions/Arn"
+	EncryptionKeyArn?: #Arn
 
 	// The ID of the Amazon EMR Studio Engine security group. The Engine security
 	// group allows inbound network traffic from the Workspace security group, and
@@ -59,7 +59,7 @@ import (
 	// The IAM role that will be assumed by the Amazon EMR Studio. The service role
 	// provides a way for Amazon EMR Studio to interoperate with other AWS
 	// services.
-	ServiceRole!: _#defs."/$defs/Properties/definitions/Arn"
+	ServiceRole!: #Arn
 
 	// The ID of the EMR Studio.
 	StudioId?: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^es-[0-9A-Z]+"
@@ -67,12 +67,12 @@ import (
 	// A list of up to 5 subnet IDs to associate with the Studio. The subnets must
 	// belong to the VPC specified by VpcId. Studio users can create a Workspace in
 	// any of the specified subnets.
-	SubnetIds!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SubnetId"]
+	SubnetIds!: list.MinItems(1) & [...#SubnetId]
 
 	// A list of tags to associate with the Studio. Tags are user-defined key-value
 	// pairs that consist of a required key string with a maximum of 128
 	// characters, and an optional value string with a maximum of 256 characters.
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 
 	// A Boolean indicating whether to enable Trusted identity propagation for the
 	// Studio. The default value is false.
@@ -84,7 +84,7 @@ import (
 	// The IAM user role that will be assumed by users and groups logged in to a
 	// Studio. The permissions attached to this IAM role can be scoped down for
 	// each user or group using session policies.
-	UserRole?: _#defs."/$defs/Properties/definitions/Arn"
+	UserRole?: #Arn
 
 	// The ID of the Amazon Virtual Private Cloud (Amazon VPC) to associate with the Studio.
 	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
@@ -98,15 +98,15 @@ import (
 	WorkspaceSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^sg-[a-zA-Z0-9\\-._]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(10280) &
+#Arn: strings.MaxRunes(10280) &
 strings.MinRunes(0) &
 =~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 
 // Identifier of a subnet
-_#defs: "/$defs/Properties/definitions/SubnetId": string
+#SubnetId: string
 
 // An arbitrary set of tags (key-value pairs) for this EMR Studio.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -119,4 +119,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: list.UniqueItems() & [...#Tag]

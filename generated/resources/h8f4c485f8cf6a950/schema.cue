@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,24 +16,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SageMaker::Workforce. Use to create a
 // private workforce that you can use to label your training data using Amazon
 // SageMaker Ground Truth.
-#Properties: close({
-	CognitoConfig?:  _#defs."/$defs/Properties/definitions/CognitoConfig"
-	IpAddressType?:  "ipv4" | "dualstack" | fn.#StringExpression
-	OidcConfig?:     _#defs."/$defs/Properties/definitions/OidcConfig"
-	SourceIpConfig?: _#defs."/$defs/Properties/definitions/SourceIpConfig"
-	Tags?:           list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WorkforceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
-	fn.#StringExpression
-	WorkforceVpcConfig?: _#defs."/$defs/Properties/definitions/WorkforceVpcConfigRequest"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Workforce"
+	Properties!: close({
+		CognitoConfig?:  #CognitoConfig
+		IpAddressType?:  "ipv4" | "dualstack" | fn.#StringExpression
+		OidcConfig?:     #OidcConfig
+		SourceIpConfig?: #SourceIpConfig
+		Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		WorkforceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
+		fn.#StringExpression
+		WorkforceVpcConfig?: #WorkforceVpcConfigRequest
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CognitoConfig": close({
+#CognitoConfig: close({
 	ClientId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[ -~]+$" | fn.#StringExpression
 	UserPool!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OidcConfig": close({
+#OidcConfig: close({
 	AuthenticationRequestExtraParams?: struct.MaxFields(10) & close({
 
 		{[=~"^.+$"]: strings.MaxRunes(512) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" | fn.#StringExpression}}) |
@@ -51,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/OidcConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceIpConfig": close({
+#SourceIpConfig: close({
 	Cidrs!: list.MaxItems(10) & [
 		...strings.MaxRunes(64) &
 		strings.MinRunes(4) &
@@ -62,13 +65,13 @@ _#defs: "/$defs/Properties/definitions/SourceIpConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkforceVpcConfigRequest": close({
+#WorkforceVpcConfigRequest: close({
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &
@@ -88,7 +91,3 @@ _#defs: "/$defs/Properties/definitions/WorkforceVpcConfigRequest": close({
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Workforce"
-	Properties!: #Properties
-}

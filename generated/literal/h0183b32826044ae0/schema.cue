@@ -23,17 +23,17 @@ import (
 	// The time at which the schedule group was last modified.
 	LastModificationDate?: time.Time
 	Name?:                 strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$"
-	State?:                _#defs."/$defs/Properties/definitions/ScheduleGroupState"
+	State?:                #ScheduleGroupState
 
 	// The list of tags to associate with the schedule group.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // Specifies the state of the schedule group.
-_#defs: "/$defs/Properties/definitions/ScheduleGroupState": "ACTIVE" | "DELETING"
+#ScheduleGroupState: "ACTIVE" | "DELETING"
 
 // Tag to associate with the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Key for the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

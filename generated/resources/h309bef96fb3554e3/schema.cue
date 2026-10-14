@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,59 +13,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // MatchingWorkflow defined in AWS Entity Resolution service
-#Properties: close({
-	Description?:          _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	IncrementalRunConfig?: _#defs."/$defs/Properties/definitions/IncrementalRunConfig"
-	InputSourceConfig!: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InputSource"] |
-		fn.#ListExpression
-	OutputSourceConfig!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/OutputSource"] |
-		fn.#ListExpression
-	ResolutionTechniques!: _#defs."/$defs/Properties/definitions/ResolutionTechniques"
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-		fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	WorkflowName!: _#defs."/$defs/Properties/definitions/EntityName" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EntityResolution::MatchingWorkflow"
+	Properties!: close({
+		// The description of the MatchingWorkflow
+		Description?:          #Description
+		IncrementalRunConfig?: #IncrementalRunConfig
+		InputSourceConfig!:    list.MaxItems(20) & list.MinItems(1) & [...#InputSource] | fn.#ListExpression
+		OutputSourceConfig!:   list.MaxItems(1) & list.MinItems(1) & [...#OutputSource] | fn.#ListExpression
+		ResolutionTechniques!: #ResolutionTechniques
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+			fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(255) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z_0-9- \\t]*$" |
-fn.#StringExpression
+		// The name of the MatchingWorkflow
+		WorkflowName!: #EntityName
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CreatedAt": string | fn.#StringExpression
+#AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerProfilesDomainArn": =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255})$" |
+#CreatedAt: string | fn.#StringExpression
+
+#CustomerProfilesDomainArn: =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255})$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerProfilesIntegrationConfig": close({
-	DomainArn!:     _#defs."/$defs/Properties/definitions/CustomerProfilesDomainArn"
-	ObjectTypeArn!: _#defs."/$defs/Properties/definitions/CustomerProfilesObjectTypeArn"
+#CustomerProfilesIntegrationConfig: close({
+	DomainArn!:     #CustomerProfilesDomainArn
+	ObjectTypeArn!: #CustomerProfilesObjectTypeArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerProfilesObjectTypeArn": =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255}/object-types/[a-zA-Z_0-9-]{1,255})$" |
+#CustomerProfilesObjectTypeArn: =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255}/object-types/[a-zA-Z_0-9-]{1,255})$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+#Description: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" |
-fn.#StringExpression
+#EntityName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IncrementalRunConfig": close(
-	{IncrementalRunType!: "IMMEDIATE" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#IncrementalRunConfig: close({IncrementalRunType!: "IMMEDIATE" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputSource": close({
+#InputSource: close({
 	ApplyNormalization?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InputSourceARN!:     =~"arn:(aws|aws-us-gov|aws-cn):.*:.*:[0-9]+:.*$" | fn.#StringExpression
-	SchemaArn!:          _#defs."/$defs/Properties/definitions/SchemaMappingArn" & string | fn.#StringExpression
+	SchemaArn!:          #SchemaMappingArn & string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntermediateSourceConfiguration": close({
+#IntermediateSourceConfiguration: close({
 	IntermediateS3Path!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
@@ -73,37 +69,36 @@ _#defs: "/$defs/Properties/definitions/IntermediateSourceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KMSArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#KMSArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"^arn:(aws|aws-us-gov|aws-cn):kms:.*:[0-9]+:.*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MatchingConfig": close(
+#MatchingConfig: close(
 	{EnableTransitiveMatching?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchingWorkflowArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(matchingworkflow/.*)$" |
+#MatchingWorkflowArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(matchingworkflow/.*)$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutputAttribute": close({
+#OutputAttribute: close({
 	Hashed?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:   _#defs."/$defs/Properties/definitions/AttributeName"
+	Name!:   #AttributeName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutputSource": close({
+#OutputSource: close({
 	ApplyNormalization?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CustomerProfilesIntegrationConfig?: _#defs."/$defs/Properties/definitions/CustomerProfilesIntegrationConfig"
-	KMSArn?:                            _#defs."/$defs/Properties/definitions/KMSArn"
-	Output!: list.MaxItems(750) & [...] & [..._#defs."/$defs/Properties/definitions/OutputAttribute"] |
-		fn.#ListExpression
+	CustomerProfilesIntegrationConfig?: #CustomerProfilesIntegrationConfig
+	KMSArn?:                            #KMSArn
+	Output!:                            list.MaxItems(750) & [...] & [...#OutputAttribute] | fn.#ListExpression
 	OutputS3Path?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://([^/]+)/?(.*?([^/]+)/?)$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProviderProperties": close({
-	IntermediateSourceConfiguration?: _#defs."/$defs/Properties/definitions/IntermediateSourceConfiguration"
+#ProviderProperties: close({
+	IntermediateSourceConfiguration?: #IntermediateSourceConfiguration
 	ProviderConfiguration?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
@@ -115,58 +110,49 @@ _#defs: "/$defs/Properties/definitions/ProviderProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResolutionTechniques": close({
+#ResolutionTechniques: close({
 	EnableRealTimeMatching?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ProviderProperties?:      _#defs."/$defs/Properties/definitions/ProviderProperties"
-	ResolutionType?:          _#defs."/$defs/Properties/definitions/ResolutionType"
-	RuleBasedProperties?:     _#defs."/$defs/Properties/definitions/RuleBasedProperties"
-	RuleConditionProperties?: _#defs."/$defs/Properties/definitions/RuleConditionProperties"
+	ProviderProperties?:      #ProviderProperties
+	ResolutionType?:          #ResolutionType
+	RuleBasedProperties?:     #RuleBasedProperties
+	RuleConditionProperties?: #RuleConditionProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResolutionType": "RULE_MATCHING" |
-	"ML_MATCHING" |
-	"PROVIDER" |
-	fn.#StringExpression
+#ResolutionType: "RULE_MATCHING" | "ML_MATCHING" | "PROVIDER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	MatchingKeys!: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AttributeName"] |
-		fn.#ListExpression
-	RuleName!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
+#Rule: close({
+	MatchingKeys!: list.MaxItems(15) & list.MinItems(1) & [...#AttributeName] | fn.#ListExpression
+	RuleName!:     strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleBasedProperties": close({
+#RuleBasedProperties: close({
 	AttributeMatchingModel!: "ONE_TO_ONE" | "MANY_TO_MANY" | fn.#StringExpression
 	MatchPurpose?:           "IDENTIFIER_GENERATION" | "INDEXING" | fn.#StringExpression
-	Rules!: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+	Rules!:                  list.MaxItems(25) & list.MinItems(1) & [...#Rule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleCondition": close({
+#RuleCondition: close({
 	Condition?: string | fn.#StringExpression
-	RuleName?:  _#defs."/$defs/Properties/definitions/AttributeName"
+	RuleName?:  #AttributeName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleConditionProperties": close({
-	MatchingConfig?: _#defs."/$defs/Properties/definitions/MatchingConfig"
-	Rules!: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RuleCondition"] |
-		fn.#ListExpression
+#RuleConditionProperties: close({
+	MatchingConfig?: #MatchingConfig
+	Rules!:          list.MaxItems(25) & list.MinItems(1) & [...#RuleCondition] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaMappingArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$" |
+#SchemaMappingArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatedAt": string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EntityResolution::MatchingWorkflow"
-	Properties!: #Properties
-}
+#UpdatedAt: string | fn.#StringExpression

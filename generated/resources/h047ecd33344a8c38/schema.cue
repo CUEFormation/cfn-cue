@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -22,35 +22,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // all AWS Regions where Compute Optimizer Automation is available.
 // Organization-level rules can only be created by the management account or
 // delegated administrator.
-#Properties: close({
-	Criteria?:    _#defs."/$defs/Properties/definitions/Criteria" | fn.#ObjectExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\s@\\.]*$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_-]*$" | fn.#StringExpression
-	OrganizationConfiguration?: _#defs."/$defs/Properties/definitions/OrganizationConfiguration" | fn.#ObjectExpression
-	Priority?:                  string | fn.#StringExpression
-	RecommendedActionTypes!: list.MinItems(1) & [
-		..."SnapshotAndDeleteUnattachedEbsVolume" | "UpgradeEbsVolumeType" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	RuleType!: "AccountRule" | "OrganizationRule" | fn.#StringExpression
-	Schedule!: _#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
-	Status!:   "Active" | "Inactive" | fn.#StringExpression
-	Tags?:     list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ComputeOptimizer::AutomationRule"
+	Properties!: close({
+		// Filter criteria that specify which recommended actions qualify for implementation.
+		Criteria?: #Criteria
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\s@\\.]*$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_-]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Criteria": close({
-	EbsVolumeSizeInGib?:      _#defs."/$defs/Properties/definitions/IntegerCriteriaConditionList"
-	EbsVolumeType?:           _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
-	EstimatedMonthlySavings?: _#defs."/$defs/Properties/definitions/DoubleCriteriaConditionList"
-	LookBackPeriodInDays?:    _#defs."/$defs/Properties/definitions/IntegerCriteriaConditionList"
-	Region?:                  _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
-	ResourceArn?:             _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
-	ResourceTag?:             _#defs."/$defs/Properties/definitions/ResourceTagsCriteriaConditionList"
-	RestartNeeded?:           _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
+		// Organization configuration for organization rules, including rule apply order and account scope.
+		OrganizationConfiguration?: #OrganizationConfiguration
+		Priority?:                  string | fn.#StringExpression
+		RecommendedActionTypes!: list.MinItems(1) & [
+			..."SnapshotAndDeleteUnattachedEbsVolume" | "UpgradeEbsVolumeType" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		RuleType!: "AccountRule" | "OrganizationRule" | fn.#StringExpression
+
+		// The schedule configuration for when the rule runs.
+		Schedule!: #Schedule
+		Status!:   "Active" | "Inactive" | fn.#StringExpression
+		Tags?:     list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
+
+#Criteria: close({
+	EbsVolumeSizeInGib?:      #IntegerCriteriaConditionList
+	EbsVolumeType?:           #StringCriteriaConditionList
+	EstimatedMonthlySavings?: #DoubleCriteriaConditionList
+	LookBackPeriodInDays?:    #IntegerCriteriaConditionList
+	Region?:                  #StringCriteriaConditionList
+	ResourceArn?:             #StringCriteriaConditionList
+	ResourceTag?:             #ResourceTagsCriteriaConditionList
+	RestartNeeded?:           #StringCriteriaConditionList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DoubleCriteriaCondition": close({
+#DoubleCriteriaCondition: close({
 	Comparison?: "StringEquals" |
 		"StringNotEquals" |
 		"StringEqualsIgnoreCase" |
@@ -89,12 +98,9 @@ _#defs: "/$defs/Properties/definitions/DoubleCriteriaCondition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DoubleCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/DoubleCriteriaCondition"
-] |
-	fn.#ListExpression
+#DoubleCriteriaConditionList: [...#DoubleCriteriaCondition] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IntegerCriteriaCondition": close({
+#IntegerCriteriaCondition: close({
 	Comparison?: "StringEquals" |
 		"StringNotEquals" |
 		"StringEqualsIgnoreCase" |
@@ -130,18 +136,15 @@ _#defs: "/$defs/Properties/definitions/IntegerCriteriaCondition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegerCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/IntegerCriteriaCondition"
-] |
-	fn.#ListExpression
+#IntegerCriteriaConditionList: [...#IntegerCriteriaCondition] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/OrganizationConfiguration": close({
+#OrganizationConfiguration: close({
 	AccountIds?: list.MaxItems(50) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] | fn.#ListExpression
 	RuleApplyOrder?: "BeforeAccountRules" | "AfterAccountRules" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTagsCriteriaCondition": close({
+#ResourceTagsCriteriaCondition: close({
 	Comparison?: "StringEquals" |
 		"StringNotEquals" |
 		"StringEqualsIgnoreCase" |
@@ -165,12 +168,9 @@ _#defs: "/$defs/Properties/definitions/ResourceTagsCriteriaCondition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTagsCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/ResourceTagsCriteriaCondition"
-] |
-	fn.#ListExpression
+#ResourceTagsCriteriaConditionList: [...#ResourceTagsCriteriaCondition] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
+#Schedule: close({
 	ExecutionWindowInMinutes?: int & <=1440 & >=60 |
 		{
 			string &
@@ -192,7 +192,7 @@ _#defs: "/$defs/Properties/definitions/Schedule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StringCriteriaCondition": close({
+#StringCriteriaCondition: close({
 	Comparison?: "StringEquals" |
 		"StringNotEquals" |
 		"StringEqualsIgnoreCase" |
@@ -214,17 +214,10 @@ _#defs: "/$defs/Properties/definitions/StringCriteriaCondition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StringCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/StringCriteriaCondition"
-] |
-	fn.#ListExpression
+#StringCriteriaConditionList: [...#StringCriteriaCondition] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ComputeOptimizer::AutomationRule"
-	Properties!: #Properties
-}

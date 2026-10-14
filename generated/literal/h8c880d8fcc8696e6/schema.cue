@@ -11,8 +11,8 @@ import (
 
 // Resource Type definition for AWS::RUM::AppMonitor
 #Properties: close({
-	AppMonitorConfiguration?: _#defs."/$defs/Properties/definitions/AppMonitorConfiguration"
-	CustomEvents?:            _#defs."/$defs/Properties/definitions/CustomEvents"
+	AppMonitorConfiguration?: #AppMonitorConfiguration
+	CustomEvents?:            #CustomEvents
 
 	// Data collected by RUM is kept by RUM for 30 days and then deleted. This
 	// parameter specifies whether RUM sends a copy of this telemetry data to
@@ -20,7 +20,7 @@ import (
 	// more than 30 days, but it does incur CWLlong charges. If you omit this
 	// parameter, the default is false
 	CwLogEnabled?:               bool
-	DeobfuscationConfiguration?: _#defs."/$defs/Properties/definitions/DeobfuscationConfiguration"
+	DeobfuscationConfiguration?: #DeobfuscationConfiguration
 
 	// The top-level internet domain name for which your application has
 	// administrative authority. The CreateAppMonitor requires either the domain or
@@ -40,12 +40,12 @@ import (
 	// A name for the app monitor
 	Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+"
 	Platform?:       "Web" | "Android" | "iOS"
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
-	Tags?:           _#defs."/$defs/Properties/definitions/TagDef"
+	ResourcePolicy?: #ResourcePolicy
+	Tags?:           #TagDef
 })
 
 // AppMonitor configuration
-_#defs: "/$defs/Properties/definitions/AppMonitorConfiguration": close({
+#AppMonitorConfiguration: close({
 	// If you set this to true, the RUM web client sets two cookies, a session
 	// cookie and a user cookie. The cookies allow the RUM web client to collect
 	// data relating to the number of users an application has and the behavior of
@@ -63,14 +63,14 @@ _#defs: "/$defs/Properties/definitions/AppMonitorConfiguration": close({
 	// A list of URLs in your website or application to exclude from RUM data
 	// collection. You can't include both ExcludedPages and IncludedPages in the
 	// same operation.
-	ExcludedPages?: _#defs."/$defs/Properties/definitions/Pages"
+	ExcludedPages?: #Pages
 
 	// A list of pages in the RUM console that are to be displayed with a favorite icon.
-	FavoritePages?: _#defs."/$defs/Properties/definitions/FavoritePages"
+	FavoritePages?: #FavoritePages
 
 	// The ARN of the guest IAM role that is attached to the identity pool that is
 	// used to authorize the sending of data to RUM.
-	GuestRoleArn?: _#defs."/$defs/Properties/definitions/Arn" & =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
+	GuestRoleArn?: #Arn & =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The ID of the identity pool that is used to authorize the sending of data to RUM.
 	IdentityPoolId?: strings.MaxRunes(55) & strings.MinRunes(1) & =~"[\\w-]+:[0-9a-f-]+"
@@ -78,12 +78,10 @@ _#defs: "/$defs/Properties/definitions/AppMonitorConfiguration": close({
 	// If this app monitor is to collect data from only certain pages in your
 	// application, this structure lists those pages. You can't include both
 	// ExcludedPages and IncludedPages in the same operation.
-	IncludedPages?: _#defs."/$defs/Properties/definitions/Pages"
+	IncludedPages?: #Pages
 
 	// An array of structures which define the destinations and the metrics that you want to send.
-	MetricDestinations?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDestination"
-	]
+	MetricDestinations?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#MetricDestination]
 
 	// Specifies the percentage of user sessions to use for RUM data collection.
 	// Choosing a higher percentage gives you more data but also incurs more costs.
@@ -92,22 +90,22 @@ _#defs: "/$defs/Properties/definitions/AppMonitorConfiguration": close({
 	SessionSampleRate?: <=1 & >=0
 
 	// An array that lists the types of telemetry data that this app monitor is to collect.
-	Telemetries?: [..._#defs."/$defs/Properties/definitions/Telemetry"]
+	Telemetries?: [...#Telemetry]
 })
 
 // Resource ARN
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*"
+#Arn: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*"
 
 // AppMonitor custom events configuration
-_#defs: "/$defs/Properties/definitions/CustomEvents": close({
+#CustomEvents: close({
 	// Indicates whether AppMonitor accepts custom events.
-	Status?: _#defs."/$defs/Properties/definitions/CustomEventsStatus"
+	Status?: #CustomEventsStatus
 })
 
-_#defs: "/$defs/Properties/definitions/CustomEventsStatus": "ENABLED" | "DISABLED"
+#CustomEventsStatus: "ENABLED" | "DISABLED"
 
 // A structure that contains the configuration for how an app monitor can deobfuscate stack traces.
-_#defs: "/$defs/Properties/definitions/DeobfuscationConfiguration": close({
+#DeobfuscationConfiguration: close({
 	// A structure that contains the configuration for how an app monitor can
 	// unminify JavaScript error stack traces using source maps.
 	JavaScriptSourceMaps?: close({
@@ -125,10 +123,10 @@ _#defs: "/$defs/Properties/definitions/DeobfuscationConfiguration": close({
 })
 
 // List of favorite pages
-_#defs: "/$defs/Properties/definitions/FavoritePages": list.MaxItems(50) & [...] & [...string]
+#FavoritePages: list.MaxItems(50) & [...] & [...string]
 
 // A single metric definition
-_#defs: "/$defs/Properties/definitions/MetricDefinition": close({
+#MetricDefinition: close({
 	// Use this field only if you are sending the metric to CloudWatch.
 	//
 	// This field is a map of field paths to dimension names. It defines the
@@ -267,7 +265,7 @@ _#defs: "/$defs/Properties/definitions/MetricDefinition": close({
 })
 
 // An structure which defines the destination and the metrics that you want to send.
-_#defs: "/$defs/Properties/definitions/MetricDestination": close({
+#MetricDestination: close({
 	// Defines the destination to send the metrics to. Valid values are CloudWatch
 	// and Evidently. Note: Evidently has been discontinued and is no longer
 	// supported - requests with Evidently will be rejected.
@@ -289,18 +287,14 @@ _#defs: "/$defs/Properties/definitions/MetricDestination": close({
 	IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*"
 
 	// An array of structures which define the metrics that you want to send.
-	MetricDefinitions?: list.MaxItems(2000) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDefinition"
-	]
+	MetricDefinitions?: list.MaxItems(2000) & list.UniqueItems() & [...] & [...#MetricDefinition]
 })
 
 // List of url pages
-_#defs: "/$defs/Properties/definitions/Pages": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Url"
-]
+#Pages: list.MaxItems(50) & [...] & [...#Url]
 
 // A structure that defines resource policy attached to your app monitor.
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({
+#ResourcePolicy: close({
 	// The JSON to use as the resource policy. The document can be up to 4 KB in size.
 	PolicyDocument!: string
 
@@ -315,7 +309,7 @@ _#defs: "/$defs/Properties/definitions/ResourcePolicy": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -335,11 +329,11 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // resources with certain tag values. Tags don't have any semantic meaning to
 // AWS and are interpreted strictly as strings of characters.You can associate
 // as many as 50 tags with an app monitor.
-_#defs: "/$defs/Properties/definitions/TagDef": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#TagDef: list.UniqueItems() & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/Telemetry": "errors" | "performance" | "http"
+#Telemetry: "errors" | "performance" | "http"
 
 // Page Url
-_#defs: "/$defs/Properties/definitions/Url": strings.MaxRunes(1260) &
+#Url: strings.MaxRunes(1260) &
 strings.MinRunes(1) &
 =~"https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)"

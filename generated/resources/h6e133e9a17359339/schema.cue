@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ManagedBlockchain::Member
-#Properties: close({
-	InvitationId?:         string | fn.#StringExpression
-	MemberConfiguration!:  _#defs."/$defs/Properties/definitions/MemberConfiguration"
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	NetworkId?:            string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ManagedBlockchain::Member"
+	Properties!: close({
+		InvitationId?:         string | fn.#StringExpression
+		MemberConfiguration!:  #MemberConfiguration
+		NetworkConfiguration?: #NetworkConfiguration
+		NetworkId?:            string | fn.#StringExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/ApprovalThresholdPolicy": close({
+#ApprovalThresholdPolicy: close({
 	ProposalDurationInHours?: int |
 		{
 			string &
@@ -53,47 +56,33 @@ _#defs: "/$defs/Properties/definitions/ApprovalThresholdPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemberConfiguration": close({
+#MemberConfiguration: close({
 	Description?:                  string | fn.#StringExpression
-	MemberFrameworkConfiguration?: _#defs."/$defs/Properties/definitions/MemberFrameworkConfiguration"
+	MemberFrameworkConfiguration?: #MemberFrameworkConfiguration
 	Name!:                         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemberFabricConfiguration": close({
+#MemberFabricConfiguration: close({
 	AdminPassword!: string | fn.#StringExpression
 	AdminUsername!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemberFrameworkConfiguration": close(
-	{MemberFabricConfiguration?: _#defs."/$defs/Properties/definitions/MemberFabricConfiguration"},
-) |
-	fn.#ObjectExpression
+#MemberFrameworkConfiguration: close({MemberFabricConfiguration?: #MemberFabricConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
+#NetworkConfiguration: close({
 	Description?:                   string | fn.#StringExpression
 	Framework!:                     string | fn.#StringExpression
 	FrameworkVersion!:              string | fn.#StringExpression
 	Name!:                          string | fn.#StringExpression
-	NetworkFrameworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkFrameworkConfiguration"
-	VotingPolicy!:                  _#defs."/$defs/Properties/definitions/VotingPolicy"
+	NetworkFrameworkConfiguration?: #NetworkFrameworkConfiguration
+	VotingPolicy!:                  #VotingPolicy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkFabricConfiguration": close({Edition!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#NetworkFabricConfiguration: close({Edition!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkFrameworkConfiguration": close(
-	{NetworkFabricConfiguration?: _#defs."/$defs/Properties/definitions/NetworkFabricConfiguration"},
-) |
-	fn.#ObjectExpression
+#NetworkFrameworkConfiguration: close({NetworkFabricConfiguration?: #NetworkFabricConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VotingPolicy": close(
-	{ApprovalThresholdPolicy?: _#defs."/$defs/Properties/definitions/ApprovalThresholdPolicy"},
-) |
-	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ManagedBlockchain::Member"
-	Properties!: #Properties
-}
+#VotingPolicy: close({ApprovalThresholdPolicy?: #ApprovalThresholdPolicy}) | fn.#ObjectExpression

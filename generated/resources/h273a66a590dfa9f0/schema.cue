@@ -34,25 +34,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // This resource adds a statement to a resource-based permission policy for the
 // function. For more information about function policies, see [Lambda Function
 // Policies](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html).
-#Properties: close({
-	Action!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(lambda:[*]|lambda:[a-zA-Z]+|[*])$" |
-	fn.#StringExpression
-	EventSourceToken?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\-]+$" | fn.#StringExpression
-	FunctionName!: strings.MaxRunes(140) &
-	strings.MinRunes(1) &
-	=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" |
-	fn.#StringExpression
-	FunctionUrlAuthType?:   "AWS_IAM" | "NONE" | fn.#StringExpression
-	InvokedViaFunctionUrl?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Principal!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	PrincipalOrgID?:        strings.MaxRunes(34) & strings.MinRunes(12) & =~"^o-[a-z0-9]{10,32}$" | fn.#StringExpression
-	SourceAccount?:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
-	SourceArn?: strings.MaxRunes(1024) &
-	strings.MinRunes(12) &
-	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::Permission"
-	Properties!: #Properties
+	Type!: "AWS::Lambda::Permission"
+	Properties!: close({
+		Action!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(lambda:[*]|lambda:[a-zA-Z]+|[*])$" |
+		fn.#StringExpression
+		EventSourceToken?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\-]+$" | fn.#StringExpression
+		FunctionName!: strings.MaxRunes(140) &
+		strings.MinRunes(1) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" |
+		fn.#StringExpression
+		FunctionUrlAuthType?:   "AWS_IAM" | "NONE" | fn.#StringExpression
+		InvokedViaFunctionUrl?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Principal!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+		PrincipalOrgID?: strings.MaxRunes(34) & strings.MinRunes(12) & =~"^o-[a-z0-9]{10,32}$" | fn.#StringExpression
+		SourceAccount?:  strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
+		SourceArn?: strings.MaxRunes(1024) &
+		strings.MinRunes(12) &
+		=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)$" |
+		fn.#StringExpression
+	})
 }

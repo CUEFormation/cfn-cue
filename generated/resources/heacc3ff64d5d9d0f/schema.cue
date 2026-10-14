@@ -12,26 +12,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::DirectoryConfig
-#Properties: close({
-	CertificateBasedAuthProperties?: _#defs."/$defs/Properties/definitions/CertificateBasedAuthProperties"
-	DirectoryName!:                  string | fn.#StringExpression
-	OrganizationalUnitDistinguishedNames!: [...strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression] |
-	fn.#ListExpression
-	ServiceAccountCredentials!: _#defs."/$defs/Properties/definitions/ServiceAccountCredentials"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::DirectoryConfig"
+	Properties!: close({
+		CertificateBasedAuthProperties?: #CertificateBasedAuthProperties
+		DirectoryName!:                  string | fn.#StringExpression
+		OrganizationalUnitDistinguishedNames!: [...strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression] |
+		fn.#ListExpression
+		ServiceAccountCredentials!: #ServiceAccountCredentials
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CertificateBasedAuthProperties": close({
+#CertificateBasedAuthProperties: close({
 	CertificateAuthorityArn?: string | fn.#StringExpression
 	Status?:                  "DISABLED" | "ENABLED" | "ENABLED_NO_DIRECTORY_LOGIN_FALLBACK" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceAccountCredentials": close({
+#ServiceAccountCredentials: close({
 	AccountName!:     strings.MinRunes(1) | fn.#StringExpression
 	AccountPassword!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::DirectoryConfig"
-	Properties!: #Properties
-}

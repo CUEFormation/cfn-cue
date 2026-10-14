@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecretsManager::SecretTargetAttachment
-#Properties: close({
-	SecretId!:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	TargetId!:   string | fn.#StringExpression
-	TargetType!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecretsManager::SecretTargetAttachment"
-	Properties!: #Properties
+	Type!: "AWS::SecretsManager::SecretTargetAttachment"
+	Properties!: close({
+		SecretId!:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		TargetId!:   string | fn.#StringExpression
+		TargetType!: string | fn.#StringExpression
+	})
 }

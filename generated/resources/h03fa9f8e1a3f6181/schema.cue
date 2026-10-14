@@ -9,18 +9,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ManagedBlockchain::Node
-#Properties: close({
-	MemberId?:          string | fn.#StringExpression
-	NetworkId!:         string | fn.#StringExpression
-	NodeConfiguration!: _#defs."/$defs/Properties/definitions/NodeConfiguration"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ManagedBlockchain::Node"
+	Properties!: close({
+		MemberId?:          string | fn.#StringExpression
+		NetworkId!:         string | fn.#StringExpression
+		NodeConfiguration!: #NodeConfiguration
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/NodeConfiguration": close({
+#NodeConfiguration: close({
 	AvailabilityZone!: string | fn.#StringExpression
 	InstanceType!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ManagedBlockchain::Node"
-	Properties!: #Properties
-}

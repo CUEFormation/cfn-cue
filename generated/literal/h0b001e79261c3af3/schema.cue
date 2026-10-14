@@ -11,21 +11,21 @@ package schema
 	MeshName?:      string
 	MeshOwner?:     string
 	ResourceOwner?: string
-	Spec?:          _#defs."/$defs/Properties/definitions/MeshSpec"
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"]
+	Spec?:          #MeshSpec
+	Tags?:          [...#Tag]
 	Uid?:           string
 })
 
-_#defs: "/$defs/Properties/definitions/EgressFilter": close({Type!: string})
+#EgressFilter: close({Type!: string})
 
-_#defs: "/$defs/Properties/definitions/MeshServiceDiscovery": close({IpPreference?: string})
+#MeshServiceDiscovery: close({IpPreference?: string})
 
-_#defs: "/$defs/Properties/definitions/MeshSpec": close({
-	EgressFilter?:     _#defs."/$defs/Properties/definitions/EgressFilter"
-	ServiceDiscovery?: _#defs."/$defs/Properties/definitions/MeshServiceDiscovery"
+#MeshSpec: close({
+	EgressFilter?:     #EgressFilter
+	ServiceDiscovery?: #MeshServiceDiscovery
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

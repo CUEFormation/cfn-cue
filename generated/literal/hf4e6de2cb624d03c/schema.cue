@@ -8,41 +8,41 @@ import "strings"
 
 // Resource schema for AWS::Route53GlobalResolver::FirewallRule
 #Properties: close({
-	Action!:                _#defs."/$defs/Properties/definitions/FirewallRuleAction"
-	BlockOverrideDnsType?:  _#defs."/$defs/Properties/definitions/BlockOverrideDnsQueryType"
-	BlockOverrideDomain?:   _#defs."/$defs/Properties/definitions/Domain"
+	Action!:                #FirewallRuleAction
+	BlockOverrideDnsType?:  #BlockOverrideDnsQueryType
+	BlockOverrideDomain?:   #Domain
 	BlockOverrideTtl?:      int & <=604800 & >=0
-	BlockResponse?:         _#defs."/$defs/Properties/definitions/FirewallBlockResponse"
+	BlockResponse?:         #FirewallBlockResponse
 	ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1)
-	ConfidenceThreshold?:   _#defs."/$defs/Properties/definitions/ConfidenceThreshold"
+	ConfidenceThreshold?:   #ConfidenceThreshold
 	CreatedAt?:             string
-	Description?:           _#defs."/$defs/Properties/definitions/ResourceDescription"
-	DnsAdvancedProtection?: _#defs."/$defs/Properties/definitions/DnsAdvancedProtection"
+	Description?:           #ResourceDescription
+	DnsAdvancedProtection?: #DnsAdvancedProtection
 	DnsViewId!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$"
 	FirewallDomainListId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$"
 	FirewallRuleId?:        strings.MaxRunes(64) & strings.MinRunes(1)
-	Name!:                  _#defs."/$defs/Properties/definitions/ResourceName"
+	Name!:                  #ResourceName
 	Priority?:              int & <=10000 & >=1
 	QType?:                 strings.MaxRunes(16) & strings.MinRunes(0)
 	QueryType?:             strings.MaxRunes(16) & strings.MinRunes(0)
-	Status?:                _#defs."/$defs/Properties/definitions/CRResourceStatus"
+	Status?:                #CRResourceStatus
 	UpdatedAt?:             string
 })
 
-_#defs: "/$defs/Properties/definitions/BlockOverrideDnsQueryType": "CNAME"
+#BlockOverrideDnsQueryType: "CNAME"
 
-_#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING"
+#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/ConfidenceThreshold": "LOW" | "MEDIUM" | "HIGH"
+#ConfidenceThreshold: "LOW" | "MEDIUM" | "HIGH"
 
-_#defs: "/$defs/Properties/definitions/DnsAdvancedProtection": "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA"
+#DnsAdvancedProtection: "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA"
 
-_#defs: "/$defs/Properties/definitions/Domain": strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\*?[-a-zA-Z0-9.]+"
+#Domain: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\*?[-a-zA-Z0-9.]+"
 
-_#defs: "/$defs/Properties/definitions/FirewallBlockResponse": "NODATA" | "NXDOMAIN" | "OVERRIDE"
+#FirewallBlockResponse: "NODATA" | "NXDOMAIN" | "OVERRIDE"
 
-_#defs: "/$defs/Properties/definitions/FirewallRuleAction": "ALLOW" | "ALERT" | "BLOCK"
+#FirewallRuleAction: "ALLOW" | "ALERT" | "BLOCK"
 
-_#defs: "/$defs/Properties/definitions/ResourceDescription": strings.MaxRunes(256) & strings.MinRunes(1)
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1)
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1)

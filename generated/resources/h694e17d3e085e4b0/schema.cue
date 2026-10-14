@@ -13,30 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // WebSocket API in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-route-response.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	ApiId!:                    string | fn.#StringExpression
-	ModelSelectionExpression?: string | fn.#StringExpression
-	ResponseModels?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	ResponseParameters?:       _#defs."/$defs/Properties/definitions/RouteParameters" | fn.#ValueExpression
-	RouteId!:                  string | fn.#StringExpression
-	RouteResponseKey!:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::RouteResponse"
+	Properties!: close({
+		ApiId!:                    string | fn.#StringExpression
+		ModelSelectionExpression?: string | fn.#StringExpression
+		ResponseModels?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterConstraints": close(
+		// The route response parameters.
+		ResponseParameters?: #RouteParameters
+		RouteId!:            string | fn.#StringExpression
+		RouteResponseKey!:   string | fn.#StringExpression
+	})
+}
+
+#ParameterConstraints: close(
 	{Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouteParameters": null |
+#RouteParameters: null |
 bool |
 number |
 string |
 [...] |
 close({
 
-	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ParameterConstraints"}}) |
+	{[=~"^.+$"]: #ParameterConstraints}}) |
 fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::RouteResponse"
-	Properties!: #Properties
-}

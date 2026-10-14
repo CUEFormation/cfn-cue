@@ -13,11 +13,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An AWS Support App resource that creates, updates, lists, and deletes Slack
 // workspace configurations.
-#Properties: close({
-	TeamId!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	VersionId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SupportApp::SlackWorkspaceConfiguration"
-	Properties!: #Properties
+	Type!: "AWS::SupportApp::SlackWorkspaceConfiguration"
+	Properties!: close({
+		TeamId!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+		VersionId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
+	})
 }

@@ -9,26 +9,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolUser
-#Properties: close({
-	ClientMetadata?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::UserPoolUser"
+	Properties!: close({
+		ClientMetadata?: close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	DesiredDeliveryMediums?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ForceAliasCreation?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MessageAction?:          string | fn.#StringExpression
-	UserAttributes?:         [..._#defs."/$defs/Properties/definitions/AttributeType"] | fn.#ListExpression
-	UserPoolId!:             string | fn.#StringExpression
-	Username?:               string | fn.#StringExpression
-	ValidationData?:         [..._#defs."/$defs/Properties/definitions/AttributeType"] | fn.#ListExpression
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		DesiredDeliveryMediums?: [...string | fn.#StringExpression] | fn.#ListExpression
+		ForceAliasCreation?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		MessageAction?:          string | fn.#StringExpression
+		UserAttributes?:         [...#AttributeType] | fn.#ListExpression
+		UserPoolId!:             string | fn.#StringExpression
+		Username?:               string | fn.#StringExpression
+		ValidationData?:         [...#AttributeType] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/AttributeType": close({
+#AttributeType: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolUser"
-	Properties!: #Properties
-}

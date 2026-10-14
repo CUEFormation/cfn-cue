@@ -13,22 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::ApplicationSettings
-#Properties: close({
-	ApplicationId!:            string | fn.#StringExpression
-	CampaignHook?:             _#defs."/$defs/Properties/definitions/CampaignHook"
-	CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Limits?:                   _#defs."/$defs/Properties/definitions/Limits"
-	QuietTime?:                _#defs."/$defs/Properties/definitions/QuietTime"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pinpoint::ApplicationSettings"
+	Properties!: close({
+		ApplicationId!:            string | fn.#StringExpression
+		CampaignHook?:             #CampaignHook
+		CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Limits?:                   #Limits
+		QuietTime?:                #QuietTime
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/CampaignHook": close({
+#CampaignHook: close({
 	LambdaFunctionName?: string | fn.#StringExpression
 	Mode?:               string | fn.#StringExpression
 	WebUrl?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Limits": close({
+#Limits: close({
 	Daily?: int |
 		{
 			string &
@@ -88,12 +91,8 @@ _#defs: "/$defs/Properties/definitions/Limits": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuietTime": close({
+#QuietTime: close({
 	End!:   string | fn.#StringExpression
 	Start!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::ApplicationSettings"
-	Properties!: #Properties
-}

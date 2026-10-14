@@ -9,16 +9,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Network.
-#Properties: close({
-	IpPools!: [..._#defs."/$defs/Properties/definitions/IpPool"] | fn.#ListExpression
-	Name!:    string | fn.#StringExpression
-	Routes?:  [..._#defs."/$defs/Properties/definitions/Route"] | fn.#ListExpression
-	Tags?:    [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Network"
+	Properties!: close({
+		IpPools!: [...#IpPool] | fn.#ListExpression
+		Name!:    string | fn.#StringExpression
+		Routes?:  [...#Route] | fn.#ListExpression
+		Tags?:    [...#Tags] | fn.#ListExpression
+	})
+}
 
-_#defs: "/$defs/Properties/definitions/IpPool": close({Cidr?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#IpPool: close({Cidr?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkState": "CREATING" |
+#NetworkState: "CREATING" |
 	"CREATE_FAILED" |
 	"ACTIVE" |
 	"DELETING" |
@@ -29,18 +32,14 @@ _#defs: "/$defs/Properties/definitions/NetworkState": "CREATING" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Route": close({
+#Route: close({
 	Cidr?:    string | fn.#StringExpression
 	Gateway?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Network"
-	Properties!: #Properties
-}

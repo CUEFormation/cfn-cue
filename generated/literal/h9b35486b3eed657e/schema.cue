@@ -22,7 +22,7 @@ import (
 
 	// The time the generated template was last updated.
 	LastUpdatedTime?: time.Time
-	Progress?:        _#defs."/$defs/Properties/definitions/TemplateProgress"
+	Progress?:        #TemplateProgress
 
 	// The status of the template generation.
 	Status?: "CREATE_PENDING" |
@@ -33,14 +33,14 @@ import (
 		"DELETE_IN_PROGRESS" |
 		"FAILED" |
 		"COMPLETE"
-	TemplateConfiguration?: _#defs."/$defs/Properties/definitions/TemplateConfiguration"
+	TemplateConfiguration?: #TemplateConfiguration
 
 	// The number of warnings generated for this template.
 	TotalWarnings?: int & >=0
 })
 
 // The configuration details of the generated template.
-_#defs: "/$defs/Properties/definitions/TemplateConfiguration": close({
+#TemplateConfiguration: close({
 	// The DeletionPolicy assigned to resources in the generated template.
 	DeletionPolicy?: "DELETE" | "RETAIN"
 
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/TemplateConfiguration": close({
 })
 
 // A summary of the progress of the template generation.
-_#defs: "/$defs/Properties/definitions/TemplateProgress": close({
+#TemplateProgress: close({
 	// The number of resources that failed the template generation.
 	ResourcesFailed?: int
 
