@@ -70,3 +70,30 @@ ok	#TrustPolicyValue	{"Fn::Sub": "{\"Statement\": []}"}
 ok	#TrustPolicyValue	{Ref: "PolicyParam"}
 ok	#TrustPolicyValue	{"Fn::If": ["C", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Deny", Principal: "*", Action: "sts:AssumeRole"}}]}
 bad	#TrustPolicyValue	{"Fn::If": ["C", {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Deny", Principal: "*", Action: "sts:AssumeRole"}}]}
+# Condition keys from OIDC issuers contain dots and, for EKS, slashes.
+ok	#TrustPolicy	{Version: "2012-10-17", Statement: [{Effect: "Allow", Principal: {Federated: {"Fn::Sub": "arn:${AWS::Partition}:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com"}}, Action: "sts:AssumeRoleWithWebIdentity", Condition: {StringEquals: {"token.actions.githubusercontent.com:aud": "sts.amazonaws.com"}, StringLike: {"token.actions.githubusercontent.com:sub": "repo:octo-org/octo-repo:*"}}}]}
+ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {Federated: "arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE"}, Action: "sts:AssumeRoleWithWebIdentity", Condition: {StringEquals: {"oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:sub": "system:serviceaccount:default:app", "oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE:aud": "sts.amazonaws.com"}}}]}
+ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {Federated: "cognito-identity.amazonaws.com"}, Action: "sts:AssumeRoleWithWebIdentity", Condition: {StringEquals: {"cognito-identity.amazonaws.com:aud": "us-east-1:12345678-abcd-abcd-abcd-123456789012"}}}]}
+bad	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "sts:AssumeRole", Condition: {StringEquals: {":sub": "x"}}}]}
+bad	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "sts:AssumeRole", Condition: {StringEquals: {"has space:sub": "x"}}}]}
+# Intrinsics at every statement value.
+ok	#IdentityPolicy	{Statement: [{Effect: {"Fn::If": ["Enabled", "Allow", "Deny"]}, Action: "s3:*", Resource: "*"}]}
+ok	#IdentityPolicy	{Statement: [{Sid: {"Fn::Sub": "Read${Env}"}, Effect: "Allow", Action: "s3:*", Resource: "*"}]}
+ok	#IdentityPolicy	{Version: {Ref: "PolicyVersion"}, Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {"Fn::If": ["Restrict", {Bool: {"aws:SecureTransport": true}}, {Ref: "AWS::NoValue"}]}}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: {"Fn::If": ["Write", "s3:PutObject", "s3:GetObject"]}, Resource: "*"}]}
+ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["CrossAccount", {AWS: "arn:aws:iam::123456789012:root"}, {Service: "lambda.amazonaws.com"}]}, Action: "sts:AssumeRole"}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["Public", "*", {AWS: {Ref: "AWS::AccountId"}}]}, Action: "sqs:SendMessage"}]}
+ok	#ServiceControlPolicy	{Statement: [{Effect: {Ref: "EffectParam"}, Action: "ec2:*", Resource: "*"}]}
+ok	#ServiceControlPolicy	{Statement: [{Effect: {Ref: "EffectParam"}, Action: "ec2:*", Resource: "arn:aws:ec2:*:*:instance/*"}]}
+ok	#ResourceControlPolicy	{Statement: [{Effect: "Deny", Principal: "*", Action: "s3:*", Resource: "*", Sid: {"Fn::Sub": "Deny${Env}"}}]}
+bad	#IdentityPolicy	{Statement: [{Effect: {"Fn::If": ["Enabled", "Allow"]}, Action: "s3:*", Resource: "*"}]}
+bad	#IdentityPolicy	{Statement: [{Effect: 5, Action: "s3:*", Resource: "*"}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {"Fn::If": ["Restrict", {Bogus: {"aws:x": "a"}}, {Ref: "AWS::NoValue"}]}}]}
+bad	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["CrossAccount", {Bogus: "x"}, "*"]}, Action: "sts:AssumeRole"}]}
+bad	#ResourceControlPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "s3:*", Resource: "*", Sid: {"Fn::Sub": "Deny${Env}"}}]}
+# A conditional policy value may remove the property with AWS::NoValue.
+ok	#KMSKeyPolicyValue	{"Fn::If": ["UseCustomPolicy", {Statement: [{Effect: "Allow", Principal: {AWS: "123456789012"}, Action: "kms:*", Resource: "*"}]}, {Ref: "AWS::NoValue"}]}
+ok	#IdentityPolicyValue	{"Fn::If": ["Attach", {Ref: "AWS::NoValue"}, {Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}]}
+ok	#ServiceControlPolicyValue	{"Fn::If": ["Strict", {Statement: [{Effect: "Deny", Action: "ec2:*", Resource: "*"}]}, {Ref: "AWS::NoValue"}]}
+bad	#KMSKeyPolicyValue	{"Fn::If": ["UseCustomPolicy", {Statement: [{Effect: "Allow", Action: "kms:*", Resource: "*"}]}, {Ref: "AWS::NoValue"}]}
