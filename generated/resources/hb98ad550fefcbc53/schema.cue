@@ -10,6 +10,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a virtual private gateway. A virtual private gateway is the
@@ -20,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPNGateway"
-	Properties!: close({
+	let properties = close({
 		AmazonSideAsn?: int |
 			{
 				string &
@@ -38,12 +40,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Tags?: [...#Tag] | fn.#ListExpression
-		Type!: string | fn.#StringExpression
+		Type!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

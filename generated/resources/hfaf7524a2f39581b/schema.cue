@@ -6,28 +6,32 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayPeeringAttachment type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayPeeringAttachment"
-	Properties!: close({
-		PeerAccountId!:        string | fn.#StringExpression
-		PeerRegion!:           string | fn.#StringExpression
-		PeerTransitGatewayId!: string | fn.#StringExpression
+	let properties = close({
+		PeerAccountId!:        string | number | bool | fn.#StringExpression
+		PeerRegion!:           string | number | bool | fn.#StringExpression
+		PeerTransitGatewayId!: string | number | bool | fn.#StringExpression
 		Tags?:                 [...#Tag] | fn.#ListExpression
-		TransitGatewayId!:     string | fn.#StringExpression
+		TransitGatewayId!:     string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #PeeringAttachmentStatus: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
+	Code?:    string | number | bool | fn.#StringExpression
+	Message?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,14 +10,16 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudFormation::CustomResource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::CustomResource" | =~"^Custom::[A-Za-z0-9_@-]{1,60}$"
-	Properties!: close({
+	let properties = close({
 
-		{[=~".*"]: fn.#Object & {...} | int | string | [...] | fn.#StringNumberListObjectExpression}
+		{[=~".*"]: fn.#Object & {...} | number | string | bool | [...] | fn.#StringNumberListObjectExpression}
 		ServiceTimeout?: int |
 			{
 				string &
@@ -34,6 +36,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ServiceToken!: string | fn.#StringExpression
+		ServiceToken!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

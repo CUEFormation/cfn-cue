@@ -10,12 +10,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCCidrBlock
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPCCidrBlock"
-	Properties!: close({
+	let properties = close({
 		AmazonProvidedIpv6CidrBlock?: bool |
 			"true" |
 			"True" |
@@ -24,8 +26,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		CidrBlock?:      string | fn.#StringExpression
-		Ipv4IpamPoolId?: string | fn.#StringExpression
+		CidrBlock?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		Ipv4IpamPoolId?: string | number | bool | fn.#StringExpression
 		Ipv4NetmaskLength?: int |
 			{
 				string &
@@ -42,9 +49,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Ipv6CidrBlock?:                   string | fn.#StringExpression
-		Ipv6CidrBlockNetworkBorderGroup?: string | fn.#StringExpression
-		Ipv6IpamPoolId?:                  string | fn.#StringExpression
+		Ipv6CidrBlock?: fn.#IPv6Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv6Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		Ipv6CidrBlockNetworkBorderGroup?: string | number | bool | fn.#StringExpression
+		Ipv6IpamPoolId?:                  string | number | bool | fn.#StringExpression
 		Ipv6NetmaskLength?: int |
 			{
 				string &
@@ -61,8 +73,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Ipv6Pool?: string | fn.#StringExpression
-		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		Ipv6Pool?: string | number | bool | fn.#StringExpression
+		VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

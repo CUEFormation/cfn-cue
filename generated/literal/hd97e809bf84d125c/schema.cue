@@ -10,5 +10,5 @@ package schema
 	AvailabilityZoneId?:  string
 	ClientVpnEndpointId!: string
 	Id?:                  string
-	SubnetId?:            string
+	SubnetId?:            =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

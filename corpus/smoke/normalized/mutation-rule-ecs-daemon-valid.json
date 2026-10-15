@@ -1,0 +1,11 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "SchedulingStrategy": "DAEMON",
+        "TaskDefinition": "task"
+      },
+      "Type": "AWS::ECS::Service"
+    }
+  }
+}

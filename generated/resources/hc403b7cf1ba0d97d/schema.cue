@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a new DB shard group for Aurora Limitless Database. You must enable
@@ -21,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Valid for: Aurora DB clusters only
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::DBShardGroup"
-	Properties!: close({
+	let properties = close({
 		ComputeRedundancy?: int & >=0 |
 			{
 				string &
@@ -39,8 +41,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		DBClusterIdentifier!:    strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-		DBShardGroupIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		DBClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DBShardGroupIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		MaxACU!: number |
 			{
 				string &
@@ -82,10 +94,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

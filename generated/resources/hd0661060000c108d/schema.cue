@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ConnectCampaignsV2::Campaign Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ConnectCampaignsV2::Campaign"
-	Properties!: close({
+	let properties = close({
 		ChannelSubtypeConfig?:        #ChannelSubtypeConfig
 		CommunicationLimitsOverride?: #CommunicationLimitsConfig
 		CommunicationTimeConfig?:     #CommunicationTimeConfig
@@ -32,6 +34,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Type?:                        #CampaignType
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AgentAction: "DISCARD" | fn.#StringExpression
@@ -46,7 +50,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#Arn: strings.MaxRunes(500) & strings.MinRunes(20) & =~"^arn:.*$" | fn.#StringExpression
+#Arn: strings.MaxRunes(500) & strings.MinRunes(20) & =~"^arn:.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(500) & strings.MinRunes(20) & =~"^arn:.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #BandwidthAllocation: <=1 & >=0 |
 	{
@@ -69,7 +78,12 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#CampaignName: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+#CampaignName: strings.MaxRunes(127) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #CampaignType: "MANAGED" | "JOURNEY" | fn.#StringExpression
 
@@ -158,7 +172,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ContactFlowId: strings.MaxRunes(500) | fn.#StringExpression
+#ContactFlowId: strings.MaxRunes(500) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(500) & "\(self)"
+} |
+fn.#StringExpression
 
 #DailyHour: close({
 	Key?:   #DayOfWeek
@@ -171,6 +190,10 @@ fn.#ObjectExpression
 #DayOfWeek: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
 
 #EmailAddress: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-\\.\\+]+@([\\w-]+\\.)+[\\w-]{2,4}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-\\.\\+]+@([\\w-]+\\.)+[\\w-]{2,4}$" & "\(self)"
+} |
 fn.#StringExpression
 
 #EmailChannelSubtypeConfig: close({
@@ -213,18 +236,40 @@ fn.#ObjectExpression
 
 #EventTrigger: close({CustomerProfilesDomainArn?: #Arn}) | fn.#ObjectExpression
 
-#InstanceId: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-.]*$" | fn.#StringExpression
+#InstanceId: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-.]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-.]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #InstanceLimitsHandling: "OPT_IN" | "OPT_OUT" | fn.#StringExpression
 
-#Iso8601Date: =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
+#Iso8601Date: =~"^\\d{4}-\\d{2}-\\d{2}$" |
+{
+	number | bool
+	_cfnString: =~"^\\d{4}-\\d{2}-\\d{2}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Iso8601Duration: strings.MaxRunes(50) &
 strings.MinRunes(0) &
 =~"^P(?:([-+]?[0-9]+)D)?(T(?:([-+]?[0-9]+)H)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) &
+	strings.MinRunes(0) &
+	=~"^P(?:([-+]?[0-9]+)D)?(T(?:([-+]?[0-9]+)H)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#Iso8601Time: =~"^T\\d{2}:\\d{2}$" | fn.#StringExpression
+#Iso8601Time: =~"^T\\d{2}:\\d{2}$" |
+{
+	number | bool
+	_cfnString: =~"^T\\d{2}:\\d{2}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #LocalTimeZoneConfig: close({
 	DefaultTimeZone?:             #TimeZone
@@ -252,11 +297,21 @@ fn.#ObjectExpression
 
 #ProgressiveConfig: close({BandwidthAllocation!: #BandwidthAllocation}) | fn.#ObjectExpression
 
-#QueueId: strings.MaxRunes(500) | fn.#StringExpression
+#QueueId: strings.MaxRunes(500) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(500) & "\(self)"
+} |
+fn.#StringExpression
 
 #RestrictedPeriod: close({
-	EndDate!:   #Iso8601Date
-	Name?:      strings.MaxRunes(127) | fn.#StringExpression
+	EndDate!: #Iso8601Date
+	Name?: strings.MaxRunes(127) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & "\(self)"
+	} |
+	fn.#StringExpression
 	StartDate!: #Iso8601Date
 }) |
 fn.#ObjectExpression
@@ -316,13 +371,23 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{CustomerProfilesSegmentArn!: _}, {EventTrigger!: _}]) |
 fn.#ObjectExpression
 
-#SourceEmailAddressDisplayName: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#SourceEmailAddressDisplayName: strings.MaxRunes(256) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#SourcePhoneNumber: strings.MaxRunes(100) | fn.#StringExpression
+#SourcePhoneNumber: strings.MaxRunes(100) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -382,7 +447,12 @@ fn.#ObjectExpression
 
 #TimeRangeList: [...#TimeRange] | fn.#ListExpression
 
-#TimeStamp: strings.MaxRunes(100) | fn.#StringExpression
+#TimeStamp: strings.MaxRunes(100) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & "\(self)"
+} |
+fn.#StringExpression
 
 #TimeWindow: close({
 	OpenHours!:         #OpenHours
@@ -390,7 +460,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#TimeZone: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/]*$" | fn.#StringExpression
+#TimeZone: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #TimeoutConfig: {
 	DurationInSeconds?: #TimeoutDuration

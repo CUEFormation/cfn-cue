@@ -54,7 +54,9 @@ import "strings"
 	"FAULT_ACCESS_CLOUDWATCH"
 
 #S3Config: close({
-	BucketName?:        strings.MinRunes(3)
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MinRunes(3)
 	BucketPrefix?:      string
 	LogDeliveryStatus?: "ENABLED" | "DISABLED"
 })

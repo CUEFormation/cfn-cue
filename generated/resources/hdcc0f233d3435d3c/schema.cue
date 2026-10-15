@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolClient
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolClient"
-	Properties!: close({
+	let properties = close({
 		AccessTokenValidity?: int & <=86400 & >=1 |
 			{
 				string &
@@ -50,9 +52,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		AllowedOAuthScopes?: list.MaxItems(50) & [...] & [
-			...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
-		] |
+		AllowedOAuthScopes?: list.MaxItems(50) & [...] & [...strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		AnalyticsConfiguration?: #AnalyticsConfiguration
 		AuthSessionValidity?: int & <=15 & >=3 |
@@ -73,13 +80,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		CallbackURLs?: list.MaxItems(100) & [...] & [
-			...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
-			fn.#StringExpression
-		] |
+		CallbackURLs?: list.MaxItems(100) & [...] & [...strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		ClientName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
+		ClientName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DefaultRedirectURI?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		EnablePropagateAdditionalUserContextData?: bool |
 			"true" |
@@ -122,13 +148,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		LogoutURLs?: list.MaxItems(100) & [...] & [
-			...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
-			fn.#StringExpression
-		] |
+		LogoutURLs?: list.MaxItems(100) & [...] & [...strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		PreventUserExistenceErrors?: "ENABLED" | "LEGACY" | fn.#StringExpression
-		ReadAttributes?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		ReadAttributes?: [...strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		RefreshTokenRotation?: #RefreshTokenRotation
 		RefreshTokenValidity?: int & <=315360000 & >=1 |
 			{
@@ -148,28 +187,73 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SupportedIdentityProviders?: [
-			...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\p{Z}]+$" |
-			fn.#StringExpression
-		] |
+		SupportedIdentityProviders?: [...strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\p{Z}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\p{Z}]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		TokenValidityUnits?: #TokenValidityUnits
-		UserPoolId!:      strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
-		WriteAttributes?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		WriteAttributes?: [...strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AnalyticsConfiguration: close({
 	ApplicationArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ApplicationId?: =~"^[0-9a-fA-F]+$" | fn.#StringExpression
-	ExternalId?:    strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ApplicationId?: =~"^[0-9a-fA-F]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9a-fA-F]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	UserDataShared?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |

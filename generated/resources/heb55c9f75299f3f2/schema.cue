@@ -14,18 +14,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a listener for an Application Load Balancer, Network Load Balancer,
 // or Gateway Load Balancer.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticLoadBalancingV2::Listener"
-	Properties!: close({
-		AlpnPolicy?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = matchIf({
+		Protocol!: "HTTPS" | "TLS"
+		...
+	}, {
+		Certificates!: _
+		...
+	}, _) & close({
+		AlpnPolicy?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Certificates?:       list.UniqueItems() & [...#Certificate] | fn.#ListExpression
 		DefaultActions!:     list.UniqueItems() & [...#Action] | fn.#ListExpression
 		ListenerAttributes?: list.UniqueItems() & [...#ListenerAttribute] | fn.#ListExpression
-		LoadBalancerArn!:    string | fn.#StringExpression
+		LoadBalancerArn!:    string | number | bool | fn.#StringExpression
 
 		// The mutual authentication configuration information.
 		MutualAuthentication?: #MutualAuthentication
@@ -57,9 +65,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"TLS" |
 			"UDP" |
 			fn.#StringExpression
-		SslPolicy?: string | fn.#StringExpression
+		SslPolicy?: string | number | bool | fn.#StringExpression
 		Tags?:      list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: close({
@@ -106,7 +116,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	// [Application Load Balancer] Information for creating a redirect action.
 	// Specify only when ``Type`` is ``redirect``.
 	RedirectConfig?: #RedirectConfig
-	TargetGroupArn?: string | fn.#StringExpression
+	TargetGroupArn?: string | number | bool | fn.#StringExpression
 	Type!: "authenticate-cognito" |
 		"authenticate-oidc" |
 		"fixed-response" |
@@ -119,44 +129,80 @@ fn.#ObjectExpression
 
 #AuthenticateCognitoConfig: close({
 	AuthenticationRequestExtraParams?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
 	OnUnauthenticatedRequest?: "allow" | "authenticate" | "deny" | fn.#StringExpression
-	Scope?:                    string | fn.#StringExpression
-	SessionCookieName?:        string | fn.#StringExpression
-	SessionTimeout?:           string | fn.#StringExpression
-	UserPoolArn!:              string | fn.#StringExpression
-	UserPoolClientId!:         string & string | fn.#StringExpression
-	UserPoolDomain!:           string | fn.#StringExpression
+	Scope?:                    string | number | bool | fn.#StringExpression
+	SessionCookieName?:        string | number | bool | fn.#StringExpression
+	SessionTimeout?:           string | number | bool | fn.#StringExpression
+	UserPoolArn!:              string | number | bool | fn.#StringExpression
+	UserPoolClientId!: string & string |
+	{
+		number | bool
+		_cfnString: string & string & "\(self)"
+	} |
+	fn.#StringExpression
+	UserPoolDomain!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AuthenticateOidcConfig: close({
 	AuthenticationRequestExtraParams?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
-	AuthorizationEndpoint!:    string | fn.#StringExpression
-	ClientId!:                 string | fn.#StringExpression
-	ClientSecret?:             string | fn.#StringExpression
-	Issuer!:                   string | fn.#StringExpression
+	AuthorizationEndpoint!:    string | number | bool | fn.#StringExpression
+	ClientId!:                 string | number | bool | fn.#StringExpression
+	ClientSecret?:             string | number | bool | fn.#StringExpression
+	Issuer!:                   string | number | bool | fn.#StringExpression
 	OnUnauthenticatedRequest?: "allow" | "authenticate" | "deny" | fn.#StringExpression
-	Scope?:                    string | fn.#StringExpression
-	SessionCookieName?:        string | fn.#StringExpression
-	SessionTimeout?:           string | fn.#StringExpression
-	TokenEndpoint!:            string | fn.#StringExpression
+	Scope?:                    string | number | bool | fn.#StringExpression
+	SessionCookieName?:        string | number | bool | fn.#StringExpression
+	SessionTimeout?:           string | number | bool | fn.#StringExpression
+	TokenEndpoint!:            string | number | bool | fn.#StringExpression
 	UseExistingClientSecret?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	UserInfoEndpoint!:         string | fn.#StringExpression
+	UserInfoEndpoint!:         string | number | bool | fn.#StringExpression
 }) & matchN(>=1, [{ClientSecret!: _}, {UseExistingClientSecret!: _}]) |
 fn.#ObjectExpression
 
-#Certificate: close({CertificateArn?: string & string | fn.#StringExpression}) | fn.#ObjectExpression
+#Certificate: close({
+	CertificateArn?: string & string |
+	{
+		number | bool
+		_cfnString: string & string & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #FixedResponseConfig: close({
-	ContentType?: strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
-	MessageBody?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	StatusCode!:  =~"^(2|4|5)\\d\\d$" | fn.#StringExpression
+	ContentType?: strings.MaxRunes(32) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	MessageBody?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	StatusCode!: =~"^(2|4|5)\\d\\d$" |
+	{
+		number | bool
+		_cfnString: =~"^(2|4|5)\\d\\d$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -169,21 +215,21 @@ fn.#ObjectExpression
 
 #JwtValidationActionAdditionalClaim: close({
 	Format!: "single-string" | "space-separated-values" | "string-array" | fn.#StringExpression
-	Name!:   string | fn.#StringExpression
-	Values!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Name!:   string | number | bool | fn.#StringExpression
+	Values!: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #JwtValidationConfig: close({
 	AdditionalClaims?: list.UniqueItems() & [...#JwtValidationActionAdditionalClaim] | fn.#ListExpression
-	Issuer!:           string | fn.#StringExpression
-	JwksEndpoint!:     string | fn.#StringExpression
+	Issuer!:           string | number | bool | fn.#StringExpression
+	JwksEndpoint!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ListenerAttribute: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -197,24 +243,54 @@ fn.#ObjectExpression
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	Mode?:          string | fn.#StringExpression
-	TrustStoreArn?: string | fn.#StringExpression
+	Mode?:          string | number | bool | fn.#StringExpression
+	TrustStoreArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RedirectConfig: close({
-	Host?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Path?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Port?:       string | fn.#StringExpression
-	Protocol?:   =~"^(HTTPS?|#\\{protocol\\})$" | fn.#StringExpression
-	Query?:      strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	Host?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Path?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Port?: string | number | bool | fn.#StringExpression
+	Protocol?: =~"^(HTTPS?|#\\{protocol\\})$" |
+	{
+		number | bool
+		_cfnString: =~"^(HTTPS?|#\\{protocol\\})$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Query?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	StatusCode!: "HTTP_301" | "HTTP_302" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -238,7 +314,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TargetGroupTuple: close({
-	TargetGroupArn?: string | fn.#StringExpression
+	TargetGroupArn?: string | number | bool | fn.#StringExpression
 	Weight?: int |
 		{
 			string &

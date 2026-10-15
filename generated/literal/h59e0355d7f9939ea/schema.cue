@@ -24,7 +24,9 @@ import (
 
 	// An KMS key identifier for the key to use to encrypt the integration. If you
 	// don't specify an encryption key, the default AWS owned KMS key is used.
-	KMSKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
+	KMSKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
 
 	// The Amazon Resource Name (ARN) of the database to use as the source for replication
 	SourceArn!: strings.MaxRunes(255) &

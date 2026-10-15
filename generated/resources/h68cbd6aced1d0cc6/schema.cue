@@ -10,65 +10,159 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::ResilienceHub::App.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ResilienceHub::App"
-	Properties!: close({
+	let properties = close({
 		AppAssessmentSchedule?: "Disabled" | "Daily" | fn.#StringExpression
 		AppTemplateBody!: strings.MaxRunes(409600) & strings.MinRunes(0) & =~"^[\\w\\s:,-\\.'\\/{}\\[\\]:\"]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(409600) &
+			strings.MinRunes(0) &
+			=~"^[\\w\\s:,-\\.'\\/{}\\[\\]:\"]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?:         strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-		EventSubscriptions?:  list.MaxItems(10) & [...] & [...#EventSubscription] | fn.#ListExpression
-		Name!:                =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		EventSubscriptions?: list.MaxItems(10) & [...] & [...#EventSubscription] | fn.#ListExpression
+		Name!: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PermissionModel?:     #PermissionModel
-		ResiliencyPolicyArn?: string | fn.#StringExpression
+		ResiliencyPolicyArn?: string | number | bool | fn.#StringExpression
 		ResourceMappings!:    [...#ResourceMapping] | fn.#ListExpression
 		Tags?:                #TagMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EventSubscription: close({
 	EventType!: "ScheduledAssessmentFailure" | "DriftDetected" | fn.#StringExpression
-	Name!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SnsTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IamRoleArn: =~"arn:(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov):iam::[0-9]{12}:role\\/(([\\x{0021}-\\x{007E}]+\\x{002F}){1,511})?[A-Za-z0-9+=,.@_/-]{1,64}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"arn:(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov):iam::[0-9]{12}:role\\/(([\\x{0021}-\\x{007E}]+\\x{002F}){1,511})?[A-Za-z0-9+=,.@_/-]{1,64}$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #PermissionModel: close({
 	CrossAccountRoleArns?: list.MaxItems(10) & [...] & [...#IamRoleArn] | fn.#ListExpression
 	InvokerRoleName?: =~"((\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F}){1,511})?[A-Za-z0-9+=,.@_/-]{1,64}" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"((\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F}){1,511})?[A-Za-z0-9+=,.@_/-]{1,64}" & "\(self)"
+	} |
+	fn.#StringExpression
 	Type!: "LegacyIAMUser" | "RoleBased" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PhysicalResourceId: close({
-	AwsAccountId?: =~"^[0-9]{12}$" | fn.#StringExpression
-	AwsRegion?:    =~"^[a-z]{2}-((iso[a-z]{0,1}-)|(gov-)){0,1}[a-z]+-[0-9]$" | fn.#StringExpression
-	Identifier!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:         =~"Arn|Native" | fn.#StringExpression
+	AwsAccountId?: =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	AwsRegion?: =~"^[a-z]{2}-((iso[a-z]{0,1}-)|(gov-)){0,1}[a-z]+-[0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z]{2}-((iso[a-z]{0,1}-)|(gov-)){0,1}[a-z]+-[0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Identifier!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: =~"Arn|Native" |
+	{
+		number | bool
+		_cfnString: =~"Arn|Native" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ResourceMapping: close({
-	EksSourceName?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LogicalStackName?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	MappingType!:         =~"CfnStack|Resource|Terraform|EKS" | fn.#StringExpression
-	PhysicalResourceId!:  #PhysicalResourceId
-	ResourceName?:        =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	TerraformSourceName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	EksSourceName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LogicalStackName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MappingType!: =~"CfnStack|Resource|Terraform|EKS" |
+	{
+		number | bool
+		_cfnString: =~"CfnStack|Resource|Terraform|EKS" & "\(self)"
+	} |
+	fn.#StringExpression
+	PhysicalResourceId!: #PhysicalResourceId
+	ResourceName?: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TerraformSourceName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~".{1,128}"]: #TagValue}}) |
+	{[=~".{1,128}"]: #TagValue}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
-#TagValue: strings.MaxRunes(256) | fn.#StringExpression
+#TagValue: strings.MaxRunes(256) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & "\(self)"
+} |
+fn.#StringExpression

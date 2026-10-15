@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::RoboMaker::SimulationApplicationVersion resource creates an AWS
@@ -16,10 +18,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // your simulation uses.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RoboMaker::SimulationApplicationVersion"
-	Properties!: close({
-		Application!:       #Arn
-		CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" | fn.#StringExpression
+	let properties = close({
+		Application!: #Arn
+		CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
+{
+	number | bool
+	_cfnString: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" & "\(self)"
+} |
+fn.#StringExpression

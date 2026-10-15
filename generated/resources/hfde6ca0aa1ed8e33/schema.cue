@@ -10,20 +10,44 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::RegistrationAttachment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SMSVOICE::RegistrationAttachment"
-	Properties?: close({
-		AttachmentBody?: strings.MinRunes(1) | fn.#StringExpression
-		AttachmentUrl?:  strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-		Tags?:           list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		AttachmentBody?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		AttachmentUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

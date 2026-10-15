@@ -1,0 +1,13 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "DBClusterIdentifier": "cluster",
+        "DBInstanceClass": "db.r5.large",
+        "Engine": "Aurora-MySQL",
+        "MasterUserPassword": "change-me-1234"
+      },
+      "Type": "AWS::RDS::DBInstance"
+    }
+  }
+}

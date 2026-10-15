@@ -13,6 +13,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a monitor, which defines the monitoring boundaries for
@@ -20,11 +22,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // application
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::InternetMonitor::Monitor"
-	Properties!: close({
+	let properties = close({
 		HealthEventsConfig?:    #HealthEventsConfig
 		IncludeLinkedAccounts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		InternetMeasurementsLogDelivery?: #InternetMeasurementsLogDelivery
-		LinkedAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^(\\d{12})$" | fn.#StringExpression
+		LinkedAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^(\\d{12})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^(\\d{12})$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MaxCityNetworksToMonitor?: int & <=500000 & >=1 |
 			{
 				string &
@@ -43,11 +50,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MonitorName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-		Resources?: [...strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" | fn.#StringExpression] |
+		MonitorName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Resources?: [...strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		ResourcesToAdd?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
-		ResourcesToRemove?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
+		ResourcesToAdd?: [...strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		ResourcesToRemove?: [...strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Status?: #MonitorConfigState
 		Tags?:   [...#Tag] | fn.#ListExpression
@@ -70,6 +98,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #HealthEventsConfig: close({
@@ -176,17 +206,32 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #S3Config: close({
-	BucketName?:        strings.MinRunes(3) | fn.#StringExpression
-	BucketPrefix?:      string | fn.#StringExpression
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MinRunes(3) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	BucketPrefix?:      string | number | bool | fn.#StringExpression
 	LogDeliveryStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" &
+		"\(self)"
+} |
+fn.#StringExpression

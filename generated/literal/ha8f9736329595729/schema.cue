@@ -61,5 +61,8 @@ import (
 	// The ID of the subnet to add the mount target in. For One Zone file systems,
 	// use the subnet that is associated with the file system's Availability Zone.
 	// The subnet type must be the same type as the ``IpAddressType``.
-	SubnetId!: strings.MaxRunes(47) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,40}$"
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(47) &
+	strings.MinRunes(15) &
+	=~"^subnet-[0-9a-f]{8,40}$"
 })

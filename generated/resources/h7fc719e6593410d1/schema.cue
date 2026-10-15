@@ -10,42 +10,74 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::SecurityProfile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::SecurityProfile"
-	Properties!: close({
+	let properties = close({
 		AllowedAccessControlHierarchyGroupId?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		AllowedAccessControlTags?: list.MaxItems(4) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		AllowedFlowModules?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#FlowModule] | fn.#ListExpression
 		Applications?:       list.MaxItems(10) & list.UniqueItems() & [...] & [...#Application] | fn.#ListExpression
-		Description?:        strings.MaxRunes(250) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(250) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(250) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		GranularAccessControlConfiguration?: close(
 			{DataTableAccessControlConfiguration?: #DataTableAccessControlConfiguration},
 		) |
 			fn.#ObjectExpression
 		HierarchyRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...#ResourceName] | fn.#ListExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Permissions?: list.MaxItems(500) & list.UniqueItems() & [...] & [...#Permission] | fn.#ListExpression
 		SecurityProfileName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_@-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		TagRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ResourceName] |
 			fn.#ListExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Application: close({
 	ApplicationPermissions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ApplicationPermission] |
 		fn.#ListExpression
-	Namespace?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:      "MCP" | "THIRD_PARTY_APPLICATION" | fn.#StringExpression
+	Namespace?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: "MCP" | "THIRD_PARTY_APPLICATION" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ApplicationPermission: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#ApplicationPermission: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #DataTableAccessControlConfiguration: close(
 	{PrimaryAttributeAccessControlConfiguration?: #PrimaryAttributeAccessControlConfigurationItem},
@@ -53,12 +85,27 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #FlowModule: close({
-	FlowModuleId?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:         "MCP" & (strings.MaxRunes(128) & strings.MinRunes(1)) | fn.#StringExpression
+	FlowModuleId?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: "MCP" & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: "MCP" & strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Permission: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Permission: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #PrimaryAttributeAccessControlConfigurationItem: close({
 	PrimaryAttributeValues?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#PrimaryAttributeValue] |
@@ -67,22 +114,47 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #PrimaryAttributeValue: close({
-	AccessType?:    "ALLOW" | fn.#StringExpression
-	AttributeName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Values?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(1000) &
+	AccessType?: "ALLOW" | fn.#StringExpression
+	AttributeName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Values?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(1000) &
+	strings.MinRunes(1) &
+	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) &
 		strings.MinRunes(1) &
-		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+$" |
-		fn.#StringExpression
-	] |
+		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceName: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -25,7 +25,11 @@ import (
 	]
 
 	// The name of the bucket on the self-managed object storage server.
-	BucketName?:         strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
 	CmkSecretConfig?:    #CmkSecretConfig
 	CustomSecretConfig?: #CustomSecretConfig
 	FederatedIdentity?:  #ObjectStorageFederatedIdentityConfig

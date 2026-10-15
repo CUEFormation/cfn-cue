@@ -11,6 +11,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a spending limit for a specified quantum device. Spending limits help
@@ -18,17 +20,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // computing tasks within a specified time period.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Braket::SpendingLimit"
-	Properties!: close({
-		DeviceArn!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		SpendingLimit!: strings.MinRunes(1) & =~"^\\d+(\\.\\d{1,2})?$" | fn.#StringExpression
-		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TimePeriod?:    #TimePeriod
+	let properties = close({
+		DeviceArn!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		SpendingLimit!: strings.MinRunes(1) & =~"^\\d+(\\.\\d{1,2})?$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & =~"^\\d+(\\.\\d{1,2})?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TimePeriod?: #TimePeriod
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

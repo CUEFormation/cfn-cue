@@ -10,20 +10,24 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::WebACL
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFRegional::WebACL"
-	Properties!: close({
+	let properties = close({
 		DefaultAction!: #Action
-		MetricName!:    string | fn.#StringExpression
-		Name!:          string | fn.#StringExpression
+		MetricName!:    string | number | bool | fn.#StringExpression
+		Name!:          string | number | bool | fn.#StringExpression
 		Rules?:         [...#Rule] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Action: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Action: close({Type!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Rule: close({
 	Action!: #Action
@@ -41,6 +45,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	RuleId!: string | fn.#StringExpression
+	RuleId!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

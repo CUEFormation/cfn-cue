@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::ClientCertificate`` resource creates a client
@@ -13,14 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // authentication for sending requests to the integration endpoint.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::ClientCertificate"
-	Properties?: close({
-		Description?: string | fn.#StringExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
 		Tags?:        [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

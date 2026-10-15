@@ -14,17 +14,34 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Queue
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Queue"
-	Properties!: close({
+	let properties = close({
 		AdditionalEmailAddresses?: list.MaxItems(50) & [...] & [...#EmailAddress] | fn.#ListExpression
-		Description?:              strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(250) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(250) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		HoursOfOperationArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/operating-hours/[-a-zA-Z0-9]*$" |
-			fn.#StringExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/operating-hours/[-a-zA-Z0-9]*$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MaxContacts?: int & >=0 |
 			{
 				string &
@@ -42,7 +59,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The outbound caller ID name, number, and outbound whisper flow.
 		OutboundCallerConfig?: #OutboundCallerConfig
@@ -53,15 +75,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Status?:              "ENABLED" | "DISABLED" | fn.#StringExpression
 		Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EmailAddress: close({
 	EmailAddressArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-f0-9]{8}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{12}/email-address/[-a-f0-9]{8}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{12}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-f0-9]{8}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{12}/email-address/[-a-f0-9]{8}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{4}-[-a-f0-9]{12}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
-#Key: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Key: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #OutboundCallerConfig: close({
 	OutboundCallerIdName?:      #OutboundCallerIdName
@@ -70,14 +104,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#OutboundCallerIdName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#OutboundCallerIdName: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #OutboundCallerIdNumberArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:phone-number/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:phone-number/[-a-zA-Z0-9]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #OutboundEmailAddressId: strings.MaxRunes(500) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/email-address/[-a-zA-Z0-9]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(500) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/email-address/[-a-zA-Z0-9]*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #OutboundEmailConfig: close({OutboundEmailAddressId?: #OutboundEmailAddressId}) | fn.#ObjectExpression
@@ -85,10 +135,22 @@ fn.#StringExpression
 #OutboundFlowArn: strings.MaxRunes(500) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(500) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #QuickConnectArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/transfer-destination/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/transfer-destination/[-a-zA-Z0-9]*$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
 	Key!:   #Key
@@ -96,4 +158,9 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Value: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#Value: strings.MaxRunes(256) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression

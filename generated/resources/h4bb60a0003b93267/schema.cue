@@ -9,12 +9,21 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An AWS Support App resource that creates, updates, reads, and deletes a customer's account alias.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SupportApp::AccountAlias"
-	Properties!: close(
-		{AccountAlias!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" | fn.#StringExpression},
-	)
+	let properties = close({
+		AccountAlias!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

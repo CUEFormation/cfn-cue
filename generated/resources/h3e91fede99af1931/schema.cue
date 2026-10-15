@@ -10,36 +10,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for AWS::EMR::Step
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMR::Step"
-	Properties!: close({
-		ActionOnFailure!:  string | fn.#StringExpression
-		EncryptionKeyArn?: string | fn.#StringExpression
+	let properties = close({
+		ActionOnFailure!:  string | number | bool | fn.#StringExpression
+		EncryptionKeyArn?: string | number | bool | fn.#StringExpression
 
 		// The HadoopJarStepConfig property type specifies a job flow step consisting of
 		// a JAR file whose main function will be executed. The main function submits a
 		// job for the cluster to execute as a step on the master node, and then waits
 		// for the job to finish or fail before executing subsequent steps.
 		HadoopJarStep!: #HadoopJarStepConfig
-		JobFlowId!:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		LogUri?:        string | fn.#StringExpression
-		Name!:          string | fn.#StringExpression
+		JobFlowId!: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		LogUri?: string | number | bool | fn.#StringExpression
+		Name!:   string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #HadoopJarStepConfig: close({
-	Args?:           [...string | fn.#StringExpression] | fn.#ListExpression
-	Jar!:            string | fn.#StringExpression
-	MainClass?:      string | fn.#StringExpression
+	Args?:           [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Jar!:            string | number | bool | fn.#StringExpression
+	MainClass?:      string | number | bool | fn.#StringExpression
 	StepProperties?: list.UniqueItems() & [...#KeyValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #KeyValue: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,42 +10,83 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm TestGrid Project
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DeviceFarm::TestGridProject"
-	Properties!: close({
-		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-		Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-		Tags?:        [...#Tag] | fn.#ListExpression
-		VpcConfig?:   #VpcConfig
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+		VpcConfig?: #VpcConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(4096) &
-		strings.MinRunes(1) &
-		=~".*\\S.*" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SubnetIds!: list.MaxItems(8) & list.MinItems(1) & [
-		...strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 	strings.MaxRunes(4096) &
 	strings.MinRunes(1) &
 	=~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(4096) &
+		strings.MinRunes(1) &
+		=~".*\\S.*" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: list.MaxItems(8) & list.MinItems(1) & [...strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(4096) &
+	strings.MinRunes(1) &
+	=~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(4096) &
+		strings.MinRunes(1) &
+		=~".*\\S.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -14,41 +14,75 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage wireless gateways, including LoRa gateways.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTWireless::WirelessDevice"
-	Properties!: close({
-		Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		DestinationName!:      strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-		LastUplinkReceivedAt?: string | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DestinationName!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		LastUplinkReceivedAt?: string | number | bool | fn.#StringExpression
 
 		// The combination of Package, Station and Model which represents the version of
 		// the LoRaWAN Wireless Device.
-		LoRaWAN?:     #LoRaWANDevice
-		Name?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		LoRaWAN?: #LoRaWANDevice
+		Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		Positioning?: "Enabled" | "Disabled" | fn.#StringExpression
 		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		ThingArn?:    string | fn.#StringExpression
+		ThingArn?:    string | number | bool | fn.#StringExpression
 		Type!:        "Sidewalk" | "LoRaWAN" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AbpV10x: close({
-	DevAddr!:     =~"[a-fA-F0-9]{8}" | fn.#StringExpression
+	DevAddr!: =~"[a-fA-F0-9]{8}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{8}" & "\(self)"
+	} |
+	fn.#StringExpression
 	SessionKeys!: #SessionKeysAbpV10x
 }) |
 fn.#ObjectExpression
 
 #AbpV11: close({
-	DevAddr!:     =~"[a-fA-F0-9]{8}" | fn.#StringExpression
+	DevAddr!: =~"[a-fA-F0-9]{8}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{8}" & "\(self)"
+	} |
+	fn.#StringExpression
 	SessionKeys!: #SessionKeysAbpV11
 }) |
 fn.#ObjectExpression
 
 #Application: close({
-	DestinationName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
+	DestinationName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	FPort?: int & <=223 & >=1 |
 		{
 			string &
@@ -72,14 +106,29 @@ fn.#ObjectExpression
 #FPorts: close({Applications?: list.UniqueItems() & [...#Application] | fn.#ListExpression}) | fn.#ObjectExpression
 
 #LoRaWANDevice: close({
-	AbpV10x?:          #AbpV10x
-	AbpV11?:           #AbpV11
-	DevEui?:           =~"[a-f0-9]{16}" | fn.#StringExpression
-	DeviceProfileId?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FPorts?:           #FPorts
-	OtaaV10x?:         #OtaaV10x
-	OtaaV11?:          #OtaaV11
-	ServiceProfileId?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	AbpV10x?: #AbpV10x
+	AbpV11?:  #AbpV11
+	DevEui?: =~"[a-f0-9]{16}" |
+	{
+		number | bool
+		_cfnString: =~"[a-f0-9]{16}" & "\(self)"
+	} |
+	fn.#StringExpression
+	DeviceProfileId?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	FPorts?:   #FPorts
+	OtaaV10x?: #OtaaV10x
+	OtaaV11?:  #OtaaV11
+	ServiceProfileId?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	if OtaaV11 != _|_ if OtaaV11."Fn::If" == _|_ {
 		OtaaV10x?: close({"Fn::If": _}) | error(
 			"OtaaV10x cannot be used with OtaaV11; set exactly one of OtaaV11, OtaaV10x, AbpV11, AbpV10x",
@@ -108,34 +157,99 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OtaaV10x: close({
-	AppEui!: =~"[a-fA-F0-9]{16}" | fn.#StringExpression
-	AppKey!: =~"[a-fA-F0-9]{32}" | fn.#StringExpression
+	AppEui!: =~"[a-fA-F0-9]{16}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{16}" & "\(self)"
+	} |
+	fn.#StringExpression
+	AppKey!: =~"[a-fA-F0-9]{32}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{32}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OtaaV11: close({
-	AppKey!:  =~"[a-fA-F0-9]{32}" | fn.#StringExpression
-	JoinEui!: =~"[a-fA-F0-9]{16}" | fn.#StringExpression
-	NwkKey!:  =~"[a-fA-F0-9]{32}" | fn.#StringExpression
+	AppKey!: =~"[a-fA-F0-9]{32}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{32}" & "\(self)"
+	} |
+	fn.#StringExpression
+	JoinEui!: =~"[a-fA-F0-9]{16}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{16}" & "\(self)"
+	} |
+	fn.#StringExpression
+	NwkKey!: =~"[a-fA-F0-9]{32}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{32}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SessionKeysAbpV10x: close({
-	AppSKey!: =~"[a-fA-F0-9]{32}" | fn.#StringExpression
-	NwkSKey!: =~"[a-fA-F0-9]{32}" | fn.#StringExpression
+	AppSKey!: =~"[a-fA-F0-9]{32}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{32}" & "\(self)"
+	} |
+	fn.#StringExpression
+	NwkSKey!: =~"[a-fA-F0-9]{32}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{32}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SessionKeysAbpV11: close({
-	AppSKey!:     =~"[a-fA-F0-9]{32}" | fn.#StringExpression
-	FNwkSIntKey!: =~"[a-fA-F0-9]{32}" | fn.#StringExpression
-	NwkSEncKey!:  =~"[a-fA-F0-9]{32}" | fn.#StringExpression
-	SNwkSIntKey!: =~"[a-fA-F0-9]{32}" | fn.#StringExpression
+	AppSKey!: =~"[a-fA-F0-9]{32}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{32}" & "\(self)"
+	} |
+	fn.#StringExpression
+	FNwkSIntKey!: =~"[a-fA-F0-9]{32}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{32}" & "\(self)"
+	} |
+	fn.#StringExpression
+	NwkSEncKey!: =~"[a-fA-F0-9]{32}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{32}" & "\(self)"
+	} |
+	fn.#StringExpression
+	SNwkSIntKey!: =~"[a-fA-F0-9]{32}" |
+	{
+		number | bool
+		_cfnString: =~"[a-fA-F0-9]{32}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

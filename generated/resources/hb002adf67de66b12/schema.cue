@@ -15,43 +15,84 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::Gateway Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::Gateway"
-	Properties!: close({
+	let properties = close({
 		AuthorizerConfiguration?: #AuthorizerConfiguration
 		AuthorizerType!:          #AuthorizerType
-		Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		ExceptionLevel?:          #ExceptionLevel
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ExceptionLevel?: #ExceptionLevel
 		InterceptorConfigurations?: list.MaxItems(2) & list.MinItems(1) & [...#GatewayInterceptorConfiguration] |
 			fn.#ListExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:                      =~"^([0-9a-zA-Z][-]?){1,48}$" | fn.#StringExpression
+		Name!: =~"^([0-9a-zA-Z][-]?){1,48}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-zA-Z][-]?){1,48}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyEngineConfiguration?: #GatewayPolicyEngineConfiguration
 		ProtocolConfiguration?:     #GatewayProtocolConfiguration
 		ProtocolType?:              #GatewayProtocolType | fn.#ValueExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?:             #TagsMap
 		WafConfiguration?: #WafConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdvertisedScopeMappingType: struct.MaxFields(50) & struct.MinFields(1) & close({
 
-	{[=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"]: strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"]: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #AuthorizerConfiguration: close({CustomJWTAuthorizer!: #CustomJWTAuthorizerConfiguration}) | fn.#ValueExpression
@@ -78,21 +119,36 @@ fn.#ValueExpression
 
 #CustomClaimValidationType: close({
 	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
-	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:-]+$" | fn.#StringExpression
+	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	InboundTokenClaimValueType!: #InboundTokenClaimValueType
 }) |
 fn.#ObjectExpression
 
 #CustomJWTAuthorizerConfiguration: close({
 	AdvertisedScopeMapping?: #AdvertisedScopeMappingType
-	AllowedAudience?:        list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	AllowedClients?:         list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	AllowedScopes?: list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
-	] |
+	AllowedAudience?:        list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AllowedClients?:         list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AllowedScopes?: list.MinItems(1) & [...strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	CustomClaims?:    list.MinItems(1) & [...#CustomClaimValidationType] | fn.#ListExpression
-	DiscoveryUrl!:    =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
+	CustomClaims?: list.MinItems(1) & [...#CustomClaimValidationType] | fn.#ListExpression
+	DiscoveryUrl!: =~"^.+/\\.well-known/openid-configuration$" |
+	{
+		number | bool
+		_cfnString: =~"^.+/\\.well-known/openid-configuration$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PrivateEndpoint?: #PrivateEndpoint
 }) |
 fn.#ObjectExpression
@@ -114,6 +170,13 @@ fn.#ObjectExpression
 	Arn!: strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:aws:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:policy-engine\\/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9_]{10}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(170) &
+		strings.MinRunes(1) &
+		=~"^arn:aws:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:policy-engine\\/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9_]{10}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Mode!: #GatewayPolicyEngineMode
 }) |
@@ -150,31 +213,61 @@ fn.#ObjectExpression
 	Arn!: strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(170) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MCPGatewayConfiguration: close({
-	Instructions?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Instructions?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SearchType?:             #SearchType
 	SessionConfiguration?:   #SessionConfiguration
 	StreamingConfiguration?: #StreamingConfiguration
-	SupportedVersions?:      [...string | fn.#StringExpression] | fn.#ListExpression
+	SupportedVersions?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ManagedVpcResource: close({
 	EndpointIpAddressType!: #EndpointIpAddressType
-	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:          #TagsMap
-	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
+	RoutingDomain?: strings.MaxRunes(255) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: [...=~"^subnet-[0-9a-zA-Z]{8,17}$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-[0-9a-zA-Z]{8,17}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Tags?: #TagsMap
+	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -189,6 +282,13 @@ fn.#ValueExpression
 	ResourceConfigurationIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ValueExpression
@@ -224,15 +324,31 @@ fn.#ValueExpression
 
 #TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #WafConfiguration: close({FailureMode?: #WafFailureMode}) | fn.#ObjectExpression
 
 #WafFailureMode: "FAIL_CLOSE" | "FAIL_OPEN" | fn.#StringExpression
 
-#WorkloadIdentityDetails: close(
-	{WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#WorkloadIdentityDetails: close({
+	WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression

@@ -29,7 +29,9 @@ import (
 	// snapshot. Provide the key ARN: the resource returns the key ARN on read, so
 	// supplying a bare key ID or alias for this createOnly property may be
 	// reported as drift by CloudFormation.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & strings.MaxRunes(2048)
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & strings.MaxRunes(2048)
 
 	// The configuration of the serverless cache, at the time the snapshot was taken.
 	ServerlessCacheConfiguration?: #ServerlessCacheConfiguration

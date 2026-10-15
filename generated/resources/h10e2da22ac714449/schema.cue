@@ -10,30 +10,49 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMResourceDiscovery Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::IPAMResourceDiscovery"
-	Properties?: close({
-		Description?: string | fn.#StringExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
 		OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion] |
 			fn.#ListExpression
 		OrganizationalUnitExclusions?: list.UniqueItems() & [...#IpamResourceDiscoveryOrganizationalUnitExclusion] |
 			fn.#ListExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#IpamOperatingRegion: close({RegionName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#IpamOperatingRegion: close({RegionName!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#IpamResourceDiscoveryOrganizationalUnitExclusion: close(
-	{OrganizationsEntityPath!: strings.MinRunes(1) | fn.#StringExpression},
-) |
+#IpamResourceDiscoveryOrganizationalUnitExclusion: close({
+	OrganizationsEntityPath!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

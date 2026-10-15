@@ -6,15 +6,19 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::SMSChannel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Pinpoint::SMSChannel"
-	Properties!: close({
-		ApplicationId!: string | fn.#StringExpression
+	let properties = close({
+		ApplicationId!: string | number | bool | fn.#StringExpression
 		Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SenderId?:      string | fn.#StringExpression
-		ShortCode?:     string | fn.#StringExpression
+		SenderId?:      string | number | bool | fn.#StringExpression
+		ShortCode?:     string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

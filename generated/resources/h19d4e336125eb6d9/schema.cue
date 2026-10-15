@@ -6,16 +6,20 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::NetworkManager::CustomerGatewayAssociation type associates a
 // customer gateway with a device and optionally, with a link.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::CustomerGatewayAssociation"
-	Properties!: close({
-		CustomerGatewayArn!: string | fn.#StringExpression
-		DeviceId!:           string | fn.#StringExpression
-		GlobalNetworkId!:    string | fn.#StringExpression
-		LinkId?:             string | fn.#StringExpression
+	let properties = close({
+		CustomerGatewayArn!: string | number | bool | fn.#StringExpression
+		DeviceId!:           string | number | bool | fn.#StringExpression
+		GlobalNetworkId!:    string | number | bool | fn.#StringExpression
+		LinkId?:             string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -9,28 +9,32 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::ByteMatchSet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAF::ByteMatchSet"
-	Properties!: close({
+	let properties = close({
 		ByteMatchTuples?: list.UniqueItems() & [...#ByteMatchTuple] | fn.#ListExpression
-		Name!:            string | fn.#StringExpression
+		Name!:            string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ByteMatchTuple: close({
 	FieldToMatch!:         #FieldToMatch
-	PositionalConstraint!: string | fn.#StringExpression
-	TargetString?:         string | fn.#StringExpression
-	TargetStringBase64?:   string | fn.#StringExpression
-	TextTransformation!:   string | fn.#StringExpression
+	PositionalConstraint!: string | number | bool | fn.#StringExpression
+	TargetString?:         string | number | bool | fn.#StringExpression
+	TargetStringBase64?:   string | number | bool | fn.#StringExpression
+	TextTransformation!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FieldToMatch: close({
-	Data?: string | fn.#StringExpression
-	Type!: string | fn.#StringExpression
+	Data?: string | number | bool | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,22 +10,41 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::TrustStore
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticLoadBalancingV2::TrustStore"
-	Properties?: close({
-		CaCertificatesBundleS3Bucket?:        string | fn.#StringExpression
-		CaCertificatesBundleS3Key?:           string | fn.#StringExpression
-		CaCertificatesBundleS3ObjectVersion?: string | fn.#StringExpression
-		Name?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-zA-Z0-9]+-)*[a-zA-Z0-9]+$" | fn.#StringExpression
+	let properties = close({
+		CaCertificatesBundleS3Bucket?:        string | number | bool | fn.#StringExpression
+		CaCertificatesBundleS3Key?:           string | number | bool | fn.#StringExpression
+		CaCertificatesBundleS3ObjectVersion?: string | number | bool | fn.#StringExpression
+		Name?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-zA-Z0-9]+-)*[a-zA-Z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-zA-Z0-9]+-)*[a-zA-Z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,13 +10,15 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Bot Alias, which enables you to change the
 // version of a bot without updating applications that use the bot
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lex::BotAlias"
-	Properties!: close({
+	let properties = close({
 		BotAliasLocaleSettings?:  #BotAliasLocaleSettingsList
 		BotAliasName!:            #Name
 		BotAliasTags?:            list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
@@ -29,9 +31,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		) |
 			fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(1000) | fn.#StringExpression
+#Arn: strings.MaxRunes(1000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & "\(self)"
+} |
+fn.#StringExpression
 
 #AudioLogDestination: close({S3Bucket!: #S3BucketLogDestination}) | fn.#ObjectExpression
 
@@ -51,7 +60,12 @@ fn.#ObjectExpression
 
 #BotAliasLocaleSettingsItem: close({
 	BotAliasLocaleSetting!: #BotAliasLocaleSettings
-	LocaleId!:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	LocaleId!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -60,11 +74,26 @@ fn.#ObjectExpression
 
 #BotAliasStatus: "Creating" | "Available" | "Deleting" | "Failed" | fn.#StringExpression
 
-#BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" | fn.#StringExpression
+#BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #CloudWatchLogGroupLogDestination: close({
-	CloudWatchLogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	LogPrefix!:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	CloudWatchLogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LogPrefix!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -76,38 +105,95 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Description: strings.MaxRunes(200) | fn.#StringExpression
+#Description: strings.MaxRunes(200) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) & "\(self)"
+} |
+fn.#StringExpression
 
-#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
+#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #LambdaCodeHook: close({
-	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
-	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LocaleId: string | fn.#StringExpression
+#LocaleId: string | number | bool | fn.#StringExpression
 
-#Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" | fn.#StringExpression
+#Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#S3BucketLogDestination: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#S3BucketLogDestination: matchN(2, [{...}, {...}]) & close({
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	LogPrefix!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	LogPrefix!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	S3BucketArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[\\w\\-]+:s3:::[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:[\\w\\-]+:s3:::[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

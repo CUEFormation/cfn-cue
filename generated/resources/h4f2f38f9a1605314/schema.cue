@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::SecurityHub::ProductSubscription resource represents a subscription
@@ -13,6 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // account. One product subscription resource is created for each product
 // enabled.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::ProductSubscription"
-	Properties!: close({ProductArn!: =~"arn:aws\\S*:securityhub:\\S*" | fn.#StringExpression})
+	Type!: "AWS::SecurityHub::ProductSubscription"
+	let properties = close({
+		ProductArn!: =~"arn:aws\\S*:securityhub:\\S*" |
+		{
+			number | bool
+			_cfnString: =~"arn:aws\\S*:securityhub:\\S*" & "\(self)"
+		} |
+		fn.#StringExpression
+	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

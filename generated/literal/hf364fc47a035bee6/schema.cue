@@ -36,8 +36,12 @@ import (
 }) & matchN(>=1, [{S3!: _}, {LogGroup!: _}])
 
 #S3Destination: close({
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]*[a-z0-9]$"
-	Prefix?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9!_.*'()/]*$"
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9][-a-z0-9]*[a-z0-9]$"
+	Prefix?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9!_.*'()/]*$"
 })
 
 // A key-value pair to associate with a resource.

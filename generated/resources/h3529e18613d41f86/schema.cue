@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::EndpointConfig
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::EndpointConfig"
-	Properties!: close({
+	let properties = close({
 		// Specifies configuration for how an endpoint performs asynchronous inference.
 		AsyncInferenceConfig?: #AsyncInferenceConfig
 
@@ -28,20 +30,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DataCaptureConfig?:      #DataCaptureConfig
 		EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EndpointConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+		} |
 		fn.#StringExpression
-		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// A parameter to activate explainers.
 		ExplainerConfig?: #ExplainerConfig
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) &
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"^[a-zA-Z0-9:/_-]*$" |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^[a-zA-Z0-9:/_-]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// Specifies the metrics that the endpoint publishes to Amazon CloudWatch, the
@@ -57,6 +82,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// to and from your resources by configuring a VPC.
 		VpcConfig?: #VpcConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AsyncInferenceClientConfig: close({
@@ -93,6 +120,13 @@ fn.#ObjectExpression
 	ErrorTopic?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[a-z\\-]*:sns:[a-z0-9\\-]*:[0-9]{12}:[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[a-z\\-]*:sns:[a-z0-9\\-]*:[0-9]{12}:[a-zA-Z0-9_.-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	IncludeInferenceResponseIn?: list.MaxItems(2) & [...] & [
 		..."ERROR_NOTIFICATION_TOPIC" | "SUCCESS_NOTIFICATION_TOPIC" | fn.#StringExpression
@@ -101,48 +135,98 @@ fn.#ObjectExpression
 	SuccessTopic?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[a-z\\-]*:sns:[a-z0-9\\-]*:[0-9]{12}:[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[a-z\\-]*:sns:[a-z0-9\\-]*:[0-9]{12}:[a-zA-Z0-9_.-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AsyncInferenceOutputConfig: close({
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9:/_-]*$" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9:/_-]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 
 	// Specifies the configuration for notifications of inference results for asynchronous inference.
 	NotificationConfig?: #AsyncInferenceNotificationConfig
-	S3FailurePath?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
-	S3OutputPath?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
+	S3FailurePath?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3OutputPath?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CapacityReservationConfig: close({
-	CapacityReservationPreference?: =~"capacity-reservations-only" | fn.#StringExpression
+	CapacityReservationPreference?: =~"capacity-reservations-only" |
+	{
+		number | bool
+		_cfnString: =~"capacity-reservations-only" & "\(self)"
+	} |
+	fn.#StringExpression
 	MlReservationArn?: strings.MaxRunes(258) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z0-9\\-]{1,14}/" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(258) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z0-9\\-]{1,14}/" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CaptureContentTypeHeader: close({
-	CsvContentTypes?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(256) &
+	CsvContentTypes?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9.])*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
-		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9.])*$" |
-		fn.#StringExpression
-	] |
+		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9.])*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	JsonContentTypes?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(256) &
+	JsonContentTypes?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9.])*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
-		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9.])*$" |
-		fn.#StringExpression
-	] |
+		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9.])*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -151,7 +235,12 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ClarifyExplainerConfig: close({
-	EnableExplanations?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	EnableExplanations?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The inference configuration parameter for the model container.
 	InferenceConfig?: #ClarifyInferenceConfig
@@ -162,18 +251,44 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ClarifyInferenceConfig: close({
-	ContentTemplate?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	FeatureHeaders?: list.MaxItems(256) & list.MinItems(1) & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	ContentTemplate?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FeatureHeaders?: list.MaxItems(256) & list.MinItems(1) & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	FeatureTypes?: list.MaxItems(256) & list.MinItems(1) & [...=~"numerical|categorical|text" | fn.#StringExpression] |
-		fn.#ListExpression
-	FeaturesAttribute?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	LabelAttribute?:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	LabelHeaders?: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	FeatureTypes?: list.MaxItems(256) & list.MinItems(1) & [...=~"numerical|categorical|text" |
+	{
+		number | bool
+		_cfnString: =~"numerical|categorical|text" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	FeaturesAttribute?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LabelAttribute?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LabelHeaders?: list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	LabelIndex?: int & >=0 |
 		{
@@ -221,7 +336,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ProbabilityAttribute?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	ProbabilityAttribute?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ProbabilityIndex?: int & >=0 |
 		{
 			string &
@@ -244,9 +364,25 @@ fn.#ObjectExpression
 	MimeType?: strings.MaxRunes(255) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9+.])*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9+.])*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ShapBaseline?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[\\s\\S]+" | fn.#StringExpression
+	ShapBaseline?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[\\s\\S]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[\\s\\S]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	ShapBaselineUri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -294,20 +430,45 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ClarifyTextConfig: close({
-	Granularity!: =~"token|sentence|paragraph" | fn.#StringExpression
+	Granularity!: =~"token|sentence|paragraph" |
+	{
+		number | bool
+		_cfnString: =~"token|sentence|paragraph" & "\(self)"
+	} |
+	fn.#StringExpression
 	Language!: =~"af|sq|ar|hy|eu|bn|bg|ca|zh|hr|cs|da|nl|en|et|fi|fr|de|el|gu|he|hi|hu|is|id|ga|it|kn|ky|lv|lt|lb|mk|ml|mr|ne|nb|fa|pl|pt|ro|ru|sa|sr|tn|si|sk|sl|es|sv|tl|ta|tt|te|tr|uk|ur|yo|lij|xx" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"af|sq|ar|hy|eu|bn|bg|ca|zh|hr|cs|da|nl|en|et|fi|fr|de|el|gu|he|hi|hu|is|id|ga|it|kn|ky|lv|lt|lb|mk|ml|mr|ne|nb|fa|pl|pt|ro|ru|sa|sr|tn|si|sk|sl|es|sv|tl|ta|tt|te|tr|uk|ur|yo|lij|xx" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CoreDumpConfig: close({
 	DestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" & "\(self)"
+	} |
 	fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9:/_-]*$" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9:/_-]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -317,6 +478,10 @@ fn.#ObjectExpression
 	CaptureContentTypeHeader?: #CaptureContentTypeHeader
 	CaptureOptions!:           list.MaxItems(32) & list.MinItems(1) & [...#CaptureOption] | fn.#ListExpression
 	DestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 	EnableCapture?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InitialSamplingPercentage!: int & <=100 & >=0 |
@@ -335,11 +500,22 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9:/_-]*$" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9:/_-]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -631,6 +807,13 @@ fn.#ObjectExpression
 		"ml.trn2.48xlarge" |
 		fn.#StringExpression
 	ModelNameOverride?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Priority!: int & <=5 & >=1 |
 		{
@@ -685,7 +868,12 @@ fn.#ObjectExpression
 
 	// Configures the scale-in behavior for managed instance scaling.
 	ScaleInPolicy?: #ScaleInPolicy
-	Status?:        ("DISABLED" | "ENABLED") & (strings.MaxRunes(10) & strings.MinRunes(1)) | fn.#StringExpression
+	Status?: ("DISABLED" | "ENABLED") & (strings.MaxRunes(10) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("DISABLED" | "ENABLED") & strings.MaxRunes(10) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1093,6 +1281,13 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ModelName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 
 	// Settings that control how the endpoint routes incoming traffic to the
@@ -1119,6 +1314,10 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	VariantName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+	} |
 	fn.#StringExpression
 	VolumeSizeInGB?: int & <=512 & >=1 |
 		{
@@ -1144,6 +1343,13 @@ fn.#ObjectExpression
 	// you set RoutingStrategy to PREFIX_AWARE.
 	PrefixAwareRoutingConfig?: #PrefixAwareRoutingConfig
 	RoutingStrategy?: ("LEAST_OUTSTANDING_REQUESTS" | "PREFIX_AWARE" | "RANDOM") & (strings.MaxRunes(63) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("LEAST_OUTSTANDING_REQUESTS" | "PREFIX_AWARE" | "RANDOM") &
+		strings.MaxRunes(63) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -1181,7 +1387,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Strategy!: ("CONSOLIDATION" | "IDLE_RELEASE") & (strings.MaxRunes(63) & strings.MinRunes(1)) | fn.#StringExpression
+	Strategy!: ("CONSOLIDATION" | "IDLE_RELEASE") & (strings.MaxRunes(63) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("CONSOLIDATION" | "IDLE_RELEASE") & strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1238,23 +1449,49 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"^[-0-9a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
-		=~"^[-0-9a-zA-Z]+$" |
-		fn.#StringExpression
-	] |
+		=~"^[-0-9a-zA-Z]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$" | fn.#StringExpression
-	] |
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"^[-0-9a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^[-0-9a-zA-Z]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

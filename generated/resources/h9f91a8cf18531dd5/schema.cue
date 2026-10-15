@@ -10,25 +10,59 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema for AWSLogs QueryDefinition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::QueryDefinition"
-	Properties!: close({
+	let properties = close({
 		LogGroupNames?: [...#LogGroup] | fn.#ListExpression
-		Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Parameters?:    list.MaxItems(20) & [...] & [...#QueryParameter] | fn.#ListExpression
 		QueryLanguage?: "CWLI" | "SQL" | "PPL" | fn.#StringExpression
-		QueryString!:   strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
+		QueryString!: strings.MaxRunes(10000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#LogGroup: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
+#LogGroup: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #QueryParameter: close({
-	DefaultValue?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:  strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" | fn.#StringExpression
+	DefaultValue?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Description?: strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,13 +10,20 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Timestream::Table resource creates a Timestream Table.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Timestream::Table"
-	Properties!: close({
-		DatabaseName!: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
+	let properties = close({
+		DatabaseName!: =~"^[a-zA-Z0-9_.-]{3,256}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_.-]{3,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MagneticStoreWriteProperties?: close({
 			EnableMagneticStoreWrites!: bool |
 				"true" |
@@ -28,12 +35,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#BooleanExpression
 			MagneticStoreRejectedDataLocation?: close({
 				S3Configuration?: close({
-					BucketName!:       string | fn.#StringExpression
-					EncryptionOption!: string | fn.#StringExpression
-					KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-						string |
-						fn.#StringExpression
-					ObjectKeyPrefix?: string | fn.#StringExpression
+					BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+					{
+						number | bool
+						_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+							=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+							"\(self)"
+					} |
+					fn.#StringExpression
+					EncryptionOption!: string | number | bool | fn.#StringExpression
+					KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+					{
+						number | bool
+						_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+					} |
+					=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+					{
+						number | bool
+						_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+							"\(self)"
+					} |
+					=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+					{
+						number | bool
+						_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+					} |
+					fn.#StringExpression
+					ObjectKeyPrefix?: string | number | bool | fn.#StringExpression
 				}) |
 				fn.#ObjectExpression
 			}) |
@@ -41,14 +69,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 		RetentionProperties?: close({
-			MagneticStoreRetentionPeriodInDays?: string | fn.#StringExpression
-			MemoryStoreRetentionPeriodInHours?:  string | fn.#StringExpression
+			MagneticStoreRetentionPeriodInDays?: string | number | bool | fn.#StringExpression
+			MemoryStoreRetentionPeriodInHours?:  string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		Schema?:    close({CompositePartitionKey?: #PartitionKeyList}) | fn.#ObjectExpression
-		TableName?: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
-		Tags?:      list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+		Schema?: close({CompositePartitionKey?: #PartitionKeyList}) | fn.#ObjectExpression
+		TableName?: =~"^[a-zA-Z0-9_.-]{3,256}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_.-]{3,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #PartitionKey: close({
@@ -64,10 +99,25 @@ fn.#ObjectExpression
 
 #PartitionKeyType: "DIMENSION" | "MEASURE" | fn.#StringExpression
 
-#SchemaName: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#SchemaName: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

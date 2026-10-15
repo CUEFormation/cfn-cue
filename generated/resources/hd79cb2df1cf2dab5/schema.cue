@@ -10,22 +10,36 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::MemoryDB::ParameterGroup resource creates an Amazon MemoryDB ParameterGroup.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MemoryDB::ParameterGroup"
-	Properties!: close({
-		Description?:        string | fn.#StringExpression
-		Family!:             string | fn.#StringExpression
-		ParameterGroupName!: string | fn.#StringExpression
-		Parameters?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		Description?:        string | number | bool | fn.#StringExpression
+		Family!:             string | number | bool | fn.#StringExpression
+		ParameterGroupName!: string | number | bool | fn.#StringExpression
+		Parameters?:         fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

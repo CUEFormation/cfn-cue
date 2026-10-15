@@ -10,28 +10,47 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A domain is an organizing entity for connecting together assets, users, and their projects
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::Domain"
-	Properties!: close({
-		Description?: string | fn.#StringExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
 		DomainExecutionRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DomainVersion?: "V1" | "V2" | fn.#StringExpression
 		KmsKeyIdentifier?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!: string | fn.#StringExpression
+		Name!: string | number | bool | fn.#StringExpression
 		ServiceRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The single-sign on configuration of the Amazon DataZone domain.
 		SingleSignOn?: #SingleSignOn
 		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuthType: "IAM_IDC" | "DISABLED" | fn.#StringExpression
@@ -47,6 +66,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #IdcInstanceArn: strings.MaxRunes(1224) &
 strings.MinRunes(10) &
 =~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1224) &
+	strings.MinRunes(10) &
+	=~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #SingleSignOn: close({
@@ -57,8 +83,18 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

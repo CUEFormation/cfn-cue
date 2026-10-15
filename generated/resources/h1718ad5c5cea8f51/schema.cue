@@ -14,15 +14,32 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Table
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Table"
-	Properties!: close({
-		CatalogId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		CatalogId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies an OpenTableFormatInput structure when creating an open format table.
 		OpenTableFormatInput?: #OpenTableFormatInput
@@ -30,12 +47,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// A structure used to define a table.
 		TableInput?: #TableInput
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Column: close({
-	Comment?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:    strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
+	Comment?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -45,7 +79,12 @@ fn.#ObjectExpression
 
 	// A required metadata operation. Can only be set to CREATE.
 	MetadataOperation?: #MetadataOperation
-	Version?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Version?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -64,7 +103,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!: string | fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
 	SourceId!: int |
 		{
 			string &
@@ -79,7 +118,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Transform!: string | fn.#StringExpression
+	Transform!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -137,13 +176,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Type?: string | fn.#StringExpression
+	Type?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IcebergSortField: close({
-	Direction!: string | fn.#StringExpression
-	NullOrder!: string | fn.#StringExpression
+	Direction!: string | number | bool | fn.#StringExpression
+	NullOrder!: string | number | bool | fn.#StringExpression
 	SourceId!: int |
 		{
 			string &
@@ -158,7 +197,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Transform!: string | fn.#StringExpression
+	Transform!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -182,7 +221,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #IcebergStructField: close({
-	Doc?: string | fn.#StringExpression
+	Doc?: string | number | bool | fn.#StringExpression
 	Id!: int |
 		{
 			string &
@@ -197,20 +236,25 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!:     string | fn.#StringExpression
+	Name!:     string | number | bool | fn.#StringExpression
 	Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type!:     string | fn.#StringExpression
+	Type!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IcebergTableInput: close({
-	Location!: string | fn.#StringExpression
+	Location!: string | number | bool | fn.#StringExpression
 
 	// The partition spec for the Iceberg table.
 	PartitionSpec?: #IcebergPartitionSpec
 	Properties?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 
 	// The schema for the Iceberg table.
@@ -230,7 +274,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Order: close({
-	Column!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Column!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SortOrder!: int & <=1 & >=0 |
 		{
 			string &
@@ -251,10 +300,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SchemaId: close({
-	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" | fn.#StringExpression
-	SchemaArn?: strings.MaxRunes(10240) & strings.MinRunes(1) & =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:" |
+	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	SchemaName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" | fn.#StringExpression
+	SchemaArn?: strings.MaxRunes(10240) & strings.MinRunes(1) & =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10240) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	SchemaName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -265,6 +331,13 @@ fn.#ObjectExpression
 	SchemaVersionId?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SchemaVersionNumber?: int & <=100000 & >=1 |
 		{
@@ -286,25 +359,57 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SerdeInfo: close({
-	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	SerializationLibrary?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Parameters?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	SerializationLibrary?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SkewedInfo: close({
-	SkewedColumnNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SkewedColumnValueLocationMaps?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	SkewedColumnValues?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	SkewedColumnNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SkewedColumnValueLocationMaps?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	SkewedColumnValues?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #StorageDescriptor: close({
-	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Columns?:       [...#Column] | fn.#ListExpression
-	Compressed?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InputFormat?:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Location?:      strings.MaxRunes(2056) & strings.MinRunes(0) | fn.#StringExpression
+	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Columns?:    [...#Column] | fn.#ListExpression
+	Compressed?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InputFormat?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Location?: strings.MaxRunes(2056) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2056) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	NumberOfBuckets?: int |
 		{
 			string &
@@ -319,8 +424,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	OutputFormat?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
+	OutputFormat?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Parameters?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 	// An object that references a schema stored in the AWS Glue Schema Registry.
 	SchemaReference?: #SchemaReference
@@ -336,18 +446,53 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TableIdentifier: close({
-	CatalogId?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Region?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	CatalogId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Region?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TableInput: close({
-	Description?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Name?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Owner?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:    fn.#Object & {...} | string | fn.#StringObjectExpression
+	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Owner?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Parameters?:    fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	PartitionKeys?: [...#Column] | fn.#ListExpression
 	Retention?: int & >=0 |
 		{
@@ -368,32 +513,76 @@ fn.#ObjectExpression
 	// A storage descriptor containing information about the physical storage of this table.
 	StorageDescriptor?: #StorageDescriptor
 	TableType?: ("EXTERNAL_TABLE" | "VIRTUAL_VIEW") & (strings.MaxRunes(255) & strings.MinRunes(0)) |
+	{
+		number | bool
+		_cfnString: ("EXTERNAL_TABLE" | "VIRTUAL_VIEW") & strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
 	fn.#StringExpression
 
 	// A TableIdentifier structure that describes a target table for resource linking.
 	TargetTable?: #TableIdentifier
 
 	// The view definition for the table.
-	ViewDefinition?:   #ViewDefinition
-	ViewExpandedText?: strings.MaxRunes(409600) & strings.MinRunes(0) | fn.#StringExpression
-	ViewOriginalText?: strings.MaxRunes(409600) & strings.MinRunes(0) | fn.#StringExpression
+	ViewDefinition?: #ViewDefinition
+	ViewExpandedText?: strings.MaxRunes(409600) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(409600) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ViewOriginalText?: strings.MaxRunes(409600) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(409600) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ViewDefinition: close({
-	Definer?:         strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	Definer?: strings.MaxRunes(2048) & strings.MinRunes(20) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+	} |
+	fn.#StringExpression
 	IsProtected?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Representations?: list.MaxItems(10) & list.MinItems(1) & [...#ViewRepresentation] | fn.#ListExpression
-	SubObjects?: list.MaxItems(10) & [...] & [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
+	SubObjects?: list.MaxItems(10) & [...] & [...strings.MaxRunes(2048) & strings.MinRunes(20) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ViewRepresentation: close({
-	Dialect?:              "ATHENA" | "REDSHIFT" | "SPARK" | fn.#StringExpression
-	DialectVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ValidationConnection?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ViewExpandedText?:     strings.MaxRunes(409600) & strings.MinRunes(0) | fn.#StringExpression
-	ViewOriginalText?:     strings.MaxRunes(409600) & strings.MinRunes(0) | fn.#StringExpression
+	Dialect?: "ATHENA" | "REDSHIFT" | "SPARK" | fn.#StringExpression
+	DialectVersion?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ValidationConnection?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ViewExpandedText?: strings.MaxRunes(409600) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(409600) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ViewOriginalText?: strings.MaxRunes(409600) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(409600) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

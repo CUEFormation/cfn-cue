@@ -10,23 +10,36 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AgentRegistry::Registry Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AgentRegistry::Registry"
-	Properties!: close({
-		ApprovalConfiguration?:   #ApprovalConfiguration
-		AuthorizerType?:          #RegistryAuthorizerType
-		AutoDetectionEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AutoDetectionScope?:      #AutoDetectionScope
-		Description?:             strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ApprovalConfiguration?: #ApprovalConfiguration
+		AuthorizerType?:        #RegistryAuthorizerType
+		AutoDetectionEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AutoDetectionScope?:    #AutoDetectionScope
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DiscoveryConfiguration?:  #DiscoveryConfiguration
 		EncryptionConfiguration?: #EncryptionConfiguration
 		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApprovalConfiguration: close({AutoApprovalRules?: list.MaxItems(10) & [...#AutoApprovalRule] | fn.#ListExpression}) |
@@ -47,10 +60,18 @@ fn.#ObjectExpression
 #AutoDetectionStatus: "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
 #ClaimMatchValueType: close({
-	MatchValueString?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression
-	MatchValueStringList?: list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" | fn.#StringExpression
-	] |
+	MatchValueString?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MatchValueStringList?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	if MatchValueString != _|_ if MatchValueString."Fn::If" == _|_ {
 		MatchValueStringList?: close({"Fn::If": _}) | error(
@@ -62,22 +83,49 @@ fn.#ObjectExpression
 
 #CustomClaimValidationType: close({
 	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
-	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-:]+$" | fn.#StringExpression
+	InboundTokenClaimName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	InboundTokenClaimValueType!: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomJWTAuthorizerConfiguration: close({
-	AllowedAudience?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
+	AllowedAudience?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	AllowedClients?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
+	AllowedClients?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	AllowedScopes?: list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
-	] |
+	AllowedScopes?: list.MinItems(1) & [...strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	CustomClaims?: list.MinItems(1) & [...#CustomClaimValidationType] | fn.#ListExpression
 	DiscoveryUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^.+/\\.well-known/openid-configuration$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^.+/\\.well-known/openid-configuration$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -85,10 +133,18 @@ fn.#ObjectExpression
 #DiscoveryConfiguration: close({AuthorizerConfiguration?: #AuthorizerConfiguration}) | fn.#ObjectExpression
 
 #EncryptionConfiguration: close({
-	KmsKeyArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -105,7 +161,17 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

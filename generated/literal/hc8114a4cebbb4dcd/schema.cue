@@ -13,7 +13,16 @@ import "list"
 // On January 1, 2016, the Swagger Specification was donated to the [OpenAPI
 // initiative](https://docs.aws.amazon.com/https://www.openapis.org/), becoming
 // the foundation of the OpenAPI Specification.
-#Properties: close({
+#Properties: matchIf(matchN(0, [matchN(0, [null | bool | number | string | [...] | {
+	Body!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	BodyS3Location!: _
+	...
+}])]), _, {
+	Name!: _
+	...
+}) & close({
 	ApiKeySourceType?: string
 	BinaryMediaTypes?: list.UniqueItems() & [...string]
 

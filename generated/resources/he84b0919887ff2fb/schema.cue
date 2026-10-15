@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::DocumentationPart`` resource creates a documentation
@@ -15,18 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::DocumentationPart"
-	Properties!: close({
+	let properties = close({
 		Location!:   #Location
-		Properties!: string | fn.#StringExpression
-		RestApiId!:  string | fn.#StringExpression
+		Properties!: string | number | bool | fn.#StringExpression
+		RestApiId!:  string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Location: close({
-	Method?:     string | fn.#StringExpression
-	Name?:       string | fn.#StringExpression
-	Path?:       string | fn.#StringExpression
-	StatusCode?: string | fn.#StringExpression
+	Method?:     string | number | bool | fn.#StringExpression
+	Name?:       string | number | bool | fn.#StringExpression
+	Path?:       string | number | bool | fn.#StringExpression
+	StatusCode?: string | number | bool | fn.#StringExpression
 	Type?: "API" |
 		"AUTHORIZER" |
 		"MODEL" |

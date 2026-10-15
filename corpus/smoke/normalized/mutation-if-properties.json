@@ -1,0 +1,40 @@
+{
+  "Conditions": {
+    "Named": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "Name"
+            },
+            ""
+          ]
+        }
+      ]
+    }
+  },
+  "Parameters": {
+    "Name": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Bucket": {
+      "Properties": {
+        "Fn::If": [
+          "Named",
+          {
+            "AccessControl": "Private",
+            "BucketName": {
+              "Ref": "Name"
+            }
+          },
+          {
+            "Ref": "AWS::NoValue"
+          }
+        ]
+      },
+      "Type": "AWS::S3::Bucket"
+    }
+  }
+}

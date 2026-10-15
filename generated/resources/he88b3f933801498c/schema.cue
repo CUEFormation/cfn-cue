@@ -14,25 +14,34 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::PCS::ComputeNodeGroup resource creates an AWS PCS compute node group.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCS::ComputeNodeGroup"
-	Properties!: close({
-		AmiId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^ami-[a-z0-9]+$" |
-			fn.#StringExpression
-		ClusterId!: string | fn.#StringExpression
+	let properties = close({
+		AmiId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & =~"^ami-[a-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & =~"^ami-[a-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ClusterId!: string | number | bool | fn.#StringExpression
 		CustomLaunchTemplate?: close({
-			TemplateId?: string | fn.#StringExpression
-			Version!:    string | fn.#StringExpression
+			TemplateId?: string | number | bool | fn.#StringExpression
+			Version!:    string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		IamInstanceProfileArn!: =~"^arn:aws([a-zA-Z-]{0,10})?:iam::[0-9]{12}:instance-profile/.{1,128}$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws([a-zA-Z-]{0,10})?:iam::[0-9]{12}:instance-profile/.{1,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		InstanceConfigs!:      [...#InstanceConfig] | fn.#ListExpression
-		Name?:                 string | fn.#StringExpression
+		Name?:                 string | number | bool | fn.#StringExpression
 		NodeLifecycleActions?: #NodeLifecycleActions
 		PurchaseOption?: "ONDEMAND" |
 			"SPOT" |
@@ -114,23 +123,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		[...] |
 		close({
 
-			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ValueExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ErrorInfo: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
+	Code?:    string | number | bool | fn.#StringExpression
+	Message?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GresCustomSetting: close({
 
-	{[=~"^.+$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ObjectExpression
 
-#InstanceConfig: close({InstanceType?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#InstanceConfig: close({InstanceType?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #NodeLifecycleActions: close({
 	ScriptCachingPolicy?: "CACHE_ONCE" | "REFRESH_ON_REBOOT" | fn.#StringExpression
@@ -139,9 +160,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #NodeLifecycleScript: close({
-	Arguments?:       list.MaxItems(20) & [...strings.MaxRunes(256) | fn.#StringExpression] | fn.#ListExpression
+	Arguments?: list.MaxItems(20) & [...strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	ExecutionPolicy?: "FIRST_BOOT_ONLY" | "EVERY_BOOT" | fn.#StringExpression
-	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9 _-]*$" | fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9 _-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9 _-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	OnError?:      "TERMINATE" | "STOP_SEQUENCE" | "CONTINUE" | fn.#StringExpression
 	ScriptSource!: #ScriptSource
 }) |
@@ -154,21 +186,38 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ScriptSource: close({
-	Checksum?:    strings.MaxRunes(64) & strings.MinRunes(64) & =~"^[a-fA-F0-9]{64}$" | fn.#StringExpression
-	S3VersionId?: strings.MaxRunes(1024) | fn.#StringExpression
+	Checksum?: strings.MaxRunes(64) & strings.MinRunes(64) & =~"^[a-fA-F0-9]{64}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(64) & =~"^[a-fA-F0-9]{64}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3VersionId?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 	ScriptLocation!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^(s3://[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]/.+|https://.+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^(s3://[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]/.+|https://.+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SecurityGroupId: string | fn.#StringExpression
+#SecurityGroupId: string | number | bool | fn.#StringExpression
 
 #SlurmCustomSetting: close({
-	ParameterName!:  string | fn.#StringExpression
-	ParameterValue!: string | fn.#StringExpression
+	ParameterName!:  string | number | bool | fn.#StringExpression
+	ParameterValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SubnetId: string | fn.#StringExpression
+#SubnetId: string | number | bool | fn.#StringExpression

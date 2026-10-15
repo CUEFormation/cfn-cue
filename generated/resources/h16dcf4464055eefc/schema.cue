@@ -14,14 +14,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::RDS::DBProxy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::DBProxy"
-	Properties!: close({
-		Auth?:                list.MaxItems(200) & list.MinItems(1) & [...#AuthFormat] | fn.#ListExpression
-		DBProxyName!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" | fn.#StringExpression
+	let properties = close({
+		Auth?: list.MaxItems(200) & list.MinItems(1) & [...#AuthFormat] | fn.#ListExpression
+		DBProxyName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		DebugLogging?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DefaultAuthScheme?:   "IAM_AUTH" | "NONE" | fn.#StringExpression
 		EndpointNetworkType?: "IPV4" | "IPV6" | "DUAL" | fn.#StringExpression
@@ -43,17 +50,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		RequireTLS?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?:                        [...#TagFormat] | fn.#ListExpression
 		TargetConnectionNetworkType?: "IPV4" | "IPV6" | fn.#StringExpression
-		VpcSecurityGroupIds?: list.MinItems(1) & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		VpcSubnetIds!: list.MinItems(2) & [...string | fn.#StringExpression] | fn.#ListExpression
+		VpcSecurityGroupIds?: list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		VpcSubnetIds!: list.MinItems(2) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuthFormat: close({
@@ -64,14 +82,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"POSTGRES_MD5" |
 		"SQL_SERVER_AUTHENTICATION" |
 		fn.#StringExpression
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	IAMAuth?:     "DISABLED" | "REQUIRED" | "ENABLED" | fn.#StringExpression
-	SecretArn?:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	IAMAuth?: "DISABLED" | "REQUIRED" | "ENABLED" | fn.#StringExpression
+	SecretArn?: strings.MaxRunes(2048) & strings.MinRunes(20) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagFormat: close({
-	Key?:   strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" | fn.#StringExpression
-	Value?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

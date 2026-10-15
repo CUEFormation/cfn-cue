@@ -15,12 +15,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Account level Launch Configuration Template for AWS Application Migration Service.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MGN::LaunchConfigurationTemplate"
-	Properties?: close({
+	let properties = close({
 		AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		BootMode?:                 "LEGACY_BIOS" | "UEFI" | "USE_SOURCE" | fn.#StringExpression
 		CopyPrivateIp?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -34,13 +36,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		LargeVolumeConf?:     #LaunchTemplateDiskConf
-		LaunchDisposition?:   "STOPPED" | "STARTED" | fn.#StringExpression
-		Licensing?:           #Licensing
-		MapAutoTaggingMpeID?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		LargeVolumeConf?:   #LaunchTemplateDiskConf
+		LaunchDisposition?: "STOPPED" | "STARTED" | fn.#StringExpression
+		Licensing?:         #Licensing
+		MapAutoTaggingMpeID?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ParametersEncryptionKey?: strings.MaxRunes(276) &
 		strings.MinRunes(20) &
 		=~"^((arn:[\\w-]+:kms:([a-z]{2}-(gov-)?[a-z]+-\\d{1})?:(\\d{12})?:((alias|key)/[a-zA-Z0-9:/_-]{1,256}))|())$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(276) &
+			strings.MinRunes(20) &
+			=~"^((arn:[\\w-]+:kms:([a-z]{2}-(gov-)?[a-z]+-\\d{1})?:(\\d{12})?:((alias|key)/[a-zA-Z0-9:/_-]{1,256}))|())$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PostLaunchActions?: #PostLaunchActions
 		SmallVolumeConf?:   #LaunchTemplateDiskConf
@@ -64,6 +78,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                                list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 		TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LaunchTemplateDiskConf: struct.MinFields(1) & close({
@@ -110,20 +126,44 @@ fn.#ObjectExpression
 
 #PostLaunchActions: struct.MinFields(1) & close({
 	CloudWatchLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Deployment?:        "TEST_AND_CUTOVER" | "CUTOVER_ONLY" | "TEST_ONLY" | fn.#StringExpression
-	S3LogBucket?:       strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	S3OutputKeyPrefix?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	SsmDocuments?:      list.MaxItems(10) & [...] & [...#SsmDocument] | fn.#ListExpression
+	Deployment?: "TEST_AND_CUTOVER" | "CUTOVER_ONLY" | "TEST_ONLY" | fn.#StringExpression
+	S3LogBucket?: strings.MaxRunes(63) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	S3OutputKeyPrefix?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	SsmDocuments?: list.MaxItems(10) & [...] & [...#SsmDocument] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SsmDocument: close({
-	ActionName!:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	ActionName!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ExternalParameters?:    #SsmDocumentExternalParameters
 	MustSucceedForCutover?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Parameters?:            #SsmDocumentParameters
-	SsmDocumentName!: strings.MaxRunes(172) & strings.MinRunes(3) & =~"^([A-Za-z0-9/:_\\.-])+$" | fn.#StringExpression
+	SsmDocumentName!: strings.MaxRunes(172) & strings.MinRunes(3) & =~"^([A-Za-z0-9/:_\\.-])+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(172) & strings.MinRunes(3) & =~"^([A-Za-z0-9/:_\\.-])+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TimeoutSeconds?: int & >=1 |
 		{
 			string &
@@ -144,29 +184,57 @@ fn.#ObjectExpression
 
 #SsmDocumentExternalParameters: struct.MaxFields(20) & struct.MinFields(0) & close({
 
-	{[=~"^([A-Za-z0-9])+$"]: #SsmExternalParameter}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^([A-Za-z0-9])+$"]: #SsmExternalParameter}
+}) |
 fn.#ObjectExpression
 
 #SsmDocumentParameters: struct.MaxFields(20) & struct.MinFields(0) & close({
 
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
 	{[=~"^([A-Za-z0-9])+$"]: list.MaxItems(10) & list.MinItems(1) & [...#SsmParameterStoreParameter] |
-		fn.#ListExpression}}) |
+		fn.#ListExpression}
+}) |
 fn.#ObjectExpression
 
 #SsmExternalParameter: close({
 	DynamicPath!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_\\[\\]]+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_\\[\\]]+)*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SsmParameterStoreParameter: close({
-	ParameterName!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^([A-Za-z0-9_\\.-])+$" | fn.#StringExpression
+	ParameterName!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^([A-Za-z0-9_\\.-])+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^([A-Za-z0-9_\\.-])+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ParameterType!: "STRING" | "SECURE_STRING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

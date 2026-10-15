@@ -16,7 +16,7 @@ package schema
 	State?: string
 
 	// The IDs of the subnets to associate with the transit gateway multicast domain.
-	SubnetId!: string
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// The ID of the transit gateway attachment.
 	TransitGatewayAttachmentId!: string

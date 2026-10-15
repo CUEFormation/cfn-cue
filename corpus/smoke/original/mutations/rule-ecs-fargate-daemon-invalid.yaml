@@ -1,0 +1,7 @@
+Resources:
+  Thing:
+    Type: AWS::ECS::Service
+    Properties:
+      LaunchType: FARGATE
+      SchedulingStrategy: DAEMON
+      TaskDefinition: task

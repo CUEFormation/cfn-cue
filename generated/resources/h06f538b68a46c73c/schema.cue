@@ -10,32 +10,36 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::TransitGatewayConnectPeer
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayConnectPeer"
-	Properties!: close({
+	let properties = close({
 		ConnectPeerConfiguration!: close({
-			InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
-			PeerAddress!:           string | fn.#StringExpression
-			TransitGatewayAddress?: string | fn.#StringExpression
+			InsideCidrBlocks!:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+			PeerAddress!:           string | number | bool | fn.#StringExpression
+			TransitGatewayAddress?: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?:                       [...#Tag] | fn.#ListExpression
-		TransitGatewayAttachmentId!: string | fn.#StringExpression
+		TransitGatewayAttachmentId!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TransitGatewayAttachmentBgpConfiguration: close({
-	BgpStatus?:   string | fn.#StringExpression
-	PeerAddress?: string | fn.#StringExpression
+	BgpStatus?:   string | number | bool | fn.#StringExpression
+	PeerAddress?: string | number | bool | fn.#StringExpression
 	PeerAsn?: number |
 		{
 			string &
@@ -55,7 +59,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TransitGatewayAddress?: string | fn.#StringExpression
+	TransitGatewayAddress?: string | number | bool | fn.#StringExpression
 	TransitGatewayAsn?: number |
 		{
 			string &
@@ -80,9 +84,9 @@ fn.#ObjectExpression
 
 #TransitGatewayConnectPeerConfiguration: close({
 	BgpConfigurations?:     [...#TransitGatewayAttachmentBgpConfiguration] | fn.#ListExpression
-	InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
-	PeerAddress!:           string | fn.#StringExpression
-	Protocol?:              string | fn.#StringExpression
-	TransitGatewayAddress?: string | fn.#StringExpression
+	InsideCidrBlocks!:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	PeerAddress!:           string | number | bool | fn.#StringExpression
+	Protocol?:              string | number | bool | fn.#StringExpression
+	TransitGatewayAddress?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

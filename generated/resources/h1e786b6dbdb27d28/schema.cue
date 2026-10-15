@@ -9,13 +9,22 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::ContactMethod
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::ContactMethod"
-	Properties!: close({
-		ContactEndpoint!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Protocol!:        "Email" | "SMS" | fn.#StringExpression
+	let properties = close({
+		ContactEndpoint!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Protocol!: "Email" | "SMS" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

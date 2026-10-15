@@ -9,20 +9,29 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Notifications::NotificationHub
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Notifications::NotificationHub"
-	Properties!: close({Region!: #Region})
+	Type!: "AWS::Notifications::NotificationHub"
+	let properties = close({Region!: #Region})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #NotificationHubStatus: "ACTIVE" | "REGISTERING" | "DEREGISTERING" | "INACTIVE" | fn.#StringExpression
 
 #NotificationHubStatusSummary: close({
 	NotificationHubStatus!:       #NotificationHubStatus
-	NotificationHubStatusReason!: string | fn.#StringExpression
+	NotificationHubStatusReason!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Region: strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
+#Region: strings.MaxRunes(25) & strings.MinRunes(2) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(25) & strings.MinRunes(2) & "\(self)"
+} |
+fn.#StringExpression

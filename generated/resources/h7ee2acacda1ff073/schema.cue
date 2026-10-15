@@ -10,20 +10,37 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerArchive Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::MailManagerArchive"
-	Properties?: close({
+	let properties = close({
 		ArchiveName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 			=~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+				=~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		Retention?: #ArchiveRetention
 		Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ArchiveRetention: close({RetentionPeriod!: #RetentionPeriod}) | fn.#ValueExpression
@@ -49,7 +66,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

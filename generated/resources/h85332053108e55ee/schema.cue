@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::S3::AccessGrant resource is an Amazon S3 resource type representing
@@ -16,12 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // instance.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::AccessGrant"
-	Properties!: close({
+	let properties = close({
 		// The configuration options of the grant location, which is the S3 path to the
 		// data to which you are granting access.
 		AccessGrantsLocationConfiguration?: #AccessGrantsLocationConfiguration
-		AccessGrantsLocationId!:            string | fn.#StringExpression
-		ApplicationArn?:                    string | fn.#StringExpression
+		AccessGrantsLocationId!:            string | number | bool | fn.#StringExpression
+		ApplicationArn?:                    string | number | bool | fn.#StringExpression
 
 		// The principal who will be granted permission to access S3.
 		Grantee!:      #Grantee
@@ -29,20 +31,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		S3PrefixType?: "Object" | fn.#StringExpression
 		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccessGrantArn: string | fn.#StringExpression
+#AccessGrantArn: string | number | bool | fn.#StringExpression
 
-#AccessGrantsLocationConfiguration: close({S3SubPrefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#AccessGrantsLocationConfiguration: close({S3SubPrefix!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #Grantee: close({
-	GranteeIdentifier!: string | fn.#StringExpression
+	GranteeIdentifier!: string | number | bool | fn.#StringExpression
 	GranteeType!:       "IAM" | "DIRECTORY_USER" | "DIRECTORY_GROUP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

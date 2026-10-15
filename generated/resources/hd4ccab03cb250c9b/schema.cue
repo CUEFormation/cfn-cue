@@ -14,18 +14,35 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ImageBuilder
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::ImageBuilder"
-	Properties!: close({
-		AccessEndpoints?:       list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
-		AppstreamAgentVersion?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		DisableIMDSV1?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		DisplayName?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		DomainJoinInfo?:        #DomainJoinInfo
+	let properties = close({
+		AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
+		AppstreamAgentVersion?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisableIMDSV1?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DisplayName?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainJoinInfo?: #DomainJoinInfo
 		EnableDefaultInternetAccess?: bool |
 			"true" |
 			"True" |
@@ -34,35 +51,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		ImageArn?:             string | fn.#StringExpression
-		ImageName?:            strings.MinRunes(1) | fn.#StringExpression
-		InstanceType!:         strings.MinRunes(1) | fn.#StringExpression
-		Name!:                 strings.MinRunes(1) | fn.#StringExpression
-		RootVolumeConfig?:     #VolumeConfig
-		SoftwaresToInstall?:   [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-		SoftwaresToUninstall?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-		Tags?:                 [...#Tag] | fn.#ListExpression
-		VpcConfig?:            #VpcConfig
+		IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ImageArn?: string | number | bool | fn.#StringExpression
+		ImageName?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceType!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RootVolumeConfig?: #VolumeConfig
+		SoftwaresToInstall?: [...strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SoftwaresToUninstall?: [...strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+		VpcConfig?: #VpcConfig
 	}) & matchN(>=1, [{ImageName!: _}, {ImageArn!: _}])
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessEndpoint: close({
 	EndpointType!: "STREAMING" | fn.#StringExpression
-	VpceId!:       strings.MinRunes(1) | fn.#StringExpression
+	VpceId!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DomainJoinInfo: close({
-	DirectoryName?:                       string | fn.#StringExpression
-	OrganizationalUnitDistinguishedName?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
+	DirectoryName?: string | number | bool | fn.#StringExpression
+	OrganizationalUnitDistinguishedName?: strings.MaxRunes(2000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -85,11 +145,19 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
-		fn.#StringExpression
-	] |
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	SubnetIds?: [...strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression

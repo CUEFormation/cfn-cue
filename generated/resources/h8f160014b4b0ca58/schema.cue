@@ -9,16 +9,40 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a key signing key (KSK) associated with a hosted zone. You can
 // only have two KSKs per hosted zone.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::KeySigningKey"
-	Properties!: close({
-		HostedZoneId!:            =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression
-		KeyManagementServiceArn!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:                    =~"^[a-zA-Z0-9_]{3,128}$" | fn.#StringExpression
-		Status!: ("ACTIVE" | "INACTIVE") & (strings.MaxRunes(150) & strings.MinRunes(5)) | fn.#StringExpression
+	let properties = close({
+		HostedZoneId!: =~"^[A-Z0-9]{1,32}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Z0-9]{1,32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		KeyManagementServiceArn!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9_]{3,128}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_]{3,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Status!: ("ACTIVE" | "INACTIVE") & (strings.MaxRunes(150) & strings.MinRunes(5)) |
+		{
+			number | bool
+			_cfnString: ("ACTIVE" | "INACTIVE") & strings.MaxRunes(150) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

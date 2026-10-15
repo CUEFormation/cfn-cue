@@ -9,21 +9,25 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::Rule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAF::Rule"
-	Properties!: close({
-		MetricName!: string | fn.#StringExpression
-		Name!:       string | fn.#StringExpression
+	let properties = close({
+		MetricName!: string | number | bool | fn.#StringExpression
+		Name!:       string | number | bool | fn.#StringExpression
 		Predicates?: list.UniqueItems() & [...#Predicate] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Predicate: close({
-	DataId!:  string | fn.#StringExpression
+	DataId!:  string | number | bool | fn.#StringExpression
 	Negated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type!:    string | fn.#StringExpression
+	Type!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

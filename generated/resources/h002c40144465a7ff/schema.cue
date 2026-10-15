@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates an AWS Certificate Manager certificate with a sender under an SES
@@ -18,13 +20,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // case-insensitively and preserves the casing from the template.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::EmailIdentityCertificate"
-	Properties!: close({
-		CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z0-9-]*:acm:[a-z0-9-]+:\\d{12}:certificate/[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[a-z0-9-]*:acm:[a-z0-9-]+:\\d{12}:certificate/[^\\s]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		EmailIdentity!: strings.MaxRunes(320) & strings.MinRunes(1) | fn.#StringExpression
-		FromAddress!:   strings.MaxRunes(320) & strings.MinRunes(1) | fn.#StringExpression
+		EmailIdentity!: strings.MaxRunes(320) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(320) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FromAddress!: strings.MaxRunes(320) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(320) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

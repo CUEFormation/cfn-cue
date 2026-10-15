@@ -1,0 +1,10 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "TargetType": "lambda"
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
+    }
+  }
+}

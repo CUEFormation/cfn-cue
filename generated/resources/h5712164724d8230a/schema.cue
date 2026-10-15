@@ -13,20 +13,39 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::TableOptimizer
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::TableOptimizer"
-	Properties!: close({
-		CatalogId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		TableName!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		CatalogId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TableName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies configuration details of a table optimizer.
 		TableOptimizerConfiguration!: #TableOptimizerConfiguration
 		Type!:                        "compaction" | "orphan_file_deletion" | "retention" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CompactionConfiguration: close({
@@ -69,7 +88,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #IcebergConfiguration: close({
-	Location?: string | fn.#StringExpression
+	Location?: string | number | bool | fn.#StringExpression
 	OrphanFileRetentionPeriodInDays?: int |
 		{
 			string &
@@ -149,7 +168,14 @@ fn.#ObjectExpression
 
 	// The configuration for a snapshot retention optimizer for Apache Iceberg tables.
 	RetentionConfiguration?: #RetentionConfiguration
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 
 	// An object that describes the VPC configuration for a table optimizer. This
@@ -159,4 +185,4 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#VpcConfiguration: close({GlueConnectionName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VpcConfiguration: close({GlueConnectionName?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

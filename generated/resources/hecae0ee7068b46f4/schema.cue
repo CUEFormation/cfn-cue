@@ -10,12 +10,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage a Domain Configuration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::DomainConfiguration"
-	Properties?: close({
+	let properties = close({
 		ApplicationProtocol?: "SECURE_MQTT" | "MQTT_WSS" | "HTTPS" | "DEFAULT" | fn.#StringExpression
 		AuthenticationType?: "AWS_X509" |
 			"CUSTOM_AUTH" |
@@ -23,17 +25,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"CUSTOM_AUTH_X509" |
 			"DEFAULT" |
 			fn.#StringExpression
-		AuthorizerConfig?:          #AuthorizerConfig
-		ClientCertificateConfig?:   #ClientCertificateConfig
-		DomainConfigurationName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w.-]+$" | fn.#StringExpression
+		AuthorizerConfig?:        #AuthorizerConfig
+		ClientCertificateConfig?: #ClientCertificateConfig
+		DomainConfigurationName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DomainConfigurationStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-		DomainName?:                strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		ServerCertificateArns?: list.MaxItems(1) & [...] & [
-			...strings.MaxRunes(2048) &
+		DomainName?: strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ServerCertificateArns?: list.MaxItems(1) & [...] & [...strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
 			strings.MinRunes(1) &
-			=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
-			fn.#StringExpression
-		] |
+			=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		ServerCertificateConfig?: #ServerCertificateConfig
 		ServiceType?:             "DATA" | "CREDENTIAL_PROVIDER" | "JOBS" | fn.#StringExpression
@@ -42,18 +59,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ValidationCertificateArn?: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuthorizerConfig: close({
 	AllowAuthorizerOverride?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DefaultAuthorizerName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w=,@-]+$" | fn.#StringExpression
+	DefaultAuthorizerName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w=,@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w=,@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ClientCertificateConfig: close({
-	ClientCertificateCallbackArn?: strings.MaxRunes(170) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	ClientCertificateCallbackArn?: strings.MaxRunes(170) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(170) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -62,8 +98,20 @@ fn.#ObjectExpression
 	OcspAuthorizedResponderArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	OcspLambdaArn?: strings.MaxRunes(170) & strings.MinRunes(1) | fn.#StringExpression
+	OcspLambdaArn?: strings.MaxRunes(170) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(170) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -71,19 +119,41 @@ fn.#ObjectExpression
 	ServerCertificateArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ServerCertificateStatus?:       "INVALID" | "VALID" | fn.#StringExpression
-	ServerCertificateStatusDetail?: string | fn.#StringExpression
+	ServerCertificateStatusDetail?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TlsConfig: close(
-	{SecurityPolicy?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression},
-) |
+#TlsConfig: close({
+	SecurityPolicy?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression

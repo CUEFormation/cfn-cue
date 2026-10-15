@@ -10,32 +10,78 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a fleet provisioning template.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::ProvisioningTemplate"
-	Properties!: close({
-		Description?:         strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Enabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		PreProvisioningHook?: #ProvisioningHook
-		ProvisioningRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		ProvisioningRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TemplateBody!: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		TemplateName?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TemplateBody!: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TemplateName?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TemplateType?: "FLEET_PROVISIONING" | "JITP" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ProvisioningHook: close({
-	PayloadVersion?: strings.MaxRunes(32) & strings.MinRunes(10) & =~"^[0-9-]+$" | fn.#StringExpression
-	TargetArn?:      strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	PayloadVersion?: strings.MaxRunes(32) & strings.MinRunes(10) & =~"^[0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(10) & =~"^[0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetArn?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

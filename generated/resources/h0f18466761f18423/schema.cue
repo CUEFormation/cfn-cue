@@ -6,15 +6,24 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::PortfolioPrincipalAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::PortfolioPrincipalAssociation"
-	Properties!: close({
-		AcceptLanguage?: string | fn.#StringExpression
-		PortfolioId?:    string | fn.#StringExpression
-		PrincipalARN?:   =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" | fn.#StringExpression
-		PrincipalType!:  string | fn.#StringExpression
+	let properties = close({
+		AcceptLanguage?: string | number | bool | fn.#StringExpression
+		PortfolioId?:    string | number | bool | fn.#StringExpression
+		PrincipalARN?: =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" |
+		{
+			number | bool
+			_cfnString: =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		PrincipalType!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

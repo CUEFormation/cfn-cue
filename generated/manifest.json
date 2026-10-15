@@ -6,6 +6,7 @@
   "languageExtensions": false,
   "includeSAM": false,
   "iamPolicies": true,
+  "cfnLintRules": true,
   "regions": {
     "af-south-1": {
       "AMZN::SDC::Deployment": "d49523269b8efe5f",
@@ -68248,36 +68249,6 @@
   },
   "diagnostics": [
     {
-      "resource": "AMZN::SDC::Deployment",
-      "path": "#/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::ACMPCA::CertificateAuthority",
-      "path": "#/definitions/CrlConfiguration/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::AIOps::InvestigationGroup",
-      "path": "#/definitions/EncryptionConfigMap/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::AIOps::InvestigationGroup",
-      "path": "#/definitions/EncryptionConfigMap/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::APS::AnomalyDetector",
-      "path": "#",
-      "keyword": "scalarCompatibility",
-      "detail": "quoted scalar coercion not applied to 2 composed scalar constraints; exact constraints retained"
-    },
-    {
       "resource": "AWS::APS::Scraper",
       "path": "#/definitions/Source/properties/EksConfiguration/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -68288,18 +68259,6 @@
       "path": "#/definitions/Source/properties/VpcConfiguration/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::AmazonMQ::Broker",
-      "path": "#/definitions/EncryptionOptions/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::AmazonMQ::Broker",
-      "path": "#/definitions/EncryptionOptions/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::AmazonMQ::Broker",
@@ -68458,40 +68417,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::AppFabric::IngestionDestination",
-      "path": "#/definitions/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::AppFabric::IngestionDestination",
-      "path": "#/definitions/S3Bucket/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::AppFlow::ConnectorProfile",
-      "path": "#/definitions/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::AppFlow::Flow",
-      "path": "#/definitions/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::AppFlow::Flow",
       "path": "#/definitions/CustomProperties/patternProperties/^[\\w]{1,2048}$",
       "keyword": "patternProperties",
       "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid repeat count: `{1,2048}`"
-    },
-    {
-      "resource": "AWS::AppFlow::Flow",
-      "path": "#/definitions/UpsolverBucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::AppIntegrations::Application",
@@ -68603,12 +68532,6 @@
     },
     {
       "resource": "AWS::AppRunner::VpcConnector",
-      "path": "#/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::AppRunner::VpcConnector",
       "path": "#/properties/VpcConnectorArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1011}`"
@@ -68630,12 +68553,6 @@
       "path": "#/properties/VpcIngressConnectionArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1011}`"
-    },
-    {
-      "resource": "AWS::AppStream::AppBlock",
-      "path": "#/definitions/S3Location/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::AppStream::AppBlock",
@@ -68663,12 +68580,6 @@
     },
     {
       "resource": "AWS::AppStream::Application",
-      "path": "#/definitions/S3Location/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::AppStream::Application",
       "path": "#/definitions/S3Location/properties/S3Bucket/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!\\.)$`"
@@ -68678,12 +68589,6 @@
       "path": "#/definitions/CertificateBasedAuthProperties/properties/CertificateAuthorityArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
-    },
-    {
-      "resource": "AWS::AppStream::Fleet",
-      "path": "#/definitions/S3Location/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::AppStream::Fleet",
@@ -68824,28 +68729,10 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Names"
     },
     {
-      "resource": "AWS::AutoScaling::LaunchConfiguration",
-      "path": "#/properties/SecurityGroups/items/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::B2BI::Capability",
-      "path": "#/definitions/S3Location/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::B2BI::Profile",
       "path": "#/properties/LogGroupName/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::B2BI::Transformer",
-      "path": "#/definitions/SampleDocuments/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::BCM::Dashboard",
@@ -68884,22 +68771,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::BCMDataExports::Export",
-      "path": "#/definitions/S3Destination/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::Backup::BackupPlan",
       "path": "#/definitions/AdvancedBackupSettingResourceType/properties/BackupOptions/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::Backup::ReportPlan",
-      "path": "#/properties/ReportDeliveryChannel/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Batch::ComputeEnvironment",
@@ -68915,12 +68790,6 @@
     },
     {
       "resource": "AWS::Batch::ComputeEnvironment",
-      "path": "#/definitions/ComputeResources/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::Batch::ComputeEnvironment",
       "path": "#/definitions/ManagedInstancesNetworkConfiguration/properties/SecurityGroups/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -68933,12 +68802,6 @@
     },
     {
       "resource": "AWS::Batch::ComputeEnvironment",
-      "path": "#/definitions/ManagedInstancesNetworkConfiguration/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::Batch::ComputeEnvironment",
       "path": "#/properties/ComputeResources/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -68948,12 +68811,6 @@
       "path": "#/properties/ComputeResources/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::Batch::ComputeEnvironment",
-      "path": "#/properties/ComputeResources/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::Batch::ConsumableResource",
@@ -69028,84 +68885,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
-      "resource": "AWS::Bedrock::Agent",
-      "path": "#/definitions/S3Identifier/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Bedrock::AutomatedReasoningPolicy",
-      "path": "#/definitions/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Bedrock::AutomatedReasoningPolicy",
-      "path": "#/definitions/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Bedrock::Blueprint",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Bedrock::Blueprint",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Bedrock::DataAutomationLibrary",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Bedrock::DataAutomationLibrary",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Bedrock::DataAutomationProject",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Bedrock::DataAutomationProject",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Bedrock::Flow",
-      "path": "#/definitions/RetrievalFlowNodeS3Configuration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Bedrock::Flow",
-      "path": "#/definitions/StorageFlowNodeS3Configuration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Bedrock::FlowVersion",
-      "path": "#/definitions/RetrievalFlowNodeS3Configuration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Bedrock::FlowVersion",
-      "path": "#/definitions/StorageFlowNodeS3Configuration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::Bedrock::KnowledgeBase",
       "path": "#/definitions/OpenSearchManagedClusterConfiguration/properties/VectorIndexName/pattern",
       "keyword": "pattern",
@@ -69119,51 +68898,9 @@
     },
     {
       "resource": "AWS::BedrockAgentCore::BrowserCustom",
-      "path": "#/definitions/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::BrowserCustom",
       "path": "#/definitions/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::CapacityProvider",
-      "path": "#/definitions/EbsVolumeConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::CapacityProvider",
-      "path": "#/definitions/EbsVolumeConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::CapacityProvider",
-      "path": "#/definitions/EphemeralEBSVolumeConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::CapacityProvider",
-      "path": "#/definitions/EphemeralEBSVolumeConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::CapacityProvider",
-      "path": "#/definitions/RootVolumeConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::CapacityProvider",
-      "path": "#/definitions/RootVolumeConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::BedrockAgentCore::CapacityProvider",
@@ -69178,22 +68915,10 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::BedrockAgentCore::CapacityProvider",
-      "path": "#/definitions/VpcConfiguration/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::BedrockAgentCore::CodeInterpreterCustom",
       "path": "#/definitions/SecurityGroups/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::CodeInterpreterCustom",
-      "path": "#/definitions/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::BedrockAgentCore::CodeInterpreterCustom",
@@ -69250,12 +68975,6 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::BedrockAgentCore::Harness",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::BedrockAgentCore::Memory",
       "path": "#",
       "keyword": "scalarCompatibility",
@@ -69305,12 +69024,6 @@
     },
     {
       "resource": "AWS::BedrockAgentCore::Runtime",
-      "path": "#/definitions/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::Runtime",
       "path": "#/definitions/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
@@ -69356,12 +69069,6 @@
       "path": "#/definitions/ResourceTag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CUR::ReportDefinition",
-      "path": "#/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Cases::Case",
@@ -69586,12 +69293,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::Cloud9::EnvironmentEC2",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::CloudFormation::GuardHook",
       "path": "#/definitions/StackRole/anyOf/1/pattern",
       "keyword": "pattern",
@@ -69664,18 +69365,6 @@
       "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
-      "resource": "AWS::CloudFront::AnycastIpList",
-      "path": "#/definitions/IpamCidrConfig/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::CloudFront::AnycastIpList",
-      "path": "#/definitions/IpamCidrConfigResult/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
       "resource": "AWS::CloudFront::CachePolicy",
       "path": "#",
       "keyword": "scalarCompatibility",
@@ -69704,36 +69393,6 @@
       "path": "#",
       "keyword": "scalarCompatibility",
       "detail": "quoted scalar coercion not applied to 1 composed scalar constraints; exact constraints retained"
-    },
-    {
-      "resource": "AWS::CloudTrail::EventDataStore",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::CloudTrail::EventDataStore",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::CloudTrail::Trail",
-      "path": "#/properties/KMSKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::CloudTrail::Trail",
-      "path": "#/properties/KMSKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::CloudTrail::Trail",
-      "path": "#/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::CloudWatch::Alarm",
@@ -69785,12 +69444,6 @@
     },
     {
       "resource": "AWS::CodeBuild::Fleet",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::CodeBuild::Fleet",
       "path": "#/properties/ImageId/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1020}`"
@@ -69812,24 +69465,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::CodeBuild::Project",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::CodeCommit::Repository",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::CodeCommit::Repository",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::CodeCommit::Repository",
@@ -69854,12 +69489,6 @@
       "path": "#/definitions/ZonalConfig/properties/MonitorDurationInSeconds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::CodeGuruReviewer::RepositoryAssociation",
-      "path": "#/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::CodePipeline::Pipeline",
@@ -69917,18 +69546,6 @@
     },
     {
       "resource": "AWS::Comprehend::DocumentClassifier",
-      "path": "#/definitions/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Comprehend::DocumentClassifier",
-      "path": "#/definitions/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Comprehend::DocumentClassifier",
       "path": "#/definitions/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -69938,12 +69555,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::Comprehend::DocumentClassifier",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::Comprehend::EntityRecognizer",
@@ -69964,12 +69575,6 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::Comprehend::EntityRecognizer",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::Comprehend::Flywheel",
       "path": "#/definitions/EntityTypesListItem/properties/Type/pattern",
       "keyword": "pattern",
@@ -69986,18 +69591,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::Comprehend::Flywheel",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::Config::DeliveryChannel",
-      "path": "#/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Config::RemediationConfiguration",
@@ -70040,12 +69633,6 @@
       "path": "#/properties/InstanceAlias/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::InstanceStorageConfig",
-      "path": "#/definitions/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Connect::IntegrationAssociation",
@@ -70199,12 +69786,6 @@
     },
     {
       "resource": "AWS::CustomerProfiles::Domain",
-      "path": "#/definitions/S3ExportingConfig/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::CustomerProfiles::Domain",
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
@@ -70220,12 +69801,6 @@
       "path": "#/definitions/EventExpiration/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::CustomerProfiles::Integration",
-      "path": "#/definitions/S3SourceProperties/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::CustomerProfiles::Integration",
@@ -70276,48 +69851,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::DMS::Endpoint",
-      "path": "#/definitions/NeptuneSettings/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::DMS::Endpoint",
-      "path": "#/definitions/RedshiftSettings/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::DMS::Endpoint",
-      "path": "#/definitions/S3Settings/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::DMS::Endpoint",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::DMS::Endpoint",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::DMS::ReplicationConfig",
-      "path": "#/definitions/ComputeConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::DMS::ReplicationConfig",
-      "path": "#/definitions/ComputeConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::DMS::ReplicationConfig",
       "path": "#/definitions/ComputeConfig/properties/VpcSecurityGroupIds/format",
       "keyword": "format",
@@ -70340,18 +69873,6 @@
       "path": "#/properties/TableMappings/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::DMS::ReplicationInstance",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::DMS::ReplicationInstance",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::DMS::ReplicationInstance",
@@ -70420,12 +69941,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::DataSync::LocationObjectStorage",
-      "path": "#/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::DataSync::LocationSMB",
       "path": "#/properties/DnsIpAddresses/items/pattern",
       "keyword": "pattern",
@@ -70442,12 +69957,6 @@
       "path": "#/definitions/PhysicalConnectionRequirements/properties/SecurityGroupIdList/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::DataZone::Connection",
-      "path": "#/definitions/PhysicalConnectionRequirements/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::DataZone::DataSource",
@@ -70484,12 +69993,6 @@
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Deadline::Queue",
-      "path": "#/definitions/JobAttachmentSettings/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Deadline::Queue",
@@ -70547,18 +70050,6 @@
     },
     {
       "resource": "AWS::DocDB::DBCluster",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::DocDB::DBCluster",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::DocDB::DBCluster",
       "path": "#/properties/VpcSecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -70583,18 +70074,6 @@
     },
     {
       "resource": "AWS::DocDBElastic::Cluster",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::DocDBElastic::Cluster",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::DocDBElastic::Cluster",
       "path": "#/properties/VpcSecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -70604,18 +70083,6 @@
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::DocDBElastic::ClusterSnapshot",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::DocDBElastic::ClusterSnapshot",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::DocDBElastic::ClusterSnapshot",
@@ -70685,12 +70152,6 @@
     },
     {
       "resource": "AWS::DynamoDB::Table",
-      "path": "#/definitions/S3BucketSource/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::DynamoDB::Table",
       "path": "#/properties/AttributeDefinitions/uniqueKeys",
       "keyword": "uniqueKeys",
       "detail": "only whole-item uniqueness enforced; uniqueness by selected keys needs semantic validation"
@@ -70700,24 +70161,6 @@
       "path": "#/properties/KeySchema/oneOf/1/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::EC2::ApplicationStatusCheck",
-      "path": "#/definitions/HealthCheckPathDestination/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::ApplicationStatusCheck",
-      "path": "#/definitions/HealthCheckPathSource/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::CapacityManagerDataExport",
-      "path": "#/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::EC2::CarrierGateway",
@@ -70738,18 +70181,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::EC2::ClientVpnRoute",
-      "path": "#/properties/DestinationCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::ClientVpnTargetNetworkAssociation",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::EC2::CustomerGateway",
       "path": "#",
       "keyword": "scalarCompatibility",
@@ -70763,69 +70194,15 @@
     },
     {
       "resource": "AWS::EC2::EC2Fleet",
-      "path": "#/definitions/EbsBlockDevice/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::EC2::EC2Fleet",
-      "path": "#/definitions/EbsBlockDevice/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::EC2::EC2Fleet",
-      "path": "#/definitions/FleetLaunchTemplateOverridesRequest/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::EC2Fleet",
       "path": "#/definitions/FleetLaunchTemplateSpecificationRequest/properties/LaunchTemplateSpecificationUserData/format",
       "keyword": "format",
       "detail": "format annotation not enforced: password"
-    },
-    {
-      "resource": "AWS::EC2::EC2Fleet",
-      "path": "#/definitions/NetworkInterfaceSpecificationRequest/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::EC2::FlowLog",
       "path": "#/properties/LogGroupName/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::EC2::IPAMAllocation",
-      "path": "#/definitions/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::IPAMPool",
-      "path": "#/definitions/Cidr/anyOf/0/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::IPAMPool",
-      "path": "#/definitions/Cidr/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::EC2::IPAMPoolCidr",
-      "path": "#/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::IPAMPrefixListResolver",
-      "path": "#/definitions/IpamPrefixListResolverRuleCondition/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
     },
     {
       "resource": "AWS::EC2::IPAMPrefixListResolverTarget",
@@ -70835,27 +70212,9 @@
     },
     {
       "resource": "AWS::EC2::Instance",
-      "path": "#/definitions/Ebs/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::EC2::Instance",
-      "path": "#/definitions/Ebs/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::EC2::Instance",
       "path": "#/definitions/NetworkInterface/properties/GroupSet/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::EC2::Instance",
-      "path": "#/definitions/NetworkInterface/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::EC2::Instance",
@@ -70871,51 +70230,15 @@
     },
     {
       "resource": "AWS::EC2::Instance",
-      "path": "#/properties/SecurityGroupIds/items/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::EC2::Instance",
       "path": "#/properties/SecurityGroups/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Names"
-    },
-    {
-      "resource": "AWS::EC2::Instance",
-      "path": "#/properties/SecurityGroups/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::EC2::Instance",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::EC2::InstanceConnectEndpoint",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::EC2::InstanceConnectEndpoint",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::LaunchTemplate",
-      "path": "#/definitions/Ebs/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::EC2::LaunchTemplate",
-      "path": "#/definitions/Ebs/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::EC2::LaunchTemplate",
@@ -70928,18 +70251,6 @@
       "path": "#/definitions/LaunchTemplateData/properties/SecurityGroups/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::EC2::LaunchTemplate",
-      "path": "#/definitions/NetworkInterface/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayRoute",
-      "path": "#/properties/DestinationCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
     },
     {
       "resource": "AWS::EC2::LocalGatewayRouteTable",
@@ -71014,88 +70325,10 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::EC2::NatGateway",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::NetworkAclEntry",
-      "path": "#/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::NetworkAclEntry",
-      "path": "#/properties/Ipv6CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::EC2::NetworkInsightsAnalysis",
-      "path": "#/definitions/AnalysisAclRule/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::NetworkInsightsAnalysis",
-      "path": "#/definitions/AnalysisSecurityGroupRule/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::NetworkInsightsAnalysis",
-      "path": "#/definitions/AnalysisTransitGatewayPolicyTableEntry/properties/DestinationCidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::NetworkInsightsAnalysis",
-      "path": "#/definitions/Explanation/properties/Cidrs/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::NetworkInsightsAnalysis",
-      "path": "#/definitions/TransitGatewayRouteTableRoute/properties/DestinationCidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
       "resource": "AWS::EC2::NetworkInterface",
       "path": "#/properties/GroupSet/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::EC2::NetworkInterface",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::PrefixList",
-      "path": "#/definitions/Entry/properties/Cidr/anyOf/0/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::PrefixList",
-      "path": "#/definitions/Entry/properties/Cidr/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::EC2::Route",
-      "path": "#/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::Route",
-      "path": "#/properties/DestinationCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
     },
     {
       "resource": "AWS::EC2::RouteServer",
@@ -71110,112 +70343,10 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::EC2::RouteServerEndpoint",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::EC2::RouteServerPeer",
       "path": "#/definitions/BgpOptions/properties/PeerAsn/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::EC2::RouteServerPeer",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::SecondaryNetwork",
-      "path": "#/definitions/Ipv4CidrBlockAssociation/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroup",
-      "path": "#/definitions/Egress/properties/CidrIp/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroup",
-      "path": "#/definitions/Egress/properties/CidrIpv6/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroup",
-      "path": "#/definitions/Ingress/properties/CidrIp/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroup",
-      "path": "#/definitions/Ingress/properties/CidrIpv6/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroup",
-      "path": "#/definitions/Ingress/properties/SourceSecurityGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroup",
-      "path": "#/properties/GroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroup",
-      "path": "#/properties/Id/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroupEgress",
-      "path": "#/properties/CidrIp/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroupEgress",
-      "path": "#/properties/CidrIpv6/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroupIngress",
-      "path": "#/properties/CidrIp/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroupIngress",
-      "path": "#/properties/CidrIpv6/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::EC2::SecurityGroupIngress",
-      "path": "#/properties/SourceSecurityGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::EC2::SpotFleet",
-      "path": "#/definitions/InstanceNetworkInterfaceSpecification/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::SpotFleet",
-      "path": "#/definitions/LaunchTemplateOverrides/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::EC2::SpotFleet",
@@ -71224,46 +70355,10 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::EC2::SpotFleet",
-      "path": "#/definitions/SpotFleetLaunchSpecification/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::EC2::SqlHaStandbyDetectedInstance",
       "path": "#/definitions/SqlServerCredentials/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::EC2::Subnet",
-      "path": "#/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::Subnet",
-      "path": "#/properties/Ipv6CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::EC2::Subnet",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::SubnetCidrBlock",
-      "path": "#/properties/Ipv6CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::EC2::SubnetCidrBlock",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::EC2::SubnetCidrReservation",
@@ -71272,118 +70367,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::EC2::SubnetCidrReservation",
-      "path": "#/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::SubnetCidrReservation",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::SubnetNetworkAclAssociation",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::SubnetRouteTableAssociation",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::TrafficMirrorFilterRule",
-      "path": "#/properties/DestinationCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::TrafficMirrorFilterRule",
-      "path": "#/properties/SourceCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
       "resource": "AWS::EC2::TransitGateway",
       "path": "#/properties/AmazonSideAsn/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::EC2::TransitGatewayMeteringPolicyEntry",
-      "path": "#/properties/DestinationCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::TransitGatewayMeteringPolicyEntry",
-      "path": "#/properties/SourceCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::TransitGatewayMulticastDomainAssociation",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::TransitGatewayMulticastGroupMember",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::TransitGatewayMulticastGroupSource",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::TransitGatewayPolicyTableEntry",
-      "path": "#/definitions/TransitGatewayPolicyRule/properties/DestinationCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::TransitGatewayPolicyTableEntry",
-      "path": "#/definitions/TransitGatewayPolicyRule/properties/SourceCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::TransitGatewayRoute",
-      "path": "#/properties/DestinationCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::VPC",
-      "path": "#/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::VPCBlockPublicAccessExclusion",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::EC2::VPCCidrBlock",
-      "path": "#/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::VPCCidrBlock",
-      "path": "#/properties/Ipv6CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
     },
     {
       "resource": "AWS::EC2::VPCEndpoint",
@@ -71398,12 +70385,6 @@
       "detail": "quoted scalar coercion not applied to 2 composed scalar constraints; exact constraints retained"
     },
     {
-      "resource": "AWS::EC2::VPNConnectionRoute",
-      "path": "#/properties/DestinationCidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
       "resource": "AWS::EC2::VPNGateway",
       "path": "#/properties/AmazonSideAsn/format",
       "keyword": "format",
@@ -71411,33 +70392,9 @@
     },
     {
       "resource": "AWS::EC2::VerifiedAccessEndpoint",
-      "path": "#/definitions/CidrOptions/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EC2::VerifiedAccessEndpoint",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::EC2::VerifiedAccessInstance",
-      "path": "#/definitions/VerifiedAccessLogs/properties/S3/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::EC2::Volume",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::EC2::Volume",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::ECR::PublicRepository",
@@ -71470,42 +70427,6 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::ECS::CapacityProvider",
-      "path": "#/definitions/ManagedInstancesNetworkConfiguration/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::ECS::Cluster",
-      "path": "#/definitions/ExecuteCommandConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ECS::Cluster",
-      "path": "#/definitions/ExecuteCommandConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ECS::Cluster",
-      "path": "#/definitions/ExecuteCommandLogConfiguration/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::ECS::Cluster",
-      "path": "#/definitions/ManagedStorageConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ECS::Cluster",
-      "path": "#/definitions/ManagedStorageConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::ECS::ExpressGatewayService",
       "path": "#/definitions/ExpressGatewayServiceNetworkConfiguration/properties/SecurityGroups/format",
       "keyword": "format",
@@ -71516,12 +70437,6 @@
       "path": "#/definitions/ExpressGatewayServiceNetworkConfiguration/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::ECS::ExpressGatewayService",
-      "path": "#/definitions/ExpressGatewayServiceNetworkConfiguration/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::ECS::Service",
@@ -71542,28 +70457,16 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::ECS::Service",
-      "path": "#/definitions/AwsVpcConfiguration/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::ECS::Service",
-      "path": "#/definitions/ServiceManagedEBSVolumeConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ECS::Service",
-      "path": "#/definitions/ServiceManagedEBSVolumeConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::ECS::TaskDefinition",
       "path": "#/definitions/ContainerDefinition/properties/Environment/uniqueKeys",
       "keyword": "uniqueKeys",
       "detail": "only whole-item uniqueness enforced; uniqueness by selected keys needs semantic validation"
+    },
+    {
+      "resource": "AWS::ECS::TaskDefinition",
+      "path": "#/definitions/LogConfiguration/allOf/0/then/properties/Options/properties/awslogs-group/format",
+      "keyword": "format",
+      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::ECS::TaskSet",
@@ -71578,28 +70481,10 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::ECS::TaskSet",
-      "path": "#/definitions/AwsVpcConfiguration/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::EFS::AccessPoint",
       "path": "#/definitions/RootDirectory/properties/Path/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EFS::FileSystem",
-      "path": "#/definitions/ReplicationDestination/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::EFS::FileSystem",
-      "path": "#/definitions/ReplicationDestination/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::EFS::FileSystem",
@@ -71608,58 +70493,16 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::EFS::FileSystem",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::EFS::FileSystem",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::EFS::FileSystem",
-      "path": "#/properties/ReplicationConfiguration/properties/Destinations/items/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::EFS::FileSystem",
-      "path": "#/properties/ReplicationConfiguration/properties/Destinations/items/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::EFS::MountTarget",
       "path": "#/properties/SecurityGroups/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::EFS::MountTarget",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::EKS::Cluster",
       "path": "#",
       "keyword": "scalarCompatibility",
       "detail": "quoted scalar coercion not applied to 1 composed scalar constraints; exact constraints retained"
-    },
-    {
-      "resource": "AWS::EKS::Cluster",
-      "path": "#/definitions/RemoteNodeNetwork/properties/Cidrs/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EKS::Cluster",
-      "path": "#/definitions/RemotePodNetwork/properties/Cidrs/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
     },
     {
       "resource": "AWS::EKS::Cluster",
@@ -71674,22 +70517,10 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::EKS::FargateProfile",
-      "path": "#/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::EKS::Nodegroup",
       "path": "#/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::EKS::Nodegroup",
-      "path": "#/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::EMR::Cluster",
@@ -71728,18 +70559,6 @@
       "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
-      "resource": "AWS::EMRContainers::SecurityConfiguration",
-      "path": "#/definitions/S3EncryptionConfiguration/properties/KMSKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::EMRContainers::SecurityConfiguration",
-      "path": "#/definitions/S3EncryptionConfiguration/properties/KMSKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::EMRServerless::Application",
       "path": "#/definitions/InitialCapacityConfig/properties/WorkerCount/format",
       "keyword": "format",
@@ -71756,24 +70575,6 @@
       "path": "#/definitions/NetworkConfiguration/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::EVS::Environment",
-      "path": "#/definitions/InitialVlanInfo/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::EVS::Environment",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::EVS::Environment",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::EVS::Environment",
@@ -71795,33 +70596,9 @@
     },
     {
       "resource": "AWS::ElastiCache::ReplicationGroup",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ElastiCache::ReplicationGroup",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ElastiCache::ReplicationGroup",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::ElastiCache::SecurityGroupIngress",
-      "path": "#/properties/CacheSecurityGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::ElastiCache::SecurityGroupIngress",
-      "path": "#/properties/EC2SecurityGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
     },
     {
       "resource": "AWS::ElastiCache::ServerlessCache",
@@ -71831,45 +70608,9 @@
     },
     {
       "resource": "AWS::ElastiCache::ServerlessCache",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ElastiCache::ServerlessCache",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ElastiCache::ServerlessCache",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::ElastiCache::ServerlessCacheSnapshot",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ElastiCache::ServerlessCacheSnapshot",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ElastiCache::Snapshot",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ElastiCache::Snapshot",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::ElastiCache::User",
@@ -71882,18 +70623,6 @@
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::ElasticBeanstalk::ApplicationVersion",
-      "path": "#/definitions/SourceBundle/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "path": "#/definitions/AccessLoggingPolicy/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::ElasticLoadBalancing::LoadBalancer",
@@ -71914,22 +70643,10 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "path": "#/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::ElasticLoadBalancingV2::ListenerRule",
       "path": "#",
       "keyword": "scalarCompatibility",
       "detail": "quoted scalar coercion not applied to 1 composed scalar constraints; exact constraints retained"
-    },
-    {
-      "resource": "AWS::ElasticLoadBalancingV2::LoadBalancer",
-      "path": "#/definitions/SubnetMapping/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::ElasticLoadBalancingV2::LoadBalancer",
@@ -71950,18 +70667,6 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::ElasticLoadBalancingV2::LoadBalancer",
-      "path": "#/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::ElasticLoadBalancingV2::TrustStoreRevocation",
-      "path": "#/definitions/RevocationContent/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::ElasticLoadBalancingV2::TrustStoreRevocation",
       "path": "#/definitions/TrustStoreRevocation/properties/NumberOfRevokedEntries/format",
       "keyword": "format",
@@ -71972,18 +70677,6 @@
       "path": "#/properties/RevocationId/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::Elasticsearch::Domain",
-      "path": "#/definitions/EncryptionAtRestOptions/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Elasticsearch::Domain",
-      "path": "#/definitions/EncryptionAtRestOptions/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Elasticsearch::Domain",
@@ -72026,12 +70719,6 @@
       "path": "#/definitions/AwsVpcConfiguration/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::Events::Rule",
-      "path": "#/definitions/AwsVpcConfiguration/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::Events::Rule",
@@ -72155,12 +70842,6 @@
     },
     {
       "resource": "AWS::Evidently::Project",
-      "path": "#/definitions/S3Destination/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Evidently::Project",
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
@@ -72170,30 +70851,6 @@
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::FIS::ExperimentTemplate",
-      "path": "#/definitions/ExperimentTemplateExperimentReportConfiguration/properties/Outputs/properties/ExperimentReportS3Configuration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::FIS::ExperimentTemplate",
-      "path": "#/definitions/ExperimentTemplateLogConfiguration/properties/S3Configuration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::FMS::Policy",
-      "path": "#/definitions/NetworkAclEntry/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::FMS::Policy",
-      "path": "#/definitions/NetworkAclEntry/properties/Ipv6CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
     },
     {
       "resource": "AWS::FSx::Backup",
@@ -72227,18 +70884,6 @@
     },
     {
       "resource": "AWS::FSx::FileCache",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::FSx::FileCache",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::FSx::FileCache",
       "path": "#/properties/KmsKeyId/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,2048}`"
@@ -72257,18 +70902,6 @@
     },
     {
       "resource": "AWS::FSx::FileSystem",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::FSx::FileSystem",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::FSx::FileSystem",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -72284,24 +70917,6 @@
       "path": "#/properties/Name/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::FinSpace::Environment",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::FinSpace::Environment",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::GameLift::ContainerFleet",
-      "path": "#/definitions/LogConfiguration/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::GammaDilithium::JobDefinition",
@@ -72334,12 +70949,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::GlobalAccelerator::CrossAccountAttachment",
-      "path": "#/definitions/Resource/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
       "resource": "AWS::Glue::Catalog",
       "path": "#/properties/Name/pattern",
       "keyword": "pattern",
@@ -72358,12 +70967,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::Glue::Connection",
-      "path": "#/definitions/PhysicalConnectionRequirements/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::Glue::Crawler",
       "path": "#/properties/Tags/format",
       "keyword": "format",
@@ -72374,18 +70977,6 @@
       "path": "#/properties/Tags/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::Glue::DataCatalogEncryptionSettings",
-      "path": "#/definitions/ConnectionPasswordEncryption/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Glue::DataCatalogEncryptionSettings",
-      "path": "#/definitions/ConnectionPasswordEncryption/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Glue::DataQualityRuleset",
@@ -72413,27 +71004,9 @@
     },
     {
       "resource": "AWS::Glue::DevEndpoint",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::Glue::DevEndpoint",
       "path": "#/properties/Tags/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::Glue::Integration",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Glue::Integration",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Glue::Job",
@@ -72452,18 +71025,6 @@
       "path": "#/properties/Tags/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::Glue::MLTransform",
-      "path": "#/definitions/MLUserDataEncryption/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Glue::MLTransform",
-      "path": "#/definitions/MLUserDataEncryption/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Glue::MLTransform",
@@ -72565,7 +71126,7 @@
       "resource": "AWS::Glue::UsageProfile",
       "path": "#",
       "keyword": "scalarCompatibility",
-      "detail": "quoted scalar coercion not applied to 3 composed scalar constraints; exact constraints retained"
+      "detail": "quoted scalar coercion not applied to 2 composed scalar constraints; exact constraints retained"
     },
     {
       "resource": "AWS::Glue::UserDefinedFunction",
@@ -72736,42 +71297,6 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::GuardDuty::MalwareProtectionPlan",
-      "path": "#/definitions/CFNProtectedResource/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::GuardDuty::MalwareProtectionPlan",
-      "path": "#/definitions/CFNProtectedResource/properties/S3Bucket/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::HealthLake::DataTransformationProfile",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::HealthLake::DataTransformationProfile",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::HealthLake::FHIRDatastore",
-      "path": "#/definitions/KmsEncryptionConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::HealthLake::FHIRDatastore",
-      "path": "#/definitions/KmsEncryptionConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::IAM::GroupPolicy",
       "path": "#/properties/PolicyDocument/format",
       "keyword": "format",
@@ -72796,76 +71321,10 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::IVS::RecordingConfiguration",
-      "path": "#/definitions/S3DestinationConfiguration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::IVS::StorageConfiguration",
-      "path": "#/definitions/S3StorageConfiguration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::IVSChat::LoggingConfiguration",
       "path": "#/definitions/CloudWatchLogsDestinationConfiguration/properties/LogGroupName/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::IVSChat::LoggingConfiguration",
-      "path": "#/definitions/S3DestinationConfiguration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::ImageBuilder::Component",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ImageBuilder::Component",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ImageBuilder::ContainerRecipe",
-      "path": "#/definitions/EbsInstanceBlockDeviceSpecification/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ImageBuilder::ContainerRecipe",
-      "path": "#/definitions/EbsInstanceBlockDeviceSpecification/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ImageBuilder::ContainerRecipe",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ImageBuilder::ContainerRecipe",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ImageBuilder::DistributionConfiguration",
-      "path": "#/definitions/AmiDistributionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ImageBuilder::DistributionConfiguration",
-      "path": "#/definitions/AmiDistributionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::ImageBuilder::Image",
@@ -72880,46 +71339,10 @@
       "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
-      "resource": "AWS::ImageBuilder::ImageRecipe",
-      "path": "#/definitions/EbsInstanceBlockDeviceSpecification/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ImageBuilder::ImageRecipe",
-      "path": "#/definitions/EbsInstanceBlockDeviceSpecification/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ImageBuilder::InfrastructureConfiguration",
-      "path": "#/definitions/S3Logs/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::ImageBuilder::InfrastructureConfiguration",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::ImageBuilder::InfrastructureConfiguration",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::ImageBuilder::Workflow",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ImageBuilder::Workflow",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::InspectorV2::CisScanConfiguration",
@@ -72950,12 +71373,6 @@
       "path": "#/definitions/Timestamp/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::InternetMonitor::Monitor",
-      "path": "#/definitions/S3Config/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Invoicing::InvoiceUnit",
@@ -72989,12 +71406,6 @@
     },
     {
       "resource": "AWS::IoT::SecurityProfile",
-      "path": "#/definitions/MetricValue/properties/Cidrs/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::IoT::SecurityProfile",
       "path": "#/properties/SecurityProfileDescription/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid character class range: `\\p{Graph}`"
@@ -73016,12 +71427,6 @@
       "path": "#/definitions/CloudwatchLogsAction/properties/LogGroupName/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::IoT::TopicRule",
-      "path": "#/definitions/S3Action/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::IoT::TopicRuleDestination",
@@ -73132,34 +71537,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::IoTSiteWise::Workspace",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::IoTSiteWise::Workspace",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::IoTWireless::TaskDefinition",
       "path": "#/definitions/LoRaWANUpdateGatewayTaskCreate/properties/SigKeyCrc/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::KMS::Alias",
-      "path": "#/properties/AliasName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::KMS::Key",
-      "path": "#/properties/KeyId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
     },
     {
       "resource": "AWS::KafkaConnect::Connector",
@@ -73184,12 +71565,6 @@
       "path": "#/definitions/Vpc/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::KafkaConnect::Connector",
-      "path": "#/definitions/Vpc/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::KafkaConnect::Connector",
@@ -73241,12 +71616,6 @@
     },
     {
       "resource": "AWS::Kendra::DataSource",
-      "path": "#/definitions/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Kendra::DataSource",
       "path": "#/definitions/SecretArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
@@ -73262,18 +71631,6 @@
       "path": "#/definitions/RoleArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
-    },
-    {
-      "resource": "AWS::Kendra::Index",
-      "path": "#/definitions/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Kendra::Index",
-      "path": "#/definitions/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Kendra::Index",
@@ -73384,18 +71741,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::KinesisVideo::Stream",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::KinesisVideo::Stream",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::LakeFormation::DataLakeSettings",
       "path": "#/properties/Parameters/format",
       "keyword": "format",
@@ -73439,12 +71784,6 @@
     },
     {
       "resource": "AWS::Lambda::Function",
-      "path": "#/definitions/Code/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Lambda::Function",
       "path": "#/definitions/Code/properties/S3Bucket/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!\\.)$`"
@@ -73454,12 +71793,6 @@
       "path": "#/definitions/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Lambda::LayerVersion",
-      "path": "#/definitions/Content/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Lambda::LayerVersion",
@@ -73490,24 +71823,6 @@
       "path": "#/properties/TargetFunctionArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Lex::Bot",
-      "path": "#/definitions/S3BucketLogDestination/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Lex::Bot",
-      "path": "#/definitions/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Lex::BotAlias",
-      "path": "#/definitions/S3BucketLogDestination/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Lex::ResourcePolicy",
@@ -73588,58 +71903,10 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::Lightsail::Instance",
-      "path": "#/definitions/cidrs/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::Lightsail::Instance",
-      "path": "#/definitions/ipv6Cidrs/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv6-network"
-    },
-    {
-      "resource": "AWS::Location::GeofenceCollection",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Location::GeofenceCollection",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Location::Tracker",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Location::Tracker",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::Logs::Integration",
       "path": "#",
       "keyword": "scalarCompatibility",
       "detail": "quoted scalar coercion not applied to 2 composed scalar constraints; exact constraints retained"
-    },
-    {
-      "resource": "AWS::Logs::LogAnomalyDetector",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Logs::LogAnomalyDetector",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Logs::LogGroup",
@@ -73652,18 +71919,6 @@
       "path": "#/properties/DataProtectionPolicy/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::Logs::LogGroup",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Logs::LogGroup",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Logs::LogGroup",
@@ -73721,18 +71976,6 @@
     },
     {
       "resource": "AWS::LookoutEquipment::InferenceScheduler",
-      "path": "#/properties/DataOutputConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::LookoutEquipment::InferenceScheduler",
-      "path": "#/properties/DataOutputConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::LookoutEquipment::InferenceScheduler",
       "path": "#/properties/DataOutputConfiguration/properties/KmsKeyId/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,2048}`"
@@ -73763,18 +72006,6 @@
     },
     {
       "resource": "AWS::M2::Application",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::M2::Application",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::M2::Application",
       "path": "#/properties/RoleArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
@@ -73793,18 +72024,6 @@
     },
     {
       "resource": "AWS::M2::Environment",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::M2::Environment",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::M2::Environment",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -73817,21 +72036,9 @@
     },
     {
       "resource": "AWS::MGN::NetworkMigrationDefinition",
-      "path": "#/definitions/SourceS3Configuration/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::MGN::NetworkMigrationDefinition",
       "path": "#/definitions/SourceS3Configuration/properties/S3Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1024}`"
-    },
-    {
-      "resource": "AWS::MGN::NetworkMigrationDefinition",
-      "path": "#/definitions/TargetS3Configuration/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::MPA::ApprovalTeam",
@@ -73973,18 +72180,6 @@
     },
     {
       "resource": "AWS::MWAAServerless::Workflow",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::MWAAServerless::Workflow",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::MWAAServerless::Workflow",
       "path": "#/definitions/LoggingConfiguration/properties/LogGroupName/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
@@ -73994,12 +72189,6 @@
       "path": "#/definitions/NetworkConfiguration/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Macie::AllowList",
-      "path": "#/definitions/S3WordsList/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Macie::FindingsFilter",
@@ -74032,52 +72221,16 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::MediaConnect::Flow",
-      "path": "#/definitions/VpcInterface/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::MediaConnect::FlowOutput",
-      "path": "#/properties/CidrAllowList/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
       "resource": "AWS::MediaConnect::FlowVpcInterface",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::MediaConnect::FlowVpcInterface",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::MediaConnect::Gateway",
-      "path": "#/definitions/GatewayNetwork/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::MediaConnect::RouterNetworkInterface",
-      "path": "#/definitions/PublicRouterNetworkInterfaceRule/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
       "resource": "AWS::MediaConnect::RouterNetworkInterface",
       "path": "#/definitions/VpcRouterNetworkInterfaceConfiguration/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::MediaConnect::RouterNetworkInterface",
-      "path": "#/definitions/VpcRouterNetworkInterfaceConfiguration/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::MediaConvert::JobTemplate",
@@ -74141,12 +72294,6 @@
     },
     {
       "resource": "AWS::MediaLive::Input",
-      "path": "#/definitions/InputRequestDestinationRoute/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::MediaLive::Input",
       "path": "#/definitions/InputVpcRequest/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -74165,27 +72312,9 @@
     },
     {
       "resource": "AWS::MediaLive::InputSecurityGroup",
-      "path": "#/definitions/InputWhitelistRuleCidr/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::MediaLive::InputSecurityGroup",
       "path": "#/properties/Tags/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::MediaLive::Network",
-      "path": "#/definitions/IpPool/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::MediaLive::Network",
-      "path": "#/definitions/Route/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
     },
     {
       "resource": "AWS::MediaPackage::Channel",
@@ -74261,18 +72390,6 @@
     },
     {
       "resource": "AWS::MemoryDB::Cluster",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::MemoryDB::Cluster",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::MemoryDB::Cluster",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -74314,18 +72431,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::MemoryDB::Snapshot",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::MemoryDB::Snapshot",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::MemoryDB::SubnetGroup",
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
@@ -74342,18 +72447,6 @@
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Neptune::DBCluster",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Neptune::DBCluster",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Neptune::DBCluster",
@@ -74386,18 +72479,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::NetworkFirewall::Firewall",
-      "path": "#/definitions/SubnetMapping/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::NetworkFirewall::VpcEndpointAssociation",
-      "path": "#/definitions/SubnetMapping/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::NetworkManager::CoreNetwork",
       "path": "#/properties/PolicyDocument/format",
       "keyword": "format",
@@ -74408,12 +72489,6 @@
       "path": "#/properties/ManagedRules/items/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1024}`"
-    },
-    {
-      "resource": "AWS::NovaAct::WorkflowDefinition",
-      "path": "#/definitions/WorkflowExportConfig/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::ODB::CloudAutonomousVmCluster",
@@ -74435,12 +72510,6 @@
     },
     {
       "resource": "AWS::ODB::OdbNetwork",
-      "path": "#/definitions/ManagedServices/properties/ZeroEtlAccess/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::ODB::OdbNetwork",
       "path": "#/properties/DisplayName/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
@@ -74456,12 +72525,6 @@
       "path": "#/definitions/VpcOptions/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::OSIS::Pipeline",
-      "path": "#/definitions/VpcOptions/properties/VpcAttachmentOptions/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
     },
     {
       "resource": "AWS::Oam::Link",
@@ -74549,18 +72612,6 @@
     },
     {
       "resource": "AWS::OpenSearchService::Domain",
-      "path": "#/definitions/EncryptionAtRestOptions/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::OpenSearchService::Domain",
-      "path": "#/definitions/EncryptionAtRestOptions/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::OpenSearchService::Domain",
       "path": "#/definitions/VPCOptions/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -74570,12 +72621,6 @@
       "path": "#/properties/AccessPolicies/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::OpsWorks::Instance",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::OpsWorks::Layer",
@@ -74642,18 +72687,6 @@
       "path": "#/properties/Networking/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::PaymentCryptography::Key",
-      "path": "#/definitions/ReplicationStatusType/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::PaymentCryptography::Key",
-      "path": "#/definitions/ReplicationStatusType/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Personalize::Dataset",
@@ -74765,12 +72798,6 @@
     },
     {
       "resource": "AWS::Pipes::Pipe",
-      "path": "#/definitions/AwsVpcConfiguration/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::Pipes::Pipe",
       "path": "#/definitions/PipeEnrichmentHttpParameters/properties/PathParameterValues/items/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
@@ -74789,33 +72816,9 @@
     },
     {
       "resource": "AWS::Pipes::Pipe",
-      "path": "#/definitions/S3LogDestination/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Pipes::Pipe",
       "path": "#/definitions/SelfManagedKafkaAccessConfigurationVpc/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::Pipes::Pipe",
-      "path": "#/definitions/SelfManagedKafkaAccessConfigurationVpc/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::QBusiness::Application",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::QBusiness::Application",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::QBusiness::Application",
@@ -74846,12 +72849,6 @@
       "path": "#/definitions/HookConfiguration/properties/RoleArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
-    },
-    {
-      "resource": "AWS::QBusiness::DataSource",
-      "path": "#/definitions/HookConfiguration/properties/S3BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::QBusiness::DataSource",
@@ -74974,12 +72971,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::QuickSight::Analysis",
-      "path": "#/definitions/StaticFileS3SourceOptions/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::QuickSight::Dashboard",
       "path": "#/definitions/AllSheetsFilterScopeConfiguration/format",
       "keyword": "format",
@@ -74990,12 +72981,6 @@
       "path": "#/definitions/AxisDisplayDataDrivenRange/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::QuickSight::Dashboard",
-      "path": "#/definitions/StaticFileS3SourceOptions/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::QuickSight::DataSet",
@@ -75058,18 +73043,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::QuickSight::Template",
-      "path": "#/definitions/StaticFileS3SourceOptions/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::QuickSight::VPCConnection",
-      "path": "#/definitions/NetworkInterface/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::QuickSight::VPCConnection",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -75080,66 +73053,6 @@
       "path": "#/properties/PolicyTemplate/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::RDS::ClusterSnapshot",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::ClusterSnapshot",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::RDS::CustomDBEngineVersion",
-      "path": "#/properties/KMSKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::CustomDBEngineVersion",
-      "path": "#/properties/KMSKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::RDS::DBCluster",
-      "path": "#/definitions/MasterUserSecret/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::DBCluster",
-      "path": "#/definitions/MasterUserSecret/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::RDS::DBCluster",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::DBCluster",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::RDS::DBCluster",
-      "path": "#/properties/MasterUserSecret/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::DBCluster",
-      "path": "#/properties/MasterUserSecret/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::RDS::DBCluster",
@@ -75164,42 +73077,6 @@
       "path": "#/definitions/Endpoint/properties/HostedZoneId/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Route53::AliasTarget.HostedZoneId"
-    },
-    {
-      "resource": "AWS::RDS::DBInstance",
-      "path": "#/definitions/MasterUserSecret/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::DBInstance",
-      "path": "#/definitions/MasterUserSecret/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::RDS::DBInstance",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::DBInstance",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::RDS::DBInstance",
-      "path": "#/properties/MasterUserSecret/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::DBInstance",
-      "path": "#/properties/MasterUserSecret/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::RDS::DBParameterGroup",
@@ -75232,42 +73109,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::RDS::DBSecurityGroup",
-      "path": "#/definitions/Ingress/properties/CIDRIP/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::RDS::DBSecurityGroup",
-      "path": "#/definitions/Ingress/properties/EC2SecurityGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::RDS::DBSecurityGroupIngress",
-      "path": "#/properties/CIDRIP/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::RDS::DBSecurityGroupIngress",
-      "path": "#/properties/EC2SecurityGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::RDS::DBSnapshot",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::DBSnapshot",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::RDS::Deployment",
       "path": "#/properties/TargetDBClusterParameterGroupName/pattern",
       "keyword": "pattern",
@@ -75284,18 +73125,6 @@
       "path": "#/properties/SourceDBClusterIdentifier/oneOf/1/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::RDS::Integration",
-      "path": "#/properties/KMSKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RDS::Integration",
-      "path": "#/properties/KMSKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::RTBFabric::RequesterGateway",
@@ -75347,24 +73176,6 @@
     },
     {
       "resource": "AWS::Redshift::Cluster",
-      "path": "#/definitions/LoggingProperties/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Redshift::Cluster",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Redshift::Cluster",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Redshift::Cluster",
       "path": "#/properties/NamespaceResourcePolicy/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
@@ -75374,30 +73185,6 @@
       "path": "#/properties/VpcSecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Redshift::ClusterSecurityGroupIngress",
-      "path": "#/properties/CIDRIP/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::Redshift::ClusterSecurityGroupIngress",
-      "path": "#/properties/ClusterSecurityGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::Redshift::ClusterSecurityGroupIngress",
-      "path": "#/properties/EC2SecurityGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Name"
-    },
-    {
-      "resource": "AWS::Redshift::EndpointAccess",
-      "path": "#/definitions/NetworkInterface/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::Redshift::EndpointAccess",
@@ -75430,54 +73217,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
     },
     {
-      "resource": "AWS::Redshift::Integration",
-      "path": "#/properties/KMSKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Redshift::Integration",
-      "path": "#/properties/KMSKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Redshift::Snapshot",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Redshift::Snapshot",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Redshift::SnapshotCopyGrant",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Redshift::SnapshotCopyGrant",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Namespace",
-      "path": "#/definitions/Namespace/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Namespace",
-      "path": "#/definitions/Namespace/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::RedshiftServerless::Namespace",
       "path": "#/properties/AdminUserPassword/pattern",
       "keyword": "pattern",
@@ -75485,33 +73224,9 @@
     },
     {
       "resource": "AWS::RedshiftServerless::Namespace",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Namespace",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Namespace",
       "path": "#/properties/NamespaceResourcePolicy/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Snapshot",
-      "path": "#/definitions/Snapshot/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Snapshot",
-      "path": "#/definitions/Snapshot/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::RedshiftServerless::Snapshot",
@@ -75524,12 +73239,6 @@
       "path": "#/properties/SnapshotName/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Workgroup",
-      "path": "#/definitions/NetworkInterface/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::RedshiftServerless::Workgroup",
@@ -75629,27 +73338,9 @@
     },
     {
       "resource": "AWS::Rekognition::StreamProcessor",
-      "path": "#/definitions/S3Destination/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Rekognition::StreamProcessor",
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Rekognition::StreamProcessor",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Rekognition::StreamProcessor",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Rekognition::StreamProcessor",
@@ -75683,18 +73374,6 @@
     },
     {
       "resource": "AWS::ResilienceHubV2::Policy",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ResilienceHubV2::Policy",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ResilienceHubV2::Policy",
       "path": "#/properties/PolicyArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
@@ -75719,18 +73398,6 @@
     },
     {
       "resource": "AWS::ResilienceHubV2::Service",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ResilienceHubV2::Service",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::ResilienceHubV2::Service",
       "path": "#/properties/PolicyArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
@@ -75746,18 +73413,6 @@
       "path": "#/properties/ServiceArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
-    },
-    {
-      "resource": "AWS::ResilienceHubV2::System",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::ResilienceHubV2::System",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::ResilienceHubV2::System",
@@ -75778,24 +73433,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::RoboMaker::RobotApplication",
-      "path": "#/definitions/SourceConfig/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::RoboMaker::SimulationApplication",
-      "path": "#/definitions/SourceConfig/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Route53::CidrCollection",
-      "path": "#/definitions/Location/properties/CidrList/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
       "resource": "AWS::Route53::HostedZone",
       "path": "#/properties/Id/format",
       "keyword": "format",
@@ -75812,12 +73449,6 @@
       "path": "#/definitions/AliasTarget/properties/HostedZoneId/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Route53::AliasTarget.HostedZoneId"
-    },
-    {
-      "resource": "AWS::Route53GlobalResolver::AccessSource",
-      "path": "#/definitions/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
     },
     {
       "resource": "AWS::Route53GlobalResolver::AccessSource",
@@ -75935,12 +73566,6 @@
     },
     {
       "resource": "AWS::Route53Resolver::ResolverEndpoint",
-      "path": "#/definitions/IpAddressRequest/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::Route53Resolver::ResolverEndpoint",
       "path": "#/properties/Name/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
@@ -75974,24 +73599,6 @@
       "path": "#",
       "keyword": "scalarCompatibility",
       "detail": "quoted scalar coercion not applied to 2 composed scalar constraints; exact constraints retained"
-    },
-    {
-      "resource": "AWS::S3::Bucket",
-      "path": "#/definitions/ServerSideEncryptionByDefault/properties/KMSMasterKeyID/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::S3::Bucket",
-      "path": "#/definitions/ServerSideEncryptionByDefault/properties/KMSMasterKeyID/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::S3::Bucket",
-      "path": "#/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::S3::MultiRegionAccessPointPolicy",
@@ -76031,27 +73638,9 @@
     },
     {
       "resource": "AWS::S3Express::DirectoryBucket",
-      "path": "#/definitions/ServerSideEncryptionByDefault/properties/KMSMasterKeyID/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::S3Express::DirectoryBucket",
-      "path": "#/definitions/ServerSideEncryptionByDefault/properties/KMSMasterKeyID/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::S3Express::DirectoryBucket",
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::S3Express::DirectoryBucket",
-      "path": "#/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::S3Files::AccessPoint",
@@ -76066,28 +73655,10 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::S3Files::FileSystem",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::S3Files::FileSystem",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::S3Files::MountTarget",
       "path": "#/properties/SecurityGroups/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::S3Files::MountTarget",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::S3ObjectLambda::AccessPointPolicy",
@@ -76120,24 +73691,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::S3Outposts::Endpoint",
-      "path": "#/properties/CidrBlock/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::S3Outposts::Endpoint",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::SCN::DataIntegrationFlow",
-      "path": "#/definitions/S3SourceConfiguration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::SCN::Instance",
       "path": "#/properties/InstanceName/pattern",
       "keyword": "pattern",
@@ -76148,24 +73701,6 @@
       "path": "#/properties/WebAppDnsDomain/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SES::MailManagerRuleSet",
-      "path": "#/definitions/S3Action/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::SES::ReceiptFilter",
-      "path": "#/definitions/IpFilter/properties/Cidr/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::SES::ReceiptRule",
-      "path": "#/definitions/S3Action/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::SMSVOICE::PhoneNumber",
@@ -76216,18 +73751,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::SNS::Topic",
-      "path": "#/properties/KmsMasterKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SNS::Topic",
-      "path": "#/properties/KmsMasterKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::SNS::TopicInlinePolicy",
       "path": "#/properties/PolicyDocument/format",
       "keyword": "format",
@@ -76240,18 +73763,6 @@
       "detail": "format annotation not enforced: AWS::SQS::Queue.Arn"
     },
     {
-      "resource": "AWS::SQS::Queue",
-      "path": "#/properties/KmsMasterKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SQS::Queue",
-      "path": "#/properties/KmsMasterKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::SQS::QueueInlinePolicy",
       "path": "#/properties/PolicyDocument/format",
       "keyword": "format",
@@ -76262,12 +73773,6 @@
       "path": "#/properties/RoleArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1017}`"
-    },
-    {
-      "resource": "AWS::SSM::MaintenanceWindowTask",
-      "path": "#/definitions/LoggingInfo/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::SSM::MaintenanceWindowTask",
@@ -76312,28 +73817,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::SSM::ResourceDataSync",
-      "path": "#/definitions/S3Destination/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::SSM::ResourceDataSync",
-      "path": "#/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::SSM::ResourcePolicy",
       "path": "#/properties/Policy/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SSMGuiConnect::Preferences",
-      "path": "#/definitions/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::SSMGuiConnect::Preferences",
@@ -76420,12 +73907,6 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::SageMaker::Cluster",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::SageMaker::CodeRepository",
       "path": "#/definitions/GitConfig/properties/RepositoryUrl/pattern",
       "keyword": "pattern",
@@ -76436,18 +73917,6 @@
       "path": "#/properties/Properties/patternProperties/^.{0,2500}$",
       "keyword": "patternProperties",
       "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid repeat count: `{0,2500}`"
-    },
-    {
-      "resource": "AWS::SageMaker::DataQualityJobDefinition",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::DataQualityJobDefinition",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::SageMaker::DataQualityJobDefinition",
@@ -76462,28 +73931,10 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::SageMaker::DataQualityJobDefinition",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::SageMaker::Device",
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::DeviceFleet",
-      "path": "#/definitions/EdgeOutputConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::DeviceFleet",
-      "path": "#/definitions/EdgeOutputConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::SageMaker::DeviceFleet",
@@ -76516,18 +73967,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::SageMaker::Domain",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::Domain",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::SageMaker::Endpoint",
       "path": "#/definitions/Alarm/properties/AlarmName/pattern",
       "keyword": "pattern",
@@ -76541,42 +73980,6 @@
     },
     {
       "resource": "AWS::SageMaker::EndpointConfig",
-      "path": "#/definitions/AsyncInferenceOutputConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::EndpointConfig",
-      "path": "#/definitions/AsyncInferenceOutputConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::EndpointConfig",
-      "path": "#/definitions/CoreDumpConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::EndpointConfig",
-      "path": "#/definitions/CoreDumpConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::EndpointConfig",
-      "path": "#/definitions/DataCaptureConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::EndpointConfig",
-      "path": "#/definitions/DataCaptureConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::EndpointConfig",
       "path": "#/definitions/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -76586,36 +73989,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::SageMaker::EndpointConfig",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::EndpointConfig",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::EndpointConfig",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::FeatureGroup",
-      "path": "#/definitions/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::FeatureGroup",
-      "path": "#/definitions/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::SageMaker::ImageVersion",
@@ -76666,12 +74039,6 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::SageMaker::Model",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "AWS::SageMaker::ModelBiasJobDefinition",
       "path": "#/definitions/BatchTransformInput/properties/ProbabilityThresholdAttribute/format",
       "keyword": "format",
@@ -76685,18 +74052,6 @@
     },
     {
       "resource": "AWS::SageMaker::ModelBiasJobDefinition",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelBiasJobDefinition",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelBiasJobDefinition",
       "path": "#/definitions/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -76706,12 +74061,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelBiasJobDefinition",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::SageMaker::ModelCard",
@@ -76720,30 +74069,6 @@
       "detail": "quoted scalar coercion not applied to 4 composed scalar constraints; exact constraints retained"
     },
     {
-      "resource": "AWS::SageMaker::ModelCard",
-      "path": "#/definitions/SecurityConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelCard",
-      "path": "#/definitions/SecurityConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelExplainabilityJobDefinition",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelExplainabilityJobDefinition",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
       "resource": "AWS::SageMaker::ModelExplainabilityJobDefinition",
       "path": "#/definitions/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -76754,12 +74079,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelExplainabilityJobDefinition",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::SageMaker::ModelPackage",
@@ -76775,18 +74094,6 @@
     },
     {
       "resource": "AWS::SageMaker::ModelPackage",
-      "path": "#/definitions/SecurityConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelPackage",
-      "path": "#/definitions/SecurityConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelPackage",
       "path": "#/definitions/SourceAlgorithm/properties/AlgorithmName/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!-)$`"
@@ -76796,18 +74103,6 @@
       "path": "#/definitions/SourceUri/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1024}`"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelPackage",
-      "path": "#/definitions/TransformOutput/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelPackage",
-      "path": "#/definitions/TransformOutput/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::SageMaker::ModelQualityJobDefinition",
@@ -76823,18 +74118,6 @@
     },
     {
       "resource": "AWS::SageMaker::ModelQualityJobDefinition",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelQualityJobDefinition",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelQualityJobDefinition",
       "path": "#/definitions/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -76844,24 +74127,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelQualityJobDefinition",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::MonitoringSchedule",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::MonitoringSchedule",
-      "path": "#/definitions/MonitoringOutputConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::SageMaker::MonitoringSchedule",
@@ -76874,36 +74139,12 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::SageMaker::MonitoringSchedule",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::NotebookInstance",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::NotebookInstance",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::SageMaker::NotebookInstance",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::SageMaker::NotebookInstance",
-      "path": "#/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::SageMaker::PartnerApp",
@@ -76919,57 +74160,9 @@
     },
     {
       "resource": "AWS::SageMaker::PartnerApp",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::PartnerApp",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::PartnerApp",
       "path": "#/properties/Tier/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::ProcessingJob",
-      "path": "#/definitions/AthenaDatasetDefinition/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::ProcessingJob",
-      "path": "#/definitions/AthenaDatasetDefinition/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::ProcessingJob",
-      "path": "#/definitions/ProcessingOutputConfig/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::ProcessingJob",
-      "path": "#/definitions/ProcessingOutputConfig/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SageMaker::ProcessingJob",
-      "path": "#/definitions/RedshiftDatasetDefinition/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SageMaker::ProcessingJob",
-      "path": "#/definitions/RedshiftDatasetDefinition/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::SageMaker::ProcessingJob",
@@ -76982,12 +74175,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::SageMaker::ProcessingJob",
-      "path": "#/definitions/VpcConfig/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::SageMaker::Project",
@@ -77039,12 +74226,6 @@
     },
     {
       "resource": "AWS::SageMaker::Workforce",
-      "path": "#/definitions/SourceIpConfig/properties/Cidrs/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: ipv4-network"
-    },
-    {
-      "resource": "AWS::SageMaker::Workforce",
       "path": "#/definitions/WorkforceVpcConfigRequest/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -77054,12 +74235,6 @@
       "path": "#/definitions/WorkforceVpcConfigRequest/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::SageMaker::Workforce",
-      "path": "#/definitions/WorkforceVpcConfigRequest/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
     },
     {
       "resource": "AWS::Scheduler::Schedule",
@@ -77075,12 +74250,6 @@
     },
     {
       "resource": "AWS::Scheduler::Schedule",
-      "path": "#/definitions/AwsVpcConfiguration/properties/Subnets/items/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::Scheduler::Schedule",
       "path": "#/definitions/EventBridgeParameters/properties/Source/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
@@ -77090,66 +74259,6 @@
       "path": "#/properties/ResourcePolicy/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::SecretsManager::Secret",
-      "path": "#/definitions/ReplicaRegion/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SecretsManager::Secret",
-      "path": "#/definitions/ReplicaRegion/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SecretsManager::Secret",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SecretsManager::Secret",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SecurityAgent::AgentSpace",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SecurityAgent::AgentSpace",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SecurityAgent::Integration",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SecurityAgent::Integration",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SecurityAgent::SecurityRequirementPack",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SecurityAgent::SecurityRequirementPack",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::SecurityHub::AggregatorV2",
@@ -77216,24 +74325,6 @@
       "path": "#/definitions/ISO8601DateString/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SecurityLake::DataLake",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::SecurityLake::DataLake",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::SecurityLake::Subscriber",
-      "path": "#",
-      "keyword": "scalarCompatibility",
-      "detail": "quoted scalar coercion not applied to 1 composed scalar constraints; exact constraints retained"
     },
     {
       "resource": "AWS::SecurityLake::SubscriberNotification",
@@ -77321,39 +74412,9 @@
     },
     {
       "resource": "AWS::SimSpaceWeaver::Simulation",
-      "path": "#/definitions/S3Location/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::SimSpaceWeaver::Simulation",
       "path": "#/properties/Name/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,2048}`"
-    },
-    {
-      "resource": "AWS::StepFunctions::Activity",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::StepFunctions::Activity",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::StepFunctions::StateMachine",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::StepFunctions::StateMachine",
-      "path": "#/definitions/EncryptionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::StepFunctions::StateMachineAlias",
@@ -77363,21 +74424,9 @@
     },
     {
       "resource": "AWS::Synthetics::Canary",
-      "path": "#/definitions/Code/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Synthetics::Canary",
       "path": "#/definitions/VPCConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Synthetics::Canary",
-      "path": "#/properties/Code/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     },
     {
       "resource": "AWS::Synthetics::Canary",
@@ -77404,24 +74453,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
     },
     {
-      "resource": "AWS::Timestream::Database",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Timestream::Database",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Timestream::InfluxDBCluster",
-      "path": "#/properties/LogDeliveryConfiguration/properties/S3Configuration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
       "resource": "AWS::Timestream::InfluxDBCluster",
       "path": "#/properties/VpcSecurityGroupIds/format",
       "keyword": "format",
@@ -77429,51 +74460,9 @@
     },
     {
       "resource": "AWS::Timestream::InfluxDBInstance",
-      "path": "#/properties/LogDeliveryConfiguration/properties/S3Configuration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Timestream::InfluxDBInstance",
       "path": "#/properties/VpcSecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Timestream::ScheduledQuery",
-      "path": "#/definitions/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Timestream::ScheduledQuery",
-      "path": "#/definitions/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Timestream::ScheduledQuery",
-      "path": "#/definitions/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Timestream::Table",
-      "path": "#/properties/MagneticStoreWriteProperties/properties/MagneticStoreRejectedDataLocation/properties/S3Configuration/properties/BucketName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
-    },
-    {
-      "resource": "AWS::Timestream::Table",
-      "path": "#/properties/MagneticStoreWriteProperties/properties/MagneticStoreRejectedDataLocation/properties/S3Configuration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Timestream::Table",
-      "path": "#/properties/MagneticStoreWriteProperties/properties/MagneticStoreRejectedDataLocation/properties/S3Configuration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Transcribe::Vocabulary",
@@ -77504,18 +74493,6 @@
       "path": "#/definitions/Vpc/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::VoiceID::Domain",
-      "path": "#/definitions/ServerSideEncryptionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::VoiceID::Domain",
-      "path": "#/definitions/ServerSideEncryptionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::VpcLattice::AuthPolicy",
@@ -77861,18 +74838,6 @@
     },
     {
       "resource": "AWS::Wisdom::Assistant",
-      "path": "#/definitions/ServerSideEncryptionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Wisdom::Assistant",
-      "path": "#/definitions/ServerSideEncryptionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::Wisdom::Assistant",
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
@@ -77888,18 +74853,6 @@
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::KnowledgeBase",
-      "path": "#/definitions/ServerSideEncryptionConfiguration/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::Wisdom::KnowledgeBase",
-      "path": "#/definitions/ServerSideEncryptionConfiguration/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
     },
     {
       "resource": "AWS::Wisdom::KnowledgeBase",
@@ -78004,52 +74957,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
     },
     {
-      "resource": "AWS::WorkspacesInstances::Volume",
-      "path": "#/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::WorkspacesInstances::Volume",
-      "path": "#/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::WorkspacesInstances::WorkspaceInstance",
-      "path": "#/definitions/EbsBlockDevice/properties/KmsKeyId/anyOf/1/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Key.Id"
-    },
-    {
-      "resource": "AWS::WorkspacesInstances::WorkspaceInstance",
-      "path": "#/definitions/EbsBlockDevice/properties/KmsKeyId/anyOf/2/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::KMS::Alias.AliasName"
-    },
-    {
-      "resource": "AWS::WorkspacesInstances::WorkspaceInstance",
-      "path": "#/definitions/InstanceNetworkInterfaceSpecification/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
-      "resource": "AWS::WorkspacesInstances::WorkspaceInstance",
-      "path": "#/properties/ManagedInstance/properties/SubnetId/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::EC2::Subnet.Id"
-    },
-    {
       "resource": "Alexa::ASK::Skill",
       "path": "#/definitions/Overrides/properties/Manifest/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "Alexa::ASK::Skill",
-      "path": "#/definitions/SkillPackage/properties/S3Bucket/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::S3::Bucket.Name"
     }
   ],
   "validationNotes": [

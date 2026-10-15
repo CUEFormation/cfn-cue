@@ -11,36 +11,77 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicyVersion Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::AutomatedReasoningPolicyVersion"
-	Properties!: close({
+	let properties = close({
 		LastUpdatedDefinitionHash?: #DefinitionHash
 		PolicyArn!:                 #PolicyArn
 		Tags?:                      #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CreatedAt: time.Time | fn.#StringExpression
 
-#DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" | fn.#StringExpression
+#DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
+#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" | fn.#StringExpression
+#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #PolicyArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" | fn.#StringExpression
+#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -48,4 +89,9 @@ fn.#ObjectExpression
 
 #UpdatedAt: time.Time | fn.#StringExpression
 
-#Version: strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$" | fn.#StringExpression
+#Version: strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$" & "\(self)"
+} |
+fn.#StringExpression

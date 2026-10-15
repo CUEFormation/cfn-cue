@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Cassandra::Table
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cassandra::Table"
-	Properties!: close({
+	let properties = close({
 		AutoScalingSpecifications?: #AutoScalingSpecification
 		BillingMode?:               #BillingMode
 		CdcSpecification?:          #CdcSpecification
@@ -50,8 +52,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		EncryptionSpecification?: #EncryptionSpecification
-		KeyspaceName!:            =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-		PartitionKeyColumns!:     list.MinItems(1) & list.UniqueItems() & [...#Column] | fn.#ListExpression
+		KeyspaceName!: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PartitionKeyColumns!: list.MinItems(1) & list.UniqueItems() & [...#Column] | fn.#ListExpression
 		PointInTimeRecoveryEnabled?: bool |
 			"true" |
 			"True" |
@@ -62,10 +69,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		RegularColumns?:        list.UniqueItems() & [...#Column] | fn.#ListExpression
 		ReplicaSpecifications?: list.MinItems(1) & list.UniqueItems() & [...#ReplicaSpecification] | fn.#ListExpression
-		TableName?:             =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-		Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		WarmThroughput?:        #WarmThroughput
+		TableName?: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:           list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		WarmThroughput?: #WarmThroughput
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AutoScalingSetting: close({
@@ -134,8 +148,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Column: close({
-	ColumnName!: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	ColumnType!: string | fn.#StringExpression
+	ColumnName!: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ColumnType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,7 +166,7 @@ fn.#ObjectExpression
 
 #EncryptionType: "AWS_OWNED_KMS_KEY" | "CUSTOMER_MANAGED_KMS_KEY" | fn.#StringExpression
 
-#KmsKeyIdentifier: string | fn.#StringExpression
+#KmsKeyIdentifier: string | number | bool | fn.#StringExpression
 
 #Mode: "PROVISIONED" | "ON_DEMAND" | fn.#StringExpression
 
@@ -201,7 +220,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Region!: strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
+	Region!: strings.MaxRunes(25) & strings.MinRunes(2) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(25) & strings.MinRunes(2) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -209,8 +233,18 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

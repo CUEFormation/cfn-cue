@@ -116,7 +116,7 @@ import (
 #Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$"
 
 // Specifies an Amazon S3 bucket for logging audio conversations
-#S3BucketLogDestination: close({
+#S3BucketLogDestination: matchN(2, [{...}, {...}]) & close({
 	// The Amazon Resource Name (ARN) of an AWS Key Management Service (KMS) key for
 	// encrypting audio log files stored in an S3 bucket.
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &

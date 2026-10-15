@@ -10,19 +10,21 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An AWS Audit Manager Control resource for creating custom controls
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AuditManager::Control"
-	Properties!: close({
-		ActionPlanInstructions?: string | fn.#StringExpression
-		ActionPlanTitle?:        string | fn.#StringExpression
+	let properties = close({
+		ActionPlanInstructions?: string | number | bool | fn.#StringExpression
+		ActionPlanTitle?:        string | number | bool | fn.#StringExpression
 		ControlMappingSources!: [...close({
-			SourceDescription?: string | fn.#StringExpression
+			SourceDescription?: string | number | bool | fn.#StringExpression
 			SourceFrequency?:   "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
 			SourceKeyword?:     #SourceKeyword
-			SourceName?:        string | fn.#StringExpression
+			SourceName?:        string | number | bool | fn.#StringExpression
 			SourceSetUpOption?: "System_Controls_Mapping" | "Procedural_Controls_Mapping" | fn.#StringExpression
 			SourceType?: "AWS_Cloudtrail" |
 				"AWS_Config" |
@@ -32,23 +34,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				"Common_Control" |
 				"Core_Control" |
 				fn.#StringExpression
-			TroubleshootingText?: string | fn.#StringExpression
+			TroubleshootingText?: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Description?:        string | fn.#StringExpression
-		Name!:               string | fn.#StringExpression
+		Description?:        string | number | bool | fn.#StringExpression
+		Name!:               string | number | bool | fn.#StringExpression
 		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TestingInformation?: string | fn.#StringExpression
+		TestingInformation?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ControlMappingSource: close({
-	SourceDescription?: string | fn.#StringExpression
+	SourceDescription?: string | number | bool | fn.#StringExpression
 	SourceFrequency?:   "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
-	SourceId?:          string | fn.#StringExpression
+	SourceId?:          string | number | bool | fn.#StringExpression
 	SourceKeyword?:     #SourceKeyword
-	SourceName?:        string | fn.#StringExpression
+	SourceName?:        string | number | bool | fn.#StringExpression
 	SourceSetUpOption?: "System_Controls_Mapping" | "Procedural_Controls_Mapping" | fn.#StringExpression
 	SourceType?: "AWS_Cloudtrail" |
 		"AWS_Config" |
@@ -58,18 +62,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"Common_Control" |
 		"Core_Control" |
 		fn.#StringExpression
-	TroubleshootingText?: string | fn.#StringExpression
+	TroubleshootingText?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceKeyword: close({
 	KeywordInputType?: "SELECT_FROM_LIST" | "UPLOAD_FILE" | "INPUT_TEXT" | fn.#StringExpression
-	KeywordValue?:     string | fn.#StringExpression
+	KeywordValue?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

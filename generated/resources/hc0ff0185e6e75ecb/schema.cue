@@ -14,17 +14,24 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisFirehose::DeliveryStream
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KinesisFirehose::DeliveryStream"
-	Properties?: close({
+	let properties = close({
 		AmazonOpenSearchServerlessDestinationConfiguration?: #AmazonOpenSearchServerlessDestinationConfiguration
 		AmazonopensearchserviceDestinationConfiguration?:    #AmazonopensearchserviceDestinationConfiguration
 		DatabaseSourceConfiguration?:                        #DatabaseSourceConfiguration
 		DeliveryStreamEncryptionConfigurationInput?:         #DeliveryStreamEncryptionConfigurationInput
-		DeliveryStreamName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" | fn.#StringExpression
+		DeliveryStreamName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		DeliveryStreamType?: "DatabaseAsSource" |
 			"DirectPut" |
 			"KinesisStreamAsSource" |
@@ -43,6 +50,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SplunkDestinationConfiguration?:        #SplunkDestinationConfiguration
 		Tags?:                                  list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AmazonOpenSearchServerlessBufferingHints: close({
@@ -84,14 +93,32 @@ fn.#ObjectExpression
 #AmazonOpenSearchServerlessDestinationConfiguration: close({
 	BufferingHints?:           #AmazonOpenSearchServerlessBufferingHints
 	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
-	CollectionEndpoint?:       strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" | fn.#StringExpression
-	IndexName!:                strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	ProcessingConfiguration?:  #ProcessingConfiguration
-	RetryOptions?:             #AmazonOpenSearchServerlessRetryOptions
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	CollectionEndpoint?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	IndexName!: strings.MaxRunes(80) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProcessingConfiguration?: #ProcessingConfiguration
+	RetryOptions?:            #AmazonOpenSearchServerlessRetryOptions
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3BackupMode?:     "FailedDocumentsOnly" | "AllDocuments" | fn.#StringExpression
 	S3Configuration!:  #S3DestinationConfiguration
@@ -158,21 +185,49 @@ fn.#ObjectExpression
 #AmazonopensearchserviceDestinationConfiguration: close({
 	BufferingHints?:           #AmazonopensearchserviceBufferingHints
 	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
-	ClusterEndpoint?:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" | fn.#StringExpression
-	DocumentIdOptions?:        #DocumentIdOptions
-	DomainARN?:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
-	IndexName!:                strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	IndexRotationPeriod?:      "NoRotation" | "OneHour" | "OneDay" | "OneWeek" | "OneMonth" | fn.#StringExpression
-	ProcessingConfiguration?:  #ProcessingConfiguration
-	RetryOptions?:             #AmazonopensearchserviceRetryOptions
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ClusterEndpoint?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	DocumentIdOptions?: #DocumentIdOptions
+	DomainARN?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	IndexName!: strings.MaxRunes(80) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	IndexRotationPeriod?:     "NoRotation" | "OneHour" | "OneDay" | "OneWeek" | "OneMonth" | fn.#StringExpression
+	ProcessingConfiguration?: #ProcessingConfiguration
+	RetryOptions?:            #AmazonopensearchserviceRetryOptions
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	S3BackupMode?:     "FailedDocumentsOnly" | "AllDocuments" | fn.#StringExpression
-	S3Configuration!:  #S3DestinationConfiguration
-	TypeName?:         strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+	S3BackupMode?:    "FailedDocumentsOnly" | "AllDocuments" | fn.#StringExpression
+	S3Configuration!: #S3DestinationConfiguration
+	TypeName?: strings.MaxRunes(100) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	VpcConfiguration?: #VpcConfiguration
 }) |
 fn.#ObjectExpression
@@ -199,10 +254,18 @@ fn.#ObjectExpression
 
 #AuthenticationConfiguration: close({
 	Connectivity!: "PUBLIC" | "PRIVATE" | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -244,22 +307,57 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CatalogConfiguration: close({
-	CatalogArn?:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
-	WarehouseLocation?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"s3:\\/\\/.*" | fn.#StringExpression
+	CatalogArn?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	WarehouseLocation?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"s3:\\/\\/.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"s3:\\/\\/.*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CloudWatchLoggingOptions: close({
-	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroupName?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\.\\-_/#A-Za-z0-9]*$" | fn.#StringExpression
-	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[^:*]*$" | fn.#StringExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\.\\-_/#A-Za-z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\.\\-_/#A-Za-z0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[^:*]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[^:*]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CopyCommand: close({
-	CopyOptions?:      strings.MaxRunes(204800) & strings.MinRunes(0) | fn.#StringExpression
-	DataTableColumns?: strings.MaxRunes(204800) & strings.MinRunes(0) | fn.#StringExpression
-	DataTableName!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	CopyOptions?: strings.MaxRunes(204800) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(204800) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	DataTableColumns?: strings.MaxRunes(204800) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(204800) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	DataTableName!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -271,7 +369,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DatabaseColumnName: strings.MaxRunes(194) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" | fn.#StringExpression
+#DatabaseColumnName: strings.MaxRunes(194) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(194) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" & "\(self)"
+} |
+fn.#StringExpression
 
 #DatabaseColumns: close({
 	Exclude?: [...#DatabaseColumnName] | fn.#ListExpression
@@ -279,7 +382,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DatabaseName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" | fn.#StringExpression
+#DatabaseName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" & "\(self)"
+} |
+fn.#StringExpression
 
 #DatabaseSourceAuthenticationConfiguration: close({SecretsManagerConfiguration!: #SecretsManagerConfiguration}) |
 	fn.#ObjectExpression
@@ -289,8 +397,18 @@ fn.#ObjectExpression
 	DatabaseSourceAuthenticationConfiguration!: #DatabaseSourceAuthenticationConfiguration
 	DatabaseSourceVPCConfiguration!:            #DatabaseSourceVPCConfiguration
 	Databases!:                                 #Databases
-	Digest?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Digest?: strings.MaxRunes(512) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: int & <=65535 & >=0 |
 		{
 			string &
@@ -307,10 +425,20 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PublicCertificate?:      strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+	PublicCertificate?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 	SSLMode?:                "Disabled" | "Enabled" | fn.#StringExpression
 	SnapshotWatermarkTable!: #DatabaseTableName
-	SurrogateKeys?: [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression] |
+	SurrogateKeys?: [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Tables!: #DatabaseTables
 	Type!:   "MySQL" | "PostgreSQL" | fn.#StringExpression
@@ -319,7 +447,12 @@ fn.#ObjectExpression
 
 #DatabaseSourceVPCConfiguration: close({VpcEndpointServiceName!: #VpcEndpointServiceName}) | fn.#ObjectExpression
 
-#DatabaseTableName: strings.MaxRunes(129) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" | fn.#StringExpression
+#DatabaseTableName: strings.MaxRunes(129) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(129) & strings.MinRunes(1) & =~"[\\x{0001}-\\x{FFFF}]*" & "\(self)"
+} |
+fn.#StringExpression
 
 #DatabaseTables: close({
 	Exclude?: [...#DatabaseTableName] | fn.#ListExpression
@@ -334,7 +467,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DeliveryStreamEncryptionConfigurationInput: close({
-	KeyARN?:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
+	KeyARN?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	KeyType!: "AWS_OWNED_CMK" | "CUSTOMER_MANAGED_CMK" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -347,12 +485,26 @@ fn.#ObjectExpression
 
 #DestinationTableConfiguration: close({
 	DestinationDatabaseName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\_]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	DestinationTableName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\_]+$" | fn.#StringExpression
+	DestinationTableName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PartitionSpec?: close({Identity?: list.UniqueItems() & [...#PartitionField] | fn.#ListExpression}) |
 		fn.#ObjectExpression
-	S3ErrorOutputPrefix?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	UniqueKeys?:          list.UniqueItems() & [...#UniqueKey] | fn.#ListExpression
+	S3ErrorOutputPrefix?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	UniqueKeys?: list.UniqueItems() & [...#UniqueKey] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -426,21 +578,49 @@ fn.#ObjectExpression
 #ElasticsearchDestinationConfiguration: close({
 	BufferingHints?:           #ElasticsearchBufferingHints
 	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
-	ClusterEndpoint?:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" | fn.#StringExpression
-	DocumentIdOptions?:        #DocumentIdOptions
-	DomainARN?:                string & strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
-	IndexName!:                strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	IndexRotationPeriod?:      "NoRotation" | "OneHour" | "OneDay" | "OneWeek" | "OneMonth" | fn.#StringExpression
-	ProcessingConfiguration?:  #ProcessingConfiguration
-	RetryOptions?:             #ElasticsearchRetryOptions
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ClusterEndpoint?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"https:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	DocumentIdOptions?: #DocumentIdOptions
+	DomainARN?: string & strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" |
+	{
+		number | bool
+		_cfnString: string & strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	IndexName!: strings.MaxRunes(80) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	IndexRotationPeriod?:     "NoRotation" | "OneHour" | "OneDay" | "OneWeek" | "OneMonth" | fn.#StringExpression
+	ProcessingConfiguration?: #ProcessingConfiguration
+	RetryOptions?:            #ElasticsearchRetryOptions
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	S3BackupMode?:     "FailedDocumentsOnly" | "AllDocuments" | fn.#StringExpression
-	S3Configuration!:  #S3DestinationConfiguration
-	TypeName?:         strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+	S3BackupMode?:    "FailedDocumentsOnly" | "AllDocuments" | fn.#StringExpression
+	S3Configuration!: #S3DestinationConfiguration
+	TypeName?: strings.MaxRunes(100) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	VpcConfiguration?: #VpcConfiguration
 }) |
 fn.#ObjectExpression
@@ -472,22 +652,55 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ExtendedS3DestinationConfiguration: close({
-	BucketARN!:                strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
+	BucketARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	BufferingHints?:           #BufferingHints
 	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	CompressionFormat?:        "UNCOMPRESSED" | "GZIP" | "ZIP" | "Snappy" | "HADOOP_SNAPPY" | fn.#StringExpression
-	CustomTimeZone?:           strings.MaxRunes(50) & strings.MinRunes(0) & =~"^$|[a-zA-Z/_]+$" | fn.#StringExpression
+	CustomTimeZone?: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^$|[a-zA-Z/_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^$|[a-zA-Z/_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DataFormatConversionConfiguration?: #DataFormatConversionConfiguration
 	DynamicPartitioningConfiguration?:  #DynamicPartitioningConfiguration
 	EncryptionConfiguration?:           #EncryptionConfiguration
-	ErrorOutputPrefix?:                 strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	FileExtension?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^$|\\.[0-9a-z!\\-_.*'()]+" | fn.#StringExpression
-	Prefix?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	ErrorOutputPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	FileExtension?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^$|\\.[0-9a-z!\\-_.*'()]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^$|\\.[0-9a-z!\\-_.*'()]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ProcessingConfiguration?: #ProcessingConfiguration
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3BackupConfiguration?: #S3DestinationConfiguration
 	S3BackupMode?:          "Disabled" | "Enabled" | fn.#StringExpression
@@ -495,21 +708,51 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HiveJsonSerDe: close({
-	TimestampFormats?: list.UniqueItems() & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+	TimestampFormats?: list.UniqueItems() & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #HttpEndpointCommonAttribute: close({
-	AttributeName!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	AttributeValue!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	AttributeName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	AttributeValue!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpEndpointConfiguration: close({
-	AccessKey?: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
-	Name?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Url!:       strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^https://" | fn.#StringExpression
+	AccessKey?: strings.MaxRunes(4096) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Url!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^https://" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^https://" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -520,10 +763,18 @@ fn.#ObjectExpression
 	ProcessingConfiguration?:  #ProcessingConfiguration
 	RequestConfiguration?:     #HttpEndpointRequestConfiguration
 	RetryOptions?:             #RetryOptions
-	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3BackupMode?:                "AllData" | "FailedDataOnly" | fn.#StringExpression
 	S3Configuration!:             #S3DestinationConfiguration
@@ -546,10 +797,18 @@ fn.#ObjectExpression
 	DestinationTableConfigurationList?: #DestinationTableConfigurationList
 	ProcessingConfiguration?:           #ProcessingConfiguration
 	RetryOptions?:                      #RetryOptions
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3Configuration!:              #S3DestinationConfiguration
 	SchemaEvolutionConfiguration?: #SchemaEvolutionConfiguration
@@ -564,25 +823,55 @@ fn.#ObjectExpression
 	AWSKMSKeyARN!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^arn:.*:kms:[a-zA-Z0-9\\-]+:\\d{12}:(key|alias)/[a-zA-Z_0-9+=,.@\\-_/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^arn:.*:kms:[a-zA-Z0-9\\-]+:\\d{12}:(key|alias)/[a-zA-Z_0-9+=,.@\\-_/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KinesisStreamSourceConfiguration: close({
-	KinesisStreamARN!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KinesisStreamARN!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MSKSourceConfiguration: close({
 	AuthenticationConfiguration!: #AuthenticationConfiguration
-	MSKClusterARN!:               strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
-	ReadFromTimestamp?:           string | fn.#StringExpression
-	TopicName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\._\\-]+" | fn.#StringExpression
+	MSKClusterARN!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	ReadFromTimestamp?: string | number | bool | fn.#StringExpression
+	TopicName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\._\\-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\._\\-]+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -590,7 +879,12 @@ fn.#ObjectExpression
 	CaseInsensitive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ColumnToJsonKeyMappings?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	ConvertDotsInJsonKeysToUnderscores?: bool |
 		"true" |
@@ -619,9 +913,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	BloomFilterColumns?: list.UniqueItems() & [
-		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	] |
+	BloomFilterColumns?: list.UniqueItems() & [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	BloomFilterFalsePositiveProbability?: <=1 & >=0 |
 		{
@@ -773,7 +1070,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PartitionField: close({SourceName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression}) |
+#PartitionField: close({
+	SourceName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ProcessingConfiguration: close({
@@ -807,27 +1111,55 @@ fn.#ObjectExpression
 		"RoleArn" |
 		"SubRecordType" |
 		fn.#StringExpression
-	ParameterValue!: string & (strings.MaxRunes(5120) & strings.MinRunes(1)) | fn.#StringExpression
+	ParameterValue!: string & (strings.MaxRunes(5120) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: string & strings.MaxRunes(5120) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RedshiftDestinationConfiguration: close({
 	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
-	ClusterJDBCURL!:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	CopyCommand!:              #CopyCommand
-	Password?:                 strings.MaxRunes(512) & strings.MinRunes(6) | fn.#StringExpression
-	ProcessingConfiguration?:  #ProcessingConfiguration
-	RetryOptions?:             #RedshiftRetryOptions
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ClusterJDBCURL!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	CopyCommand!: #CopyCommand
+	Password?: strings.MaxRunes(512) & strings.MinRunes(6) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(6) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProcessingConfiguration?: #ProcessingConfiguration
+	RetryOptions?:            #RedshiftRetryOptions
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3BackupConfiguration?:       #S3DestinationConfiguration
 	S3BackupMode?:                "Disabled" | "Enabled" | fn.#StringExpression
 	S3Configuration!:             #S3DestinationConfiguration
 	SecretsManagerConfiguration?: #SecretsManagerConfiguration
-	Username?:                    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Username?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -872,32 +1204,88 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #S3DestinationConfiguration: close({
-	BucketARN!:                strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
+	BucketARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	BufferingHints?:           #BufferingHints
 	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
 	CompressionFormat?:        "UNCOMPRESSED" | "GZIP" | "ZIP" | "Snappy" | "HADOOP_SNAPPY" | fn.#StringExpression
 	EncryptionConfiguration?:  #EncryptionConfiguration
-	ErrorOutputPrefix?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Prefix?:                   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ErrorOutputPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SchemaConfiguration: close({
-	CatalogId?:    strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	DatabaseName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	Region?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	CatalogId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Region?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	TableName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+	TableName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -908,14 +1296,29 @@ fn.#ObjectExpression
 
 #SecretsManagerConfiguration: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SecretARN?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"arn:.*:secretsmanager:[a-zA-Z0-9\\-]+:\\d{12}:secret:[a-zA-Z0-9\\-/_+=.@]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"arn:.*:secretsmanager:[a-zA-Z0-9\\-]+:\\d{12}:secret:[a-zA-Z0-9\\-/_+=.@]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -964,36 +1367,90 @@ fn.#ObjectExpression
 
 #SnowflakeDestinationConfiguration: close({
 	AccountUrl!: strings.MaxRunes(2048) & strings.MinRunes(24) & =~".+?\\.snowflakecomputing\\.com" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(24) & =~".+?\\.snowflakecomputing\\.com" & "\(self)"
+	} |
 	fn.#StringExpression
 	BufferingHints?:           #SnowflakeBufferingHints
 	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
-	ContentColumnName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	ContentColumnName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	DataLoadingOption?: "JSON_MAPPING" |
 		"VARIANT_CONTENT_MAPPING" |
 		"VARIANT_CONTENT_AND_METADATA_MAPPING" |
 		fn.#StringExpression
-	Database!:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	KeyPassphrase?:      strings.MaxRunes(255) & strings.MinRunes(7) | fn.#StringExpression
-	MetaDataColumnName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	KeyPassphrase?: strings.MaxRunes(255) & strings.MinRunes(7) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(7) & "\(self)"
+	} |
+	fn.#StringExpression
+	MetaDataColumnName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PrivateKey?: strings.MaxRunes(4096) &
 	strings.MinRunes(256) &
 	=~"^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) &
+		strings.MinRunes(256) &
+		=~"^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ProcessingConfiguration?: #ProcessingConfiguration
 	RetryOptions?:            #SnowflakeRetryOptions
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	S3BackupMode?:                "FailedDataOnly" | "AllData" | fn.#StringExpression
-	S3Configuration!:             #S3DestinationConfiguration
-	Schema!:                      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	S3BackupMode?:    "FailedDataOnly" | "AllData" | fn.#StringExpression
+	S3Configuration!: #S3DestinationConfiguration
+	Schema!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SecretsManagerConfiguration?: #SecretsManagerConfiguration
 	SnowflakeRoleConfiguration?:  #SnowflakeRoleConfiguration
 	SnowflakeVpcConfiguration?:   #SnowflakeVpcConfiguration
-	Table!:                       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	User?:                        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Table!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	User?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1018,8 +1475,13 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #SnowflakeRoleConfiguration: close({
-	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SnowflakeRole?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SnowflakeRole?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1027,6 +1489,13 @@ fn.#ObjectExpression
 	PrivateLinkVpceId!: strings.MaxRunes(255) &
 	strings.MinRunes(47) &
 	=~"([a-zA-Z0-9\\-\\_]+\\.){2,3}vpce\\.[a-zA-Z0-9\\-]*\\.vpce-svc\\-[a-zA-Z0-9\\-]{17}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		strings.MinRunes(47) &
+		=~"([a-zA-Z0-9\\-\\_]+\\.){2,3}vpce\\.[a-zA-Z0-9\\-]*\\.vpce-svc\\-[a-zA-Z0-9\\-]{17}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -1086,9 +1555,19 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	HECEndpoint!:                 strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	HECEndpointType!:             "Raw" | "Event" | fn.#StringExpression
-	HECToken?:                    strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	HECEndpoint!: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	HECEndpointType!: "Raw" | "Event" | fn.#StringExpression
+	HECToken?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ProcessingConfiguration?:     #ProcessingConfiguration
 	RetryOptions?:                #SplunkRetryOptions
 	S3BackupMode?:                "AllEvents" | "FailedEventsOnly" | fn.#StringExpression
@@ -1123,31 +1602,64 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#UniqueKey: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+#UniqueKey: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\S+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #VpcConfiguration: close({
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"arn:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"arn:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) &
+	=~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
-		=~"^\\S+$" |
-		fn.#StringExpression
-	] |
+		=~"^\\S+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	] |
+	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(1024) &
+	strings.MinRunes(1) &
+	=~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -1155,4 +1667,11 @@ fn.#ObjectExpression
 #VpcEndpointServiceName: strings.MaxRunes(255) &
 strings.MinRunes(47) &
 =~"([a-zA-Z0-9\\-\\_]+\\.){2,3}vpce\\.[a-zA-Z0-9\\-]*\\.vpce-svc\\-[a-zA-Z0-9\\-]{17}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) &
+	strings.MinRunes(47) &
+	=~"([a-zA-Z0-9\\-\\_]+\\.){2,3}vpce\\.[a-zA-Z0-9\\-]*\\.vpce-svc\\-[a-zA-Z0-9\\-]{17}$" &
+	"\(self)"
+} |
 fn.#StringExpression

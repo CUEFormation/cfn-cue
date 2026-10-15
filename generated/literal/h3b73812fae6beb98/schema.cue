@@ -36,7 +36,7 @@ import (
 	IPAddressType?: "DUALSTACK" | "IPV4" | "IPV6"
 
 	// A SubnetId.
-	SubnetId!: string
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 #Tag: close({

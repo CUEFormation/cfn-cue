@@ -2,7 +2,10 @@
 
 package schema
 
-import "strings"
+import (
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+)
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -23,10 +26,11 @@ import "strings"
 	GroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 
 	// The name of the security group.
-	GroupName?: string
+	GroupName?: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
 
 	// The group name or group ID depending on whether the SG is created in default or specific VPC
-	Id?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" | string
+	Id?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		=~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
 
 	// [VPC only] The outbound rules associated with the security group. There is a
 	// short interruption during which you cannot connect to the security group.
@@ -43,9 +47,37 @@ import "strings"
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-#Egress: close({
-	CidrIp?:                     string
-	CidrIpv6?:                   string
+#Egress: matchN(2, [matchIf({
+	IpProtocol!: "1" | ==1 | "icmp"
+	...
+}, matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1"
+	...
+}, _), matchIf({
+	ToPort!: ==-1 | "-1"
+	...
+}, {
+	FromPort!: ==-1 | "-1"
+	...
+}, _) & matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1"
+	...
+}, _)), matchIf({
+	IpProtocol!: (==1 | "1" | "icmp" | ==6 | "6" | "tcp" | ==17 | "17" | "udp") & (int | string)
+	...
+}, {
+	FromPort!: _
+	ToPort!:   _
+	...
+}, _)]) & (close({
+	CidrIp?:                     fn.#IPv4Network & string
+	CidrIpv6?:                   fn.#IPv6Network & string
 	Description?:                string
 	DestinationPrefixListId?:    string
 	DestinationSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
@@ -76,17 +108,45 @@ import "strings"
 			"DestinationPrefixListId cannot be used with DestinationSecurityGroupId; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
 		)
 	}
-}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationSecurityGroupId!: _}, {DestinationPrefixListId!: _}])
+}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationSecurityGroupId!: _}, {DestinationPrefixListId!: _}]))
 
-#Ingress: close({
-	CidrIp?:                     string
-	CidrIpv6?:                   string
+#Ingress: matchN(2, [matchIf({
+	IpProtocol!: "1" | ==1 | "icmp"
+	...
+}, matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1"
+	...
+}, _), matchIf({
+	ToPort!: ==-1 | "-1"
+	...
+}, {
+	FromPort!: ==-1 | "-1"
+	...
+}, _) & matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1"
+	...
+}, _)), matchIf({
+	IpProtocol!: (==1 | "1" | "icmp" | ==6 | "6" | "tcp" | ==17 | "17" | "udp") & (int | string)
+	...
+}, {
+	FromPort!: _
+	ToPort!:   _
+	...
+}, _)]) & (close({
+	CidrIp?:                     fn.#IPv4Network & string
+	CidrIpv6?:                   fn.#IPv6Network & string
 	Description?:                string
 	FromPort?:                   int & >=-1
 	IpProtocol!:                 string
 	SourcePrefixListId?:         string
 	SourceSecurityGroupId?:      =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
-	SourceSecurityGroupName?:    string
+	SourceSecurityGroupName?:    =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
 	SourceSecurityGroupOwnerId?: string
 	ToPort?:                     int & >=-1
 	if CidrIp != _|_ if CidrIp."Fn::If" == _|_ {
@@ -130,7 +190,7 @@ import "strings"
 }) & matchN(
 	>=1,
 	[{CidrIp!: _}, {CidrIpv6!: _}, {SourcePrefixListId!: _}, {SourceSecurityGroupId!: _}, {SourceSecurityGroupName!: _}],
-)
+))
 
 #Tag: close({
 	Key!:   string

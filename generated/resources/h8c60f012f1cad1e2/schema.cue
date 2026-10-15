@@ -10,19 +10,26 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An environment created within the EVS service
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EVS::Environment"
-	Properties!: close({
+	let properties = close({
 		ConnectivityInfo?: close({
 			PrivateRouteServerPeerings!: list.MaxItems(2) & list.MinItems(2) & [...#RouteServerPeering] |
 				fn.#ListExpression
 		}) |
 			fn.#ObjectExpression
-		EnvironmentName?: =~"^[a-zA-Z0-9_-]{1,100}$" | fn.#StringExpression
-		Hosts?:           list.MaxItems(4) & list.MinItems(4) & [...#HostInfoForCreate] | fn.#ListExpression
+		EnvironmentName?: =~"^[a-zA-Z0-9_-]{1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Hosts?: list.MaxItems(4) & list.MinItems(4) & [...#HostInfoForCreate] | fn.#ListExpression
 		InitialVlans?: close({
 			EdgeVTep!:        #InitialVlanInfo
 			ExpansionVlan1!:  #InitialVlanInfo
@@ -38,14 +45,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			VmkManagement!:   #InitialVlanInfo
 		}) |
 		fn.#ObjectExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		LicenseInfo?: close({
 			SolutionKey!: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$" |
-				fn.#StringExpression
+			{
+				number | bool
+				_cfnString: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$" & "\(self)"
+			} |
+			fn.#StringExpression
 			VsanKey!: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$" |
-				fn.#StringExpression
+			{
+				number | bool
+				_cfnString: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		ServiceAccessSecurityGroups?: close(
@@ -53,8 +82,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		) |
 			fn.#ObjectExpression
 		ServiceAccessSubnetId!: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[a-f0-9]{8}([a-f0-9]{9})?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[a-f0-9]{8}([a-f0-9]{9})?$" & "\(self)"
+		} |
 		fn.#StringExpression
-		SiteId?:        string | fn.#StringExpression
+		SiteId?:        string | number | bool | fn.#StringExpression
 		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TermsAccepted!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		VcfHostnames?: close({
@@ -70,16 +103,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 		VcfVersion!: "VCF-5.2.1" | "VCF-5.2.2" | "SELF_DEPLOYED" | fn.#StringExpression
-		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 		strings.MaxRunes(21) &
 		strings.MinRunes(12) &
 		=~"^vpc-[a-f0-9]{8}([a-f0-9]{9})?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(21) &
+			strings.MinRunes(12) &
+			=~"^vpc-[a-f0-9]{8}([a-f0-9]{9})?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Check: close({
-	ImpairedSince?: string | fn.#StringExpression
+	ImpairedSince?: string | number | bool | fn.#StringExpression
 	Result!:        #CheckResult
 	Type!:          "KEY_REUSE" | "KEY_COVERAGE" | "REACHABILITY" | "VCF_VERSION" | "HOST_COUNT" | fn.#StringExpression
 }) |
@@ -102,39 +145,94 @@ fn.#ObjectExpression
 	}
 	{}
 	DedicatedHostId?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^h-[a-f0-9]{8}([a-f0-9]{9})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^h-[a-f0-9]{8}([a-f0-9]{9})?$" & "\(self)"
+	} |
 	fn.#StringExpression
 	HostName!:     #HostName
 	InstanceType!: "i4i.metal" | "i7i.metal-24xl" | "i7i.metal-48xl" | fn.#StringExpression
-	KeyName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	KeyName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	"PlacementGroupId"?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^pg-[a-f0-9]{8}([a-f0-9]{9})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^pg-[a-f0-9]{8}([a-f0-9]{9})?$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#HostName: =~"^([a-zA-Z0-9\\-]*)$" | fn.#StringExpression
-
-#InitialVlanInfo: close({
-	Cidr!: =~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2][0-9]|[0-9])$" |
-		fn.#StringExpression
-}) |
-	fn.#ObjectExpression
-
-#NetworkAclId: strings.MaxRunes(21) & strings.MinRunes(4) & =~"^acl-[a-zA-Z0-9_-]+$" | fn.#StringExpression
-
-#RouteServerPeering: strings.MaxRunes(21) & strings.MinRunes(3) | fn.#StringExpression
-
-#Secret: close({SecretArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
-#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-strings.MaxRunes(25) &
-strings.MinRunes(3) &
-=~"^sg-[0-9a-zA-Z]*$" |
+#HostName: =~"^([a-zA-Z0-9\\-]*)$" |
+{
+	number | bool
+	_cfnString: =~"^([a-zA-Z0-9\\-]*)$" & "\(self)"
+} |
 fn.#StringExpression
 
-#Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#InitialVlanInfo: close({
+	Cidr!: fn.#IPv4Network &
+		string &
+		=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2][0-9]|[0-9])$" |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network &
+			string &
+			=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2][0-9]|[0-9])$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Timestamp: string | fn.#StringExpression
+#NetworkAclId: strings.MaxRunes(21) & strings.MinRunes(4) & =~"^acl-[a-zA-Z0-9_-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(21) & strings.MinRunes(4) & =~"^acl-[a-zA-Z0-9_-]+$" & "\(self)"
+} |
+fn.#StringExpression
+
+#RouteServerPeering: strings.MaxRunes(21) & strings.MinRunes(3) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(21) & strings.MinRunes(3) & "\(self)"
+} |
+fn.#StringExpression
+
+#Secret: close({SecretArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
+
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+strings.MaxRunes(25) &
+strings.MinRunes(3) &
+=~"^sg-[0-9a-zA-Z]*$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(25) &
+	strings.MinRunes(3) &
+	=~"^sg-[0-9a-zA-Z]*$" &
+	"\(self)"
+} |
+fn.#StringExpression
+
+#Tag: close({
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#Timestamp: string | number | bool | fn.#StringExpression

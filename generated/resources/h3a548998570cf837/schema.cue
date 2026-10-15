@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS Route53 Recovery Control basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53RecoveryControl::SafetyRule"
-	Properties?: matchN(1, [{
+	let properties = matchN(1, [{
 		AssertionRule!:   _
 		Name!:            _
 		ControlPanelArn!: _
@@ -33,17 +35,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}]) & close({
 		AssertionRule?:   #AssertionRule
-		ControlPanelArn?: string | fn.#StringExpression
+		ControlPanelArn?: string | number | bool | fn.#StringExpression
 		GatingRule?:      #GatingRule
 		Name?:            #SafetyRuleName
 		RuleConfig?:      #RuleConfig
 		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AssertionRule: close({
-	AssertedControls!: [...string | fn.#StringExpression] | fn.#ListExpression
+	AssertedControls!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	WaitPeriodMs!: int |
 		{
 			string &
@@ -62,8 +66,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #GatingRule: close({
-	GatingControls!: [...string | fn.#StringExpression] | fn.#ListExpression
-	TargetControls!: [...string | fn.#StringExpression] | fn.#ListExpression
+	GatingControls!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	TargetControls!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	WaitPeriodMs!: int |
 		{
 			string &
@@ -103,10 +107,20 @@ fn.#ObjectExpression
 
 #RuleType: "AND" | "OR" | "ATLEAST" | fn.#StringExpression
 
-#SafetyRuleName: string | fn.#StringExpression
+#SafetyRuleName: string | number | bool | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

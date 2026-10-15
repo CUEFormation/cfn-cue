@@ -10,24 +10,38 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Local Gateway Route Table which describes a
 // route table for a local gateway.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::LocalGatewayRouteTable"
-	Properties!: close({
-		LocalGatewayId!: string | fn.#StringExpression
+	let properties = close({
+		LocalGatewayId!: string | number | bool | fn.#StringExpression
 		Mode?:           "coip" | "direct-vpc-routing" | fn.#StringExpression
 
 		// The tags for the local gateway route table.
 		Tags?: #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -14,22 +14,42 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::SiteToSiteVpnAttachment Resource Type definition.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::SiteToSiteVpnAttachment"
-	Properties!: close({
+	let properties = close({
 		CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" & "\(self)"
+		} |
 		fn.#StringExpression
-		NetworkFunctionGroupName?: string | fn.#StringExpression
-		RoutingPolicyLabel?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		NetworkFunctionGroupName?: string | number | bool | fn.#StringExpression
+		RoutingPolicyLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		VpnConnectionArn!: strings.MaxRunes(500) &
 		strings.MinRunes(0) &
 		=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:vpn-connection\\/vpn-[0-9a-f]{8,17}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) &
+			strings.MinRunes(0) &
+			=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:vpn-connection\\/vpn-[0-9a-f]{8,17}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ProposedNetworkFunctionGroupChange: close({
@@ -47,7 +67,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	NetworkFunctionGroupName?: string | fn.#StringExpression
+	NetworkFunctionGroupName?: string | number | bool | fn.#StringExpression
 	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -67,13 +87,23 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SegmentName?: string | fn.#StringExpression
+	SegmentName?: string | number | bool | fn.#StringExpression
 	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

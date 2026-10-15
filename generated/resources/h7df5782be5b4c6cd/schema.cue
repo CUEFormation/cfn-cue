@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::LinkRoutingRule. A routing rule
@@ -21,29 +23,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // conditions such as host headers, path matching, and query string parameters.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RTBFabric::LinkRoutingRule"
-	Properties!: close({
+	let properties = close({
 		Conditions!: #RuleCondition
 		GatewayId!:  #GatewayId
 		LinkId!:     #LinkId
 		Priority!:   #RulePriority
 		Tags?:       #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+/routing-rule/[a-zA-Z0-9-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+/routing-rule/[a-zA-Z0-9-]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#CreatedTimestamp: string | fn.#StringExpression
+#CreatedTimestamp: string | number | bool | fn.#StringExpression
 
-#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" |
+{
+	number | bool
+	_cfnString: =~"^rtb-gw-[a-z0-9-]{1,25}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#LinkId: =~"^link-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#LinkId: =~"^link-[a-z0-9-]{1,25}$" |
+{
+	number | bool
+	_cfnString: =~"^link-[a-z0-9-]{1,25}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #QueryStringKeyValuePair: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -79,18 +110,48 @@ fn.#ObjectExpression
 		])
 	}
 	{}
-	"HostHeader"?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
-	HostHeaderWildcard?: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9._~*-]+$" | fn.#StringExpression
-	PathExact?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" | fn.#StringExpression
-	"PathPrefix"?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" | fn.#StringExpression
+	"HostHeader"?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	HostHeaderWildcard?: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9._~*-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9._~*-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PathExact?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	"PathPrefix"?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Query string key=value pair match (single pair).
 	"QueryStringEquals"?: #QueryStringKeyValuePair
-	QueryStringExists?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
+	QueryStringExists?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RuleId: =~"^rule-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#RuleId: =~"^rule-[a-z0-9-]{1,25}$" |
+{
+	number | bool
+	_cfnString: =~"^rule-[a-z0-9-]{1,25}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #RulePriority: int & <=1000 & >=1 |
 	{
@@ -119,11 +180,23 @@ fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
-#UpdatedTimestamp: string | fn.#StringExpression
+#UpdatedTimestamp: string | number | bool | fn.#StringExpression

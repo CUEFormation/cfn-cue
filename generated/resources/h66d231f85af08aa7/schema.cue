@@ -14,22 +14,36 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Inspector Filter resource schema
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::InspectorV2::Filter"
-	Properties!: close({
-		Description?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(512) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Findings filter action.
 		FilterAction!: #FilterAction
 
 		// Findings filter criteria.
 		FilterCriteria!: #FilterCriteria
-		Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:           #FilterTagMap
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #FilterTagMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DateFilter: close({
@@ -90,7 +104,19 @@ fn.#ObjectExpression
 
 #FilterTagMap: close({
 
-	{[=~"^.{2,127}$"]: =~"^.{1,255}$" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^.{2,127}$"]: =~"^.{1,255}$" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #MapComparison: "EQUALS" | fn.#StringExpression
@@ -104,9 +130,19 @@ fn.#ObjectExpression
 
 #MapFilterList: list.MaxItems(10) & list.MinItems(1) & [...#MapFilter] | fn.#ListExpression
 
-#MapKey: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#MapKey: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#MapValue: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#MapValue: strings.MaxRunes(256) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #NumberFilter: close({
 	LowerInclusive?: number |
@@ -200,18 +236,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StringFilterList: list.MaxItems(10) & list.MinItems(1) & [
-	...#StringFilter &
-	(null |
-	bool |
-	number |
-	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...}) |
+	...#StringFilter & (null | bool | number | =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" | [...] | {...}) |
 	fn.#ObjectExpression
 ] |
 fn.#ListExpression
 
-#StringInput: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+#StringInput: strings.MaxRunes(1024) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Timestamp: int |
 	{

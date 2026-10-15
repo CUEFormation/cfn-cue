@@ -9,24 +9,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMR::StudioSessionMapping"
-	Properties!: close({
-		IdentityName!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		IdentityName!: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		IdentityType!: "USER" | "GROUP" | fn.#StringExpression
 
 		// The Amazon Resource Name (ARN) for the session policy that will be applied to
 		// the user or group. Session policies refine Studio user permissions without
 		// the need to use multiple IAM user roles.
 		SessionPolicyArn!: #IamPolicyArn
-		StudioId!:         strings.MaxRunes(256) & strings.MinRunes(4) & =~"^es-[0-9A-Z]+" | fn.#StringExpression
+		StudioId!: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^es-[0-9A-Z]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^es-[0-9A-Z]+" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IamPolicyArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:iam::([0-9]{12})?:policy\\/[^.]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) &
+	strings.MinRunes(0) &
+	=~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:iam::([0-9]{12})?:policy\\/[^.]+$" &
+	"\(self)"
+} |
 fn.#StringExpression

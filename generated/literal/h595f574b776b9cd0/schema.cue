@@ -7,7 +7,44 @@ import "list"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ElastiCache::CacheCluster
-#Properties: close({
+#Properties: matchIf({
+	Engine!: string
+	...
+}, {
+	Engine?: "memcached" | "redis" | "valkey"
+	...
+}, _) & matchIf({
+	Engine!:        "memcached"
+	EngineVersion!: number | string
+	...
+}, {
+	EngineVersion?: "1.4.14" |
+		"1.4.24" |
+		"1.4.33" |
+		"1.4.34" |
+		"1.4.5" |
+		"1.5.10" |
+		"1.5.16" |
+		"1.6.12" |
+		"1.6.17" |
+		"1.6.22" |
+		"1.6.6"
+	...
+}, _) & matchIf({
+	Engine!:        "redis"
+	EngineVersion!: number | string
+	...
+}, {
+	EngineVersion?: "4.0.10" | "5.0.6" | "6.0" | "6.2" | ==6.2 | "7.0" | "7.1" | ==7.1
+	...
+}, _) & matchIf({
+	Engine!:        "valkey"
+	EngineVersion!: number | string
+	...
+}, {
+	EngineVersion?: "7.2" | ==7.2 | "8.0" | "8.1" | ==8.1 | "8.2" | ==8.2 | "9.0" | "9.1" | ==9.1
+	...
+}, _) & close({
 	// Specifies whether the nodes in this Memcached cluster are created in a single
 	// Availability Zone or created across multiple Availability Zones in the
 	// cluster's region.

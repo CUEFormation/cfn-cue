@@ -10,19 +10,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Macie FindingsFilter resource schema.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Macie::FindingsFilter"
-	Properties!: close({
+	let properties = close({
 		// Findings filter action.
 		Action?:      #FindingFilterAction
-		Description?: string | fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
 
 		// Findings filter criteria.
 		FindingCriteria!: #FindingCriteria
-		Name!:            string | fn.#StringExpression
+		Name!:            string | number | bool | fn.#StringExpression
 		Position?: int |
 			{
 				string &
@@ -41,15 +43,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Criterion: close({
 
-	{[=~"\\w"]: #CriterionAdditionalProperties}}) |
+	{[=~"\\w"]: #CriterionAdditionalProperties}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #CriterionAdditionalProperties: close({
-	eq?: [...string | fn.#StringExpression] | fn.#ListExpression
+	eq?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	gt?: int |
 		{
 			string &
@@ -106,7 +115,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	neq?: [...string | fn.#StringExpression] | fn.#ListExpression
+	neq?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -115,13 +124,13 @@ fn.#ObjectExpression
 #FindingFilterAction: "ARCHIVE" | "NOOP" | fn.#StringExpression
 
 #FindingsFilterListItem: {
-	Id?:   string | fn.#StringExpression
-	Name?: string | fn.#StringExpression
+	Id?:   string | number | bool | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

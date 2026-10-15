@@ -1,0 +1,14 @@
+Resources:
+  Broker:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      Users:
+      - Username: test
+        Password: pass:word
+      DeploymentMode: SINGLE_INSTANCE
+      EngineType: RABBITMQ
+      EngineVersion: '3.13'
+      HostInstanceType: '{{resolve:ssm:/broker/instance-type}}'
+      AutoMinorVersionUpgrade: true
+      BrokerName: test
+      PubliclyAccessible: false

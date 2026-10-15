@@ -9,22 +9,48 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DevOpsAgent::Trigger. A trigger defines an
 // automated action that fires on a schedule within an Agent Space.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DevOpsAgent::Trigger"
-	Properties!: close({
-		Action!:       fn.#Object & {...} | fn.#ObjectExpression
-		AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Condition!:    #Condition
-		Status?:       ("Active" | "Inactive") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
-		Type!:         "TIME_BASED" & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
+	let properties = close({
+		Action!: fn.#Object & {...} | fn.#ObjectExpression
+		AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Condition!: #Condition
+		Status?: ("Active" | "Inactive") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: ("Active" | "Inactive") & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Type!: "TIME_BASED" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: "TIME_BASED" & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Condition: close({Schedule!: #Schedule}) | fn.#ObjectExpression
 
-#Schedule: close({Expression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+#Schedule: close({
+	Expression!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression

@@ -10,27 +10,41 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMScope Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::IPAMScope"
-	Properties!: close({
-		Description?:                    string | fn.#StringExpression
+	let properties = close({
+		Description?:                    string | number | bool | fn.#StringExpression
 		ExternalAuthorityConfiguration?: #IpamScopeExternalAuthorityConfiguration
-		IpamId!:                         string | fn.#StringExpression
+		IpamId!:                         string | number | bool | fn.#StringExpression
 		Tags?:                           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IpamScopeExternalAuthorityConfiguration: close({
-	ExternalResourceIdentifier!:     string | fn.#StringExpression
+	ExternalResourceIdentifier!:     string | number | bool | fn.#StringExpression
 	IpamScopeExternalAuthorityType!: "infoblox" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

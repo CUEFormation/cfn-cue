@@ -11,41 +11,91 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for SSO PermissionSet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSO::PermissionSet"
-	Properties!: close({
+	let properties = close({
 		CustomerManagedPolicyReferences?: list.MaxItems(25) & [...#CustomerManagedPolicyReference] | fn.#ListExpression
 		Description?: strings.MaxRunes(700) &
 		strings.MinRunes(1) &
 		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(700) &
+			strings.MinRunes(1) &
+			=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		InlinePolicy?: iam.#IdentityPolicyValue
 		InstanceArn!: strings.MaxRunes(1224) &
 		strings.MinRunes(10) &
 		=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1224) &
+			strings.MinRunes(10) &
+			=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ManagedPolicies?:     list.MaxItems(25) & [...#ManagedPolicyArn] | fn.#ListExpression
-		Name!:                strings.MaxRunes(32) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+		ManagedPolicies?: list.MaxItems(25) & [...#ManagedPolicyArn] | fn.#ListExpression
+		Name!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		PermissionsBoundary?: #PermissionsBoundary
 		RelayStateType?: strings.MaxRunes(240) &
 		strings.MinRunes(1) &
 		=~"[a-zA-Z0-9&amp;$@#\\/%?=~\\-_'&quot;|!:,.;*+\\[\\]\\ \\(\\)\\{\\}]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(240) &
+			strings.MinRunes(1) &
+			=~"[a-zA-Z0-9&amp;$@#\\/%?=~\\-_'&quot;|!:,.;*+\\[\\]\\ \\(\\)\\{\\}]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		SessionDuration?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:            list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		SessionDuration?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CustomerManagedPolicyReference: close({
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
-	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"((/[A-Za-z0-9\\.,\\+@=_-]+)*)/" | fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"((/[A-Za-z0-9\\.,\\+@=_-]+)*)/" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"((/[A-Za-z0-9\\.,\\+@=_-]+)*)/" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ManagedPolicyArn: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+#ManagedPolicyArn: strings.MaxRunes(2048) & strings.MinRunes(20) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+} |
+fn.#StringExpression
 
 #PermissionsBoundary: close({
 	CustomerManagedPolicyReference?: #CustomerManagedPolicyReference
@@ -54,7 +104,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w+=,.@-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w+=,.@-]+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

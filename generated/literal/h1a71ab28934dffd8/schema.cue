@@ -145,7 +145,7 @@ import (
 #SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId]
 
 // Subnet id
-#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$"
+#SubnetId: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{8,17}$"
 
 // Subnets for VPC
 #Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId]

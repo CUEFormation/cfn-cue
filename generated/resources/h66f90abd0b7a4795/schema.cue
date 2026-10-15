@@ -9,16 +9,25 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::RefreshSchedule Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::RefreshSchedule"
-	Properties?: close({
-		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		DataSetId?:    string | fn.#StringExpression
-		Schedule?:     #RefreshScheduleMap
+	let properties = close({
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DataSetId?: string | number | bool | fn.#StringExpression
+		Schedule?:  #RefreshScheduleMap
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #RefreshScheduleMap: close({
@@ -29,6 +38,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			DayOfMonth?: strings.MaxRunes(128) &
 			strings.MinRunes(1) &
 			=~"^(?:LAST_DAY_OF_MONTH|1[0-9]|2[0-8]|[12]|[3-9])$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				=~"^(?:LAST_DAY_OF_MONTH|1[0-9]|2[0-8]|[12]|[3-9])$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			DayOfWeek?: "SUNDAY" |
 				"MONDAY" |
@@ -40,11 +56,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		TimeOfTheDay?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		TimeZone?:     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		TimeOfTheDay?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TimeZone?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	ScheduleId?:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	StartAfterDateTime?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	ScheduleId?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	StartAfterDateTime?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

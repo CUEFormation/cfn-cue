@@ -14,44 +14,87 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataSync::Task.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataSync::Task"
-	Properties!: close({
+	let properties = close({
 		CloudWatchLogGroupArn?: strings.MaxRunes(562) &
 		strings.MinRunes(0) &
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):logs:[a-z\\-0-9]*:[0-9]{12}:log-group:([^:\\*]*)(:\\*)?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(562) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):logs:[a-z\\-0-9]*:[0-9]{12}:log-group:([^:\\*]*)(:\\*)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DestinationLocationArn!: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Excludes?:       list.MaxItems(1) & [...] & [...#FilterRule] | fn.#ListExpression
 		Includes?:       list.MaxItems(1) & [...] & [...#FilterRule] | fn.#ListExpression
 		ManifestConfig?: #ManifestConfig
-		Name?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
+		Name?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Options?:  #Options
 		Schedule?: #TaskSchedule
 		SourceLocationArn!: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 		TaskMode?:         "BASIC" | "ENHANCED" | fn.#StringExpression
 		TaskReportConfig?: #TaskReportConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DestinationNetworkInterfaceArns: list.MaxItems(128) & [
-	...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" | fn.#StringExpression
-] |
-	fn.#ListExpression
+#DestinationNetworkInterfaceArns: list.MaxItems(128) & [...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" & "\(self)"
+} |
+fn.#StringExpression] |
+fn.#ListExpression
 
 #FilterRule: close({
-	FilterType?: "SIMPLE_PATTERN" & strings.MaxRunes(128) & =~"^[A-Z0-9_]+$" | fn.#StringExpression
-	Value?:      strings.MaxRunes(409600) & strings.MinRunes(0) & =~"^[^\\x00]+$" | fn.#StringExpression
+	FilterType?: "SIMPLE_PATTERN" & strings.MaxRunes(128) & =~"^[A-Z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: "SIMPLE_PATTERN" & strings.MaxRunes(128) & =~"^[A-Z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(409600) & strings.MinRunes(0) & =~"^[^\\x00]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(409600) & strings.MinRunes(0) & =~"^[^\\x00]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -63,19 +106,46 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ManifestConfigSourceS3: close({
-	BucketAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	BucketAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ManifestObjectPath?: strings.MaxRunes(1024) &
 	strings.MinRunes(0) &
 	=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ManifestObjectVersionId?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+	ManifestObjectVersionId?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	S3BucketArn?: strings.MaxRunes(156) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):(s3|s3-outposts):[a-z\\-0-9]*:[0-9]*:.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(156) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):(s3|s3-outposts):[a-z\\-0-9]*:[0-9]*:.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -114,14 +184,27 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SourceNetworkInterfaceArns: list.MaxItems(128) & [
-	...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" | fn.#StringExpression
-] |
-	fn.#ListExpression
+#SourceNetworkInterfaceArns: list.MaxItems(128) & [...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" & "\(self)"
+} |
+fn.#StringExpression] |
+fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -145,16 +228,38 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TaskReportConfigDestinationS3: close({
-	BucketAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	BucketAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3BucketArn?: strings.MaxRunes(156) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):(s3|s3-outposts):[a-z\\-0-9]*:[0-9]*:.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(156) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):(s3|s3-outposts):[a-z\\-0-9]*:[0-9]*:.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\p{Zs}]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\p{Zs}]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -163,6 +268,13 @@ fn.#ObjectExpression
 	ScheduleExpression?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9\\ \\_\\*\\?\\,\\|\\^\\-\\/\\#\\s\\(\\)\\+]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9\\ \\_\\*\\?\\,\\|\\^\\-\\/\\#\\s\\(\\)\\+]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Status?: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |

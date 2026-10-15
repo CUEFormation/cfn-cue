@@ -9,20 +9,29 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::Gateway
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::Gateway"
-	Properties!: close({
-		EgressCidrBlocks!: [...string | fn.#StringExpression] | fn.#ListExpression
-		Name!:             string | fn.#StringExpression
+	let properties = close({
+		EgressCidrBlocks!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Name!:             string | number | bool | fn.#StringExpression
 		Networks!:         list.MaxItems(4) & list.MinItems(1) & [...#GatewayNetwork] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #GatewayNetwork: close({
-	CidrBlock!: string | fn.#StringExpression
-	Name!:      string | fn.#StringExpression
+	CidrBlock!: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

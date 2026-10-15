@@ -14,17 +14,19 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AIOps::InvestigationGroup Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AIOps::InvestigationGroup"
-	Properties!: close({
+	let properties = close({
 		ChatbotNotificationChannels?: list.UniqueItems() & [...#ChatbotNotificationChannel] | fn.#ListExpression
 		CrossAccountConfigurations?: list.MaxItems(25) & list.UniqueItems() & [...] & [...#CrossAccountConfiguration] |
 			fn.#ListExpression
 		EncryptionConfig?:         #EncryptionConfigMap
-		InvestigationGroupPolicy?: string | fn.#StringExpression
+		InvestigationGroupPolicy?: string | number | bool | fn.#StringExpression
 		IsCloudTrailEventHistoryEnabled?: bool |
 			"true" |
 			"True" |
@@ -53,18 +55,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		RoleArn?: #RoleArn
-		TagKeyBoundaries?: list.UniqueItems() & [
-			...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" |
-			fn.#StringExpression
-		] |
+		TagKeyBoundaries?: list.UniqueItems() & [...strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(1) &
+			=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ChatbotNotificationChannel: close({
-	ChatConfigurationArns?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SNSTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	ChatConfigurationArns?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SNSTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -72,30 +90,72 @@ fn.#ObjectExpression
 #CrossAccountConfiguration: close({SourceRoleArn?: #RoleArn}) | fn.#ObjectExpression
 
 #EncryptionConfigMap: close({
-	EncryptionConfigurationType?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	EncryptionConfigurationType?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#InvestigationGroupArn: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+#InvestigationGroupArn: strings.MaxRunes(2048) & strings.MinRunes(20) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+} |
+fn.#StringExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:.*$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:.*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #StringWithPatternAndLengthLimits: strings.MaxRunes(512) &
 strings.MinRunes(1) &
 =~"^[\\-_A-Za-z0-9\\[\\]\\(\\)\\{\\}\\.: ]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\-_A-Za-z0-9\\[\\]\\(\\)\\{\\}\\.: ]+$" & "\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Timestamp: string | fn.#StringExpression
+#Timestamp: string | number | bool | fn.#StringExpression

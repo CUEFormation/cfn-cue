@@ -9,16 +9,32 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::ResourcePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::ResourcePolicy"
-	Properties!: close({
-		Policy!: strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Policy!: strings.MaxRunes(20480) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20480) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ResourceArn!: strings.MaxRunes(1011) &
 		strings.MinRunes(20) &
 		=~"^arn:[a-z0-9-]+:bedrock-agentcore:[a-z0-9-]*:[0-9]{12}:.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) &
+			strings.MinRunes(20) &
+			=~"^arn:[a-z0-9-]+:bedrock-agentcore:[a-z0-9-]*:[0-9]{12}:.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

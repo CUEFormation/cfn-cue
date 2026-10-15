@@ -9,13 +9,28 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudTrail::ResourcePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudTrail::ResourcePolicy"
-	Properties!: close({
-		ResourceArn!:    strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" | fn.#StringExpression
-		ResourcePolicy!: fn.#Object & {...} | strings.MaxRunes(8192) & strings.MinRunes(1) | fn.#StringObjectExpression
+	let properties = close({
+		ResourceArn!: strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ResourcePolicy!: fn.#Object & {...} |
+		strings.MaxRunes(8192) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

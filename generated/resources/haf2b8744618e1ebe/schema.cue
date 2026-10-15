@@ -13,53 +13,77 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::Method`` resource creates API Gateway methods that
 // define the parameters and body that clients must send in their requests.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::Method"
-	Properties!: close({
+	let properties = close({
 		ApiKeyRequired?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AuthorizationScopes?: [...string | fn.#StringExpression] | fn.#ListExpression
-		AuthorizationType?:   string | fn.#StringExpression
-		AuthorizerId?:        string | fn.#StringExpression
-		HttpMethod!:          string | fn.#StringExpression
+		AuthorizationScopes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		AuthorizationType?:   string | number | bool | fn.#StringExpression
+		AuthorizerId?:        string | number | bool | fn.#StringExpression
+		HttpMethod!:          string | number | bool | fn.#StringExpression
 		Integration?:         #Integration
 		MethodResponses?:     list.UniqueItems() & [...#MethodResponse] | fn.#ListExpression
-		OperationName?:       string | fn.#StringExpression
+		OperationName?:       string | number | bool | fn.#StringExpression
 		RequestModels?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		RequestParameters?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#StringBooleanExpression}}) |
+			{[=~"[a-zA-Z0-9]+"]: bool | string | number | fn.#StringBooleanExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		RequestValidatorId?: string | fn.#StringExpression
-		ResourceId!:         string | fn.#StringExpression
-		RestApiId!:          string | fn.#StringExpression
+		RequestValidatorId?: string | number | bool | fn.#StringExpression
+		ResourceId!:         string | number | bool | fn.#StringExpression
+		RestApiId!:          string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Integration: close({
-	CacheKeyParameters?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CacheNamespace?:        string | fn.#StringExpression
-	ConnectionId?:          string | fn.#StringExpression
+	CacheKeyParameters?:    list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	CacheNamespace?:        string | number | bool | fn.#StringExpression
+	ConnectionId?:          string | number | bool | fn.#StringExpression
 	ConnectionType?:        "INTERNET" | "VPC_LINK" | fn.#StringExpression
 	ContentHandling?:       "CONVERT_TO_BINARY" | "CONVERT_TO_TEXT" | fn.#StringExpression
-	Credentials?:           string | fn.#StringExpression
-	IntegrationHttpMethod?: string | fn.#StringExpression
+	Credentials?:           string | number | bool | fn.#StringExpression
+	IntegrationHttpMethod?: string | number | bool | fn.#StringExpression
 	IntegrationResponses?:  list.UniqueItems() & [...#IntegrationResponse] | fn.#ListExpression
-	IntegrationTarget?:     string | fn.#StringExpression
+	IntegrationTarget?:     string | number | bool | fn.#StringExpression
 	PassthroughBehavior?:   "WHEN_NO_MATCH" | "WHEN_NO_TEMPLATES" | "NEVER" | fn.#StringExpression
 	RequestParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	RequestTemplates?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	ResponseTransferMode?: "BUFFERED" | "STREAM" | fn.#StringExpression
 	TimeoutInMillis?: int & >=50 |
@@ -78,7 +102,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Type!: "AWS" | "AWS_PROXY" | "HTTP" | "HTTP_PROXY" | "MOCK" | fn.#StringExpression
-	Uri?:  string | fn.#StringExpression
+	Uri?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -86,26 +110,46 @@ fn.#ObjectExpression
 	ContentHandling?: "CONVERT_TO_BINARY" | "CONVERT_TO_TEXT" | fn.#StringExpression
 	ResponseParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	ResponseTemplates?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	SelectionPattern?: string | fn.#StringExpression
-	StatusCode!:       string | fn.#StringExpression
+	SelectionPattern?: string | number | bool | fn.#StringExpression
+	StatusCode!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MethodResponse: close({
 	ResponseModels?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	ResponseParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#StringBooleanExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: bool | string | number | fn.#StringBooleanExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	StatusCode!: string | fn.#StringExpression
+	StatusCode!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

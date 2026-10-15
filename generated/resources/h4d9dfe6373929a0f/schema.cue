@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Domain
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Domain"
-	Properties!: close({
+	let properties = close({
 		AppNetworkAccessType?:       "PublicInternetOnly" | "VpcOnly" | fn.#StringExpression
 		AppSecurityGroupManagement?: "Service" | "Customer" | fn.#StringExpression
 		AuthMode!:                   "SSO" | "IAM" | fn.#StringExpression
@@ -28,28 +30,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DefaultSpaceSettings?: #DefaultSpaceSettings
 
 		// The default user settings.
-		DefaultUserSettings!:       #UserSettings
-		DomainName!:                strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
+		DefaultUserSettings!: #UserSettings
+		DomainName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" & "\(self)"
+		} |
+		fn.#StringExpression
 		DomainSettings?:            #DomainSettings
 		HomeEfsFileSystemCreation?: "Enabled" | "Disabled" | fn.#StringExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) &
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~".*" |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~".*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		SubnetIds?: list.MaxItems(16) & list.MinItems(1) & [
-			...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
-		] |
+		SubnetIds?: list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		TagPropagation?: "ENABLED" | "DISABLED" | fn.#StringExpression
 		Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
 		=~"[-0-9a-zA-Z]+" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(32) &
+			strings.MinRunes(0) &
+			=~"[-0-9a-zA-Z]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AppInstanceType: "system" |
@@ -241,6 +274,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BuiltInLifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	CustomImages?: list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
 
@@ -251,7 +291,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#CodeRepository: close({RepositoryUrl!: strings.MaxRunes(256) | fn.#StringExpression}) | fn.#ObjectExpression
+#CodeRepository: close({
+	RepositoryUrl!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #CustomFileSystemConfig: close({
 	EFSFileSystemConfig?:       #EFSFileSystemConfig
@@ -261,8 +309,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CustomImage: close({
-	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
-	ImageName!:          strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
+	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" & "\(self)"
+	} |
+	fn.#StringExpression
+	ImageName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ImageVersionNumber?: int & >=0 |
 		{
 			string &
@@ -336,6 +394,13 @@ fn.#ObjectExpression
 	ExecutionRole!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 
 	// The Jupyter lab's app settings.
@@ -346,13 +411,19 @@ fn.#ObjectExpression
 
 	// The kernel gateway app settings.
 	KernelGatewayAppSettings?: #KernelGatewayAppSettings
-	SecurityGroups?: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroups?: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
-		=~"[-0-9a-zA-Z]+" |
-		fn.#StringExpression
-	] |
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 
 	// The Jupyter lab's space storage settings.
@@ -364,9 +435,12 @@ fn.#ObjectExpression
 
 #DockerSettings: close({
 	EnableDockerAccess?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	VpcOnlyTrustedAccounts?: list.MaxItems(20) & [...] & [
-		...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" | fn.#StringExpression
-	] |
+	VpcOnlyTrustedAccounts?: list.MaxItems(20) & [...] & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -376,35 +450,66 @@ fn.#ObjectExpression
 	ExecutionRoleIdentityConfig?:    "USER_PROFILE_NAME" | "DISABLED" | fn.#StringExpression
 	IpAddressType?:                  #IpAddressType
 	RStudioServerProDomainSettings?: #RStudioServerProDomainSettings
-	SecurityGroupIds?: list.MaxItems(3) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds?: list.MaxItems(3) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
-		=~"[-0-9a-zA-Z]+" |
-		fn.#StringExpression
-	] |
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	UnifiedStudioSettings?: #UnifiedStudioSettings
 }) |
 fn.#ObjectExpression
 
 #EFSFileSystemConfig: close({
-	FileSystemId!:   strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression
-	FileSystemPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$" | fn.#StringExpression
+	FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" & "\(self)"
+	} |
+	fn.#StringExpression
+	FileSystemPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FSxLustreFileSystemConfig: close({
-	FileSystemId!:   strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression
-	FileSystemPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$" | fn.#StringExpression
+	FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" & "\(self)"
+	} |
+	fn.#StringExpression
+	FileSystemPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\/\\S*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HiddenSageMakerImage: close({
 	SageMakerImageName?: "sagemaker_distribution" | fn.#StringExpression
-	VersionAliases?: list.MaxItems(20) & [...] & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" | fn.#StringExpression
-	] |
+	VersionAliases?: list.MaxItems(20) & [...] & [...strings.MaxRunes(128) &
+	strings.MinRunes(1) &
+	=~"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -441,6 +546,13 @@ fn.#ObjectExpression
 	BuiltInLifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	CodeRepositories?: list.MaxItems(30) & [...] & [...#CodeRepository] | fn.#ListExpression
 	CustomImages?:     list.MaxItems(200) & [...] & [...#CustomImage] | fn.#ListExpression
@@ -540,13 +652,31 @@ fn.#ObjectExpression
 
 #RStudioServerProDomainSettings: close({
 	DefaultResourceSpec?: #ResourceSpec
-	DomainExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	DomainExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	RStudioConnectUrl?:        =~"^(https:|http:|www\\.)\\S*" | fn.#StringExpression
-	RStudioPackageManagerUrl?: =~"^(https:|http:|www\\.)\\S*" | fn.#StringExpression
+	RStudioConnectUrl?: =~"^(https:|http:|www\\.)\\S*" |
+	{
+		number | bool
+		_cfnString: =~"^(https:|http:|www\\.)\\S*" & "\(self)"
+	} |
+	fn.#StringExpression
+	RStudioPackageManagerUrl?: =~"^(https:|http:|www\\.)\\S*" |
+	{
+		number | bool
+		_cfnString: =~"^(https:|http:|www\\.)\\S*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -555,32 +685,79 @@ fn.#ObjectExpression
 	LifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SageMakerImageArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image/[a-z0-9]([-.]?[a-z0-9])*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image/[a-z0-9]([-.]?[a-z0-9])*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SageMakerImageVersionArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image-version/[a-z0-9]([-.]?[a-z0-9])*/[0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image-version/[a-z0-9]([-.]?[a-z0-9])*/[0-9]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	TrainingPlanArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*|None)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*|None)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3FileSystemConfig: close({
-	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	S3Uri?:     strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)" | fn.#StringExpression
+	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	S3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SharingSettings: close({
 	NotebookOutputOption?: "Allowed" | "Disabled" | fn.#StringExpression
-	S3KmsKeyId?:           strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	S3KmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 	S3OutputPath?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -605,6 +782,13 @@ fn.#ObjectExpression
 #StudioLifecycleConfigArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) &
+	strings.MinRunes(0) &
+	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #StudioWebPortalSettings: close({
@@ -617,18 +801,58 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UnifiedStudioSettings: close({
-	DomainAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" | fn.#StringExpression
-	DomainId?:     strings.MaxRunes(36) & strings.MinRunes(1) & =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	DomainRegion?: strings.MaxRunes(24) & strings.MinRunes(1) & =~"[a-zA-Z]{2}-[a-zA-Z\\-]+-\\d+" | fn.#StringExpression
-	EnvironmentId?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	ProjectId?:     =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	ProjectS3Path?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[\\w\\.-]+$" | fn.#StringExpression
+	DomainAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DomainId?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DomainRegion?: strings.MaxRunes(24) & strings.MinRunes(1) & =~"[a-zA-Z]{2}-[a-zA-Z\\-]+-\\d+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(24) & strings.MinRunes(1) & =~"[a-zA-Z]{2}-[a-zA-Z\\-]+-\\d+" & "\(self)"
+	} |
+	fn.#StringExpression
+	EnvironmentId?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,36}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ProjectId?: =~"^[a-zA-Z0-9_-]{1,36}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ProjectS3Path?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[\\w\\.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[\\w\\.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	StudioWebPortalAccess?: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -639,10 +863,22 @@ fn.#ObjectExpression
 	CustomFileSystemConfigs?: list.MaxItems(2) & list.UniqueItems() & [...] & [...#CustomFileSystemConfig] |
 		fn.#ListExpression
 	CustomPosixUserConfig?: #CustomPosixUserConfig
-	DefaultLandingUri?:     strings.MaxRunes(1023) & strings.MinRunes(0) | fn.#StringExpression
+	DefaultLandingUri?: strings.MaxRunes(1023) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ExecutionRole!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	JupyterLabAppSettings?: #JupyterLabAppSettings
 
@@ -653,13 +889,19 @@ fn.#ObjectExpression
 	KernelGatewayAppSettings?:    #KernelGatewayAppSettings
 	RSessionAppSettings?:         #RSessionAppSettings
 	RStudioServerProAppSettings?: #RStudioServerProAppSettings
-	SecurityGroups?: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroups?: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
-		=~"[-0-9a-zA-Z]+" |
-		fn.#StringExpression
-	] |
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 
 	// The sharing settings.

@@ -6,25 +6,29 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::XssMatchSet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFRegional::XssMatchSet"
-	Properties!: close({
-		Name!:           string | fn.#StringExpression
+	let properties = close({
+		Name!:           string | number | bool | fn.#StringExpression
 		XssMatchTuples?: [...#XssMatchTuple] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FieldToMatch: close({
-	Data?: string | fn.#StringExpression
-	Type!: string | fn.#StringExpression
+	Data?: string | number | bool | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #XssMatchTuple: close({
 	FieldToMatch!:       #FieldToMatch
-	TextTransformation!: string | fn.#StringExpression
+	TextTransformation!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

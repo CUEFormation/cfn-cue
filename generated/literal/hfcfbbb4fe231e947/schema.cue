@@ -5,6 +5,7 @@ package schema
 import (
 	"strings"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -139,7 +140,9 @@ import (
 #MetricValue: close({
 	// If the ComparisonOperator calls for a set of CIDRs, use this to specify that
 	// set to be compared with the metric.
-	Cidrs?: list.UniqueItems() & [...strings.MaxRunes(43) & strings.MinRunes(2) & =~"^[a-fA-F0-9:\\.\\/]+$"]
+	Cidrs?: list.UniqueItems() & [
+		...fn.#IPv4Network & string & strings.MaxRunes(43) & strings.MinRunes(2) & =~"^[a-fA-F0-9:\\.\\/]+$"
+	]
 
 	// If the ComparisonOperator calls for a numeric value, use this to specify that
 	// (integer) numeric value to be compared with the metric.

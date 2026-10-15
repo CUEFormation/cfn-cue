@@ -14,12 +14,24 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies an Application Load Balancer, a Network Load Balancer, or a Gateway Load Balancer.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticLoadBalancingV2::LoadBalancer"
-	Properties?: close({
+	let properties = matchIf(matchN(1, [{
+		Type!: "application"
+		...
+	}, {
+		Type?: error("disallowed")
+		...
+	}]), {
+		SubnetMappings?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
+		Subnets?:        null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
+		...
+	}, _) & (close({
 		EnableCapacityReservationProvisionStabilize?: bool |
 			"true" |
 			"True" |
@@ -29,33 +41,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 		EnablePrefixForIpv6SourceNat?:                         "off" | "on" | fn.#StringExpression
-		EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic?: string | fn.#StringExpression
+		EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic?: string | number | bool | fn.#StringExpression
 		IpAddressType?:               "dualstack" | "dualstack-without-public-ipv4" | "ipv4" | fn.#StringExpression
-		Ipv4IpamPoolId?:              string | fn.#StringExpression
+		Ipv4IpamPoolId?:              string | number | bool | fn.#StringExpression
 		LoadBalancerAttributes?:      list.UniqueItems() & [...#LoadBalancerAttribute] | fn.#ListExpression
 		MinimumLoadBalancerCapacity?: #MinimumLoadBalancerCapacity & fn.#Object & {...} | fn.#ObjectExpression
-		Name?:                        string | fn.#StringExpression
+		Name?:                        string | number | bool | fn.#StringExpression
 		Scheme?:                      "internal" | "internet-facing" | fn.#StringExpression
-		SecurityGroups?: list.UniqueItems() & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		SubnetMappings?: list.UniqueItems() & [...#SubnetMapping] | fn.#ListExpression
-		Subnets?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		Tags?:           [...#Tag] | fn.#ListExpression
-		Type?:           "application" | "gateway" | "network" | fn.#StringExpression
+		Subnets?: list.UniqueItems() & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		Type?: "application" | "gateway" | "network" | fn.#StringExpression
 		if Subnets != _|_ if Subnets."Fn::If" == _|_ {
 			SubnetMappings?: close({"Fn::If": _}) | error(
 				"SubnetMappings cannot be used with Subnets; set exactly one of Subnets, SubnetMappings",
 			)
 		}
-	}) & matchN(>=1, [{Subnets!: _}, {SubnetMappings!: _}])
+	}) & matchN(>=1, [{Subnets!: _}, {SubnetMappings!: _}]))
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LoadBalancerAttribute: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -78,16 +100,31 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #SubnetMapping: close({
-	AllocationId?:        string | fn.#StringExpression
-	IPv6Address?:         string | fn.#StringExpression
-	PrivateIPv4Address?:  string | fn.#StringExpression
-	SourceNatIpv6Prefix?: string | fn.#StringExpression
-	SubnetId!:            string | fn.#StringExpression
+	AllocationId?:        string | number | bool | fn.#StringExpression
+	IPv6Address?:         string | number | bool | fn.#StringExpression
+	PrivateIPv4Address?:  string | number | bool | fn.#StringExpression
+	SourceNatIpv6Prefix?: string | number | bool | fn.#StringExpression
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

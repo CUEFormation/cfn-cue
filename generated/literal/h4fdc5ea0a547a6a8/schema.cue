@@ -2,13 +2,15 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Redshift::ClusterSecurityGroupIngress
 #Properties: close({
-	CIDRIP?:                   string
-	ClusterSecurityGroupName!: string
-	EC2SecurityGroupName?:     string
+	CIDRIP?:                   fn.#IPv4Network & string
+	ClusterSecurityGroupName!: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
+	EC2SecurityGroupName?:     =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
 	EC2SecurityGroupOwnerId?:  string
 	Id?:                       string
 })

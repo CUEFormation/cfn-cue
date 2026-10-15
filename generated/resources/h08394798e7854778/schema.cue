@@ -14,24 +14,43 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Transformer Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::B2BI::Transformer"
-	Properties!: close({
+	let properties = close({
 		EdiType?:         #EdiType
 		FileFormat?:      #FileFormat
 		InputConversion?: #InputConversion
 		Mapping?:         #Mapping
-		MappingTemplate?: strings.MaxRunes(350000) & strings.MinRunes(0) | fn.#StringExpression
-		Name!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,512}$" | fn.#StringExpression
+		MappingTemplate?: strings.MaxRunes(350000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(350000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,512}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,512}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OutputConversion?: #OutputConversion
-		SampleDocument?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		SampleDocuments?:  #SampleDocuments
-		Status!:           #TransformerStatus
-		Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		SampleDocument?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		SampleDocuments?: #SampleDocuments
+		Status!:          #TransformerStatus
+		Tags?:            list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdvancedOptions: close({X12?: #X12AdvancedOptions}) | fn.#ObjectExpression
@@ -54,7 +73,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Mapping: close({
-	Template?:         strings.MaxRunes(350000) & strings.MinRunes(0) | fn.#StringExpression
+	Template?: strings.MaxRunes(350000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	TemplateLanguage!: #MappingTemplateLanguage
 }) |
 fn.#ObjectExpression
@@ -69,20 +93,52 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SampleDocumentKeys: close({
-	Input?:  strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Output?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	Input?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Output?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SampleDocuments: close({
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Keys!:       [...#SampleDocumentKeys] | fn.#ListExpression
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Keys!: [...#SampleDocumentKeys] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -97,9 +153,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #X12CodeListValidationRule: close({
-	CodesToAdd?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	CodesToRemove?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ElementId!:     strings.MaxRunes(4) & strings.MinRunes(4) & =~"^[0-9]{4}$" | fn.#StringExpression
+	CodesToAdd?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	CodesToRemove?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ElementId!: strings.MaxRunes(4) & strings.MinRunes(4) & =~"^[0-9]{4}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4) & strings.MinRunes(4) & =~"^[0-9]{4}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -110,7 +171,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #X12ElementLengthValidationRule: close({
-	ElementId!: strings.MaxRunes(4) & strings.MinRunes(4) & =~"^[0-9]{4}$" | fn.#StringExpression
+	ElementId!: strings.MaxRunes(4) & strings.MinRunes(4) & =~"^[0-9]{4}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4) & strings.MinRunes(4) & =~"^[0-9]{4}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	MaxLength!: <=1000000 & >=1 |
 		{
 			string &
@@ -155,8 +221,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #X12ElementRequirementValidationRule: close({
-	ElementPosition!: =~"^[a-zA-Z0-9]+(?:-\\d{2})(?:-\\d{2})?$" | fn.#StringExpression
-	Requirement!:     #ElementRequirement
+	ElementPosition!: =~"^[a-zA-Z0-9]+(?:-\\d{2})(?:-\\d{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9]+(?:-\\d{2})(?:-\\d{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Requirement!: #ElementRequirement
 }) |
 fn.#ObjectExpression
 

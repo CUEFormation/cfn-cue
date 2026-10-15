@@ -14,16 +14,18 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancing::LoadBalancer
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticLoadBalancing::LoadBalancer"
-	Properties!: close({
+	let properties = close({
 		// Information about where and how access logs are stored for the load balancer.
 		AccessLoggingPolicy?:       #AccessLoggingPolicy
 		AppCookieStickinessPolicy?: [...#AppCookieStickinessPolicy] | fn.#ListExpression
-		AvailabilityZones?:         [...string | fn.#StringExpression] | fn.#ListExpression
+		AvailabilityZones?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 		// If enabled, the load balancer allows existing requests to complete before the
 		// load balancer shifts traffic away from a deregistered or unhealthy instance.
@@ -36,20 +38,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// The health check settings to use when evaluating the health of your EC2 instances.
 		HealthCheck?:              #HealthCheck
-		Instances?:                [...string | fn.#StringExpression] | fn.#ListExpression
+		Instances?:                [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		LBCookieStickinessPolicy?: [...#LBCookieStickinessPolicy] | fn.#ListExpression
 		Listeners!:                [...#Listeners] | fn.#ListExpression
-		LoadBalancerName?:         string | fn.#StringExpression
+		LoadBalancerName?:         string | number | bool | fn.#StringExpression
 		Policies?:                 [...#Policies] | fn.#ListExpression
-		Scheme?:                   string | fn.#StringExpression
-		SecurityGroups?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
-		Tags?:    list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		Scheme?:                   string | number | bool | fn.#StringExpression
+		SecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Tags?: list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessLoggingPolicy: close({
@@ -67,15 +79,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	S3BucketName!:   string | fn.#StringExpression
-	S3BucketPrefix?: string | fn.#StringExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3BucketPrefix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AppCookieStickinessPolicy: close({
-	CookieName!: string | fn.#StringExpression
-	PolicyName!: string | fn.#StringExpression
+	CookieName!: string | number | bool | fn.#StringExpression
+	PolicyName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -117,53 +134,79 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #HealthCheck: close({
-	HealthyThreshold!:   string | fn.#StringExpression
-	Interval!:           string | fn.#StringExpression
-	Target!:             string | fn.#StringExpression
-	Timeout!:            string | fn.#StringExpression
-	UnhealthyThreshold!: string | fn.#StringExpression
+	HealthyThreshold!:   string | number | bool | fn.#StringExpression
+	Interval!:           string | number | bool | fn.#StringExpression
+	Target!:             string | number | bool | fn.#StringExpression
+	Timeout!:            string | number | bool | fn.#StringExpression
+	UnhealthyThreshold!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LBCookieStickinessPolicy: close({
-	CookieExpirationPeriod?: string | fn.#StringExpression
-	PolicyName?:             string | fn.#StringExpression
+	CookieExpirationPeriod?: string | number | bool | fn.#StringExpression
+	PolicyName?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Listeners: close({
-	InstancePort!:     string | fn.#StringExpression
-	InstanceProtocol?: =~"(?i)^(?:http|https|tcp|ssl)$" | fn.#StringExpression
-	LoadBalancerPort!: string | fn.#StringExpression
-	PolicyNames?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	Protocol!:         =~"(?i)^(?:http|https|tcp|ssl)$" | fn.#StringExpression
-	SSLCertificateId?: string | fn.#StringExpression
+#Listeners: matchIf({
+	Protocol!: "HTTPS" | "SSL"
+	...
+}, {
+	SSLCertificateId!: _
+	...
+}, _) & close({
+	InstancePort!: string | number | bool | fn.#StringExpression
+	InstanceProtocol?: =~"(?i)^(?:http|https|tcp|ssl)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:http|https|tcp|ssl)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LoadBalancerPort!: string | number | bool | fn.#StringExpression
+	PolicyNames?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Protocol!: =~"(?i)^(?:http|https|tcp|ssl)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:http|https|tcp|ssl)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SSLCertificateId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Policies: close({
 	Attributes!:        [...#PolicyItem] | fn.#ListExpression
-	InstancePorts?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	LoadBalancerPorts?: [...string | fn.#StringExpression] | fn.#ListExpression
-	PolicyName!:        string | fn.#StringExpression
-	PolicyType!:        string | fn.#StringExpression
+	InstancePorts?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	LoadBalancerPorts?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	PolicyName!:        string | number | bool | fn.#StringExpression
+	PolicyType!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PolicyItem: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceSecurityGroup: close({
-	GroupName?:  string | fn.#StringExpression
-	OwnerAlias?: string | fn.#StringExpression
+	GroupName?:  string | number | bool | fn.#StringExpression
+	OwnerAlias?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

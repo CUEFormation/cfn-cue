@@ -13,27 +13,56 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::WorkspacesPool
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkSpaces::WorkspacesPool"
-	Properties!: close({
+	let properties = close({
 		ApplicationSettings?: #ApplicationSettings
-		BundleId!:            =~"^wsb-[0-9a-z]{8,63}$" | fn.#StringExpression
-		Capacity!:            #Capacity
-		Description?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./() -]+$" | fn.#StringExpression
-		DirectoryId!:     strings.MaxRunes(65) & strings.MinRunes(10) & =~"^wsd-[0-9a-z]{8,63}$" | fn.#StringExpression
-		PoolName!:        =~"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" | fn.#StringExpression
+		BundleId!: =~"^wsb-[0-9a-z]{8,63}$" |
+		{
+			number | bool
+			_cfnString: =~"^wsb-[0-9a-z]{8,63}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Capacity!: #Capacity
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./() -]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./() -]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DirectoryId!: strings.MaxRunes(65) & strings.MinRunes(10) & =~"^wsd-[0-9a-z]{8,63}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65) & strings.MinRunes(10) & =~"^wsd-[0-9a-z]{8,63}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PoolName!: =~"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RunningMode?:     #RunningMode
 		Tags?:            [...#Tag] | fn.#ListExpression
 		TimeoutSettings?: #TimeoutSettings
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApplicationSettings: close({
-	SettingsGroup?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[A-Za-z0-9_./()!*'-]+$" | fn.#StringExpression
-	Status!:        #ApplicationSettingsStatus
+	SettingsGroup?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[A-Za-z0-9_./()!*'-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[A-Za-z0-9_./()!*'-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Status!: #ApplicationSettingsStatus
 }) |
 fn.#ObjectExpression
 
@@ -61,8 +90,18 @@ fn.#ObjectExpression
 #RunningMode: "ALWAYS_ON" | "AUTO_STOP" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

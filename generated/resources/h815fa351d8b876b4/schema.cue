@@ -9,25 +9,29 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::S3::AccessGrantsInstance resource is an Amazon S3 resource type that
 // hosts Access Grants and their associated locations
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::AccessGrantsInstance"
-	Properties?: close({
+	let properties = close({
 		// The Amazon Resource Name (ARN) of the specified AWS Identity Center.
 		IdentityCenterArn?: #IdentityCenterArn
 		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccessGrantsInstanceArn: string | fn.#StringExpression
+#AccessGrantsInstanceArn: string | number | bool | fn.#StringExpression
 
-#IdentityCenterArn: string | fn.#StringExpression
+#IdentityCenterArn: string | number | bool | fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

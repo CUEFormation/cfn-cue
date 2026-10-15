@@ -9,23 +9,43 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Tables::TablePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Tables::TablePolicy"
-	Properties!: close({
+	let properties = close({
 		ResourcePolicy!: #ResourcePolicy
 		TableARN!:       #TableARN
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" | fn.#StringExpression
+#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#ResourcePolicy: fn.#Object & {...} | strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringObjectExpression
+#ResourcePolicy: fn.#Object & {...} |
+strings.MaxRunes(20480) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(20480) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringObjectExpression
 
-#TableARN: string | fn.#StringExpression
+#TableARN: string | number | bool | fn.#StringExpression
 
-#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
+{
+	number | bool
+	_cfnString: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" & "\(self)"
+} |
+fn.#StringExpression
 
-#TableName: string | fn.#StringExpression
+#TableName: string | number | bool | fn.#StringExpression

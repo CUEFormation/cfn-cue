@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::QueryLoggingConfig. Creates a
@@ -16,8 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // hosted zone to an Amazon CloudWatch Logs log group.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::QueryLoggingConfig"
-	Properties!: close({
-		CloudWatchLogsLogGroupArn!: string | fn.#StringExpression
-		HostedZoneId!:              strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		CloudWatchLogsLogGroupArn!: string | number | bool | fn.#StringExpression
+		HostedZoneId!: strings.MaxRunes(32) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

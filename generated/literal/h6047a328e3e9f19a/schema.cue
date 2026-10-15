@@ -76,7 +76,7 @@ import (
 
 	// The subnets associated with the task or service. There is a limit of 16
 	// subnets that can be specified per AwsVpcConfiguration.
-	Subnets!: list.MaxItems(16) & [...string]
+	Subnets!: list.MaxItems(16) & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 })
 
 #CapacityProviderStrategyItem: close({

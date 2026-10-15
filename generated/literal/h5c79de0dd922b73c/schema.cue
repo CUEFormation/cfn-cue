@@ -6,20 +6,22 @@ package schema
 
 // Resource Type definition for AWS::DocDB::DBCluster
 #Properties: close({
-	AvailabilityZones?:                [...string]
-	BackupRetentionPeriod?:            int & <=35 & >=1
-	ClusterResourceId?:                string
-	CopyTagsToSnapshot?:               bool
-	DBClusterIdentifier?:              string
-	DBClusterParameterGroupName?:      string
-	DBSubnetGroupName?:                string
-	DeletionProtection?:               bool
-	EnableCloudwatchLogsExports?:      [...string]
-	Endpoint?:                         string
-	EngineVersion?:                    "3.6.0" | "4.0" | "4.0.0" | "5.0.0" | "5.0.1" | "8.0.0" | "8.0.1"
-	GlobalClusterIdentifier?:          string
-	Id?:                               string
-	KmsKeyId?:                         =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	AvailabilityZones?:           [...string]
+	BackupRetentionPeriod?:       int & <=35 & >=1
+	ClusterResourceId?:           string
+	CopyTagsToSnapshot?:          bool
+	DBClusterIdentifier?:         string
+	DBClusterParameterGroupName?: string
+	DBSubnetGroupName?:           string
+	DeletionProtection?:          bool
+	EnableCloudwatchLogsExports?: [...string]
+	Endpoint?:                    string
+	EngineVersion?:               "3.6.0" | "4.0" | "4.0.0" | "5.0.0" | "5.0.1" | "8.0.0" | "8.0.1"
+	GlobalClusterIdentifier?:     string
+	Id?:                          string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 	ManageMasterUserPassword?:         bool
 	MasterUserPassword?:               string
 	MasterUserSecretKmsKeyId?:         string

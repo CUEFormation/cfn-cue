@@ -9,22 +9,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A domain unit enables you to easily organize your assets and other domain
 // entities under specific business units and teams.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::DomainUnit"
-	Properties!: close({
-		Description?:      strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w -]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w -]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ParentDomainUnitIdentifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DomainUnitGroupProperties: close({GroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DomainUnitGroupProperties: close({GroupId?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #DomainUnitOwnerProperties: close({
 	Group?: #DomainUnitGroupProperties
@@ -32,4 +55,4 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#DomainUnitUserProperties: close({UserId?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DomainUnitUserProperties: close({UserId?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

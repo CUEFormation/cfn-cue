@@ -13,16 +13,23 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::ComputeEnvironment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Batch::ComputeEnvironment"
-	Properties!: close({
-		ComputeEnvironmentName?: string | fn.#StringExpression
+	let properties = close({
+		ComputeEnvironmentName?: string | number | bool | fn.#StringExpression
 		ComputeResources?: close({
 			AllocationStrategy?: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" |
-				fn.#StringExpression
+			{
+				number | bool
+				_cfnString: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" &
+					"\(self)"
+			} |
+			fn.#StringExpression
 			BidPercentage?: int |
 				{
 					string &
@@ -41,7 +48,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#NumberExpression
 			CapacityTags?: close({
 
-				{[=~".*"]: string | fn.#StringExpression}}) |
+				{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+				{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+					"disallowed",
+				)}
+			}) |
 			fn.#ObjectExpression
 			DesiredvCpus?: int |
 				{
@@ -60,17 +72,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				} |
 				fn.#NumberExpression
 			Ec2Configuration?: [...close({
-				ImageIdOverride?:        string | fn.#StringExpression
-				ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-				ImageType!:              strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+				ImageIdOverride?: string | number | bool | fn.#StringExpression
+				ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+				ImageType!: strings.MaxRunes(256) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression] |
 			fn.#ListExpression
-			Ec2KeyPair?: string | fn.#StringExpression
-			ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-			InstanceRole?:             string | fn.#StringExpression
-			InstanceTypes?:            [...string | fn.#StringExpression] | fn.#ListExpression
+			Ec2KeyPair?: string | number | bool | fn.#StringExpression
+			ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & "\(self)"
+			} |
+			fn.#StringExpression
+			InstanceRole?:             string | number | bool | fn.#StringExpression
+			InstanceTypes?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 			LaunchTemplate?:           #LaunchTemplateSpecification
 			ManagedInstancesProvider?: #ManagedInstancesProvider
 			MaxvCpus!: int |
@@ -105,20 +131,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			PlacementGroup?: string | fn.#StringExpression
+			PlacementGroup?: string | number | bool | fn.#StringExpression
 			ScalingPolicy?:  #ComputeScalingPolicy
-			SecurityGroupIds?: [
-				...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-					fn.#StringExpression
-			] |
-				fn.#ListExpression
-			SpotIamFleetRole?: string | fn.#StringExpression
-			Subnets?:          [...string | fn.#StringExpression] | fn.#ListExpression
+			SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+			} |
+			fn.#StringExpression] |
+			fn.#ListExpression
+			SpotIamFleetRole?: string | number | bool | fn.#StringExpression
+			Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+			} |
+			fn.#StringExpression] |
+			fn.#ListExpression
 			Tags?: close({
 
-				{[=~".*"]: string | fn.#StringExpression}}) |
+				{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+				{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+					"disallowed",
+				)}
+			}) |
 			fn.#ObjectExpression
-			Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" | fn.#StringExpression
+			Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" |
+			{
+				number | bool
+				_cfnString: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" & "\(self)"
+			} |
+			fn.#StringExpression
 			UpdateToLatestImageVersion?: bool |
 				"true" |
 				"True" |
@@ -129,15 +173,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
-		Context?:     string | fn.#StringExpression
+		Context?:     string | number | bool | fn.#StringExpression
 		EcsSettings?: #EcsSettings
 		EksConfiguration?: close({
-			AccessEntry?: close(
-				{DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" | fn.#StringExpression},
-			) |
-				fn.#ObjectExpression
-			EksClusterArn!:       string | fn.#StringExpression
-			KubernetesNamespace!: string | fn.#StringExpression
+			AccessEntry?: close({
+				DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" |
+				{
+					number | bool
+					_cfnString: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" & "\(self)"
+				} |
+				fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
+			EksClusterArn!:       string | number | bool | fn.#StringExpression
+			KubernetesNamespace!: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		ReplaceComputeEnvironment?: bool |
@@ -148,13 +197,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		ServiceRole?: string | fn.#StringExpression
-		State?:       string | fn.#StringExpression
+		ServiceRole?: string | number | bool | fn.#StringExpression
+		State?:       string | number | bool | fn.#StringExpression
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		Type!: =~"(?i)^(?:managed|unmanaged)$" | fn.#StringExpression
+		Type!: =~"(?i)^(?:managed|unmanaged)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:managed|unmanaged)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		UnmanagedvCpus?: int |
 			{
 				string &
@@ -173,17 +232,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		UpdatePolicy?: #UpdatePolicy
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CapacityReservations: close({
-	ReservationGroupArn?:   string | fn.#StringExpression
-	ReservationPreference?: string | fn.#StringExpression
+	ReservationGroupArn?:   string | number | bool | fn.#StringExpression
+	ReservationPreference?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ComputeResources: close({
 	AllocationStrategy?: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	BidPercentage?: int |
 		{
 			string &
@@ -200,7 +266,12 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	CapacityTags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	DesiredvCpus?: int |
 		{
@@ -217,11 +288,15 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Ec2Configuration?: [...#Ec2ConfigurationObject] | fn.#ListExpression
-	Ec2KeyPair?:       string | fn.#StringExpression
-	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	InstanceRole?:             string | fn.#StringExpression
-	InstanceTypes?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	Ec2KeyPair?:       string | number | bool | fn.#StringExpression
+	ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	InstanceRole?:             string | number | bool | fn.#StringExpression
+	InstanceTypes?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	LaunchTemplate?:           #LaunchTemplateSpecification
 	ManagedInstancesProvider?: #ManagedInstancesProvider
 	MaxvCpus!: int |
@@ -252,20 +327,38 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PlacementGroup?: string | fn.#StringExpression
+	PlacementGroup?: string | number | bool | fn.#StringExpression
 	ScalingPolicy?:  #ComputeScalingPolicy
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SpotIamFleetRole?: string | fn.#StringExpression
-	Subnets?:          [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SpotIamFleetRole?: string | number | bool | fn.#StringExpression
+	Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" | fn.#StringExpression
+	Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" & "\(self)"
+	} |
+	fn.#StringExpression
 	UpdateToLatestImageVersion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -289,26 +382,53 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Ec2ConfigurationObject: close({
-	BatchImageStatus?:       string | fn.#StringExpression
-	ImageIdOverride?:        string | fn.#StringExpression
-	ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ImageType!:              strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	BatchImageStatus?: string | number | bool | fn.#StringExpression
+	ImageIdOverride?:  string | number | bool | fn.#StringExpression
+	ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ImageType!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EcsSettings: close({ContainerInsights?: =~"(?i)^(?:disabled|enabled|enhanced)$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#EcsSettings: close({
+	ContainerInsights?: =~"(?i)^(?:disabled|enabled|enhanced)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:disabled|enabled|enhanced)$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #EksAccessEntry: close({
-	DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" | fn.#StringExpression
-	Status?:       =~"(?i)^(?:active|inactive)$" | fn.#StringExpression
+	DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Status?: =~"(?i)^(?:active|inactive)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:active|inactive)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EksConfiguration: close({
 	AccessEntry?:         #EksAccessEntry
-	EksClusterArn!:       string | fn.#StringExpression
-	KubernetesNamespace!: string | fn.#StringExpression
+	EksClusterArn!:       string | number | bool | fn.#StringExpression
+	KubernetesNamespace!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -333,7 +453,7 @@ fn.#ObjectExpression
 #InstanceLaunchTemplate: close({
 	CapacityOptionType?:    "ON_DEMAND" | "SPOT" | "RESERVED" | fn.#StringExpression
 	CapacityReservations?:  #CapacityReservations
-	Ec2InstanceProfileArn!: string | fn.#StringExpression
+	Ec2InstanceProfileArn!: string | number | bool | fn.#StringExpression
 	FipsEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceMetadataTagsPropagation?: bool |
 		"true" |
@@ -345,30 +465,42 @@ fn.#ObjectExpression
 		fn.#BooleanExpression
 	InstanceRequirements?:      #InstanceRequirements
 	LocalStorageConfiguration?: #ManagedInstancesLocalStorageConfiguration
-	Monitoring?:                string | fn.#StringExpression
+	Monitoring?:                string | number | bool | fn.#StringExpression
 	NetworkConfiguration!:      #ManagedInstancesNetworkConfiguration
 	StorageConfiguration?:      #ManagedInstancesStorageConfiguration
 }) |
 fn.#ObjectExpression
 
-#InstanceRequirements: close({AllowedInstanceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#InstanceRequirements: close(
+	{AllowedInstanceTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 #LaunchTemplateSpecification: close({
-	LaunchTemplateId?:   string | fn.#StringExpression
-	LaunchTemplateName?: string | fn.#StringExpression
+	LaunchTemplateId?:   string | number | bool | fn.#StringExpression
+	LaunchTemplateName?: string | number | bool | fn.#StringExpression
 	Overrides?:          [...#LaunchTemplateSpecificationOverride] | fn.#ListExpression
-	UserdataType?:       =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$" | fn.#StringExpression
-	Version?:            string | fn.#StringExpression
+	UserdataType?: =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LaunchTemplateSpecificationOverride: close({
-	LaunchTemplateId?:    string | fn.#StringExpression
-	LaunchTemplateName?:  string | fn.#StringExpression
-	TargetInstanceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
-	UserdataType?:        =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$" | fn.#StringExpression
-	Version?:             string | fn.#StringExpression
+	LaunchTemplateId?:    string | number | bool | fn.#StringExpression
+	LaunchTemplateName?:  string | number | bool | fn.#StringExpression
+	TargetInstanceTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	UserdataType?: =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -378,19 +510,31 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ManagedInstancesNetworkConfiguration: close({
-	SecurityGroups!: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets!: [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Subnets!: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ManagedInstancesProvider: close({
 	InfrastructureOptimization?: #InfrastructureOptimization
-	InfrastructureRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	InfrastructureRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	InstanceLaunchTemplate!: #InstanceLaunchTemplate
 	PropagateTags?:          "CAPACITY_PROVIDER" | "NONE" | fn.#StringExpression
 }) |

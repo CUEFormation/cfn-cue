@@ -13,21 +13,34 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::FlowOutput
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::FlowOutput"
-	Properties!: close({
-		CidrAllowList?: [...string | fn.#StringExpression] | fn.#ListExpression
-		Description?:   string | fn.#StringExpression
-		Destination?:   string | fn.#StringExpression
+	let properties = close({
+		CidrAllowList?: [...fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Description?: string | number | bool | fn.#StringExpression
+		Destination?: string | number | bool | fn.#StringExpression
 
 		// The type of key used for the encryption. If no keyType is provided, the
 		// service will use the default setting (static-key).
 		Encryption?: #Encryption
 		FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		MaxLatency?: int |
 			{
 				string &
@@ -61,9 +74,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name?:                    string | fn.#StringExpression
+		Name?:                    string | number | bool | fn.#StringExpression
 		NdiOutputTimecodeSource?: "EMBEDDED_TIMECODE" | "UTC_SYSTEM_TIME" | fn.#StringExpression
-		NdiProgramName?:          string | fn.#StringExpression
+		NdiProgramName?:          string | number | bool | fn.#StringExpression
 		NdiSpeedHqQuality?: int |
 			{
 				string &
@@ -108,7 +121,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"cdi" |
 			"ndi-speed-hq" |
 			fn.#StringExpression
-		RemoteId?:                           string | fn.#StringExpression
+		RemoteId?:                           string | number | bool | fn.#StringExpression
 		RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
 		RouterIntegrationTransitEncryption?: #FlowTransitEncryption
 		SmoothingLatency?: int |
@@ -127,18 +140,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		StreamId?: string | fn.#StringExpression
+		StreamId?: string | number | bool | fn.#StringExpression
 		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
 		// The name of the VPC interface attachment to use for this output.
 		VpcInterfaceAttachment?: #VpcInterfaceAttachment
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
 
 #DestinationConfiguration: close({
-	DestinationIp!: string | fn.#StringExpression
+	DestinationIp!: string | number | bool | fn.#StringExpression
 	DestinationPort!: int |
 		{
 			string &
@@ -186,11 +201,21 @@ fn.#ObjectExpression
 #Encryption: close({
 	Algorithm?: "aes128" | "aes192" | "aes256" | fn.#StringExpression
 	KeyType?:   "static-key" | "srt-password" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	SecretArn!: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -209,7 +234,7 @@ fn.#ValueExpression
 
 #FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
-#Interface: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Interface: close({Name!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #MediaStreamOutputConfiguration: close({
 	DestinationConfigurations?: [...#DestinationConfiguration] | fn.#ListExpression
@@ -218,23 +243,34 @@ fn.#ValueExpression
 	// A collection of parameters that determine how MediaConnect will convert the
 	// content. These fields only apply to outputs on flows that have a CDI source.
 	EncodingParameters?: #EncodingParameters
-	MediaStreamName!:    string | fn.#StringExpression
+	MediaStreamName!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SecretsManagerEncryptionKeyConfiguration: close({
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	SecretArn!: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression

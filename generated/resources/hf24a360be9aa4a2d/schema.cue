@@ -14,22 +14,48 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSM::MaintenanceWindowTask
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::MaintenanceWindowTask"
-	Properties!: close({
+	let properties = close({
 		CutoffBehavior?: "CANCEL_TASK" | "CONTINUE_TASK" | fn.#StringExpression
-		Description?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Information about an Amazon S3 bucket to write Run Command task-level logs to.
 		LoggingInfo?: #LoggingInfo
 		MaxConcurrency?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[1-9][0-9]%|[1-9]%|100%)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(7) &
+			strings.MinRunes(1) &
+			=~"^([1-9][0-9]*|[1-9][0-9]%|[1-9]%|100%)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(7) &
+			strings.MinRunes(1) &
+			=~"^([1-9][0-9]*|[0]|[1-9][0-9]%|[0-9]%|100%)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Priority!: int & >=0 |
 			{
 				string &
@@ -47,58 +73,83 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		ServiceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Targets?: list.MaxItems(5) & [...] & [...#Target] | fn.#ListExpression
-		TaskArn!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		TaskArn!: strings.MaxRunes(1600) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The parameters to pass to the task when it runs. Populate only the fields
 		// that match the task type. All other fields should be empty.
 		TaskInvocationParameters?: #TaskInvocationParameters
-		TaskParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		TaskParameters?:           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		TaskType!:                 "AUTOMATION" | "LAMBDA" | "RUN_COMMAND" | "STEP_FUNCTIONS" | fn.#StringExpression
-		WindowId!: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression
+		WindowId!: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CloudWatchOutputConfig: close({
-	CloudWatchLogGroupName?:  string | fn.#StringExpression
+	CloudWatchLogGroupName?:  string | number | bool | fn.#StringExpression
 	CloudWatchOutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #LoggingInfo: close({
-	Region!:   string | fn.#StringExpression
-	S3Bucket!: string | fn.#StringExpression
-	S3Prefix?: string | fn.#StringExpression
+	Region!: string | number | bool | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3Prefix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MaintenanceWindowAutomationParameters: close({
-	DocumentVersion?: string | fn.#StringExpression
-	Parameters?:      fn.#Object & {...} | string | fn.#StringObjectExpression
+	DocumentVersion?: string | number | bool | fn.#StringExpression
+	Parameters?:      fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
 #MaintenanceWindowLambdaParameters: close({
-	ClientContext?: string | fn.#StringExpression
-	Payload?:       string | fn.#StringExpression
-	Qualifier?:     string | fn.#StringExpression
+	ClientContext?: string | number | bool | fn.#StringExpression
+	Payload?:       string | number | bool | fn.#StringExpression
+	Qualifier?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MaintenanceWindowRunCommandParameters: close({
 	CloudWatchOutputConfig?: #CloudWatchOutputConfig
-	Comment?:                string | fn.#StringExpression
-	DocumentHash?:           string | fn.#StringExpression
-	DocumentHashType?:       string | fn.#StringExpression
-	DocumentVersion?:        string | fn.#StringExpression
+	Comment?:                string | number | bool | fn.#StringExpression
+	DocumentHash?:           string | number | bool | fn.#StringExpression
+	DocumentHashType?:       string | number | bool | fn.#StringExpression
+	DocumentVersion?:        string | number | bool | fn.#StringExpression
 	NotificationConfig?:     #NotificationConfig
-	OutputS3BucketName?:     string | fn.#StringExpression
-	OutputS3KeyPrefix?:      string | fn.#StringExpression
-	Parameters?:             fn.#Object & {...} | string | fn.#StringObjectExpression
-	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	OutputS3BucketName?:     string | number | bool | fn.#StringExpression
+	OutputS3KeyPrefix?:      string | number | bool | fn.#StringExpression
+	Parameters?:             fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	ServiceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TimeoutSeconds?: int |
 		{
 			string &
@@ -117,26 +168,33 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MaintenanceWindowStepFunctionsParameters: close({
-	Input?: string | fn.#StringExpression
-	Name?:  string | fn.#StringExpression
+	Input?: string | number | bool | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NotificationConfig: close({
-	NotificationArn!:    string | fn.#StringExpression
-	NotificationEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
-	NotificationType?:   string | fn.#StringExpression
+	NotificationArn!:    string | number | bool | fn.#StringExpression
+	NotificationEvents?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	NotificationType?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ParameterValues: [...string | fn.#StringExpression] | fn.#ListExpression
+#ParameterValues: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 #Target: close({
 	Key!: strings.MaxRunes(163) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}\\p{Z}\\p{N}_.:/=\\-@]*$|resource-groups:ResourceTypeFilters|resource-groups:Name$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(163) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}\\p{Z}\\p{N}_.:/=\\-@]*$|resource-groups:ResourceTypeFilters|resource-groups:Name$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Values!: list.MaxItems(50) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	Values!: list.MaxItems(50) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

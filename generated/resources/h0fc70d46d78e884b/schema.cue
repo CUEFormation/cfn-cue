@@ -14,21 +14,38 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a feed that receives media for inference processing
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElementalInference::Feed"
-	Properties!: close({
-		AccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		AccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(255) &
 		strings.MinRunes(32) &
 		=~"^arn:aws[a-z\\-]*:iam::[0-9]{12}:role/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(255) &
+			strings.MinRunes(32) &
+			=~"^arn:aws[a-z\\-]*:iam::[0-9]{12}:role/.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:    =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Outputs!: [...#GetOutput] | fn.#ListExpression
 		Tags?:    #TagMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AspectRatio: close({
@@ -64,7 +81,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ClippingConfig: close({
-	CallbackMetadata?:        strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" | fn.#StringExpression
+	CallbackMetadata?: strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DataSourceConfiguration?: #DataSourceConfiguration
 }) |
 fn.#ObjectExpression
@@ -74,12 +96,29 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#DataSourceConfiguration: close({FixtureId!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
+#DataSourceConfiguration: close({
+	FixtureId!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #GetOutput: close({
-	Description?:  strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" | fn.#StringExpression
-	Name!:         =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
+	Description?: strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	OutputConfig!: #OutputConfig
 	Status!:       #OutputStatus
 }) |
@@ -95,8 +134,13 @@ fn.#ValueExpression
 #ProfanityFilterMode: "DISABLED" | "CENSOR" | "DROP" | fn.#StringExpression
 
 #SubtitlingConfig: close({
-	AspectRatio?:     #AspectRatio
-	Dictionary?:      strings.MaxRunes(19) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	AspectRatio?: #AspectRatio
+	Dictionary?: strings.MaxRunes(19) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(19) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Language!:        #TranscriptionLanguage
 	ProfanityFilter?: #ProfanityFilterMode
 }) |
@@ -104,15 +148,39 @@ fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~".+"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #TemplateGroup: close({
-	Name!: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
-	TemplateUris!: list.MaxItems(2) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(10) & =~"^s3://[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]/.+$" |
-		fn.#StringExpression
-	] |
+	Name!: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TemplateUris!: list.MaxItems(2) & list.MinItems(1) & [...strings.MaxRunes(255) &
+	strings.MinRunes(10) &
+	=~"^s3://[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]/.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		strings.MinRunes(10) &
+		=~"^s3://[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]/.+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

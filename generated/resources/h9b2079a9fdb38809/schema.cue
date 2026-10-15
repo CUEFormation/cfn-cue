@@ -6,13 +6,17 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::ChannelPolicy Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::ChannelPolicy"
-	Properties!: close({
-		ChannelName!: string | fn.#StringExpression
-		Policy!:      fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		ChannelName!: string | number | bool | fn.#StringExpression
+		Policy!:      fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

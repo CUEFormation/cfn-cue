@@ -9,27 +9,49 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::S3Outposts::AccessPoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Outposts::AccessPoint"
-	Properties!: close({
+	let properties = close({
 		Bucket!: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Name!: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\\\-]*[a-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\\\-]*[a-z0-9])?$" & "\(self)"
+		} |
 		fn.#StringExpression
-		Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Policy?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 		// Virtual Private Cloud (VPC) from which requests can be made to the AccessPoint.
 		VpcConfiguration!: #VpcConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #VpcConfiguration: close({
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

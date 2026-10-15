@@ -10,44 +10,72 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MPA::IdentitySource.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MPA::IdentitySource"
-	Properties!: close({
+	let properties = close({
 		IdentitySourceParameters!: close({
 			IamIdentityCenter!: close({
 				InstanceArn!: strings.MaxRunes(2048) &
 				strings.MinRunes(20) &
 				=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(2048) &
+					strings.MinRunes(20) &
+					=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" &
+					"\(self)"
+				} |
 				fn.#StringExpression
-				Region!: strings.MaxRunes(1000) | fn.#StringExpression
+				Region!: strings.MaxRunes(1000) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(1000) & "\(self)"
+				} |
+				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?: #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IamIdentityCenter: close({
-	ApprovalPortalUrl?: string | fn.#StringExpression
+	ApprovalPortalUrl?: string | number | bool | fn.#StringExpression
 	InstanceArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Region!: strings.MaxRunes(1000) | fn.#StringExpression
+	Region!: strings.MaxRunes(1000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#IdentitySourceArn: string | fn.#StringExpression
+#IdentitySourceArn: string | number | bool | fn.#StringExpression
 
 #IdentitySourceParameters: close({IamIdentityCenter!: #IamIdentityCenter}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

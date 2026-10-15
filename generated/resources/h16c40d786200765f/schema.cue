@@ -9,14 +9,22 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Register as a publisher in the CloudFormation Registry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::Publisher"
-	Properties!: close({
+	let properties = close({
 		AcceptTermsAndConditions!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ConnectionArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:aws(-[w]+)*:.+:.+:[0-9]{12}:.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:aws(-[w]+)*:.+:.+:[0-9]{12}:.+" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -10,13 +10,20 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Replicator
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MSK::Replicator"
-	Properties!: close({
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		KafkaClusters!: list.MaxItems(2) & list.MinItems(2) & list.UniqueItems() & [...#KafkaCluster] |
 			fn.#ListExpression
 
@@ -25,26 +32,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ReplicationInfoList!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationInfo] |
 			fn.#ListExpression
 		ReplicatorName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z][0-9A-Za-z-]{0,}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z][0-9A-Za-z-]{0,}$" & "\(self)"
+		} |
 		fn.#StringExpression
-		ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AmazonMskCluster: close({MskClusterArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#AmazonMskCluster: close({
+	MskClusterArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" |
+	{
+		number | bool
+		_cfnString: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #ApacheKafkaCluster: close({
-	ApacheKafkaClusterId!:  string | fn.#StringExpression
-	BootstrapBrokerString!: string | fn.#StringExpression
+	ApacheKafkaClusterId!:  string | number | bool | fn.#StringExpression
+	BootstrapBrokerString!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CloudWatchLogs: close({
 	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroup?: string | fn.#StringExpression
+	LogGroup?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -53,13 +79,19 @@ fn.#ObjectExpression
 #ConsumerGroupReplication: close({
 	// The consumer group offset synchronization mode.
 	ConsumerGroupOffsetSyncMode?: #ConsumerGroupOffsetSyncMode
-	ConsumerGroupsToExclude?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	] |
+	ConsumerGroupsToExclude?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	ConsumerGroupsToReplicate!: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	] |
+	ConsumerGroupsToReplicate!: list.MaxItems(100) & list.UniqueItems() & [...] & [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	DetectAndCopyNewConsumerGroups?: bool |
 		"true" |
@@ -81,7 +113,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Firehose: close({
-	DeliveryStream?: string | fn.#StringExpression
+	DeliveryStream?: string | number | bool | fn.#StringExpression
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -119,12 +151,16 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KafkaClusterClientVpcConfig: close({
-	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: list.MaxItems(3) & list.MinItems(2) & list.UniqueItems() & [
+		...string | number | bool | fn.#StringExpression
 	] |
-		fn.#ListExpression
-	SubnetIds!: list.MaxItems(3) & list.MinItems(2) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -132,32 +168,33 @@ fn.#ObjectExpression
 #KafkaClusterEncryptionInTransit: close({
 	// The type of encryption in transit to the Apache Kafka cluster.
 	EncryptionType!:    #KafkaClusterEncryptionInTransitType
-	RootCaCertificate?: string | fn.#StringExpression
+	RootCaCertificate?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KafkaClusterEncryptionInTransitType: "TLS" | fn.#StringExpression
 
-#KafkaClusterMtlsAuthentication: close({SecretArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#KafkaClusterMtlsAuthentication: close({SecretArn!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
-#KafkaClusterOAuthClientCredentials: close({TokenRequestSecretArn!: string | fn.#StringExpression}) |
+#KafkaClusterOAuthClientCredentials: close({TokenRequestSecretArn!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
 #KafkaClusterOAuthClientCredentialsAssertion: close({
-	Audience!: string | fn.#StringExpression
+	Audience!: string | number | bool | fn.#StringExpression
 
 	// The algorithm used to sign the JWT client assertion.
 	SigningAlgorithm!:      #JwtSigningAlgorithm
-	TokenRequestSecretArn?: string | fn.#StringExpression
+	TokenRequestSecretArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KafkaClusterOAuthIamJwtBearer: close({
-	Audience!: string | fn.#StringExpression
+	Audience!: string | number | bool | fn.#StringExpression
 
 	// The algorithm used to sign the JWT assertion.
 	SigningAlgorithm!:      #JwtSigningAlgorithm
-	TokenRequestSecretArn?: string | fn.#StringExpression
+	TokenRequestSecretArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -174,19 +211,19 @@ fn.#ObjectExpression
 	// Details for SASL/OAUTHBEARER using JWT Bearer assertion grant (RFC 7523).
 	// Mutually exclusive with clientCredentials and clientCredentialsAssertion.
 	IamJwtBearer?: #KafkaClusterOAuthIamJwtBearer
-	Scope?:        string | fn.#StringExpression
+	Scope?:        string | number | bool | fn.#StringExpression
 
 	// How client credentials are sent to the identity provider (POST, BASIC, or NONE).
 	TokenEndpointAuthenticationMethod!: #TokenEndpointAuthenticationMethod
-	TokenEndpointTlsCertificateArn?:    string | fn.#StringExpression
-	TokenEndpointUrl!:                  string | fn.#StringExpression
+	TokenEndpointTlsCertificateArn?:    string | number | bool | fn.#StringExpression
+	TokenEndpointUrl!:                  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KafkaClusterSaslScramAuthentication: close({
 	// The SASL/SCRAM authentication mechanism.
 	Mechanism!: #KafkaClusterSaslScramMechanism
-	SecretArn!: string | fn.#StringExpression
+	SecretArn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -201,11 +238,21 @@ fn.#ObjectExpression
 #ReplicationInfo: close({
 	// Configuration relating to consumer group replication.
 	ConsumerGroupReplication!: #ConsumerGroupReplication
-	SourceKafkaClusterArn?:    =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" | fn.#StringExpression
-	SourceKafkaClusterId?:     string | fn.#StringExpression
-	TargetCompressionType!:    "NONE" | "GZIP" | "SNAPPY" | "LZ4" | "ZSTD" | fn.#StringExpression
-	TargetKafkaClusterArn?:    =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" | fn.#StringExpression
-	TargetKafkaClusterId?:     string | fn.#StringExpression
+	SourceKafkaClusterArn?: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" |
+	{
+		number | bool
+		_cfnString: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceKafkaClusterId?:  string | number | bool | fn.#StringExpression
+	TargetCompressionType!: "NONE" | "GZIP" | "SNAPPY" | "LZ4" | "ZSTD" | fn.#StringExpression
+	TargetKafkaClusterArn?: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" |
+	{
+		number | bool
+		_cfnString: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetKafkaClusterId?: string | number | bool | fn.#StringExpression
 
 	// Configuration relating to topic replication.
 	TopicReplication!: #TopicReplication
@@ -233,15 +280,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3: close({
-	Bucket?:  string | fn.#StringExpression
+	Bucket?:  string | number | bool | fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Prefix?:  string | fn.#StringExpression
+	Prefix?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -265,13 +322,19 @@ fn.#ObjectExpression
 	// Configuration for specifying replicated topic names should be the same as
 	// their corresponding upstream topics or prefixed with source cluster alias.
 	TopicNameConfiguration?: #ReplicationTopicNameConfiguration
-	TopicsToExclude?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(249) & strings.MinRunes(0) | fn.#StringExpression
-	] |
+	TopicsToExclude?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(249) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(249) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	TopicsToReplicate!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(249) & strings.MinRunes(0) | fn.#StringExpression
-	] |
+	TopicsToReplicate!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(249) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(249) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

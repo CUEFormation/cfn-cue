@@ -9,16 +9,30 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Signer::ProfilePermission
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Signer::ProfilePermission"
-	Properties!: close({
-		Action!:         string | fn.#StringExpression
-		Principal!:      string | fn.#StringExpression
-		ProfileName!:    =~"^[0-9a-zA-Z_]{2,64}$" | fn.#StringExpression
-		ProfileVersion?: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
-		StatementId!:    string | fn.#StringExpression
+	let properties = close({
+		Action!:    string | number | bool | fn.#StringExpression
+		Principal!: string | number | bool | fn.#StringExpression
+		ProfileName!: =~"^[0-9a-zA-Z_]{2,64}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9a-zA-Z_]{2,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProfileVersion?: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]{10}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		StatementId!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

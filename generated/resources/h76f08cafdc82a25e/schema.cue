@@ -10,24 +10,43 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::PaymentConnector
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::PaymentConnector"
-	Properties!: close({
-		ConnectorName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+	let properties = close({
+		ConnectorName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ConnectorType!: #PaymentConnectorType
 		CredentialProviderConfigurations?: list.MaxItems(1) & [...] & [...#CredentialsProviderConfiguration] |
 			fn.#ListExpression
-		Description?:      strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
-		PaymentManagerId!: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PaymentManagerId!: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The provision mode for creating the connector. MANUAL requires
 		// CredentialProviderConfigurations; QUICK_CREATE orchestrates OAuth consent
 		// and credential provisioning.
 		ProvisionMode?: #PaymentConnectorProvisionMode
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CredentialsProviderConfiguration: close({
@@ -54,5 +73,5 @@ fn.#ObjectExpression
 
 #PaymentConnectorType: "CoinbaseCDP" | "StripePrivy" | fn.#StringExpression
 
-#PaymentCredentialProviderConfiguration: close({CredentialProviderArn!: string | fn.#StringExpression}) |
+#PaymentCredentialProviderConfiguration: close({CredentialProviderArn!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression

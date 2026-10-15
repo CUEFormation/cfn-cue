@@ -14,17 +14,28 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53::HealthCheck.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::HealthCheck"
-	Properties!: close({
-		HealthCheckConfig!: close({
+	let properties = close({
+		HealthCheckConfig!: matchIf({
+			Type?: "CLOUDWATCH_METRIC"
+			...
+		}, {
+			AlarmIdentifier!: _
+			...
+		}, _) & close({
 			AlarmIdentifier?: #AlarmIdentifier
-			ChildHealthChecks?: list.MaxItems(256) & [...] & [
-				...strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-			] |
+			ChildHealthChecks?: list.MaxItems(256) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression] |
 			fn.#ListExpression
 			EnableSNI?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			FailureThreshold?: int & <=10 & >=1 |
@@ -45,7 +56,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			FullyQualifiedDomainName?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+			FullyQualifiedDomainName?: strings.MaxRunes(255) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 			HealthThreshold?: int & <=256 & >=0 |
 				{
 					string &
@@ -67,6 +83,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			IPAddress?: strings.MaxRunes(45) &
 			strings.MinRunes(0) &
 			=~"^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$|^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(45) &
+				strings.MinRunes(0) &
+				=~"^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$|^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			InsufficientDataHealthStatus?: "Healthy" | "LastKnownStatus" | "Unhealthy" | fn.#StringExpression
 			Inverted?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -119,9 +142,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			ResourcePath?:      strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-			RoutingControlArn?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-			SearchString?:      strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+			ResourcePath?: strings.MaxRunes(255) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
+			RoutingControlArn?: strings.MaxRunes(255) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			SearchString?: strings.MaxRunes(255) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 			Type!: "CALCULATED" |
 				"CLOUDWATCH_METRIC" |
 				"HTTP" |
@@ -135,10 +173,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		HealthCheckTags?: list.UniqueItems() & [...#HealthCheckTag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AlarmIdentifier: close({
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Region!: "af-south-1" |
 		"ap-east-1" |
 		"ap-east-2" |
@@ -190,7 +235,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #HealthCheckTag: close({
-	Key!:   strings.MaxRunes(128) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -561,7 +561,11 @@ strings.MinRunes(1) &
 // Role ARN
 #RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(1))
 
-#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
+#S3BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
 
 // S3 data source configuration
 #S3DataSourceConfiguration: close({

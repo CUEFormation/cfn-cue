@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaLive::Input
@@ -36,7 +38,7 @@ package schema
 #InputDeviceSettings: close({Id?: string})
 
 #InputRequestDestinationRoute: close({
-	Cidr?:    string
+	Cidr?:    fn.#IPv4Network & string
 	Gateway?: string
 })
 

@@ -41,7 +41,7 @@ import "strings"
 	Architecture!: ("X86_64" | "ARM64" | "ARMHF") & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// The Arn of the S3Bucket that stores the robot application source.
-	S3Bucket!: string
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// The s3 key of robot application source.
 	S3Key!: string

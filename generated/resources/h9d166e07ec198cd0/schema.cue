@@ -10,15 +10,55 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::Instance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::Instance"
-	Properties?: close({
-		AdditionalInfo?:      string | fn.#StringExpression
+	let properties = matchIf({
+		PrivateIpAddress!: _
+		...
+	}, {
+		NetworkInterfaces?: [...null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			PrivateIpAddress?: error("disallowed")
+			PrivateIpAddresses?: [...null |
+			bool |
+			number |
+			string |
+			[...] |
+			{
+				Primary?: false | "false" | "False" | "FALSE" | fn.#ValueExpression
+				...
+			} |
+			fn.#ValueExpression] |
+			fn.#ListExpression
+			...
+		} |
+		fn.#ValueExpression] |
+		fn.#ListExpression
+		PrivateIpAddresses?: [...null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			Primary?: false | "false" | "False" | "FALSE" | fn.#ValueExpression
+			...
+		} |
+		fn.#ValueExpression] |
+		fn.#ListExpression
+		...
+	}, _) & close({
+		AdditionalInfo?:      string | number | bool | fn.#StringExpression
 		Affinity?:            "default" | "host" | fn.#StringExpression
-		AvailabilityZone?:    string | fn.#StringExpression
+		AvailabilityZone?:    string | number | bool | fn.#StringExpression
 		BlockDeviceMappings?: [...#BlockDeviceMapping] | fn.#ListExpression
 		CpuOptions?: close({
 			CoreCount?: int |
@@ -55,7 +95,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#NumberExpression
 		}) |
 		fn.#ObjectExpression
-		CreditSpecification?:      close({CPUCredits?: string | fn.#StringExpression}) | fn.#ObjectExpression
+		CreditSpecification?: close({CPUCredits?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 		DisableApiTermination?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EbsOptimized?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ElasticGpuSpecifications?: [...#ElasticGpuSpecification] | fn.#ListExpression
@@ -68,13 +108,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			{Configured?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 		) |
 			fn.#ObjectExpression
-		HostId?:               string | fn.#StringExpression
-		HostResourceGroupArn?: string | fn.#StringExpression
-		IamInstanceProfile?:   string | fn.#StringExpression
-		ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		HostId?:               string | number | bool | fn.#StringExpression
+		HostResourceGroupArn?: string | number | bool | fn.#StringExpression
+		IamInstanceProfile?:   string | number | bool | fn.#StringExpression
+		ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		InstanceInitiatedShutdownBehavior?: "stop" | "terminate" | fn.#StringExpression
-		InstanceType?:                      string | fn.#StringExpression
+		InstanceType?:                      string | number | bool | fn.#StringExpression
 		Ipv6AddressCount?: int |
 			{
 				string &
@@ -92,16 +136,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Ipv6Addresses?:         [...#InstanceIpv6Address] | fn.#ListExpression
-		KernelId?:              string | fn.#StringExpression
-		KeyName?:               string | fn.#StringExpression
+		KernelId?:              string | number | bool | fn.#StringExpression
+		KeyName?:               string | number | bool | fn.#StringExpression
 		LaunchTemplate?:        #LaunchTemplateSpecification & fn.#Object & {...} | fn.#ObjectExpression
 		LicenseSpecifications?: [...#LicenseSpecification] | fn.#ListExpression
 		MetadataOptions?:       #MetadataOptions & fn.#Object & {...} | fn.#ObjectExpression
 		Monitoring?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		NetworkInterfaces?:     [...#NetworkInterface] | fn.#ListExpression
-		PlacementGroupName?:    string | fn.#StringExpression
+		PlacementGroupName?:    string | number | bool | fn.#StringExpression
 		PrivateDnsNameOptions?: #PrivateDnsNameOptions & fn.#Object & {...} | fn.#ObjectExpression
-		PrivateIpAddress?:      string | fn.#StringExpression
+		PrivateIpAddress?:      string | number | bool | fn.#StringExpression
 		PropagateTagsToVolumeOnCreation?: bool |
 			"true" |
 			"True" |
@@ -110,40 +154,95 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		RamdiskId?: string | fn.#StringExpression
-		SecurityGroupIds?: [...] & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				string |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SecurityGroups?:  [...string | fn.#StringExpression] | fn.#ListExpression
+		RamdiskId?: string | number | bool | fn.#StringExpression
+		SecurityGroupIds?: [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		=~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SecurityGroups?: [...=~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		SsmAssociations?: [...#SsmAssociation] | fn.#ListExpression
-		SubnetId?:        string | fn.#StringExpression
-		Tags?:            [...#Tag] | fn.#ListExpression
-		Tenancy?:         string | fn.#StringExpression
-		UserData?:        string | fn.#StringExpression
-		Volumes?:         [...#Volume] | fn.#ListExpression
+		SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:     [...#Tag] | fn.#ListExpression
+		Tenancy?:  string | number | bool | fn.#StringExpression
+		UserData?: string | number | bool | fn.#StringExpression
+		Volumes?:  [...#Volume] | fn.#ListExpression
 		if NetworkInterfaces != _|_ if NetworkInterfaces."Fn::If" == _|_ {
 			SubnetId?: close({"Fn::If": _}) | error("SubnetId cannot be used with NetworkInterfaces")
 		}
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AssociationParameter: close({
-	Key!:   string | fn.#StringExpression
-	Value!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#BlockDeviceMapping: close({
-	DeviceName!: string | fn.#StringExpression
+#BlockDeviceMapping: matchIf({
+	Ebs?:         error("disallowed")
+	VirtualName!: _
+	...
+}, {
+	VirtualName?: null |
+	bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	=~"^ephemeral([0-9]|[1][0-9]|[2][0-3])$" |
+	[...] |
+	{...} |
+	fn.#ValueExpression
+	...
+}, _) & (close({
+	DeviceName!: string | number | bool | fn.#StringExpression
 
 	// Parameters used to automatically set up EBS volumes when the instance is launched.
 	Ebs?:         #Ebs
 	NoDevice?:    close({}) | fn.#ObjectExpression
-	VirtualName?: string | fn.#StringExpression
+	VirtualName?: string | number | bool | fn.#StringExpression
 	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
 		Ebs?: close({"Fn::If": _}) | error(
 			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
@@ -157,10 +256,28 @@ fn.#ObjectExpression
 			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
 		)
 	}
-}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])) |
 fn.#ObjectExpression
 
-#Ebs: close({
+#Ebs: matchIf({
+	VolumeType!: "io1"
+	...
+}, {
+	Iops!: null | bool | <=64000 & >=100 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	VolumeType!: "io2"
+	...
+}, {
+	Iops!: null | bool | <=256000 & >=100 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	VolumeType!: "gp3"
+	...
+}, {
+	Iops?: null | bool | <=16000 & >=3000 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int |
@@ -177,10 +294,24 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	SnapshotId?: string | fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SnapshotId?: string | number | bool | fn.#StringExpression
 	VolumeSize?: int |
 		{
 			string &
@@ -199,7 +330,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ElasticGpuSpecification: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ElasticGpuSpecification: close({Type!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ElasticInferenceAccelerator: close({
 	Count?: int & >=0 |
@@ -217,7 +348,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Type!: string | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -232,7 +363,7 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#InstanceIpv6Address: close({Ipv6Address!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#InstanceIpv6Address: close({Ipv6Address!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #LaunchTemplateSpecification: matchN(1, [{
 	LaunchTemplateName!: _
@@ -243,13 +374,14 @@ fn.#ObjectExpression
 	Version!:          _
 	...
 }]) & close({
-	LaunchTemplateId?:   string | fn.#StringExpression
-	LaunchTemplateName?: string | fn.#StringExpression
-	Version?:            string | fn.#StringExpression
+	LaunchTemplateId?:   string | number | bool | fn.#StringExpression
+	LaunchTemplateName?: string | number | bool | fn.#StringExpression
+	Version?:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LicenseSpecification: close({LicenseConfigurationArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#LicenseSpecification: close({LicenseConfigurationArn!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #MetadataOptions: close({
 	HttpEndpoint?:     "disabled" | "enabled" | fn.#StringExpression
@@ -279,14 +411,16 @@ fn.#ObjectExpression
 	AssociateCarrierIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AssociatePublicIpAddress?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeleteOnTermination?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:               string | fn.#StringExpression
-	DeviceIndex!:               string | fn.#StringExpression
+	Description?:               string | number | bool | fn.#StringExpression
+	DeviceIndex!:               string | number | bool | fn.#StringExpression
 	EnaSrdSpecification?:       #EnaSrdSpecification
-	GroupSet?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
+	GroupSet?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	Ipv6AddressCount?: int |
 		{
 			string &
@@ -302,8 +436,8 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Ipv6Addresses?:      [...#InstanceIpv6Address] | fn.#ListExpression
-	NetworkInterfaceId?: string | fn.#StringExpression
-	PrivateIpAddress?:   string | fn.#StringExpression
+	NetworkInterfaceId?: string | number | bool | fn.#StringExpression
+	PrivateIpAddress?:   string | number | bool | fn.#StringExpression
 	PrivateIpAddresses?: [...#PrivateIpAddressSpecification] | fn.#ListExpression
 	SecondaryPrivateIpAddressCount?: int |
 		{
@@ -319,7 +453,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SubnetId?: string | fn.#StringExpression
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	if AssociateCarrierIpAddress != _|_ if AssociateCarrierIpAddress."Fn::If" == _|_ {
 		NetworkInterfaceId?: close({"Fn::If": _}) | error(
 			"NetworkInterfaceId cannot be used with AssociateCarrierIpAddress",
@@ -349,30 +488,30 @@ fn.#ObjectExpression
 
 #PrivateIpAddressSpecification: close({
 	Primary!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PrivateIpAddress!: string | fn.#StringExpression
+	PrivateIpAddress!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SsmAssociation: close({
 	AssociationParameters?: [...#AssociationParameter] | fn.#ListExpression
-	DocumentName!:          string | fn.#StringExpression
+	DocumentName!:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #State: close({
-	Code?: string | fn.#StringExpression
-	Name?: string | fn.#StringExpression
+	Code?: string | number | bool | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Volume: close({
-	Device!:   string | fn.#StringExpression
-	VolumeId!: string | fn.#StringExpression
+	Device!:   string | number | bool | fn.#StringExpression
+	VolumeId!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

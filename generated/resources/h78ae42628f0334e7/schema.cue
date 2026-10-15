@@ -10,18 +10,23 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpenSearchServerless::Index
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpenSearchServerless::Index"
-	Properties!: close({
-		CollectionEndpoint!: string | fn.#StringExpression
-		IndexName!:          string | fn.#StringExpression
+	let properties = close({
+		CollectionEndpoint!: string | number | bool | fn.#StringExpression
+		IndexName!:          string | number | bool | fn.#StringExpression
 		Mappings?: close({
 			Properties?: close({
 
-				{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping}}) |
+				{[=~"^(?:Ref)$"]: error("disallowed")}
+
+				{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping}
+			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
@@ -29,21 +34,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Index settings
 		Settings?: #IndexSettings
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IndexSettings: close({
 	Analysis?: close({
 		Analyzer?: close({
 
+			{[=~"^(?:Ref)$"]: error("disallowed")}
+
 			{
 				[=~"^[A-Za-z0-9_.-]{1,64}$"]: close({
-					CharFilter?: [...string | fn.#StringExpression] | fn.#ListExpression
-					Filter?:     [...string | fn.#StringExpression] | fn.#ListExpression
-					Tokenizer?:  string | fn.#StringExpression
-					Type?:       string | fn.#StringExpression
+					CharFilter?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+					Filter?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+					Tokenizer?:  string | number | bool | fn.#StringExpression
+					Type?:       string | number | bool | fn.#StringExpression
 				}) |
 				fn.#ObjectExpression
-			}}) |
+			}
+		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
@@ -65,14 +75,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		RefreshInterval?: string | fn.#StringExpression
+		RefreshInterval?: string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #PropertyMapping: close({
-	Analyzer?:         string | fn.#StringExpression
+	Analyzer?:         string | number | bool | fn.#StringExpression
 	CompressionLevel?: "16x" | "32x" | "8x" | "4x" | "2x" | "1x" | fn.#StringExpression
 	DataType?:         "float" | "byte" | fn.#StringExpression
 	Dimension?: int |
@@ -136,10 +146,13 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 	Properties?: close({
 
-		{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping}
+	}) |
 	fn.#ObjectExpression
 	SpaceType?: "l2" | "l1" | "linf" | "cosinesimil" | "innerproduct" | "hamming" | fn.#StringExpression
 	Type!:      "text" | "knn_vector" | "keyword" | "integer" | fn.#StringExpression
-	Value?:     string | fn.#StringExpression
+	Value?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates a gateway with a route table. The gateway and route table must be
@@ -13,8 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to be routed according to the routes in the route table.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::GatewayRouteTableAssociation"
-	Properties!: close({
-		GatewayId!:    string | fn.#StringExpression
-		RouteTableId!: string | fn.#StringExpression
+	let properties = close({
+		GatewayId!:    string | number | bool | fn.#StringExpression
+		RouteTableId!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

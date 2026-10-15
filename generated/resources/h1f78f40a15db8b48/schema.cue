@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cloud9::EnvironmentEC2
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cloud9::EnvironmentEC2"
-	Properties?: close({
+	let properties = close({
 		AutomaticStopTimeMinutes?: int & <=20160 & >=0 |
 			{
 				string &
@@ -39,27 +41,85 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		ConnectionType?: "CONNECT_SSH" | "CONNECT_SSM" | fn.#StringExpression
-		Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		ImageId?:        strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-		InstanceType?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^[a-z]+[1-9][.][a-z0-9]+$" | fn.#StringExpression
-		Name?:         strings.MaxRunes(60) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ImageId?: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceType?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^[a-z]+[1-9][.][a-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^[a-z]+[1-9][.][a-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(60) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		OwnerArn?: =~"^arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):(iam|sts)::\\d+:(root|(user\\/[\\w+=/:,.@-]{1,64}|federated-user\\/[\\w+=/:,.@-]{2,32}|assumed-role\\/[\\w+=:,.@-]{1,64}\\/[\\w+=,.@-]{1,64}))$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):(iam|sts)::\\d+:(root|(user\\/[\\w+=/:,.@-]{1,64}|federated-user\\/[\\w+=/:,.@-]{2,32}|assumed-role\\/[\\w+=:,.@-]{1,64}\\/[\\w+=,.@-]{1,64}))$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		Repositories?: [...#Repository] | fn.#ListExpression
-		SubnetId?: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" |
+		SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(24) &
+		strings.MinRunes(15) &
+		=~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(24) &
+			strings.MinRunes(15) &
+			=~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Repository: close({
-	PathComponent!: strings.MaxRunes(1000) | fn.#StringExpression
-	RepositoryUrl!: strings.MaxRunes(1000) | fn.#StringExpression
+	PathComponent!: strings.MaxRunes(1000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & "\(self)"
+	} |
+	fn.#StringExpression
+	RepositoryUrl!: strings.MaxRunes(1000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

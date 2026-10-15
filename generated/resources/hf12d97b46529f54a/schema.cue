@@ -13,20 +13,40 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::AppFlow::Flow.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppFlow::Flow"
-	Properties!: close({
-		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		DestinationFlowConfigList!: [...#DestinationFlowConfig] | fn.#ListExpression
-		FlowName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
+		FlowName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		FlowStatus?: "Active" | "Suspended" | "Draft" | fn.#StringExpression
-		KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KMSArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"arn:aws:kms:.*:[0-9]+:.*" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"arn:aws:kms:.*:[0-9]+:.*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// Configurations of metadata catalog of the flow.
@@ -40,6 +60,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Trigger settings of the flow.
 		TriggerConfig!: #TriggerConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AggregationConfig: {
@@ -54,11 +76,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AmplitudeSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-#ApiVersion: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#ApiVersion: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+" | fn.#StringExpression
+#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"\\S+" |
+{
+	number | bool
+	_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"\\S+" &
+	"\(self)"
+} |
+fn.#StringExpression
 
-#BucketPrefix: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+#BucketPrefix: strings.MaxRunes(512) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #ConnectorOperator: {
 	Amplitude?:       #AmplitudeConnectorOperator
@@ -81,7 +127,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	...
 } | fn.#ObjectExpression
 
-#ConnectorProfileName: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
+#ConnectorProfileName: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #ConnectorType: "SAPOData" |
 	"Salesforce" |
@@ -111,7 +162,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CustomProperties?:    #CustomProperties
 	EntityName!:          #EntityName
 	ErrorHandlingConfig?: #ErrorHandlingConfig
-	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression] |
+	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	WriteOperationType?: #WriteOperationType
 }) |
@@ -120,7 +176,12 @@ fn.#ObjectExpression
 #CustomConnectorSourceProperties: close({
 	CustomProperties?: #CustomProperties
 	DataTransferApi?: close({
-		Name!: strings.MaxRunes(64) & strings.MinRunes(0) & =~"[\\w/-]+" | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(0) & =~"[\\w/-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & =~"[\\w/-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		Type!: "SYNC" | "ASYNC" | "AUTOMATIC" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
@@ -151,7 +212,12 @@ fn.#ObjectExpression
 
 #DatadogSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
 
-#DatetimeTypeFieldName: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#DatetimeTypeFieldName: strings.MaxRunes(256) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #DestinationConnectorProperties: {
 	CustomConnector?: #CustomConnectorDestinationProperties
@@ -183,7 +249,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DocumentType: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w_-]+" | fn.#StringExpression
+#DocumentType: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w_-]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w_-]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #DynatraceConnectorOperator: "PROJECTION" |
 	"BETWEEN" |
@@ -206,7 +277,12 @@ fn.#ObjectExpression
 
 #EnableDynamicFieldUpdate: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-#EntityName: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#EntityName: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #ErrorHandlingConfig: close({
 	BucketName?:       #BucketName
@@ -224,13 +300,31 @@ fn.#ObjectExpression
 #FileType: "CSV" | "JSON" | "PARQUET" | fn.#StringExpression
 
 #GlueDataCatalog: close({
-	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(0) &
 	=~"arn:aws:iam:.*:[0-9]+:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(0) &
+		=~"arn:aws:iam:.*:[0-9]+:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	TablePrefix!: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	TablePrefix!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -304,9 +398,19 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Name: strings.MaxRunes(128) & =~"\\S+" | fn.#StringExpression
+#Name: strings.MaxRunes(128) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#Object: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#Object: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #Operator: "PROJECTION" |
 	"LESS_THAN" |
@@ -467,7 +571,12 @@ fn.#ObjectExpression
 
 #SAPODataDestinationProperties: close({
 	ErrorHandlingConfig?: #ErrorHandlingConfig
-	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression] |
+	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	ObjectPath!:                    #Object
 	SuccessResponseHandlingConfig?: #SuccessResponseHandlingConfig
@@ -546,7 +655,12 @@ fn.#ObjectExpression
 #SalesforceDestinationProperties: close({
 	DataTransferApi?:     #DataTransferApi
 	ErrorHandlingConfig?: #ErrorHandlingConfig
-	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression] |
+	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Object!:             #Object
 	WriteOperationType?: #WriteOperationType
@@ -617,7 +731,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ScheduleOffset?: <=36000 & >=0 |
 		{
 			string &
@@ -657,7 +776,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimeZone?: strings.MaxRunes(256) | fn.#StringExpression
+	TimeZone?: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -779,8 +903,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -801,9 +935,20 @@ fn.#ObjectExpression
 #Task: close({
 	// Operation to be performed on provided source fields
 	ConnectorOperator?: #ConnectorOperator
-	DestinationField?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	SourceFields!:      [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	TaskProperties?:    [...#TaskPropertiesObject] | fn.#ListExpression
+	DestinationField?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceFields!: [...strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	TaskProperties?: [...#TaskPropertiesObject] | fn.#ListExpression
 
 	// Type of task
 	TaskType!: #TaskType
@@ -811,8 +956,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TaskPropertiesObject: close({
-	Key!:   #OperatorPropertiesKeys
-	Value!: strings.MaxRunes(2048) & =~".+" | fn.#StringExpression
+	Key!: #OperatorPropertiesKeys
+	Value!: strings.MaxRunes(2048) & =~".+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~".+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -857,7 +1007,21 @@ fn.#ObjectExpression
 
 #TriggerType: "Scheduled" | "Event" | "OnDemand" | fn.#StringExpression
 
-#UpsolverBucketName: strings.MaxRunes(63) & strings.MinRunes(16) & =~"^(upsolver-appflow)\\S*" | fn.#StringExpression
+#UpsolverBucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(16) &
+=~"^(upsolver-appflow)\\S*" |
+{
+	number | bool
+	_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(16) &
+	=~"^(upsolver-appflow)\\S*" &
+	"\(self)"
+} |
+fn.#StringExpression
 
 #UpsolverDestinationProperties: close({
 	BucketName!:           #UpsolverBucketName
@@ -924,7 +1088,12 @@ fn.#ObjectExpression
 
 #ZendeskDestinationProperties: close({
 	ErrorHandlingConfig?: #ErrorHandlingConfig
-	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression] |
+	IdFieldNames?: [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Object!:             #Object
 	WriteOperationType?: #WriteOperationType

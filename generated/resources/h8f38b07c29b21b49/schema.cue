@@ -9,26 +9,56 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for SSO assignmet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSO::Assignment"
-	Properties!: close({
+	let properties = close({
 		InstanceArn!: strings.MaxRunes(1224) &
 		strings.MinRunes(10) &
 		=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1224) &
+			strings.MinRunes(10) &
+			=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PermissionSetArn!: strings.MaxRunes(1224) &
 		strings.MinRunes(10) &
 		=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::permissionSet/(sso)?ins-[a-zA-Z0-9-.]{16}/ps-[a-zA-Z0-9-./]{16}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1224) &
+			strings.MinRunes(10) &
+			=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::permissionSet/(sso)?ins-[a-zA-Z0-9-.]{16}/ps-[a-zA-Z0-9-./]{16}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PrincipalId!: strings.MaxRunes(47) &
 		strings.MinRunes(1) &
 		=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(47) &
+			strings.MinRunes(1) &
+			=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PrincipalType!: "USER" | "GROUP" | fn.#StringExpression
-		TargetId!:      =~"\\d{12}" | fn.#StringExpression
-		TargetType!:    "AWS_ACCOUNT" | fn.#StringExpression
+		TargetId!: =~"\\d{12}" |
+		{
+			number | bool
+			_cfnString: =~"\\d{12}" & "\(self)"
+		} |
+		fn.#StringExpression
+		TargetType!: "AWS_ACCOUNT" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

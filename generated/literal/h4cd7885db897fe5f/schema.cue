@@ -256,7 +256,7 @@ import (
 	SecurityGroupIdList?: list.MaxItems(50) & [...] & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 	]
-	SubnetId?:     strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$"
+	SubnetId?:     =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$"
 	SubnetIdList?: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$"]
 })
 

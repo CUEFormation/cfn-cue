@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a new origin access control in CloudFront. After you create an origin
@@ -19,17 +21,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon CloudFront Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::OriginAccessControl"
-	Properties!: close({
+	let properties = close({
 		// The origin access control.
 		OriginAccessControlConfig!: #OriginAccessControlConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #OriginAccessControlConfig: close({
-	Description?:                   string | fn.#StringExpression
-	Name!:                          string | fn.#StringExpression
-	OriginAccessControlOriginType!: =~"^(s3|mediastore|lambda|mediapackagev2)$" | fn.#StringExpression
-	SigningBehavior!:               =~"^(never|no-override|always|always-amz-auth)$" | fn.#StringExpression
-	SigningProtocol!:               =~"^(sigv4|sigv4a)$" | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
+	Name!:        string | number | bool | fn.#StringExpression
+	OriginAccessControlOriginType!: =~"^(s3|mediastore|lambda|mediapackagev2)$" |
+	{
+		number | bool
+		_cfnString: =~"^(s3|mediastore|lambda|mediapackagev2)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SigningBehavior!: =~"^(never|no-override|always|always-amz-auth)$" |
+	{
+		number | bool
+		_cfnString: =~"^(never|no-override|always|always-amz-auth)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SigningProtocol!: =~"^(sigv4|sigv4a)$" |
+	{
+		number | bool
+		_cfnString: =~"^(sigv4|sigv4a)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,16 +10,20 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::FunctionDefinition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Greengrass::FunctionDefinition"
-	Properties!: close({
+	let properties = close({
 		InitialVersion?: #FunctionDefinitionVersion
-		Name!:           string | fn.#StringExpression
-		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		Name!:           string | number | bool | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DefaultConfig: close({Execution!: #Execution}) | fn.#ObjectExpression
@@ -28,29 +32,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AccessSysfs?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Execution?:              #Execution
 	ResourceAccessPolicies?: [...#ResourceAccessPolicy] | fn.#ListExpression
-	Variables?:              fn.#Object & {...} | string | fn.#StringObjectExpression
+	Variables?:              fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
 #Execution: close({
-	IsolationMode?: string | fn.#StringExpression
+	IsolationMode?: string | number | bool | fn.#StringExpression
 	RunAs?:         #RunAs
 }) |
 fn.#ObjectExpression
 
 #Function: close({
-	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	FunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	FunctionConfiguration!: #FunctionConfiguration
-	Id!:                    string | fn.#StringExpression
+	Id!:                    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FunctionConfiguration: close({
-	EncodingType?: string | fn.#StringExpression
+	EncodingType?: string | number | bool | fn.#StringExpression
 	Environment?:  #Environment
-	ExecArgs?:     string | fn.#StringExpression
-	Executable?:   string | fn.#StringExpression
+	ExecArgs?:     string | number | bool | fn.#StringExpression
+	Executable?:   string | number | bool | fn.#StringExpression
 	MemorySize?: int |
 		{
 			string &
@@ -90,8 +98,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ResourceAccessPolicy: close({
-	Permission?: string | fn.#StringExpression
-	ResourceId!: string | fn.#StringExpression
+	Permission?: string | number | bool | fn.#StringExpression
+	ResourceId!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

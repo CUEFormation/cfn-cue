@@ -14,17 +14,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ObservabilityAdmin::OrganizationTelemetryRule resource defines a
 // CloudWatch Observability Admin Organization Telemetry Rule.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ObservabilityAdmin::OrganizationTelemetryRule"
-	Properties!: close({
-		Rule!:     #TelemetryRule
-		RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" | fn.#StringExpression
-		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Rule!: #TelemetryRule
+		RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: "ALLOW" | "BLOCK" | "COUNT" | "CAPTCHA" | "CHALLENGE" | "EXCLUDED_AS_COUNT" | fn.#StringExpression
@@ -36,18 +45,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AdvancedEventSelector: close({
 	FieldSelectors!: list.UniqueItems() & [...#AdvancedFieldSelector] | fn.#ListExpression
-	Name?:           string | fn.#StringExpression
+	Name?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AdvancedFieldSelector: {
-	EndsWith?:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Equals?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Field?:         strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	NotEndsWith?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	NotEquals?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	NotStartsWith?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	StartsWith?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	EndsWith?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Equals?:   list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Field?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	NotEndsWith?:   list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	NotEquals?:     list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	NotStartsWith?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	StartsWith?:    list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
 
@@ -66,21 +80,21 @@ fn.#ObjectExpression
 
 #Conditions: list.MinItems(1) & list.UniqueItems() & [...#Condition] | fn.#ListExpression
 
-#DestinationPattern: string | fn.#StringExpression
+#DestinationPattern: string | number | bool | fn.#StringExpression
 
 #DestinationType: "cloud-watch-logs" | fn.#StringExpression
 
 #ELBLoadBalancerLoggingParameters: {
-	FieldDelimiter?: string | fn.#StringExpression
+	FieldDelimiter?: string | number | bool | fn.#StringExpression
 	OutputFormat?:   "plain" | "json" | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
 #FieldToMatch: {
-	Method?:       string | fn.#StringExpression
-	QueryString?:  string | fn.#StringExpression
+	Method?:       string | number | bool | fn.#StringExpression
+	QueryString?:  string | number | bool | fn.#StringExpression
 	SingleHeader?: #SingleHeader
-	UriPath?:      string | fn.#StringExpression
+	UriPath?:      string | number | bool | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
@@ -97,14 +111,27 @@ fn.#ObjectExpression
 
 #Filters: list.MinItems(1) & list.UniqueItems() & [...#Filter] | fn.#ListExpression
 
-#KmsKeyArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#KmsKeyArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\d{12}:key/(mrk-)?[a-f0-9-]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\d{12}:key/(mrk-)?[a-f0-9-]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #LabelNameCondition: {
-	LabelName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-:]+$" | fn.#StringExpression
+	LabelName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
@@ -126,9 +153,9 @@ fn.#StringExpression
 #RedactedFields: list.MaxItems(100) & list.UniqueItems() & [...#FieldToMatch] | fn.#ListExpression
 
 #RegionStatus: close({
-	Region?:  string | fn.#StringExpression
-	RuleArn?: string | fn.#StringExpression
-	Status?:  string | fn.#StringExpression
+	Region?:  string | number | bool | fn.#StringExpression
+	RuleArn?: string | number | bool | fn.#StringExpression
+	Status?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -163,15 +190,33 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#Scope: string | fn.#StringExpression
+#Scope: string | number | bool | fn.#StringExpression
 
-#SelectionCriteria: string | fn.#StringExpression
+#SelectionCriteria: string | number | bool | fn.#StringExpression
 
-#SingleHeader: close({Name!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
+#SingleHeader: close({
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -206,7 +251,12 @@ fn.#ObjectExpression
 	AllRegions?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AllowFieldUpdates?:        #AllowFieldUpdates
 	DestinationConfiguration?: #TelemetryDestinationConfiguration
-	Regions?: list.MinItems(1) & list.UniqueItems() & [...strings.MinRunes(1) | fn.#StringExpression] |
+	Regions?: list.MinItems(1) & list.UniqueItems() & [...strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	ResourceType!:         #ResourceType
 	Scope?:                #Scope
@@ -230,7 +280,7 @@ fn.#ObjectExpression
 #TelemetryType: "Logs" | "Metrics" | fn.#StringExpression
 
 #VPCFlowLogParameters: close({
-	LogFormat?: string | fn.#StringExpression
+	LogFormat?: string | number | bool | fn.#StringExpression
 	MaxAggregationInterval?: int |
 		{
 			string &
@@ -245,7 +295,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TrafficType?: string | fn.#StringExpression
+	TrafficType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

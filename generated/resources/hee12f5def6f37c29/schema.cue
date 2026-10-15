@@ -14,17 +14,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GlobalAccelerator::Listener
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GlobalAccelerator::Listener"
-	Properties!: close({
-		AcceleratorArn!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		AcceleratorArn!: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ClientAffinity?: "NONE" | "SOURCE_IP" | fn.#StringExpression
 		PortRanges!:     list.MaxItems(10) & list.MinItems(1) & [...#PortRange] | fn.#ListExpression
 		Protocol!:       "TCP" | "UDP" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Port: int & <=65535 & >=0 |

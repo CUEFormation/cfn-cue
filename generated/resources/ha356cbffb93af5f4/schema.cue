@@ -14,40 +14,49 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::Stage`` resource creates a stage for a deployment.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::Stage"
-	Properties!: close({
+	let properties = close({
 		AccessLogSetting?:     #AccessLogSetting
 		CacheClusterEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		CacheClusterSize?:     string | fn.#StringExpression
+		CacheClusterSize?:     string | number | bool | fn.#StringExpression
 		CanarySetting?:        #CanarySetting
-		ClientCertificateId?:  string | fn.#StringExpression
-		DeploymentId?:         string | fn.#StringExpression
-		Description?:          string | fn.#StringExpression
-		DocumentationVersion?: string | fn.#StringExpression
+		ClientCertificateId?:  string | number | bool | fn.#StringExpression
+		DeploymentId?:         string | number | bool | fn.#StringExpression
+		Description?:          string | number | bool | fn.#StringExpression
+		DocumentationVersion?: string | number | bool | fn.#StringExpression
 		MethodSettings?:       list.UniqueItems() & [...#MethodSetting] | fn.#ListExpression
-		RestApiId!:            string | fn.#StringExpression
-		StageName?:            string | fn.#StringExpression
+		RestApiId!:            string | number | bool | fn.#StringExpression
+		StageName?:            string | number | bool | fn.#StringExpression
 		Tags?:                 [...#Tag] | fn.#ListExpression
 		TracingEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Variables?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessLogSetting: close({
-	DestinationArn?: string | fn.#StringExpression
-	Format?:         string | fn.#StringExpression
+	DestinationArn?: string | number | bool | fn.#StringExpression
+	Format?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CanarySetting: close({
-	DeploymentId?: string | fn.#StringExpression
+	DeploymentId?: string | number | bool | fn.#StringExpression
 	PercentTraffic?: <=100 & >=0 |
 		{
 			string &
@@ -70,13 +79,74 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	StageVariableOverrides?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	UseStageCache?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-#MethodSetting: close({
+#MethodSetting: matchIf(matchN(0, [matchN(0, [null | bool | number | string | [...] | {
+	CacheDataEncrypted!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	CacheTtlInSeconds!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	CachingEnabled!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	DataTraceEnabled!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	LoggingLevel!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	MetricsEnabled!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	ThrottlingBurstLimit!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	ThrottlingRateLimit!: _
+	...
+}])]), {
+	ResourcePath?: null |
+	bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	=~"^/.*$" |
+	[...] |
+	{...} |
+	fn.#ValueExpression
+	...
+}, _) & close({
 	CacheDataEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CacheTtlInSeconds?: int |
 		{
@@ -94,10 +164,10 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	CachingEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataTraceEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HttpMethod?:       string | fn.#StringExpression
-	LoggingLevel?:     string | fn.#StringExpression
+	HttpMethod?:       string | number | bool | fn.#StringExpression
+	LoggingLevel?:     string | number | bool | fn.#StringExpression
 	MetricsEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourcePath?:     string | fn.#StringExpression
+	ResourcePath?:     string | number | bool | fn.#StringExpression
 	ThrottlingBurstLimit?: int & >=0 |
 		{
 			string &
@@ -136,7 +206,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

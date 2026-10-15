@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A user profile represents Amazon DataZone users. Amazon DataZone supports
@@ -22,27 +24,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // projects where they have memberships.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::UserProfile"
-	Properties!: close({
-		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		SessionName?:      strings.MaxRunes(64) & strings.MinRunes(2) | fn.#StringExpression
-		Status?:           #UserProfileStatus
+	let properties = close({
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SessionName?: strings.MaxRunes(64) & strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(2) & "\(self)"
+		} |
+		fn.#StringExpression
+		Status?: #UserProfileStatus
 		UserIdentifier!: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		UserType?: #UserType
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IamUserProfileDetails: close({
-	Arn?:            string | fn.#StringExpression
-	GroupProfileId?: string | fn.#StringExpression
-	SessionName?:    string | fn.#StringExpression
+	Arn?:            string | number | bool | fn.#StringExpression
+	GroupProfileId?: string | number | bool | fn.#StringExpression
+	SessionName?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SsoUserProfileDetails: close({
-	FirstName?: string | fn.#StringExpression
-	LastName?:  string | fn.#StringExpression
-	Username?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@-]+$" | fn.#StringExpression
+	FirstName?: string | number | bool | fn.#StringExpression
+	LastName?:  string | number | bool | fn.#StringExpression
+	Username?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

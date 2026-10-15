@@ -9,16 +9,40 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ServiceCatalog::ResourceUpdateConstraint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::ResourceUpdateConstraint"
-	Properties!: close({
-		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		Description?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-		PortfolioId!:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-		ProductId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-		TagUpdateOnProvisionedProduct!: string | fn.#StringExpression
+	let properties = close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(2000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		PortfolioId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProductId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TagUpdateOnProvisionedProduct!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

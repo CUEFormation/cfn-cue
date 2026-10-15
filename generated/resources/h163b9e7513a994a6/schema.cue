@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkspacesInstances::WorkspaceInstance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkspacesInstances::WorkspaceInstance"
-	Properties?: close({
+	let properties = close({
 		ManagedInstance?: close({
 			BlockDeviceMappings?:              [...#BlockDeviceMapping] | fn.#ListExpression
 			CapacityReservationSpecification?: #CapacityReservationSpecification
@@ -31,10 +33,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			EnclaveOptions?:     #EnclaveOptionsRequest
 			HibernationOptions?: #HibernationOptionsRequest
 			IamInstanceProfile?: #IamInstanceProfileSpecification
-			ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-				=~"^ami-[0-9a-zA-Z]{1,63}$" |
-				fn.#StringExpression
+			ImageId!: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & =~"^ami-[0-9a-zA-Z]{1,63}$" |
+			{
+				number | bool
+				_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & =~"^ami-[0-9a-zA-Z]{1,63}$" & "\(self)"
+			} |
+			fn.#StringExpression
 			InstanceType!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([a-z0-9-]+)\\.([a-z0-9]+)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([a-z0-9-]+)\\.([a-z0-9]+)$" & "\(self)"
+			} |
 			fn.#StringExpression
 			Ipv6AddressCount?: int & >=0 |
 				{
@@ -53,7 +62,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			KeyName?:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+			KeyName?: strings.MaxRunes(64) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 			LicenseSpecifications?:     [...#LicenseConfigurationRequest] | fn.#ListExpression
 			MaintenanceOptions?:        #InstanceMaintenanceOptionsRequest
 			MetadataOptions?:           #InstanceMetadataOptionsRequest
@@ -62,20 +76,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			NetworkPerformanceOptions?: #InstanceNetworkPerformanceOptionsRequest
 			Placement?:                 #Placement
 			PrivateDnsNameOptions?:     #PrivateDnsNameOptionsRequest
-			SubnetId?:                  =~"^subnet-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
-			TagSpecifications?:         list.MaxItems(30) & [...#TagSpecification] | fn.#ListExpression
-			UserData?:                  strings.MaxRunes(16000) & strings.MinRunes(0) | fn.#StringExpression
+			SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{1,63}$" |
+			{
+				number | bool
+				_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+					=~"^subnet-[0-9a-zA-Z]{1,63}$" &
+					"\(self)"
+			} |
+			fn.#StringExpression
+			TagSpecifications?: list.MaxItems(30) & [...#TagSpecification] | fn.#ListExpression
+			UserData?: strings.MaxRunes(16000) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(16000) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(30) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #BlockDeviceMapping: close({
-	DeviceName?:  strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
-	Ebs?:         #EbsBlockDevice
-	NoDevice?:    strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
-	VirtualName?: =~"^ephemeral(0|[1-9][0-9]{0,2})$" | fn.#StringExpression
+	DeviceName?: strings.MaxRunes(32) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Ebs?: #EbsBlockDevice
+	NoDevice?: strings.MaxRunes(32) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	VirtualName?: =~"^ephemeral(0|[1-9][0-9]{0,2})$" |
+	{
+		number | bool
+		_cfnString: =~"^ephemeral(0|[1-9][0-9]{0,2})$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -86,8 +129,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CapacityReservationTarget: close({
-	CapacityReservationId?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	CapacityReservationId?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	CapacityReservationResourceGroupArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -175,7 +227,7 @@ fn.#ObjectExpression
 #CreditSpecificationRequest: close({CpuCredits?: "standard" | "unlimited" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#EC2ManagedInstance: close({InstanceId?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#EC2ManagedInstance: close({InstanceId?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #EbsBlockDevice: close({
 	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -194,8 +246,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(128) & strings.MinRunes(0)) |
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(128) & strings.MinRunes(0)) |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Throughput?: int & >=0 |
 		{
@@ -253,13 +315,28 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #IamInstanceProfileSpecification: close({
-	Arn?:  strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" | fn.#StringExpression
-	Name?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	Arn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InstanceIpv6Address: close({
-	Ipv6Address?:   strings.MaxRunes(128) | fn.#StringExpression
+	Ipv6Address?: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
 	IsPrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -292,7 +369,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InstanceNetworkInterfaceSpecification: close({
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DeviceIndex?: int & >=0 |
 		{
 			string &
@@ -308,8 +390,19 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Groups?:   [...=~"^sg-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression] | fn.#ListExpression
-	SubnetId?: =~"^subnet-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
+	Groups?: [...=~"^sg-[0-9a-zA-Z]{1,63}$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-[0-9a-zA-Z]{1,63}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{1,63}$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{1,63}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -318,21 +411,55 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#Ipv4PrefixSpecificationRequest: close({Ipv4Prefix?: strings.MaxRunes(128) | fn.#StringExpression}) |
+#Ipv4PrefixSpecificationRequest: close({
+	Ipv4Prefix?: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#Ipv6PrefixSpecificationRequest: close({Ipv6Prefix?: strings.MaxRunes(128) | fn.#StringExpression}) |
+#Ipv6PrefixSpecificationRequest: close({
+	Ipv6Prefix?: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#LicenseConfigurationRequest: close(
-	{LicenseConfigurationArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" | fn.#StringExpression},
-) |
+#LicenseConfigurationRequest: close({
+	LicenseConfigurationArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Placement: close({
-	AvailabilityZone?: =~"^[a-z]{2}-[a-z]+-\\d[a-z](-[a-z0-9]+)?$" | fn.#StringExpression
-	GroupId?:          =~"^pg-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
-	GroupName?:        strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	AvailabilityZone?: =~"^[a-z]{2}-[a-z]+-\\d[a-z](-[a-z0-9]+)?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z]{2}-[a-z]+-\\d[a-z](-[a-z0-9]+)?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	GroupId?: =~"^pg-[0-9a-zA-Z]{1,63}$" |
+	{
+		number | bool
+		_cfnString: =~"^pg-[0-9a-zA-Z]{1,63}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	GroupName?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	PartitionNumber?: int & >=0 |
 		{
 			string &
@@ -367,8 +494,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PrivateIpAddressSpecification: close({
-	Primary?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PrivateIpAddress?: strings.MaxRunes(128) | fn.#StringExpression
+	Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	PrivateIpAddress?: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -378,8 +510,18 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

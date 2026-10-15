@@ -6,14 +6,18 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGatewayV2::Deployment`` resource creates a deployment for an API.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::Deployment"
-	Properties!: close({
-		ApiId!:       string | fn.#StringExpression
-		Description?: string | fn.#StringExpression
-		StageName?:   string | fn.#StringExpression
+	let properties = close({
+		ApiId!:       string | number | bool | fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
+		StageName?:   string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -76,8 +76,11 @@ import "strings"
 	DataSources?: close({CloudWatchDashboards?: [...#CloudWatchDashboard]})
 	Outputs!: close({
 		ExperimentReportS3Configuration!: close({
-			BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
-			Prefix?:     strings.MaxRunes(256) & strings.MinRunes(1)
+			BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3)
+			Prefix?: strings.MaxRunes(256) & strings.MinRunes(1)
 		})
 	})
 	PostExperimentDuration?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[\\S]+$"
@@ -90,8 +93,12 @@ import "strings"
 	CloudWatchLogsConfiguration?: close({LogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\S]+$"})
 	LogSchemaVersion!:            int & >=1
 	S3Configuration?: close({
-		BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[\\S]+$"
-		Prefix?:     strings.MaxRunes(700) & strings.MinRunes(1) & =~"^[\\s\\S]+$"
+		BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^[\\S]+$"
+		Prefix?: strings.MaxRunes(700) & strings.MinRunes(1) & =~"^[\\s\\S]+$"
 	})
 })
 

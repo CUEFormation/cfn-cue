@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
 )
@@ -89,7 +90,7 @@ import (
 // The options for cidr type endpoint.
 #CidrOptions: close({
 	// The IP address range, in CIDR notation.
-	Cidr?: string
+	Cidr?: fn.#IPv4Network & string
 
 	// The list of port range.
 	PortRanges?: list.UniqueItems() & [...#PortRange]

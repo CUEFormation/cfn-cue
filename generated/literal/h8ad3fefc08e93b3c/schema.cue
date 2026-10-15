@@ -50,7 +50,7 @@ import "strings"
 		=~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$"
 
 	// The subnet ID of the infrastructure configuration.
-	SubnetId?: strings.MaxRunes(1024) & strings.MinRunes(1)
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1))
 
 	// The tags associated with the component.
 	Tags?: close({
@@ -92,7 +92,10 @@ import "strings"
 // The S3 path in which to store the logs.
 #S3Logs: close({
 	// S3BucketName
-	S3BucketName?: strings.MaxRunes(1024) & strings.MinRunes(1)
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1)
 
 	// S3KeyPrefix
 	S3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(1)

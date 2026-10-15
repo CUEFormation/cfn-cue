@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Connections enables users to connect their DataZone resources (domains,
@@ -21,11 +23,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // etc)
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::Connection"
-	Properties!: close({
-		AwsLocation?:      #AwsLocation
-		Configurations?:   [...#ConnectionConfiguration] | fn.#ListExpression
-		Description?:      strings.MaxRunes(128) & =~"^[\\S\\s]*$" | fn.#StringExpression
-		DomainIdentifier!: =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+	let properties = close({
+		AwsLocation?:    #AwsLocation
+		Configurations?: [...#ConnectionConfiguration] | fn.#ListExpression
+		Description?: strings.MaxRunes(128) & =~"^[\\S\\s]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & =~"^[\\S\\s]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		EnableTrustedIdentityPropagation?: bool |
 			"true" |
 			"True" |
@@ -34,72 +46,171 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		EnvironmentIdentifier?: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		Name!:                  strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" | fn.#StringExpression
-		ProjectIdentifier?:     string | fn.#StringExpression
-		Props?:                 #ConnectionPropertiesInput
-		Scope?:                 "DOMAIN" | "PROJECT" | fn.#StringExpression
+		EnvironmentIdentifier?: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectIdentifier?: string | number | bool | fn.#StringExpression
+		Props?:             #ConnectionPropertiesInput
+		Scope?:             "DOMAIN" | "PROJECT" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AmazonQPropertiesInput: close({
-	AuthMode?:  strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	AuthMode?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	IsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ProfileArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"arn:aws[a-z\\-]*:[a-z0-9\\-]+:[a-z0-9\\-]*:[0-9]*:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"arn:aws[a-z\\-]*:[a-z0-9\\-]+:[a-z0-9\\-]*:[0-9]*:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#AthenaPropertiesInput: close({WorkgroupName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression}) |
+#AthenaPropertiesInput: close({
+	WorkgroupName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z0-9._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #AuthenticationConfigurationInput: close({
 	AuthenticationType?:              #AuthenticationType
 	BasicAuthenticationCredentials?:  #BasicAuthenticationCredentials
 	CustomAuthenticationCredentials?: #CredentialMap
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^$|arn:aws[a-z0-9-]*:kms:.*$" |
-		fn.#StringExpression
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & =~"^$|arn:aws[a-z0-9-]*:kms:.*$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			=~"^$|arn:aws[a-z0-9-]*:kms:.*$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	OAuth2Properties?: #OAuth2Properties
-	SecretArn?:        =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$" | fn.#StringExpression
+	SecretArn?: =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AuthenticationType: "BASIC" | "OAUTH2" | "CUSTOM" | fn.#StringExpression
 
 #AuthorizationCodeProperties: close({
-	AuthorizationCode?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	RedirectUri?:       strings.MaxRunes(512) | fn.#StringExpression
+	AuthorizationCode?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RedirectUri?: strings.MaxRunes(512) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AwsLocation: close({
 	AccessRole?: strings.MaxRunes(2048) &
 	=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	AwsAccountId?:    =~"^\\d{12}$" | fn.#StringExpression
-	AwsRegion?:       =~"^[a-z]{2}-[a-z]{4,10}-\\d$" | fn.#StringExpression
-	IamConnectionId?: strings.MaxRunes(128) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	AwsAccountId?: =~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	AwsRegion?: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" & "\(self)"
+	} |
+	fn.#StringExpression
+	IamConnectionId?: strings.MaxRunes(128) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BasicAuthenticationCredentials: close({
-	Password?: strings.MaxRunes(512) & =~"^.*$" | fn.#StringExpression
-	UserName?: strings.MaxRunes(512) & =~"^\\S+$" | fn.#StringExpression
+	Password?: strings.MaxRunes(512) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UserName?: strings.MaxRunes(512) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ComputeEnvironments: string | fn.#StringExpression
+#ComputeEnvironments: string | number | bool | fn.#StringExpression
 
 #ConnectionConfiguration: close({
-	Classification?: strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" | fn.#StringExpression
-	Properties?:     #PropertyMap
+	Classification?: strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Properties?: #PropertyMap
 }) |
 fn.#ObjectExpression
 
 #ConnectionProperties: close({
 
-	{[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #ConnectionPropertiesInput: matchN(1, [close(
@@ -141,11 +252,23 @@ fn.#ValueExpression
 	"DELETED" |
 	fn.#StringExpression
 
-#ConnectionType: string | fn.#StringExpression
+#ConnectionType: string | number | bool | fn.#StringExpression
 
 #CredentialMap: close({
 
-	{[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #GlueConnectionInput: close({
@@ -154,9 +277,25 @@ fn.#ObjectExpression
 	ConnectionProperties?:        #ConnectionProperties
 	ConnectionType?:              #GlueConnectionType
 	Description?: strings.MaxRunes(2048) & =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\r\\n\\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\r\\n\\t]*$" & "\(self)"
+	} |
 	fn.#StringExpression
-	MatchCriteria?: strings.MaxRunes(10) & strings.MinRunes(0) | fn.#StringExpression
+	MatchCriteria?: strings.MaxRunes(10) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PhysicalConnectionRequirements?: #PhysicalConnectionRequirements
 	PythonProperties?:               #PropertyMap
@@ -167,29 +306,62 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#GlueConnectionType: string | fn.#StringExpression
+#GlueConnectionType: string | number | bool | fn.#StringExpression
 
 #GlueOAuth2Credentials: close({
-	AccessToken?: strings.MaxRunes(4096) & =~"^[\\x20-\\x7E]*$" | fn.#StringExpression
-	JwtToken?: strings.MaxRunes(8000) & =~"^([a-zA-Z0-9_=]+)\\.([a-zA-Z0-9_=]+)\\.([a-zA-Z0-9_\\-\\+\\/=]*)$" |
+	AccessToken?: strings.MaxRunes(4096) & =~"^[\\x20-\\x7E]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & =~"^[\\x20-\\x7E]*$" & "\(self)"
+	} |
 	fn.#StringExpression
-	RefreshToken?:                             strings.MaxRunes(4096) & =~"^[\\x20-\\x7E]*$" | fn.#StringExpression
-	UserManagedClientApplicationClientSecret?: strings.MaxRunes(512) & =~"^[\\x20-\\x7E]*$" | fn.#StringExpression
+	JwtToken?: strings.MaxRunes(8000) & =~"^([a-zA-Z0-9_=]+)\\.([a-zA-Z0-9_=]+)\\.([a-zA-Z0-9_\\-\\+\\/=]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8000) &
+		=~"^([a-zA-Z0-9_=]+)\\.([a-zA-Z0-9_=]+)\\.([a-zA-Z0-9_\\-\\+\\/=]*)$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	RefreshToken?: strings.MaxRunes(4096) & =~"^[\\x20-\\x7E]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & =~"^[\\x20-\\x7E]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UserManagedClientApplicationClientSecret?: strings.MaxRunes(512) & =~"^[\\x20-\\x7E]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & =~"^[\\x20-\\x7E]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GluePropertiesInput: close({GlueConnectionInput?: #GlueConnectionInput}) | fn.#ObjectExpression
 
 #HyperPodPropertiesInput: close({
-	ClusterName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
+	ClusterName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IamPropertiesInput: close({
 	GlueLineageSyncEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	=~"^arn:aws[^:]*:iam::\\d{12}:role(\\/[a-zA-Z0-9+=,.@_-]+)*\\/[a-zA-Z0-9+=,.@_-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		=~"^arn:aws[^:]*:iam::\\d{12}:role(\\/[a-zA-Z0-9+=,.@_-]+)*\\/[a-zA-Z0-9+=,.@_-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -201,15 +373,31 @@ fn.#ObjectExpression
 
 #LineageSyncSchedule: close({
 	Schedule?: =~"^cron\\((\\b[0-5]?[0-9]\\b) (\\b2[0-3]\\b|\\b[0-1]?[0-9]\\b) ([-?*,/\\dLW]){1,83} ([-*,/\\d]|[a-zA-Z]{3}){1,23} ([-?#*,/\\dL]|[a-zA-Z]{3}){1,13} ([^\\)]+)\\)$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^cron\\((\\b[0-5]?[0-9]\\b) (\\b2[0-3]\\b|\\b[0-1]?[0-9]\\b) ([-?*,/\\dLW]){1,83} ([-*,/\\d]|[a-zA-Z]{3}){1,23} ([-?#*,/\\dL]|[a-zA-Z]{3}){1,13} ([^\\)]+)\\)$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
+fn.#ObjectExpression
+
+#MlflowPropertiesInput: close({TrackingServerArn?: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#MlflowPropertiesInput: close({TrackingServerArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
 #OAuth2ClientApplication: close({
-	AWSManagedClientApplicationReference?: strings.MaxRunes(2048) & =~"^\\S+$" | fn.#StringExpression
-	UserManagedClientApplicationClientId?: strings.MaxRunes(2048) & =~"^\\S+$" | fn.#StringExpression
+	AWSManagedClientApplicationReference?: strings.MaxRunes(2048) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UserManagedClientApplicationClientId?: strings.MaxRunes(2048) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -221,32 +409,73 @@ fn.#ObjectExpression
 	OAuth2Credentials?:           #GlueOAuth2Credentials
 	OAuth2GrantType?:             #OAuth2GrantType
 	TokenUrl?: strings.MaxRunes(256) & =~"^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		=~"^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	TokenUrlParametersMap?: #TokenUrlParametersMap
 }) |
 fn.#ObjectExpression
 
 #PhysicalConnectionRequirements: close({
-	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SecurityGroupIdList?: list.MaxItems(50) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-		fn.#StringExpression
-	] |
+	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecurityGroupIdList?: list.MaxItems(50) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetId?: strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$" | fn.#StringExpression
-	SubnetIdList?: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$" | fn.#StringExpression
-	] |
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		=~"^subnet-[a-z0-9]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	SubnetIdList?: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & =~"^subnet-[a-z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #PropertyMap: close({
 
-	{[=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$"]: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$"]: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #RedshiftCredentials: matchN(1, [close({
@@ -265,10 +494,20 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #RedshiftPropertiesInput: close({
-	Credentials?:  #RedshiftCredentials
-	DatabaseName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" | fn.#StringExpression
-	Host?:         strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
-	LineageSync?:  #RedshiftLineageSyncConfigurationInput
+	Credentials?: #RedshiftCredentials
+	DatabaseName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Host?: strings.MaxRunes(256) & =~"^[\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^[\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LineageSync?: #RedshiftLineageSyncConfigurationInput
 	Port?: <=65535 & >=0 |
 		{
 			string &
@@ -309,36 +548,106 @@ fn.#ValueExpression
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	S3AccessGrantLocationId?: strings.MaxRunes(64) & strings.MinRunes(0) & =~"[a-zA-Z0-9\\-]+" | fn.#StringExpression
-	S3Uri!:                   strings.MaxRunes(2048) & strings.MinRunes(0) & =~"s3://.+" | fn.#StringExpression
+	S3AccessGrantLocationId?: strings.MaxRunes(64) & strings.MinRunes(0) & =~"[a-zA-Z0-9\\-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & =~"[a-zA-Z0-9\\-]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3Uri!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"s3://.+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"s3://.+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SparkEmrPropertiesInput: close({
 	ComputeArn?: strings.MaxRunes(2048) &
 	=~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:(elasticmapreduce|emr-serverless|emr-containers):.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:(elasticmapreduce|emr-serverless|emr-containers):.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	InstanceProfileArn?: strings.MaxRunes(2048) &
 	=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	JavaVirtualEnv?:     strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
-	LogUri?:             strings.MaxRunes(2048) & =~"^s3://.+$" | fn.#StringExpression
-	ManagedEndpointArn?: strings.MaxRunes(2048) | fn.#StringExpression
-	PythonVirtualEnv?:   strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
+	JavaVirtualEnv?: strings.MaxRunes(256) & =~"^[\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^[\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogUri?: strings.MaxRunes(2048) & =~"^s3://.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^s3://.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ManagedEndpointArn?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	PythonVirtualEnv?: strings.MaxRunes(256) & =~"^[\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^[\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	RuntimeRole?: strings.MaxRunes(2048) &
 	=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	TrustedCertificatesS3Uri?: strings.MaxRunes(2048) & =~"^s3://.+$" | fn.#StringExpression
+	TrustedCertificatesS3Uri?: strings.MaxRunes(2048) & =~"^s3://.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^s3://.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SparkGlueArgs: close({Connection?: strings.MaxRunes(128) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression}) |
+#SparkGlueArgs: close({
+	Connection?: strings.MaxRunes(128) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SparkGluePropertiesInput: close({
-	AdditionalArgs?:     #SparkGlueArgs
-	GlueConnectionName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]*$" | fn.#StringExpression
-	GlueVersion?:        strings.MaxRunes(256) & =~"^\\w+\\.\\w+$" | fn.#StringExpression
+	AdditionalArgs?: #SparkGlueArgs
+	GlueConnectionName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	GlueVersion?: strings.MaxRunes(256) & =~"^\\w+\\.\\w+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^\\w+\\.\\w+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	IdleTimeout?: <=3000 & >=1 |
 		{
 			string &
@@ -359,7 +668,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	JavaVirtualEnv?: strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
+	JavaVirtualEnv?: strings.MaxRunes(256) & =~"^[\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^[\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	NumberOfWorkers?: <=1000 & >=1 |
 		{
 			string &
@@ -380,22 +694,55 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PythonVirtualEnv?: strings.MaxRunes(256) & =~"^[\\S]*$" | fn.#StringExpression
-	WorkerType?:       strings.MaxRunes(256) & =~"^[G|Z].*$" | fn.#StringExpression
+	PythonVirtualEnv?: strings.MaxRunes(256) & =~"^[\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^[\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	WorkerType?: strings.MaxRunes(256) & =~"^[G|Z].*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^[G|Z].*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TokenUrlParametersMap: close({
 
-	{[=~".+"]: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression}}) |
-fn.#ObjectExpression
+	{
+		[=~".+"]: strings.MaxRunes(512) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
 
-#UsernamePassword: close({
-	Password!: strings.MaxRunes(64) & =~"^[\\S]*$" | fn.#StringExpression
-	Username!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\S]*$" | fn.#StringExpression
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
 }) |
 fn.#ObjectExpression
 
-#WorkflowsMwaaPropertiesInput: close({MwaaEnvironmentName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#UsernamePassword: close({
+	Password!: strings.MaxRunes(64) & =~"^[\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & =~"^[\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Username!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#WorkflowsMwaaPropertiesInput: close({MwaaEnvironmentName?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #WorkflowsServerlessPropertiesInput: close({}) | fn.#ObjectExpression

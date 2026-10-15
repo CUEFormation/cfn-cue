@@ -10,20 +10,34 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::SchedulingPolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Batch::SchedulingPolicy"
-	Properties?: close({
-		FairsharePolicy?:  #FairsharePolicy
-		Name?:             =~"" | fn.#StringExpression
+	let properties = close({
+		FairsharePolicy?: #FairsharePolicy
+		Name?: =~"" |
+		{
+			number | bool
+			_cfnString: =~"" & "\(self)"
+		} |
+		fn.#StringExpression
 		QuotaSharePolicy?: #QuotaSharePolicy
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FairsharePolicy: close({
@@ -71,13 +85,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#QuotaSharePolicy: close({IdleResourceAssignmentStrategy?: =~"(?i)^(?:fifo)$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#QuotaSharePolicy: close({
+	IdleResourceAssignmentStrategy?: =~"(?i)^(?:fifo)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:fifo)$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
-#ResourceArn: string | fn.#StringExpression
+#ResourceArn: string | number | bool | fn.#StringExpression
 
 #ShareAttributes: close({
-	ShareIdentifier?: string | fn.#StringExpression
+	ShareIdentifier?: string | number | bool | fn.#StringExpression
 	WeightFactor?: <=1000 & >=0 |
 		{
 			string &

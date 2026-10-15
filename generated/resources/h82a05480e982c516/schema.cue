@@ -10,25 +10,38 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Neptune::EventSubscription
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Neptune::EventSubscription"
-	Properties!: close({
+	let properties = close({
 		Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EventCategories?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		SourceIds?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		SourceType?:       string | fn.#StringExpression
-		SubscriptionName?: strings.MaxRunes(255) | fn.#StringExpression
-		Tags?:             [...#Tag] | fn.#ListExpression
+		EventCategories?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SnsTopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceIds?:  list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SourceType?: string | number | bool | fn.#StringExpression
+		SubscriptionName?: strings.MaxRunes(255) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

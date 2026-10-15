@@ -6,15 +6,19 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ApplicationFleetAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::ApplicationFleetAssociation"
-	Properties!: close({
+	let properties = close({
 		ApplicationArn!: #Arn
-		FleetName!:      string | fn.#StringExpression
+		FleetName!:      string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: string | fn.#StringExpression
+#Arn: string | number | bool | fn.#StringExpression

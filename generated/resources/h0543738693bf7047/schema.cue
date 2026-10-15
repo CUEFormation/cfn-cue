@@ -14,49 +14,125 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Grafana::Workspace Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Grafana::Workspace"
-	Properties!: close({
+	let properties = close({
 		AccountAccessType!: #AccountAccessType
 		AuthenticationProviders!: list.MinItems(1) & list.UniqueItems() & [...#AuthenticationProviderTypes] |
 			fn.#ListExpression
-		ClientToken?:              =~"^[!-~]{1,64}$" | fn.#StringExpression
-		DataSources?:              [...#DataSourceType] | fn.#ListExpression
-		Description?:              strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		GrafanaVersion?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:                     =~"^[a-zA-Z0-9-._~]{1,255}$" | fn.#StringExpression
+		ClientToken?: =~"^[!-~]{1,64}$" |
+		{
+			number | bool
+			_cfnString: =~"^[!-~]{1,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DataSources?: [...#DataSourceType] | fn.#ListExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		GrafanaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: =~"^[a-zA-Z0-9-._~]{1,255}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9-._~]{1,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		NetworkAccessControl?:     #NetworkAccessControl
 		NotificationDestinations?: [...#NotificationDestinationType] | fn.#ListExpression
-		OrganizationRoleName?:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		OrganizationalUnits?:      [...string | fn.#StringExpression] | fn.#ListExpression
-		PermissionType!:           #PermissionType
-		PluginAdminEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		OrganizationRoleName?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		OrganizationalUnits?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		PermissionType!:      #PermissionType
+		PluginAdminEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SamlConfiguration?: #SamlConfiguration
-		StackSetName?:      string | fn.#StringExpression
+		StackSetName?:      string | number | bool | fn.#StringExpression
 		Tags?: [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		VpcConfiguration?: #VpcConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccountAccessType: "CURRENT_ACCOUNT" | "ORGANIZATION" | fn.#StringExpression
 
 #AssertionAttributes: close({
-	Email?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Groups?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Login?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Org?:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Role?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Email?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Groups?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Login?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Org?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Role?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -73,19 +149,30 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #IdpMetadata: close({
-	Url?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Xml?: string | fn.#StringExpression
+	Url?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Xml?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NetworkAccessControl: close({
-	PrefixListIds?: list.MaxItems(5) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	PrefixListIds?: list.MaxItems(5) & list.UniqueItems() & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	VpceIds?: list.MaxItems(5) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	VpceIds?: list.MaxItems(5) & list.UniqueItems() & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -95,15 +182,33 @@ fn.#ObjectExpression
 #PermissionType: "CUSTOMER_MANAGED" | "SERVICE_MANAGED" | fn.#StringExpression
 
 #RoleValues: close({
-	Admin?:  [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Editor?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	Admin?: [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Editor?: [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SamlConfiguration: close({
-	AllowedOrganizations?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	AssertionAttributes?:  #AssertionAttributes
-	IdpMetadata!:          #IdpMetadata
+	AllowedOrganizations?: [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	AssertionAttributes?: #AssertionAttributes
+	IdpMetadata!:         #IdpMetadata
 	LoginValidityDuration?: number |
 		{
 			string &
@@ -130,14 +235,22 @@ fn.#ObjectExpression
 #SamlConfigurationStatus: "CONFIGURED" | "NOT_CONFIGURED" | fn.#StringExpression
 
 #VpcConfiguration: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-		fn.#StringExpression
-	] |
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds!: list.MaxItems(6) & list.MinItems(2) & list.UniqueItems() & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	SubnetIds!: list.MaxItems(6) & list.MinItems(2) & list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -30,7 +30,11 @@ import (
 	// Location (S3 bucket name) where recorded videos will be stored. Note that the
 	// StorageConfiguration and S3 bucket must be in the same region as the
 	// Composition.
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$"
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9-.]+$"
 })
 
 #Tag: close({

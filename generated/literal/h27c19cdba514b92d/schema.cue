@@ -69,7 +69,9 @@ import (
 // S3 configuration for source network data.
 #SourceS3Configuration: close({
 	// The name of the S3 bucket containing source data.
-	S3Bucket!: =~"^[a-zA-Z0-9.\\-_]{1,255}$"
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[a-zA-Z0-9.\\-_]{1,255}$"
 
 	// The AWS account ID of the S3 bucket owner.
 	S3BucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}"
@@ -111,7 +113,9 @@ import (
 // S3 configuration for storing target network artifacts.
 #TargetS3Configuration: close({
 	// The name of the S3 bucket for target artifacts.
-	S3Bucket!: =~"^[a-zA-Z0-9.\\-_]{1,255}$"
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[a-zA-Z0-9.\\-_]{1,255}$"
 
 	// The AWS account ID of the S3 bucket owner.
 	S3BucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}"

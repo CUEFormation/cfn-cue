@@ -14,16 +14,18 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Private certificate authority.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ACMPCA::CertificateAuthority"
-	Properties!: close({
+	let properties = close({
 		// Structure that contains CSR pass through extension information used by the
 		// CreateCertificateAuthority action.
 		CsrExtensions?: #CsrExtensions
-		KeyAlgorithm!:  string | fn.#StringExpression
+		KeyAlgorithm!:  string | number | bool | fn.#StringExpression
 		KeyStorageSecurityStandard?: "CCPC_LEVEL_1_OR_HIGHER" |
 			"FIPS_140_2_LEVEL_2_OR_HIGHER" |
 			"FIPS_140_2_LEVEL_3_OR_HIGHER" |
@@ -32,14 +34,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Certificate revocation information used by the CreateCertificateAuthority and
 		// UpdateCertificateAuthority actions.
 		RevocationConfiguration?: #RevocationConfiguration
-		SigningAlgorithm!:        string | fn.#StringExpression
+		SigningAlgorithm!:        string | number | bool | fn.#StringExpression
 
 		// Structure that contains X.500 distinguished name information for your CA.
 		Subject!:   #Subject
 		Tags?:      list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		Type!:      string | fn.#StringExpression
+		Type!:      string | number | bool | fn.#StringExpression
 		UsageMode?: "GENERAL_PURPOSE" | "SHORT_LIVED_CERTIFICATE" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessDescription: close({
@@ -54,18 +58,29 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#AccessMethodType: string | fn.#StringExpression
+#AccessMethodType: string | number | bool | fn.#StringExpression
 
-#Arn: string | fn.#StringExpression
+#Arn: string | number | bool | fn.#StringExpression
 
 #CrlConfiguration: close({
 	CrlDistributionPointExtensionConfiguration?: #CrlDistributionPointExtensionConfiguration
 	CrlType?:                                    "COMPLETE" | "PARTITIONED" | fn.#StringExpression
 	CustomCname?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^[-a-zA-Z0-9;/?:@&=+$,%_.!~*()']*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^[-a-zA-Z0-9;/?:@&=+$,%_.!~*()']*$" & "\(self)"
+	} |
 	fn.#StringExpression
 	CustomPath?: strings.MaxRunes(253) &
 	strings.MinRunes(0) &
 	=~"^(/|[-a-zA-Z0-9;?:@&=+$,%_.!~*()']+(/[-a-zA-Z0-9;?:@&=+$,%_.!~*()']+)*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) &
+		strings.MinRunes(0) &
+		=~"^(/|[-a-zA-Z0-9;?:@&=+$,%_.!~*()']+(/[-a-zA-Z0-9;?:@&=+$,%_.!~*()']+)*)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExpirationInDays?: int & <=5000 & >=1 |
@@ -84,8 +99,22 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	S3BucketName?: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[-a-zA-Z0-9._/]+$" | fn.#StringExpression
-	S3ObjectAcl?:  "BUCKET_OWNER_FULL_CONTROL" | "PUBLIC_READ" | fn.#StringExpression
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(3) &
+	=~"^[-a-zA-Z0-9._/]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(3) &
+		=~"^[-a-zA-Z0-9._/]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	S3ObjectAcl?: "BUCKET_OWNER_FULL_CONTROL" | "PUBLIC_READ" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -102,19 +131,19 @@ fn.#ObjectExpression
 
 #CustomAttribute: close({
 	ObjectIdentifier!: #CustomObjectIdentifier
-	Value!:            string | fn.#StringExpression
+	Value!:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomAttributeList: [...#CustomAttribute] | fn.#ListExpression
 
-#CustomObjectIdentifier: string | fn.#StringExpression
+#CustomObjectIdentifier: string | number | bool | fn.#StringExpression
 
-#DnsName: string | fn.#StringExpression
+#DnsName: string | number | bool | fn.#StringExpression
 
 #EdiPartyName: close({
-	NameAssigner?: string | fn.#StringExpression
-	PartyName!:    string | fn.#StringExpression
+	NameAssigner?: string | number | bool | fn.#StringExpression
+	PartyName!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -130,7 +159,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#IpAddress: string | fn.#StringExpression
+#IpAddress: string | number | bool | fn.#StringExpression
 
 #KeyUsage: close({
 	CRLSign?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -148,13 +177,17 @@ fn.#ObjectExpression
 #OcspConfiguration: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OcspCustomCname?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^[-a-zA-Z0-9;/?:@&=+$,%_.!~*()']*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^[-a-zA-Z0-9;/?:@&=+$,%_.!~*()']*$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OtherName: close({
 	TypeId!: #CustomObjectIdentifier
-	Value!:  string | fn.#StringExpression
+	Value!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -164,33 +197,43 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Rfc822Name: string | fn.#StringExpression
+#Rfc822Name: string | number | bool | fn.#StringExpression
 
 #Subject: close({
-	CommonName?:                 string | fn.#StringExpression
-	Country?:                    string | fn.#StringExpression
+	CommonName?:                 string | number | bool | fn.#StringExpression
+	Country?:                    string | number | bool | fn.#StringExpression
 	CustomAttributes?:           #CustomAttributeList
-	DistinguishedNameQualifier?: string | fn.#StringExpression
-	GenerationQualifier?:        string | fn.#StringExpression
-	GivenName?:                  string | fn.#StringExpression
-	Initials?:                   string | fn.#StringExpression
-	Locality?:                   string | fn.#StringExpression
-	Organization?:               string | fn.#StringExpression
-	OrganizationalUnit?:         string | fn.#StringExpression
-	Pseudonym?:                  string | fn.#StringExpression
-	SerialNumber?:               string | fn.#StringExpression
-	State?:                      string | fn.#StringExpression
-	Surname?:                    string | fn.#StringExpression
-	Title?:                      string | fn.#StringExpression
+	DistinguishedNameQualifier?: string | number | bool | fn.#StringExpression
+	GenerationQualifier?:        string | number | bool | fn.#StringExpression
+	GivenName?:                  string | number | bool | fn.#StringExpression
+	Initials?:                   string | number | bool | fn.#StringExpression
+	Locality?:                   string | number | bool | fn.#StringExpression
+	Organization?:               string | number | bool | fn.#StringExpression
+	OrganizationalUnit?:         string | number | bool | fn.#StringExpression
+	Pseudonym?:                  string | number | bool | fn.#StringExpression
+	SerialNumber?:               string | number | bool | fn.#StringExpression
+	State?:                      string | number | bool | fn.#StringExpression
+	Surname?:                    string | number | bool | fn.#StringExpression
+	Title?:                      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SubjectInformationAccess: [...#AccessDescription] | fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#UniformResourceIdentifier: string | fn.#StringExpression
+#UniformResourceIdentifier: string | number | bool | fn.#StringExpression

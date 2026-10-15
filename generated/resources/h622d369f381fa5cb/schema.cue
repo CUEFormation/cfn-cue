@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::FileCache
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FSx::FileCache"
-	Properties!: close({
+	let properties = close({
 		CopyTagsToDataRepositoryAssociations?: bool |
 			"true" |
 			"True" |
@@ -31,9 +33,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DataRepositoryAssociations?: list.MaxItems(8) & [...] & [...#DataRepositoryAssociation] | fn.#ListExpression
 		FileCacheType!:              "LUSTRE" | fn.#StringExpression
 		FileCacheTypeVersion!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9](\\.[0-9]*)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9](\\.[0-9]*)*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		LustreConfiguration?: close({
 			DeploymentType!:        "CACHE_1" | fn.#StringExpression
@@ -59,16 +75,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			WeeklyMaintenanceStartTime?: strings.MaxRunes(7) &
 			strings.MinRunes(7) &
 			=~"^[1-7]:([01]\\d|2[0-3]):?([0-5]\\d)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(7) &
+				strings.MinRunes(7) &
+				=~"^[1-7]:([01]\\d|2[0-3]):?([0-5]\\d)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		SecurityGroupIds?: list.MaxItems(50) & [...] & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		SecurityGroupIds?: list.MaxItems(50) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(20) &
+		strings.MinRunes(11) &
+		=~"^(sg-[0-9a-f]{8,})$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 			strings.MaxRunes(20) &
 			strings.MinRunes(11) &
-			=~"^(sg-[0-9a-f]{8,})$" |
-			fn.#StringExpression
-		] |
+			=~"^(sg-[0-9a-f]{8,})$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		StorageCapacity!: int & <=2147483647 & >=0 |
 			{
@@ -88,23 +117,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SubnetIds!: list.MaxItems(50) & [...] & [
-			...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-[0-9a-f]{8,})$" | fn.#StringExpression
-		] |
+		SubnetIds!: list.MaxItems(50) & [...] & [...strings.MaxRunes(24) &
+		strings.MinRunes(15) &
+		=~"^(subnet-[0-9a-f]{8,})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-[0-9a-f]{8,})$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DataRepositoryAssociation: close({
-	DataRepositoryPath!: strings.MaxRunes(4357) & strings.MinRunes(3) | fn.#StringExpression
-	FileCachePath!:      strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	DataRepositoryPath!: strings.MaxRunes(4357) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4357) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	FileCachePath!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LogConfiguration: close({
-	Destination?: strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
-	Level!:       "DISABLED" | "WARN_ONLY" | "ERROR_ONLY" | "WARN_ERROR" | fn.#StringExpression
+	Destination?: strings.MaxRunes(1024) & strings.MinRunes(8) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(8) & "\(self)"
+	} |
+	fn.#StringExpression
+	Level!: "DISABLED" | "WARN_ONLY" | "ERROR_ONLY" | "WARN_ERROR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -112,7 +163,12 @@ fn.#ObjectExpression
 	DeploymentType!:        "CACHE_1" | fn.#StringExpression
 	LogConfiguration?:      #LogConfiguration
 	MetadataConfiguration!: #MetadataConfiguration
-	MountName?: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" | fn.#StringExpression
+	MountName?: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PerUnitStorageThroughput!: int & <=1000 & >=12 |
 		{
 			string &
@@ -130,6 +186,10 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	WeeklyMaintenanceStartTime?: strings.MaxRunes(7) & strings.MinRunes(7) & =~"^[1-7]:([01]\\d|2[0-3]):?([0-5]\\d)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(7) & strings.MinRunes(7) & =~"^[1-7]:([01]\\d|2[0-3]):?([0-5]\\d)$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -155,7 +215,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,21 +10,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // resource definition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::SoftwarePackageVersion"
-	Properties!: close({
-		Artifact?:    #PackageVersionArtifact
-		Attributes?:  #ResourceAttributes
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
-		PackageName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
-		Recipe?:      strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
-		Sbom?:        #Sbom
-		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VersionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
+	let properties = close({
+		Artifact?:   #PackageVersionArtifact
+		Attributes?: #ResourceAttributes
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PackageName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Recipe?: strings.MaxRunes(3072) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(3072) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Sbom?: #Sbom
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VersionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #PackageVersionArtifact: close({S3Location!: #S3Location}) | fn.#ObjectExpression
@@ -33,13 +57,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #ResourceAttributes: close({
 
-	{[=~"^[a-zA-Z0-9:_-]+$"]: strings.MinRunes(1) & =~"^[^\\p{C}]+$" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9:_-]+$"]: strings.MinRunes(1) & =~"^[^\\p{C}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & =~"^[^\\p{C}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #S3Location: close({
-	Bucket!:  strings.MinRunes(1) | fn.#StringExpression
-	Key!:     strings.MinRunes(1) | fn.#StringExpression
-	Version!: string | fn.#StringExpression
+	Bucket!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Key!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Version!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -48,7 +94,17 @@ fn.#ObjectExpression
 #SbomValidationStatus: "IN_PROGRESS" | "FAILED" | "SUCCEEDED" | "" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

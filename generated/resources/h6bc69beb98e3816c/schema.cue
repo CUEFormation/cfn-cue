@@ -14,14 +14,23 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // StackSet as a resource provides one-click experience for provisioning a
 // StackSet and StackInstances
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::StackSet"
-	Properties!: close({
-		AdministrationRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	let properties = close({
+		AdministrationRoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// Describes whether StackSets automatically deploys to AWS Organizations
@@ -30,27 +39,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		AutoDeployment?: #AutoDeployment
 		CallAs?:         "SELF" | "DELEGATED_ADMIN" | fn.#StringExpression
 		Capabilities?:   list.UniqueItems() & [...#Capability] | fn.#ListExpression
-		Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ExecutionRoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@/-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@/-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		ManagedExecution?:     close({Active?: #Active}) | fn.#ObjectExpression
 		OperationPreferences?: #OperationPreferences
 		Parameters?:           list.UniqueItems() & [...#Parameter] | fn.#ListExpression
 		PermissionModel!:      "SERVICE_MANAGED" | "SELF_MANAGED" | fn.#StringExpression
 		StackInstancesGroup?:  list.UniqueItems() & [...#StackInstances] | fn.#ListExpression
-		StackSetName!:         strings.MaxRunes(128) & =~"^[a-zA-Z][a-zA-Z0-9\\-]{0,127}$" | fn.#StringExpression
-		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		TemplateBody?:         strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
-		TemplateURL?:          strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
+		StackSetName!: strings.MaxRunes(128) & =~"^[a-zA-Z][a-zA-Z0-9\\-]{0,127}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z][a-zA-Z0-9\\-]{0,127}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TemplateBody?: strings.MaxRunes(51200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(51200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TemplateURL?: strings.MaxRunes(5120) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5120) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		if TemplateURL != _|_ if TemplateURL."Fn::If" == _|_ {
 			TemplateBody?: close({"Fn::If": _}) | error(
 				"TemplateBody cannot be used with TemplateURL; set exactly one of TemplateURL, TemplateBody",
 			)
 		}
 	}) & matchN(>=1, [{TemplateURL!: _}, {TemplateBody!: _}])
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Account: =~"^[0-9]{12}$" | fn.#StringExpression
+#Account: =~"^[0-9]{12}$" |
+{
+	number | bool
+	_cfnString: =~"^[0-9]{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Active: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -68,7 +108,12 @@ fn.#ObjectExpression
 #DeploymentTargets: close({
 	AccountFilterType?: "NONE" | "UNION" | "INTERSECTION" | "DIFFERENCE" | fn.#StringExpression
 	Accounts?:          list.MinItems(1) & list.UniqueItems() & [...#Account] | fn.#ListExpression
-	AccountsUrl?:       strings.MaxRunes(5120) & strings.MinRunes(1) & =~"(s3://|http(s?)://).+" | fn.#StringExpression
+	AccountsUrl?: strings.MaxRunes(5120) & strings.MinRunes(1) & =~"(s3://|http(s?)://).+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5120) & strings.MinRunes(1) & =~"(s3://|http(s?)://).+" & "\(self)"
+	} |
+	fn.#StringExpression
 	OrganizationalUnitIds?: list.MinItems(1) & list.UniqueItems() & [...#OrganizationalUnitId] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -142,15 +187,25 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OrganizationalUnitId: =~"^(ou-[a-z0-9]{4,32}-[a-z0-9]{8,32}|r-[a-z0-9]{4,32})$" | fn.#StringExpression
+#OrganizationalUnitId: =~"^(ou-[a-z0-9]{4,32}-[a-z0-9]{8,32}|r-[a-z0-9]{4,32})$" |
+{
+	number | bool
+	_cfnString: =~"^(ou-[a-z0-9]{4,32}-[a-z0-9]{8,32}|r-[a-z0-9]{4,32})$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Parameter: close({
-	ParameterKey!:   string | fn.#StringExpression
-	ParameterValue!: string | fn.#StringExpression
+	ParameterKey!:   string | number | bool | fn.#StringExpression
+	ParameterValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Region: =~"^[a-zA-Z0-9-]{1,128}$" | fn.#StringExpression
+#Region: =~"^[a-zA-Z0-9-]{1,128}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9-]{1,128}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #RegionConcurrencyType: "SEQUENTIAL" | "PARALLEL" | fn.#StringExpression
 
@@ -161,10 +216,20 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StackSetArn: string | fn.#StringExpression
+#StackSetArn: string | number | bool | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

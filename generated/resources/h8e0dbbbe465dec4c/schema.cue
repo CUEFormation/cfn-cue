@@ -9,13 +9,22 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::ResolverConfig.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53Resolver::ResolverConfig"
-	Properties!: close({
+	let properties = close({
 		AutodefinedReverseFlag!: "DISABLE" | fn.#StringExpression
-		ResourceId!:             strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		ResourceId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -14,26 +14,55 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A segment definition resource of Amazon Connect Customer Profiles
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CustomerProfiles::SegmentDefinition"
-	Properties!: close({
-		Description?:           strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
-		DisplayName!:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		DomainName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		SegmentDefinitionName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(4000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SegmentDefinitionName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// An array that defines the set of segment criteria to evaluate when handling
 		// segment groups for the segment.
 		SegmentGroups?: #SegmentGroup
 
 		// The segment sort configuration for ordering segment results.
-		SegmentSort?:     #SegmentSort
-		SegmentSqlQuery?: strings.MaxRunes(50000) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		SegmentSort?: #SegmentSort
+		SegmentSqlQuery?: strings.MaxRunes(50000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AddressDimension: close({
@@ -48,9 +77,12 @@ fn.#ObjectExpression
 
 #AttributeDimension: close({
 	DimensionType!: #AttributeDimensionType
-	Values!: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Values!: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -75,28 +107,38 @@ fn.#ObjectExpression
 #CalculatedAttributeDimension: close({
 	ConditionOverrides?: #ConditionOverrides
 	DimensionType!:      #AttributeDimensionType
-	Values!: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Values!: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #CalculatedCustomAttributes: close({
 
-	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: #CalculatedAttributeDimension}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: #CalculatedAttributeDimension}
+}) |
 fn.#ObjectExpression
 
 #ConditionOverrides: close({Range?: #RangeOverride}) | fn.#ObjectExpression
 
 #CustomAttributes: close({
 
-	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: #AttributeDimension}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: #AttributeDimension}
+}) |
 fn.#ObjectExpression
 
 #DateDimension: close({
 	DimensionType!: #DateDimensionType
-	Values!:        list.MaxItems(50) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	Values!: list.MaxItems(50) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -109,9 +151,12 @@ fn.#ValueExpression
 
 #ExtraLengthValueProfileDimension: close({
 	DimensionType!: #StringDimensionType
-	Values!: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Values!: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -154,9 +199,12 @@ fn.#ObjectExpression
 
 #ProfileDimension: close({
 	DimensionType!: #StringDimensionType
-	Values!: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Values!: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -223,23 +271,43 @@ fn.#ObjectExpression
 
 #SortAttribute: close({
 	DataType?: #SegmentSortDataType
-	Name!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Order!:    #SegmentSortOrder
-	Type?:     #SortAttributeType
+	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Order!: #SegmentSortOrder
+	Type?:  #SortAttributeType
 }) |
 fn.#ObjectExpression
 
 #SortAttributeType: "PROFILE" | "CALCULATED" | fn.#StringExpression
 
-#SourceSegment: close(
-	{SegmentDefinitionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression},
-) |
+#SourceSegment: close({
+	SegmentDefinitionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #StringDimensionType: "INCLUSIVE" | "EXCLUSIVE" | "CONTAINS" | "BEGINS_WITH" | "ENDS_WITH" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

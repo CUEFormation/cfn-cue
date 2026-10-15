@@ -13,12 +13,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Registers a package version.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Panorama::PackageVersion"
-	Properties!: close({
+	let properties = close({
 		MarkLatest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// An owner account.
@@ -36,23 +38,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// If the version was marked latest, the new version to maker as latest.
 		UpdatedLatestPatchVersion?: #NodePackagePatchVersion
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" | fn.#StringExpression
+#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
+#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#NodePackagePatchVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9]+$" | fn.#StringExpression
+#NodePackagePatchVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#NodePackageVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([0-9]+)\\.([0-9]+)$" | fn.#StringExpression
+#NodePackageVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([0-9]+)\\.([0-9]+)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([0-9]+)\\.([0-9]+)$" & "\(self)"
+} |
+fn.#StringExpression
 
-#PackageOwnerAccount: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9a-z\\_]+$" | fn.#StringExpression
+#PackageOwnerAccount: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9a-z\\_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9a-z\\_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #PackageVersionStatus: "REGISTER_PENDING" | "REGISTER_COMPLETED" | "FAILED" | "DELETING" | fn.#StringExpression
 
-#PackageVersionStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#PackageVersionStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #TimeStamp: int |
 	{

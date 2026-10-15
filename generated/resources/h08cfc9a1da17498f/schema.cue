@@ -14,54 +14,98 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Metric, a custom metric configured
 // for an Amazon Connect instance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Metric"
-	Properties!: close({
-		Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MetricCalculation!: close({
-			Calculation!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+			Calculation!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 			CalculationComponents!: list.MaxItems(5) & list.MinItems(1) & [...#CalculationComponent] |
 				fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
-		Name!:                   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		PositiveTrendIndicator?: "POSITIVE" | "NEGATIVE" | "NEUTRAL" | fn.#StringExpression
 		Status!:                 "SAVED" | "PUBLISHED" | fn.#StringExpression
 		Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Unit!:                   "INTEGER" | "DOUBLE" | "PERCENT" | "SECONDS" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AvailableFilter: close({
-	Id!:   string | fn.#StringExpression
+	Id!:   string | number | bool | fn.#StringExpression
 	Type!: "METRIC_LEVEL" | "RESOURCE_LEVEL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CalculationComponent: close({
-	Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z0-9_]*" | fn.#StringExpression
+	Alias!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z0-9_]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z0-9_]*" & "\(self)"
+	} |
+	fn.#StringExpression
 	MetricFilters?: list.MaxItems(5) & [...] & [...#MetricFilter] | fn.#ListExpression
-	MetricId?:      strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
-	MetricName?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	MetricId?: strings.MaxRunes(150) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MetricName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#CreatedByInfo: fn.#Object & {...} & matchN(1, [
+#CreatedByInfo: fn.#Object & matchN(1, [
 	close({AWSIdentityArn!: string | fn.#StringExpression}), close({ConnectUserArn!: string | fn.#StringExpression}),
 ]) |
 fn.#ObjectExpression
 
 #MetricFilter: close({
 	BooleanCondition?: #MetricFilterBooleanCondition
-	MetricFilterKey!:  strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Negate?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NumberCondition?:  #MetricFilterNumberCondition
-	StringCondition?:  #MetricFilterStringCondition
+	MetricFilterKey!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Negate?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NumberCondition?: #MetricFilterNumberCondition
+	StringCondition?: #MetricFilterStringCondition
 }) |
 fn.#ObjectExpression
 
@@ -97,12 +141,23 @@ fn.#ObjectExpression
 
 #MetricFilterStringCondition: close({
 	Comparison!: "MATCHES_ANY" | "MATCHES_NONE" | fn.#StringExpression
-	Values!:     list.MaxItems(15) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	Values!: list.MaxItems(15) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

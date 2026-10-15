@@ -13,22 +13,36 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KafkaConnect::CustomPlugin"
-	Properties!: close({
+	let properties = close({
 		ContentType!: "JAR" | "ZIP" | fn.#StringExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Location!:    #CustomPluginLocation
-		Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:        [...#Tag] | fn.#ListExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Location!: #CustomPluginLocation
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CustomPluginFileDescription: close({
-	FileMd5?: string | fn.#StringExpression
+	FileMd5?: string | number | bool | fn.#StringExpression
 	FileSize?: int |
 		{
 			string &
@@ -49,14 +63,24 @@ fn.#ObjectExpression
 #CustomPluginLocation: close({S3Location!: #S3Location}) | fn.#ObjectExpression
 
 #S3Location: close({
-	BucketArn!:     string | fn.#StringExpression
-	FileKey!:       string | fn.#StringExpression
-	ObjectVersion?: string | fn.#StringExpression
+	BucketArn!:     string | number | bool | fn.#StringExpression
+	FileKey!:       string | number | bool | fn.#StringExpression
+	ObjectVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

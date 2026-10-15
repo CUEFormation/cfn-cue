@@ -13,12 +13,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::PackagingConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackage::PackagingConfiguration"
-	Properties!: close({
+	let properties = close({
 		// A CMAF packaging configuration.
 		CmafPackage?: #CmafPackage
 
@@ -27,13 +29,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// An HTTP Live Streaming (HLS) packaging configuration.
 		HlsPackage?: #HlsPackage
-		Id!:         string | fn.#StringExpression
+		Id!:         string | number | bool | fn.#StringExpression
 
 		// A Microsoft Smooth Streaming (MSS) PackagingConfiguration.
 		MssPackage?:       #MssPackage
-		PackagingGroupId!: string | fn.#StringExpression
+		PackagingGroupId!: string | number | bool | fn.#StringExpression
 		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CmafEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider}) | fn.#ObjectExpression
@@ -121,7 +125,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HlsEncryption: close({
-	ConstantInitializationVector?: string | fn.#StringExpression
+	ConstantInitializationVector?: string | number | bool | fn.#StringExpression
 	EncryptionMethod?:             "AES_128" | "SAMPLE_AES" | fn.#StringExpression
 	SpekeKeyProvider!:             #SpekeKeyProvider
 }) |
@@ -159,7 +163,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ManifestName: string | fn.#StringExpression
+#ManifestName: string | number | bool | fn.#StringExpression
 
 #MssEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider}) | fn.#ObjectExpression
 
@@ -176,8 +180,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	fn.#StringExpression
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SegmentDurationSeconds: int |
 	{
@@ -196,8 +204,8 @@ fn.#ObjectExpression
 #SpekeKeyProvider: close({
 	EncryptionContractConfiguration?: #EncryptionContractConfiguration
 	RoleArn!:                         #RoleArn
-	SystemIds!:                       [...string | fn.#StringExpression] | fn.#ListExpression
-	Url!:                             string | fn.#StringExpression
+	SystemIds!:                       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Url!:                             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -235,7 +243,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

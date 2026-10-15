@@ -10,15 +10,17 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AppSync ChannelNamespace
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::ChannelNamespace"
-	Properties!: close({
-		ApiId!:          string | fn.#StringExpression
+	let properties = close({
+		ApiId!:          string | number | bool | fn.#StringExpression
 		CodeHandlers?:   #Code
-		CodeS3Location?: string | fn.#StringExpression
+		CodeS3Location?: string | number | bool | fn.#StringExpression
 		HandlerConfigs?: #HandlerConfigs
 		Name!:           #Namespace
 
@@ -29,6 +31,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SubscribeAuthModes?: #AuthModes
 		Tags?:               #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuthMode: close({AuthType?: #AuthenticationType}) | fn.#ObjectExpression
@@ -42,9 +46,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	"AWS_LAMBDA" |
 	fn.#StringExpression
 
-#ChannelNamespaceArn: string | fn.#StringExpression
+#ChannelNamespaceArn: string | number | bool | fn.#StringExpression
 
-#Code: strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
+#Code: strings.MaxRunes(32768) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32768) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #HandlerBehavior: "CODE" | "DIRECT" | fn.#StringExpression
 
@@ -62,6 +71,10 @@ fn.#ObjectExpression
 
 #Integration: close({
 	DataSourceName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"([_A-Za-z][_0-9A-Za-z]{0,511})?" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"([_A-Za-z][_0-9A-Za-z]{0,511})?" & "\(self)"
+	} |
 	fn.#StringExpression
 	LambdaConfig?: #LambdaConfig
 }) |
@@ -72,11 +85,28 @@ fn.#ObjectExpression
 #LambdaConfig: close({InvokeType!: #InvokeType}) | fn.#ObjectExpression
 
 #Namespace: strings.MaxRunes(50) & strings.MinRunes(1) & =~"([A-Za-z0-9](?:[A-Za-z0-9\\-]{0,48}[A-Za-z0-9])?)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) &
+	strings.MinRunes(1) &
+	=~"([A-Za-z0-9](?:[A-Za-z0-9\\-]{0,48}[A-Za-z0-9])?)" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

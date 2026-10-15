@@ -6,21 +6,25 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Macie AllowList resource schema
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Macie::AllowList"
-	Properties!: close({
+	let properties = close({
 		// AllowList criteria.
 		Criteria!:    #Criteria
-		Description?: string | fn.#StringExpression
-		Name!:        string | fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
+		Name!:        string | number | bool | fn.#StringExpression
 		Tags?:        [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Criteria: fn.#Object & {...} & matchN(1, [close(
+#Criteria: fn.#Object & matchN(1, [close(
 	{Regex!: string | fn.#StringExpression},
 ), close({
 	// The S3 location for the AllowList.
@@ -28,11 +32,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })]) |
 fn.#ObjectExpression
 
-#Regex: string | fn.#StringExpression
+#Regex: string | number | bool | fn.#StringExpression
 
 #S3WordsList: close({
-	BucketName!: string | fn.#StringExpression
-	ObjectKey!:  string | fn.#StringExpression
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectKey!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -47,7 +56,7 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

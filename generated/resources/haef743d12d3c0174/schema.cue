@@ -9,15 +9,32 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an app or test scripts upload in AWS Device Farm.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DeviceFarm::Upload"
-	Properties!: close({
-		ContentType?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		ProjectArn!:  strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+:devicefarm:.+" | fn.#StringExpression
+	let properties = close({
+		ContentType?: strings.MaxRunes(64) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectArn!: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+:devicefarm:.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+:devicefarm:.+" & "\(self)"
+		} |
+		fn.#StringExpression
 		Type!: "ANDROID_APP" |
 			"IOS_APP" |
 			"WEB_APP" |
@@ -52,4 +69,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"XCTEST_UI_TEST_SPEC" |
 			fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

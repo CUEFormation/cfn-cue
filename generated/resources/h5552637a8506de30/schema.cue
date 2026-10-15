@@ -10,49 +10,64 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaLive::Input
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::Input"
-	Properties?: close({
+	let properties = close({
 		Destinations?:         [...#InputDestinationRequest] | fn.#ListExpression
 		InputDevices?:         [...#InputDeviceSettings] | fn.#ListExpression
-		InputNetworkLocation?: string | fn.#StringExpression
-		InputSecurityGroups?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		InputNetworkLocation?: string | number | bool | fn.#StringExpression
+		InputSecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		MediaConnectFlows?: [...#MediaConnectFlowRequest] | fn.#ListExpression
 		MulticastSettings?: #MulticastSettingsCreateRequest
-		Name?:              string | fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		Name?:              string | number | bool | fn.#StringExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RouterSettings?:                 #RouterSettings
-		SdiSources?:                     [...string | fn.#StringExpression] | fn.#ListExpression
+		SdiSources?:                     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Smpte2110ReceiverGroupSettings?: #Smpte2110ReceiverGroupSettings
 		Sources?:                        [...#InputSourceRequest] | fn.#ListExpression
 		SrtSettings?:                    #SrtSettingsRequest
-		Tags?:                           fn.#Object & {...} | string | fn.#StringObjectExpression
-		Type?:                           string | fn.#StringExpression
+		Tags?:                           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Type?:                           string | number | bool | fn.#StringExpression
 		Vpc?:                            #InputVpcRequest
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #InputDestinationRequest: close({
-	Network?:         string | fn.#StringExpression
+	Network?:         string | number | bool | fn.#StringExpression
 	NetworkRoutes?:   [...#InputRequestDestinationRoute] | fn.#ListExpression
-	StaticIpAddress?: string | fn.#StringExpression
-	StreamName?:      string | fn.#StringExpression
+	StaticIpAddress?: string | number | bool | fn.#StringExpression
+	StreamName?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#InputDeviceSettings: close({Id?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#InputDeviceSettings: close({Id?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #InputRequestDestinationRoute: close({
-	Cidr?:    string | fn.#StringExpression
-	Gateway?: string | fn.#StringExpression
+	Cidr?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	Gateway?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -71,44 +86,47 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SdpUrl?: string | fn.#StringExpression
+	SdpUrl?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InputSourceRequest: close({
-	PasswordParam?: string | fn.#StringExpression
-	Url?:           string | fn.#StringExpression
-	Username?:      string | fn.#StringExpression
+	PasswordParam?: string | number | bool | fn.#StringExpression
+	Url?:           string | number | bool | fn.#StringExpression
+	Username?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InputVpcRequest: close({
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#MediaConnectFlowRequest: close({FlowArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#MediaConnectFlowRequest: close({FlowArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #MulticastSettingsCreateRequest: close({Sources?: [...#MulticastSourceCreateRequest] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
 #MulticastSourceCreateRequest: close({
-	SourceIp?: string | fn.#StringExpression
-	Url?:      string | fn.#StringExpression
+	SourceIp?: string | number | bool | fn.#StringExpression
+	Url?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RouterDestinationSettings: close({AvailabilityZoneName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#RouterDestinationSettings: close({AvailabilityZoneName?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #RouterSettings: close({
 	Destinations?:   [...#RouterDestinationSettings] | fn.#ListExpression
-	EncryptionType?: string | fn.#StringExpression
-	SecretArn?:      string | fn.#StringExpression
+	EncryptionType?: string | number | bool | fn.#StringExpression
+	SecretArn?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -125,8 +143,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #SrtCallerDecryptionRequest: close({
-	Algorithm?:           string | fn.#StringExpression
-	PassphraseSecretArn?: string | fn.#StringExpression
+	Algorithm?:           string | number | bool | fn.#StringExpression
+	PassphraseSecretArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -146,15 +164,15 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SrtListenerAddress?: string | fn.#StringExpression
-	SrtListenerPort?:    string | fn.#StringExpression
-	StreamId?:           string | fn.#StringExpression
+	SrtListenerAddress?: string | number | bool | fn.#StringExpression
+	SrtListenerPort?:    string | number | bool | fn.#StringExpression
+	StreamId?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SrtListenerDecryptionRequest: close({
-	Algorithm?:           string | fn.#StringExpression
-	PassphraseSecretArn?: string | fn.#StringExpression
+	Algorithm?:           string | number | bool | fn.#StringExpression
+	PassphraseSecretArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -174,7 +192,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StreamId?: string | fn.#StringExpression
+	StreamId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

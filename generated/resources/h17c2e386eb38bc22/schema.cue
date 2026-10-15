@@ -6,13 +6,22 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the LogAnomalyDetectionIntegration resource
 // in the Amazon DevOps Guru.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsGuru::LogAnomalyDetectionIntegration"
-	Properties?: close({})
+	Type!: "AWS::DevOpsGuru::LogAnomalyDetectionIntegration"
+	let properties = close({})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccountId: =~"^\\d{12}$" | fn.#StringExpression
+#AccountId: =~"^\\d{12}$" |
+{
+	number | bool
+	_cfnString: =~"^\\d{12}$" & "\(self)"
+} |
+fn.#StringExpression

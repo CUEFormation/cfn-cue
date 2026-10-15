@@ -6,13 +6,17 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for SQS QueueInlinePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SQS::QueueInlinePolicy"
-	Properties!: close({
-		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
-		Queue!:          string | fn.#StringExpression
+	let properties = close({
+		PolicyDocument!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Queue!:          string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

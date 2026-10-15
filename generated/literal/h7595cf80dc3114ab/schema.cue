@@ -20,7 +20,7 @@ import (
 		Formats?: list.UniqueItems() & [...string]
 
 		// The unique name of the S3 bucket that receives your reports.
-		S3BucketName!: string
+		S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 		// The prefix for where AWS Backup Audit Manager delivers your reports to Amazon
 		// S3. The prefix is this part of the following path:

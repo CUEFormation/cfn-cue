@@ -9,16 +9,30 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ARCZonalShift::AutoshiftObserverNotificationStatus Resource Type
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ARCZonalShift::AutoshiftObserverNotificationStatus"
-	Properties!: close({Status!: #AutoshiftObserverNotificationStatus})
+	Type!: "AWS::ARCZonalShift::AutoshiftObserverNotificationStatus"
+	let properties = close({Status!: #AutoshiftObserverNotificationStatus})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccountId: =~"^\\d{12}$" | fn.#StringExpression
+#AccountId: =~"^\\d{12}$" |
+{
+	number | bool
+	_cfnString: =~"^\\d{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #AutoshiftObserverNotificationStatus: "ENABLED" | fn.#StringExpression
 
-#Region: strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$" | fn.#StringExpression
+#Region: strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$" & "\(self)"
+} |
+fn.#StringExpression

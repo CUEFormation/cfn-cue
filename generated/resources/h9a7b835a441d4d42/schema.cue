@@ -13,6 +13,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::TrafficPolicyInstance. Applies a
@@ -21,9 +23,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // for that name.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::TrafficPolicyInstance"
-	Properties!: close({
-		HostedZoneId!: strings.MaxRunes(32) & =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression
-		Name!:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^A-Z\\s]+\\.$" | fn.#StringExpression
+	let properties = close({
+		HostedZoneId!: strings.MaxRunes(32) & =~"^[A-Z0-9]{1,32}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & =~"^[A-Z0-9]{1,32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^A-Z\\s]+\\.$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^A-Z\\s]+\\.$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TTL!: int & <=2147483647 & >=0 |
 			{
 				string &
@@ -42,7 +54,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TrafficPolicyId!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9a-f-]{1,36}$" | fn.#StringExpression
+		TrafficPolicyId!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9a-f-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9a-f-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TrafficPolicyVersion!: int & <=1000 & >=1 |
 			{
 				string &
@@ -62,4 +79,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

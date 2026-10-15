@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
 )
@@ -42,7 +43,7 @@ import (
 })
 
 #AnalysisAclRule: close({
-	Cidr?:       string
+	Cidr?:       fn.#IPv4Network & string
 	Egress?:     bool
 	PortRange?:  #PortRange
 	Protocol?:   #Protocol
@@ -90,7 +91,7 @@ import (
 })
 
 #AnalysisSecurityGroupRule: close({
-	Cidr?:            string
+	Cidr?:            fn.#IPv4Network & string
 	Direction?:       string
 	PortRange?:       #PortRange
 	PrefixListId?:    string
@@ -99,7 +100,7 @@ import (
 })
 
 #AnalysisTransitGatewayPolicyTableEntry: null | bool | number | string | [...] | {
-	DestinationCidr?: _
+	DestinationCidr?: fn.#IPv4Network
 	...
 }
 
@@ -110,7 +111,7 @@ import (
 	Addresses?:                     [...#IpAddress]
 	AttachedTo?:                    #AnalysisComponent
 	AvailabilityZones?:             [...string]
-	Cidrs?:                         [...string]
+	Cidrs?:                         [...fn.#IPv4Network & string]
 	ClassicLoadBalancerListener?:   #AnalysisLoadBalancerListener
 	Component?:                     #AnalysisComponent
 	ComponentAccount?:              string
@@ -199,7 +200,7 @@ import (
 
 #TransitGatewayRouteTableRoute: close({
 	AttachmentId?:    string
-	DestinationCidr?: string
+	DestinationCidr?: fn.#IPv4Network & string
 	PrefixListId?:    string
 	ResourceId?:      string
 	ResourceType?:    string

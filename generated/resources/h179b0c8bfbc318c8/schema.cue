@@ -15,52 +15,121 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Theme Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::Theme"
-	Properties!: close({
-		AwsAccountId!:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		BaseThemeId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-		Configuration!:      #ThemeConfiguration
-		Name!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-		Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-		ThemeId!:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-		VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		BaseThemeId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Configuration!: #ThemeConfiguration
+		Name!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Permissions?: list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		Tags?:        list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		ThemeId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #BorderStyle: close({
-	Color?: string | fn.#StringExpression
+	Color?: string | number | bool | fn.#StringExpression
 	Show?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Width?: strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
+	Width?: strings.MaxRunes(50) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DataColorPalette: close({
-	Colors?:         list.MaxItems(100) & [...] & [...=~"^#[A-F0-9]{6}$" | fn.#StringExpression] | fn.#ListExpression
-	EmptyFillColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	MinMaxGradient?: list.MaxItems(100) & [...] & [...=~"^#[A-F0-9]{6}$" | fn.#StringExpression] | fn.#ListExpression
+	Colors?: list.MaxItems(100) & [...] & [...=~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	EmptyFillColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MinMaxGradient?: list.MaxItems(100) & [...] & [...=~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#Font: close({FontFamily?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}) | fn.#ObjectExpression
+#Font: close({
+	FontFamily?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #FontConfiguration: close({
-	FontColor?:      =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	FontColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	FontDecoration?: #FontDecoration
-	FontFamily?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FontSize?:       #FontSize
-	FontStyle?:      #FontStyle
-	FontWeight?:     #FontWeight
+	FontFamily?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	FontSize?:   #FontSize
+	FontStyle?:  #FontStyle
+	FontWeight?: #FontWeight
 }) |
 fn.#ObjectExpression
 
 #FontDecoration: "UNDERLINE" | "NONE" | fn.#StringExpression
 
-#FontSize: close({Absolute?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#FontSize: close({Absolute?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #FontStyle: "NORMAL" | "ITALIC" | fn.#StringExpression
 
@@ -77,8 +146,14 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ResourcePermission: close({
-	Actions!:   list.MaxItems(30) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -93,8 +168,8 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #SheetBackgroundStyle: close({
-	Color?:    string | fn.#StringExpression
-	Gradient?: string | fn.#StringExpression
+	Color?:    string | number | bool | fn.#StringExpression
+	Gradient?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -106,8 +181,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -122,8 +207,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ThemeError: close({
-	Message?: =~"\\S" | fn.#StringExpression
-	Type?:    #ThemeErrorType
+	Message?: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: #ThemeErrorType
 }) |
 fn.#ObjectExpression
 
@@ -132,13 +222,23 @@ fn.#ObjectExpression
 #ThemeType: "QUICKSIGHT" | "CUSTOM" | "ALL" | fn.#StringExpression
 
 #ThemeVersion: close({
-	Arn?:           string | fn.#StringExpression
-	BaseThemeId?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Arn?: string | number | bool | fn.#StringExpression
+	BaseThemeId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Configuration?: #ThemeConfiguration
 	CreatedTime?:   time.Time | fn.#StringExpression
-	Description?:   strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Errors?:        list.MinItems(1) & [...#ThemeError] | fn.#ListExpression
-	Status?:        #ResourceStatus
+	Description?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Errors?: list.MinItems(1) & [...#ThemeError] | fn.#ListExpression
+	Status?: #ResourceStatus
 	VersionNumber?: >=1 |
 		{
 			string &
@@ -168,10 +268,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TileStyle: close({
-	BackgroundColor?: string | fn.#StringExpression
+	BackgroundColor?: string | number | bool | fn.#StringExpression
 	Border?:          #BorderStyle
-	BorderRadius?:    strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
-	Padding?:         strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	BorderRadius?: strings.MaxRunes(50) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Padding?: strings.MaxRunes(200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -188,22 +298,102 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UIColorPalette: close({
-	Accent?:              =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	AccentForeground?:    =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Danger?:              =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	DangerForeground?:    =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Dimension?:           =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	DimensionForeground?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Measure?:             =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	MeasureForeground?:   =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	PrimaryBackground?:   =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	PrimaryForeground?:   =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	SecondaryBackground?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	SecondaryForeground?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Success?:             =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	SuccessForeground?:   =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Warning?:             =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	WarningForeground?:   =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Accent?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	AccentForeground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Danger?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DangerForeground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Dimension?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DimensionForeground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Measure?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MeasureForeground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PrimaryBackground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PrimaryForeground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecondaryBackground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecondaryForeground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Success?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SuccessForeground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Warning?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	WarningForeground?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

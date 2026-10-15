@@ -10,31 +10,69 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AgentRegistry::RegistryRecord Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AgentRegistry::RegistryRecord"
-	Properties!: close({
-		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-		Descriptors!: #Descriptors
-		DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" |
+	let properties = close({
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		RecordType!:    #RecordType
-		RecordVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$" | fn.#StringExpression
+		Descriptors!: #Descriptors
+		DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		RecordType!: #RecordType
+		RecordVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RegistryId?: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^(arn:aws(-[^:]+)?:agent-registry:[a-z0-9-]+:[0-9]{12}:registry/)?[a-zA-Z0-9]{12,16}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^(arn:aws(-[^:]+)?:agent-registry:[a-z0-9-]+:[0-9]{12}:registry/)?[a-zA-Z0-9]{12,16}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #A2aAgentCardDescriptor: close({
-	Data?:              #DescriptorData
-	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:            #DescriptorSource
+	Data?: #DescriptorData
+	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Source?: #DescriptorSource
 }) |
 fn.#ObjectExpression
 
@@ -43,29 +81,49 @@ fn.#ObjectExpression
 #AgentSkillsAdditionalData: close({SkillMd?: #AgentSkillsMdDescriptor}) | fn.#ObjectExpression
 
 #AgentSkillsDefinitionDescriptor: close({
-	AdditionalData?:    #AgentSkillsAdditionalData
-	Data?:              #DescriptorData
-	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	AdditionalData?: #AgentSkillsAdditionalData
+	Data?:           #DescriptorData
+	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AgentSkillsMdDescriptor: close({
-	Data?:              #DescriptorData
-	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:            #SkillMdSource
+	Data?: #DescriptorData
+	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Source?: #SkillMdSource
 }) |
 fn.#ObjectExpression
 
 #CustomDescriptor: close({Data?: #DescriptorData}) | fn.#ObjectExpression
 
-#DescriptorData: strings.MaxRunes(102400) & strings.MinRunes(1) | fn.#StringExpression
+#DescriptorData: strings.MaxRunes(102400) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(102400) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #DescriptorSource: close({FromUrl?: #DescriptorSourceFromUrl}) | fn.#ObjectExpression
 
 #DescriptorSourceFromUrl: close({
 	CredentialProviderConfigurations?: list.MaxItems(1) & [...#RegistryRecordCredentialProviderConfiguration] |
 		fn.#ListExpression
-	Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression
+	Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -84,16 +142,26 @@ fn.#ObjectExpression
 #McpServerAdditionalData: close({Tools?: #McpToolsDescriptor}) | fn.#ObjectExpression
 
 #McpServerDescriptor: close({
-	AdditionalData?:    #McpServerAdditionalData
-	Data?:              #DescriptorData
-	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:            #DescriptorSource
+	AdditionalData?: #McpServerAdditionalData
+	Data?:           #DescriptorData
+	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Source?: #DescriptorSource
 }) |
 fn.#ObjectExpression
 
 #McpToolsDescriptor: close({
-	Data?:              #DescriptorData
-	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Data?: #DescriptorData
+	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -112,27 +180,57 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RegistryRecordIamCredentialProvider: close({
-	Region?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	Region?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Service?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	Service?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RegistryRecordOAuthCredentialProvider: close({
 	CustomParameters?: close({
 
-		{[=~"^.*$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.*$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 	GrantType?: "CLIENT_CREDENTIALS" | fn.#StringExpression
 	ProviderArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Scopes?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Scopes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -149,20 +247,40 @@ fn.#ObjectExpression
 
 #SkillMdSource: close({FromUrl?: #SkillMdSourceFromUrl}) | fn.#ObjectExpression
 
-#SkillMdSourceFromUrl: close(
-	{Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression},
-) |
+#SkillMdSourceFromUrl: close({
+	Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SourceOnlyDescriptorSource: close({FromUrl?: #SourceOnlyDescriptorSourceFromUrl}) | fn.#ObjectExpression
 
-#SourceOnlyDescriptorSourceFromUrl: close(
-	{Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression},
-) |
+#SourceOnlyDescriptorSourceFromUrl: close({
+	Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

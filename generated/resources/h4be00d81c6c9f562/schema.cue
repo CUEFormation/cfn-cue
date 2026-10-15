@@ -14,40 +14,50 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::NetworkInsightsAnalysis
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkInsightsAnalysis"
-	Properties!: close({
-		AdditionalAccounts?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		AdditionalAccounts?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
 		FilterInArns?:          [...#ResourceArn] | fn.#ListExpression
 		FilterOutArns?:         [...#ResourceArn] | fn.#ListExpression
-		NetworkInsightsPathId!: string | fn.#StringExpression
+		NetworkInsightsPathId!: string | number | bool | fn.#StringExpression
 		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdditionalDetail: close({
-	AdditionalDetailType?: string | fn.#StringExpression
+	AdditionalDetailType?: string | number | bool | fn.#StringExpression
 	Component?:            #AnalysisComponent
 	LoadBalancers?:        [...#AnalysisComponent] | fn.#ListExpression
-	ServiceName?:          string | fn.#StringExpression
+	ServiceName?:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AlternatePathHint: close({
-	ComponentArn?: string | fn.#StringExpression
-	ComponentId?:  string | fn.#StringExpression
+	ComponentArn?: string | number | bool | fn.#StringExpression
+	ComponentId?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AnalysisAclRule: close({
-	Cidr?:       string | fn.#StringExpression
+	Cidr?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
 	Egress?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PortRange?:  #PortRange
 	Protocol?:   #Protocol
-	RuleAction?: string | fn.#StringExpression
+	RuleAction?: string | number | bool | fn.#StringExpression
 	RuleNumber?: int |
 		{
 			string &
@@ -66,8 +76,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AnalysisComponent: close({
-	Arn?: string | fn.#StringExpression
-	Id?:  string | fn.#StringExpression
+	Arn?: string | number | bool | fn.#StringExpression
+	Id?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -79,7 +89,7 @@ fn.#ObjectExpression
 
 #AnalysisLoadBalancerTarget: close({
 	Address?:          #IpAddress
-	AvailabilityZone?: string | fn.#StringExpression
+	AvailabilityZone?: string | number | bool | fn.#StringExpression
 	Instance?:         #AnalysisComponent
 	Port?:             #Port
 }) |
@@ -95,27 +105,32 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AnalysisRouteTableRoute: close({
-	NatGatewayId?:                string | fn.#StringExpression
-	NetworkInterfaceId?:          string | fn.#StringExpression
-	Origin?:                      string | fn.#StringExpression
-	State?:                       string | fn.#StringExpression
-	TransitGatewayId?:            string | fn.#StringExpression
-	VpcPeeringConnectionId?:      string | fn.#StringExpression
-	destinationCidr?:             string | fn.#StringExpression
-	destinationPrefixListId?:     string | fn.#StringExpression
-	egressOnlyInternetGatewayId?: string | fn.#StringExpression
-	gatewayId?:                   string | fn.#StringExpression
-	instanceId?:                  string | fn.#StringExpression
+	NatGatewayId?:                string | number | bool | fn.#StringExpression
+	NetworkInterfaceId?:          string | number | bool | fn.#StringExpression
+	Origin?:                      string | number | bool | fn.#StringExpression
+	State?:                       string | number | bool | fn.#StringExpression
+	TransitGatewayId?:            string | number | bool | fn.#StringExpression
+	VpcPeeringConnectionId?:      string | number | bool | fn.#StringExpression
+	destinationCidr?:             string | number | bool | fn.#StringExpression
+	destinationPrefixListId?:     string | number | bool | fn.#StringExpression
+	egressOnlyInternetGatewayId?: string | number | bool | fn.#StringExpression
+	gatewayId?:                   string | number | bool | fn.#StringExpression
+	instanceId?:                  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AnalysisSecurityGroupRule: close({
-	Cidr?:            string | fn.#StringExpression
-	Direction?:       string | fn.#StringExpression
+	Cidr?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	Direction?:       string | number | bool | fn.#StringExpression
 	PortRange?:       #PortRange
-	PrefixListId?:    string | fn.#StringExpression
+	PrefixListId?:    string | number | bool | fn.#StringExpression
 	Protocol?:        #Protocol
-	SecurityGroupId?: string | fn.#StringExpression
+	SecurityGroupId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -125,29 +140,35 @@ number |
 string |
 [...] |
 {
-	DestinationCidr?: fn.#Value
+	DestinationCidr?: fn.#IPv4Network | fn.#ValueExpression
 	...
 } |
 fn.#ValueExpression
 
 #Explanation: close({
-	Acl?:                           #AnalysisComponent
-	AclRule?:                       #AnalysisAclRule
-	Address?:                       #IpAddress
-	Addresses?:                     [...#IpAddress] | fn.#ListExpression
-	AttachedTo?:                    #AnalysisComponent
-	AvailabilityZones?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	Cidrs?:                         [...string | fn.#StringExpression] | fn.#ListExpression
+	Acl?:               #AnalysisComponent
+	AclRule?:           #AnalysisAclRule
+	Address?:           #IpAddress
+	Addresses?:         [...#IpAddress] | fn.#ListExpression
+	AttachedTo?:        #AnalysisComponent
+	AvailabilityZones?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Cidrs?: [...fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	ClassicLoadBalancerListener?:   #AnalysisLoadBalancerListener
 	Component?:                     #AnalysisComponent
-	ComponentAccount?:              string | fn.#StringExpression
-	ComponentRegion?:               string | fn.#StringExpression
+	ComponentAccount?:              string | number | bool | fn.#StringExpression
+	ComponentRegion?:               string | number | bool | fn.#StringExpression
 	CustomerGateway?:               #AnalysisComponent
 	Destination?:                   #AnalysisComponent
 	DestinationVpc?:                #AnalysisComponent
-	Direction?:                     string | fn.#StringExpression
+	Direction?:                     string | number | bool | fn.#StringExpression
 	ElasticLoadBalancerListener?:   #AnalysisComponent
-	ExplanationCode?:               string | fn.#StringExpression
+	ExplanationCode?:               string | number | bool | fn.#StringExpression
 	IngressRouteTable?:             #AnalysisComponent
 	InternetGateway?:               #AnalysisComponent
 	LoadBalancerArn?:               #ResourceArn
@@ -156,10 +177,10 @@ fn.#ValueExpression
 	LoadBalancerTargetGroup?:       #AnalysisComponent
 	LoadBalancerTargetGroups?:      [...#AnalysisComponent] | fn.#ListExpression
 	LoadBalancerTargetPort?:        #Port
-	MissingComponent?:              string | fn.#StringExpression
+	MissingComponent?:              string | number | bool | fn.#StringExpression
 	NatGateway?:                    #AnalysisComponent
 	NetworkInterface?:              #AnalysisComponent
-	PacketField?:                   string | fn.#StringExpression
+	PacketField?:                   string | number | bool | fn.#StringExpression
 	Port?:                          #Port
 	PortRanges?:                    [...#PortRange] | fn.#ListExpression
 	PrefixList?:                    #AnalysisComponent
@@ -170,7 +191,7 @@ fn.#ValueExpression
 	SecurityGroupRule?:             #AnalysisSecurityGroupRule
 	SecurityGroups?:                [...#AnalysisComponent] | fn.#ListExpression
 	SourceVpc?:                     #AnalysisComponent
-	State?:                         string | fn.#StringExpression
+	State?:                         string | number | bool | fn.#StringExpression
 	Subnet?:                        #AnalysisComponent
 	SubnetRouteTable?:              #AnalysisComponent
 	TransitGateway?:                #AnalysisComponent
@@ -185,7 +206,7 @@ fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-#IpAddress: string | fn.#StringExpression
+#IpAddress: string | number | bool | fn.#StringExpression
 
 #PathComponent: close({
 	AclRule?:                     #AnalysisAclRule
@@ -212,7 +233,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ServiceName?:                   string | fn.#StringExpression
+	ServiceName?:                   string | number | bool | fn.#StringExpression
 	SourceVpc?:                     #AnalysisComponent
 	Subnet?:                        #AnalysisComponent
 	TransitGateway?:                #AnalysisComponent
@@ -267,25 +288,35 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Protocol: string | fn.#StringExpression
+#Protocol: string | number | bool | fn.#StringExpression
 
-#ResourceArn: strings.MaxRunes(1283) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(1283) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1283) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
 #TransitGatewayRouteTableRoute: close({
-	AttachmentId?:    string | fn.#StringExpression
-	DestinationCidr?: string | fn.#StringExpression
-	PrefixListId?:    string | fn.#StringExpression
-	ResourceId?:      string | fn.#StringExpression
-	ResourceType?:    string | fn.#StringExpression
-	RouteOrigin?:     string | fn.#StringExpression
-	State?:           string | fn.#StringExpression
+	AttachmentId?: string | number | bool | fn.#StringExpression
+	DestinationCidr?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	PrefixListId?: string | number | bool | fn.#StringExpression
+	ResourceId?:   string | number | bool | fn.#StringExpression
+	ResourceType?: string | number | bool | fn.#StringExpression
+	RouteOrigin?:  string | number | bool | fn.#StringExpression
+	State?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

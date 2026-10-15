@@ -35,7 +35,13 @@ package schema
 	VpcConfig?:               #VpcConfig
 })
 
-#Artifacts: close({
+#Artifacts: matchIf({
+	Type!: "S3"
+	...
+}, {
+	Location!: _
+	...
+}, _) & close({
 	ArtifactIdentifier?:   string
 	EncryptionDisabled?:   bool
 	Location?:             string
@@ -157,7 +163,13 @@ package schema
 	Scope?:  string
 })
 
-#Source: close({
+#Source: matchIf({
+	Type!: "S3"
+	...
+}, {
+	Location!: _
+	...
+}, _) & close({
 	Auth?:                #SourceAuth
 	BuildSpec?:           string
 	BuildStatusConfig?:   #BuildStatusConfig
@@ -182,6 +194,6 @@ package schema
 
 #VpcConfig: close({
 	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
-	Subnets?:          [...string]
+	Subnets?:          [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 	VpcId?:            =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

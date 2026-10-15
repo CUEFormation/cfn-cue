@@ -6,21 +6,25 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates a specified AWS RAM permission with a resource share. You can only
 // associate one permission with each resource type in a resource share.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RAM::PermissionAssociation"
-	Properties!: close({
-		PermissionArn!:    string | fn.#StringExpression
+	let properties = close({
+		PermissionArn!:    string | number | bool | fn.#StringExpression
 		Replace?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ResourceShareArn!: string | fn.#StringExpression
+		ResourceShareArn!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #PermissionTemplateParameter: close({
-	Name!:   string | fn.#StringExpression
-	Values!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Name!:   string | number | bool | fn.#StringExpression
+	Values!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

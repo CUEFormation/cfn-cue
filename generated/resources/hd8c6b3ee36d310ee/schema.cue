@@ -9,20 +9,36 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::ApprovedOrigin
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::ApprovedOrigin"
-	Properties!: close({
+	let properties = close({
 		InstanceId!: #InstanceId
 		Origin!:     #Origin
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #InstanceId: strings.MaxRunes(100) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#Origin: strings.MaxRunes(267) | fn.#StringExpression
+#Origin: strings.MaxRunes(267) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(267) & "\(self)"
+} |
+fn.#StringExpression

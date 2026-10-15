@@ -117,7 +117,9 @@ package schema
 	// If you are creating a volume copy, omit this parameter. The volume is
 	// automatically encrypted with the same KMS key as the source volume. You
 	// can't copy unencrypted volumes.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// Indicates whether Amazon EBS Multi-Attach is enabled.
 	// CFNlong does not currently support updating a single-attach volume to be

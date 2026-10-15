@@ -10,44 +10,101 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::VPCConnection Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::VPCConnection"
-	Properties?: close({
+	let properties = close({
 		AvailabilityStatus?: #VPCConnectionAvailabilityStatus
-		AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		DnsResolvers?: list.MaxItems(15) & [...] & [
-			...strings.MaxRunes(15) & strings.MinRunes(7) | fn.#StringExpression
-		] |
-		fn.#ListExpression
-		Name?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
 		fn.#StringExpression
-		SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		DnsResolvers?: list.MaxItems(15) & [...] & [...strings.MaxRunes(15) & strings.MinRunes(7) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(15) & strings.MinRunes(7) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^sg-[0-9a-z]*$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 			strings.MaxRunes(255) &
 			strings.MinRunes(1) &
-			=~"^sg-[0-9a-z]*$" |
-			fn.#StringExpression
-		] |
+			=~"^sg-[0-9a-z]*$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		SubnetIds?: list.MaxItems(15) & list.MinItems(2) & [
-			...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
-		] |
+		SubnetIds?: list.MaxItems(15) & list.MinItems(2) & [...strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^subnet-[0-9a-z]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-		VPCConnectionId?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		VPCConnectionId?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\w\\-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\w\\-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #NetworkInterface: close({
-	AvailabilityZone?:   string | fn.#StringExpression
-	ErrorMessage?:       string | fn.#StringExpression
-	NetworkInterfaceId?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^eni-[0-9a-z]*$" | fn.#StringExpression
-	Status?:             #NetworkInterfaceStatus
-	SubnetId?:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
+	AvailabilityZone?: string | number | bool | fn.#StringExpression
+	ErrorMessage?:     string | number | bool | fn.#StringExpression
+	NetworkInterfaceId?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^eni-[0-9a-z]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^eni-[0-9a-z]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Status?: #NetworkInterfaceStatus
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^subnet-[0-9a-z]*$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^subnet-[0-9a-z]*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -64,8 +121,18 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

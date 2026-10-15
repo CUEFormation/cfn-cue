@@ -155,7 +155,7 @@ import "strings"
 // a notification to Amazon Simple Notification Service (Amazon SNS).
 #S3Action: close({
 	// The name of the Amazon S3 bucket for incoming email.
-	BucketName!: string
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// The ARN of the IAM role to be used by Amazon SES while writing to the Amazon S3 bucket.
 	IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &

@@ -40,8 +40,11 @@ import (
 #EdiType: close({X12Details!: #X12Details})
 
 #S3Location: close({
-	BucketName?: strings.MaxRunes(63) & strings.MinRunes(3)
-	Key?:        strings.MaxRunes(1024) & strings.MinRunes(0)
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
+	Key?: strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
 #Tag: close({

@@ -9,19 +9,39 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An AWS Support App resource that creates, updates, lists and deletes Slack
 // channel configurations.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SupportApp::SlackChannelConfiguration"
-	Properties!: close({
-		ChannelId!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-		ChannelName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-		ChannelRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		ChannelId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ChannelName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ChannelRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(31) &
 		=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role\\/(.+)$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(31) &
+			=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role\\/(.+)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		NotifyOnAddCorrespondenceToCase?: bool |
 			"true" |
@@ -41,6 +61,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 		NotifyOnResolveCase?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		TeamId!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+		TeamId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

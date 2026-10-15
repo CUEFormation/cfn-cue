@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A public key that you can use with [signed URLs and signed
@@ -17,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // signatures.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::PublicKey"
-	Properties!: close({
+	let properties = close({
 		// Configuration information about a public key that you can use with [signed
 		// URLs and signed
 		// cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html),
@@ -25,12 +27,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// encryption](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/field-level-encryption.html).
 		PublicKeyConfig!: #PublicKeyConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #PublicKeyConfig: close({
-	CallerReference!: string | fn.#StringExpression
-	Comment?:         string | fn.#StringExpression
-	EncodedKey!:      string | fn.#StringExpression
-	Name!:            string | fn.#StringExpression
+	CallerReference!: string | number | bool | fn.#StringExpression
+	Comment?:         string | number | bool | fn.#StringExpression
+	EncodedKey!:      string | number | bool | fn.#StringExpression
+	Name!:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

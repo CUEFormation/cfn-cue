@@ -287,6 +287,17 @@ def cue(args, path, region, resource=None):
         return dict(status="timeout" if code == 124 else "error", message=(stderr or stdout)[:4000], exit_code=code)
 
 
+# These cfn-lint errors compare a Lambda runtime's create-block (E2531) and
+# update-block (E2533) dates with today's date. Schemas cannot express them,
+# and the same template can pass today and fail next year.
+LIFECYCLE_RULES = frozenset({"E2531", "E2533"})
+
+
+def lifecycle_only(lint_result):
+    errors = [m for m in lint_result.get("matches", []) if m.get("Level") == "Error"]
+    return bool(errors) and all(m.get("Rule", {}).get("Id") in LIFECYCLE_RULES for m in errors)
+
+
 def classify(cue_result, lint_result):
     c, l = cue_result["status"], lint_result["status"]
     if c in ("error", "timeout", "unsupported"):
@@ -299,6 +310,8 @@ def classify(cue_result, lint_result):
         return "both-reject"
     if l == "valid":
         return "cue-rejects-lint-accepts"
+    if lifecycle_only(lint_result):
+        return "cue-accepts-lint-lifecycle-only"
     return "cue-accepts-lint-rejects"
 
 
@@ -492,7 +505,11 @@ def markdown(path, summary, results):
         lines.append(f"| {label} | {counts.get('both-accept', 0)} | {counts.get('cue-timeout', 0)} | {sum(counts.values()) - counts.get('both-accept', 0) - counts.get('cue-timeout', 0)} |")
     lines += ["", "Disagreements require triage: cfn-lint acceptance is a comparison signal, not proof of deployability. CUE checks structure and intrinsic argument/result classes; reference resolution, conditions, macros, and service behavior require semantic validation.", "",
               "## Cases requiring attention", "", "| Source template | Region | Result | CUE time (ms) |", "| --- | --- | --- | ---: |"]
-    lines += [f"| [{r['path']}]({r['url']}) | {r['region']} | {r['classification']} | {r['cue'].get('elapsedMs', '')} |" for r in results if r["classification"] != "both-accept"]
+    lines += [f"| [{r['path']}]({r['url']}) | {r['region']} | {r['classification']} | {r['cue'].get('elapsedMs', '')} |" for r in results
+              if r["classification"] not in ("both-accept", "cue-accepts-lint-lifecycle-only")]
+    lifecycle = summary["classifications"].get("cue-accepts-lint-lifecycle-only", 0)
+    if lifecycle:
+        lines += ["", f"{lifecycle} evaluations are omitted above because cfn-lint's only errors were Lambda runtime lifecycle dates (E2531, E2533)."]
     lines += ["", "Full diagnostics, source hashes, tool versions, intrinsic coverage, and accepted resource coverage are in report.json; isolated resource timings are in resources.csv.", ""]
     write(path, "\n".join(lines).encode())
 

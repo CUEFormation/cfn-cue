@@ -10,42 +10,97 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Interconnect::Connection. Creates a managed
 // network connection between AWS and a partner cloud service provider.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Interconnect::Connection"
-	Properties!: close({
-		ActivationKey?: string | fn.#StringExpression
+	let properties = close({
+		ActivationKey?: string | number | bool | fn.#StringExpression
 
 		// The logical attachment point in your AWS network where the managed connection will be connected.
-		AttachPoint!:   #AttachPoint
-		Bandwidth?:     strings.MaxRunes(8) & strings.MinRunes(1) & =~"^\\d+[MG]bps$" | fn.#StringExpression
-		Description?:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_ ]+$" | fn.#StringExpression
-		EnvironmentId?: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-		RemoteAccount?: close({Identifier!: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression}) |
+		AttachPoint!: #AttachPoint
+		Bandwidth?: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^\\d+[MG]bps$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^\\d+[MG]bps$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_ ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_ ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentId?: strings.MaxRunes(32) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RemoteAccount?: close({
+			Identifier!: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" & "\(self)"
+			} |
+			fn.#StringExpression
+		}) |
 		fn.#ObjectExpression
-		RemoteOwnerAccount?: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression
-		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		RemoteOwnerAccount?: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AttachPoint: close({
-	Arn?: string | fn.#StringExpression
+	Arn?: string | number | bool | fn.#StringExpression
 	DirectConnectGateway?: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Provider: close({
-	CloudServiceProvider?: strings.MaxRunes(32) | fn.#StringExpression
-	LastMileProvider?:     strings.MaxRunes(32) | fn.#StringExpression
+	CloudServiceProvider?: strings.MaxRunes(32) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & "\(self)"
+	} |
+	fn.#StringExpression
+	LastMileProvider?: strings.MaxRunes(32) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -14,23 +14,47 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Evidently::Experiment.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Evidently::Experiment"
-	Properties!: close({
-		Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(160) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(160) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		MetricGoals!: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#MetricGoalObject] |
 			fn.#ListExpression
-		Name!:           strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		OnlineAbConfig!: #OnlineAbConfigObject
 		Project!: strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-		RemoveSegment?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" & "\(self)"
+		} |
+		fn.#StringExpression
+		RemoveSegment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// Start Experiment. Default is False
 		RunningStatus?: #RunningStatusObject
@@ -55,26 +79,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Segment?: strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Treatments!: list.MaxItems(5) & list.MinItems(2) & list.UniqueItems() & [...#TreatmentObject] |
 			fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MetricGoalObject: close({
 	DesiredChange!: "INCREASE" | "DECREASE" | fn.#StringExpression
-	EntityIdKey!:   string | fn.#StringExpression
-	EventPattern?:  string | fn.#StringExpression
-	MetricName!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression
-	UnitLabel?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	ValueKey!:      string | fn.#StringExpression
+	EntityIdKey!:   string | number | bool | fn.#StringExpression
+	EventPattern?:  string | number | bool | fn.#StringExpression
+	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UnitLabel?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	ValueKey!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OnlineAbConfigObject: close({
-	ControlTreatmentName?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	TreatmentWeights?:     list.UniqueItems() & [...#TreatmentToWeight] | fn.#ListExpression
+	ControlTreatmentName?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" & "\(self)"
+	} |
+	fn.#StringExpression
+	TreatmentWeights?: list.UniqueItems() & [...#TreatmentToWeight] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -88,24 +136,54 @@ fn.#ObjectExpression
 	DesiredState!: _
 	...
 }]) & close({
-	AnalysisCompleteTime?: string | fn.#StringExpression
-	DesiredState?:         =~"^(CANCELLED|COMPLETED)" | fn.#StringExpression
-	Reason?:               string | fn.#StringExpression
-	Status?:               string | fn.#StringExpression
+	AnalysisCompleteTime?: string | number | bool | fn.#StringExpression
+	DesiredState?: =~"^(CANCELLED|COMPLETED)" |
+	{
+		number | bool
+		_cfnString: =~"^(CANCELLED|COMPLETED)" & "\(self)"
+	} |
+	fn.#StringExpression
+	Reason?: string | number | bool | fn.#StringExpression
+	Status?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TreatmentObject: close({
-	Description?:   string | fn.#StringExpression
-	Feature!:       =~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:.*)" | fn.#StringExpression
-	TreatmentName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Variation!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
+	Feature!: =~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:.*)" |
+	{
+		number | bool
+		_cfnString: =~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:.*)" & "\(self)"
+	} |
+	fn.#StringExpression
+	TreatmentName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Variation!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -126,6 +204,11 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Treatment!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+	Treatment!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

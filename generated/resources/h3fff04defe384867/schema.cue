@@ -14,17 +14,39 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage Multicast groups.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTWireless::MulticastGroup"
-	Properties!: close({
-		AssociateWirelessDevice?:    strings.MaxRunes(256) | fn.#StringExpression
-		Description?:                strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		DisassociateWirelessDevice?: strings.MaxRunes(256) | fn.#StringExpression
+	let properties = close({
+		AssociateWirelessDevice?: strings.MaxRunes(256) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisassociateWirelessDevice?: strings.MaxRunes(256) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & "\(self)"
+		} |
+		fn.#StringExpression
 		LoRaWAN!: close({
-			DlClass!: ("ClassB" | "ClassC") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
+			DlClass!: ("ClassB" | "ClassC") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+			{
+				number | bool
+				_cfnString: ("ClassB" | "ClassC") & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 			RfRegion!: ("AS923-1" |
 				"AS923-2" |
 				"AS923-3" |
@@ -38,16 +60,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				"KR920" |
 				"RU864" |
 				"US915") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+			{
+				number | bool
+				_cfnString: ("AS923-1" |
+					"AS923-2" |
+					"AS923-3" |
+					"AS923-4" |
+					"AU915" |
+					"CN470" |
+					"CN779" |
+					"EU433" |
+					"EU868" |
+					"IN865" |
+					"KR920" |
+					"RU864" |
+					"US915") &
+				strings.MaxRunes(64) &
+				strings.MinRunes(1) &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LoRaWAN: close({
-	DlClass!: ("ClassB" | "ClassC") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
+	DlClass!: ("ClassB" | "ClassC") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("ClassB" | "ClassC") & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	NumberOfDevicesInGroup?: int |
 		{
 			string &
@@ -89,12 +142,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"KR920" |
 		"RU864" |
 		"US915") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("AS923-1" |
+			"AS923-2" |
+			"AS923-3" |
+			"AS923-4" |
+			"AU915" |
+			"CN470" |
+			"CN779" |
+			"EU433" |
+			"EU868" |
+			"IN865" |
+			"KR920" |
+			"RU864" |
+			"US915") &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

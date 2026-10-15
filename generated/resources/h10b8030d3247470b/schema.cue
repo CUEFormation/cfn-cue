@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::WellArchitected::AgentContext. An Agent Context
@@ -17,15 +19,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // recommendations.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WellArchitected::AgentContext"
-	Properties!: close({
+	let properties = close({
 		Content!:     fn.#Object & {...} | fn.#ObjectExpression
 		ContextType!: #ContextType
 		ProfileArn!: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Title!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\P{C}]+$" | fn.#StringExpression
+		Title!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\P{C}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\P{C}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApplicationType: "SAS" | "DESKTOP_APPLICATION" | "OTHER" | fn.#StringExpression

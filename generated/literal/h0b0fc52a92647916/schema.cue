@@ -29,7 +29,24 @@ import "strings"
 // [Creating an queue
 // ()](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/create-queue-cloudformation.html)
 // in the *Developer Guide*.
-#Properties: close({
+#Properties: matchIf({
+	FifoQueue!: true | "true" | "True" | "TRUE"
+	...
+}, matchIf({
+	QueueName!: string
+	...
+}, {
+	QueueName?: null | bool | number | =~"^.*\\.fifo$" | [...] | {...}
+	...
+}, _), _) & matchIf({
+	FifoQueue?: false | "false" | "False" | "FALSE"
+	...
+}, {
+	ContentBasedDeduplication?: error("disallowed")
+	DeduplicationScope?:        error("disallowed")
+	FifoThroughputLimit?:       error("disallowed")
+	...
+}, _) & close({
 	Arn?: string
 
 	// For first-in-first-out (FIFO) queues, specifies whether to enable
@@ -106,7 +123,9 @@ import "strings"
 	// for Key Management
 	// Service](https://docs.aws.amazon.com/kms/latest/developerguide/best-practices.html)
 	// in the *Key Management Service Developer Guide*
-	KmsMasterKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsMasterKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The limit of how many bytes that a message can contain before SQS rejects it.
 	// You can specify an integer from 1,024 bytes (1 KiB) to 1,048,576 bytes (1

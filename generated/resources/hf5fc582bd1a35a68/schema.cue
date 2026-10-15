@@ -13,13 +13,15 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Multiplexprogram
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::Multiplexprogram"
-	Properties?: close({
-		MultiplexId?: string | fn.#StringExpression
+	let properties = close({
+		MultiplexId?: string | number | bool | fn.#StringExpression
 
 		// The settings for this multiplex program.
 		MultiplexProgramSettings?: #MultiplexProgramSettings
@@ -30,8 +32,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// The settings for this multiplex program.
 		PreferredChannelPipeline?: #PreferredChannelPipeline
-		ProgramName?:              string | fn.#StringExpression
+		ProgramName?:              string | number | bool | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MultiplexProgramPacketIdentifiersMap: close({
@@ -241,19 +245,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #MultiplexProgramPipelineDetail: close({
-	ActiveChannelPipeline?: string | fn.#StringExpression
-	PipelineId?:            string | fn.#StringExpression
+	ActiveChannelPipeline?: string | number | bool | fn.#StringExpression
+	PipelineId?:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MultiplexProgramServiceDescriptor: close({
-	ProviderName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ServiceName!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	ProviderName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ServiceName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MultiplexProgramSettings: close({
-	PreferredChannelPipeline?: #PreferredChannelPipeline & string | fn.#StringExpression
+	PreferredChannelPipeline?: #PreferredChannelPipeline & string |
+	{
+		number | bool
+		_cfnString: #PreferredChannelPipeline & string & "\(self)"
+	} |
+	fn.#StringExpression
 	ProgramNumber!: int & <=65535 & >=0 |
 		{
 			string &
@@ -331,7 +350,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#MultiplexVideoSettings: fn.#Object & {...} & matchN(1, [close(
+#MultiplexVideoSettings: fn.#Object & matchN(1, [close(
 	{ConstantBitrate!: int & <=100000000 & >=100000 | fn.#NumberExpression},
 ), close({
 	// Statmux rate control settings.

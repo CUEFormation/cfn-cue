@@ -10,21 +10,40 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Scheduler::ScheduleGroup Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Scheduler::ScheduleGroup"
-	Properties?: close({
-		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
+	let properties = close({
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ScheduleGroupState: "ACTIVE" | "DELETING" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

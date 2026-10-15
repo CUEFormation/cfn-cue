@@ -9,28 +9,54 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::FIS::TargetAccountConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FIS::TargetAccountConfiguration"
-	Properties!: close({
+	let properties = close({
 		AccountId!:            #TargetAccountId
 		Description?:          #TargetAccountConfigurationDescription
 		ExperimentTemplateId!: #TargetExperimentTemplateId
 		RoleArn!:              #TargetAccountRoleArn
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #TargetAccountConfigurationDescription: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+} |
 fn.#StringExpression
 
-#TargetAccountId: strings.MaxRunes(512) & strings.MinRunes(12) & =~"^[\\S]+$" | fn.#StringExpression
+#TargetAccountId: strings.MaxRunes(512) & strings.MinRunes(12) & =~"^[\\S]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(12) & =~"^[\\S]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#TargetAccountRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#TargetAccountRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(1224) &
 strings.MinRunes(20) &
 =~"^[\\S]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1224) &
+	strings.MinRunes(20) &
+	=~"^[\\S]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#TargetExperimentTemplateId: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
+#TargetExperimentTemplateId: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$" & "\(self)"
+} |
+fn.#StringExpression

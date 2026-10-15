@@ -14,14 +14,16 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::LoadBalancer
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::LoadBalancer"
-	Properties!: close({
-		AttachedInstances?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		HealthCheckPath?:   string | fn.#StringExpression
+	let properties = close({
+		AttachedInstances?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		HealthCheckPath?:   string | number | bool | fn.#StringExpression
 		InstancePort!: int & <=65535 & >=-1 |
 			{
 				string &
@@ -40,17 +42,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		IpAddressType?:            "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
-		LoadBalancerName!:         =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
+		IpAddressType?: "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
+		LoadBalancerName!: =~"\\w[\\w\\-]*\\w" |
+		{
+			number | bool
+			_cfnString: =~"\\w[\\w\\-]*\\w" & "\(self)"
+		} |
+		fn.#StringExpression
 		SessionStickinessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SessionStickinessLBCookieDurationSeconds?: string | fn.#StringExpression
+		SessionStickinessLBCookieDurationSeconds?: string | number | bool | fn.#StringExpression
 		Tags?:                                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TlsPolicyName?:                            string | fn.#StringExpression
+		TlsPolicyName?:                            string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

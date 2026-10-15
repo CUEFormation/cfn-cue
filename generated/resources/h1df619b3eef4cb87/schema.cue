@@ -10,19 +10,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaConvert::JobTemplate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConvert::JobTemplate"
-	Properties!: close({
+	let properties = close({
 		// Accelerated transcoding can significantly speed up jobs with long, visually
 		// complex content. Outputs that use this feature incur pro-tier pricing.
 		AccelerationSettings?: #AccelerationSettings
-		Category?:             string | fn.#StringExpression
-		Description?:          string | fn.#StringExpression
+		Category?:             string | number | bool | fn.#StringExpression
+		Description?:          string | number | bool | fn.#StringExpression
 		HopDestinations?:      [...#HopDestination] | fn.#ListExpression
-		Name?:                 string | fn.#StringExpression
+		Name?:                 string | number | bool | fn.#StringExpression
 		Priority?: int & <=50 & >=-50 |
 			{
 				string &
@@ -41,8 +43,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Queue?:        string | fn.#StringExpression
-		SettingsJson!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Queue?:        string | number | bool | fn.#StringExpression
+		SettingsJson!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		StatusUpdateInterval?: "SECONDS_10" |
 			"SECONDS_12" |
 			"SECONDS_120" |
@@ -59,8 +61,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"SECONDS_60" |
 			"SECONDS_600" |
 			fn.#StringExpression
-		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccelerationSettings: close({Mode!: "DISABLED" | "ENABLED" | "PREFERRED" | fn.#StringExpression}) |
@@ -83,7 +87,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Queue?: string | fn.#StringExpression
+	Queue?: string | number | bool | fn.#StringExpression
 	WaitMinutes?: int & <=4320 & >=1 |
 		{
 			string &

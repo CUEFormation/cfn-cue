@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::DataZone::Environment Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::Environment"
-	Properties!: close({
+	let properties = close({
 		DeploymentOrder?: int |
 			{
 				string &
@@ -36,26 +38,72 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description?:                    strings.MaxRunes(2048) | fn.#StringExpression
-		DomainIdentifier!:               =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		EnvironmentAccountIdentifier?:   =~"^\\d{12}$" | fn.#StringExpression
-		EnvironmentAccountRegion?:       =~"^[a-z]{2}-[a-z]{4,10}-\\d$" | fn.#StringExpression
-		EnvironmentBlueprintIdentifier?: string | fn.#StringExpression
-		EnvironmentConfigurationId?:     string | fn.#StringExpression
-		EnvironmentProfileIdentifier?:   =~"^[a-zA-Z0-9_-]{0,36}$" | fn.#StringExpression
-		EnvironmentRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression] |
-			fn.#ListExpression
-		Name!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		UserParameters?:    [...#EnvironmentParameter] | fn.#ListExpression
+		Description?: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentAccountIdentifier?: =~"^\\d{12}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\d{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentAccountRegion?: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentBlueprintIdentifier?: string | number | bool | fn.#StringExpression
+		EnvironmentConfigurationId?:     string | number | bool | fn.#StringExpression
+		EnvironmentProfileIdentifier?: =~"^[a-zA-Z0-9_-]{0,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{0,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		UserParameters?: [...#EnvironmentParameter] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EnvironmentParameter: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -9,21 +9,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource represents an individual schema version of a schema defined in
 // Glue Schema Registry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::SchemaVersion"
-	Properties!: close({
-		Schema!:           #Schema
-		SchemaDefinition!: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	let properties = close({
+		Schema!: #Schema
+		SchemaDefinition!: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Schema: close({
-	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SchemaArn?:    =~"arn:(aws|aws-us-gov|aws-cn):glue:.*" | fn.#StringExpression
-	SchemaName?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SchemaArn?: =~"arn:(aws|aws-us-gov|aws-cn):glue:.*" |
+	{
+		number | bool
+		_cfnString: =~"arn:(aws|aws-us-gov|aws-cn):glue:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	SchemaName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

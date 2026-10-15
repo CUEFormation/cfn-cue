@@ -14,13 +14,20 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Kinesis::Channel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Kinesis::Channel"
-	Properties!: close({
-		ChannelName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	let properties = close({
+		ChannelName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Server-side encryption configuration for data at rest.
 		EncryptionConfiguration?: #EncryptionConfiguration
@@ -37,10 +44,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// S3DestinationConfiguration and S3TablesDestinationConfiguration must be
 		// specified.
 		S3TablesDestinationConfiguration?: #S3TablesDestinationConfiguration
-		ServiceExecutionRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ServiceExecutionRoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[-a-z0-9]*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		StreamConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [...#StreamConfiguration] |
 			fn.#ListExpression
@@ -51,27 +66,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{S3DestinationConfiguration!: _}, {S3TablesDestinationConfiguration!: _}])
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CloudWatchLogsConfiguration: close({
-	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroupName?:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]+$" | fn.#StringExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DeadLetterQueueS3Configuration: close({
 	BucketARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws[-a-z0-9]*:s3:::[a-z0-9._-]{3,63}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:s3:::[a-z0-9._-]{3,63}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ErrorOutputPrefix?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[0-9A-Za-z!\\-_'.*()\\/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[0-9A-Za-z!\\-_'.*()\\/]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	ExpectedBucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
+	ExpectedBucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EncryptionConfiguration: close({
 	EncryptionType!: "KMS" | fn.#StringExpression
-	KeyId!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	KeyId!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -83,8 +131,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PartitionField: close({
-	SourceName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._]+$" | fn.#StringExpression
-	Transform!:  "TIME_HOUR" | fn.#StringExpression
+	SourceName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Transform!: "TIME_HOUR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -97,6 +150,13 @@ fn.#ObjectExpression
 	GSRSchemaARN?: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:glue:[-a-z0-9]+:\\d{12}:schema/[-a-zA-Z0-9_$#.]+/[-a-zA-Z0-9_$#.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:glue:[-a-z0-9]+:\\d{12}:schema/[-a-zA-Z0-9_$#.]+/[-a-zA-Z0-9_$#.]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	RecordFormatType!: "GSR_JSON" | "JSON" | "STRING" | "BYTE_ARRAY" | fn.#StringExpression
 }) |
@@ -131,10 +191,26 @@ fn.#ObjectExpression
 
 #S3StorageConfiguration: close({
 	BucketARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws[-a-z0-9]*:s3:::[a-z0-9._-]{3,63}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:s3:::[a-z0-9._-]{3,63}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	CompressionType!:     "NONE" | "GZIP" | "ZSTD" | fn.#StringExpression
-	ExpectedBucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
+	CompressionType!: "NONE" | "GZIP" | "ZSTD" | fn.#StringExpression
+	ExpectedBucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	OutputKeyTemplate?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9A-Za-z!\\-_'.*()\\/=:{}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9A-Za-z!\\-_'.*()\\/=:{}]+$" & "\(self)"
+	} |
 	fn.#StringExpression
 	StorageClass?: "STANDARD" | "INTELLIGENT_TIERING" | "GLACIER_IR" | fn.#StringExpression
 }) |
@@ -142,15 +218,32 @@ fn.#ObjectExpression
 
 #S3TableConfiguration: close({
 	CompressionType!: "NONE" | "ZSTD" | "SNAPPY" | fn.#StringExpression
-	Namespace!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" | fn.#StringExpression
+	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The partition specification used by the destination Iceberg table.
 	PartitionSpec?: #PartitionSpec
 	TableBucketARN!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:s3tables:[-a-z0-9]+:[0-9]{12}:bucket/[a-z0-9_-]{3,63}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:s3tables:[-a-z0-9]+:[0-9]{12}:bucket/[a-z0-9_-]{3,63}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	TableName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" | fn.#StringExpression
+	TableName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -183,12 +276,29 @@ fn.#ObjectExpression
 	// The configuration that describes how records on the source stream are encoded.
 	RecordConfiguration!: #RecordConfiguration
 	StreamARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

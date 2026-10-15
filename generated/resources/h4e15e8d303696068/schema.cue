@@ -10,18 +10,32 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Document Classifier enables training document classifier models.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Comprehend::DocumentClassifier"
-	Properties!: close({
-		DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		DataAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DocumentClassifierName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		InputDataConfig!: #DocumentClassifierInputDataConfig
 		LanguageCode!:    "en" | "es" | "fr" | "it" | "de" | "pt" | fn.#StringExpression
@@ -30,20 +44,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ModelPolicy?: strings.MaxRunes(20000) &
 		strings.MinRunes(1) &
 		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20000) &
+			strings.MinRunes(1) &
+			=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		OutputDataConfig?: #DocumentClassifierOutputDataConfig
 		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		VersionName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		VolumeKmsKeyId?: #KmsKeyId
 		VpcConfig?:      #VpcConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AugmentedManifestsListItem: close({
-	AttributeNames!: list.MaxItems(63) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
-	] |
+	AttributeNames!: list.MaxItems(63) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(63) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	S3Uri!: #S3Uri
 	Split?: "TRAIN" | "TEST" | fn.#StringExpression
@@ -63,6 +95,10 @@ fn.#ObjectExpression
 	DocumentType?:         "PLAIN_TEXT_DOCUMENT" | "SEMI_STRUCTURED_DOCUMENT" | fn.#StringExpression
 	Documents?:            #DocumentClassifierDocuments
 	LabelDelimiter?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[ ~!@#$%^*\\-_+=|\\\\:;\\t>?/]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[ ~!@#$%^*\\-_+=|\\\\:;\\t>?/]$" & "\(self)"
+	} |
 	fn.#StringExpression
 	S3Uri?:     #S3Uri
 	TestS3Uri?: #S3Uri
@@ -85,34 +121,78 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	string) &
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^\\p{ASCII}+$" |
+{
+	number | bool
+	_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^\\p{ASCII}+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #S3Uri: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) &
+	strings.MinRunes(0) &
+	=~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(1) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(1) &
-		=~"[-0-9a-zA-Z]+" |
-		fn.#StringExpression
-	] |
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
-	] |
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(1) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

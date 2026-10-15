@@ -6,30 +6,35 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::LogDeliveryConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::LogDeliveryConfiguration"
-	Properties!: close({
+	let properties = close({
 		LogConfigurations?: #LogConfigurations
-		UserPoolId!:        string | fn.#StringExpression
+		UserPoolId!:        string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CloudWatchLogsConfiguration: close({LogGroupArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CloudWatchLogsConfiguration: close({LogGroupArn?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
-#FirehoseConfiguration: close({StreamArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#FirehoseConfiguration: close({StreamArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #LogConfiguration: close({
 	CloudWatchLogsConfiguration?: #CloudWatchLogsConfiguration
-	EventSource?:                 string | fn.#StringExpression
+	EventSource?:                 string | number | bool | fn.#StringExpression
 	FirehoseConfiguration?:       #FirehoseConfiguration
-	LogLevel?:                    string | fn.#StringExpression
+	LogLevel?:                    string | number | bool | fn.#StringExpression
 	S3Configuration?:             #S3Configuration
 }) |
 fn.#ObjectExpression
 
 #LogConfigurations: [...#LogConfiguration] | fn.#ListExpression
 
-#S3Configuration: close({BucketArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#S3Configuration: close({BucketArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

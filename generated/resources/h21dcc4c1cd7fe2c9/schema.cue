@@ -13,14 +13,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Athena::WorkGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Athena::WorkGroup"
-	Properties!: close({
-		Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:                  =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"[a-zA-Z0-9._-]{1,128}" |
+		{
+			number | bool
+			_cfnString: =~"[a-zA-Z0-9._-]{1,128}" & "\(self)"
+		} |
+		fn.#StringExpression
 		RecursiveDeleteOption?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		State?:                 "ENABLED" | "DISABLED" | fn.#StringExpression
 
@@ -59,11 +71,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AclConfiguration: close({S3AclOption!: #S3AclOption}) | fn.#ObjectExpression
 
-#AdditionalConfiguration: string | fn.#StringExpression
+#AdditionalConfiguration: string | number | bool | fn.#StringExpression
 
 #BytesScannedCutoffPerQuery: int & >=10000000 |
 	{
@@ -82,28 +96,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#NumberExpression
 
 #Classification: close({
-	Name?: string | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 	Properties?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #CloudWatchLoggingConfiguration: close({
 	Enabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroup?:            string | fn.#StringExpression
-	LogStreamNamePrefix?: string | fn.#StringExpression
+	LogGroup?:            string | number | bool | fn.#StringExpression
+	LogStreamNamePrefix?: string | number | bool | fn.#StringExpression
 	LogTypes?: close({
 
-		{[=~"^.+$"]: [...string | fn.#StringExpression] | fn.#ListExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #CustomerContentEncryptionConfiguration: close({KmsKey!: #KmsKey}) | fn.#ObjectExpression
 
-#EffectiveEngineVersion: string | fn.#StringExpression
+#EffectiveEngineVersion: string | number | bool | fn.#StringExpression
 
 #EncryptionConfiguration: close({
 	EncryptionOption!: #EncryptionOption
@@ -118,7 +142,12 @@ fn.#ObjectExpression
 #EngineConfiguration: close({
 	AdditionalConfigs?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 	Classifications?: [...#Classification] | fn.#ListExpression
 	CoordinatorDpuSize?: int |
@@ -165,7 +194,12 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	SparkProperties?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -176,15 +210,15 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExecutionRole: string | fn.#StringExpression
+#ExecutionRole: string | number | bool | fn.#StringExpression
 
-#ExpectedBucketOwner: string | fn.#StringExpression
+#ExpectedBucketOwner: string | number | bool | fn.#StringExpression
 
-#KmsKey: string | fn.#StringExpression
+#KmsKey: string | number | bool | fn.#StringExpression
 
 #ManagedLoggingConfiguration: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KmsKey?:  string | fn.#StringExpression
+	KmsKey?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -203,7 +237,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OutputLocation: string | fn.#StringExpression
+#OutputLocation: string | number | bool | fn.#StringExpression
 
 #PublishCloudWatchMetricsEnabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -252,16 +286,26 @@ fn.#ObjectExpression
 
 #S3LoggingConfiguration: close({
 	Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KmsKey?:      string | fn.#StringExpression
-	LogLocation?: string | fn.#StringExpression
+	KmsKey?:      string | number | bool | fn.#StringExpression
+	LogLocation?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SelectedEngineVersion: string | fn.#StringExpression
+#SelectedEngineVersion: string | number | bool | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

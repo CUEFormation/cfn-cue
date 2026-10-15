@@ -13,25 +13,109 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ElastiCache::CacheCluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElastiCache::CacheCluster"
-	Properties!: close({
-		AZMode?:                  =~"(?i)^(?:cross-az|single-az)$" | fn.#StringExpression
+	let properties = matchIf({
+		Engine!: string | number | bool
+		...
+	}, {
+		Engine?: "memcached" | "redis" | "valkey" | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Engine!:        "memcached"
+		EngineVersion!: number | string | bool
+		...
+	}, {
+		EngineVersion?: "1.4.14" |
+			"1.4.24" |
+			"1.4.33" |
+			"1.4.34" |
+			"1.4.5" |
+			"1.5.10" |
+			"1.5.16" |
+			"1.6.12" |
+			"1.6.17" |
+			"1.6.22" |
+			"1.6.6" |
+			fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Engine!:        "redis"
+		EngineVersion!: number | string | bool
+		...
+	}, {
+		EngineVersion?: "4.0.10" |
+			"5.0.6" |
+			"6.0" |
+			6.0 |
+			"6.2" |
+			6.2 |
+			==6.2 |
+			"7.0" |
+			7.0 |
+			"7.1" |
+			7.1 |
+			==7.1 |
+			fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Engine!:        "valkey"
+		EngineVersion!: number | string | bool
+		...
+	}, {
+		EngineVersion?: "7.2" |
+			7.2 |
+			==7.2 |
+			"8.0" |
+			8.0 |
+			"8.1" |
+			8.1 |
+			==8.1 |
+			"8.2" |
+			8.2 |
+			==8.2 |
+			"9.0" |
+			9.0 |
+			"9.1" |
+			9.1 |
+			==9.1 |
+			fn.#ValueExpression
+		...
+	}, _) & close({
+		AZMode?: =~"(?i)^(?:cross-az|single-az)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:cross-az|single-az)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		CacheNodeType!:           string | fn.#StringExpression
-		CacheParameterGroupName?: string | fn.#StringExpression
-		CacheSecurityGroupNames?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		CacheSubnetGroupName?:    string | fn.#StringExpression
-		ClusterName?:             string | fn.#StringExpression
-		Engine!:                  string | fn.#StringExpression
-		EngineVersion?:           string | fn.#StringExpression
-		IpDiscovery?:             =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
+		CacheNodeType!:           string | number | bool | fn.#StringExpression
+		CacheParameterGroupName?: string | number | bool | fn.#StringExpression
+		CacheSecurityGroupNames?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		CacheSubnetGroupName?: string | number | bool | fn.#StringExpression
+		ClusterName?:          string | number | bool | fn.#StringExpression
+		Engine!:               string | number | bool | fn.#StringExpression
+		EngineVersion?:        string | number | bool | fn.#StringExpression
+		IpDiscovery?: =~"(?i)^(?:ipv4|ipv6)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:ipv4|ipv6)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		LogDeliveryConfigurations?: [...#LogDeliveryConfigurationRequest] | fn.#ListExpression
-		NetworkType?:               =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
-		NotificationTopicArn?:      string | fn.#StringExpression
+		NetworkType?: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		NotificationTopicArn?: string | number | bool | fn.#StringExpression
 		NumCacheNodes!: int |
 			{
 				string &
@@ -64,11 +148,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PreferredAvailabilityZone?:  string | fn.#StringExpression
-		PreferredAvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
-		SnapshotArns?:               list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		SnapshotName?:               string | fn.#StringExpression
+		PreferredAvailabilityZone?:  string | number | bool | fn.#StringExpression
+		PreferredAvailabilityZones?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
+		SnapshotArns?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SnapshotName?: string | number | bool | fn.#StringExpression
 		SnapshotRetentionLimit?: int |
 			{
 				string &
@@ -85,18 +169,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SnapshotWindow?:           string | fn.#StringExpression
+		SnapshotWindow?:           string | number | bool | fn.#StringExpression
 		Tags?:                     [...#Tag] | fn.#ListExpression
 		TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		VpcSecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		VpcSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CloudWatchLogsDestinationDetails: close({LogGroup!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CloudWatchLogsDestinationDetails: close({LogGroup!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #DestinationDetails: close({
 	// The configuration details of the CloudWatch Logs destination
@@ -108,25 +197,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Endpoint: close({
-	Address?: string | fn.#StringExpression
-	Port?:    string | fn.#StringExpression
+	Address?: string | number | bool | fn.#StringExpression
+	Port?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#KinesisFirehoseDestinationDetails: close({DeliveryStream!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#KinesisFirehoseDestinationDetails: close({DeliveryStream!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #LogDeliveryConfigurationRequest: close({
 	// Configuration details of either a CloudWatch Logs destination or Kinesis Data
 	// Firehose destination.
 	DestinationDetails!: #DestinationDetails
-	DestinationType!:    =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" | fn.#StringExpression
-	LogFormat!:          =~"(?i)^(?:json|text)$" | fn.#StringExpression
-	LogType!:            =~"(?i)^(?:engine-log|slow-log)$" | fn.#StringExpression
+	DestinationType!: =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogFormat!: =~"(?i)^(?:json|text)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:json|text)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogType!: =~"(?i)^(?:engine-log|slow-log)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:engine-log|slow-log)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

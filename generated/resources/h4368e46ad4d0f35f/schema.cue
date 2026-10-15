@@ -9,21 +9,25 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A WAFv2 Logging Configuration Resource Provider
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFv2::LoggingConfiguration"
-	Properties!: close({
-		LogDestinationConfigs!: [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		LogDestinationConfigs!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		LoggingFilter?: close({
 			DefaultBehavior!: "KEEP" | "DROP" | fn.#StringExpression
 			Filters!:         list.MinItems(1) & [...#Filter] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
 		RedactedFields?: [...#FieldToMatch] | fn.#ListExpression
-		ResourceArn!:    string | fn.#StringExpression
+		ResourceArn!:    string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Condition: close({
@@ -38,15 +42,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	}) |
 		fn.#ObjectExpression
-	LabelNameCondition?: close({LabelName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+	LabelNameCondition?: close({LabelName!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #FieldToMatch: close({
-	Method?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-	QueryString?:  fn.#Object & {...} | string | fn.#StringObjectExpression
-	SingleHeader?: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
-	UriPath?:      fn.#Object & {...} | string | fn.#StringObjectExpression
+	Method?:       fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	QueryString?:  fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	SingleHeader?: close({Name!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
+	UriPath?:      fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 

@@ -10,12 +10,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Timestream::ScheduledQuery resource creates a Timestream Scheduled Query.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Timestream::ScheduledQuery"
-	Properties!: close({
+	let properties = close({
 		ClientToken?:                    #ClientToken
 		ErrorReportConfiguration!:       #ErrorReportConfiguration
 		KmsKeyId?:                       #KmsKeyId
@@ -27,16 +29,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                           #Tags
 		TargetConfiguration?:            #TargetConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-
-#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
 fn.#StringExpression
 
-#ClientToken: strings.MaxRunes(128) & strings.MinRunes(32) | fn.#StringExpression
+#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
+{
+	number | bool
+	_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" &
+	"\(self)"
+} |
+fn.#StringExpression
 
-#DatabaseName: string | fn.#StringExpression
+#ClientToken: strings.MaxRunes(128) & strings.MinRunes(32) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(32) & "\(self)"
+} |
+fn.#StringExpression
+
+#DatabaseName: string | number | bool | fn.#StringExpression
 
 #DimensionMapping: close({
 	DimensionValueType!: #DimensionValueType
@@ -44,7 +71,7 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#DimensionMappingName: string | fn.#StringExpression
+#DimensionMappingName: string | number | bool | fn.#StringExpression
 
 #DimensionMappings: [...#DimensionMapping] | fn.#ListExpression
 
@@ -54,13 +81,28 @@ fn.#ObjectExpression
 
 #ErrorReportConfiguration: close({S3Configuration!: #S3Configuration}) | fn.#ObjectExpression
 
-#Key: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-
-#KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+#Key: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
 fn.#StringExpression
 
-#MeasureNameColumn: string | fn.#StringExpression
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression
+
+#MeasureNameColumn: string | number | bool | fn.#StringExpression
 
 #MixedMeasureMapping: close({
 	MeasureName?:                   #MixedMeasureMappingMeasureName
@@ -71,13 +113,13 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#MixedMeasureMappingMeasureName: string | fn.#StringExpression
+#MixedMeasureMappingMeasureName: string | number | bool | fn.#StringExpression
 
 #MixedMeasureMappingMeasureValueType: "BIGINT" | "BOOLEAN" | "DOUBLE" | "VARCHAR" | "MULTI" | fn.#StringExpression
 
-#MixedMeasureMappingSourceColumn: string | fn.#StringExpression
+#MixedMeasureMappingSourceColumn: string | number | bool | fn.#StringExpression
 
-#MixedMeasureMappingTargetMeasureName: string | fn.#StringExpression
+#MixedMeasureMappingTargetMeasureName: string | number | bool | fn.#StringExpression
 
 #MixedMeasureMappings: list.MinItems(1) & [...#MixedMeasureMapping] | fn.#ListExpression
 
@@ -97,7 +139,7 @@ fn.#ObjectExpression
 	"TIMESTAMP" |
 	fn.#StringExpression
 
-#MultiMeasureAttributeMappingSourceColumn: string | fn.#StringExpression
+#MultiMeasureAttributeMappingSourceColumn: string | number | bool | fn.#StringExpression
 
 #MultiMeasureMappings: close({
 	MultiMeasureAttributeMappings!: #MultiMeasureAttributeMappingList
@@ -110,9 +152,21 @@ fn.#ObjectExpression
 #ObjectKeyPrefix: strings.MaxRunes(896) &
 strings.MinRunes(1) &
 =~"[a-zA-Z0-9|!\\-_*'\\(\\)]([a-zA-Z0-9]|[!\\-_*'\\(\\)\\/.])+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(896) &
+	strings.MinRunes(1) &
+	=~"[a-zA-Z0-9|!\\-_*'\\(\\)]([a-zA-Z0-9]|[!\\-_*'\\(\\)\\/.])+" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#QueryString: strings.MaxRunes(262144) & strings.MinRunes(1) | fn.#StringExpression
+#QueryString: strings.MaxRunes(262144) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(262144) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #S3Configuration: close({
 	BucketName!:       #BucketName
@@ -123,16 +177,33 @@ fn.#ObjectExpression
 
 #ScheduleConfiguration: close({ScheduleExpression!: #ScheduleExpression}) | fn.#ObjectExpression
 
-#ScheduleExpression: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-
-#ScheduledQueryExecutionRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+#ScheduleExpression: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
 fn.#StringExpression
 
-#ScheduledQueryName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" | fn.#StringExpression
+#ScheduledQueryExecutionRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression
+
+#ScheduledQueryName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #SnsConfiguration: close({TopicArn!: #TopicArn}) | fn.#ObjectExpression
 
-#TableName: string | fn.#StringExpression
+#TableName: string | number | bool | fn.#StringExpression
 
 #Tag: close({
 	Key!:   #Key
@@ -144,11 +215,11 @@ fn.#ObjectExpression
 
 #TargetConfiguration: close({TimestreamConfiguration!: #TimestreamConfiguration}) | fn.#ObjectExpression
 
-#TargetMultiMeasureAttributeName: string | fn.#StringExpression
+#TargetMultiMeasureAttributeName: string | number | bool | fn.#StringExpression
 
-#TargetMultiMeasureName: string | fn.#StringExpression
+#TargetMultiMeasureName: string | number | bool | fn.#StringExpression
 
-#TimeColumn: string | fn.#StringExpression
+#TimeColumn: string | number | bool | fn.#StringExpression
 
 #TimestreamConfiguration: close({
 	DatabaseName!:         #DatabaseName
@@ -161,7 +232,19 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#TopicArn: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+#TopicArn: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#Value: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#Value: strings.MaxRunes(256) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression

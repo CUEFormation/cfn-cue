@@ -14,16 +14,23 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::FirewallRuleGroup.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53Resolver::FirewallRuleGroup"
-	Properties?: close({
+	let properties = close({
 		FirewallRules?: list.UniqueItems() & [...close({
 			Action!:               "ALLOW" | "BLOCK" | "ALERT" | fn.#StringExpression
 			BlockOverrideDnsType?: "CNAME" | fn.#StringExpression
-			BlockOverrideDomain?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+			BlockOverrideDomain?: strings.MaxRunes(255) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 			BlockOverrideTtl?: int & <=604800 & >=0 |
 				{
 					string &
@@ -42,10 +49,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			BlockResponse?:        "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
-			ConfidenceThreshold?:  "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
-			DnsThreatProtection?:  "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
-			FirewallDomainListId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+			BlockResponse?:       "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
+			ConfidenceThreshold?: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
+			DnsThreatProtection?: "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
+			FirewallDomainListId?: strings.MaxRunes(64) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 			FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" |
 				"TRUST_REDIRECTION_DOMAIN" |
 				fn.#StringExpression
@@ -69,29 +81,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			Qtype?: strings.MaxRunes(16) & strings.MinRunes(1) | fn.#StringExpression
+			Qtype?: strings.MaxRunes(16) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(16) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Name?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#FirewallAdvancedContentCategoryConfig: close(
-	{Category!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#FirewallAdvancedContentCategoryConfig: close({
+	Category!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#FirewallAdvancedThreatCategoryConfig: close(
-	{Category!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#FirewallAdvancedThreatCategoryConfig: close({
+	Category!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #FirewallRule: close({
 	Action!:               "ALLOW" | "BLOCK" | "ALERT" | fn.#StringExpression
 	BlockOverrideDnsType?: "CNAME" | fn.#StringExpression
-	BlockOverrideDomain?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	BlockOverrideDomain?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	BlockOverrideTtl?: int & <=604800 & >=0 |
 		{
 			string &
@@ -108,16 +147,26 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	BlockResponse?:                   "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
-	ConfidenceThreshold?:             "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
-	DnsThreatProtection?:             "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
-	FirewallDomainListId?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	BlockResponse?:       "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
+	ConfidenceThreshold?: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
+	DnsThreatProtection?: "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
+	FirewallDomainListId?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" | "TRUST_REDIRECTION_DOMAIN" | fn.#StringExpression
 
 	// Advanced firewall rule type. Mutually exclusive with FirewallDomainListId and
 	// DnsThreatProtection/ConfidenceThreshold.
-	FirewallRuleType?:           #FirewallRuleType
-	FirewallThreatProtectionId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	FirewallRuleType?: #FirewallRuleType
+	FirewallThreatProtectionId?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Priority!: int |
 		{
 			string &
@@ -132,7 +181,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Qtype?:  strings.MaxRunes(16) & strings.MinRunes(1) | fn.#StringExpression
+	Qtype?: strings.MaxRunes(16) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Status?: "COMPLETE" | "CREATING" | "CREATION_FAILED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -160,11 +214,28 @@ fn.#ObjectExpression
 ) |
 fn.#ObjectExpression
 
-#PartnerThreatProtectionConfig: close({Partner!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
+#PartnerThreatProtectionConfig: close({
+	Partner!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

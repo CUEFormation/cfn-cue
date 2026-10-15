@@ -3395,7 +3395,7 @@ import (
 })
 
 #StaticFileS3SourceOptions: close({
-	BucketName!: string
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 	ObjectKey!:  string
 	Region!:     string
 })

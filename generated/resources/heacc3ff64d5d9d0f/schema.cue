@@ -9,28 +9,47 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::DirectoryConfig
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::DirectoryConfig"
-	Properties!: close({
+	let properties = close({
 		CertificateBasedAuthProperties?: #CertificateBasedAuthProperties
-		DirectoryName!:                  string | fn.#StringExpression
-		OrganizationalUnitDistinguishedNames!: [...strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression] |
+		DirectoryName!:                  string | number | bool | fn.#StringExpression
+		OrganizationalUnitDistinguishedNames!: [...strings.MaxRunes(2000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		ServiceAccountCredentials!: #ServiceAccountCredentials
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CertificateBasedAuthProperties: close({
-	CertificateAuthorityArn?: string | fn.#StringExpression
+	CertificateAuthorityArn?: string | number | bool | fn.#StringExpression
 	Status?:                  "DISABLED" | "ENABLED" | "ENABLED_NO_DIRECTORY_LOGIN_FALLBACK" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ServiceAccountCredentials: close({
-	AccountName!:     strings.MinRunes(1) | fn.#StringExpression
-	AccountPassword!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	AccountName!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	AccountPassword!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

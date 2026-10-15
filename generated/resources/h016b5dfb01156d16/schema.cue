@@ -14,13 +14,20 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RedshiftServerless::Snapshot Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RedshiftServerless::Snapshot"
-	Properties!: close({
-		NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
+	let properties = close({
+		NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
 		RetentionPeriod?: int |
 			{
 				string &
@@ -37,19 +44,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SnapshotName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
-		Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		SnapshotName!: strings.MaxRunes(64) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Snapshot: close({
-	AdminUsername?: string | fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	NamespaceArn?:  string | fn.#StringExpression
-	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	OwnerAccount?:  string | fn.#StringExpression
+	AdminUsername?: string | number | bool | fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	NamespaceArn?: string | number | bool | fn.#StringExpression
+	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	OwnerAccount?: string | number | bool | fn.#StringExpression
 	RetentionPeriod?: int |
 		{
 			string &
@@ -64,17 +97,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	SnapshotArn?:        string | fn.#StringExpression
-	SnapshotCreateTime?: string | fn.#StringExpression
-	SnapshotName?:       strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	Status?:             #SnapshotStatus
+	SnapshotArn?:        string | number | bool | fn.#StringExpression
+	SnapshotCreateTime?: string | number | bool | fn.#StringExpression
+	SnapshotName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Status?: #SnapshotStatus
 }) |
 fn.#ObjectExpression
 
 #SnapshotStatus: "AVAILABLE" | "CREATING" | "DELETED" | "CANCELLED" | "FAILED" | "COPYING" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

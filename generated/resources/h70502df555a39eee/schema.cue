@@ -13,28 +13,67 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Partition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Partition"
-	Properties!: close({
-		CatalogId!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		DatabaseName!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		CatalogId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		PartitionInput!: #PartitionInput
-		TableName!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		TableName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Column: close({
-	Comment?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:    strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
+	Comment?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Order: close({
-	Column!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Column!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SortOrder?: int & <=1 & >=0 |
 		{
 			string &
@@ -55,17 +94,40 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PartitionInput: close({
-	Parameters?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	Parameters?:        fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	StorageDescriptor?: #StorageDescriptor
-	Values!:            [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	Values!: [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SchemaId: close({
-	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" | fn.#StringExpression
-	SchemaArn?: strings.MaxRunes(10240) & strings.MinRunes(1) & =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:" |
+	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	SchemaName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" | fn.#StringExpression
+	SchemaArn?: strings.MaxRunes(10240) & strings.MinRunes(1) & =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10240) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	SchemaName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -74,6 +136,13 @@ fn.#ObjectExpression
 	SchemaVersionId?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SchemaVersionNumber?: int & <=100000 & >=1 |
 		{
@@ -95,25 +164,57 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SerdeInfo: close({
-	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	SerializationLibrary?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Parameters?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	SerializationLibrary?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SkewedInfo: close({
-	SkewedColumnNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SkewedColumnValueLocationMaps?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	SkewedColumnValues?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	SkewedColumnNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SkewedColumnValueLocationMaps?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	SkewedColumnValues?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #StorageDescriptor: close({
-	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Columns?:       [...#Column] | fn.#ListExpression
-	Compressed?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InputFormat?:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Location?:      strings.MaxRunes(2056) & strings.MinRunes(0) | fn.#StringExpression
+	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Columns?:    [...#Column] | fn.#ListExpression
+	Compressed?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InputFormat?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Location?: strings.MaxRunes(2056) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2056) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	NumberOfBuckets?: int |
 		{
 			string &
@@ -128,8 +229,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	OutputFormat?:           strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Parameters?:             fn.#Object & {...} | string | fn.#StringObjectExpression
+	OutputFormat?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Parameters?:             fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	SchemaReference?:        #SchemaReference
 	SerdeInfo?:              #SerdeInfo
 	SkewedInfo?:             #SkewedInfo

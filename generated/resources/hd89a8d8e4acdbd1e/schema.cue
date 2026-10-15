@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Configures the Device Defender audit settings for this account. Settings
@@ -16,13 +18,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // or disabled.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::AccountAuditConfiguration"
-	Properties!: close({
-		AccountId!:                             strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
+	let properties = close({
+		AccountId!: strings.MaxRunes(12) & strings.MinRunes(12) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & "\(self)"
+		} |
+		fn.#StringExpression
 		AuditCheckConfigurations!:              #AuditCheckConfigurations
 		AuditNotificationTargetConfigurations?: #AuditNotificationTargetConfigurations
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuditCheckConfiguration: close(
@@ -53,9 +69,21 @@ fn.#ObjectExpression
 
 #AuditNotificationTarget: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	TargetArn?: strings.MaxRunes(2048) | fn.#StringExpression
+	TargetArn?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -65,7 +93,12 @@ fn.#ObjectExpression
 
 #CertExpirationCheckCustomConfiguration: close({CertExpirationThresholdInDays?: #ConfigValue}) | fn.#ObjectExpression
 
-#ConfigValue: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ConfigValue: strings.MaxRunes(64) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #DeviceCertAgeAuditCheckConfiguration: close({
 	Configuration?: #CertAgeCheckCustomConfiguration

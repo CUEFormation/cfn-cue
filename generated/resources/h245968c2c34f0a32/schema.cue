@@ -14,25 +14,54 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::AIGuardrail Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Wisdom::AIGuardrail"
-	Properties!: close({
+	let properties = close({
 		AssistantId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
-			fn.#StringExpression
-		BlockedInputMessaging!:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		BlockedOutputsMessaging!:         strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		BlockedInputMessaging!: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		BlockedOutputsMessaging!: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ContentPolicyConfig?:             #AIGuardrailContentPolicyConfig
 		ContextualGroundingPolicyConfig?: #AIGuardrailContextualGroundingPolicyConfig
-		Description?:                     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		SensitiveInformationPolicyConfig?: #AIGuardrailSensitiveInformationPolicyConfig
 		Tags?:                             #Tags
 		TopicPolicyConfig?:                #AIGuardrailTopicPolicyConfig
 		WordPolicyConfig?:                 #AIGuardrailWordPolicyConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AIGuardrailContentPolicyConfig: close(
@@ -149,25 +178,64 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #GuardrailRegexConfig: close({
-	Action!:      #GuardrailSensitiveInformationAction
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Pattern!:     strings.MinRunes(1) | fn.#StringExpression
+	Action!: #GuardrailSensitiveInformationAction
+	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Pattern!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GuardrailSensitiveInformationAction: "BLOCK" | "ANONYMIZE" | fn.#StringExpression
 
 #GuardrailTopicConfig: close({
-	Definition!: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Examples?:   [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Name!:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ !?.]+$" | fn.#StringExpression
-	Type!:       #GuardrailTopicType
+	Definition!: strings.MaxRunes(200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Examples?: [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ !?.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ !?.]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #GuardrailTopicType
 }) |
 fn.#ObjectExpression
 
 #GuardrailTopicType: "DENY" | fn.#StringExpression
 
-#GuardrailWordConfig: close({Text!: strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
+#GuardrailWordConfig: close({
+	Text!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #Tags: {...} | fn.#ObjectExpression

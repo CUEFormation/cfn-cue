@@ -14,14 +14,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Inspector::AssessmentTemplate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Inspector::AssessmentTemplate"
-	Properties!: close({
-		AssessmentTargetArn!:    strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-		AssessmentTemplateName?: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AssessmentTargetArn!: strings.MaxRunes(300) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		AssessmentTemplateName?: strings.MaxRunes(140) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DurationInSeconds!: int & <=86400 & >=180 |
 			{
 				string &
@@ -40,16 +52,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		RulesPackageArns!: list.MaxItems(50) & [...] & [
-			...strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		RulesPackageArns!: list.MaxItems(50) & [...] & [...strings.MaxRunes(300) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		UserAttributesForFindings?: list.MaxItems(10) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,25 +6,42 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityLake::SubscriberNotification
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityLake::SubscriberNotification"
-	Properties!: close({
+	let properties = close({
 		NotificationConfiguration!: #NotificationConfiguration
-		SubscriberArn!:             =~"^arn:.*$" | fn.#StringExpression
+		SubscriberArn!: =~"^arn:.*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:.*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #HttpsNotificationConfiguration: close({
-	AuthorizationApiKeyName?:  string | fn.#StringExpression
-	AuthorizationApiKeyValue?: string | fn.#StringExpression
-	Endpoint!:                 =~"^https?://.+$" | fn.#StringExpression
-	HttpMethod?:               "POST" | "PUT" | fn.#StringExpression
-	TargetRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:.*$" |
-		fn.#StringExpression
+	AuthorizationApiKeyName?:  string | number | bool | fn.#StringExpression
+	AuthorizationApiKeyValue?: string | number | bool | fn.#StringExpression
+	Endpoint!: =~"^https?://.+$" |
+	{
+		number | bool
+		_cfnString: =~"^https?://.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	HttpMethod?: "POST" | "PUT" | fn.#StringExpression
+	TargetRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:.*$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -39,4 +56,4 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{HttpsNotificationConfiguration!: _}, {SqsNotificationConfiguration!: _}]) |
 fn.#ObjectExpression
 
-#SqsNotificationConfiguration: fn.#Object & {...} | string | fn.#StringObjectExpression
+#SqsNotificationConfiguration: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression

@@ -27,7 +27,10 @@ import (
 	// an Availability Zone or a Local Zone. If you don't specify a name, AWS
 	// CloudFormation generates a unique physical ID and uses that ID for the
 	// bucket name.
-	BucketName?: strings.MaxRunes(63) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$"
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	=~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$"
 
 	// Specifies the number of Availability Zone or Local Zone that's used for
 	// redundancy for the bucket.
@@ -153,8 +156,10 @@ import (
 	// default encryption. This parameter is allowed only if SSEAlgorithm is set to
 	// aws:kms. You can specify this parameter with the key ID or the Amazon
 	// Resource Name (ARN) of the KMS key
-	KMSMasterKeyID?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
-	SSEAlgorithm!:   "aws:kms" | "AES256"
+	KMSMasterKeyID?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
+	SSEAlgorithm!: "aws:kms" | "AES256"
 })
 
 // Specifies the default server-side encryption configuration.

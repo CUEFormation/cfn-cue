@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A case rule. In the Amazon Connect admin website, case rules are known as
@@ -17,13 +19,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // which fields should have certain effects (such as required).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cases::CaseRule"
-	Properties!: close({
-		Description?: strings.MaxRunes(255) | fn.#StringExpression
-		DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-		Rule!:        #CaseRuleDetails
-		Tags?:        [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Description?: strings.MaxRunes(255) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainId?: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Rule!: #CaseRuleDetails
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #BooleanCondition: matchN(1, [close({EqualTo!: #BooleanOperands}), close({NotEqualTo!: #BooleanOperands})]) |
@@ -47,7 +66,15 @@ fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-#OperandOne: close({FieldId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ValueExpression
+#OperandOne: close({
+	FieldId!: strings.MaxRunes(500) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ValueExpression
 
 #OperandTwo: matchN(1, [close(
 	{StringValue!: strings.MaxRunes(1500) & strings.MinRunes(1) | fn.#StringExpression},
@@ -67,7 +94,17 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

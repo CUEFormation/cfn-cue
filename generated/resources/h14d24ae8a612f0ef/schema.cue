@@ -14,23 +14,51 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A distribution tells CloudFront where you want content to be delivered from,
 // and the details about how to track and manage content delivery.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::Distribution"
-	Properties!: close({
+	let properties = close({
 		// The distribution's configuration.
 		DistributionConfig!: #DistributionConfig
 		Tags?:               [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CacheBehavior: close({
-	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
-	CachePolicyId?:  string | fn.#StringExpression
-	CachedMethods?:  [...string | fn.#StringExpression] | fn.#ListExpression
+#CacheBehavior: matchIf({
+	CachePolicyId!: _
+	...
+}, _, {
+	ForwardedValues?: null |
+	bool |
+	number |
+	string |
+	[...] |
+	{
+		Cookies?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			Forward?: "all" | "none" | "whitelist" | fn.#ValueExpression
+			...
+		} |
+		fn.#ValueExpression
+		...
+	} |
+	fn.#ValueExpression
+	...
+}) & close({
+	AllowedMethods?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	CachePolicyId?:  string | number | bool | fn.#StringExpression
+	CachedMethods?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Compress?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultTTL?: number |
 		{
@@ -51,7 +79,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	FieldLevelEncryptionId?: string | fn.#StringExpression
+	FieldLevelEncryptionId?: string | number | bool | fn.#StringExpression
 
 	// This field is deprecated. We recommend that you use a cache policy or an
 	// origin request policy instead of this field. For more information, see
@@ -118,28 +146,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	OriginRequestPolicyId?:   string | fn.#StringExpression
-	PathPattern!:             string | fn.#StringExpression
-	RealtimeLogConfigArn?:    string | fn.#StringExpression
-	ResponseHeadersPolicyId?: string | fn.#StringExpression
+	OriginRequestPolicyId?:   string | number | bool | fn.#StringExpression
+	PathPattern!:             string | number | bool | fn.#StringExpression
+	RealtimeLogConfigArn?:    string | number | bool | fn.#StringExpression
+	ResponseHeadersPolicyId?: string | number | bool | fn.#StringExpression
 	SmoothStreaming?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TargetOriginId!:          string | fn.#StringExpression
-	TrustedKeyGroups?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	TrustedSigners?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	ViewerProtocolPolicy!:    string | fn.#StringExpression
+	TargetOriginId!:          string | number | bool | fn.#StringExpression
+	TrustedKeyGroups?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	TrustedSigners?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ViewerProtocolPolicy!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#CacheTagConfig: close({HeaderName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CacheTagConfig: close({HeaderName!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#ConnectionFunctionAssociation: close({Id!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
+#ConnectionFunctionAssociation: close({
+	Id!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ConnectionMode: "direct" | "tenant-only" | fn.#StringExpression
 
 #Cookies: close({
-	Forward!:          string | fn.#StringExpression
-	WhitelistedNames?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Forward!:          string | number | bool | fn.#StringExpression
+	WhitelistedNames?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -173,7 +208,7 @@ fn.#ObjectExpression
 	"ResponseCode"?: (==200 | ==400 | ==403 | ==404 | ==405 | ==414 | ==416 | ==500 | ==501 | ==502 | ==503 | ==504) &
 		int |
 		fn.#NumberExpression
-	ResponsePagePath?: string | fn.#StringExpression
+	ResponsePagePath?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -224,7 +259,7 @@ fn.#ObjectExpression
 
 	// Configures mutual TLS authentication between CloudFront and your origin server.
 	OriginMtlsConfig?:     #OriginMtlsConfig
-	OriginProtocolPolicy!: string | fn.#StringExpression
+	OriginProtocolPolicy!: string | number | bool | fn.#StringExpression
 	OriginReadTimeout?: int |
 		{
 			string &
@@ -239,14 +274,38 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	OriginSSLProtocols?: [...string | fn.#StringExpression] | fn.#ListExpression
+	OriginSSLProtocols?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#DefaultCacheBehavior: close({
-	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
-	CachePolicyId?:  string | fn.#StringExpression
-	CachedMethods?:  [...string | fn.#StringExpression] | fn.#ListExpression
+#DefaultCacheBehavior: matchIf({
+	CachePolicyId!: _
+	...
+}, _, {
+	ForwardedValues?: null |
+	bool |
+	number |
+	string |
+	[...] |
+	{
+		Cookies?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			Forward?: "all" | "none" | "whitelist" | fn.#ValueExpression
+			...
+		} |
+		fn.#ValueExpression
+		...
+	} |
+	fn.#ValueExpression
+	...
+}) & close({
+	AllowedMethods?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	CachePolicyId?:  string | number | bool | fn.#StringExpression
+	CachedMethods?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Compress?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultTTL?: number |
 		{
@@ -267,7 +326,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	FieldLevelEncryptionId?: string | fn.#StringExpression
+	FieldLevelEncryptionId?: string | number | bool | fn.#StringExpression
 
 	// This field is deprecated. We recommend that you use a cache policy or an
 	// origin request policy instead of this field. For more information, see
@@ -334,21 +393,21 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	OriginRequestPolicyId?:   string | fn.#StringExpression
-	RealtimeLogConfigArn?:    string | fn.#StringExpression
-	ResponseHeadersPolicyId?: string | fn.#StringExpression
+	OriginRequestPolicyId?:   string | number | bool | fn.#StringExpression
+	RealtimeLogConfigArn?:    string | number | bool | fn.#StringExpression
+	ResponseHeadersPolicyId?: string | number | bool | fn.#StringExpression
 	SmoothStreaming?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TargetOriginId!:          string | fn.#StringExpression
-	TrustedKeyGroups?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	TrustedSigners?:          [...string | fn.#StringExpression] | fn.#ListExpression
+	TargetOriginId!:          string | number | bool | fn.#StringExpression
+	TrustedKeyGroups?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	TrustedSigners?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ViewerProtocolPolicy!:    "allow-all" | "https-only" | "redirect-to-https" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DistributionConfig: close({
-	Aliases?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	AnycastIpListId?: string | fn.#StringExpression
-	CNAMEs?:          [...string | fn.#StringExpression] | fn.#ListExpression
+	Aliases?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AnycastIpListId?: string | number | bool | fn.#StringExpression
+	CNAMEs?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	CacheBehaviors?:  [...#CacheBehavior] | fn.#ListExpression
 
 	// Configuration for cache tag extraction from origin responses. When specified,
@@ -364,7 +423,7 @@ fn.#ObjectExpression
 	// invalidations function after updating the header name, use path-based
 	// invalidations to recache all objects that use cache tags.
 	CacheTagConfig?: #CacheTagConfig
-	Comment?:        string | fn.#StringExpression
+	Comment?:        string | number | bool | fn.#StringExpression
 
 	// The distribution's connection function association.
 	ConnectionFunctionAssociation?: #ConnectionFunctionAssociation
@@ -373,7 +432,7 @@ fn.#ObjectExpression
 	// distribution (direct) or a multi-tenant distribution with distribution
 	// tenants (tenant-only).
 	ConnectionMode?:               #ConnectionMode
-	ContinuousDeploymentPolicyId?: string | fn.#StringExpression
+	ContinuousDeploymentPolicyId?: string | number | bool | fn.#StringExpression
 	CustomErrorResponses?:         [...#CustomErrorResponse] | fn.#ListExpression
 
 	// The user-defined HTTP server that serves as the origin for content that CF distributes.
@@ -387,7 +446,7 @@ fn.#ObjectExpression
 	// ``PathPattern`` in ``CacheBehavior`` elements. You must create exactly one
 	// default cache behavior.
 	DefaultCacheBehavior!: #DefaultCacheBehavior
-	DefaultRootObject?:    string | fn.#StringExpression
+	DefaultRootObject?:    string | number | bool | fn.#StringExpression
 	Enabled!:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HttpVersion?:          "http1.1" | "http2" | "http2and3" | "http3" | fn.#StringExpression
 	IPV6Enabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -421,7 +480,7 @@ fn.#ObjectExpression
 
 	// The distribution's viewer mTLS configuration.
 	ViewerMtlsConfig?: #ViewerMtlsConfig
-	WebACLId?:         string | fn.#StringExpression
+	WebACLId?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -443,15 +502,15 @@ fn.#ObjectExpression
 	// Cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Cookies.html)
 	// in the *Amazon CloudFront Developer Guide*.
 	Cookies?:              #Cookies
-	Headers?:              [...string | fn.#StringExpression] | fn.#ListExpression
+	Headers?:              [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	QueryString!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	QueryStringCacheKeys?: [...string | fn.#StringExpression] | fn.#ListExpression
+	QueryStringCacheKeys?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #FunctionAssociation: close({
-	EventType?:   string | fn.#StringExpression
-	FunctionARN?: string | fn.#StringExpression
+	EventType?:   string | number | bool | fn.#StringExpression
+	FunctionARN?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -717,14 +776,14 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #LambdaFunctionAssociation: close({
-	EventType?:         string | fn.#StringExpression
+	EventType?:         string | number | bool | fn.#StringExpression
 	IncludeBody?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LambdaFunctionARN?: string | fn.#StringExpression
+	LambdaFunctionARN?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LegacyCustomOrigin: close({
-	DNSName!: string | fn.#StringExpression
+	DNSName!: string | number | bool | fn.#StringExpression
 	HTTPPort?: int |
 		{
 			string &
@@ -753,21 +812,21 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	OriginProtocolPolicy!: string | fn.#StringExpression
-	OriginSSLProtocols!:   [...string | fn.#StringExpression] | fn.#ListExpression
+	OriginProtocolPolicy!: string | number | bool | fn.#StringExpression
+	OriginSSLProtocols!:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #LegacyS3Origin: close({
-	DNSName!:              string | fn.#StringExpression
-	OriginAccessIdentity?: string | fn.#StringExpression
+	DNSName!:              string | number | bool | fn.#StringExpression
+	OriginAccessIdentity?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Logging: close({
-	Bucket?:         string | fn.#StringExpression
+	Bucket?:         string | number | bool | fn.#StringExpression
 	IncludeCookies?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Prefix?:         string | fn.#StringExpression
+	Prefix?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -806,11 +865,11 @@ fn.#ObjectExpression
 	// hosting, use this type. If the Amazon S3 bucket is not configured with
 	// static website hosting, use the ``S3OriginConfig`` type instead.
 	CustomOriginConfig?:    #CustomOriginConfig
-	DomainName!:            string | fn.#StringExpression
-	Id!:                    string | fn.#StringExpression
-	OriginAccessControlId?: string | fn.#StringExpression
+	DomainName!:            string | number | bool | fn.#StringExpression
+	Id!:                    string | number | bool | fn.#StringExpression
+	OriginAccessControlId?: string | number | bool | fn.#StringExpression
 	OriginCustomHeaders?:   [...#OriginCustomHeader] | fn.#ListExpression
-	OriginPath?:            string | fn.#StringExpression
+	OriginPath?:            string | number | bool | fn.#StringExpression
 
 	// CloudFront Origin Shield. Using Origin Shield can help reduce the load on your origin.
 	// For more information, see [Using Origin
@@ -847,15 +906,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OriginCustomHeader: close({
-	HeaderName!:  string | fn.#StringExpression
-	HeaderValue!: string | fn.#StringExpression
+	HeaderName!:  string | number | bool | fn.#StringExpression
+	HeaderValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OriginGroup: close({
 	// A complex type that contains information about the failover criteria for an origin group.
 	FailoverCriteria!: #OriginGroupFailoverCriteria
-	Id!:               string | fn.#StringExpression
+	Id!:               string | number | bool | fn.#StringExpression
 
 	// A complex type that contains information about the origins in an origin group.
 	Members!: #OriginGroupMembers
@@ -875,7 +934,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OriginGroupMember: close({OriginId!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#OriginGroupMember: close({OriginId!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #OriginGroupMembers: close({
 	Items!: list.MaxItems(2) & list.MinItems(2) & [...#OriginGroupMember] | fn.#ListExpression
@@ -917,25 +976,35 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OriginMtlsConfig: close({ClientCertificateArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#OriginMtlsConfig: close({ClientCertificateArn!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #OriginShield: close({
 	Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OriginShieldRegion?: string | fn.#StringExpression
+	OriginShieldRegion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ParameterDefinition: close({
 	Definition!: close({
 		StringSchema?: close({
-			Comment?:      string | fn.#StringExpression
-			DefaultValue?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Required!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Comment?: string | number | bool | fn.#StringExpression
+			DefaultValue?: strings.MaxRunes(256) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -950,7 +1019,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3OriginConfig: close({
-	OriginAccessIdentity?: string | fn.#StringExpression
+	OriginAccessIdentity?: string | number | bool | fn.#StringExpression
 	OriginReadTimeout?: int |
 		{
 			string &
@@ -1006,15 +1075,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TrustStoreConfig: close({
 	AdvertiseTrustStoreCaNames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnoreCertificateExpiry?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TrustStoreId!:               string | fn.#StringExpression
+	TrustStoreId!:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1028,10 +1097,19 @@ fn.#ObjectExpression
 		SslSupportMethod!: _
 	}
 	{}
-	AcmCertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	AcmCertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	CloudFrontDefaultCertificate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IamCertificateId?:             strings.MaxRunes(32) | fn.#StringExpression
+	IamCertificateId?: strings.MaxRunes(32) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & "\(self)"
+	} |
+	fn.#StringExpression
 	MinimumProtocolVersion?: "SSLv3" |
 		"TLSv1" |
 		"TLSv1.1_2016" |
@@ -1099,7 +1177,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	OwnerAccountId?: string | fn.#StringExpression
-	VpcOriginId!:    string | fn.#StringExpression
+	OwnerAccountId?: string | number | bool | fn.#StringExpression
+	VpcOriginId!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

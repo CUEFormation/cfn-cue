@@ -10,31 +10,58 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ModelPackageGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::ModelPackageGroup"
-	Properties!: close({
+	let properties = close({
 		ModelPackageGroupDescription?: #ModelPackageGroupDescription
 		ModelPackageGroupName!:        #ModelPackageGroupName
-		ModelPackageGroupPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
+		ModelPackageGroupPolicy?:      fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:                         list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ModelPackageGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*" | fn.#StringExpression
+#ModelPackageGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
+} |
+fn.#StringExpression
 
 #ModelPackageGroupDescription: strings.MaxRunes(1024) &
 strings.MinRunes(0) &
 =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*" & "\(self)"
+} |
 fn.#StringExpression
 
 #ModelPackageGroupName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

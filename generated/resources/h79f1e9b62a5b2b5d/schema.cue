@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates an Elastic IP address with an instance or a network interface.
@@ -17,11 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ``NetworkInterfaceId``, or ``PrivateIpAddress``.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::EIPAssociation"
-	Properties?: close({
-		AllocationId?:       string | fn.#StringExpression
-		EIP?:                string & string | fn.#StringExpression
-		InstanceId?:         string | fn.#StringExpression
-		NetworkInterfaceId?: string | fn.#StringExpression
-		PrivateIpAddress?:   string | fn.#StringExpression
+	let properties = close({
+		AllocationId?: string | number | bool | fn.#StringExpression
+		EIP?: string & string |
+		{
+			number | bool
+			_cfnString: string & string & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceId?:         string | number | bool | fn.#StringExpression
+		NetworkInterfaceId?: string | number | bool | fn.#StringExpression
+		PrivateIpAddress?:   string | number | bool | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -14,17 +14,29 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SecurityHub::AutomationRuleV2
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::AutomationRuleV2"
-	Properties!: close({
+	let properties = close({
 		Actions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#AutomationRulesActionV2] |
 			fn.#ListExpression
-		Criteria!:    #Criteria
-		Description!: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-		RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Criteria!: #Criteria
+		Description!: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		RuleName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
 		RuleOrder!: <=1000 & >=1 |
 			{
 				string &
@@ -48,6 +60,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RuleStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 		Tags?:       #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AllowedOperators: "AND" | "OR" | fn.#StringExpression
@@ -60,7 +74,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #AutomationRulesFindingFieldsUpdateV2: close({
-	Comment?: =~".*\\S.*" | fn.#StringExpression
+	Comment?: =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	SeverityId?: int |
 		{
 			string &
@@ -141,15 +160,38 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExternalIntegrationConfiguration: close({ConnectorArn?: =~".*\\S.*" | fn.#StringExpression}) | fn.#ObjectExpression
+#ExternalIntegrationConfiguration: close({
+	ConnectorArn?: =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #MapFilter: close({
 	Comparison!: "EQUALS" | "NOT_EQUALS" | fn.#StringExpression
-	Key!:        strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	Value!:      strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -298,7 +340,12 @@ fn.#ObjectExpression
 
 #StringFilter: close({
 	Comparison!: "EQUALS" | "PREFIX" | "NOT_EQUALS" | "PREFIX_NOT_EQUALS" | "CONTAINS" | fn.#StringExpression
-	Value!:      strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	Value!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

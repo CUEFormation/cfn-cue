@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for
@@ -18,15 +20,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // subscription details for the discovered Linux instances in an account.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LicenseManagerLinuxSubscriptions::SubscriptionProvider"
-	Properties!: close({
-		SecretArn!:                  string | fn.#StringExpression
+	let properties = close({
+		SecretArn!:                  string | number | bool | fn.#StringExpression
 		SubscriptionProviderSource!: "RedHat" | fn.#StringExpression
 		Tags?:                       list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

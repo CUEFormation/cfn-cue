@@ -6,30 +6,34 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisAnalyticsV2::ApplicationOutput
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KinesisAnalyticsV2::ApplicationOutput"
-	Properties!: close({
-		ApplicationName!: string | fn.#StringExpression
+	let properties = close({
+		ApplicationName!: string | number | bool | fn.#StringExpression
 		Output!:          #Output
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DestinationSchema: close({RecordFormatType?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DestinationSchema: close({RecordFormatType?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#KinesisFirehoseOutput: close({ResourceARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#KinesisFirehoseOutput: close({ResourceARN!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#KinesisStreamsOutput: close({ResourceARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#KinesisStreamsOutput: close({ResourceARN!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#LambdaOutput: close({ResourceARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#LambdaOutput: close({ResourceARN!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Output: close({
 	DestinationSchema!:     #DestinationSchema
 	KinesisFirehoseOutput?: #KinesisFirehoseOutput
 	KinesisStreamsOutput?:  #KinesisStreamsOutput
 	LambdaOutput?:          #LambdaOutput
-	Name?:                  string | fn.#StringExpression
+	Name?:                  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

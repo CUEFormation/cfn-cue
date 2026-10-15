@@ -9,25 +9,52 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a studio that contains other Nimble Studio resources
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NimbleStudio::Studio"
-	Properties!: close({
-		AdminRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		DisplayName!:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		AdminRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName!: strings.MaxRunes(64) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		StudioEncryptionConfiguration?: #StudioEncryptionConfiguration
-		StudioName!: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9]*$" | fn.#StringExpression
-		Tags?:       #Tags
-		UserRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		StudioName!: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #Tags
+		UserRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #StudioEncryptionConfiguration: close({
-	KeyArn?:  strings.MinRunes(4) & =~"^arn:.*" | fn.#StringExpression
+	KeyArn?: strings.MinRunes(4) & =~"^arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(4) & =~"^arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	KeyType!: #StudioEncryptionConfigurationKeyType
 }) |
 fn.#ObjectExpression
@@ -36,5 +63,10 @@ fn.#ObjectExpression
 
 #Tags: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

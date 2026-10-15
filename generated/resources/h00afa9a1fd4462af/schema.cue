@@ -15,6 +15,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ECS::Service`` resource creates an Amazon Elastic Container
@@ -89,10 +91,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // contact AWS Support or your Technical Account Manager.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::Service"
-	Properties?: close({
+	let properties = matchIf(matchN(0, [matchN(0, [{
+		LaunchType!:         "FARGATE"
+		SchedulingStrategy?: string
+		...
+	}]) & matchN(0, [{
+		DeploymentController!: {
+			Type!: "CODE_DEPLOY" | "EXTERNAL"
+			...
+		}
+		SchedulingStrategy?: string
+		...
+	}])]), {
+		SchedulingStrategy?: "REPLICA" | fn.#ValueExpression
+		...
+	}, _) & close({
 		AvailabilityZoneRebalancing?: "ENABLED" | "DISABLED" | fn.#StringExpression
 		CapacityProviderStrategy?:    [...#CapacityProviderStrategyItem] | fn.#ListExpression
-		Cluster?:                     string | fn.#StringExpression
+		Cluster?:                     string | number | bool | fn.#StringExpression
 
 		// Optional deployment parameters that control how many tasks run during the
 		// deployment and the ordering of stopping and starting tasks.
@@ -160,9 +176,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		NetworkConfiguration?: #NetworkConfiguration
 		PlacementConstraints?: [...#PlacementConstraint] | fn.#ListExpression
 		PlacementStrategies?:  [...#PlacementStrategy] | fn.#ListExpression
-		PlatformVersion?:      string | fn.#StringExpression
+		PlatformVersion?:      string | number | bool | fn.#StringExpression
 		PropagateTags?:        "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
-		Role?:                 string | fn.#StringExpression
+		Role?:                 string | number | bool | fn.#StringExpression
 		SchedulingStrategy?:   "DAEMON" | "REPLICA" | fn.#StringExpression
 
 		// The configuration for this service to discover and connect to services, and
@@ -176,32 +192,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
 		// in the *Amazon Elastic Container Service Developer Guide*.
 		ServiceConnectConfiguration?: #ServiceConnectConfiguration
-		ServiceName?:                 string | fn.#StringExpression
+		ServiceName?:                 string | number | bool | fn.#StringExpression
 		ServiceRegistries?:           [...#ServiceRegistry] | fn.#ListExpression
 		Tags?:                        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		TaskDefinition?:              string | fn.#StringExpression
+		TaskDefinition?:              string | number | bool | fn.#StringExpression
 		VolumeConfigurations?:        [...#ServiceVolumeConfiguration] | fn.#ListExpression
 		VpcLatticeConfigurations?:    [...#VpcLatticeConfiguration] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdvancedConfiguration: close({
-	AlternateTargetGroupArn!: string | fn.#StringExpression
-	ProductionListenerRule?:  string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TestListenerRule?: string | fn.#StringExpression
+	AlternateTargetGroupArn!: string | number | bool | fn.#StringExpression
+	ProductionListenerRule?:  string | number | bool | fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TestListenerRule?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AwsVpcConfiguration: close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
-	SecurityGroups?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -243,7 +273,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CapacityProvider?: string | fn.#StringExpression
+	CapacityProvider?: string | number | bool | fn.#StringExpression
 	Weight?: int & <=1000 & >=0 |
 		{
 			string &
@@ -264,7 +294,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DeploymentAlarms: close({
-	AlarmNames!: [...string | fn.#StringExpression] | fn.#ListExpression
+	AlarmNames!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Enable!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Rollback!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -389,8 +419,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DeploymentLifecycleHook: close({
-	HookDetails?:   fn.#Object & {...} | string | fn.#StringObjectExpression
-	HookTargetArn?: string | fn.#StringExpression
+	HookDetails?:   fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	HookTargetArn?: string | number | bool | fn.#StringExpression
 	LifecycleStages!: list.MinItems(1) & [
 		..."RECONCILE_SERVICE" |
 			"PRE_SCALE_UP" |
@@ -403,8 +433,12 @@ fn.#ObjectExpression
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TargetType?: "AWS_LAMBDA" | "PAUSE" | fn.#StringExpression
 
 	// The timeout configuration for the lifecycle hook. This specifies how long
@@ -423,7 +457,12 @@ fn.#ObjectExpression
 
 #ForceNewDeployment: close({
 	EnableForceNewDeployment!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ForceNewDeploymentNonce?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	ForceNewDeploymentNonce?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -474,7 +513,7 @@ fn.#ObjectExpression
 	// Specify the alternate target group, listener rules, and IAM role required
 	// for traffic shifting during blue/green deployments.
 	AdvancedConfiguration?: #AdvancedConfiguration
-	ContainerName?:         string | fn.#StringExpression
+	ContainerName?:         string | number | bool | fn.#StringExpression
 	ContainerPort?: int |
 		{
 			string &
@@ -489,26 +528,33 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	LoadBalancerName?: string | fn.#StringExpression
-	TargetGroupArn?:   string | fn.#StringExpression
+	LoadBalancerName?: string | number | bool | fn.#StringExpression
+	TargetGroupArn?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LogConfiguration: close({
-	LogDriver?: string | fn.#StringExpression
+	LogDriver?: string | number | bool | fn.#StringExpression
 	Options?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	SecretOptions?: [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #MetricConfiguration: close({
-	MetricNames!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		...("CPUUtilization" | "MemoryUtilization") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-		fn.#StringExpression
-	] |
+	MetricNames!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...("CPUUtilization" | "MemoryUtilization") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("CPUUtilization" | "MemoryUtilization") & strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	ResolutionSeconds!: (==20 | ==60) & int & <=60 & >=20 | fn.#NumberExpression
 }) |
@@ -527,20 +573,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PlacementConstraint: close({
-	Expression?: string | fn.#StringExpression
+	Expression?: string | number | bool | fn.#StringExpression
 	Type!:       "distinctInstance" | "memberOf" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PlacementStrategy: close({
-	Field?: string | fn.#StringExpression
+	Field?: string | number | bool | fn.#StringExpression
 	Type!:  "binpack" | "random" | "spread" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Secret: close({
-	Name!:      string | fn.#StringExpression
-	ValueFrom!: string | fn.#StringExpression
+	Name!:      string | number | bool | fn.#StringExpression
+	ValueFrom!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -551,7 +597,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ServiceConnectClientAlias: close({
-	DnsName?: string | fn.#StringExpression
+	DnsName?: string | number | bool | fn.#StringExpression
 	Port!: int & <=65535 & >=0 |
 		{
 			string &
@@ -618,14 +664,14 @@ fn.#ObjectExpression
 	// needed must be installed outside of the task. For example, the Fluentd
 	// output aggregators or a remote host running Logstash to send Gelf logs to.
 	LogConfiguration?: #LogConfiguration
-	Namespace?:        string | fn.#StringExpression
+	Namespace?:        string | number | bool | fn.#StringExpression
 	Services?:         [...#ServiceConnectService] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ServiceConnectService: close({
 	ClientAliases?: [...#ServiceConnectClientAlias] | fn.#ListExpression
-	DiscoveryName?: string | fn.#StringExpression
+	DiscoveryName?: string | number | bool | fn.#StringExpression
 	IngressPortOverride?: int & <=65535 & >=0 |
 		{
 			string &
@@ -642,7 +688,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PortName!: string | fn.#StringExpression
+	PortName!: string | number | bool | fn.#StringExpression
 
 	// A reference to an object that represents the configured timeouts for Service Connect.
 	Timeout?: #TimeoutConfiguration
@@ -662,22 +708,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ServiceConnectTestTrafficRulesHeader: close({
-	Name!:  string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
 	Value?: #ServiceConnectTestTrafficRulesHeaderValue
 }) |
 fn.#ObjectExpression
 
-#ServiceConnectTestTrafficRulesHeaderValue: close({Exact!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ServiceConnectTestTrafficRulesHeaderValue: close({Exact!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
-#ServiceConnectTlsCertificateAuthority: close({AwsPcaAuthorityArn?: string | fn.#StringExpression}) |
+#ServiceConnectTlsCertificateAuthority: close({AwsPcaAuthorityArn?: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
 #ServiceConnectTlsConfiguration: close({
 	// The signer certificate authority.
 	IssuerCertificateAuthority!: #ServiceConnectTlsCertificateAuthority
-	KmsKey?:                     string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	KmsKey?:                     string | number | bool | fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -698,11 +749,29 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SizeInGiB?: int |
 		{
 			string &
@@ -717,7 +786,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SnapshotId?:        string | fn.#StringExpression
+	SnapshotId?:        string | number | bool | fn.#StringExpression
 	TagSpecifications?: [...#EBSTagSpecification] | fn.#ListExpression
 	Throughput?: int |
 		{
@@ -747,12 +816,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType?: string | fn.#StringExpression
+	VolumeType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ServiceRegistry: close({
-	ContainerName?: string | fn.#StringExpression
+	ContainerName?: string | number | bool | fn.#StringExpression
 	ContainerPort?: int |
 		{
 			string &
@@ -781,7 +850,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RegistryArn?: string | fn.#StringExpression
+	RegistryArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -792,13 +861,23 @@ fn.#ObjectExpression
 	// volumes are visible in your account in the Amazon EC2 console once they are
 	// created.
 	ManagedEBSVolume?: #ServiceManagedEBSVolumeConfiguration
-	Name!:             string | fn.#StringExpression
+	Name!:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -858,17 +937,21 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcLatticeAdvancedConfiguration: close({
-	AlternateTargetGroupArn?: string | fn.#StringExpression
-	ProductionListenerRule?:  string | fn.#StringExpression
-	TestListenerRule?:        string | fn.#StringExpression
+	AlternateTargetGroupArn?: string | number | bool | fn.#StringExpression
+	ProductionListenerRule?:  string | number | bool | fn.#StringExpression
+	TestListenerRule?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcLatticeConfiguration: close({
 	AdvancedConfiguration?: #VpcLatticeAdvancedConfiguration
-	PortName!:              string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TargetGroupArn!: string | fn.#StringExpression
+	PortName!:              string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetGroupArn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

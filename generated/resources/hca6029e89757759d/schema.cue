@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::KMS::Alias`` resource specifies a display name for a [KMS
@@ -49,8 +51,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // KMS CloudFormation resources are available in all AWS-Regions in which KMS and CFN are supported.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KMS::Alias"
-	Properties!: close({
-		AliasName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(alias/)[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
-		TargetKeyId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AliasName!: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^(alias/)[a-zA-Z0-9:/_-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" &
+			strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^(alias/)[a-zA-Z0-9:/_-]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		TargetKeyId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

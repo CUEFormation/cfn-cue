@@ -14,13 +14,15 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::PCS::Cluster resource creates an AWS PCS cluster.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCS::Cluster"
-	Properties!: close({
-		Name?: string | fn.#StringExpression
+	let properties = close({
+		Name?: string | number | bool | fn.#StringExpression
 		Networking!: close({
 			NetworkType?:      "IPV4" | "IPV6" | fn.#StringExpression
 			SecurityGroupIds?: [...#SecurityGroupId] | fn.#ListExpression
@@ -29,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		Scheduler!: close({
 			Type!:    "SLURM" | fn.#StringExpression
-			Version!: string | fn.#StringExpression
+			Version!: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Size!: "SMALL" | "MEDIUM" | "LARGE" | fn.#StringExpression
@@ -67,9 +69,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		[...] |
 		close({
 
-			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ValueExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Accounting: {
@@ -94,62 +103,80 @@ import base "github.com/cueformation/cfn-cue/template:template"
 } | fn.#ObjectExpression
 
 #AuthKey: close({
-	SecretArn!:     string | fn.#StringExpression
-	SecretVersion!: string | fn.#StringExpression
+	SecretArn!:     string | number | bool | fn.#StringExpression
+	SecretVersion!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CgroupCustomSetting: close({
-	ParameterName!:  string | fn.#StringExpression
-	ParameterValue!: string | fn.#StringExpression
+	ParameterName!:  string | number | bool | fn.#StringExpression
+	ParameterValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Endpoint: close({
-	Ipv6Address?:      string | fn.#StringExpression
-	Port!:             string | fn.#StringExpression
-	PrivateIpAddress!: string | fn.#StringExpression
-	PublicIpAddress?:  string | fn.#StringExpression
+	Ipv6Address?:      string | number | bool | fn.#StringExpression
+	Port!:             string | number | bool | fn.#StringExpression
+	PrivateIpAddress!: string | number | bool | fn.#StringExpression
+	PublicIpAddress?:  string | number | bool | fn.#StringExpression
 	Type!:             "SLURMCTLD" | "SLURMDBD" | "SLURMRESTD" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ErrorInfo: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
+	Code?:    string | number | bool | fn.#StringExpression
+	Message?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #JwtAuth: close({JwtKey?: #JwtKey}) | fn.#ObjectExpression
 
 #JwtKey: close({
-	SecretArn!:     string | fn.#StringExpression
-	SecretVersion!: string | fn.#StringExpression
+	SecretArn!:     string | number | bool | fn.#StringExpression
+	SecretVersion!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	=~"^sg-\\w{8,17}$" |
-	fn.#StringExpression
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-\\w{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-\\w{8,17}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SlurmCustomSetting: close({
-	ParameterName!:  string | fn.#StringExpression
-	ParameterValue!: string | fn.#StringExpression
+	ParameterName!:  string | number | bool | fn.#StringExpression
+	ParameterValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SlurmRest: close({Mode!: "STANDARD" | "NONE" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #SlurmdbdCustomSetting: close({
-	ParameterName!:  string | fn.#StringExpression
-	ParameterValue!: string | fn.#StringExpression
+	ParameterName!:  string | number | bool | fn.#StringExpression
+	ParameterValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SubnetId: =~"^subnet-\\w{8,17}$" | fn.#StringExpression
+#SubnetId: =~"^subnet-\\w{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^subnet-\\w{8,17}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

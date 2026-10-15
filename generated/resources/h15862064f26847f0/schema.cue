@@ -6,29 +6,35 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualService
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppMesh::VirtualService"
-	Properties!: close({
-		MeshName!:           string | fn.#StringExpression
-		MeshOwner?:          string | fn.#StringExpression
+	let properties = close({
+		MeshName!:           string | number | bool | fn.#StringExpression
+		MeshOwner?:          string | number | bool | fn.#StringExpression
 		Spec!:               #VirtualServiceSpec
 		Tags?:               [...#Tag] | fn.#ListExpression
-		VirtualServiceName!: string | fn.#StringExpression
+		VirtualServiceName!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#VirtualNodeServiceProvider: close({VirtualNodeName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VirtualNodeServiceProvider: close({VirtualNodeName!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
-#VirtualRouterServiceProvider: close({VirtualRouterName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VirtualRouterServiceProvider: close({VirtualRouterName!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #VirtualServiceProvider: close({
 	VirtualNode?:   #VirtualNodeServiceProvider

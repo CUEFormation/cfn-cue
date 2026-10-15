@@ -136,7 +136,9 @@ import (
 
 	// The AWS Key Management Service (KMS) key ID of the encryption key that you
 	// want to use to encrypt data in the cluster.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
 	LoggingProperties?: #LoggingProperties
 
 	// The name for the maintenance track that you want to assign for the cluster.
@@ -258,7 +260,7 @@ import (
 })
 
 #LoggingProperties: close({
-	BucketName?:         string
+	BucketName?:         =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 	LogDestinationType?: string
 	LogExports?:         list.MaxItems(3) & [...string]
 	S3KeyPrefix?:        string

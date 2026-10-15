@@ -10,22 +10,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SCN::Instance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SCN::Instance"
-	Properties?: close({
+	let properties = close({
 		InstanceDescription?: strings.MaxRunes(501) & strings.MinRunes(0) & =~"^([a-zA-Z0-9., _ʼ'%-]){0,500}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(501) & strings.MinRunes(0) & =~"^([a-zA-Z0-9., _ʼ'%-]){0,500}$" & "\(self)"
+		} |
 		fn.#StringExpression
-		InstanceName?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
+		InstanceName?: strings.MaxRunes(63) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		WebAppDnsDomain?: string | fn.#StringExpression
+		WebAppDnsDomain?: string | number | bool | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

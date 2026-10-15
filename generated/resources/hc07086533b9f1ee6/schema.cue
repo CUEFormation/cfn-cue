@@ -10,18 +10,27 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeBuild::ReportGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeBuild::ReportGroup"
-	Properties!: close({
+	let properties = close({
 		DeleteReports?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ExportConfig!:  #ReportExportConfig
-		Name?:          strings.MaxRunes(128) & strings.MinRunes(2) | fn.#StringExpression
-		Tags?:          list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		Type!:          "TEST" | "CODE_COVERAGE" | fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(2) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type!: "TEST" | "CODE_COVERAGE" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ReportExportConfig: close({
@@ -31,17 +40,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #S3ReportExportConfig: close({
-	Bucket!:             strings.MinRunes(1) | fn.#StringExpression
-	BucketOwner?:        string | fn.#StringExpression
+	Bucket!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BucketOwner?:        string | number | bool | fn.#StringExpression
 	EncryptionDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EncryptionKey?:      strings.MinRunes(1) | fn.#StringExpression
-	Packaging?:          "NONE" | "ZIP" | fn.#StringExpression
-	Path?:               string | fn.#StringExpression
+	EncryptionKey?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Packaging?: "NONE" | "ZIP" | fn.#StringExpression
+	Path?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

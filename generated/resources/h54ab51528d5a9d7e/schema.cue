@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::NetworkManager::TransitGatewayRegistration type registers a transit
@@ -18,8 +20,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // network.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::TransitGatewayRegistration"
-	Properties!: close({
-		GlobalNetworkId!:   strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		TransitGatewayArn!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	let properties = close({
+		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TransitGatewayArn!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

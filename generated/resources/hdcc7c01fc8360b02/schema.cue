@@ -13,14 +13,16 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a router input in AWS Elemental MediaConnect that is used to
 // ingest content to be transmitted to router outputs
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::RouterInput"
-	Properties!: close({
-		AvailabilityZone?:                    string | fn.#StringExpression
+	let properties = close({
+		AvailabilityZone?:                    string | number | bool | fn.#StringExpression
 		Configuration!:                       #RouterInputConfiguration
 		ContentQualityAnalysisConfiguration?: #RouterContentQualityAnalysisConfiguration
 		MaintenanceConfiguration?:            #MaintenanceConfiguration
@@ -40,13 +42,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		RegionName?:        string | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RegionName?:        string | number | bool | fn.#StringExpression
 		RoutingScope!:      #RoutingScope
 		Tags?:              [...#Tag] | fn.#ListExpression
 		Tier!:              #RouterInputTier
 		TransitEncryption?: #RouterInputTransitEncryption
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
@@ -89,7 +98,12 @@ fn.#ObjectExpression
 
 #FailoverRouterInputConfiguration: close({
 	NetworkInterfaceArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	PrimarySourceIndex?: int & <=1 & >=0 |
 		{
 			string &
@@ -171,9 +185,19 @@ fn.#ValueExpression
 
 #MediaConnectFlowRouterInputConfiguration: close({
 	FlowArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	FlowOutputArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:output:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:output:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	SourceTransitDecryption!: #FlowTransitEncryption
 }) |
 fn.#ObjectExpression
@@ -182,8 +206,12 @@ fn.#ObjectExpression
 
 #MediaLiveChannelRouterInputConfiguration: close({
 	MediaLiveChannelArn?: =~"^arn:(aws[a-zA-Z-]*):medialive:[a-z0-9-]+:[0-9]{12}:channel:[a-zA-Z0-9]+$" |
-		fn.#StringExpression
-	MediaLiveChannelOutputName?: string | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):medialive:[a-z0-9-]+:[0-9]{12}:channel:[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MediaLiveChannelOutputName?: string | number | bool | fn.#StringExpression
 	MediaLivePipelineId?:        #MediaLiveChannelPipelineId
 	SourceTransitDecryption!:    #MediaLiveTransitEncryption
 }) |
@@ -220,7 +248,12 @@ fn.#ValueExpression
 		} |
 		fn.#NumberExpression
 	NetworkInterfaceArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	ProtocolConfigurations!: [...#MergeRouterInputProtocolConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -232,7 +265,7 @@ fn.#ValueExpression
 
 #PreferredDayTimeMaintenanceConfiguration: close({
 	Day!:  #Day
-	Time!: string | fn.#StringExpression
+	Time!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -358,11 +391,21 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #SecretsManagerEncryptionKeyConfiguration: close({
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	SecretArn!: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -405,7 +448,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SourceAddress!: string | fn.#StringExpression
+	SourceAddress!: string | number | bool | fn.#StringExpression
 	SourcePort!: int & <=65535 & >=1024 |
 		{
 			string &
@@ -422,7 +465,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StreamId?: string | fn.#StringExpression
+	StreamId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -467,14 +510,19 @@ fn.#ObjectExpression
 
 #StandardRouterInputConfiguration: close({
 	NetworkInterfaceArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	Protocol?:              #RouterInputProtocol
 	ProtocolConfiguration!: #RouterInputProtocolConfiguration
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

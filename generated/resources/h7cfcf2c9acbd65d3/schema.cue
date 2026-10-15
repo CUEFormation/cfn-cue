@@ -14,16 +14,18 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CertificateManager::Certificate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CertificateManager::Certificate"
-	Properties!: close({
-		CertificateAuthorityArn?:                  string | fn.#StringExpression
+	let properties = close({
+		CertificateAuthorityArn?:                  string | number | bool | fn.#StringExpression
 		CertificateExport?:                        "ENABLED" | "DISABLED" | fn.#StringExpression
 		CertificateTransparencyLoggingPreference?: "ENABLED" | "DISABLED" | fn.#StringExpression
-		DomainName!:                               string | fn.#StringExpression
+		DomainName!:                               string | number | bool | fn.#StringExpression
 		DomainValidationOptions?:                  [...#DomainValidationOption] | fn.#ListExpression
 		Id?: null |
 		bool |
@@ -51,26 +53,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					))*0 + 1,
 				)
 		} |
-		=~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		=~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" |
 		[...] |
 		{...} |
 		fn.#ValueExpression
-		KeyAlgorithm?:            string | fn.#StringExpression
-		SubjectAlternativeNames?: [...string | fn.#StringExpression] | fn.#ListExpression
+		KeyAlgorithm?:            string | number | bool | fn.#StringExpression
+		SubjectAlternativeNames?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-		ValidationMethod?:        string | fn.#StringExpression
+		ValidationMethod?:        string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DomainValidationOption: close({
-	DomainName?:       string | fn.#StringExpression
-	HostedZoneId?:     string | fn.#StringExpression
-	ValidationDomain?: string | fn.#StringExpression
+	DomainName?:       string | number | bool | fn.#StringExpression
+	HostedZoneId?:     string | number | bool | fn.#StringExpression
+	ValidationDomain?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

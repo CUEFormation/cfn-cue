@@ -10,15 +10,22 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage partner account
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTWireless::PartnerAccount"
-	Properties?: close({
-		AccountLinked?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		PartnerAccountId?: strings.MaxRunes(256) | fn.#StringExpression
-		PartnerType?:      "Sidewalk" | fn.#StringExpression
+	let properties = close({
+		AccountLinked?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PartnerAccountId?: strings.MaxRunes(256) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & "\(self)"
+		} |
+		fn.#StringExpression
+		PartnerType?: "Sidewalk" | fn.#StringExpression
 
 		// The Sidewalk account credentials.
 		Sidewalk?: #SidewalkAccountInfo
@@ -30,27 +37,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SidewalkUpdate?: #SidewalkUpdateAccount
 		Tags?:           list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#SidewalkAccountInfo: close(
-	{AppServerPrivateKey!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
-#SidewalkAccountInfoWithFingerprint: close({
-	AmazonId?:    strings.MaxRunes(2048) | fn.#StringExpression
-	Arn?:         string | fn.#StringExpression
-	Fingerprint?: strings.MaxRunes(64) & strings.MinRunes(64) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression
+#SidewalkAccountInfo: close({
+	AppServerPrivateKey!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SidewalkUpdateAccount: close(
-	{AppServerPrivateKey?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression},
-) |
+#SidewalkAccountInfoWithFingerprint: close({
+	AmazonId?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	Arn?: string | number | bool | fn.#StringExpression
+	Fingerprint?: strings.MaxRunes(64) & strings.MinRunes(64) & =~"[a-fA-F0-9]{64}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(64) & =~"[a-fA-F0-9]{64}" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#SidewalkUpdateAccount: close({
+	AppServerPrivateKey?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

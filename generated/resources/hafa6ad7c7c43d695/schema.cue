@@ -10,29 +10,60 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Omics::SequenceStore
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Omics::SequenceStore"
-	Properties!: close({
-		AccessLogLocation?: =~"^$|^s3://([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/?((.{1,800})/)?$" | fn.#StringExpression
+	let properties = close({
+		AccessLogLocation?: =~"^$|^s3://([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/?((.{1,800})/)?$" |
+		{
+			number | bool
+			_cfnString: =~"^$|^s3://([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/?((.{1,800})/)?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Description?: strings.MaxRunes(255) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ETagAlgorithmFamily?: #ETagAlgorithmFamily
-		FallbackLocation?:    strings.MinRunes(0) | fn.#StringExpression
-		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		FallbackLocation?: strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(0) & "\(self)"
+		} |
 		fn.#StringExpression
-		PropagatedSetLevelTags?: list.MaxItems(50) & [...] & [
-			...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		PropagatedSetLevelTags?: list.MaxItems(50) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		S3AccessPolicy?: fn.#Object & {...} | fn.#ObjectExpression
 		SseConfig?:      #SseConfig
 		Tags?:           #TagMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ETagAlgorithmFamily: "MD5up" | "SHA256up" | "SHA512up" | fn.#StringExpression
@@ -51,6 +82,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		]*):([0-9]{12}):([^:
 		]*)
 		""" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"""
+			arn:([^:
+			]*):([^:
+			]*):([^:
+			]*):([0-9]{12}):([^:
+			]*)
+			""" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Type!: #EncryptionType
 }) |
@@ -58,5 +102,17 @@ fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

@@ -1,0 +1,10 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "KmsMasterKeyId": "aws/sns"
+      },
+      "Type": "AWS::SNS::Topic"
+    }
+  }
+}

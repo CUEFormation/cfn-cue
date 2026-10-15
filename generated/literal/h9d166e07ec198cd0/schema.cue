@@ -5,7 +5,24 @@ package schema
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::Instance
-#Properties: close({
+#Properties: matchIf({
+	PrivateIpAddress!: _
+	...
+}, {
+	NetworkInterfaces?: [...null | bool | number | string | [...] | {
+		PrivateIpAddress?: error("disallowed")
+		PrivateIpAddresses?: [...null | bool | number | string | [...] | {
+			Primary?: false | "false" | "False" | "FALSE"
+			...
+		}]
+		...
+	}]
+	PrivateIpAddresses?: [...null | bool | number | string | [...] | {
+		Primary?: false | "false" | "False" | "FALSE"
+		...
+	}]
+	...
+}, _) & close({
 	// This property is reserved for internal use. If you use it, the stack fails
 	// with this error: Bad property set: [Testing this property] (Service:
 	// AmazonEC2; Status Code: 400; Error Code: InvalidParameterCombination;
@@ -156,10 +173,13 @@ package schema
 	RamdiskId?: string
 
 	// The IDs of the security groups.
-	SecurityGroupIds?: [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" | string]
+	SecurityGroupIds?: [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+			=~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
+	]
 
 	// the names of the security groups. For a nondefault VPC, you must use security group IDs instead.
-	SecurityGroups?: [...string]
+	SecurityGroups?: [...=~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"]
 
 	// Specifies whether to enable an instance launched in a VPC to perform NAT.
 	SourceDestCheck?: bool
@@ -171,7 +191,7 @@ package schema
 	State?: #State
 
 	// [EC2-VPC] The ID of the subnet to launch the instance into.
-	SubnetId?: string
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// The tags to add to the instance.
 	Tags?: [...#Tag]
@@ -201,7 +221,14 @@ package schema
 	Value!: [...string]
 })
 
-#BlockDeviceMapping: close({
+#BlockDeviceMapping: matchIf({
+	Ebs?:         error("disallowed")
+	VirtualName!: _
+	...
+}, {
+	VirtualName?: null | bool | number | =~"^ephemeral([0-9]|[1][0-9]|[2][0-3])$" | [...] | {...}
+	...
+}, _) & (close({
 	// The device name (for example, /dev/sdh or xvdh).
 	DeviceName!: string
 
@@ -222,9 +249,27 @@ package schema
 			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
 		)
 	}
-}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]))
 
-#Ebs: close({
+#Ebs: matchIf({
+	VolumeType!: "io1"
+	...
+}, {
+	Iops!: null | bool | <=64000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "io2"
+	...
+}, {
+	Iops!: null | bool | <=256000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "gp3"
+	...
+}, {
+	Iops?: null | bool | <=16000 & >=3000 | string | [...] | {...}
+	...
+}, _) & close({
 	// Indicates whether the EBS volume is deleted on instance termination.
 	DeleteOnTermination?: bool
 
@@ -242,7 +287,9 @@ package schema
 	// CMK to use for Amazon EBS encryption. If KmsKeyId is specified, the
 	// encrypted state must be true. If the encrypted state is true but you do not
 	// specify KmsKeyId, your AWS managed CMK for EBS is used.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The ID of the snapshot.
 	SnapshotId?: string
@@ -376,7 +423,7 @@ package schema
 	SecondaryPrivateIpAddressCount?: int
 
 	// The ID of the subnet.
-	SubnetId?: string
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	if AssociateCarrierIpAddress != _|_ if AssociateCarrierIpAddress."Fn::If" == _|_ {
 		NetworkInterfaceId?: close({"Fn::If": _}) | error(
 			"NetworkInterfaceId cannot be used with AssociateCarrierIpAddress",

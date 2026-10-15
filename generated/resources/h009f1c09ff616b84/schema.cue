@@ -9,20 +9,38 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::AppFlow::Connector
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppFlow::Connector"
-	Properties!: close({
-		ConnectorLabel?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
+	let properties = close({
+		ConnectorLabel?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Contains information about the configuration of the connector being registered.
 		ConnectorProvisioningConfig!: #ConnectorProvisioningConfig
 		ConnectorProvisioningType!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" & "\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" | fn.#StringExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConnectorProvisioningConfig: close({
@@ -33,10 +51,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #LambdaConnectorProvisioningConfig: close({
-	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(0) &
 	=~"arn:*:.*:.*:[0-9]+:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(0) &
+		=~"arn:*:.*:.*:[0-9]+:.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -14,19 +14,37 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::CoreNetwork Resource Type Definition.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::CoreNetwork"
-	Properties!: close({
-		Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyDocument?: fn.#Object & {...} |
 		strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
 		fn.#StringObjectExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CoreNetworkEdge: close({
@@ -49,31 +67,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	EdgeLocation?:     string | fn.#StringExpression
-	InsideCidrBlocks?: [...string | fn.#StringExpression] | fn.#ListExpression
+	EdgeLocation?:     string | number | bool | fn.#StringExpression
+	InsideCidrBlocks?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #CoreNetworkNetworkFunctionGroup: close({
-	EdgeLocations?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:          string | fn.#StringExpression
+	EdgeLocations?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Name?:          string | number | bool | fn.#StringExpression
 	Segments?: close({
-		SendTo?:  [...string | fn.#StringExpression] | fn.#ListExpression
-		SendVia?: [...string | fn.#StringExpression] | fn.#ListExpression
+		SendTo?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SendVia?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #CoreNetworkSegment: close({
-	EdgeLocations?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:           string | fn.#StringExpression
-	SharedSegments?: [...string | fn.#StringExpression] | fn.#ListExpression
+	EdgeLocations?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Name?:           string | number | bool | fn.#StringExpression
+	SharedSegments?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

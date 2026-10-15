@@ -9,31 +9,40 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AmplifyUIBuilder::Theme Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AmplifyUIBuilder::Theme"
-	Properties?: close({
-		AppId?:           string | fn.#StringExpression
-		EnvironmentName?: string | fn.#StringExpression
-		Name?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Overrides?:       [...#ThemeValues] | fn.#ListExpression
-		Tags?:            #Tags
-		Values?:          [...#ThemeValues] | fn.#ListExpression
+	let properties = close({
+		AppId?:           string | number | bool | fn.#StringExpression
+		EnvironmentName?: string | number | bool | fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Overrides?: [...#ThemeValues] | fn.#ListExpression
+		Tags?:      #Tags
+		Values?:    [...#ThemeValues] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tags: {...} | fn.#ObjectExpression
 
 #ThemeValue: close({
 	Children?: [...#ThemeValues] | fn.#ListExpression
-	Value?:    string | fn.#StringExpression
+	Value?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ThemeValues: close({
-	Key?:   string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
 	Value?: #ThemeValue
 }) |
 fn.#ObjectExpression

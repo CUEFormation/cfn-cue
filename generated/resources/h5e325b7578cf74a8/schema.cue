@@ -9,42 +9,52 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::Stack
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpsWorks::Stack"
-	Properties!: close({
+	let properties = close({
 		VpcId?: _
 		if VpcId != _|_ {
 			DefaultSubnetId!: _
 		}
 		{}
-		AgentVersion?: string | fn.#StringExpression
+		AgentVersion?: string | number | bool | fn.#StringExpression
 		Attributes?: {
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
 			...
 		} | fn.#ObjectExpression
-		ChefConfiguration?:       #ChefConfiguration
-		CloneAppIds?:             list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		ClonePermissions?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ConfigurationManager?:    #StackConfigurationManager
-		CustomCookbooksSource?:   #Source
-		CustomJson?:              fn.#Object & {...} | string | fn.#StringObjectExpression
-		DefaultAvailabilityZone?: string | fn.#StringExpression
-		DefaultInstanceProfileArn!: string | fn.#StringExpression
-		DefaultOs?:                 string | fn.#StringExpression
-		DefaultRootDeviceType?:     string | fn.#StringExpression
-		DefaultSshKeyName?:         string | fn.#StringExpression
-		DefaultSubnetId?:           string | fn.#StringExpression
-		EcsClusterArn?:             string | fn.#StringExpression
+		ChefConfiguration?: #ChefConfiguration
+		CloneAppIds?:       list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ClonePermissions?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ConfigurationManager?:      #StackConfigurationManager
+		CustomCookbooksSource?:     #Source
+		CustomJson?:                fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		DefaultAvailabilityZone?:   string | number | bool | fn.#StringExpression
+		DefaultInstanceProfileArn!: string | number | bool | fn.#StringExpression
+		DefaultOs?:                 string | number | bool | fn.#StringExpression
+		DefaultRootDeviceType?:     string | number | bool | fn.#StringExpression
+		DefaultSshKeyName?:         string | number | bool | fn.#StringExpression
+		DefaultSubnetId?:           string | number | bool | fn.#StringExpression
+		EcsClusterArn?:             string | number | bool | fn.#StringExpression
 		ElasticIps?:                list.UniqueItems() & [...#ElasticIp] | fn.#ListExpression
-		HostnameTheme?:             string | fn.#StringExpression
-		Name!:                      string | fn.#StringExpression
+		HostnameTheme?:             string | number | bool | fn.#StringExpression
+		Name!:                      string | number | bool | fn.#StringExpression
 		RdsDbInstances?:            list.UniqueItems() & [...#RdsDbInstance] | fn.#ListExpression
-		ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		SourceStackId?:      string | fn.#StringExpression
+		ServiceRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceStackId?:      string | number | bool | fn.#StringExpression
 		Tags?:               [...#Tag] | fn.#ListExpression
 		UseCustomCookbooks?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		UseOpsworksSecurityGroups?: bool |
@@ -55,48 +65,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		"VpcId"?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		"VpcId"?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ChefConfiguration: close({
-	BerkshelfVersion?: string | fn.#StringExpression
+	BerkshelfVersion?: string | number | bool | fn.#StringExpression
 	ManageBerkshelf?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #ElasticIp: close({
-	Ip!:   string | fn.#StringExpression
-	Name?: string | fn.#StringExpression
+	Ip!:   string | number | bool | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RdsDbInstance: close({
-	DbPassword!:       string | fn.#StringExpression
-	DbUser!:           string | fn.#StringExpression
-	RdsDbInstanceArn!: string | fn.#StringExpression
+	DbPassword!:       string | number | bool | fn.#StringExpression
+	DbUser!:           string | number | bool | fn.#StringExpression
+	RdsDbInstanceArn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Source: close({
-	Password?: string | fn.#StringExpression
-	Revision?: string | fn.#StringExpression
-	SshKey?:   string | fn.#StringExpression
-	Type?:     string | fn.#StringExpression
-	Url?:      string | fn.#StringExpression
-	Username?: string | fn.#StringExpression
+	Password?: string | number | bool | fn.#StringExpression
+	Revision?: string | number | bool | fn.#StringExpression
+	SshKey?:   string | number | bool | fn.#StringExpression
+	Type?:     string | number | bool | fn.#StringExpression
+	Url?:      string | number | bool | fn.#StringExpression
+	Username?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #StackConfigurationManager: close({
-	Name?:    string | fn.#StringExpression
-	Version?: string | fn.#StringExpression
+	Name?:    string | number | bool | fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

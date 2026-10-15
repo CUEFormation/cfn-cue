@@ -10,17 +10,19 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAM Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::IPAM"
-	Properties?: close({
+	let properties = close({
 		DefaultResourceDiscoveryOrganizationalUnitExclusions?: list.UniqueItems() & [
 			...#IpamOrganizationalUnitExclusion
 		] |
 			fn.#ListExpression
-		Description?:      string | fn.#StringExpression
+		Description?:      string | number | bool | fn.#StringExpression
 		EnablePrivateGua?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		MeteredAccount?:   "ipam-owner" | "resource-owner" | fn.#StringExpression
 		OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion] |
@@ -28,15 +30,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Tier?: "free" | "advanced" | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#IpamOperatingRegion: close({RegionName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#IpamOperatingRegion: close({RegionName!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#IpamOrganizationalUnitExclusion: close({OrganizationsEntityPath!: strings.MinRunes(1) | fn.#StringExpression}) |
+#IpamOrganizationalUnitExclusion: close({
+	OrganizationsEntityPath!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

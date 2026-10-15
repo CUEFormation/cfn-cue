@@ -10,33 +10,82 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Amazon DataZone projects are business use case–based groupings of people,
 // assets (data), and tools used to simplify access to the AWS analytics.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::Project"
-	Properties!: close({
-		Description?:      strings.MaxRunes(2048) | fn.#StringExpression
-		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		DomainUnitId?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
-		GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression] |
-			fn.#ListExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainUnitId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		MembershipAssignments?: [...#ProjectMembershipAssignment] | fn.#ListExpression
-		Name!:                  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-		ProjectCategory?:       string | fn.#StringExpression
-		ProjectExecutionRole?:  =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" | fn.#StringExpression
-		ProjectProfileId?:      =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		ProjectProfileVersion?: string | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectCategory?: string | number | bool | fn.#StringExpression
+		ProjectExecutionRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectProfileId?: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectProfileVersion?: string | number | bool | fn.#StringExpression
 		ResourceTags?:          [...#ResourceTag] | fn.#ListExpression
 		UserParameters?:        [...#EnvironmentConfigurationUserParameter] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EnvironmentConfigurationUserParameter: close({
-	EnvironmentConfigurationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	EnvironmentId?:                =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnvironmentParameters?:        [...#EnvironmentParameter] | fn.#ListExpression
+	EnvironmentConfigurationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	EnvironmentId?: =~"^[a-zA-Z0-9_-]{1,36}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	EnvironmentParameters?: [...#EnvironmentParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -47,32 +96,52 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EnvironmentError: close({
-	Code?:    string | fn.#StringExpression
-	Message!: string | fn.#StringExpression
+	Code?:    string | number | bool | fn.#StringExpression
+	Message!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EnvironmentFailureReasons: close({
 
-	{[=~".+"]: [...#EnvironmentError] | fn.#ListExpression}}) |
+	{[=~".+"]: [...#EnvironmentError] | fn.#ListExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #EnvironmentParameter: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EnvironmentResolvedAccount: close({
-	AwsAccountId!:        =~"^\\d{12}$" | fn.#StringExpression
-	RegionName!:          =~"^[a-z]{2}-[a-z]{4,10}-\\d$" | fn.#StringExpression
-	SourceAccountPoolId!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+	AwsAccountId!: =~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RegionName!: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceAccountPoolId!: =~"^[a-zA-Z0-9_-]{1,36}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Member: close({
-	GroupIdentifier?: string | fn.#StringExpression
-	UserIdentifier?:  string | fn.#StringExpression
+	GroupIdentifier?: string | number | bool | fn.#StringExpression
+	UserIdentifier?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -84,8 +153,8 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #ProjectDeletionError: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
+	Code?:    string | number | bool | fn.#StringExpression
+	Message?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -98,14 +167,41 @@ fn.#ObjectExpression
 #ProjectStatus: "ACTIVE" | "MOVING" | "DELETING" | "DELETE_FAILED" | "UPDATING" | "UPDATE_FAILED" | fn.#StringExpression
 
 #ResourceTag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: close({
 
-	{[=~"^[\\w \\.:/=+@-]+$"]: strings.MaxRunes(256) & =~"^[\\w \\.:/=+@-]*$" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[\\w \\.:/=+@-]+$"]: strings.MaxRunes(256) & =~"^[\\w \\.:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & =~"^[\\w \\.:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
-#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+} |
+fn.#StringExpression

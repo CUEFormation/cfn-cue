@@ -14,34 +14,48 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource for Greengrass component version.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GreengrassV2::ComponentVersion"
-	Properties?: close({
-		InlineRecipe?:   string | fn.#StringExpression
+	let properties = close({
+		InlineRecipe?:   string | number | bool | fn.#StringExpression
 		LambdaFunction?: #LambdaFunctionRecipeSource
 		Tags?:           struct.MaxFields(50) & {...} | fn.#ObjectExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ComponentDependencyRequirement: close({
 	DependencyType?:     "SOFT" | "HARD" | fn.#StringExpression
-	VersionRequirement?: string | fn.#StringExpression
+	VersionRequirement?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ComponentPlatform: close({
 	Attributes?: close({
 
-		{[=~".+"]: string | fn.#StringExpression}}) |
+		{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	Name?: strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#FilesystemPath: string | fn.#StringExpression
+#FilesystemPath: string | number | bool | fn.#StringExpression
 
 #LambdaAddGroupOwnerBoolean: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -74,7 +88,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LambdaEventSource: close({
-	Topic?: string | fn.#StringExpression
+	Topic?: string | number | bool | fn.#StringExpression
 	Type?:  "PUB_SUB" | "IOT_CORE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -82,10 +96,15 @@ fn.#ObjectExpression
 #LambdaExecutionParameters: close({
 	EnvironmentVariables?: close({
 
-		{[=~".+"]: string | fn.#StringExpression}}) |
+		{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	EventSources?:             [...#LambdaEventSource] | fn.#ListExpression
-	ExecArgs?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	ExecArgs?:                 [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	InputPayloadEncodingType?: "json" | "binary" | fn.#StringExpression
 	LinuxProcessParams?:       #LambdaLinuxProcessParams
 	MaxIdleTimeInSeconds?: int |
@@ -167,15 +186,37 @@ fn.#ObjectExpression
 #LambdaFunctionRecipeSource: close({
 	ComponentDependencies?: close({
 
-		{[=~".*"]: #ComponentDependencyRequirement}}) |
+		{[=~".*"]: #ComponentDependencyRequirement}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	ComponentLambdaParameters?: #LambdaExecutionParameters
-	ComponentName?:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ComponentPlatforms?:        [...#ComponentPlatform] | fn.#ListExpression
-	ComponentVersion?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ComponentName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ComponentPlatforms?: [...#ComponentPlatform] | fn.#ListExpression
+	ComponentVersion?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MinRunes(1) &
 	=~"^arn:[^:]*:lambda:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MinRunes(1) &
+		=~"^arn:[^:]*:lambda:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -14,14 +14,16 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Channel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MSK::Channel"
-	Properties!: close({
+	let properties = close({
 		ChannelName!:                     #ChannelName
-		ClusterArn?:                      string | fn.#StringExpression
+		ClusterArn?:                      string | number | bool | fn.#StringExpression
 		EncryptionConfiguration?:         #EncryptionConfiguration
 		IcebergDestinationConfiguration?: #IcebergDestinationConfiguration
 		LoggingInfo?:                     #ChannelLoggingInfo
@@ -29,11 +31,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                            #Tags
 		TopicConfigurationList!: list.MaxItems(1) & list.MinItems(1) & [...#TopicConfiguration] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Catalog: close({
-	CatalogArn?:        string | fn.#StringExpression
-	WarehouseLocation?: string | fn.#StringExpression
+	CatalogArn?:        string | number | bool | fn.#StringExpression
+	WarehouseLocation?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -44,11 +48,16 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ChannelName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
+#ChannelName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ChannelStateInfo: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
+	Code?:    string | number | bool | fn.#StringExpression
+	Message?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -63,32 +72,36 @@ fn.#ObjectExpression
 
 #CloudWatchLogsLogDestination: close({
 	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroup?: string | fn.#StringExpression
+	LogGroup?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DeadLetterQueueS3: close({
-	BucketArn!:           string | fn.#StringExpression
-	ErrorOutputPrefix!:   string | fn.#StringExpression
-	ExpectedBucketOwner?: string | fn.#StringExpression
+	BucketArn!:           string | number | bool | fn.#StringExpression
+	ErrorOutputPrefix!:   string | number | bool | fn.#StringExpression
+	ExpectedBucketOwner?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DestinationTable: close({
-	DestinationDatabaseName!: string | fn.#StringExpression
-	DestinationTableName!:    string | fn.#StringExpression
+	DestinationDatabaseName!: string | number | bool | fn.#StringExpression
+	DestinationTableName!:    string | number | bool | fn.#StringExpression
 	PartitionSpec?:           #PartitionSpec
 }) |
 fn.#ObjectExpression
 
 #EncryptionConfiguration: close({
-	KmsKeyArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	KmsKeyArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #FirehoseLogDestination: close({
-	DeliveryStream?: string | fn.#StringExpression
+	DeliveryStream?: string | number | bool | fn.#StringExpression
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -118,13 +131,17 @@ fn.#ObjectExpression
 	DeadLetterQueueS3!:    #DeadLetterQueueS3
 	DestinationTableList!: list.MaxItems(1) & list.MinItems(1) & [...#DestinationTable] | fn.#ListExpression
 	SchemaEvolution!:      #SchemaEvolution
-	ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TableCreation!: #TableCreation
 }) |
 fn.#ObjectExpression
 
-#PartitionSource: close({SourceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PartitionSource: close({SourceName?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #PartitionSpec: close({
 	PartitionStrategy!: #PartitionStrategy
@@ -136,7 +153,7 @@ fn.#ObjectExpression
 
 #RecordConverter: close({ValueConverter!: #ValueConverter}) | fn.#ObjectExpression
 
-#RecordSchema: close({GsrArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#RecordSchema: close({GsrArn!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #S3CompressionType: "NONE" | "GZIP" | "ZSTD" | fn.#StringExpression
 
@@ -158,25 +175,29 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	DeadLetterQueueS3!: #DeadLetterQueueS3
-	ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Storage!: #S3Storage
 }) |
 fn.#ObjectExpression
 
 #S3LogDestination: close({
-	Bucket?:  string | fn.#StringExpression
+	Bucket?:  string | number | bool | fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Prefix?:  string | fn.#StringExpression
+	Prefix?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Storage: close({
-	BucketArn!:           string | fn.#StringExpression
+	BucketArn!:           string | number | bool | fn.#StringExpression
 	CompressionType!:     #S3CompressionType
-	ExpectedBucketOwner?: string | fn.#StringExpression
-	OutputKeyTemplate?:   string | fn.#StringExpression
-	OutputPrefix?:        string | fn.#StringExpression
+	ExpectedBucketOwner?: string | number | bool | fn.#StringExpression
+	OutputKeyTemplate?:   string | number | bool | fn.#StringExpression
+	OutputPrefix?:        string | number | bool | fn.#StringExpression
 	StorageClass!:        #S3StorageClass
 }) |
 fn.#ObjectExpression
@@ -195,13 +216,18 @@ fn.#ObjectExpression
 
 #Tags: close({
 
-	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ObjectExpression
 
 #TopicConfiguration: close({
 	RecordConverter!: #RecordConverter
 	RecordSchema?:    #RecordSchema
-	TopicArn!:        string | fn.#StringExpression
+	TopicArn!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

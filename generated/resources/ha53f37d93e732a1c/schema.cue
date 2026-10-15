@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::EFS::AccessPoint`` resource creates an EFS access point. An access
@@ -24,12 +26,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // This operation requires permissions for the ``elasticfilesystem:CreateAccessPoint`` action.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EFS::AccessPoint"
-	Properties!: close({
+	let properties = close({
 		AccessPointTags?: list.UniqueItems() & [...#AccessPointTag] | fn.#ListExpression
-		ClientToken?:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		ClientToken?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		FileSystemId!: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
 		=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// The full POSIX identity, including the user ID, group ID, and secondary group
@@ -41,25 +55,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// root directory to NFS clients using the access point.
 		RootDirectory?: #RootDirectory
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessPointTag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CreationInfo: close({
-	OwnerGid!:    string | fn.#StringExpression
-	OwnerUid!:    string | fn.#StringExpression
-	Permissions!: =~"^[0-7]{3,4}$" | fn.#StringExpression
+	OwnerGid!: string | number | bool | fn.#StringExpression
+	OwnerUid!: string | number | bool | fn.#StringExpression
+	Permissions!: =~"^[0-7]{3,4}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-7]{3,4}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PosixUser: close({
-	Gid!:           string | fn.#StringExpression
-	SecondaryGids?: list.MaxItems(16) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Uid!:           string | fn.#StringExpression
+	Gid!:           string | number | bool | fn.#StringExpression
+	SecondaryGids?: list.MaxItems(16) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Uid!:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -73,6 +104,11 @@ fn.#ObjectExpression
 	// ``Path`` does not exist, attempts to mount the file system using the access
 	// point will fail.
 	CreationInfo?: #CreationInfo
-	Path?:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Path?: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

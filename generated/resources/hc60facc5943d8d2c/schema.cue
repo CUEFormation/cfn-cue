@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::LicenseManager::LicenseConfiguration. A license
@@ -21,8 +23,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // consumed and enforced by License Manager.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LicenseManager::LicenseConfiguration"
-	Properties!: close({
-		Description?:              string | fn.#StringExpression
+	let properties = close({
+		Description?:              string | number | bool | fn.#StringExpression
 		DisassociateWhenNotFound?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		LicenseCount?: int |
 			{
@@ -58,28 +60,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		LicenseRules?:           [...string | fn.#StringExpression] | fn.#ListExpression
-		Name!:                   string | fn.#StringExpression
+		LicenseRules?:           [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Name!:                   string | number | bool | fn.#StringExpression
 		ProductInformationList?: [...#ProductInformation] | fn.#ListExpression
 		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ProductInformation: close({
 	ProductInformationFilterList!: [...#ProductInformationFilter] | fn.#ListExpression
-	ResourceType!:                 string | fn.#StringExpression
+	ResourceType!:                 string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ProductInformationFilter: close({
-	ProductInformationFilterComparator!: string | fn.#StringExpression
-	ProductInformationFilterName!:       string | fn.#StringExpression
-	ProductInformationFilterValue?:      [...string | fn.#StringExpression] | fn.#ListExpression
+	ProductInformationFilterComparator!: string | number | bool | fn.#StringExpression
+	ProductInformationFilterName!:       string | number | bool | fn.#StringExpression
+	ProductInformationFilterValue?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

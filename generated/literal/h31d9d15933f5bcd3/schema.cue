@@ -99,7 +99,7 @@ import (
 	Ipv6?: strings.MaxRunes(39) & strings.MinRunes(7)
 
 	// The ID of the subnet that contains the IP address.
-	SubnetId!: strings.MaxRunes(32) & strings.MinRunes(1)
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(32) & strings.MinRunes(1))
 })
 
 #Tag: close({

@@ -6,19 +6,23 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::SourceApiAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::SourceApiAssociation"
-	Properties?: close({
-		Description?:         string | fn.#StringExpression
-		MergedApiIdentifier?: string | fn.#StringExpression
+	let properties = close({
+		Description?:         string | number | bool | fn.#StringExpression
+		MergedApiIdentifier?: string | number | bool | fn.#StringExpression
 
 		// Customized configuration for SourceApiAssociation.
 		SourceApiAssociationConfig?: #SourceApiAssociationConfig
-		SourceApiIdentifier?:        string | fn.#StringExpression
+		SourceApiIdentifier?:        string | number | bool | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #SourceApiAssociationConfig: null |

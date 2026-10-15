@@ -10,36 +10,60 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An object representing an Amazon EKS AccessEntry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EKS::AccessEntry"
-	Properties!: close({
-		AccessPolicies?:   list.MaxItems(20) & list.UniqueItems() & [...#AccessPolicy] | fn.#ListExpression
-		ClusterName!:      strings.MinRunes(1) | fn.#StringExpression
-		KubernetesGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		PrincipalArn!:     strings.MinRunes(1) | fn.#StringExpression
-		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Type?:             string | fn.#StringExpression
-		Username?:         string | fn.#StringExpression
+	let properties = close({
+		AccessPolicies?: list.MaxItems(20) & list.UniqueItems() & [...#AccessPolicy] | fn.#ListExpression
+		ClusterName!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KubernetesGroups?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		PrincipalArn!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type?:     string | number | bool | fn.#StringExpression
+		Username?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessPolicy: close({
 	AccessScope!: #AccessScope
-	PolicyArn!:   string | fn.#StringExpression
+	PolicyArn!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AccessScope: close({
-	Namespaces?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Namespaces?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Type!:       "namespace" | "cluster" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

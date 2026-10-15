@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RedshiftServerless::Workgroup Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RedshiftServerless::Workgroup"
-	Properties!: close({
+	let properties = close({
 		BaseCapacity?: int |
 			{
 				string &
@@ -54,7 +56,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
+		NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
 		Port?: int |
 			{
 				string &
@@ -73,24 +80,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		PricePerformanceTarget?: #PerformanceTarget & fn.#Object & {...} | fn.#ObjectExpression
 		PubliclyAccessible?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RecoveryPointId?:        string | fn.#StringExpression
-		SecurityGroupIds?: list.MaxItems(32) & list.MinItems(1) & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RecoveryPointId?:        string | number | bool | fn.#StringExpression
+		SecurityGroupIds?: list.MaxItems(32) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-fA-F]{8,}$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 			strings.MaxRunes(255) &
 			strings.MinRunes(0) &
-			=~"^sg-[0-9a-fA-F]{8,}$" |
-			fn.#StringExpression
-		] |
+			=~"^sg-[0-9a-fA-F]{8,}$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		SnapshotArn?:          string | fn.#StringExpression
-		SnapshotName?:         string | fn.#StringExpression
-		SnapshotOwnerAccount?: string | fn.#StringExpression
-		SubnetIds?: list.MaxItems(32) & list.MinItems(1) & [
-			...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" | fn.#StringExpression
-		] |
+		SnapshotArn?:          string | number | bool | fn.#StringExpression
+		SnapshotName?:         string | number | bool | fn.#StringExpression
+		SnapshotOwnerAccount?: string | number | bool | fn.#StringExpression
+		SubnetIds?: list.MaxItems(32) & list.MinItems(1) & [...strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^subnet-[0-9a-fA-F]{8,}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		TrackName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TrackName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Workgroup?: close({
 			Endpoint?: close({
 				VpcEndpoints?: [
@@ -103,18 +126,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			PricePerformanceTarget?: #PerformanceTarget
 		}) |
 		fn.#ObjectExpression
-		WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
+		WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConfigParameter: close({
-	ParameterKey?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	ParameterValue?: strings.MaxRunes(15000) & strings.MinRunes(0) | fn.#StringExpression
+	ParameterKey?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ParameterValue?: strings.MaxRunes(15000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(15000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Endpoint: close({
-	Address?: string | fn.#StringExpression
+	Address?: string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -134,10 +174,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #NetworkInterface: close({
-	AvailabilityZone?:   string | fn.#StringExpression
-	NetworkInterfaceId?: string | fn.#StringExpression
-	PrivateIpAddress?:   string | fn.#StringExpression
-	SubnetId?:           string | fn.#StringExpression
+	AvailabilityZone?:   string | number | bool | fn.#StringExpression
+	NetworkInterfaceId?: string | number | bool | fn.#StringExpression
+	PrivateIpAddress?:   string | number | bool | fn.#StringExpression
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -165,16 +210,30 @@ fn.#ObjectExpression
 #PerformanceTargetStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcEndpoint: close({
 	NetworkInterfaces?: [...#NetworkInterface] | fn.#ListExpression
-	VpcEndpointId?:     string | fn.#StringExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	VpcEndpointId?:     string | number | bool | fn.#StringExpression
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -194,7 +253,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ConfigParameters?:   list.UniqueItems() & [...#ConfigParameter] | fn.#ListExpression
-	CreationDate?:       string | fn.#StringExpression
+	CreationDate?:       string | number | bool | fn.#StringExpression
 	Endpoint?:           #Endpoint
 	EnhancedVpcRouting?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCapacity?: int |
@@ -211,24 +270,50 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	NamespaceName?:          strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
+	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PricePerformanceTarget?: #PerformanceTarget
 	PubliclyAccessible?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(0) &
+	=~"^sg-[0-9a-fA-F]{8,}$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(255) &
 		strings.MinRunes(0) &
-		=~"^sg-[0-9a-fA-F]{8,}$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-[0-9a-fA-F]{8,}$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Status?: #WorkgroupStatus
-	SubnetIds?: [...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" | fn.#StringExpression] |
+	SubnetIds?: [...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	TrackName?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
-	WorkgroupArn?:  string | fn.#StringExpression
-	WorkgroupId?:   string | fn.#StringExpression
-	WorkgroupName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]*$" | fn.#StringExpression
+	TrackName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	WorkgroupArn?: string | number | bool | fn.#StringExpression
+	WorkgroupId?:  string | number | bool | fn.#StringExpression
+	WorkgroupName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

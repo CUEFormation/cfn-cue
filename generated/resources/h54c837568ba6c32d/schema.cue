@@ -9,16 +9,25 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Designates the IAM role and Amazon Simple Notification Service (SNS) topic
 // that AWS Firewall Manager uses to record SNS logs.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FMS::NotificationChannel"
-	Properties!: close({
+	let properties = close({
 		SnsRoleName!: #ResourceArn
 		SnsTopicArn!: #ResourceArn
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ResourceArn: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]+)$" | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]+)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]+)$" & "\(self)"
+} |
+fn.#StringExpression

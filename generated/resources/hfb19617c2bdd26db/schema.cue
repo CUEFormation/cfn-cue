@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a key pair for use with an EC2long instance as follows:
@@ -31,17 +33,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Parameter Store.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::KeyPair"
-	Properties!: close({
+	let properties = close({
 		KeyFormat?:         "pem" | "ppk" | fn.#StringExpression
-		KeyName!:           string | fn.#StringExpression
+		KeyName!:           string | number | bool | fn.#StringExpression
 		KeyType?:           "rsa" | "ed25519" | fn.#StringExpression
-		PublicKeyMaterial?: string | fn.#StringExpression
+		PublicKeyMaterial?: string | number | bool | fn.#StringExpression
 		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

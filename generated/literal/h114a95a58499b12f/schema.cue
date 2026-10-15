@@ -2,7 +2,10 @@
 
 package schema
 
-import "list"
+import (
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
+)
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -11,7 +14,7 @@ import "list"
 	// The range of IP addresses that should be allowed to initiate output requests
 	// to this flow. These IP addresses should be in the form of a Classless
 	// Inter-Domain Routing (CIDR) block; for example, 10.0.0.0/16.
-	CidrAllowList?: [...string]
+	CidrAllowList?: [...fn.#IPv4Network & string]
 
 	// A description of the output.
 	Description?: string

@@ -6,21 +6,36 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Config::DeliveryChannel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::DeliveryChannel"
-	Properties!: close({
+	let properties = close({
 		// The options for how often AWS Config delivers configuration snapshots to the Amazon S3 bucket.
 		ConfigSnapshotDeliveryProperties?: #ConfigSnapshotDeliveryProperties
-		Name?:                             string | fn.#StringExpression
-		S3BucketName!:                     string | fn.#StringExpression
-		S3KeyPrefix?:                      string | fn.#StringExpression
-		S3KmsKeyArn?:                      string | fn.#StringExpression
-		SnsTopicARN?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		Name?:                             string | number | bool | fn.#StringExpression
+		S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+				=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		S3KeyPrefix?: string | number | bool | fn.#StringExpression
+		S3KmsKeyArn?: string | number | bool | fn.#StringExpression
+		SnsTopicARN?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConfigSnapshotDeliveryProperties: close({

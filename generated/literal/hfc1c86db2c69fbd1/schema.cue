@@ -2,7 +2,10 @@
 
 package schema
 
-import "list"
+import (
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
+)
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -32,7 +35,7 @@ import "list"
 	// A unique IP address range to use for this network. These IP addresses should
 	// be in the form of a Classless Inter-Domain Routing (CIDR) block; for
 	// example, 10.0.0.0/16.
-	CidrBlock!: string
+	CidrBlock!: fn.#IPv4Network & string
 
 	// The name of the network. This name is used to reference the network and must
 	// be unique among networks in this gateway.

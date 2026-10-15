@@ -10,25 +10,64 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::PhoneNumber
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::PhoneNumber"
-	Properties!: close({
-		CountryCode?:          =~"^[A-Z]{2}" | fn.#StringExpression
-		Description?:          strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		Prefix?:               =~"^\\+[0-9]{1,15}" | fn.#StringExpression
-		SourcePhoneNumberArn?: string | fn.#StringExpression
+	let properties = close({
+		CountryCode?: =~"^[A-Z]{2}" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Z]{2}" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Prefix?: =~"^\\+[0-9]{1,15}" |
+		{
+			number | bool
+			_cfnString: =~"^\\+[0-9]{1,15}" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourcePhoneNumberArn?: string | number | bool | fn.#StringExpression
 		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TargetArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:(instance|traffic-distribution-group)/[-a-zA-Z0-9]*$" |
-			fn.#StringExpression
-		Type?: =~"TOLL_FREE|DID|UIFN|SHARED|THIRD_PARTY_DID|THIRD_PARTY_TF|SHORT_CODE" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:(instance|traffic-distribution-group)/[-a-zA-Z0-9]*$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		Type?: =~"TOLL_FREE|DID|UIFN|SHARED|THIRD_PARTY_DID|THIRD_PARTY_TF|SHORT_CODE" |
+		{
+			number | bool
+			_cfnString: =~"TOLL_FREE|DID|UIFN|SHARED|THIRD_PARTY_DID|THIRD_PARTY_TF|SHORT_CODE" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

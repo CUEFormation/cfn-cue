@@ -87,6 +87,7 @@ func TestRegionalGenerationAndValidation(t *testing.T) {
 		`{Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one",Policy:{Version:"2012-10-17",Statement:[{Action:"sts:AssumeRole",Condition:{StringEquals:{ExternalId:{Ref:"P"}}}}]}}}}}`,
 		`{Conditions:{Yes:{"Fn::And":[{"Fn::Equals":[{Ref:"P"},"a"]},{Condition:"Other"}]}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:{"Fn::If":["Yes",{"Fn::Sub":"x"},{Ref:"AWS::NoValue"}]}}}}}`,
 		`{Rules:{Check:{Assertions:[{Assert:{"Fn::EachMemberIn":[{"Fn::ValueOfAll":["AWS::EC2::Subnet::Id","VpcId"]},{"Fn::RefAll":"AWS::EC2::VPC::Id"}]}}]}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}}`,
+		`{Rules:{Check:{Assertions:[{Assert:{"Fn::EachMemberEquals":[{"Fn::ValueOf":["Subnets","VpcId"]},{Ref:"VpcId"}]}}]}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}}`,
 	} {
 		validate(t, schema, data, true)
 	}

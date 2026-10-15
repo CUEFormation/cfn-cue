@@ -10,38 +10,65 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a Connector that connects AWS PrivateCA and your directory
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCAConnectorAD::Connector"
-	Properties!: close({
+	let properties = close({
 		CertificateAuthorityArn!: strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^arn:[\\w-]+:acm-pca:[\\w-]+:[0-9]+:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(5) &
+			=~"^arn:[\\w-]+:acm-pca:[\\w-]+:[0-9]+:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		DirectoryId!:    =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
+		DirectoryId!: =~"^d-[0-9a-f]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^d-[0-9a-f]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?:           #Tags
 		VpcInformation!: #VpcInformation
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tags: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
 
 #VpcInformation: close({
 	IpAddressType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(20) &
+	strings.MinRunes(11) &
+	=~"^(?:sg-[0-9a-f]{8}|sg-[0-9a-f]{17})$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(20) &
 		strings.MinRunes(11) &
-		=~"^(?:sg-[0-9a-f]{8}|sg-[0-9a-f]{17})$" |
-		fn.#StringExpression
-	] |
+		=~"^(?:sg-[0-9a-f]{8}|sg-[0-9a-f]{17})$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -10,15 +10,17 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::TrafficMirrorSession
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TrafficMirrorSession"
-	Properties!: close({
-		Description?:        string | fn.#StringExpression
-		NetworkInterfaceId!: string | fn.#StringExpression
-		OwnerId?:            string | fn.#StringExpression
+	let properties = close({
+		Description?:        string | number | bool | fn.#StringExpression
+		NetworkInterfaceId!: string | number | bool | fn.#StringExpression
+		OwnerId?:            string | number | bool | fn.#StringExpression
 		PacketLength?: int |
 			{
 				string &
@@ -52,8 +54,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Tags?:                  [...#Tag] | fn.#ListExpression
-		TrafficMirrorFilterId!: string | fn.#StringExpression
-		TrafficMirrorTargetId!: string | fn.#StringExpression
+		TrafficMirrorFilterId!: string | number | bool | fn.#StringExpression
+		TrafficMirrorTargetId!: string | number | bool | fn.#StringExpression
 		VirtualNetworkId?: int |
 			{
 				string &
@@ -71,11 +73,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

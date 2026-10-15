@@ -14,18 +14,28 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Endpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Endpoint"
-	Properties!: close({
+	let properties = close({
 		// Specifies deployment configuration for updating the SageMaker endpoint.
 		// Includes rollback and update policies.
 		DeploymentConfig?: #DeploymentConfig
 		EndpointConfigName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		EndpointName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		ExcludeRetainedVariantProperties?: [...#VariantProperty] | fn.#ListExpression
 		RetainAllVariantProperties?: bool |
@@ -39,9 +49,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RetainDeploymentConfig?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:                   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Alarm: close({AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
+#Alarm: close({
+	AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #AutoRollbackConfig: close({Alarms!: list.MaxItems(10) & [...] & [...#Alarm] | fn.#ListExpression}) |
 	fn.#ObjectExpression
@@ -159,8 +179,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -190,4 +220,4 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#VariantProperty: close({VariantPropertyType?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VariantProperty: close({VariantPropertyType?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

@@ -10,24 +10,28 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::ApplicationSettings
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Pinpoint::ApplicationSettings"
-	Properties!: close({
-		ApplicationId!:            string | fn.#StringExpression
+	let properties = close({
+		ApplicationId!:            string | number | bool | fn.#StringExpression
 		CampaignHook?:             #CampaignHook
 		CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Limits?:                   #Limits
 		QuietTime?:                #QuietTime
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CampaignHook: close({
-	LambdaFunctionName?: string | fn.#StringExpression
-	Mode?:               string | fn.#StringExpression
-	WebUrl?:             string | fn.#StringExpression
+	LambdaFunctionName?: string | number | bool | fn.#StringExpression
+	Mode?:               string | number | bool | fn.#StringExpression
+	WebUrl?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -92,7 +96,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #QuietTime: close({
-	End!:   string | fn.#StringExpression
-	Start!: string | fn.#StringExpression
+	End!:   string | number | bool | fn.#StringExpression
+	Start!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

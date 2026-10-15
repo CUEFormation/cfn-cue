@@ -6,25 +6,39 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::EC2::TransitGatewayPolicyTableEntry Resource Definition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayPolicyTableEntry"
-	Properties!: close({
+	let properties = close({
 		// The policy rule associated with the entry.
 		PolicyRule!:                  #TransitGatewayPolicyRule
-		PolicyRuleNumber!:            string | fn.#StringExpression
-		TargetRouteTableId!:          string | fn.#StringExpression
-		TransitGatewayPolicyTableId!: string | fn.#StringExpression
+		PolicyRuleNumber!:            string | number | bool | fn.#StringExpression
+		TargetRouteTableId!:          string | number | bool | fn.#StringExpression
+		TransitGatewayPolicyTableId!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #TransitGatewayPolicyRule: close({
-	DestinationCidrBlock?: string | fn.#StringExpression
-	DestinationPortRange?: string | fn.#StringExpression
-	Protocol?:             string | fn.#StringExpression
-	SourceCidrBlock?:      string | fn.#StringExpression
-	SourcePortRange?:      string | fn.#StringExpression
+	DestinationCidrBlock?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	DestinationPortRange?: string | number | bool | fn.#StringExpression
+	Protocol?:             string | number | bool | fn.#StringExpression
+	SourceCidrBlock?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	SourcePortRange?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -9,20 +9,29 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a policy store that you can place schema, policies, and policy
 // templates in to validate authorization requests
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VerifiedPermissions::PolicyStore"
-	Properties!: close({
+	let properties = close({
 		DeletionProtection?: #DeletionProtection
-		Description?:        strings.MaxRunes(150) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(150) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(150) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		EncryptionSettings?: #EncryptionSettings
 		Schema?:             #SchemaDefinition
 		Tags?:               [...#Tag] | fn.#ListExpression
 		ValidationSettings!: #ValidationSettings
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Default: close({}) | fn.#ObjectExpression
@@ -33,10 +42,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #EncryptionContext: close({
 
-	{[=~"^.+$"]: strings.MinRunes(1) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^.+$"]: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
-#EncryptionSettings: fn.#Object & {...} & matchN(1, [
+#EncryptionSettings: fn.#Object & matchN(1, [
 	close({KmsEncryptionSettings!: #KmsEncryptionSettings}), close({Default!: #Default}),
 ]) |
 fn.#ObjectExpression
@@ -53,15 +74,20 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#KmsKey: =~"^[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
+#KmsKey: =~"^[a-zA-Z0-9:/_-]+$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9:/_-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SchemaDefinition: close({CedarJson?: #SchemaJson}) | fn.#ObjectExpression
 
-#SchemaJson: string | fn.#StringExpression
+#SchemaJson: string | number | bool | fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

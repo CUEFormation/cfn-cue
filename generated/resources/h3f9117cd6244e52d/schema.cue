@@ -10,22 +10,39 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTManagedIntegrations::ProvisioningProfile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTManagedIntegrations::ProvisioningProfile"
-	Properties!: close({
+	let properties = close({
 		CaCertificate?: =~"""
 			^-----BEGIN CERTIFICATE-----.*(.|\\
 			)*-----END CERTIFICATE-----\\n?$
 			""" |
-			fn.#StringExpression
-		ClaimCertificate?: string | fn.#StringExpression
-		Name?:             strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"""
+				^-----BEGIN CERTIFICATE-----.*(.|\\
+				)*-----END CERTIFICATE-----\\n?$
+				""" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		ClaimCertificate?: string | number | bool | fn.#StringExpression
+		Name?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ProvisioningType!: #ProvisioningType
 		Tags?:             #TagsMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ProvisioningType: "FLEET_PROVISIONING" | "JITR" | fn.#StringExpression
@@ -39,7 +56,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression

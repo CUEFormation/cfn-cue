@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::WebFunctionEndpoint. An endpoint
@@ -22,15 +24,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // across Regions.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::WebFunctionEndpoint"
-	Properties!: close({
-		AuthType!:     "ApplicationManaged" | "IamAuth" | fn.#StringExpression
-		Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		EndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AuthType!: "ApplicationManaged" | "IamAuth" | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		EndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		EndpointType!: "HomeRegion" | "MultiRegion" | "PerRegion" | fn.#StringExpression
-		FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Regions?: list.UniqueItems() & [
-			...strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$" | fn.#StringExpression
-		] |
+		FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Regions?: list.UniqueItems() & [...strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [...#RevisionWeight] | fn.#ListExpression
 
@@ -44,27 +64,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// limit quota.
 		ThrottleConfig?: #ThrottleConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #RegionalEndpoint: close({
 	AuthType?:        "ApplicationManaged" | "IamAuth" | fn.#StringExpression
-	DomainName?:      string | fn.#StringExpression
+	DomainName?:      string | number | bool | fn.#StringExpression
 	RevisionWeights?: [...#RevisionWeight] | fn.#ListExpression
 
 	// The scaling configuration for the endpoint.
 	ScalingConfig?: #ScalingConfig
 	State?:         "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
-	StateReason?:   string | fn.#StringExpression
+	StateReason?:   string | number | bool | fn.#StringExpression
 
 	// The throttling configuration for the endpoint.
 	ThrottleConfig?:     #ThrottleConfig
 	UpdateStatus?:       "InProgress" | "Successful" | "Failed" | fn.#StringExpression
-	UpdateStatusReason?: string | fn.#StringExpression
+	UpdateStatusReason?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RevisionWeight: close({
-	RevisionId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	RevisionId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Weight!: int & <=100 & >=1 |
 		{
 			string &

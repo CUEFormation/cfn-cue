@@ -6,14 +6,18 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::GraphQLSchema
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::GraphQLSchema"
-	Properties!: close({
-		ApiId!:                string | fn.#StringExpression
-		Definition?:           string | fn.#StringExpression
-		DefinitionS3Location?: string | fn.#StringExpression
+	let properties = close({
+		ApiId!:                string | number | bool | fn.#StringExpression
+		Definition?:           string | number | bool | fn.#StringExpression
+		DefinitionS3Location?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -6,17 +6,31 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::DataZone::ProjectMembership Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::ProjectMembership"
-	Properties!: close({
-		Designation!:       #UserDesignation
-		DomainIdentifier!:  =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		Member!:            #Member
-		ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+	let properties = close({
+		Designation!: #UserDesignation
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Member!: #Member
+		ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Member: matchN(1, [
@@ -26,4 +40,9 @@ fn.#ValueExpression
 
 #MemberIdentifierType: "USER_IDENTIFIER" | "GROUP_IDENTIFIER" | fn.#StringExpression
 
-#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+} |
+fn.#StringExpression

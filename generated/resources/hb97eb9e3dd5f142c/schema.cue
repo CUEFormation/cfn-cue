@@ -11,32 +11,61 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Chatbot::CustomAction Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Chatbot::CustomAction"
-	Properties!: close({
-		ActionName!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
-		AliasName?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
+	let properties = close({
+		ActionName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,64}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		AliasName?: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Attachments?: [...#CustomActionAttachment] | fn.#ListExpression
 		Definition!:  #CustomActionDefinition
 		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CustomActionAttachment: close({
-	ButtonText?:       strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression
-	Criteria?:         list.MaxItems(5) & list.MinItems(1) & [...#CustomActionAttachmentCriteria] | fn.#ListExpression
-	NotificationType?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Variables?:        #CustomActionAttachmentVariables
+	ButtonText?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\S\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\S\\s]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Criteria?: list.MaxItems(5) & list.MinItems(1) & [...#CustomActionAttachmentCriteria] | fn.#ListExpression
+	NotificationType?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Variables?: #CustomActionAttachmentVariables
 }) |
 fn.#ObjectExpression
 
 #CustomActionAttachmentCriteria: close({
-	Operator!:     #CustomActionAttachmentCriteriaOperator
-	Value?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	VariableName!: string | fn.#StringExpression
+	Operator!: #CustomActionAttachmentCriteriaOperator
+	Value?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	VariableName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -44,14 +73,36 @@ fn.#ObjectExpression
 
 #CustomActionAttachmentVariables: struct.MaxFields(5) & struct.MinFields(1) & close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
-#CustomActionDefinition: close({CommandText!: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#CustomActionDefinition: close({
+	CommandText!: strings.MaxRunes(5000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

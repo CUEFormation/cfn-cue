@@ -10,12 +10,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IAM::AccessKey
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::AccessKey"
-	Properties!: close({
+	let properties = close({
 		Serial?: int |
 			{
 				string &
@@ -32,7 +34,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Status?:   string | fn.#StringExpression
-		UserName!: string | fn.#StringExpression
+		Status?:   string | number | bool | fn.#StringExpression
+		UserName!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

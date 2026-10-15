@@ -11,6 +11,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::SageMaker::Action. An action is a lineage
@@ -18,17 +20,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // deployment or an HPO job.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Action"
-	Properties!: close({
+	let properties = close({
 		ActionName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(120) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ActionType!:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Description?: strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
+		ActionType!: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(3072) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(3072) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Metadata properties of the tracking entity, trial, or trial component.
 		MetadataProperties?: #MetadataProperties
 		Properties?: struct.MaxFields(30) & close({
 
-			{[=~".+"]: strings.MaxRunes(2500) | fn.#StringExpression}}) |
+			{
+				[=~".+"]: strings.MaxRunes(2500) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(2500) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 
 		// The source type, ID, and URI.
@@ -36,25 +67,72 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Status?: "Unknown" | "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
 		Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ActionSource: close({
-	SourceId?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	SourceType?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	SourceUri!:  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	SourceId?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceType?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceUri!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetadataProperties: close({
-	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ProjectId?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Repository?:  strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	CommitId?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProjectId?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Repository?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

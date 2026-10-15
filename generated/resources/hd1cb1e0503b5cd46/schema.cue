@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::CustomDetectionRuleAssociation.
@@ -17,15 +19,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // enabling the rule in either LIVE or DRY_RUN mode.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GuardDuty::CustomDetectionRuleAssociation"
-	Properties!: close({
-		Mode!:   "LIVE" | "DRY_RUN" | fn.#StringExpression
-		RuleId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9]+(-[a-z0-9]+)*$" | fn.#StringExpression
-		Tags?:   list.UniqueItems() & [...#TagItem] | fn.#ListExpression
+	let properties = close({
+		Mode!: "LIVE" | "DRY_RUN" | fn.#StringExpression
+		RuleId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9]+(-[a-z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9]+(-[a-z0-9]+)*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#TagItem] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #TagItem: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

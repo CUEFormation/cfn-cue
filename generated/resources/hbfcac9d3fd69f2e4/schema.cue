@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Kinesis::Stream
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Kinesis::Stream"
-	Properties?: close({
+	let properties = close({
 		DesiredShardLevelMetrics?: list.MaxItems(7) & list.UniqueItems() & [...#EnhancedMetric] | fn.#ListExpression
 		MaxRecordSizeInKiB?: int & <=10240 & >=1024 |
 			{
@@ -39,7 +41,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RecordDistributionStrategy?: "AUTO" | "USER_PARTITION_KEY" | fn.#StringExpression
 		RetentionPeriodHours?: int & <=8760 & >=1 |
 			{
@@ -103,6 +110,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EnhancedMetric: "IncomingBytes" |
@@ -117,15 +126,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #StreamEncryption: close({
 	EncryptionType!: "KMS" | fn.#StringExpression
-	KeyId!:          string & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
+	KeyId!: string & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: string & strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #StreamModeDetails: close({StreamMode!: "ON_DEMAND" | "PROVISIONED" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

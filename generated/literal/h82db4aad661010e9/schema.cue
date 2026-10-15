@@ -398,7 +398,9 @@ strings.MinRunes(1) &
 // s3 Retrieval configuration for Retrieval node
 #RetrievalFlowNodeS3Configuration: close({
 	// bucket name of an s3 that will be used for Retrieval flow node configuration
-	BucketName!: =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 })
 
 // Retrieval service configuration for Retrieval node
@@ -410,7 +412,9 @@ strings.MinRunes(1) &
 // s3 storage configuration for storage node
 #StorageFlowNodeS3Configuration: close({
 	// bucket name of an s3 that will be used for storage flow node configuration
-	BucketName!: =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 })
 
 // storage service configuration for storage node

@@ -14,36 +14,70 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::CleanRoomsML::ConfiguredModelAlgorithmAssociation Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRoomsML::ConfiguredModelAlgorithmAssociation"
-	Properties!: close({
+	let properties = close({
 		ConfiguredModelAlgorithmArn!: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[-a-z]*:cleanrooms-ml:[-a-z0-9]+:[0-9]{12}:configured-model-algorithm/[-a-zA-Z0-9_/.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[-a-z]*:cleanrooms-ml:[-a-z0-9]+:[0-9]{12}:configured-model-algorithm/[-a-zA-Z0-9_/.]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Description?: strings.MaxRunes(255) &
 		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		MembershipIdentifier!: strings.MaxRunes(36) &
 		strings.MinRunes(36) &
 		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:                 strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		PrivacyConfiguration?: #PrivacyConfiguration
 		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CustomEntityConfig: close({
-	CustomDataIdentifiers!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(200) &
+	CustomDataIdentifiers!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(200) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9\\_\\#\\=\\@\\/\\;\\,\\-\\ \\^\\$\\?\\[\\]\\{\\}\\|\\\\\\*\\+\\.\\(\\)]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) &
 		strings.MinRunes(1) &
-		=~"^[a-zA-Z0-9\\_\\#\\=\\@\\/\\;\\,\\-\\ \\^\\$\\?\\[\\]\\{\\}\\|\\\\\\*\\+\\.\\(\\)]+$" |
-		fn.#StringExpression
-	] |
+		=~"^[a-zA-Z0-9\\_\\#\\=\\@\\/\\;\\,\\-\\ \\^\\$\\?\\[\\]\\{\\}\\|\\\\\\*\\+\\.\\(\\)]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -59,9 +93,19 @@ fn.#ObjectExpression
 #LogType: "ALL" | "ERROR_SUMMARY" | fn.#StringExpression
 
 #LogsConfigurationPolicy: close({
-	AllowedAccountIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] |
-		fn.#ListExpression
-	FilterPattern?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	AllowedAccountIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	FilterPattern?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	LogRedactionConfiguration?: #LogRedactionConfiguration
 	LogType?:                   #LogType
 }) |
@@ -81,8 +125,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

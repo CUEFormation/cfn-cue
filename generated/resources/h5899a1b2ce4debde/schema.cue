@@ -10,19 +10,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::LogicallyAirGappedBackupVault
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Backup::LogicallyAirGappedBackupVault"
-	Properties!: close({
-		AccessPolicy?:    fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		AccessPolicy?:    fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		BackupVaultName!: #BackupVaultNamePattern
 		BackupVaultTags?: close({
 
-			{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.{1,128}$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
-		EncryptionKeyArn?: string | fn.#StringExpression
+		EncryptionKeyArn?: string | number | bool | fn.#StringExpression
 		MaxRetentionDays!: int |
 			{
 				string &
@@ -55,16 +62,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MpaApprovalTeamArn?: string | fn.#StringExpression
+		MpaApprovalTeamArn?: string | number | bool | fn.#StringExpression
 		Notifications?:      #NotificationObjectType
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#BackupVaultNamePattern: =~"^[a-zA-Z0-9\\-\\_]{2,50}$" | fn.#StringExpression
+#BackupVaultNamePattern: =~"^[a-zA-Z0-9\\-\\_]{2,50}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9\\-\\_]{2,50}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #NotificationObjectType: close({
-	BackupVaultEvents!: [...string | fn.#StringExpression] | fn.#ListExpression
-	SNSTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	BackupVaultEvents!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SNSTopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -15,7 +15,7 @@ import "strings"
 	InternetGatewayExclusionMode!: "allow-bidirectional" | "allow-egress"
 
 	// The ID of the subnet. Required only if you don't specify VpcId
-	SubnetId?: string
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: [...#Tag]

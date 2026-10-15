@@ -9,16 +9,30 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::LookoutVision::Project type creates an Amazon Lookout for Vision
 // project. A project is a grouping of the resources needed to create and
 // manage a Lookout for Vision model.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LookoutVision::Project"
-	Properties!: close({ProjectName!: #ProjectName})
+	Type!: "AWS::LookoutVision::Project"
+	let properties = close({ProjectName!: #ProjectName})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(1000) | fn.#StringExpression
+#Arn: strings.MaxRunes(1000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & "\(self)"
+} |
+fn.#StringExpression
 
-#ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" | fn.#StringExpression
+#ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" & "\(self)"
+} |
+fn.#StringExpression

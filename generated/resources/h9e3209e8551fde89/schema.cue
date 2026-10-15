@@ -13,12 +13,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::FIS::ExperimentTemplate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FIS::ExperimentTemplate"
-	Properties!: close({
+	let properties = close({
 		Actions?:                       #ExperimentTemplateActionMap
 		Description!:                   #ExperimentTemplateDescription
 		ExperimentOptions?:             #ExperimentTemplateExperimentOptions
@@ -28,17 +30,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		StopConditions!:                #ExperimentTemplateStopConditionList
 		Tags?: close({
 
-			{[=~".{1,128}"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+			{
+				[=~".{1,128}"]: strings.MaxRunes(256) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		Targets!: #ExperimentTemplateTargetMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ActionId: strings.MaxRunes(64) | fn.#StringExpression
+#ActionId: strings.MaxRunes(64) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & "\(self)"
+} |
+fn.#StringExpression
 
-#CloudWatchDashboard: close(
-	{DashboardIdentifier!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression},
-) |
+#CloudWatchDashboard: close({
+	DashboardIdentifier!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ExperimentTemplateAction: close({
@@ -46,32 +72,72 @@ fn.#ObjectExpression
 	Description?: #ExperimentTemplateActionItemDescription
 	Parameters?: close({
 
-		{[=~".{1,64}"]: #ExperimentTemplateActionItemParameter}}) |
+		{[=~".{1,64}"]: #ExperimentTemplateActionItemParameter}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	StartAfter?: #ExperimentTemplateActionItemStartAfterList
 	Targets?: close({
 
-		{[=~".{1,64}"]: #ExperimentTemplateActionItemTarget}}) |
+		{[=~".{1,64}"]: #ExperimentTemplateActionItemTarget}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExperimentTemplateActionItemDescription: strings.MaxRunes(512) | fn.#StringExpression
+#ExperimentTemplateActionItemDescription: strings.MaxRunes(512) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & "\(self)"
+} |
+fn.#StringExpression
 
-#ExperimentTemplateActionItemParameter: strings.MaxRunes(1024) | fn.#StringExpression
+#ExperimentTemplateActionItemParameter: strings.MaxRunes(1024) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & "\(self)"
+} |
+fn.#StringExpression
 
-#ExperimentTemplateActionItemStartAfter: strings.MaxRunes(64) | fn.#StringExpression
+#ExperimentTemplateActionItemStartAfter: strings.MaxRunes(64) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & "\(self)"
+} |
+fn.#StringExpression
 
 #ExperimentTemplateActionItemStartAfterList: [...#ExperimentTemplateActionItemStartAfter] | fn.#ListExpression
 
-#ExperimentTemplateActionItemTarget: strings.MaxRunes(64) | fn.#StringExpression
+#ExperimentTemplateActionItemTarget: strings.MaxRunes(64) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & "\(self)"
+} |
+fn.#StringExpression
 
 #ExperimentTemplateActionMap: close({
 
-	{[=~"[\\S]{1,64}"]: #ExperimentTemplateAction}}) |
+	{[=~"[\\S]{1,64}"]: #ExperimentTemplateAction}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
-#ExperimentTemplateDescription: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\s\\S]+$" | fn.#StringExpression
+#ExperimentTemplateDescription: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\s\\S]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\s\\S]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ExperimentTemplateExperimentOptions: close({
 	AccountTargeting?:          "multi-account" | "single-account" | fn.#StringExpression
@@ -83,23 +149,55 @@ fn.#ObjectExpression
 	DataSources?: close({CloudWatchDashboards?: [...#CloudWatchDashboard] | fn.#ListExpression}) | fn.#ObjectExpression
 	Outputs!: close({
 		ExperimentReportS3Configuration!: close({
-			BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-			Prefix?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+			BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) |
+			{
+				number | bool
+				_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+				=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+				strings.MaxRunes(63) &
+				strings.MinRunes(3) &
+				"\(self)"
+			} |
+			fn.#StringExpression
+			Prefix?: strings.MaxRunes(256) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	PostExperimentDuration?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
-	PreExperimentDuration?:  strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
+	PostExperimentDuration?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PreExperimentDuration?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ExperimentTemplateId: string | fn.#StringExpression
+#ExperimentTemplateId: string | number | bool | fn.#StringExpression
 
 #ExperimentTemplateLogConfiguration: close({
-	CloudWatchLogsConfiguration?: close(
-		{LogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\S]+$" | fn.#StringExpression},
-	) |
+	CloudWatchLogsConfiguration?: close({
+		LogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\S]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\S]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}) |
 	fn.#ObjectExpression
 	LogSchemaVersion!: int & >=1 |
 		{
@@ -117,8 +215,27 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	S3Configuration?: close({
-		BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[\\S]+$" | fn.#StringExpression
-		Prefix?:     strings.MaxRunes(700) & strings.MinRunes(1) & =~"^[\\s\\S]+$" | fn.#StringExpression
+		BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^[\\S]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			=~"^[\\S]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Prefix?: strings.MaxRunes(700) & strings.MinRunes(1) & =~"^[\\s\\S]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(700) & strings.MinRunes(1) & =~"^[\\s\\S]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
@@ -136,12 +253,36 @@ fn.#ObjectExpression
 	Filters?: #ExperimentTemplateTargetFilterList
 	Parameters?: close({
 
-		{[=~".{1,64}"]: strings.MaxRunes(1024) | fn.#StringExpression}}) |
+		{
+			[=~".{1,64}"]: strings.MaxRunes(1024) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	ResourceArns?: #ResourceArnList
 	ResourceTags?: close({
 
-		{[=~".{1,128}"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+		{
+			[=~".{1,128}"]: strings.MaxRunes(256) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	ResourceType!:  #ResourceType
 	SelectionMode!: #ExperimentTemplateTargetSelectionMode
@@ -156,31 +297,79 @@ fn.#ObjectExpression
 
 #ExperimentTemplateTargetFilterList: [...#ExperimentTemplateTargetFilter] | fn.#ListExpression
 
-#ExperimentTemplateTargetFilterPath: strings.MaxRunes(256) | fn.#StringExpression
+#ExperimentTemplateTargetFilterPath: strings.MaxRunes(256) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & "\(self)"
+} |
+fn.#StringExpression
 
-#ExperimentTemplateTargetFilterValue: strings.MaxRunes(128) | fn.#StringExpression
+#ExperimentTemplateTargetFilterValue: strings.MaxRunes(128) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & "\(self)"
+} |
+fn.#StringExpression
 
 #ExperimentTemplateTargetFilterValues: [...#ExperimentTemplateTargetFilterValue] | fn.#ListExpression
 
 #ExperimentTemplateTargetMap: close({
 
-	{[=~".{1,64}"]: #ExperimentTemplateTarget}}) |
+	{[=~".{1,64}"]: #ExperimentTemplateTarget}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
-#ExperimentTemplateTargetSelectionMode: strings.MaxRunes(64) | fn.#StringExpression
+#ExperimentTemplateTargetSelectionMode: strings.MaxRunes(64) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & "\(self)"
+} |
+fn.#StringExpression
 
-#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+} |
+fn.#StringExpression
 
 #ResourceArnList: [...#ResourceArn] | fn.#ListExpression
 
-#ResourceType: strings.MaxRunes(64) | fn.#StringExpression
+#ResourceType: strings.MaxRunes(64) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & "\(self)"
+} |
+fn.#StringExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(1224) &
 strings.MinRunes(20) &
 =~"^[\\S]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1224) &
+	strings.MinRunes(20) &
+	=~"^[\\S]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#StopConditionSource: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
+#StopConditionSource: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#StopConditionValue: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\s\\S]+$" | fn.#StringExpression
+#StopConditionValue: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\s\\S]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\s\\S]+$" & "\(self)"
+} |
+fn.#StringExpression

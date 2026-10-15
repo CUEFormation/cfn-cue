@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::SNS::TopicPolicy`` resource associates SNS topics with a policy.
@@ -14,8 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SNS::TopicPolicy"
-	Properties!: close({
-		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
-		Topics!:         [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		PolicyDocument!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Topics!:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

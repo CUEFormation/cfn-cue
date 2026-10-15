@@ -9,13 +9,20 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::DataTableRecord
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::DataTableRecord"
-	Properties!: close({
-		DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DataTableRecord!: close({
 			PrimaryValues?: [...#Value] | fn.#ListExpression
 			Values!:        [...#Value] | fn.#ListExpression
@@ -24,14 +31,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		InstanceArn!: strings.MaxRunes(100) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AttributeId: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#AttributeId: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Value: close({
 	AttributeId?:    #AttributeId
-	AttributeValue?: string | fn.#StringExpression
+	AttributeValue?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

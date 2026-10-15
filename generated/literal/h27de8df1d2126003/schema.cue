@@ -28,6 +28,9 @@ import (
 	]
 	Status?:        "available" | "creating" | "updating" | "deleting" | "deleted" | "error"
 	StatusMessage?: string
-	SubnetId!:      strings.MaxRunes(47) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,40}$"
-	VpcId?:         =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(47) &
+	strings.MinRunes(15) &
+	=~"^subnet-[0-9a-f]{8,40}$"
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

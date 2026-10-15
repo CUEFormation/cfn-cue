@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::SecurityHub::AggregatorV2 resource represents the AWS Security Hub
@@ -17,13 +19,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // account in non opt-in region in which you configure region linking mode.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::AggregatorV2"
-	Properties!: close({
+	let properties = close({
 		LinkedRegions!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
 		RegionLinkingMode!: "SPECIFIED_REGIONS" | fn.#StringExpression
 		Tags?:              #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Region: =~"^[a-zA-Z0-9-]{1,32}$" | fn.#StringExpression
+#Region: =~"^[a-zA-Z0-9-]{1,32}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9-]{1,32}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tags: struct.MaxFields(50) & {...} | fn.#ObjectExpression

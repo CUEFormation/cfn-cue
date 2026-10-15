@@ -14,15 +14,27 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::FirewallRuleGroupAssociation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53Resolver::FirewallRuleGroupAssociation"
-	Properties!: close({
-		FirewallRuleGroupId!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		MutationProtection?:  "ENABLED" | "DISABLED" | fn.#StringExpression
-		Name?:                strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		FirewallRuleGroupId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		MutationProtection?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		Priority!: int |
 			{
 				string &
@@ -40,13 +52,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

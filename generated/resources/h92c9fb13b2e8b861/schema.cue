@@ -6,13 +6,27 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::MeteredProduct
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::MeteredProduct"
-	Properties?: close({
-		LicenseEndpointId?: =~"^le-[0-9a-f]{32}$" | fn.#StringExpression
-		ProductId?:         =~"^[0-9a-z]{1,32}-[.0-9a-z]{1,32}$" | fn.#StringExpression
+	let properties = close({
+		LicenseEndpointId?: =~"^le-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^le-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProductId?: =~"^[0-9a-z]{1,32}-[.0-9a-z]{1,32}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9a-z]{1,32}-[.0-9a-z]{1,32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -2,7 +2,10 @@
 
 package schema
 
-import "strings"
+import (
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+)
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -19,7 +22,7 @@ import "strings"
 
 	// The IPv6 network range for the subnet, in CIDR notation. The subnet size must
 	// use a /64 prefix length
-	Ipv6CidrBlock?: strings.MaxRunes(42)
+	Ipv6CidrBlock?: fn.#IPv6Network & string & strings.MaxRunes(42)
 
 	// The ID of an IPv6 Amazon VPC IP Address Manager (IPAM) pool from which to
 	// allocate, to get the subnet's CIDR
@@ -29,5 +32,5 @@ import "strings"
 	Ipv6NetmaskLength?: int & <=128 & >=0
 
 	// The ID of the subnet
-	SubnetId!: string
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

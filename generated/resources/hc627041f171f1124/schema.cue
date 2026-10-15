@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::RDS::DBSubnetGroup`` resource creates a database subnet group.
@@ -20,16 +22,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon RDS User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::DBSubnetGroup"
-	Properties!: close({
-		DBSubnetGroupDescription!: string | fn.#StringExpression
-		DBSubnetGroupName?:        string | fn.#StringExpression
-		SubnetIds!:                [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		DBSubnetGroupDescription!: string | number | bool | fn.#StringExpression
+		DBSubnetGroupName?:        string | number | bool | fn.#StringExpression
+		SubnetIds!:                [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

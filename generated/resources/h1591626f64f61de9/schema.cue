@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DevOpsAgent::Asset. An asset attached to an
@@ -18,20 +20,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // set.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DevOpsAgent::Asset"
-	Properties!: close({
-		AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		AssetType!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" | fn.#StringExpression
-		Files?:        list.MinItems(1) & [...#AssetFile] | fn.#ListExpression
-		Metadata?:     fn.#Object & {...} | fn.#ObjectExpression
-		Zip?:          strings.MaxRunes(8388608) | fn.#StringExpression
+	let properties = close({
+		AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		AssetType!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Files?:    list.MinItems(1) & [...#AssetFile] | fn.#ListExpression
+		Metadata?: fn.#Object & {...} | fn.#ObjectExpression
+		Zip?: strings.MaxRunes(8388608) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8388608) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AssetFile: close({
-	ContentBytes?: strings.MaxRunes(8388608) | fn.#StringExpression
-	ContentText?:  strings.MaxRunes(1572864) | fn.#StringExpression
-	Metadata?:     fn.#Object & {...} | fn.#ObjectExpression
-	Path!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./-]+$" | fn.#StringExpression
+	ContentBytes?: strings.MaxRunes(8388608) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8388608) & "\(self)"
+	} |
+	fn.#StringExpression
+	ContentText?: strings.MaxRunes(1572864) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1572864) & "\(self)"
+	} |
+	fn.#StringExpression
+	Metadata?: fn.#Object & {...} | fn.#ObjectExpression
+	Path!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	if ContentText != _|_ if ContentText."Fn::If" == _|_ {
 		ContentBytes?: close({"Fn::If": _}) | error(
 			"ContentBytes cannot be used with ContentText; set exactly one of ContentText, ContentBytes",

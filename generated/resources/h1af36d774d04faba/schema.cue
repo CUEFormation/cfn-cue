@@ -10,26 +10,30 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::IPAMPrefixListResolver
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::IPAMPrefixListResolver"
-	Properties!: close({
+	let properties = close({
 		AddressFamily!: "ipv4" | "ipv6" | fn.#StringExpression
-		Description?:   string | fn.#StringExpression
-		IpamId?:        string | fn.#StringExpression
+		Description?:   string | number | bool | fn.#StringExpression
+		IpamId?:        string | number | bool | fn.#StringExpression
 		Rules?:         [...#IpamPrefixListResolverRule] | fn.#ListExpression
 		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IpamPrefixListResolverRule: close({
 	Conditions?:   [...#IpamPrefixListResolverRuleCondition] | fn.#ListExpression
-	IpamScopeId?:  string | fn.#StringExpression
+	IpamScopeId?:  string | number | bool | fn.#StringExpression
 	ResourceType?: "vpc" | "subnet" | "eip" | "public-ipv4-pool" | fn.#StringExpression
 	RuleType!:     "static-cidr" | "ipam-resource-cidr" | "ipam-pool-cidr" | fn.#StringExpression
-	StaticCidr?:   string | fn.#StringExpression
+	StaticCidr?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -58,12 +62,17 @@ fn.#ObjectExpression
 	ResourceTag!: _
 	...
 }]) & close({
-	Cidr?:           string | fn.#StringExpression
-	IpamPoolId?:     string | fn.#StringExpression
+	Cidr?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	IpamPoolId?:     string | number | bool | fn.#StringExpression
 	Operation?:      "equals" | "not-equals" | "subnet-of" | fn.#StringExpression
-	ResourceId?:     string | fn.#StringExpression
-	ResourceOwner?:  string | fn.#StringExpression
-	ResourceRegion?: string | fn.#StringExpression
+	ResourceId?:     string | number | bool | fn.#StringExpression
+	ResourceOwner?:  string | number | bool | fn.#StringExpression
+	ResourceRegion?: string | number | bool | fn.#StringExpression
 
 	// Condition for the IPAM Resource CIDR rule type. Resource Tag (like dev-vpc-1).
 	ResourceTag?: #Tag
@@ -71,7 +80,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

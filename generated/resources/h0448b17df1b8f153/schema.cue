@@ -9,49 +9,115 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::SignalMap Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::SignalMap"
-	Properties!: close({
-		CloudWatchAlarmTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
-		Description?:                             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		DiscoveryEntryPointArn!:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		CloudWatchAlarmTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DiscoveryEntryPointArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		ForceRediscovery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name!:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-		Tags?:             #TagMap
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #TagMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FailedMediaResourceMap: close({
 
-	{[=~".+"]: #MediaResource}}) |
+	{[=~".+"]: #MediaResource}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #MediaResource: close({
 	Destinations?: [...#MediaResourceNeighbor] | fn.#ListExpression
-	Name?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Sources?:      [...#MediaResourceNeighbor] | fn.#ListExpression
+	Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Sources?: [...#MediaResourceNeighbor] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #MediaResourceMap: close({
 
-	{[=~".+"]: #MediaResource}}) |
+	{[=~".+"]: #MediaResource}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #MediaResourceNeighbor: close({
-	Arn!:  strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn.+$" | fn.#StringExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Arn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MonitorDeployment: close({
-	DetailsUri?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	ErrorMessage?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:       #SignalMapMonitorDeploymentStatus
+	DetailsUri?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ErrorMessage?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Status!: #SignalMapMonitorDeploymentStatus
 }) |
 fn.#ObjectExpression
 
@@ -79,14 +145,24 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #SuccessfulMonitorDeployment: close({
-	DetailsUri!: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:     #SignalMapMonitorDeploymentStatus
+	DetailsUri!: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Status!: #SignalMapMonitorDeploymentStatus
 }) |
 fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression

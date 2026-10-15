@@ -1,0 +1,9 @@
+Parameters:
+  Acl:
+    Type: String
+Resources:
+  Thing:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl:
+        Ref: Acl

@@ -10,22 +10,43 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::DLPSetting Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::DLPSetting"
-	Properties!: close({
-		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		DlpSettingId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-		Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	let properties = close({
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DlpSettingId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- &]*[A-Za-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^[A-Za-z0-9](?:[\\w- &]*[A-Za-z0-9])?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ProviderConfig!:       #ProviderConfig
 		ProviderOutageAction!: #DlpAction
 		ProviderType!:         #DlpProviderType
 		Tags?:                 list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DlpAction: "ALLOW" | "WARN" | "BLOCK" | fn.#StringExpression
@@ -35,16 +56,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #DlpSettingStatus: "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
 #LabelActionMapping: close({
-	Action!:    #DlpAction
-	LabelId!:   strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	LabelName!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Action!: #DlpAction
+	LabelId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LabelName!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#MicrosoftPurviewCredentials: close(
-	{SecretArn!: =~"^arn:aws(-[\\w]+)*:secretsmanager:[a-z0-9\\-]+:\\d{12}:secret:.+$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#MicrosoftPurviewCredentials: close({
+	SecretArn!: =~"^arn:aws(-[\\w]+)*:secretsmanager:[a-z0-9\\-]+:\\d{12}:secret:.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(-[\\w]+)*:secretsmanager:[a-z0-9\\-]+:\\d{12}:secret:.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #MicrosoftPurviewProviderConfig: close({
 	Credentials!:         #MicrosoftPurviewCredentials
@@ -56,7 +92,17 @@ fn.#ObjectExpression
 #ProviderConfig: close({MicrosoftPurview!: #MicrosoftPurviewProviderConfig}) | fn.#ValueExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

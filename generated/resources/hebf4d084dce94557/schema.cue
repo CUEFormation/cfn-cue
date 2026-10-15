@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::AutoScaling::LaunchConfiguration resource specifies the launch
@@ -21,39 +23,132 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // EC2 instances.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AutoScaling::LaunchConfiguration"
-	Properties!: close({
+	let properties = close({
 		AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		BlockDeviceMappings?:      list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
-		ClassicLinkVPCId?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		ClassicLinkVPCSecurityGroups?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
-		fn.#ListExpression
-		EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		IamInstanceProfile?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-		ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		ClassicLinkVPCId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		InstanceId?:              strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceMonitoring?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		InstanceType!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		KernelId?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		KeyName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ClassicLinkVPCSecurityGroups?: [...strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		EbsOptimized?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IamInstanceProfile?: strings.MaxRunes(1600) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ImageId!: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		InstanceId?: strings.MaxRunes(19) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(19) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceMonitoring?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstanceType!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KernelId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KeyName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The metadata options for the instances.
-		MetadataOptions?:  #MetadataOptions
-		PlacementTenancy?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		RamDiskId?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		SecurityGroups?: [...] & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				string |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SpotPrice?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		UserData?:  strings.MaxRunes(21847) & strings.MinRunes(0) | fn.#StringExpression
+		MetadataOptions?: #MetadataOptions
+		PlacementTenancy?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RamDiskId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		SecurityGroups?: [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		=~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SpotPrice?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		UserData?: strings.MaxRunes(21847) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(21847) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#BlockDevice: close({
+#BlockDevice: matchIf({
+	VolumeType!: "io1"
+	...
+}, {
+	Iops!: null | bool | <=64000 & >=100 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	VolumeType!: "io2"
+	...
+}, {
+	Iops!: null | bool | <=256000 & >=100 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	VolumeType!: "gp3"
+	...
+}, {
+	Iops?: null | bool | <=16000 & >=3000 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int & <=20000 & >=100 |
@@ -72,7 +167,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	SnapshotId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	SnapshotId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Throughput?: int & <=1000 & >=125 |
 		{
 			string &
@@ -105,17 +205,68 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	VolumeType?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#BlockDeviceMapping: close({
-	DeviceName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#BlockDeviceMapping: matchIf({
+	Ebs?:         error("disallowed")
+	VirtualName!: _
+	...
+}, {
+	VirtualName?: null |
+	bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	=~"^ephemeral([0-9]|[1][0-9]|[2][0-3])$" |
+	[...] |
+	{...} |
+	fn.#ValueExpression
+	...
+}, _) & (close({
+	DeviceName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Parameters used to automatically set up EBS volumes when an instance is launched.
-	Ebs?:         #BlockDevice
-	NoDevice?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Ebs?:      #BlockDevice
+	NoDevice?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
 		Ebs?: close({"Fn::If": _}) | error(
 			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
@@ -129,7 +280,7 @@ fn.#ObjectExpression
 			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
 		)
 	}
-}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])) |
 fn.#ObjectExpression
 
 #MetadataOptions: close({

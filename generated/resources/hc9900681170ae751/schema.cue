@@ -6,15 +6,19 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::StackUserAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::StackUserAssociation"
-	Properties!: close({
-		AuthenticationType!:    string | fn.#StringExpression
+	let properties = close({
+		AuthenticationType!:    string | number | bool | fn.#StringExpression
 		SendEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		StackName!:             string | fn.#StringExpression
-		UserName!:              string | fn.#StringExpression
+		StackName!:             string | number | bool | fn.#StringExpression
+		UserName!:              string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

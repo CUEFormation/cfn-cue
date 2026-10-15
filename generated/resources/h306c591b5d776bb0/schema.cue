@@ -14,15 +14,19 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SpotFleet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::SpotFleet"
-	Properties!: close({
+	let properties = close({
 		SpotFleetRequestConfigData!: #SpotFleetRequestConfigData
 		Tags?:                       [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AcceleratorCountRequest: close({
@@ -123,11 +127,47 @@ fn.#ObjectExpression
 
 #BaselinePerformanceFactorsRequest: close({Cpu?: #CpuPerformanceFactorRequest}) | fn.#ObjectExpression
 
-#BlockDeviceMapping: close({
-	DeviceName!:  string | fn.#StringExpression
+#BlockDeviceMapping: matchIf({
+	Ebs?:         error("disallowed")
+	VirtualName!: _
+	...
+}, {
+	VirtualName?: null |
+	bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	=~"^ephemeral([0-9]|[1][0-9]|[2][0-3])$" |
+	[...] |
+	{...} |
+	fn.#ValueExpression
+	...
+}, _) & (close({
+	DeviceName!:  string | number | bool | fn.#StringExpression
 	Ebs?:         #EbsBlockDevice
-	NoDevice?:    string | fn.#StringExpression
-	VirtualName?: string | fn.#StringExpression
+	NoDevice?:    string | number | bool | fn.#StringExpression
+	VirtualName?: string | number | bool | fn.#StringExpression
 	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
 		Ebs?: close({"Fn::If": _}) | error(
 			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
@@ -141,10 +181,10 @@ fn.#ObjectExpression
 			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
 		)
 	}
-}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])) |
 fn.#ObjectExpression
 
-#ClassicLoadBalancer: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ClassicLoadBalancer: close({Name!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ClassicLoadBalancersConfig: close(
 	{ClassicLoadBalancers!: list.UniqueItems() & [...#ClassicLoadBalancer] | fn.#ListExpression},
@@ -154,7 +194,25 @@ fn.#ObjectExpression
 #CpuPerformanceFactorRequest: close({References?: [...#PerformanceFactorReferenceRequest] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-#EbsBlockDevice: close({
+#EbsBlockDevice: matchIf({
+	VolumeType!: "io1"
+	...
+}, {
+	Iops!: null | bool | <=64000 & >=100 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	VolumeType!: "io2"
+	...
+}, {
+	Iops!: null | bool | <=256000 & >=100 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	VolumeType!: "gp3"
+	...
+}, {
+	Iops?: null | bool | <=16000 & >=3000 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int |
@@ -171,7 +229,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SnapshotId?: string | fn.#StringExpression
+	SnapshotId?: string | number | bool | fn.#StringExpression
 	VolumeSize?: int |
 		{
 			string &
@@ -186,28 +244,32 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType?: string | fn.#StringExpression
+	VolumeType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FleetLaunchTemplateSpecification: close({
-	LaunchTemplateId?: string | fn.#StringExpression
+	LaunchTemplateId?: string | number | bool | fn.#StringExpression
 	LaunchTemplateName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"[a-zA-Z0-9\\(\\)\\.\\-/_]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"[a-zA-Z0-9\\(\\)\\.\\-/_]+" & "\(self)"
+	} |
 	fn.#StringExpression
-	Version!: string | fn.#StringExpression
+	Version!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#GroupIdentifier: {...} & close({GroupId!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#GroupIdentifier: {...} & close({GroupId!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#IamInstanceProfileSpecification: close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#IamInstanceProfileSpecification: close({Arn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#InstanceIpv6Address: close({Ipv6Address!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#InstanceIpv6Address: close({Ipv6Address!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #InstanceNetworkInterfaceSpecification: close({
 	AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeleteOnTermination?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:              string | fn.#StringExpression
+	Description?:              string | number | bool | fn.#StringExpression
 	DeviceIndex?: int |
 		{
 			string &
@@ -222,7 +284,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Groups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Groups?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Ipv6AddressCount?: int |
 		{
 			string &
@@ -238,7 +300,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Ipv6Addresses?:      list.UniqueItems() & [...#InstanceIpv6Address] | fn.#ListExpression
-	NetworkInterfaceId?: string | fn.#StringExpression
+	NetworkInterfaceId?: string | number | bool | fn.#StringExpression
 	PrivateIpAddresses?: list.UniqueItems() & [...#PrivateIpAddressSpecification] | fn.#ListExpression
 	SecondaryPrivateIpAddressCount?: int |
 		{
@@ -254,7 +316,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SubnetId?: string | fn.#StringExpression
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -289,9 +356,12 @@ fn.#ObjectExpression
 		fn.#ListExpression
 	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest
 	AcceleratorTypes?:          [..."gpu" | "fpga" | "inference" | "media" | fn.#StringExpression] | fn.#ListExpression
-	AllowedInstanceTypes?: [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" | fn.#StringExpression
-	] |
+	AllowedInstanceTypes?: [...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	BareMetal?:                  "included" | "required" | "excluded" | fn.#StringExpression
 	BaselineEbsBandwidthMbps?:   #BaselineEbsBandwidthMbpsRequest
@@ -299,9 +369,12 @@ fn.#ObjectExpression
 	BurstablePerformance?:       "included" | "required" | "excluded" | fn.#StringExpression
 	CpuManufacturers?: [..."intel" | "amd" | "amazon-web-services" | "apple" | fn.#StringExpression] |
 		fn.#ListExpression
-	ExcludedInstanceTypes?: [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" | fn.#StringExpression
-	] |
+	ExcludedInstanceTypes?: [...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	InstanceGenerations?: [..."current" | "previous" | fn.#StringExpression] | fn.#ListExpression
 	LocalStorage?:        "included" | "required" | "excluded" | fn.#StringExpression
@@ -366,10 +439,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LaunchTemplateOverrides: close({
-	AvailabilityZone?:     string | fn.#StringExpression
-	AvailabilityZoneId?:   string | fn.#StringExpression
+	AvailabilityZone?:     string | number | bool | fn.#StringExpression
+	AvailabilityZoneId?:   string | number | bool | fn.#StringExpression
 	InstanceRequirements?: #InstanceRequirementsRequest
-	InstanceType?:         string | fn.#StringExpression
+	InstanceType?:         string | number | bool | fn.#StringExpression
 	Priority?: number |
 		{
 			string &
@@ -389,8 +462,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SpotPrice?: string | fn.#StringExpression
-	SubnetId?:  string | fn.#StringExpression
+	SpotPrice?: string | number | bool | fn.#StringExpression
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	WeightedCapacity?: number |
 		{
 			string &
@@ -567,11 +645,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PerformanceFactorReferenceRequest: close({InstanceFamily?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PerformanceFactorReferenceRequest: close({InstanceFamily?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #PrivateIpAddressSpecification: close({
 	Primary?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PrivateIpAddress!: string | fn.#StringExpression
+	PrivateIpAddress!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -598,21 +677,30 @@ fn.#ObjectExpression
 	BlockDeviceMappings?: list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
 	EbsOptimized?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IamInstanceProfile?:  #IamInstanceProfileSpecification
-	ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ImageId!: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	InstanceRequirements?: #InstanceRequirementsRequest
-	InstanceType?:         string | fn.#StringExpression
-	KernelId?:             string | fn.#StringExpression
-	KeyName?:              string | fn.#StringExpression
+	InstanceType?:         string | number | bool | fn.#StringExpression
+	KernelId?:             string | number | bool | fn.#StringExpression
+	KeyName?:              string | number | bool | fn.#StringExpression
 	Monitoring?:           #SpotFleetMonitoring
 	NetworkInterfaces?:    list.UniqueItems() & [...#InstanceNetworkInterfaceSpecification] | fn.#ListExpression
 	Placement?:            #SpotPlacement
-	RamdiskId?:            string | fn.#StringExpression
+	RamdiskId?:            string | number | bool | fn.#StringExpression
 	SecurityGroups?:       list.UniqueItems() & [...#GroupIdentifier] | fn.#ListExpression
-	SpotPrice?:            string | fn.#StringExpression
-	SubnetId?:             string | fn.#StringExpression
-	TagSpecifications?:    list.UniqueItems() & [...#SpotFleetTagSpecification] | fn.#ListExpression
-	UserData?:             string | fn.#StringExpression
+	SpotPrice?:            string | number | bool | fn.#StringExpression
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TagSpecifications?: list.UniqueItems() & [...#SpotFleetTagSpecification] | fn.#ListExpression
+	UserData?:          string | number | bool | fn.#StringExpression
 	WeightedCapacity?: number |
 		{
 			string &
@@ -647,9 +735,9 @@ fn.#ObjectExpression
 		"lowestPrice" |
 		"priceCapacityOptimized" |
 		fn.#StringExpression
-	Context?:                         string | fn.#StringExpression
+	Context?:                         string | number | bool | fn.#StringExpression
 	ExcessCapacityTerminationPolicy?: "Default" | "NoTermination" | "default" | "noTermination" | fn.#StringExpression
-	IamFleetRole!:                    string | fn.#StringExpression
+	IamFleetRole!:                    string | number | bool | fn.#StringExpression
 	InstanceInterruptionBehavior?:    "hibernate" | "stop" | "terminate" | fn.#StringExpression
 	InstancePoolsToUseCount?: int |
 		{
@@ -668,8 +756,8 @@ fn.#ObjectExpression
 	LaunchSpecifications?:       list.UniqueItems() & [...#SpotFleetLaunchSpecification] | fn.#ListExpression
 	LaunchTemplateConfigs?:      list.UniqueItems() & [...#LaunchTemplateConfig] | fn.#ListExpression
 	LoadBalancersConfig?:        #LoadBalancersConfig
-	OnDemandAllocationStrategy?: string | fn.#StringExpression
-	OnDemandMaxTotalPrice?:      string | fn.#StringExpression
+	OnDemandAllocationStrategy?: string | number | bool | fn.#StringExpression
+	OnDemandMaxTotalPrice?:      string | number | bool | fn.#StringExpression
 	OnDemandTargetCapacity?: int |
 		{
 			string &
@@ -686,8 +774,8 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	ReplaceUnhealthyInstances?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SpotMaintenanceStrategies?: #SpotMaintenanceStrategies
-	SpotMaxTotalPrice?:         string | fn.#StringExpression
-	SpotPrice?:                 string | fn.#StringExpression
+	SpotMaxTotalPrice?:         string | number | bool | fn.#StringExpression
+	SpotPrice?:                 string | number | bool | fn.#StringExpression
 	TagSpecifications?:         list.UniqueItems() & [...#SpotFleetTagSpecification] | fn.#ListExpression
 	TargetCapacity!: int |
 		{
@@ -713,8 +801,8 @@ fn.#ObjectExpression
 		"FALSE" |
 		fn.#BooleanExpression
 	Type?:       "maintain" | "request" | fn.#StringExpression
-	ValidFrom?:  string | fn.#StringExpression
-	ValidUntil?: string | fn.#StringExpression
+	ValidFrom?:  string | number | bool | fn.#StringExpression
+	ValidUntil?: string | number | bool | fn.#StringExpression
 	if LaunchSpecifications != _|_ if LaunchSpecifications."Fn::If" == _|_ {
 		LaunchTemplateConfigs?: close({"Fn::If": _}) | error(
 			"LaunchTemplateConfigs cannot be used with LaunchSpecifications; set exactly one of LaunchSpecifications, LaunchTemplateConfigs",
@@ -779,20 +867,20 @@ fn.#ObjectExpression
 #SpotMaintenanceStrategies: close({CapacityRebalance?: #SpotCapacityRebalance}) | fn.#ObjectExpression
 
 #SpotPlacement: close({
-	AvailabilityZone?:   string | fn.#StringExpression
-	AvailabilityZoneId?: string | fn.#StringExpression
-	GroupName?:          string | fn.#StringExpression
+	AvailabilityZone?:   string | number | bool | fn.#StringExpression
+	AvailabilityZoneId?: string | number | bool | fn.#StringExpression
+	GroupName?:          string | number | bool | fn.#StringExpression
 	Tenancy?:            "dedicated" | "default" | "host" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TargetGroup: close({Arn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#TargetGroup: close({Arn!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TargetGroupsConfig: close({TargetGroups!: list.UniqueItems() & [...#TargetGroup] | fn.#ListExpression}) |
 	fn.#ObjectExpression

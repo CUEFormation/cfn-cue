@@ -10,32 +10,63 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EventsV2::EventSource. A managed event source that
 // forwards AWS service events or partner events onto a custom event bus.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EventsV2::EventSource"
-	Properties!: close({
+	let properties = close({
 		// The event source configuration. Specify exactly one of
 		// AwsServiceEventsConfiguration or PartnerEventsConfiguration.
 		Configuration!: #EventSourceConfiguration
-		Description?:   strings.MaxRunes(512) | fn.#StringExpression
+		Description?: strings.MaxRunes(512) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & "\(self)"
+		} |
+		fn.#StringExpression
 		EventBusArn!: strings.MaxRunes(1011) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AwsServiceEventsConfiguration: close({
-	AwsService!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.[a-z0-9\\-]+$" | fn.#StringExpression
+	AwsService!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.[a-z0-9\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.[a-z0-9\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The destination for events that could not be forwarded.
 	OnFailureConfiguration?: #OnFailureConfiguration
-	Pattern?:                strings.MaxRunes(3753) | fn.#StringExpression
+	Pattern?: strings.MaxRunes(3753) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(3753) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -57,6 +88,13 @@ fn.#ObjectExpression
 	Arn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[a-z0-9]+)*:sqs:[a-z][a-z0-9]*(-[a-z0-9]+)*:[0-9]{12}:[A-Za-z0-9_-]{1,80}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[a-z0-9]+)*:sqs:[a-z][a-z0-9]*(-[a-z0-9]+)*:[0-9]{12}:[A-Za-z0-9_-]{1,80}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -64,18 +102,45 @@ fn.#ObjectExpression
 #PartnerEventsConfiguration: close({
 	// The destination for events that could not be forwarded, covering both the
 	// forwarding target and the managed partner event bus.
-	OnFailureConfiguration?:     #OnFailureConfiguration
-	PartnerBusKmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression
+	OnFailureConfiguration?: #OnFailureConfiguration
+	PartnerBusKmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PartnerEventSourceArn!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12})?:event-source\\/aws\\.partner(\\/[\\.\\-_A-Za-z0-9]+){2,}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12})?:event-source\\/aws\\.partner(\\/[\\.\\-_A-Za-z0-9]+){2,}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Pattern?: strings.MaxRunes(3753) | fn.#StringExpression
+	Pattern?: strings.MaxRunes(3753) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(3753) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

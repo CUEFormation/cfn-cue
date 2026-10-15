@@ -10,30 +10,38 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A real-time log configuration.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::RealtimeLogConfig"
-	Properties!: close({
+	let properties = close({
 		EndPoints!:    list.MinItems(1) & [...#EndPoint] | fn.#ListExpression
-		Fields!:       list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-		Name!:         string | fn.#StringExpression
+		Fields!:       list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Name!:         string | number | bool | fn.#StringExpression
 		SamplingRate!: math.MultipleOf(1) & <=100 & >=1 | fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EndPoint: close({
 	// Contains information about the Amazon Kinesis data stream where you are
 	// sending real-time log data in a real-time log configuration.
 	KinesisStreamConfig!: #KinesisStreamConfig
-	StreamType!:          string | fn.#StringExpression
+	StreamType!:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KinesisStreamConfig: close({
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	StreamArn!: string | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	StreamArn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

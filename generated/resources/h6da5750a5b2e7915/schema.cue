@@ -10,25 +10,44 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for EKS Capability.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EKS::Capability"
-	Properties!: close({
-		CapabilityName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		ClusterName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		CapabilityName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ClusterName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Configuration?: close({
 			Ack?: #Ack
 			ArgoCd?: close({
 				AwsIdc!: close({
-					IdcInstanceArn!: string | fn.#StringExpression
-					IdcRegion?:      string | fn.#StringExpression
+					IdcInstanceArn!: string | number | bool | fn.#StringExpression
+					IdcRegion?:      string | number | bool | fn.#StringExpression
 				}) |
 				fn.#ObjectExpression
 				EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(50) &
+					strings.MinRunes(1) &
+					=~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" &
+					"\(self)"
+				} |
 				fn.#StringExpression
-				Namespace?:        string | fn.#StringExpression
+				Namespace?:        string | number | bool | fn.#StringExpression
 				NetworkAccess?:    #NetworkAccess
 				RbacRoleMappings?: [...#ArgoCdRoleMapping] | fn.#ListExpression
 			}) |
@@ -36,18 +55,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 		DeletePropagationPolicy!: "RETAIN" | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Type!: "ARGOCD" | "ACK" | "KRO" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Ack: close({
-	DisabledServices?: list.MaxItems(200) & [...] & [
-		...strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*$" | fn.#StringExpression
-	] |
+	DisabledServices?: list.MaxItems(200) & [...] & [...strings.MaxRunes(63) &
+	strings.MinRunes(1) &
+	=~"^[a-z][a-z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	EnableCrossNamespace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -56,11 +88,15 @@ fn.#ObjectExpression
 #ArgoCd: close({
 	AwsIdc!: #AwsIdc
 	EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Namespace?:        string | fn.#StringExpression
+	Namespace?:        string | number | bool | fn.#StringExpression
 	NetworkAccess?:    #NetworkAccess
 	RbacRoleMappings?: [...#ArgoCdRoleMapping] | fn.#ListExpression
-	ServerUrl?:        string | fn.#StringExpression
+	ServerUrl?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -71,9 +107,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AwsIdc: close({
-	IdcInstanceArn!:           string | fn.#StringExpression
-	IdcManagedApplicationArn?: string | fn.#StringExpression
-	IdcRegion?:                string | fn.#StringExpression
+	IdcInstanceArn!:           string | number | bool | fn.#StringExpression
+	IdcManagedApplicationArn?: string | number | bool | fn.#StringExpression
+	IdcRegion?:                string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -83,16 +119,27 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#NetworkAccess: close({VpceIds?: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
+#NetworkAccess: close({VpceIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression}) |
+	fn.#ObjectExpression
 
 #SsoIdentity: close({
-	Id!:   string | fn.#StringExpression
+	Id!:   string | number | bool | fn.#StringExpression
 	Type!: "SSO_USER" | "SSO_GROUP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

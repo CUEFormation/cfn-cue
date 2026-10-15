@@ -239,7 +239,10 @@ import (
 	LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/\\-\\*]+"
 
 	// The name of the S3 bucket to pull logs from if S3 is the LogDestination
-	S3BucketName?: strings.MaxRunes(1024) & strings.MinRunes(1)
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1)
 })
 
 // Configures the service that provides logs.

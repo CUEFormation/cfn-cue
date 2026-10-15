@@ -55,7 +55,7 @@ import "strings"
 	ScalingPolicy?:            #ComputeScalingPolicy
 	SecurityGroupIds?:         [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SpotIamFleetRole?:         string
-	Subnets?:                  [...string]
+	Subnets?:                  [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 
 	// A key-value pair to associate with a resource.
 	Tags?: close({
@@ -141,7 +141,7 @@ import "strings"
 
 #ManagedInstancesNetworkConfiguration: close({
 	SecurityGroups!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
-	Subnets!:        [...string]
+	Subnets!:        [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 })
 
 #ManagedInstancesProvider: close({

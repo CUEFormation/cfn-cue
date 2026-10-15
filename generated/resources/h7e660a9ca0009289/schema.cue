@@ -14,26 +14,49 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an intermediate table that stores cached query results within a collaboration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRooms::IntermediateTable"
-	Properties!: close({
+	let properties = close({
 		AnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [...#IntermediateTableAnalysisRule] | fn.#ListExpression
 		Description?: strings.MaxRunes(255) &
 		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(4) &
 		=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(4) &
+			=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		MembershipIdentifier!:            #UUID
-		Name!:                            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		MembershipIdentifier!: #UUID
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		PopulationAnalysisConfiguration!: #PopulationAnalysisConfiguration
 		Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdditionalAnalyses: "ALLOWED" | "REQUIRED" | "NOT_ALLOWED" | fn.#StringExpression
@@ -71,16 +94,37 @@ fn.#ObjectExpression
 #AllowedAnalysis: strings.MaxRunes(200) &
 strings.MinRunes(0) &
 =~"(ANY_QUERY|ANY_JOB|arn:[\\w]{3}:cleanrooms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:membership/[\\d\\w-]+/analysistemplate/[\\d\\w-]+)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) &
+	strings.MinRunes(0) &
+	=~"(ANY_QUERY|ANY_JOB|arn:[\\w]{3}:cleanrooms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:membership/[\\d\\w-]+/analysistemplate/[\\d\\w-]+)" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#AllowedAnalysisProvider: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" | fn.#StringExpression
+#AllowedAnalysisProvider: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" & "\(self)"
+} |
+fn.#StringExpression
 
 #AllowedAnalysisProviders: [...] & [...#AllowedAnalysisProvider] | fn.#ListExpression
 
-#AllowedResultReceivers: [...] & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" | fn.#StringExpression] |
+#AllowedResultReceivers: [...] & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #AnalysisRuleColumnName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" & "\(self)"
+} |
 fn.#StringExpression
 
 #ComparisonControls: close({
@@ -92,12 +136,16 @@ fn.#ObjectExpression
 #DifferentialPrivacy: close({Columns!: list.MinItems(1) & [...#DifferentialPrivacyColumn] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-#DifferentialPrivacyColumn: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DifferentialPrivacyColumn: close({Name!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#DisallowedOutputColumns: [...] & [
-	...strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" |
-	fn.#StringExpression
-] |
+#DisallowedOutputColumns: [...] & [...strings.MaxRunes(127) &
+strings.MinRunes(1) &
+=~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #IntermediateTableAnalysisRule: close({
@@ -156,16 +204,43 @@ fn.#ObjectExpression
 #PopulationAnalysisConfiguration: close({SqlParameters?: #PopulationAnalysisSqlParameters}) | fn.#ObjectExpression
 
 #PopulationAnalysisSqlParameters: close({
-	AnalysisTemplateArn?: strings.MaxRunes(256) | fn.#StringExpression
-	QueryString?:         strings.MaxRunes(500000) | fn.#StringExpression
+	AnalysisTemplateArn?: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
+	QueryString?: strings.MaxRunes(500000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500000) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(36) &
+	strings.MinRunes(36) &
+	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	"\(self)"
+} |
 fn.#StringExpression

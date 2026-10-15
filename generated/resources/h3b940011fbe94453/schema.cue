@@ -9,41 +9,50 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for the AWS Route53 Recovery Readiness ResourceSet Resource and API.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53RecoveryReadiness::ResourceSet"
-	Properties!: close({
-		ResourceSetName?: string | fn.#StringExpression
-		ResourceSetType!: =~"^AWS::[A-Za-z0-9]+::[A-Za-z0-9]+$" | fn.#StringExpression
+	let properties = close({
+		ResourceSetName?: string | number | bool | fn.#StringExpression
+		ResourceSetType!: =~"^AWS::[A-Za-z0-9]+::[A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^AWS::[A-Za-z0-9]+::[A-Za-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Resources!: list.MaxItems(6) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Resource"] |
 			fn.#ListExpression
 		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DNSTargetResource: close({
-	DomainName?:     string | fn.#StringExpression
-	HostedZoneArn?:  string | fn.#StringExpression
-	RecordSetId?:    string | fn.#StringExpression
-	RecordType?:     string | fn.#StringExpression
+	DomainName?:     string | number | bool | fn.#StringExpression
+	HostedZoneArn?:  string | number | bool | fn.#StringExpression
+	RecordSetId?:    string | number | bool | fn.#StringExpression
+	RecordType?:     string | number | bool | fn.#StringExpression
 	TargetResource?: #TargetResource
 }) |
 fn.#ObjectExpression
 
-#NLBResource: close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#NLBResource: close({Arn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #R53ResourceRecord: close({
-	DomainName?:  string | fn.#StringExpression
-	RecordSetId?: string | fn.#StringExpression
+	DomainName?:  string | number | bool | fn.#StringExpression
+	RecordSetId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -59,9 +68,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": close({
-	ComponentId?:       string | fn.#StringExpression
+	ComponentId?:       string | number | bool | fn.#StringExpression
 	DnsTargetResource?: #DNSTargetResource
-	ReadinessScopes?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceArn?:       string | fn.#StringExpression
+	ReadinessScopes?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ResourceArn?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

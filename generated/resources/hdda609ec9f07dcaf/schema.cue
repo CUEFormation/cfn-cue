@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A monitoring subscription. This structure contains information about whether
@@ -13,12 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // distribution.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::MonitoringSubscription"
-	Properties!: close({
-		DistributionId!: string | fn.#StringExpression
+	let properties = close({
+		DistributionId!: string | number | bool | fn.#StringExpression
 
 		// A subscription configuration for additional CloudWatch metrics.
 		MonitoringSubscription!: #MonitoringSubscription
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MonitoringSubscription: close({

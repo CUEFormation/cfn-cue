@@ -9,15 +9,34 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a user journey within a Resilience Hub system.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ResilienceHubV2::UserJourney"
-	Properties!: close({
-		Description?:      strings.MaxRunes(500) | fn.#StringExpression
-		Name!:             =~"^[A-Za-z0-9][A-Za-z0-9 _\\-]{1,59}$" | fn.#StringExpression
-		PolicyArn?:        string | fn.#StringExpression
-		SystemIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(500) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[A-Za-z0-9][A-Za-z0-9 _\\-]{1,59}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9 _\\-]{1,59}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyArn?: string | number | bool | fn.#StringExpression
+		SystemIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

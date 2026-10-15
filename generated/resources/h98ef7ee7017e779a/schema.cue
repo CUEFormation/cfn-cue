@@ -10,22 +10,41 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Amazon OpenSearchServerless collection resource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpenSearchServerless::Collection"
-	Properties!: close({
-		CollectionGroupName?: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]+$" | fn.#StringExpression
-		DeletionProtection?:  #DeletionProtection
-		Description?:         strings.MaxRunes(1000) | fn.#StringExpression
-		EncryptionConfig?:    #EncryptionConfig
-		Name!:            strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,63}$" | fn.#StringExpression
+	let properties = close({
+		CollectionGroupName?: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DeletionProtection?: #DeletionProtection
+		Description?: strings.MaxRunes(1000) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & "\(self)"
+		} |
+		fn.#StringExpression
+		EncryptionConfig?: #EncryptionConfig
+		Name!: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,63}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,63}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		StandbyReplicas?: #StandbyReplicas
 		Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		Type?:            #CollectionType
 		VectorOptions?:   #VectorOptions
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CollectionType: "SEARCH" | "TIMESERIES" | "VECTORSEARCH" | fn.#StringExpression
@@ -34,14 +53,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #EncryptionConfig: close({
 	AWSOwnedKey?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FipsEndpoints: close({
-	CollectionEndpoint?: string | fn.#StringExpression
-	DashboardEndpoint?:  string | fn.#StringExpression
+	CollectionEndpoint?: string | number | bool | fn.#StringExpression
+	DashboardEndpoint?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -50,8 +73,18 @@ fn.#ObjectExpression
 #StandbyReplicas: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

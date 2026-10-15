@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaLive::InputSecurityGroup
@@ -12,4 +14,4 @@ package schema
 	WhitelistRules?: [...#InputWhitelistRuleCidr]
 })
 
-#InputWhitelistRuleCidr: close({Cidr?: string})
+#InputWhitelistRuleCidr: close({Cidr?: fn.#IPv4Network & string})

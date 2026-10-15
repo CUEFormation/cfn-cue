@@ -204,6 +204,9 @@ import (
 	// types, see [Supported Instance Types and Availability
 	// Zones](https://docs.aws.amazon.com/sagemaker/latest/dg/instance-types-az.html).
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$"
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^[-0-9a-zA-Z]+$"
 	]
 })

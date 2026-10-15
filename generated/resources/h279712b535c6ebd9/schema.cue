@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // HealthLake FHIR Datastore
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::HealthLake::FHIRDatastore"
-	Properties!: close({
+	let properties = close({
 		DatastoreName?:                 #DatastoreName
 		DatastoreTypeVersion!:          #DatastoreTypeVersion
 		IdentityProviderConfiguration?: #IdentityProviderConfiguration
@@ -27,6 +29,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SseConfiguration?:              #SseConfiguration
 		Tags?:                          list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CreatedAt: close({
@@ -44,18 +48,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Seconds!: string | fn.#StringExpression
+	Seconds!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DatastoreArn: =~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:healthlake:[a-zA-Z0-9-]+:[0-9]{12}:datastore/.+?" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:healthlake:[a-zA-Z0-9-]+:[0-9]{12}:datastore/.+?" &
+		"\(self)"
+} |
+fn.#StringExpression
 
-#DatastoreEndpoint: strings.MaxRunes(10000) | fn.#StringExpression
+#DatastoreEndpoint: strings.MaxRunes(10000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10000) & "\(self)"
+} |
+fn.#StringExpression
 
-#DatastoreId: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+#DatastoreId: strings.MaxRunes(32) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #DatastoreName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$" & "\(self)"
+} |
 fn.#StringExpression
 
 #DatastoreStatus: "CREATING" | "ACTIVE" | "DELETING" | "DELETED" | fn.#StringExpression
@@ -75,18 +98,36 @@ fn.#StringExpression
 	IdpLambdaArn?: strings.MaxRunes(256) &
 	strings.MinRunes(49) &
 	=~"arn:aws[-a-z]*:lambda:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9\\-_\\.]+(:(\\$LATEST|[a-zA-Z0-9\\-_]+))?" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(49) &
+		=~"arn:aws[-a-z]*:lambda:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9\\-_\\.]+(:(\\$LATEST|[a-zA-Z0-9\\-_]+))?" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Metadata?: string | fn.#StringExpression
+	Metadata?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KmsEncryptionConfig: close({
 	CmkType!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(400) &
 	strings.MinRunes(1) &
 	=~"(arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:kms:)?([a-z]{2}-[a-z]+(-[a-z]+)?-\\d:)?(\\d{12}:)?(((key/)?[a-zA-Z0-9-_]+)|(alias/[a-zA-Z0-9:/_-]+))" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(400) &
+		strings.MinRunes(1) &
+		=~"(arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:kms:)?([a-z]{2}-[a-z]+(-[a-z]+)?-\\d:)?(\\d{12}:)?(((key/)?[a-zA-Z0-9-_]+)|(alias/[a-zA-Z0-9:/_-]+))" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -96,7 +137,17 @@ fn.#ObjectExpression
 #SseConfiguration: close({KmsEncryptionConfig!: #KmsEncryptionConfig}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

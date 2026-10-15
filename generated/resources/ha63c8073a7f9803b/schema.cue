@@ -10,22 +10,41 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerIngressPoint Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::MailManagerIngressPoint"
-	Properties!: close({
+	let properties = close({
 		IngressPointConfiguration?: #IngressPointConfiguration
-		IngressPointName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
+		IngressPointName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		NetworkConfiguration?: #NetworkConfiguration
-		RuleSetId!:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		StatusToUpdate?:       #IngressPointStatusToUpdate
-		Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		TlsPolicy?:            #TlsPolicy
-		TrafficPolicyId!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Type!:                 #IngressPointType
+		RuleSetId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		StatusToUpdate?: #IngressPointStatusToUpdate
+		Tags?:           list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TlsPolicy?:      #TlsPolicy
+		TrafficPolicyId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Type!: #IngressPointType
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IngressPointConfiguration: matchN(1, [close({
@@ -60,14 +79,31 @@ fn.#ValueExpression
 )]) |
 fn.#ValueExpression
 
-#PrivateNetworkConfiguration: close({VpcEndpointId!: =~"^vpce-[a-zA-Z0-9]{17}$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#PrivateNetworkConfiguration: close({
+	VpcEndpointId!: =~"^vpce-[a-zA-Z0-9]{17}$" |
+	{
+		number | bool
+		_cfnString: =~"^vpce-[a-zA-Z0-9]{17}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #PublicNetworkConfiguration: close({IpType!: #IpType | fn.#ValueExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -76,10 +112,26 @@ fn.#ObjectExpression
 #TlsPolicy: "REQUIRED" | "OPTIONAL" | "FIPS" | fn.#StringExpression
 
 #TrustStore: close({
-	CAContent!:  strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" | fn.#StringExpression
-	CrlContent?: strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	CAContent!: strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	CrlContent?: strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):kms:[a-z0-9-]+:\\d{12}:(key|alias)/[a-zA-Z0-9/_-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):kms:[a-z0-9-]+:\\d{12}:(key|alias)/[a-zA-Z0-9/_-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

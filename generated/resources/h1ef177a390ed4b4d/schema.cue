@@ -9,21 +9,42 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Chime::AppInstanceBot
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Chime::AppInstanceBot"
-	Properties!: close({
-		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-		Configuration!:  #Configuration
-		Metadata?:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	let properties = close({
+		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
+		Configuration!: #Configuration
+		Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+		} |
+		fn.#StringExpression
 		Name?: strings.MaxRunes(256) &
 		strings.MinRunes(0) &
 		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{1000}0-\\x{10FF}FF]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{1000}0-\\x{10FF}FF]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Configuration: close({Lex!: #LexConfiguration}) | fn.#ObjectExpression
@@ -39,15 +60,37 @@ fn.#ObjectExpression
 	LexBotAliasArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(15) &
 	=~"^arn:aws:lex:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:bot-alias/[A-Z0-9]{10}/[A-Z0-9]{10}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(15) &
+		=~"^arn:aws:lex:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:bot-alias/[A-Z0-9]{10}/[A-Z0-9]{10}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	LocaleId!:      string | fn.#StringExpression
-	RespondsTo?:    "STANDARD_MESSAGES" | fn.#StringExpression
-	WelcomeIntent?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([A-Za-z]_?)+$" | fn.#StringExpression
+	LocaleId!:   string | number | bool | fn.#StringExpression
+	RespondsTo?: "STANDARD_MESSAGES" | fn.#StringExpression
+	WelcomeIntent?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([A-Za-z]_?)+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([A-Za-z]_?)+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

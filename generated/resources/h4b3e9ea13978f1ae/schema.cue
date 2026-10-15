@@ -9,13 +9,22 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::KnowledgeBasePolicy Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::KnowledgeBasePolicy"
-	Properties!: close({
-		KnowledgeBaseId!: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
-		PolicyDocument!:  fn.#Object & {...} | fn.#ObjectExpression
+	let properties = close({
+		KnowledgeBaseId!: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^[0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^[0-9a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

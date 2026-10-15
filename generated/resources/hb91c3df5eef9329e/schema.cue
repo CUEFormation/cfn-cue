@@ -14,14 +14,20 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a dataset group that holds a collection of related datasets
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Forecast::DatasetGroup"
-	Properties!: close({
+	let properties = close({
 		DatasetArns?: [...#Arn] | fn.#ListExpression
 		DatasetGroupName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" & "\(self)"
+		} |
 		fn.#StringExpression
 		Domain!: "RETAIL" |
 			"CUSTOM" |
@@ -33,9 +39,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" | fn.#StringExpression
+#Arn: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #MaxResults: int & <=100 & >=1 |
 	{
@@ -54,10 +67,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	} |
 	fn.#NumberExpression
 
-#NextToken: strings.MaxRunes(3000) & strings.MinRunes(1) | fn.#StringExpression
+#NextToken: strings.MaxRunes(3000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(3000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

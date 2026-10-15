@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MGN::Connector. A Connector provides connectivity
@@ -17,26 +19,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Systems Manager (SSM).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MGN::Connector"
-	Properties!: close({
-		Name!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
+	let properties = close({
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SsmCommandConfig?: #ConnectorSsmCommandConfig
 		SsmInstanceID!: strings.MaxRunes(20) & strings.MinRunes(19) & =~"(^i-[0-9a-zA-Z]{17}$)|(^mi-[0-9a-zA-Z]{17}$)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) &
+			strings.MinRunes(19) &
+			=~"(^i-[0-9a-zA-Z]{17}$)|(^mi-[0-9a-zA-Z]{17}$)" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConnectorSsmCommandConfig: close({
 	CloudWatchLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" & "\(self)"
+	} |
 	fn.#StringExpression
 	CloudWatchOutputEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OutputS3BucketName?:      =~"^[a-zA-Z0-9.\\-_]{1,255}$" | fn.#StringExpression
-	S3OutputEnabled!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	OutputS3BucketName?: =~"^[a-zA-Z0-9.\\-_]{1,255}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9.\\-_]{1,255}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3OutputEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

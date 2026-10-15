@@ -117,7 +117,8 @@ import (
 	// key](https://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 	// in the *Developer Guide*.
 	Enabled?: bool
-	KeyId?:   strings.MaxRunes(2048) & strings.MinRunes(1)
+	KeyId?:
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// The key policy to attach to the KMS key.
 	// If you provide a key policy, it must meet the following criteria:

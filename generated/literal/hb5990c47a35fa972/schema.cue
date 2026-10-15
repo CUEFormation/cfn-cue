@@ -37,7 +37,9 @@ import (
 
 	// The KMS key that is used by Rekognition to encrypt any intermediate customer
 	// metadata and store in the customer's S3 bucket.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 	// Name of the stream processor. It's an identifier you assign to the stream
 	// processor. You can use it to manage the stream processor.
@@ -147,7 +149,9 @@ import (
 // stored, as part of connected home feature.
 #S3Destination: close({
 	// Name of the S3 bucket.
-	BucketName!: strings.MaxRunes(63)
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63)
 
 	// The object key prefix path where the results will be stored. Default is no prefix path
 	ObjectKeyPrefix?: strings.MaxRunes(256)

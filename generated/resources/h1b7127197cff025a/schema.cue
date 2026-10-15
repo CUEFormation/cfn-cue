@@ -6,12 +6,14 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayMulticastDomain type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayMulticastDomain"
-	Properties!: close({
+	let properties = close({
 		Options?: close({
 			AutoAcceptSharedAssociations?: "disable" | "enable" | fn.#StringExpression
 			Igmpv2Support?:                "disable" | "enable" | fn.#StringExpression
@@ -19,12 +21,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 		Tags?:             [...#Tag] | fn.#ListExpression
-		TransitGatewayId!: string | fn.#StringExpression
+		TransitGatewayId!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

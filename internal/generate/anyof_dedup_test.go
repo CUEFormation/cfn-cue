@@ -69,11 +69,12 @@ func TestArrayWithDuplicateNormalizedAlternatives(t *testing.T) {
 		`{Name:"one",SecurityGroupIds:[{Ref:"SecurityGroup"}]}`,
 		`{Name:"one",SecurityGroupIds:["sg-1234abcd"]}`,
 		`{Name:"one",SecurityGroupIds:[]}`,
+		`{Name:"one",SecurityGroupIds:[12]}`, // a number's string form
 	} {
 		validate(t, template, data, true)
 	}
 	for _, data := range []string{
-		`{Name:"one",SecurityGroupIds:[12]}`,
+		`{Name:"one",SecurityGroupIds:[[12]]}`,
 		`{Name:"one",SecurityGroupIds:[{"Fn::Bogus":"x"}]}`,
 		`{Name:"one",Exclusive:"matches-both"}`,
 	} {

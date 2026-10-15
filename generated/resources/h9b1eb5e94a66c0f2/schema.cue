@@ -9,21 +9,25 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::TrafficMirrorFilter
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TrafficMirrorFilter"
-	Properties?: close({
-		Description?:     string | fn.#StringExpression
+	let properties = close({
+		Description?:     string | number | bool | fn.#StringExpression
 		NetworkServices?: list.UniqueItems() & [...#TrafficMirrorNetworkService] | fn.#ListExpression
 		Tags?:            [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

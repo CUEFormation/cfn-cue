@@ -13,6 +13,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::Authorizer`` resource creates an authorization layer
@@ -20,9 +22,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Gateway activates the authorizer when a client calls those methods.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::Authorizer"
-	Properties!: close({
-		AuthType?:              string | fn.#StringExpression
-		AuthorizerCredentials?: string | fn.#StringExpression
+	let properties = matchIf({
+		Type!: "TOKEN" | "REQUEST"
+		...
+	}, {
+		AuthorizerResultTtlInSeconds?: null | bool | <=3600 & >=0 | string | [...] | {...} | fn.#ValueExpression
+		...
+	}, _) & close({
+		AuthType?:              string | number | bool | fn.#StringExpression
+		AuthorizerCredentials?: string | number | bool | fn.#StringExpression
 		AuthorizerResultTtlInSeconds?: int |
 			{
 				string &
@@ -39,12 +47,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		AuthorizerUri?:                string | fn.#StringExpression
-		IdentitySource?:               string | fn.#StringExpression
-		IdentityValidationExpression?: string | fn.#StringExpression
-		Name!:                         string | fn.#StringExpression
-		ProviderARNs?:                 list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		RestApiId!:                    string | fn.#StringExpression
-		Type!:                         string | fn.#StringExpression
+		AuthorizerUri?:                string | number | bool | fn.#StringExpression
+		IdentitySource?:               string | number | bool | fn.#StringExpression
+		IdentityValidationExpression?: string | number | bool | fn.#StringExpression
+		Name!:                         string | number | bool | fn.#StringExpression
+		ProviderARNs?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		RestApiId!:    string | number | bool | fn.#StringExpression
+		Type!:         string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

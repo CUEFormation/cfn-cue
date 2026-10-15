@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::SecurityHub::HubV2 resource represents the implementation of the AWS
@@ -16,14 +18,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in each region in which you enable Security Hub V2.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::HubV2"
-	Properties?: close({
+	let properties = close({
 		NetworkScanning?: #NetworkScanning
 		Tags?:            #Tags
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #NetworkScanning: close({Status!: "ENABLED" | "DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 

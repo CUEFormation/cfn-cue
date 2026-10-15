@@ -44,8 +44,23 @@ def compatibility_cases():
     pair("ami-id", "AWS::EC2::Instance", {"InstanceType": "t3.micro"}, "ImageId", "ami-12345678", "ami-123456")
     pair("role-arn", "AWS::Events::Rule", {"ScheduleExpression": "rate(5 minutes)", "State": "DISABLED"},
          "RoleArn", "arn:aws:iam::123456789012:role/MyRole", "SomeOptionalParameter")
+    egress = {"GroupId": "sg-12345678", "IpProtocol": "tcp", "FromPort": "443", "ToPort": "443"}
+    pair("cidr-host-bits", "AWS::EC2::SecurityGroupEgress", egress, "CidrIp", "10.0.0.0/16", "10.0.1.0/16")
+    pair("kms-key-id", "AWS::SNS::Topic", {}, "KmsMasterKeyId", "alias/aws/sns", "aws/sns")
+    pair("bucket-name", "AWS::S3::Bucket", {}, "BucketName", "my.bucket-1", "my..bucket")
     cases["dynamic-vpc-id"] = ({"Resources": {"Thing": {"Type": "AWS::EC2::Subnet", "Properties": {
         "CidrBlock": "10.0.0.0/24", "VpcId": "{{resolve:ssm:VpcId:1}}"}}}}, "valid", "valid")
+    # Provider patterns such as AmazonMQ's ^[^,:=]+$ apply after resolution.
+    broker = {"Resources": {"Broker": {"Type": "AWS::AmazonMQ::Broker", "Properties": {
+        "Users": [{"Username": "test", "Password": "{{resolve:secretsmanager:MySecret:SecretString:password}}"}],
+        "DeploymentMode": "SINGLE_INSTANCE", "EngineType": "RABBITMQ", "EngineVersion": "3.13",
+        "HostInstanceType": "{{resolve:ssm:/broker/instance-type}}", "AutoMinorVersionUpgrade": True,
+        "BrokerName": "test", "PubliclyAccessible": False}}}}
+    cases["dynamic-reference-pattern-valid"] = (broker, "valid", "valid")
+    for name, password in (("literal", "pass:word"), ("resolver", "{{resolve:unknown:MySecret}}")):
+        changed = copy.deepcopy(broker)
+        changed["Resources"]["Broker"]["Properties"]["Users"][0]["Password"] = password
+        cases["dynamic-reference-pattern-" + name + "-invalid"] = (changed, "invalid", "invalid")
     parameters = {"Parameters": {
         "Text": {"Type": "String", "MinLength": "1", "MaxLength": "18", "NoEcho": "TRUE", "Default": "abc"},
         "Count": {"Type": "Number", "MinValue": "1.5", "MaxValue": "20", "Default": "2"}},
@@ -80,6 +95,93 @@ def compatibility_cases():
     return cases
 
 
+def service_rule_cases():
+    """cfn-lint extension rules, including the shapes that broke CUE evaluation.
+
+    The DynamoDB and ECS task definition cases check resources whose slow
+    rules are skipped still validate."""
+    cases = {}
+
+    def resource(name, resource_type, properties, cue_status, lint_status=None):
+        template = {"Resources": {"Thing": {"Type": resource_type, "Properties": properties}}}
+        cases["rule-" + name] = (template, cue_status, lint_status or cue_status)
+
+    resource("s3-public-acl-ownership-invalid", "AWS::S3::Bucket", {"AccessControl": "PublicRead"}, "invalid")
+    resource("s3-public-acl-ownership-valid", "AWS::S3::Bucket", {"AccessControl": "PublicRead",
+             "OwnershipControls": {"Rules": [{"ObjectOwnership": "ObjectWriter"}]}}, "valid")
+    table = {"BillingMode": "PAY_PER_REQUEST", "KeySchema": [{"AttributeName": "id", "KeyType": "HASH"}],
+             "AttributeDefinitions": [{"AttributeName": "id", "AttributeType": "S"}]}
+    resource("dynamodb-on-demand-valid", "AWS::DynamoDB::Table", table, "valid")
+    resource("target-group-lambda-valid", "AWS::ElasticLoadBalancingV2::TargetGroup", {"TargetType": "lambda"}, "valid")
+    resource("target-group-lambda-port-invalid", "AWS::ElasticLoadBalancingV2::TargetGroup",
+             {"TargetType": "lambda", "Port": 80, "Protocol": "HTTP"}, "invalid")
+    resource("ecs-daemon-valid", "AWS::ECS::Service", {"SchedulingStrategy": "DAEMON", "TaskDefinition": "task"}, "valid")
+    resource("ecs-fargate-daemon-invalid", "AWS::ECS::Service",
+             {"LaunchType": "FARGATE", "SchedulingStrategy": "DAEMON", "TaskDefinition": "task"}, "invalid")
+    resource("stage-method-path-valid", "AWS::ApiGateway::Stage",
+             {"RestApiId": "abc", "MethodSettings": [{"HttpMethod": "*", "ResourcePath": "x"}]}, "valid")
+    resource("stage-method-path-invalid", "AWS::ApiGateway::Stage",
+             {"RestApiId": "abc", "MethodSettings": [{"HttpMethod": "*", "ResourcePath": "x", "MetricsEnabled": True}]}, "invalid")
+    instance = {"Engine": "mysql", "DBInstanceClass": "db.t3.micro", "AllocatedStorage": "20",
+                "MasterUsername": "admin", "MasterUserPassword": "change-me-1234"}
+    resource("rds-backup-retention-valid", "AWS::RDS::DBInstance", dict(instance, BackupRetentionPeriod=7), "valid")
+    resource("rds-aurora-exclusive-invalid", "AWS::RDS::DBInstance",
+             {"Engine": "Aurora-MySQL", "DBInstanceClass": "db.r5.large", "DBClusterIdentifier": "cluster",
+              "MasterUserPassword": "change-me-1234"}, "invalid")
+    resource("lambda-zipfile-runtime-invalid", "AWS::Lambda::Function",
+             {"Role": "arn:aws:iam::123456789012:role/r", "Runtime": "java21", "Handler": "x", "Code": {"ZipFile": "x"}}, "invalid")
+    resource("ecs-task-essential-valid", "AWS::ECS::TaskDefinition",
+             {"ContainerDefinitions": [{"Name": "web", "Image": "nginx"}]}, "valid")
+    alarm = {"ComparisonOperator": "GreaterThanThreshold", "EvaluationPeriods": 1, "MetricName": "Errors",
+             "Namespace": "AWS/Lambda", "Statistic": "Sum", "Threshold": 1}
+    resource("alarm-period-string-valid", "AWS::CloudWatch::Alarm", dict(alarm, Period="300"), "valid")
+    resource("alarm-period-invalid", "AWS::CloudWatch::Alarm", dict(alarm, Period=45), "invalid")
+    # cfn-lint resolves a Ref to the parameter's values; CUE never lets an
+    # intrinsic satisfy a rule's condition.
+    ref = {"Parameters": {"Acl": {"Type": "String"}},
+           "Resources": {"Thing": {"Type": "AWS::S3::Bucket", "Properties": {"AccessControl": {"Ref": "Acl"}}}}}
+    cases["rule-s3-acl-ref-valid"] = (ref, "valid", "valid")
+    return cases
+
+
+def template_grammar_cases():
+    """Template forms that the full survey found CloudFormation accepts."""
+    cases = {}
+    # widdix names alarms such as 5xxErrorRateTooHighAlarm.
+    cases["logical-id-leading-digit"] = ({"Resources": {"5xxQueue": {"Type": "AWS::SQS::Queue"}}}, "valid", "valid")
+    # The VPC Quick Start names conditions such as NATGateway&3AZCondition.
+    name = "NATGateway&3AZCondition"
+    cases["condition-name-ampersand"] = ({"Parameters": {"Zones": {"Type": "String"}},
+        "Conditions": {name: {"Fn::Equals": [{"Ref": "Zones"}, "3"]}},
+        "Resources": {"Queue": {"Type": "AWS::SQS::Queue", "Condition": name}}}, "valid", "valid")
+    conditional = {"Parameters": {"Name": {"Type": "String"}},
+        "Conditions": {"Named": {"Fn::Not": [{"Fn::Equals": [{"Ref": "Name"}, ""]}]}},
+        "Resources": {"Bucket": {"Type": "AWS::S3::Bucket", "Properties": {"Fn::If": ["Named",
+            {"BucketName": {"Ref": "Name"}, "AccessControl": "Private"}, {"Ref": "AWS::NoValue"}]}}}}
+    cases["if-properties"] = (conditional, "valid", "valid")
+    wrong = copy.deepcopy(conditional)
+    wrong["Resources"]["Bucket"]["Properties"]["Fn::If"][1]["AccessControl"] = "DefinitelyNotAnACL"
+    cases["if-properties-branch-invalid"] = (wrong, "invalid", "invalid")
+    group = copy.deepcopy(conditional)
+    group["Resources"] = {"Group": {"Type": "AWS::AutoScaling::AutoScalingGroup",
+        "Properties": {"MinSize": "1", "MaxSize": "2", "AvailabilityZones": ["us-east-1a"],
+                       "LaunchTemplate": {"LaunchTemplateId": "lt-0123456789abcdef0", "Version": "1"}},
+        "UpdatePolicy": {"Fn::If": ["Named", {"AutoScalingRollingUpdate": {"MinInstancesInService": 1}},
+                                    {"Ref": "AWS::NoValue"}]}}}
+    cases["if-update-policy"] = (group, "valid", "valid")
+    bare = copy.deepcopy(group)
+    bare["Resources"]["Group"]["UpdatePolicy"] = {"Ref": "Name"}
+    cases["update-policy-ref-invalid"] = (bare, "invalid", "invalid")
+    # Every SQS property is optional, so {} matches the properties schema too.
+    empty = copy.deepcopy(conditional)
+    empty["Resources"] = {"Queue": {"Type": "AWS::SQS::Queue", "Properties": {"Fn::If": ["Named", {}, {"Ref": "AWS::NoValue"}]}}}
+    cases["if-properties-empty-branch"] = (empty, "valid", "valid")
+    # widdix's wordpress-ha maps engines to PerformanceInsights: true.
+    cases["mapping-boolean"] = ({"Mappings": {"Engine": {"mysql": {"PerformanceInsights": True}}},
+        "Resources": {"Queue": {"Type": "AWS::SQS::Queue"}}}, "valid", "valid")
+    return cases
+
+
 def build(source, output):
     index = json.loads((source / "index.json").read_bytes())
     records, expected = [], {}
@@ -101,8 +203,11 @@ def build(source, output):
             expected[record["id"] + ":" + region] = dict(cue=SAMPLES[record["path"]], lint="valid", note=note)
     if len(records) != len(SAMPLES):
         raise ValueError("pinned sample missing from source corpus")
+    # Keep only the sources whose examples are checked in, with their licenses.
+    used = {record["source"] for record in records}
+    index["sources"] = [entry for entry in index["sources"] if entry["id"] in used]
     for license in (source / "licenses").rglob("*"):
-        if license.is_file():
+        if license.is_file() and license.relative_to(source / "licenses").parts[0] in used:
             corpus.write(output / license.relative_to(source), license.read_bytes())
     base = {"Parameters": {"Name": {"Type": "String"}},
             "Conditions": {"Create": {"Fn::Equals": [{"Ref": "Name"}, "yes"]}},
@@ -127,6 +232,8 @@ def build(source, output):
     cases["missing-required"] = ({"Resources": {"Role": {"Type": "AWS::IAM::Role", "Properties": {"RoleName": "missing-policy"}}}}, "invalid", "invalid")
     cases["unknown-resource"] = ({"Resources": {"Thing": {"Type": "AWS::DoesNotExist::Thing"}}}, "unsupported", "invalid")
     cases.update(compatibility_cases())
+    cases.update(template_grammar_cases())
+    cases.update(service_rule_cases())
     for name, (value, cue_status, lint_status) in sorted(cases.items()):
         cid = "mutation-" + name
         raw = yaml.safe_dump(value, sort_keys=False).encode()

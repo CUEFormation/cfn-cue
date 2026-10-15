@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::IoTEvents::DetectorModel resource creates a detector model. You
@@ -45,20 +47,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // stated.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTEvents::DetectorModel"
-	Properties!: close({
+	let properties = close({
 		// Information that defines how a detector operates.
-		DetectorModelDefinition!:  #DetectorModelDefinition
-		DetectorModelDescription?: strings.MaxRunes(1024) | fn.#StringExpression
-		DetectorModelName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		EvaluationMethod?:  "BATCH" | "SERIAL" | fn.#StringExpression
+		DetectorModelDefinition!: #DetectorModelDefinition
+		DetectorModelDescription?: strings.MaxRunes(1024) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & "\(self)"
+		} |
+		fn.#StringExpression
+		DetectorModelName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EvaluationMethod?: "BATCH" | "SERIAL" | fn.#StringExpression
 		Key?: strings.MaxRunes(128) &
 		strings.MinRunes(1) &
 		=~"^((`[\\w\\- ]+`)|([\\w\\-]+))(\\.((`[\\w\\- ]+`)|([\\w\\-]+)))*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^((`[\\w\\- ]+`)|([\\w\\-]+))(\\.((`[\\w\\- ]+`)|([\\w\\-]+)))*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: close({
@@ -124,13 +152,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #AssetPropertyTimestamp: close({
-	OffsetInNanos?: string | fn.#StringExpression
-	TimeInSeconds!: string | fn.#StringExpression
+	OffsetInNanos?: string | number | bool | fn.#StringExpression
+	TimeInSeconds!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AssetPropertyValue: close({
-	Quality?: string | fn.#StringExpression
+	Quality?: string | number | bool | fn.#StringExpression
 
 	// The timestamp associated with the asset property value. The default is the current event time.
 	Timestamp?: #AssetPropertyTimestamp
@@ -141,27 +169,39 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AssetPropertyVariant: close({
-	BooleanValue?: string | fn.#StringExpression
-	DoubleValue?:  string | fn.#StringExpression
-	IntegerValue?: string | fn.#StringExpression
-	StringValue?:  string | fn.#StringExpression
+	BooleanValue?: string | number | bool | fn.#StringExpression
+	DoubleValue?:  string | number | bool | fn.#StringExpression
+	IntegerValue?: string | number | bool | fn.#StringExpression
+	StringValue?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ClearTimer: close({TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
+#ClearTimer: close({
+	TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #DetectorModelDefinition: close({
-	InitialStateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	States!:           list.MinItems(1) & [...#State] | fn.#ListExpression
+	InitialStateName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	States!: list.MinItems(1) & [...#State] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #DynamoDB: close({
-	HashKeyField!: string | fn.#StringExpression
-	HashKeyType?:  string | fn.#StringExpression
-	HashKeyValue!: string | fn.#StringExpression
-	Operation?:    string | fn.#StringExpression
+	HashKeyField!: string | number | bool | fn.#StringExpression
+	HashKeyType?:  string | number | bool | fn.#StringExpression
+	HashKeyValue!: string | number | bool | fn.#StringExpression
+	Operation?:    string | number | bool | fn.#StringExpression
 
 	// Information needed to configure the payload.
 	// By default, ITE generates a standard payload in JSON for any action. This
@@ -169,11 +209,11 @@ fn.#ObjectExpression
 	// about the detector model instance and the event triggered the action. To
 	// configure the action payload, you can use ``contentExpression``.
 	Payload?:       #Payload
-	PayloadField?:  string | fn.#StringExpression
-	RangeKeyField?: string | fn.#StringExpression
-	RangeKeyType?:  string | fn.#StringExpression
-	RangeKeyValue?: string | fn.#StringExpression
-	TableName!:     string | fn.#StringExpression
+	PayloadField?:  string | number | bool | fn.#StringExpression
+	RangeKeyField?: string | number | bool | fn.#StringExpression
+	RangeKeyType?:  string | number | bool | fn.#StringExpression
+	RangeKeyValue?: string | number | bool | fn.#StringExpression
+	TableName!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -184,29 +224,49 @@ fn.#ObjectExpression
 	// about the detector model instance and the event triggered the action. To
 	// configure the action payload, you can use ``contentExpression``.
 	Payload?:   #Payload
-	TableName!: string | fn.#StringExpression
+	TableName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Event: close({
-	Actions?:   [...#Action] | fn.#ListExpression
-	Condition?: strings.MaxRunes(512) | fn.#StringExpression
-	EventName!: strings.MaxRunes(128) | fn.#StringExpression
+	Actions?: [...#Action] | fn.#ListExpression
+	Condition?: strings.MaxRunes(512) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & "\(self)"
+	} |
+	fn.#StringExpression
+	EventName!: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Firehose: close({
-	DeliveryStreamName!: string | fn.#StringExpression
+	DeliveryStreamName!: string | number | bool | fn.#StringExpression
 
 	// You can configure the action payload when you send a message to an Amazon
 	// Data Firehose delivery stream.
-	Payload?:   #Payload
-	Separator?: =~"([\\n\\t])|(\\r\\n)|(,)" | fn.#StringExpression
+	Payload?: #Payload
+	Separator?: =~"([\\n\\t])|(\\r\\n)|(,)" |
+	{
+		number | bool
+		_cfnString: =~"([\\n\\t])|(\\r\\n)|(,)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IotEvents: close({
-	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
+	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// You can configure the action payload when you send a message to an ITE input.
 	Payload?: #Payload
@@ -214,10 +274,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #IotSiteWise: close({
-	AssetId?:       string | fn.#StringExpression
-	EntryId?:       string | fn.#StringExpression
-	PropertyAlias?: string | fn.#StringExpression
-	PropertyId?:    string | fn.#StringExpression
+	AssetId?:       string | number | bool | fn.#StringExpression
+	EntryId?:       string | number | bool | fn.#StringExpression
+	PropertyAlias?: string | number | bool | fn.#StringExpression
+	PropertyId?:    string | number | bool | fn.#StringExpression
 
 	// The value to send to the asset property. This value contains timestamp,
 	// quality, and value (TQV) information.
@@ -226,7 +286,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #IotTopicPublish: close({
-	MqttTopic!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	MqttTopic!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// You can configure the action payload when you publish a message to an IoTCore topic.
 	Payload?: #Payload
@@ -234,7 +299,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Lambda: close({
-	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	FunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 
 	// You can configure the action payload when you send a message to a Lambda function.
@@ -253,16 +325,33 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Payload: close({
-	ContentExpression!: strings.MinRunes(1) | fn.#StringExpression
-	Type!:              string | fn.#StringExpression
+	ContentExpression!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ResetTimer: close({TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
+#ResetTimer: close({
+	TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SetTimer: close({
-	DurationExpression?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	DurationExpression?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Seconds?: int & <=31622400 & >=60 |
 		{
 			string &
@@ -279,27 +368,47 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	TimerName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SetVariable: close({
-	Value!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VariableName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
+	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VariableName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Sns: close({
 	// You can configure the action payload when you send a message as an Amazon SNS push notification.
-	Payload?:   #Payload
-	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Payload?: #Payload
+	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Sqs: close({
 	// You can configure the action payload when you send a message to an Amazon SQS queue.
 	Payload?:   #Payload
-	QueueUrl!:  string | fn.#StringExpression
+	QueueUrl!:  string | number | bool | fn.#StringExpression
 	UseBase64?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -312,21 +421,41 @@ fn.#ObjectExpression
 	OnExit?: #OnExit
 
 	// When an input is received and the ``condition`` is TRUE, perform the specified ``actions``.
-	OnInput?:   #OnInput
-	StateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	OnInput?: #OnInput
+	StateName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TransitionEvent: close({
-	Actions?:   [...#Action] | fn.#ListExpression
-	Condition!: strings.MaxRunes(512) | fn.#StringExpression
-	EventName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	NextState!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Actions?: [...#Action] | fn.#ListExpression
+	Condition!: strings.MaxRunes(512) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & "\(self)"
+	} |
+	fn.#StringExpression
+	EventName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	NextState!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

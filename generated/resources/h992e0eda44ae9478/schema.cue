@@ -9,17 +9,35 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Use the AWS::IoT::Certificate resource to declare an AWS IoT X.509 certificate.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::Certificate"
-	Properties!: close({
-		CACertificatePem?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		CertificateMode?:  "DEFAULT" | "SNI_ONLY" | fn.#StringExpression
-		CertificatePem?:   strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	let properties = close({
+		CACertificatePem?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		CertificateMode?: "DEFAULT" | "SNI_ONLY" | fn.#StringExpression
+		CertificatePem?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		CertificateSigningRequest?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Status!: "ACTIVE" | "INACTIVE" | "REVOKED" | "PENDING_TRANSFER" | "PENDING_ACTIVATION" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

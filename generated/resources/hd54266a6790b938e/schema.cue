@@ -10,29 +10,67 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EMR::Studio
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMR::Studio"
-	Properties!: close({
-		AuthMode!:          "SSO" | "IAM" | fn.#StringExpression
-		DefaultS3Location!: strings.MaxRunes(10280) & strings.MinRunes(6) & =~"^s3://.*" | fn.#StringExpression
-		Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		AuthMode!: "SSO" | "IAM" | fn.#StringExpression
+		DefaultS3Location!: strings.MaxRunes(10280) & strings.MinRunes(6) & =~"^s3://.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10280) & strings.MinRunes(6) & =~"^s3://.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The AWS KMS key identifier (ARN) used to encrypt AWS EMR Studio workspace and
 		// notebook files when backed up to AWS S3.
 		EncryptionKeyArn?: #Arn
 		EngineSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^sg-[a-zA-Z0-9\\-._]+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		IdcInstanceArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		IdcInstanceArn?: strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression
 		IdcUserAssignment?: "REQUIRED" | "OPTIONAL" | fn.#StringExpression
 		IdpAuthUrl?: strings.MaxRunes(4096) &
 		strings.MinRunes(0) &
 		=~"^https://[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])(:[0-9]*)*([?/#].*)?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) &
+			strings.MinRunes(0) &
+			=~"^https://[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])(:[0-9]*)*([?/#].*)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		IdpRelayStateParameterName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
+		IdpRelayStateParameterName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The IAM role that will be assumed by the Amazon EMR Studio. The service role
 		// provides a way for Amazon EMR Studio to interoperate with other AWS
@@ -57,26 +95,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Studio. The permissions attached to this IAM role can be scoped down for
 		// each user or group using session policies.
 		UserRole?: #Arn
-		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 		strings.MaxRunes(256) &
 		strings.MinRunes(0) &
 		=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		WorkspaceSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^sg-[a-zA-Z0-9\\-._]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Arn: strings.MaxRunes(10280) &
 strings.MinRunes(0) &
 =~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10280) &
+	strings.MinRunes(0) &
+	=~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#SubnetId: string | fn.#StringExpression
+#SubnetId: string | number | bool | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

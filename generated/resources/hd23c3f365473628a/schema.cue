@@ -15,17 +15,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::S3::StorageLensGroup resource is an Amazon S3 resource type that you
 // can use to create Storage Lens Group.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::StorageLensGroup"
-	Properties!: close({
+	let properties = close({
 		Filter!: #Filter
 		Name!:   #Name
 		Tags?:   [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #And: struct.MinFields(2) & close({
@@ -48,9 +52,21 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#MatchAnyPrefix: list.UniqueItems() & [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
+#MatchAnyPrefix: list.UniqueItems() & [...strings.MaxRunes(1024) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & "\(self)"
+} |
+fn.#StringExpression] |
+fn.#ListExpression
 
-#MatchAnySuffix: list.UniqueItems() & [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
+#MatchAnySuffix: list.UniqueItems() & [...strings.MaxRunes(1024) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & "\(self)"
+} |
+fn.#StringExpression] |
+fn.#ListExpression
 
 #MatchAnyTag: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
@@ -122,7 +138,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Name: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+#Name: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Or: struct.MinFields(2) & close({
 	MatchAnyPrefix?:  #MatchAnyPrefix
@@ -134,7 +155,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

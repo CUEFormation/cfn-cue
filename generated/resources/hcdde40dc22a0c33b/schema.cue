@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -13,14 +13,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::SubnetCidrBlock resource creates association between subnet and IPv6 CIDR
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::SubnetCidrBlock"
-	Properties!: close({
-		Ipv6CidrBlock?:  strings.MaxRunes(42) | fn.#StringExpression
-		Ipv6IpamPoolId?: string | fn.#StringExpression
+	let properties = close({
+		Ipv6CidrBlock?: fn.#IPv6Network & string & strings.MaxRunes(42) |
+		{
+			number | bool
+			_cfnString: fn.#IPv6Network & string & strings.MaxRunes(42) & "\(self)"
+		} |
+		fn.#StringExpression
+		Ipv6IpamPoolId?: string | number | bool | fn.#StringExpression
 		Ipv6NetmaskLength?: int & <=128 & >=0 |
 			{
 				string &
@@ -39,6 +46,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SubnetId!: string | fn.#StringExpression
+		SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

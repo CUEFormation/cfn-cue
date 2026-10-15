@@ -6,52 +6,57 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LakeFormation::Permissions
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LakeFormation::Permissions"
-	Properties!: close({
+	let properties = close({
 		DataLakePrincipal!:          #DataLakePrincipal
-		Permissions?:                [...string | fn.#StringExpression] | fn.#ListExpression
-		PermissionsWithGrantOption?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Permissions?:                [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		PermissionsWithGrantOption?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Resource!:                   _#defs."/$defs/Properties/definitions/Resource"
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ColumnWildcard: close({ExcludedColumnNames?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#ColumnWildcard: close({ExcludedColumnNames?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-#DataLakePrincipal: close({DataLakePrincipalIdentifier?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DataLakePrincipal: close({DataLakePrincipalIdentifier?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #DataLocationResource: close({
-	CatalogId?:  string | fn.#StringExpression
-	S3Resource?: string | fn.#StringExpression
+	CatalogId?:  string | number | bool | fn.#StringExpression
+	S3Resource?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DatabaseResource: close({
-	CatalogId?: string | fn.#StringExpression
-	Name?:      string | fn.#StringExpression
+	CatalogId?: string | number | bool | fn.#StringExpression
+	Name?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TableResource: close({
-	CatalogId?:     string | fn.#StringExpression
-	DatabaseName?:  string | fn.#StringExpression
-	Name?:          string | fn.#StringExpression
+	CatalogId?:     string | number | bool | fn.#StringExpression
+	DatabaseName?:  string | number | bool | fn.#StringExpression
+	Name?:          string | number | bool | fn.#StringExpression
 	TableWildcard?: #TableWildcard
 }) |
 fn.#ObjectExpression
 
-#TableWildcard: fn.#Object & {...} | string | fn.#StringObjectExpression
+#TableWildcard: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #TableWithColumnsResource: close({
-	CatalogId?:      string | fn.#StringExpression
-	ColumnNames?:    [...string | fn.#StringExpression] | fn.#ListExpression
+	CatalogId?:      string | number | bool | fn.#StringExpression
+	ColumnNames?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ColumnWildcard?: #ColumnWildcard
-	DatabaseName?:   string | fn.#StringExpression
-	Name?:           string | fn.#StringExpression
+	DatabaseName?:   string | number | bool | fn.#StringExpression
+	Name?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

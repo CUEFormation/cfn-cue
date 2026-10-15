@@ -10,14 +10,16 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::RemediationConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::RemediationConfiguration"
-	Properties!: close({
+	let properties = close({
 		Automatic?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ConfigRuleName!:    string | fn.#StringExpression
+		ConfigRuleName!:    string | number | bool | fn.#StringExpression
 		ExecutionControls?: #ExecutionControls
 		MaximumAutomaticAttempts?: int |
 			{
@@ -35,8 +37,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
-		ResourceType?: string | fn.#StringExpression
+		Parameters?:   fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		ResourceType?: string | number | bool | fn.#StringExpression
 		RetryAttemptSeconds?: int |
 			{
 				string &
@@ -53,10 +55,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TargetId!:      string | fn.#StringExpression
-		TargetType!:    string | fn.#StringExpression
-		TargetVersion?: string | fn.#StringExpression
+		TargetId!:      string | number | bool | fn.#StringExpression
+		TargetType!:    string | number | bool | fn.#StringExpression
+		TargetVersion?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ExecutionControls: close({SsmControls?: #SsmControls}) | fn.#ObjectExpression

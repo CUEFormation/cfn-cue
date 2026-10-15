@@ -14,18 +14,31 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Cluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Cluster"
-	Properties?: close({
+	let properties = close({
 		AutoScaling?: #ClusterAutoScalingConfig
 		ClusterName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		ClusterRole?: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		InstanceGroups?: list.MaxItems(100) & list.MinItems(1) & [...close({
 			AutoPatchConfig?: close({
@@ -105,6 +118,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			TrainingPlanArn?: strings.MaxRunes(2048) &
 			strings.MinRunes(50) &
 			=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2048) &
+				strings.MinRunes(50) &
+				=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
@@ -159,6 +179,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			TrainingPlanArn?: strings.MaxRunes(2048) &
 			strings.MinRunes(50) &
 			=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2048) &
+				strings.MinRunes(50) &
+				=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
@@ -168,9 +195,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TieredStorageConfig?:            #TieredStorageConfig
 		VpcConfig?:                      #VpcConfig
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AlarmDetails: close({AlarmName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+#AlarmDetails: close({
+	AlarmName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #AutoPatchConfig: close({
@@ -183,7 +219,12 @@ fn.#ObjectExpression
 #AutoRollbackConfiguration: list.MaxItems(10) & list.MinItems(1) & [...#AlarmDetails] | fn.#ListExpression
 
 #CapacitySizeConfig: close({
-	Type!: =~"INSTANCE_COUNT|CAPACITY_PERCENTAGE" | fn.#StringExpression
+	Type!: =~"INSTANCE_COUNT|CAPACITY_PERCENTAGE" |
+	{
+		number | bool
+		_cfnString: =~"INSTANCE_COUNT|CAPACITY_PERCENTAGE" & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: int & >=1 |
 		{
 			string &
@@ -203,8 +244,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ClusterAccountingDatabase: close({
-	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9$_]+$" | fn.#StringExpression
+	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9$_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9$_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
 			string &
@@ -221,7 +272,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SecretArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	SecretArn!: strings.MaxRunes(2048) & strings.MinRunes(20) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -238,8 +294,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ClusterEbsVolumeConfig: close({
-	RootVolume?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$" | fn.#StringExpression
+	RootVolume?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	VolumeSizeInGB?: int & <=16384 & >=1 |
 		{
 			string &
@@ -261,16 +322,39 @@ fn.#ObjectExpression
 
 #ClusterFsxLustreConfig: close({
 	DnsName!: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$" & "\(self)"
+	} |
 	fn.#StringExpression
-	MountName!: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" | fn.#StringExpression
-	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	MountName!: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ClusterFsxOpenZfsConfig: close({
 	DnsName!: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$" & "\(self)"
+	} |
 	fn.#StringExpression
-	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -356,13 +440,20 @@ fn.#ObjectExpression
 	TrainingPlanArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(50) &
 	=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(50) &
+		=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ClusterInstanceGroupsList: list.MaxItems(100) & list.MinItems(1) & [...#ClusterInstanceGroup] | fn.#ListExpression
 
-#ClusterInstanceStorageConfig: fn.#Object & {...} & matchN(1, [close(
+#ClusterInstanceStorageConfig: fn.#Object & matchN(1, [close(
 	{EbsVolumeConfig?: #ClusterEbsVolumeConfig},
 ), close(
 	{FsxLustreConfig?: #ClusterFsxLustreConfig},
@@ -381,7 +472,12 @@ fn.#ObjectExpression
 
 #ClusterKubernetesLabels: close({
 
-	{[=~"^.+$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ObjectExpression
 
 #ClusterKubernetesTaint: close({
@@ -389,8 +485,22 @@ fn.#ObjectExpression
 	Key!: strings.MaxRunes(317) &
 	strings.MinRunes(1) &
 	=~"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?[A-Za-z0-9]([-A-Za-z0-9_.]*[A-Za-z0-9])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(317) &
+		strings.MinRunes(1) &
+		=~"^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?[A-Za-z0-9]([-A-Za-z0-9_.]*[A-Za-z0-9])?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Value?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) &
+		strings.MinRunes(1) &
+		=~"^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -398,9 +508,24 @@ fn.#ObjectExpression
 #ClusterKubernetesTaints: list.MaxItems(50) & [...] & [...#ClusterKubernetesTaint] | fn.#ListExpression
 
 #ClusterLifeCycleConfig: close({
-	OnCreate?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression
-	OnInitComplete?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression
-	SourceS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
+	OnCreate?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	OnInitComplete?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -408,7 +533,8 @@ fn.#ObjectExpression
 
 #ClusterOnDemandOptions: close({}) | fn.#ObjectExpression
 
-#ClusterOrchestratorEksConfig: close({ClusterArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ClusterOrchestratorEksConfig: close({ClusterArn!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #ClusterOrchestratorSlurmConfig: close({
 	AccountingDatabase?:  #ClusterAccountingDatabase
@@ -474,6 +600,13 @@ fn.#ObjectExpression
 	TrainingPlanArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(50) &
 	=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(50) &
+		=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -483,9 +616,14 @@ fn.#ObjectExpression
 
 #ClusterSlurmConfig: close({
 	NodeType!: "Controller" | "Login" | "Compute" | fn.#StringExpression
-	PartitionNames?: list.MaxItems(1) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-	] |
+	PartitionNames?: list.MaxItems(1) & [...] & [...strings.MaxRunes(1024) &
+	strings.MinRunes(0) &
+	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -521,6 +659,13 @@ fn.#ObjectExpression
 #ExecutionRole: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #FSxLustreConfig: close({
@@ -559,13 +704,25 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ImageId: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#ImageId: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
 strings.MaxRunes(21) &
 strings.MinRunes(7) &
 =~"^ami-[0-9a-fA-F]{8,17}|default$" |
+{
+	number | bool
+	_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
+	strings.MaxRunes(21) &
+	strings.MinRunes(7) &
+	=~"^ami-[0-9a-fA-F]{8,17}|default$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #InstanceGroupName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+} |
 fn.#StringExpression
 
 #InstanceRequirements: close(
@@ -573,16 +730,16 @@ fn.#StringExpression
 ) |
 	fn.#ObjectExpression
 
-#InstanceType: string | fn.#StringExpression
+#InstanceType: string | number | bool | fn.#StringExpression
 
 #OnStartDeepHealthChecks: list.MaxItems(3) & list.MinItems(1) & [...#DeepHealthCheckType] | fn.#ListExpression
 
-#Orchestrator: fn.#Object & {...} & matchN(1, [
+#Orchestrator: fn.#Object & matchN(1, [
 	close({Eks?: #ClusterOrchestratorEksConfig}), close({Slurm?: #ClusterOrchestratorSlurmConfig}),
 ]) |
 fn.#ObjectExpression
 
-#PatchSchedule: close({NextPatchDate?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PatchSchedule: close({NextPatchDate?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #RestrictedInstanceGroupsConfig: close({SharedEnvironmentConfig!: #SharedEnvironmentConfig}) | fn.#ObjectExpression
 
@@ -597,6 +754,13 @@ fn.#ObjectExpression
 	ScheduleExpression!: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"cron\\((?:[0-5][0-9]|[0-9]|) (?:[01][0-9]|2[0-3]|[0-9]) (?:[1-9]|0[1-9]|[12][0-9]|3[01]|\\?) (?:[1-9]|0[1-9]|1[0-2]|\\*|\\*/(?:[1-9]|1[0-2])|) (?:MON|TUE|WED|THU|FRI|SAT|SUN|[1-7]|\\?|L|(?:[1-7]#[1-5])|(?:[1-7]L)) (?:20[2-9][0-9]|\\*|)\\)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"cron\\((?:[0-5][0-9]|[0-9]|) (?:[01][0-9]|2[0-3]|[0-9]) (?:[1-9]|0[1-9]|[12][0-9]|3[01]|\\?) (?:[1-9]|0[1-9]|1[0-2]|\\*|\\*/(?:[1-9]|1[0-2])|) (?:MON|TUE|WED|THU|FRI|SAT|SUN|[1-7]|\\?|L|(?:[1-7]#[1-5])|(?:[1-7]L)) (?:20[2-9][0-9]|\\*|)\\)" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -608,8 +772,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -635,17 +809,33 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
-		=~"[-0-9a-zA-Z]+" |
-		fn.#StringExpression
-	] |
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
-	] |
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -9,14 +9,23 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Oam::Sink
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Oam::Sink"
-	Properties!: close({
-		Name!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-		Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Policy?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:   {...} | fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

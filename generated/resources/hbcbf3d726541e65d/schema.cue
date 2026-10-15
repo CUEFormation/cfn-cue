@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Ground Station DataflowEndpointGroup schema for CloudFormation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GroundStation::DataflowEndpointGroup"
-	Properties!: close({
+	let properties = close({
 		ContactPostPassDurationSeconds?: int & <=480 & >=30 |
 			{
 				string &
@@ -59,6 +61,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		EndpointDetails!: list.MaxItems(500) & list.MinItems(1) & [...#EndpointDetails] | fn.#ListExpression
 		Tags?:            [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AgentStatus: "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE" | fn.#StringExpression
@@ -70,7 +74,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AuditResults?:   #AuditResults
 	EgressAddress?:  #ConnectionDetails
 	IngressAddress?: #RangedConnectionDetails
-	Name?:           =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+	Name?: =~"^[ a-zA-Z0-9_:-]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9_:-]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -109,7 +118,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name?: =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+	Name?: =~"^[ a-zA-Z0-9_:-]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9_:-]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -180,6 +194,13 @@ fn.#ObjectExpression
 
 #RangedSocketAddress: close({
 	Name?: strings.MaxRunes(16) & strings.MinRunes(7) & =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) &
+		strings.MinRunes(7) &
+		=~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 
 	// Port range of a socket address.
@@ -188,22 +209,32 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SecurityDetails: close({
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(165) &
 	strings.MinRunes(30) &
 	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(165) &
+		strings.MinRunes(30) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SocketAddress: close({
-	Name?: string | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -222,7 +253,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" | fn.#StringExpression
-	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
+	Key!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

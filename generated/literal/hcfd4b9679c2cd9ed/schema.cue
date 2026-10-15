@@ -18,7 +18,7 @@ import "strings"
 	// The name of the Amazon S3 bucket where the capacity manager data export will
 	// be stored. The bucket must exist and be accessible by EC2 Capacity Manager
 	// service.
-	S3BucketName!: string
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// The prefix for the S3 bucket location where exported files will be placed. If
 	// not specified, files will be placed in the root of the bucket.

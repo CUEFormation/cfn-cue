@@ -6,15 +6,19 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::BackupSelection
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Backup::BackupSelection"
-	Properties!: close({
-		BackupPlanId!:    string | fn.#StringExpression
+	let properties = close({
+		BackupPlanId!:    string | number | bool | fn.#StringExpression
 		BackupSelection!: #BackupSelectionResourceType
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #BackupSelectionResourceType: close({
@@ -25,24 +29,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		StringNotLike?:   [...#ConditionParameter] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	ListOfTags?:    [...#ConditionResourceType] | fn.#ListExpression
-	NotResources?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	Resources?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	SelectionName!: =~"^[a-zA-Z0-9\\-\\_\\.\\:]+$" | fn.#StringExpression
+	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ListOfTags?:   [...#ConditionResourceType] | fn.#ListExpression
+	NotResources?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Resources?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SelectionName!: =~"^[a-zA-Z0-9\\-\\_\\.\\:]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9\\-\\_\\.\\:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ConditionParameter: close({
-	ConditionKey?:   string | fn.#StringExpression
-	ConditionValue?: string | fn.#StringExpression
+	ConditionKey?:   string | number | bool | fn.#StringExpression
+	ConditionValue?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ConditionResourceType: close({
-	ConditionKey!:   string | fn.#StringExpression
-	ConditionType!:  =~"(?i)^(?:stringequals)$" | fn.#StringExpression
-	ConditionValue!: string | fn.#StringExpression
+	ConditionKey!: string | number | bool | fn.#StringExpression
+	ConditionType!: =~"(?i)^(?:stringequals)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:stringequals)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ConditionValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

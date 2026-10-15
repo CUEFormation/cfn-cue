@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Local Gateway Route which describes a route for
@@ -18,7 +20,7 @@ package schema
 	...
 }]) & close({
 	// The CIDR block used for destination matches.
-	DestinationCidrBlock?: string
+	DestinationCidrBlock?: fn.#IPv4Network & string
 
 	// The ID of the local gateway route table.
 	LocalGatewayRouteTableId?: string

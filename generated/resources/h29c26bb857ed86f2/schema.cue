@@ -14,18 +14,22 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::RequesterGateway Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RTBFabric::RequesterGateway"
-	Properties!: close({
+	let properties = close({
 		Description?:      #Description
 		SecurityGroupIds!: #SecurityGroupIds
 		SubnetIds!:        #SubnetIds
 		Tags?:             #Tags
 		VpcId!:            #VpcId
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ActiveLinksCount: int |
@@ -45,16 +49,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#CreatedTimestamp: string | fn.#StringExpression
+#CreatedTimestamp: string | number | bool | fn.#StringExpression
 
-#Description: =~"^[A-Za-z0-9 ]+$" | fn.#StringExpression
+#Description: =~"^[A-Za-z0-9 ]+$" |
+{
+	number | bool
+	_cfnString: =~"^[A-Za-z0-9 ]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DomainName: =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
-#GatewayId: =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$" | fn.#StringExpression
+#GatewayId: =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$" |
+{
+	number | bool
+	_cfnString: =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$" & "\(self)"
+} |
+fn.#StringExpression
 
 #RequesterGatewayStatus: "PENDING_CREATION" |
 	"ACTIVE" |
@@ -67,25 +93,49 @@ fn.#StringExpression
 	"PENDING_RESTORATION" |
 	fn.#StringExpression
 
-#SecurityGroupIds: list.MinItems(1) & list.UniqueItems() & [
-	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupIds: list.MinItems(1) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+string &
+strings.MaxRunes(43) &
+strings.MinRunes(11) &
+=~"^sg-[0-9a-f]{8,40}$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 	string &
 	strings.MaxRunes(43) &
 	strings.MinRunes(11) &
-	=~"^sg-[0-9a-f]{8,40}$" |
-	fn.#StringExpression
-] |
+	=~"^sg-[0-9a-f]{8,40}$" &
+	"\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
-#SubnetIds: list.MinItems(1) & list.UniqueItems() & [
-	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8,17}$" | fn.#StringExpression
-] |
+#SubnetIds: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(24) &
+strings.MinRunes(15) &
+=~"^subnet-\\w{8,17}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8,17}$" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Value?: strings.MaxRunes(1600) & strings.MinRunes(0) | fn.#StringExpression
+	Value?: strings.MaxRunes(1600) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -105,10 +155,18 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#UpdatedTimestamp: string | fn.#StringExpression
+#UpdatedTimestamp: string | number | bool | fn.#StringExpression
 
-#VpcId: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#VpcId: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 strings.MaxRunes(50) &
 strings.MinRunes(5) &
 =~"^vpc-[a-f0-9]{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(50) &
+	strings.MinRunes(5) &
+	=~"^vpc-[a-f0-9]{8,17}$" &
+	"\(self)"
+} |
 fn.#StringExpression

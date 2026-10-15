@@ -11,23 +11,42 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates and manages a Performance Insights performance analysis report for a
 // specified DB instance.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PI::PerfReports"
-	Properties!: close({
-		EndTime!:     time.Time | fn.#StringExpression
-		Identifier!:  strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	let properties = close({
+		EndTime!: time.Time | fn.#StringExpression
+		Identifier!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ServiceType!: "RDS" | "DOCDB" | fn.#StringExpression
 		StartTime!:   time.Time | fn.#StringExpression
 		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

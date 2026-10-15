@@ -10,18 +10,30 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::AppBlockBuilder.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::AppBlockBuilder"
-	Properties!: close({
+	let properties = close({
 		AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [...#AccessEndpoint] |
 			fn.#ListExpression
-		AppBlockArns?:  list.UniqueItems() & [...#Arn] | fn.#ListExpression
-		Description?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		AppBlockArns?: list.UniqueItems() & [...#Arn] | fn.#ListExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		DisableIMDSV1?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		DisplayName?:   strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		EnableDefaultInternetAccess?: bool |
 			"true" |
 			"True" |
@@ -30,38 +42,67 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		InstanceType!: strings.MinRunes(1) | fn.#StringExpression
-		Name!:         =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-		Platform!:     #PlatformType
-		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VpcConfig!:    #VpcConfig
+		IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceType!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Platform!:  #PlatformType
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VpcConfig!: #VpcConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessEndpoint: close({
 	EndpointType!: "STREAMING" | fn.#StringExpression
-	VpceId!:       strings.MinRunes(1) | fn.#StringExpression
+	VpceId!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Arn: string | fn.#StringExpression
+#Arn: string | number | bool | fn.#StringExpression
 
 #PlatformType: "WINDOWS_SERVER_2019" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
-		fn.#StringExpression
-	] |
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	SubnetIds?: [...strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression

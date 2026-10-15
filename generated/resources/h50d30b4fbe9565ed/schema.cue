@@ -10,35 +10,57 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::EnforcedGuardrailConfiguration Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::EnforcedGuardrailConfiguration"
-	Properties!: close({
+	let properties = close({
 		GuardrailIdentifier!: strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		GuardrailVersion!:         =~"^[1-9][0-9]{0,7}$" | fn.#StringExpression
+		GuardrailVersion!: =~"^[1-9][0-9]{0,7}$" |
+		{
+			number | bool
+			_cfnString: =~"^[1-9][0-9]{0,7}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ModelEnforcement?:         #ModelEnforcement
 		SelectiveContentGuarding?: #SelectiveContentGuarding
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConfigOwner: "ACCOUNT" | "ORGANIZATION" | fn.#StringExpression
 
 #ModelEnforcement: close({
-	ExcludedModels!: [...] & [
-		...=~"^([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}(/[a-z0-9]{12}){0,1}$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	IncludedModels!: list.MinItems(1) & [
-		...=~"^(ALL|([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}(/[a-z0-9]{12}){0,1})$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
+	ExcludedModels!: [...] & [...=~"^([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}(/[a-z0-9]{12}){0,1}$" |
+	{
+		number | bool
+		_cfnString: =~"^([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}(/[a-z0-9]{12}){0,1}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	IncludedModels!: list.MinItems(1) & [...=~"^(ALL|([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}(/[a-z0-9]{12}){0,1})$" |
+	{
+		number | bool
+		_cfnString: =~"^(ALL|([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}(/[a-z0-9]{12}){0,1})$" &
+			"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

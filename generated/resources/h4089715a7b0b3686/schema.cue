@@ -11,72 +11,146 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Location::APIKey Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Location::APIKey"
-	Properties!: close({
-		Description?:  strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-		ExpireTime?:   #iso8601UTC
-		ForceDelete?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ForceUpdate?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		KeyName!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ExpireTime?:  #iso8601UTC
+		ForceDelete?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ForceUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KeyName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		NoExpiry?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Restrictions!: #ApiKeyRestrictions
 		Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AndroidApp: close({
 	CertificateFingerprint!: strings.MaxRunes(59) & strings.MinRunes(59) & =~"^([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(59) & strings.MinRunes(59) & =~"^([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}$" & "\(self)"
+	} |
 	fn.#StringExpression
 	Package!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([A-Za-z][A-Za-z\\d_]*\\.)+[A-Za-z][A-Za-z\\d_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^([A-Za-z][A-Za-z\\d_]*\\.)+[A-Za-z][A-Za-z\\d_]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ApiKeyRestrictions: close({
-	AllowActions!: list.MaxItems(24) & list.MinItems(1) & [
-		...strings.MaxRunes(200) & strings.MinRunes(5) & =~"^(geo|geo-routes|geo-places|geo-maps):\\w*\\*?$" |
-		fn.#StringExpression
-	] |
+	AllowActions!: list.MaxItems(24) & list.MinItems(1) & [...strings.MaxRunes(200) &
+	strings.MinRunes(5) &
+	=~"^(geo|geo-routes|geo-places|geo-maps):\\w*\\*?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^(geo|geo-routes|geo-places|geo-maps):\\w*\\*?$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	AllowAndroidApps?: list.MaxItems(5) & [...] & [...#AndroidApp] | fn.#ListExpression
 	AllowAppleApps?:   list.MaxItems(5) & [...] & [...#AppleApp] | fn.#ListExpression
-	AllowReferers?: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(253) & =~"^([\\w!$&()*+,./:;=?@\\x60-]|%([\\dA-Fa-f]{2}|[\\dA-Fa-f]?\\*))+$" |
-		fn.#StringExpression
-	] |
+	AllowReferers?: list.MaxItems(5) & [...] & [...strings.MaxRunes(253) &
+	=~"^([\\w!$&()*+,./:;=?@\\x60-]|%([\\dA-Fa-f]{2}|[\\dA-Fa-f]?\\*))+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) &
+		=~"^([\\w!$&()*+,./:;=?@\\x60-]|%([\\dA-Fa-f]{2}|[\\dA-Fa-f]?\\*))+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	AllowResources!: list.MaxItems(8) & list.MinItems(1) & [
-		...strings.MaxRunes(1600) &
-		=~"(^arn(:[a-z0-9]+([.-][a-z0-9]+)*):geo(:([a-z0-9]+([.-][a-z0-9]+)*))(:[0-9]+):((\\*)|([-a-z]+[/][*-._\\w]+))$)|(^arn(:[a-z0-9]+([.-][a-z0-9]+)*):(geo-routes|geo-places|geo-maps)(:((\\*)|([a-z0-9]+([.-][a-z0-9]+)*)))::((provider[\\/][*-._\\w]+))$)" |
-		fn.#StringExpression
-	] |
+	AllowResources!: list.MaxItems(8) & list.MinItems(1) & [...strings.MaxRunes(1600) &
+	=~"(^arn(:[a-z0-9]+([.-][a-z0-9]+)*):geo(:([a-z0-9]+([.-][a-z0-9]+)*))(:[0-9]+):((\\*)|([-a-z]+[/][*-._\\w]+))$)|(^arn(:[a-z0-9]+([.-][a-z0-9]+)*):(geo-routes|geo-places|geo-maps)(:((\\*)|([a-z0-9]+([.-][a-z0-9]+)*)))::((provider[\\/][*-._\\w]+))$)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) &
+		=~"(^arn(:[a-z0-9]+([.-][a-z0-9]+)*):geo(:([a-z0-9]+([.-][a-z0-9]+)*))(:[0-9]+):((\\*)|([-a-z]+[/][*-._\\w]+))$)|(^arn(:[a-z0-9]+([.-][a-z0-9]+)*):(geo-routes|geo-places|geo-maps)(:((\\*)|([a-z0-9]+([.-][a-z0-9]+)*)))::((provider[\\/][*-._\\w]+))$)" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #AppleApp: close({
 	BundleId!: strings.MaxRunes(155) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(155) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)+$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagMap: struct.MaxFields(50) & close({
 
-	{[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" &
+		"\(self)"
+} |
+fn.#StringExpression

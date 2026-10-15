@@ -1328,7 +1328,27 @@ import (
 
 // The ``LogConfiguration`` property specifies log configuration options to send
 // to a custom log driver for the container.
-#LogConfiguration: close({
+#LogConfiguration: matchIf({
+	LogDriver!: "awslogs"
+	...
+}, {
+	Options!: {
+		["awslogs-create-group" |
+			"awslogs-datetime-format" |
+			"awslogs-group" |
+			"awslogs-multiline-pattern" |
+			"awslogs-region" |
+			"awslogs-stream-prefix" |
+			"max-buffer-size" |
+			"mode"]:
+				_
+	} & {
+		"awslogs-group"!:  string
+		"awslogs-region"!: _
+		...
+	}
+	...
+}, _) & close({
 	// The log driver to use for the container.
 	// For tasks on FARGATElong, the supported log drivers are ``awslogs``,
 	// ``splunk``, and ``awsfirelens``.

@@ -15,28 +15,42 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LicenseManager::License
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LicenseManager::License"
-	Properties!: close({
-		Beneficiary!:              string | fn.#StringExpression
+	let properties = close({
+		Beneficiary!:              string | number | bool | fn.#StringExpression
 		ConsumptionConfiguration!: #ConsumptionConfiguration
 		Entitlements!:             list.UniqueItems() & [...#Entitlement] | fn.#ListExpression
-		HomeRegion!:               string | fn.#StringExpression
+		HomeRegion!:               string | number | bool | fn.#StringExpression
 		Issuer!:                   #IssuerData
 		LicenseMetadata?:          list.UniqueItems() & [...#Metadata] | fn.#ListExpression
-		LicenseName!:              string | fn.#StringExpression
-		ProductName!:              string | fn.#StringExpression
-		ProductSKU!:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Status?:                   #LicenseStatus
-		Tags?:                     [...#Tag] | fn.#ListExpression
-		Validity!:                 #ValidityDateFormat
+		LicenseName!:              string | number | bool | fn.#StringExpression
+		ProductName!:              string | number | bool | fn.#StringExpression
+		ProductSKU!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Status?:   #LicenseStatus
+		Tags?:     [...#Tag] | fn.#ListExpression
+		Validity!: #ValidityDateFormat
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #BorrowConfiguration: close({
 	AllowEarlyCheckIn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -80,7 +94,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!:    string | fn.#StringExpression
+	Name!:    string | number | bool | fn.#StringExpression
 	Overage?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Unit!: "Bits" |
 		"Bits/Second" |
@@ -110,21 +124,21 @@ fn.#ObjectExpression
 		"Terabytes" |
 		"Terabytes/Second" |
 		fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IssuerData: close({
-	Name!:    string | fn.#StringExpression
-	SignKey?: string | fn.#StringExpression
+	Name!:    string | number | bool | fn.#StringExpression
+	SignKey?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LicenseStatus: string | fn.#StringExpression
+#LicenseStatus: string | number | bool | fn.#StringExpression
 
 #Metadata: close({
-	Name!:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,8 +161,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -157,11 +171,27 @@ fn.#ObjectExpression
 	strings.MaxRunes(50) &
 	strings.MinRunes(0) &
 	=~"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[ 0-3]|[0-1][0-9]):[0-5][0-9])+$" |
+	{
+		number | bool
+		_cfnString: time.Time &
+		strings.MaxRunes(50) &
+		strings.MinRunes(0) &
+		=~"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[ 0-3]|[0-1][0-9]):[0-5][0-9])+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	End!: time.Time &
 	strings.MaxRunes(50) &
 	strings.MinRunes(0) &
 	=~"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[ 0-3]|[0-1][0-9]):[0-5][0-9])+$" |
+	{
+		number | bool
+		_cfnString: time.Time &
+		strings.MaxRunes(50) &
+		strings.MinRunes(0) &
+		=~"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])T(2[0-3]|[0-1][0-9]):([0-5][0-9]):([0-5][0-9])(\\.[0-9]+)?(Z|[+-](?:2[ 0-3]|[0-1][0-9]):[0-5][0-9])+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

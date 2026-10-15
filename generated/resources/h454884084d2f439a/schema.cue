@@ -10,30 +10,57 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Use the AWS::IoT::CertificateProvider resource to declare an AWS IoT Certificate Provider.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::CertificateProvider"
-	Properties!: close({
+	let properties = close({
 		AccountDefaultForOperations!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 			...#CertificateProviderOperation
 		] |
 			fn.#ListExpression
-		CertificateProviderName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" | fn.#StringExpression
-		LambdaFunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		CertificateProviderName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		LambdaFunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 		strings.MaxRunes(170) &
 		strings.MinRunes(1) &
 		=~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+			strings.MaxRunes(170) &
+			strings.MinRunes(1) &
+			=~"^[\\s\\S]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CertificateProviderOperation: "CreateCertificateFromCsr" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

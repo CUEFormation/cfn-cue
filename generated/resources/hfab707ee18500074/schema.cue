@@ -15,35 +15,68 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for StateMachine
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::StepFunctions::StateMachine"
-	Properties!: close({
-		Definition?:              #Definition
-		DefinitionS3Location?:    #S3Location
-		DefinitionString?:        strings.MaxRunes(1048576) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Definition?:           #Definition
+		DefinitionS3Location?: #S3Location
+		DefinitionString?: strings.MaxRunes(1048576) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1048576) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DefinitionSubstitutions?: #DefinitionSubstitutions
 		EncryptionConfiguration?: #EncryptionConfiguration
 		LoggingConfiguration?:    #LoggingConfiguration
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		StateMachineName?:     strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
+		StateMachineName?: strings.MaxRunes(80) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		StateMachineType?:     "STANDARD" | "EXPRESS" | fn.#StringExpression
 		Tags?:                 [...#TagsEntry] | fn.#ListExpression
 		TracingConfiguration?: #TracingConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CloudWatchLogsLogGroup: close({LogGroupArn?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+#CloudWatchLogsLogGroup: close({
+	LogGroupArn?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Definition: fn.#Object & {...} & struct.MinFields(1) | fn.#ObjectExpression
 
 #DefinitionSubstitutions: struct.MinFields(1) & close({
 
-	{[=~".*"]: string | int | bool | fn.#ValueExpression}}) |
+	{[=~".*"]: string | int | bool | fn.#ValueExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #EncryptionConfiguration: close({
@@ -63,8 +96,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Type!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY" | fn.#StringExpression
 }) |
@@ -80,15 +123,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3Location: close({
-	Bucket!:  string | fn.#StringExpression
-	Key!:     string | fn.#StringExpression
-	Version?: string | fn.#StringExpression
+	Bucket!:  string | number | bool | fn.#StringExpression
+	Key!:     string | number | bool | fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagsEntry: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

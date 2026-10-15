@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A KendraRanking Rescore execution plan
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KendraRanking::ExecutionPlan"
-	Properties!: close({
+	let properties = close({
 		// Capacity units
 		CapacityUnits?: #CapacityUnitsConfiguration
 
@@ -30,17 +32,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Tags for labeling the execution plan
 		Tags?: #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(1000) | fn.#StringExpression
+#Arn: strings.MaxRunes(1000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & "\(self)"
+} |
+fn.#StringExpression
 
 #CapacityUnitsConfiguration: close({RescoreCapacityUnits!: #RescoreCapacityUnits}) | fn.#ObjectExpression
 
-#Description: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Id: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
+#Id: strings.MaxRunes(36) & strings.MinRunes(36) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & "\(self)"
+} |
+fn.#StringExpression
 
-#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
+#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #RescoreCapacityUnits: int & >=0 |
 	{
@@ -59,8 +83,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#NumberExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

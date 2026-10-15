@@ -10,17 +10,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ManagedBlockchain::Member
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ManagedBlockchain::Member"
-	Properties!: close({
-		InvitationId?:         string | fn.#StringExpression
+	let properties = close({
+		InvitationId?:         string | number | bool | fn.#StringExpression
 		MemberConfiguration!:  #MemberConfiguration
 		NetworkConfiguration?: #NetworkConfiguration
-		NetworkId?:            string | fn.#StringExpression
+		NetworkId?:            string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApprovalThresholdPolicy: close({
@@ -38,7 +42,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	ThresholdComparator?: string | fn.#StringExpression
+	ThresholdComparator?: string | number | bool | fn.#StringExpression
 	ThresholdPercentage?: int |
 		{
 			string &
@@ -57,31 +61,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #MemberConfiguration: close({
-	Description?:                  string | fn.#StringExpression
+	Description?:                  string | number | bool | fn.#StringExpression
 	MemberFrameworkConfiguration?: #MemberFrameworkConfiguration
-	Name!:                         string | fn.#StringExpression
+	Name!:                         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MemberFabricConfiguration: close({
-	AdminPassword!: string | fn.#StringExpression
-	AdminUsername!: string | fn.#StringExpression
+	AdminPassword!: string | number | bool | fn.#StringExpression
+	AdminUsername!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MemberFrameworkConfiguration: close({MemberFabricConfiguration?: #MemberFabricConfiguration}) | fn.#ObjectExpression
 
 #NetworkConfiguration: close({
-	Description?:                   string | fn.#StringExpression
-	Framework!:                     string | fn.#StringExpression
-	FrameworkVersion!:              string | fn.#StringExpression
-	Name!:                          string | fn.#StringExpression
+	Description?:                   string | number | bool | fn.#StringExpression
+	Framework!:                     string | number | bool | fn.#StringExpression
+	FrameworkVersion!:              string | number | bool | fn.#StringExpression
+	Name!:                          string | number | bool | fn.#StringExpression
 	NetworkFrameworkConfiguration?: #NetworkFrameworkConfiguration
 	VotingPolicy!:                  #VotingPolicy
 }) |
 fn.#ObjectExpression
 
-#NetworkFabricConfiguration: close({Edition!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#NetworkFabricConfiguration: close({Edition!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #NetworkFrameworkConfiguration: close({NetworkFabricConfiguration?: #NetworkFabricConfiguration}) | fn.#ObjectExpression
 

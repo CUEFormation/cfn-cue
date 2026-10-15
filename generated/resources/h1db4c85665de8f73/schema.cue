@@ -9,12 +9,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCEndpointService
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPCEndpointService"
-	Properties?: close({
+	let properties = close({
 		AcceptanceRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ContributorInsightsEnabled?: bool |
 			"true" |
@@ -24,29 +26,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		GatewayLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
-		NetworkLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
-		PayerResponsibility?:         string | fn.#StringExpression
-		PrivateDnsName?:              string | fn.#StringExpression
+		GatewayLoadBalancerArns?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		NetworkLoadBalancerArns?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		PayerResponsibility?:         string | number | bool | fn.#StringExpression
+		PrivateDnsName?:              string | number | bool | fn.#StringExpression
 		PrivateDnsNameConfiguration?: close({}) | fn.#ObjectExpression
 		SupportedIpAddressTypes?:     [...#IpAddressType] | fn.#ListExpression
-		SupportedRegions?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		Tags?:                        [...#Tag] | fn.#ListExpression
+		SupportedRegions?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IpAddressType: "ipv4" | "ipv6" | fn.#StringExpression
 
 #PrivateDnsNameConfiguration: close({
-	Name?:  string | fn.#StringExpression
-	State?: string | fn.#StringExpression
-	Type?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	State?: string | number | bool | fn.#StringExpression
+	Type?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

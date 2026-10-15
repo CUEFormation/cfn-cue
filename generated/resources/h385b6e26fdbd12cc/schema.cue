@@ -11,13 +11,15 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This is a CloudFormation resource for the first-party AWS::Hooks::LambdaHook.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::LambdaHook"
-	Properties!: close({
-		Alias!:      string | fn.#StringExpression
+	let properties = close({
+		Alias!:      string | number | bool | fn.#StringExpression
 		AutoUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The execution role ARN assumed by Hooks to invoke Lambda.
@@ -27,6 +29,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		LambdaFunction!: strings.MaxRunes(170) &
 		strings.MinRunes(1) &
 		=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}(-gov)?(-iso([a-z])?)?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(170) &
+			strings.MinRunes(1) &
+			=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}(-gov)?(-iso([a-z])?)?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// Contains logging configuration information for the hook.
@@ -49,7 +58,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		TargetFilters?: fn.#Object & {...} & matchN(1, [
+		TargetFilters?: fn.#Object & matchN(1, [
 			struct.MinFields(1) & close({
 				Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
 				InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#InvocationPoint] |
@@ -65,6 +74,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		TargetOperations!: list.UniqueItems() & [...#TargetOperation] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
@@ -79,21 +90,54 @@ fn.#ObjectExpression
 #InvocationPoint: "PRE_PROVISION" | fn.#StringExpression
 
 #LoggingConfig: close({
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	LogRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"arn:.+:iam::[0-9]{12}:role/.+" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"arn:.+:iam::[0-9]{12}:role/.+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Role: strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" | fn.#StringExpression
+#Role: strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" & "\(self)"
+} |
+fn.#StringExpression
 
-#StackName: strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" | fn.#StringExpression
+#StackName: strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#StackRole: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) | fn.#StringExpression
+#StackRole: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) |
+{
+	number | bool
+	_cfnString: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) & "\(self)"
+} |
+fn.#StringExpression
 
-#TargetName: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#TargetName: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #TargetOperation: "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL" | fn.#StringExpression

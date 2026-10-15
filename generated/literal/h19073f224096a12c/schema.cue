@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::TransitGatewayRoute
@@ -11,7 +13,7 @@ package schema
 
 	// The CIDR range used for destination matches. Routing decisions are based on
 	// the most specific match.
-	DestinationCidrBlock!: string
+	DestinationCidrBlock!: fn.#IPv4Network & string
 
 	// The ID of transit gateway attachment.
 	TransitGatewayAttachmentId?: string

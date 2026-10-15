@@ -6,95 +6,120 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolRegionalConfigurationAttachment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolRegionalConfigurationAttachment"
-	Properties!: close({
+	let properties = close({
 		EmailConfiguration?: #EmailConfiguration
 		LambdaConfig?:       #LambdaConfig
 		SmsConfiguration?:   #SmsConfiguration
-		Status?:             string | fn.#StringExpression
-		UserPoolId!:         string | fn.#StringExpression
+		Status?:             string | number | bool | fn.#StringExpression
+		UserPoolId!:         string | number | bool | fn.#StringExpression
 		UserPoolTags?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CustomEmailSender: close({
-	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	LambdaVersion?: string | fn.#StringExpression
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LambdaVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomSMSSender: close({
-	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	LambdaVersion?: string | fn.#StringExpression
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LambdaVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EmailConfiguration: close({
-	ConfigurationSet?:    string | fn.#StringExpression
-	EmailSendingAccount?: string | fn.#StringExpression
-	From?:                string | fn.#StringExpression
-	ReplyToEmailAddress?: string | fn.#StringExpression
-	SourceArn?:           string | fn.#StringExpression
+	ConfigurationSet?:    string | number | bool | fn.#StringExpression
+	EmailSendingAccount?: string | number | bool | fn.#StringExpression
+	From?:                string | number | bool | fn.#StringExpression
+	ReplyToEmailAddress?: string | number | bool | fn.#StringExpression
+	SourceArn?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EumsSmsConfiguration: close({
-	CallerArn!:            string | fn.#StringExpression
-	ConfigurationSetName?: string | fn.#StringExpression
-	ExternalId?:           string | fn.#StringExpression
-	InEntityId?:           string | fn.#StringExpression
-	InTemplateId?:         string | fn.#StringExpression
-	OriginationIdentity?:  string | fn.#StringExpression
-	Region?:               string | fn.#StringExpression
+	CallerArn!:            string | number | bool | fn.#StringExpression
+	ConfigurationSetName?: string | number | bool | fn.#StringExpression
+	ExternalId?:           string | number | bool | fn.#StringExpression
+	InEntityId?:           string | number | bool | fn.#StringExpression
+	InTemplateId?:         string | number | bool | fn.#StringExpression
+	OriginationIdentity?:  string | number | bool | fn.#StringExpression
+	Region?:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InboundFederation: close({
-	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	LambdaVersion?: string | fn.#StringExpression
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LambdaVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LambdaConfig: close({
-	CreateAuthChallenge?:         string | fn.#StringExpression
+	CreateAuthChallenge?:         string | number | bool | fn.#StringExpression
 	CustomEmailSender?:           #CustomEmailSender
-	CustomMessage?:               string | fn.#StringExpression
+	CustomMessage?:               string | number | bool | fn.#StringExpression
 	CustomSMSSender?:             #CustomSMSSender
-	DefineAuthChallenge?:         string | fn.#StringExpression
+	DefineAuthChallenge?:         string | number | bool | fn.#StringExpression
 	InboundFederation?:           #InboundFederation
-	KMSKeyID?:                    string | fn.#StringExpression
-	PostAuthentication?:          string | fn.#StringExpression
-	PostConfirmation?:            string | fn.#StringExpression
-	PreAuthentication?:           string | fn.#StringExpression
-	PreSignUp?:                   string | fn.#StringExpression
-	PreTokenGeneration?:          string | fn.#StringExpression
+	KMSKeyID?:                    string | number | bool | fn.#StringExpression
+	PostAuthentication?:          string | number | bool | fn.#StringExpression
+	PostConfirmation?:            string | number | bool | fn.#StringExpression
+	PreAuthentication?:           string | number | bool | fn.#StringExpression
+	PreSignUp?:                   string | number | bool | fn.#StringExpression
+	PreTokenGeneration?:          string | number | bool | fn.#StringExpression
 	PreTokenGenerationConfig?:    #PreTokenGenerationConfig
-	UserMigration?:               string | fn.#StringExpression
-	VerifyAuthChallengeResponse?: string | fn.#StringExpression
+	UserMigration?:               string | number | bool | fn.#StringExpression
+	VerifyAuthChallengeResponse?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PreTokenGenerationConfig: close({
-	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	LambdaVersion?: string | fn.#StringExpression
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LambdaVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SmsConfiguration: close({
 	EumsSms?:      #EumsSmsConfiguration
-	ExternalId?:   string | fn.#StringExpression
-	SnsCallerArn?: string | fn.#StringExpression
-	SnsRegion?:    string | fn.#StringExpression
+	ExternalId?:   string | number | bool | fn.#StringExpression
+	SnsCallerArn?: string | number | bool | fn.#StringExpression
+	SnsRegion?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

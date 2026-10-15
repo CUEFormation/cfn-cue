@@ -6,12 +6,14 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::PinpointEmail::Identity
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PinpointEmail::Identity"
-	Properties!: close({
+	let properties = close({
 		DkimSigningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		FeedbackForwardingEnabled?: bool |
 			"true" |
@@ -22,19 +24,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 		MailFromAttributes?: #MailFromAttributes
-		Name!:               string | fn.#StringExpression
+		Name!:               string | number | bool | fn.#StringExpression
 		Tags?:               [...#Tags] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MailFromAttributes: close({
-	BehaviorOnMxFailure?: string | fn.#StringExpression
-	MailFromDomain?:      string | fn.#StringExpression
+	BehaviorOnMxFailure?: string | number | bool | fn.#StringExpression
+	MailFromDomain?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

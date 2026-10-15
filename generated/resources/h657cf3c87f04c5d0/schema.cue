@@ -10,30 +10,70 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeStarNotifications::NotificationRule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeStarNotifications::NotificationRule"
-	Properties!: close({
-		CreatedBy?:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		DetailType!:   "BASIC" | "FULL" | fn.#StringExpression
-		EventTypeId?:  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		EventTypeIds!: [...strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-		Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9\\-_ ]+$" | fn.#StringExpression
-		Resource!:     =~"^arn:aws[^:\\s]*:[^:\\s]*:[^:\\s]*:[0-9]{12}:[^\\s]+$" | fn.#StringExpression
-		Status?:       "ENABLED" | "DISABLED" | fn.#StringExpression
+	let properties = close({
+		CreatedBy?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DetailType!: "BASIC" | "FULL" | fn.#StringExpression
+		EventTypeId?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		EventTypeIds!: [...strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9\\-_ ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9\\-_ ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Resource!: =~"^arn:aws[^:\\s]*:[^:\\s]*:[^:\\s]*:[0-9]{12}:[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[^:\\s]*:[^:\\s]*:[^:\\s]*:[0-9]{12}:[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Status?: "ENABLED" | "DISABLED" | fn.#StringExpression
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		TargetAddress?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Targets!:       list.MaxItems(10) & [...#Target] | fn.#ListExpression
+		TargetAddress?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Targets!: list.MaxItems(10) & [...#Target] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Target: close({
-	TargetAddress!: string | fn.#StringExpression
-	TargetType!:    string | fn.#StringExpression
+	TargetAddress!: string | number | bool | fn.#StringExpression
+	TargetType!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

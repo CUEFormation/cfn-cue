@@ -10,17 +10,19 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::ApiCache
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::ApiCache"
-	Properties!: close({
+	let properties = close({
 		ApiCachingBehavior!: "FULL_REQUEST_CACHING" |
 			"OPERATION_LEVEL_CACHING" |
 			"PER_RESOLVER_CACHING" |
 			fn.#StringExpression
-		ApiId!:                    string | fn.#StringExpression
+		ApiId!:                    string | number | bool | fn.#StringExpression
 		AtRestEncryptionEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		HealthMetricsConfig?:      "DISABLED" | "ENABLED" | fn.#StringExpression
 		TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -57,4 +59,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"XLARGE" |
 			fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

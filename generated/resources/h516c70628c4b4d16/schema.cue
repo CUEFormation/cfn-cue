@@ -10,22 +10,39 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PaymentCryptography::Key Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PaymentCryptography::Key"
-	Properties!: close({
+	let properties = close({
 		DeriveKeyUsage?:         #DeriveKeyUsage
 		Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Exportable!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		KeyAttributes!:          #KeyAttributes
 		KeyCheckValueAlgorithm?: #KeyCheckValueAlgorithm
 		Policy?: strings.MaxRunes(20480) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20480) &
+			strings.MinRunes(1) &
+			=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ReplicationRegions?: [...=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" | fn.#StringExpression] | fn.#ListExpression
-		Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		ReplicationRegions?: [...=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DeriveKeyUsage: "TR31_B0_BASE_DERIVATION_KEY" |
@@ -129,24 +146,53 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ReplicationStatusType: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]{1,20}:[0-9]{12}:key/[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]{1,20}:[0-9]{12}:key/[a-zA-Z0-9-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^[a-zA-Z0-9:/_-]+$" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9:/_-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Status!:        #KeyReplicationState
-	StatusMessage?: string | fn.#StringExpression
+	StatusMessage?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

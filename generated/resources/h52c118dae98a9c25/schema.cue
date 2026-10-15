@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A conformance pack is a collection of AWS Config rules and remediation
@@ -17,24 +19,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // region or across an entire AWS Organization.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::ConformancePack"
-	Properties!: close({
+	let properties = close({
 		ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter] |
 			fn.#ListExpression
 		ConformancePackName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" & "\(self)"
+		} |
 		fn.#StringExpression
-		DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
-		DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Tags?:                list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		TemplateBody?:        strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
-		TemplateS3Uri?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
+		DeliveryS3Bucket?: strings.MaxRunes(63) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TemplateBody?: strings.MaxRunes(51200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(51200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" & "\(self)"
+		} |
+		fn.#StringExpression
 		TemplateSSMDocumentDetails?: close({
 			DocumentName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" & "\(self)"
+			} |
 			fn.#StringExpression
 			DocumentVersion?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				=~"^([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConformancePackInputParameter: close({
@@ -43,12 +82,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ParameterName: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+#ParameterName: strings.MaxRunes(255) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#ParameterValue: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
+#ParameterValue: strings.MaxRunes(4096) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

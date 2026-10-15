@@ -10,13 +10,15 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A billing group is a set of linked account which belong to the same end
 // customer. It can be seen as a virtual consolidated billing family.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BillingConductor::BillingGroup"
-	Properties!: ({
+	let properties = ({
 		AccountGrouping?: null |
 		bool |
 		number |
@@ -44,21 +46,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) & close({
 		AccountGrouping!:       #AccountGrouping
 		ComputationPreference!: #ComputationPreference
-		Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-		PrimaryAccountId?: =~"[0-9]{12}" | fn.#StringExpression
-		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		PrimaryAccountId?: =~"[0-9]{12}" |
+		{
+			number | bool
+			_cfnString: =~"[0-9]{12}" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccountGrouping: close({
 	AutoAssociate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LinkedAccountIds?: list.MaxItems(30) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"[0-9]{12}" | fn.#StringExpression
-	] |
-		fn.#ListExpression
+	LinkedAccountIds?: list.MaxItems(30) & list.MinItems(1) & list.UniqueItems() & [...=~"[0-9]{12}" |
+	{
+		number | bool
+		_cfnString: =~"[0-9]{12}" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	ResponsibilityTransferArn?: =~"arn:[a-z0-9][a-z0-9-.]{0,62}:organizations::[0-9]{12}:transfer/o-[a-z0-9]{10,32}/(billing)/(inbound|outbound)/rt-[0-9a-z]{8,32}" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"arn:[a-z0-9][a-z0-9-.]{0,62}:organizations::[0-9]{12}:transfer/o-[a-z0-9]{10,32}/(billing)/(inbound|outbound)/rt-[0-9a-z]{8,32}" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -66,12 +93,27 @@ fn.#ObjectExpression
 
 #ComputationPreference: close({
 	PricingPlanArn!: =~"arn:aws(-cn)?:billingconductor::(aws|[0-9]{12}):pricingplan/(BasicPricingPlan|Passthrough|[a-zA-Z0-9]{10})" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"arn:aws(-cn)?:billingconductor::(aws|[0-9]{12}):pricingplan/(BasicPricingPlan|Passthrough|[a-zA-Z0-9]{10})" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

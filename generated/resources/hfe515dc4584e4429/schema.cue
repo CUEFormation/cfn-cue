@@ -14,48 +14,105 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::DataSource Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::DataSource"
-	Properties!: close({
+	let properties = close({
 		AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [...#DataSourceParameters] |
 			fn.#ListExpression
-		AwsAccountId?:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		Credentials?:             #DataSourceCredentials
-		DataSourceId?:            string | fn.#StringExpression
-		DataSourceParameters?:    #DataSourceParameters
-		ErrorInfo?:               #DataSourceErrorInfo
-		FolderArns?:              list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-		Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Credentials?:          #DataSourceCredentials
+		DataSourceId?:         string | number | bool | fn.#StringExpression
+		DataSourceParameters?: #DataSourceParameters
+		ErrorInfo?:            #DataSourceErrorInfo
+		FolderArns?: list.MaxItems(10) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Permissions?:             list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
 		SslProperties?:           #SslProperties
 		Tags?:                    list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		Type!:                    #DataSourceType
 		VpcConnectionProperties?: #VpcConnectionProperties
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AmazonElasticsearchParameters: close({Domain!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
+#AmazonElasticsearchParameters: close({
+	Domain!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#AmazonOpenSearchParameters: close({Domain!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
+#AmazonOpenSearchParameters: close({
+	Domain!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #AthenaParameters: close({
-	ConsumerAccountRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	ConsumerAccountRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	IdentityCenterConfiguration?: #IdentityCenterConfiguration
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	WorkGroup?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	WorkGroup?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AuroraParameters: close({
-	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -80,8 +137,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AuroraPostgreSqlParameters: close({
-	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -107,30 +174,59 @@ fn.#ObjectExpression
 
 #AuthenticationType: "PASSWORD" | "TOKEN" | "X509" | "KEYPAIR" | fn.#StringExpression
 
-#AwsIotAnalyticsParameters: close({DataSetName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
+#AwsIotAnalyticsParameters: close({
+	DataSetName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #CredentialPair: close({
 	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [...#DataSourceParameters] |
 		fn.#ListExpression
-	Password!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Username!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Password!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Username!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DataSourceCredentials: close({
-	CopySourceArn?:      =~"^arn:[-a-z0-9]*:quicksight:[-a-z0-9]*:[0-9]{12}:datasource/.+$" | fn.#StringExpression
+	CopySourceArn?: =~"^arn:[-a-z0-9]*:quicksight:[-a-z0-9]*:[0-9]{12}:datasource/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:[-a-z0-9]*:quicksight:[-a-z0-9]*:[0-9]{12}:datasource/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	CredentialPair?:     #CredentialPair
 	KeyPairCredentials?: #KeyPairCredentials
 	SecretArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[-a-z0-9]*:secretsmanager:[-a-z0-9]*:[0-9]{12}:secret:.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:[-a-z0-9]*:secretsmanager:[-a-z0-9]*:[0-9]{12}:secret:.+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DataSourceErrorInfo: close({
-	Message?: string | fn.#StringExpression
+	Message?: string | number | bool | fn.#StringExpression
 	Type?:    #DataSourceErrorInfoType
 }) |
 fn.#ObjectExpression
@@ -230,7 +326,12 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #DatabricksParameters: close({
-	Host!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -251,7 +352,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SqlEndpointPath!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	SqlEndpointPath!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -261,7 +367,12 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ImpalaParameters: close({
-	Host!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -282,29 +393,71 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SqlEndpointPath!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	SqlEndpointPath!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KeyPairCredentials: close({
-	KeyPairUsername!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	KeyPairUsername!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PrivateKey!: strings.MaxRunes(8000) &
 	strings.MinRunes(1600) &
 	=~"^-{5}BEGIN (ENCRYPTED )?PRIVATE KEY-{5}\\x{000D}?\\x{000A}([A-Za-z0-9/+]{64}\\x{000D}?\\x{000A})*[A-Za-z0-9/+]{1,64}={0,2}\\x{000D}?\\x{000A}-{5}END (ENCRYPTED )?PRIVATE KEY-{5}(\\x{000D}?\\x{000A})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8000) &
+		strings.MinRunes(1600) &
+		=~"^-{5}BEGIN (ENCRYPTED )?PRIVATE KEY-{5}\\x{000D}?\\x{000A}([A-Za-z0-9/+]{64}\\x{000D}?\\x{000A})*[A-Za-z0-9/+]{1,64}={0,2}\\x{000D}?\\x{000A}-{5}END (ENCRYPTED )?PRIVATE KEY-{5}(\\x{000D}?\\x{000A})?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	PrivateKeyPassphrase?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	PrivateKeyPassphrase?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ManifestFileLocation: close({
-	Bucket!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Key!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Bucket!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MariaDbParameters: close({
-	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -329,8 +482,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MySqlParameters: close({
-	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -355,16 +518,41 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OAuthParameters: close({
-	IdentityProviderResourceUri?:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	IdentityProviderResourceUri?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	IdentityProviderVpcConnectionProperties?: #VpcConnectionProperties
-	OAuthScope?:                              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TokenProviderUrl!:                        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	OAuthScope?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TokenProviderUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OracleParameters: close({
-	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -390,8 +578,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PostgreSqlParameters: close({
-	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -416,8 +614,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PrestoParameters: close({
-	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Host!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -442,27 +650,67 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RdsParameters: close({
-	Database!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceId!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	InstanceId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RedshiftIAMParameters: close({
 	AutoCreateDatabaseUser?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DatabaseGroups?: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	DatabaseGroups?: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	DatabaseUser?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	DatabaseUser?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RedshiftParameters: close({
-	ClusterId?:                   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Database!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host?:                        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	ClusterId?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	IAMParameters?:               #RedshiftIAMParameters
 	IdentityCenterConfiguration?: #IdentityCenterConfiguration
 	Port?: <=65535 & >=0 |
@@ -489,9 +737,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ResourcePermission: close({
-	Actions!:   list.MaxItems(30) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Resource?:  string | fn.#StringExpression
+	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Resource?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -507,29 +761,65 @@ fn.#ObjectExpression
 
 #S3Parameters: close({
 	ManifestFileLocation!: #ManifestFileLocation
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3TablesParameters: close({
 	TableBucketArn?: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-zA-Z0-9-_]{3,63})$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-zA-Z0-9-_]{3,63})$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #SnowflakeParameters: close({
-	AuthenticationType?:        #AuthenticationType
-	Database!:                  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseAccessControlRole?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Host!:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OAuthParameters?:           #OAuthParameters
-	Warehouse!:                 strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	AuthenticationType?: #AuthenticationType
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseAccessControlRole?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	OAuthParameters?: #OAuthParameters
+	Warehouse!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SparkParameters: close({
-	Host!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -554,8 +844,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SqlServerParameters: close({
-	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -585,11 +885,26 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #StarburstParameters: close({
-	AuthenticationType?:        #AuthenticationType
-	Catalog!:                   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	DatabaseAccessControlRole?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Host!:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OAuthParameters?:           #OAuthParameters
+	AuthenticationType?: #AuthenticationType
+	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseAccessControlRole?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	OAuthParameters?: #OAuthParameters
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -617,14 +932,34 @@ fn.#ObjectExpression
 #StarburstProductType: "GALAXY" | "ENTERPRISE" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TeradataParameters: close({
-	Database!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Host!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -649,8 +984,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TrinoParameters: close({
-	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Host!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Catalog!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: <=65535 & >=1 |
 		{
 			string &
@@ -674,4 +1019,5 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#VpcConnectionProperties: close({VpcConnectionArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VpcConnectionProperties: close({VpcConnectionArn!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression

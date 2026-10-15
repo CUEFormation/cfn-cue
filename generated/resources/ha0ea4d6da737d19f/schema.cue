@@ -10,23 +10,53 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolResourceServer
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolResourceServer"
-	Properties!: close({
+	let properties = close({
 		Identifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		Name!:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
-		Scopes?:     list.MaxItems(100) & [...] & [...#ResourceServerScopeType] | fn.#ListExpression
-		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Scopes?: list.MaxItems(100) & [...] & [...#ResourceServerScopeType] | fn.#ListExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ResourceServerScopeType: close({
-	ScopeDescription!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	ScopeDescription!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ScopeName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x2E\\x30-\\x5B\\x5D-\\x7E]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\x21\\x23-\\x2E\\x30-\\x5B\\x5D-\\x7E]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

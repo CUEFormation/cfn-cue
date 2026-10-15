@@ -10,14 +10,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMPoolCidr Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::IPAMPoolCidr"
-	Properties!: close({
-		Cidr?:       string | fn.#StringExpression
-		IpamPoolId!: string | fn.#StringExpression
+	let properties = close({
+		Cidr?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		IpamPoolId!: string | number | bool | fn.#StringExpression
 		NetmaskLength?: int |
 			{
 				string &
@@ -35,4 +42,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -6,21 +6,25 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::Mesh
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppMesh::Mesh"
-	Properties?: close({
-		MeshName?: string | fn.#StringExpression
+	let properties = close({
+		MeshName?: string | number | bool | fn.#StringExpression
 		Spec?:     #MeshSpec
 		Tags?:     [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#EgressFilter: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#EgressFilter: close({Type!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#MeshServiceDiscovery: close({IpPreference?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#MeshServiceDiscovery: close({IpPreference?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #MeshSpec: close({
 	EgressFilter?:     #EgressFilter
@@ -29,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

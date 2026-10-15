@@ -14,17 +14,19 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Local Gateway Virtual Interface which describes
 // a virtual interface for AWS Outposts local gateways.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::LocalGatewayVirtualInterface"
-	Properties!: close({
-		LocalAddress!:                        string | fn.#StringExpression
-		LocalGatewayVirtualInterfaceGroupId!: string | fn.#StringExpression
-		OutpostLagId!:                        string | fn.#StringExpression
-		PeerAddress!:                         string | fn.#StringExpression
+	let properties = close({
+		LocalAddress!:                        string | number | bool | fn.#StringExpression
+		LocalGatewayVirtualInterfaceGroupId!: string | number | bool | fn.#StringExpression
+		OutpostLagId!:                        string | number | bool | fn.#StringExpression
+		PeerAddress!:                         string | number | bool | fn.#StringExpression
 		PeerBgpAsn?: int |
 			{
 				string &
@@ -75,11 +77,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

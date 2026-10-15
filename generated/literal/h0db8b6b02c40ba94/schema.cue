@@ -68,7 +68,9 @@ import "strings"
 	Architecture!: "X86_64" | "ARM64" | "ARMHF"
 
 	// The Amazon S3 bucket name.
-	S3Bucket!: =~"[a-z0-9][a-z0-9.\\-]*[a-z0-9]"
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"[a-z0-9][a-z0-9.\\-]*[a-z0-9]"
 
 	// The s3 object key.
 	S3Key!: strings.MaxRunes(1024) & strings.MinRunes(1)

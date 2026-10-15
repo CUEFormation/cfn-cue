@@ -15,6 +15,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Task. A task defines a reusable
@@ -22,23 +24,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // pipeline compute nodes.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::Task"
-	Properties!: close({
+	let properties = close({
 		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 
 		// The task execution configuration.
 		TaskConfiguration!: #TaskConfiguration
-		TaskName!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		WorkspaceName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		TaskName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		WorkspaceName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ContainerTaskConfiguration: close({
-	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	EcrUri!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^((\\d{12}\\.dkr\\.ecr\\.[a-z0-9-]+\\.[a-z.]+)|public\\.ecr\\.aws/[a-z][a-z0-9]+([._-][a-z0-9]+)*)/[a-z0-9]+((\\.||__|__|-+)[a-z0-9]+)*(/[a-z0-9]+((\\.||__|__|-+)[a-z0-9]+)*)*(:[a-zA-Z0-9._-]+|@sha256:[a-f0-9]{64})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^((\\d{12}\\.dkr\\.ecr\\.[a-z0-9-]+\\.[a-z.]+)|public\\.ecr\\.aws/[a-z][a-z0-9]+([._-][a-z0-9]+)*)/[a-z0-9]+((\\.||__|__|-+)[a-z0-9]+)*(/[a-z0-9]+((\\.||__|__|-+)[a-z0-9]+)*)*(:[a-zA-Z0-9._-]+|@sha256:[a-f0-9]{64})?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	EnvironmentVariables?:          #EnvironmentVariablesMap
 	EphemeralStorageConfiguration?: #EphemeralStorageConfiguration
@@ -62,6 +90,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	TaskExecutionRole!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:iam::[0-9]+:role/[\\w+=,.@/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=\\/,.@-]+:iam::[0-9]+:role/[\\w+=,.@/-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	TimeoutSeconds?: int & <=86400 & >=60 |
 		{
@@ -84,7 +119,17 @@ fn.#ObjectExpression
 
 #EnvironmentVariablesMap: struct.MaxFields(100) & close({
 
-	{[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: strings.MaxRunes(2048) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #EphemeralStorageConfiguration: close({
@@ -109,10 +154,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Mount: close({
-	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	RelativePath!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Source!:       #MountSource
-	StorageType!:  "SHARED_STORAGE" | fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RelativePath!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Source!:      #MountSource
+	StorageType!: "SHARED_STORAGE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -122,14 +177,36 @@ fn.#ObjectExpression
 	AccessPointArn!: strings.MaxRunes(128) &
 	strings.MinRunes(4) &
 	=~"^arn:aws(-cn|-us-gov)?:s3:[a-z0-9-]*:\\d{12}:accesspoint[/:][a-zA-Z0-9._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(4) &
+		=~"^arn:aws(-cn|-us-gov)?:s3:[a-z0-9-]*:\\d{12}:accesspoint[/:][a-zA-Z0-9._-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Prefix?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Prefix?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

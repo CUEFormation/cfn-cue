@@ -6,21 +6,35 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Describes an endpoint authorization for authorizing Redshift-managed VPC
 // endpoint access to a cluster across AWS accounts.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::EndpointAuthorization"
-	Properties!: close({
+	let properties = close({
 		// The target AWS account ID to grant or revoke access for.
 		Account!:           #AwsAccount
-		ClusterIdentifier!: string | fn.#StringExpression
+		ClusterIdentifier!: string | number | bool | fn.#StringExpression
 		Force?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		VpcIds?:            [...#VpcId] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AwsAccount: =~"^\\d{12}$" | fn.#StringExpression
+#AwsAccount: =~"^\\d{12}$" |
+{
+	number | bool
+	_cfnString: =~"^\\d{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#VpcId: =~"^vpc-[A-Za-z0-9]{1,17}$" | fn.#StringExpression
+#VpcId: =~"^vpc-[A-Za-z0-9]{1,17}$" |
+{
+	number | bool
+	_cfnString: =~"^vpc-[A-Za-z0-9]{1,17}$" & "\(self)"
+} |
+fn.#StringExpression

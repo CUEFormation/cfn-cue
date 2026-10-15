@@ -9,16 +9,39 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Athena::PreparedStatement
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Athena::PreparedStatement"
-	Properties!: close({
-		Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		QueryStatement!: strings.MaxRunes(262144) & strings.MinRunes(1) | fn.#StringExpression
-		StatementName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_@:]{1,256}$" |
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		WorkGroup!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]{1,128}$" | fn.#StringExpression
+		QueryStatement!: strings.MaxRunes(262144) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(262144) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		StatementName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_@:]{1,256}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_@:]{1,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		WorkGroup!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]{1,128}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]{1,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

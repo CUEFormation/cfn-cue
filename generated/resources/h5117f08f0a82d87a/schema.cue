@@ -10,13 +10,15 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for managing AWS account-level UX customization settings,
 // including account color, visible services, and visible regions.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::UXC::AccountCustomization"
-	Properties?: close({
+	let properties = close({
 		AccountColor?: "none" |
 			"pink" |
 			"purple" |
@@ -28,13 +30,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"orange" |
 			"red" |
 			fn.#StringExpression
-		VisibleRegions?: list.MaxItems(100) & list.UniqueItems() & [
-			...=~"^[a-z]{2}(-[a-z]{1,10}){1,2}-[1-9]$" | fn.#StringExpression
-		] |
-			fn.#ListExpression
-		VisibleServices?: list.MaxItems(500) & list.UniqueItems() & [
-			...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		VisibleRegions?: list.MaxItems(100) & list.UniqueItems() & [...=~"^[a-z]{2}(-[a-z]{1,10}){1,2}-[1-9]$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z]{2}(-[a-z]{1,10}){1,2}-[1-9]$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		VisibleServices?: list.MaxItems(500) & list.UniqueItems() & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

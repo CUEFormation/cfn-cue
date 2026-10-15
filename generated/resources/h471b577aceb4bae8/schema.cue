@@ -14,17 +14,24 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS:AppIntegrations::Application
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppIntegrations::Application"
-	Properties!: close({
+	let properties = close({
 		// The application configuration. Cannot be used when IsService is true.
 		ApplicationConfig?:       #ApplicationConfig
 		ApplicationSourceConfig!: close({ExternalUrlConfig!: #ExternalUrlConfig}) | fn.#ObjectExpression
 		ApplicationType?:         "STANDARD" | "SERVICE" | "MCP_SERVER" | fn.#StringExpression
-		Description?:             strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The iframe configuration
 		IframeConfig?: #IframeConfig
@@ -46,42 +53,85 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		IsService?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._ \\-]+$" | fn.#StringExpression
-		Namespace!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
+		IsService?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._ \\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._ \\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Permissions?: list.MaxItems(150) & [...] & [...#Permissions] | fn.#ListExpression
 		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApplicationConfig: close({ContactHandling?: #ContactHandling}) | fn.#ObjectExpression
 
-#ApprovedOrigins: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" | fn.#StringExpression
+#ApprovedOrigins: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ContactHandling: close({Scope!: "CROSS_CONTACTS" | "PER_CONTACT" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ExternalUrlConfig: close({
-	AccessUrl!:       strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" | fn.#StringExpression
+	AccessUrl!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ApprovedOrigins?: list.MaxItems(50) & [...] & [...#ApprovedOrigins] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #IframeConfig: close({
-	Allow?: list.MaxItems(25) & [...] & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z-]+$" | fn.#StringExpression
-	] |
+	Allow?: list.MaxItems(25) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Sandbox?: list.MaxItems(25) & [...] & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z-]+$" | fn.#StringExpression
-	] |
+	Sandbox?: list.MaxItems(25) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#Permissions: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._\\-\\*]+$" | fn.#StringExpression
+#Permissions: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._\\-\\*]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._\\-\\*]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

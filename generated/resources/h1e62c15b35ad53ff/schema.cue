@@ -9,16 +9,32 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PaymentCryptography::Alias Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PaymentCryptography::Alias"
-	Properties!: close({
-		AliasName!: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^alias/[a-zA-Z0-9/_-]+$" | fn.#StringExpression
+	let properties = close({
+		AliasName!: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^alias/[a-zA-Z0-9/_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^alias/[a-zA-Z0-9/_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		KeyArn?: strings.MaxRunes(150) &
 		strings.MinRunes(70) &
 		=~"^arn:aws:payment-cryptography:[a-z]{2}-[a-z]{1,16}-[0-9]+:[0-9]{12}:key/[0-9a-zA-Z]{16,64}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(150) &
+			strings.MinRunes(70) &
+			=~"^arn:aws:payment-cryptography:[a-z]{2}-[a-z]{1,16}-[0-9]+:[0-9]{12}:key/[0-9a-zA-Z]{16,64}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

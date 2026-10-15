@@ -15,12 +15,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::Runtime
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::Runtime"
-	Properties!: close({
+	let properties = close({
 		// The artifact of the agent
 		AgentRuntimeArtifact!: #AgentRuntimeArtifact
 
@@ -61,6 +63,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RoleArn!: #RoleArn
 		Tags?:    #TagsMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AgentManagedRuntimeType: "PYTHON_3_10" |
@@ -73,6 +77,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AgentRuntimeArn: strings.MaxRunes(2048) &
 =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #AgentRuntimeArtifact: close({
@@ -81,11 +91,26 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#AgentRuntimeId: =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}" | fn.#StringExpression
+#AgentRuntimeId: =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}" |
+{
+	number | bool
+	_cfnString: =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}" & "\(self)"
+} |
+fn.#StringExpression
 
-#AgentRuntimeName: =~"[a-zA-Z][a-zA-Z0-9_]{0,47}" | fn.#StringExpression
+#AgentRuntimeName: =~"[a-zA-Z][a-zA-Z0-9_]{0,47}" |
+{
+	number | bool
+	_cfnString: =~"[a-zA-Z][a-zA-Z0-9_]{0,47}" & "\(self)"
+} |
+fn.#StringExpression
 
-#AgentRuntimeVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"([1-9][0-9]{0,4})" | fn.#StringExpression
+#AgentRuntimeVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"([1-9][0-9]{0,4})" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & =~"([1-9][0-9]{0,4})" & "\(self)"
+} |
+fn.#StringExpression
 
 #AgentStatus: "CREATING" |
 	"CREATE_FAILED" |
@@ -96,15 +121,20 @@ fn.#ObjectExpression
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-#AllowedAudience: string | fn.#StringExpression
+#AllowedAudience: string | number | bool | fn.#StringExpression
 
 #AllowedAudienceList: list.MinItems(1) & [...#AllowedAudience] | fn.#ListExpression
 
-#AllowedClient: string | fn.#StringExpression
+#AllowedClient: string | number | bool | fn.#StringExpression
 
 #AllowedClientsList: list.MinItems(1) & [...#AllowedClient] | fn.#ListExpression
 
-#AllowedScope: =~"[\\x21\\x23-\\x5B\\x5D-\\x7E]+" | fn.#StringExpression
+#AllowedScope: =~"[\\x21\\x23-\\x5B\\x5D-\\x7E]+" |
+{
+	number | bool
+	_cfnString: =~"[\\x21\\x23-\\x5B\\x5D-\\x7E]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #AllowedScopesList: list.MinItems(1) & [...#AllowedScope] | fn.#ListExpression
 
@@ -124,6 +154,12 @@ fn.#ObjectExpression
 
 #CapacityProviderArn: strings.MaxRunes(2048) &
 =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:capacity-provider/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	=~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:capacity-provider/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #CapacityProviderConfiguration: close({CapacityProviderArn!: #CapacityProviderArn}) | fn.#ObjectExpression
@@ -135,6 +171,10 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #CapacityProviderVolumeName: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_-]{0,47}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_-]{0,47}$" & "\(self)"
+} |
 fn.#StringExpression
 
 #ClaimMatchOperator: "EQUALS" | "CONTAINS" | "CONTAINS_ANY" | fn.#StringExpression
@@ -145,7 +185,12 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ClientToken: strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+#ClientToken: strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Code: close({S3?: #S3Location}) | fn.#ObjectExpression
 
@@ -158,7 +203,7 @@ fn.#ObjectExpression
 
 #ContainerConfiguration: close({ContainerUri!: #RuntimeContainerUri}) | fn.#ObjectExpression
 
-#CreatedAt: string | fn.#StringExpression
+#CreatedAt: string | number | bool | fn.#StringExpression
 
 #CustomClaimValidationType: close({
 	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
@@ -181,12 +226,28 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Description: strings.MaxRunes(1200) & strings.MinRunes(1) | fn.#StringExpression
+#Description: strings.MaxRunes(1200) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1200) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#DiscoveryUrl: =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
+#DiscoveryUrl: =~"^.+/\\.well-known/openid-configuration$" |
+{
+	number | bool
+	_cfnString: =~"^.+/\\.well-known/openid-configuration$" & "\(self)"
+} |
+fn.#StringExpression
 
 #EfsAccessPointArn: strings.MaxRunes(128) &
 =~"^arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:access-point/fsap-[0-9a-f]{8,40}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) &
+	=~"^arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:access-point/fsap-[0-9a-f]{8,40}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #EfsAccessPointConfiguration: close({
@@ -195,16 +256,36 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EntryPoints: list.MaxItems(2) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+#EntryPoints: list.MaxItems(2) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+	fn.#ListExpression
 
 #EnvironmentVariableKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" & "\(self)"
+} |
 fn.#StringExpression
 
-#EnvironmentVariableValue: strings.MaxRunes(2048) | fn.#StringExpression
+#EnvironmentVariableValue: strings.MaxRunes(2048) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & "\(self)"
+} |
+fn.#StringExpression
 
 #EnvironmentVariablesMap: struct.MaxFields(50) & close({
 
-	{[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: strings.MaxRunes(2048) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #FilesystemConfiguration: close({
@@ -217,19 +298,36 @@ fn.#ObjectExpression
 
 #FilesystemConfigurations: list.MaxItems(5) & [...] & [...#FilesystemConfiguration] | fn.#ListExpression
 
-#HeaderName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_-]{0,255}$" | fn.#StringExpression
+#HeaderName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_-]{0,255}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_-]{0,255}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#HostingEnvironment: close({Arn!: strings.MaxRunes(1011) & strings.MinRunes(20) | fn.#StringExpression}) |
+#HostingEnvironment: close({
+	Arn!: strings.MaxRunes(1011) & strings.MinRunes(20) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) & strings.MinRunes(20) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #HostingEnvironmentsList: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#HostingEnvironment] |
 	fn.#ListExpression
 
-#InboundTokenClaimName: =~"[A-Za-z0-9_.-:]+" | fn.#StringExpression
+#InboundTokenClaimName: =~"[A-Za-z0-9_.-:]+" |
+{
+	number | bool
+	_cfnString: =~"[A-Za-z0-9_.-:]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #InboundTokenClaimValueType: "STRING" | "STRING_ARRAY" | fn.#StringExpression
 
-#LastUpdatedAt: string | fn.#StringExpression
+#LastUpdatedAt: string | number | bool | fn.#StringExpression
 
 #LifecycleConfiguration: close({
 	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60 |
@@ -269,26 +367,43 @@ fn.#ObjectExpression
 
 #ManagedVpcResource: close({
 	EndpointIpAddressType!: "IPV4" | "IPV6" | fn.#StringExpression
-	RoutingDomain?:         string | fn.#StringExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	RoutingDomain?:         string | number | bool | fn.#StringExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Tags?: close({
 
-		{[=~"^[\\s\\S]+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^[\\s\\S]+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
-	VpcIdentifier!: string | fn.#StringExpression
+	VpcIdentifier!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#MatchValueString: =~"[A-Za-z0-9_.-]+" | fn.#StringExpression
+#MatchValueString: =~"[A-Za-z0-9_.-]+" |
+{
+	number | bool
+	_cfnString: =~"[A-Za-z0-9_.-]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #MatchValueStringList: list.MaxItems(255) & list.MinItems(1) & [...#MatchValueString] | fn.#ListExpression
 
-#MountPath: strings.MaxRunes(200) & strings.MinRunes(6) & =~"^/mnt/[a-zA-Z0-9._-]+/?$" | fn.#StringExpression
+#MountPath: strings.MaxRunes(200) & strings.MinRunes(6) & =~"^/mnt/[a-zA-Z0-9._-]+/?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) & strings.MinRunes(6) & =~"^/mnt/[a-zA-Z0-9._-]+/?$" & "\(self)"
+} |
+fn.#StringExpression
 
 #NetworkConfiguration: close({
 	NetworkMode!:       #NetworkMode
@@ -298,15 +413,25 @@ fn.#ObjectExpression
 
 #NetworkMode: "PUBLIC" | "VPC" | fn.#StringExpression
 
-#PlatformVersion: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+#PlatformVersion: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\s]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\s]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#PrivateEndpoint: fn.#Object & {...} & matchN(1, [
+#PrivateEndpoint: fn.#Object & matchN(1, [
 	close({SelfManagedLatticeResource!: #SelfManagedLatticeResource}), close({ManagedVpcResource!: #ManagedVpcResource}),
 ]) |
 fn.#ObjectExpression
 
 #PrivateEndpointOverride: close({
-	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+	Domain!: strings.MaxRunes(253) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PrivateEndpoint!: #PrivateEndpoint
 }) |
 fn.#ObjectExpression
@@ -320,17 +445,35 @@ fn.#ObjectExpression
 
 #RequestHeaderConfiguration: close({RequestHeaderAllowlist?: #RequestHeaderAllowlist}) | fn.#ObjectExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	=~"arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+" |
-	fn.#StringExpression
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #RuntimeContainerUri: strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^(([0-9]{12})\\.dkr\\.ecr\\.([a-z0-9-]+)\\.([a-z0-9-]+(?:\\.[a-z0-9-]+)+)|public\\.ecr\\.aws)/((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)(?::([^:@]{1,300}))?(?:@(.+))?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) &
+	strings.MinRunes(1) &
+	=~"^(([0-9]{12})\\.dkr\\.ecr\\.([a-z0-9-]+)\\.([a-z0-9-]+(?:\\.[a-z0-9-]+)+)|public\\.ecr\\.aws)/((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)(?::([^:@]{1,300}))?(?:@(.+))?$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #S3FilesAccessPointArn: strings.MaxRunes(256) &
 =~"^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) &
+	=~"^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #S3FilesAccessPointConfiguration: close({
@@ -340,31 +483,65 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #S3Location: close({
-	Bucket!:    =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" | fn.#StringExpression
-	Prefix!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(3) | fn.#StringExpression
+	Bucket!: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	=~"^sg-[0-9a-zA-Z]{8,17}$" |
-	fn.#StringExpression
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId] | fn.#ListExpression
 
-#SelfManagedLatticeResource: close({ResourceConfigurationIdentifier!: string | fn.#StringExpression}) |
+#SelfManagedLatticeResource: close({ResourceConfigurationIdentifier!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
 #SessionStorageConfiguration: close({MountPath!: #MountPath}) | fn.#ObjectExpression
 
-#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
+#SubnetId: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{8,17}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
 
 #TagsMap: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
@@ -373,11 +550,21 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#WorkloadIdentitiesList: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-	...strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9_.-]+$" | fn.#StringExpression
-] |
+#WorkloadIdentitiesList: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(255) &
+strings.MinRunes(3) &
+=~"^[A-Za-z0-9_.-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9_.-]+$" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
-#WorkloadIdentityArn: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+#WorkloadIdentityArn: strings.MaxRunes(1024) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #WorkloadIdentityDetails: close({WorkloadIdentityArn!: #WorkloadIdentityArn}) | fn.#ObjectExpression

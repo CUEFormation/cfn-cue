@@ -64,7 +64,11 @@ import (
 		// S3 configuration for sending logs to customer account from the InfluxDB cluster.
 		S3Configuration!: close({
 			// The bucket name for logs to be sent from the InfluxDB cluster
-			BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[0-9a-z]+[0-9a-z\\.\\-]*[0-9a-z]+$"
+			BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			=~"^[0-9a-z]+[0-9a-z\\.\\-]*[0-9a-z]+$"
 
 			// Specifies whether logging to customer specified bucket is enabled.
 			Enabled!: bool

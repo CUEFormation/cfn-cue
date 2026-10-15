@@ -9,21 +9,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::VerifiedPermissions::Policy Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VerifiedPermissions::Policy"
-	Properties!: close({
-		Definition!:    #PolicyDefinition
-		Name?:          strings.MaxRunes(150) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-/_]*$" | fn.#StringExpression
-		PolicyStoreId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
+	let properties = close({
+		Definition!: #PolicyDefinition
+		Name?: strings.MaxRunes(150) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-/_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(150) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-/_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyStoreId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EntityIdentifier: close({
-	EntityId!:   strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	EntityType!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	EntityId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	EntityType!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -35,14 +59,29 @@ fn.#ValueExpression
 #PolicyType: "STATIC" | "TEMPLATE_LINKED" | fn.#StringExpression
 
 #StaticPolicyDefinition: close({
-	Description?: strings.MaxRunes(150) & strings.MinRunes(0) | fn.#StringExpression
-	Statement!:   strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
+	Description?: strings.MaxRunes(150) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Statement!: strings.MaxRunes(10000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TemplateLinkedPolicyDefinition: close({
-	PolicyTemplateId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
-	Principal?:        #EntityIdentifier
-	Resource?:         #EntityIdentifier
+	PolicyTemplateId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Principal?: #EntityIdentifier
+	Resource?:  #EntityIdentifier
 }) |
 fn.#ObjectExpression

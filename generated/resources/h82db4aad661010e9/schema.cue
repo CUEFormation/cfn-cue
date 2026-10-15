@@ -14,15 +14,29 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::FlowVersion Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::FlowVersion"
-	Properties!: close({
-		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		FlowArn!: =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FlowArn!: =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdditionalModelRequestFields: fn.#Object & {...} | fn.#ObjectExpression
@@ -30,6 +44,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #AgentFlowNodeConfiguration: close({
 	AgentAliasArn!: strings.MaxRunes(2048) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -37,6 +57,13 @@ fn.#ObjectExpression
 #BedrockRerankingModelArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model/(.*))?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model/(.*))?$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #CollectorFlowNodeConfiguration: close({}) | fn.#ObjectExpression
@@ -46,28 +73,65 @@ fn.#StringExpression
 ) |
 	fn.#ObjectExpression
 
-#FieldForReranking: close({FieldName!: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#FieldForReranking: close({
+	FieldName!: strings.MaxRunes(2000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #FieldsForReranking: list.MaxItems(100) & list.MinItems(1) & [...#FieldForReranking] | fn.#ListExpression
 
 #FlowCondition: close({
-	Expression?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:       =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
+	Expression?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#FlowConditionalConnectionConfiguration: close(
-	{Condition!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#FlowConditionalConnectionConfiguration: close({
+	Condition!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #FlowConnection: close({
 	Configuration?: #FlowConnectionConfiguration
-	Name!:          =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,100}$" | fn.#StringExpression
-	Source!:        =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
-	Target!:        =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
-	Type!:          #FlowConnectionType
+	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Source!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Target!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #FlowConnectionType
 }) |
 fn.#ObjectExpression
 
@@ -79,8 +143,18 @@ fn.#ValueExpression
 #FlowConnectionType: "Data" | "Conditional" | fn.#StringExpression
 
 #FlowDataConnectionConfiguration: close({
-	SourceOutput!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
-	TargetInput!:  =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
+	SourceOutput!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetInput!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -93,9 +167,14 @@ fn.#ObjectExpression
 #FlowNode: close({
 	Configuration?: #FlowNodeConfiguration
 	Inputs?:        list.MaxItems(5) & [...#FlowNodeInput] | fn.#ListExpression
-	Name!:          =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
-	Outputs?:       list.MaxItems(5) & [...#FlowNodeOutput] | fn.#ListExpression
-	Type!:          #FlowNodeType
+	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Outputs?: list.MaxItems(5) & [...#FlowNodeOutput] | fn.#ListExpression
+	Type!:    #FlowNodeType
 }) |
 fn.#ObjectExpression
 
@@ -137,14 +216,29 @@ fn.#ValueExpression
 #FlowNodeIODataType: "String" | "Number" | "Boolean" | "Object" | "Array" | fn.#StringExpression
 
 #FlowNodeInput: close({
-	Expression!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:       =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
-	Type!:       #FlowNodeIODataType
+	Expression!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #FlowNodeIODataType
 }) |
 fn.#ObjectExpression
 
 #FlowNodeOutput: close({
-	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" | fn.#StringExpression
+	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Type!: #FlowNodeIODataType
 }) |
 fn.#ObjectExpression
@@ -172,13 +266,29 @@ fn.#ObjectExpression
 #GuardrailConfiguration: close({
 	GuardrailIdentifier?: strings.MaxRunes(2048) &
 	=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	GuardrailVersion?: =~"^(([0-9]{1,8})|(DRAFT))$" | fn.#StringExpression
+	GuardrailVersion?: =~"^(([0-9]{1,8})|(DRAFT))$" |
+	{
+		number | bool
+		_cfnString: =~"^(([0-9]{1,8})|(DRAFT))$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InlineCodeFlowNodeConfiguration: close({
-	Code!:     strings.MaxRunes(5000000) | fn.#StringExpression
+	Code!: strings.MaxRunes(5000000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5000000) & "\(self)"
+	} |
+	fn.#StringExpression
 	Language!: #SupportedLanguages
 }) |
 fn.#ObjectExpression
@@ -190,10 +300,22 @@ fn.#ObjectExpression
 #KnowledgeBaseFlowNodeConfiguration: close({
 	GuardrailConfiguration?: #GuardrailConfiguration
 	InferenceConfiguration?: #PromptInferenceConfiguration
-	KnowledgeBaseId!:        strings.MaxRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
+	KnowledgeBaseId!: strings.MaxRunes(10) & =~"^[0-9a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & =~"^[0-9a-zA-Z]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ModelId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	NumberOfResults?: <=100 & >=1 |
 		{
@@ -229,15 +351,27 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#KnowledgeBasePromptTemplate: close(
-	{TextPromptTemplate!: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#KnowledgeBasePromptTemplate: close({
+	TextPromptTemplate!: strings.MaxRunes(100000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ValueExpression
 
 #LambdaFunctionFlowNodeConfiguration: close({
-	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -245,8 +379,19 @@ fn.#ObjectExpression
 #LexFlowNodeConfiguration: close({
 	BotAliasArn!: strings.MaxRunes(78) &
 	=~"^arn:aws(|-us-gov):lex:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:bot-alias/[0-9a-zA-Z]+/[0-9a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(78) &
+		=~"^arn:aws(|-us-gov):lex:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:bot-alias/[0-9a-zA-Z]+/[0-9a-zA-Z]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	LocaleId!: strings.MaxRunes(10) & strings.MinRunes(1) | fn.#StringExpression
+	LocaleId!: strings.MaxRunes(10) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -302,6 +447,13 @@ fn.#ObjectExpression
 	ModelId!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	TemplateConfiguration!: #PromptTemplateConfiguration
 	TemplateType!:          #PromptTemplateType
@@ -310,9 +462,14 @@ fn.#ObjectExpression
 
 #PromptFlowNodeResourceConfiguration: close({
 	PromptArn!: =~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:prompt/[0-9a-zA-Z]{10}(?::[0-9]{1,5})?)$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:prompt/[0-9a-zA-Z]{10}(?::[0-9]{1,5})?)$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #PromptFlowNodeSourceConfiguration: matchN(1, [
 	close({Resource!: #PromptFlowNodeResourceConfiguration}), close({Inline!: #PromptFlowNodeInlineConfiguration}),
@@ -321,7 +478,15 @@ fn.#ValueExpression
 
 #PromptInferenceConfiguration: close({Text!: #PromptModelInferenceConfiguration}) | fn.#ValueExpression
 
-#PromptInputVariable: close({Name?: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#PromptInputVariable: close({
+	Name?: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #PromptModelInferenceConfiguration: close({
 	MaxTokens?: <=4096 & >=0 |
@@ -344,7 +509,7 @@ fn.#ValueExpression
 				)
 		} |
 		fn.#NumberExpression
-	StopSequences?: list.MaxItems(4) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	StopSequences?: list.MaxItems(4) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Temperature?: <=1 & >=0 |
 		{
 			string &
@@ -402,18 +567,40 @@ fn.#ValueExpression
 #RetrievalFlowNodeConfiguration: close({ServiceConfiguration!: #RetrievalFlowNodeServiceConfiguration}) |
 	fn.#ObjectExpression
 
-#RetrievalFlowNodeS3Configuration: close(
-	{BucketName!: =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#RetrievalFlowNodeS3Configuration: close({
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #RetrievalFlowNodeServiceConfiguration: close({S3?: #RetrievalFlowNodeS3Configuration}) | fn.#ValueExpression
 
 #StorageFlowNodeConfiguration: close({ServiceConfiguration!: #StorageFlowNodeServiceConfiguration}) |
 	fn.#ObjectExpression
 
-#StorageFlowNodeS3Configuration: close({BucketName!: =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#StorageFlowNodeS3Configuration: close({
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #StorageFlowNodeServiceConfiguration: close({S3?: #StorageFlowNodeS3Configuration}) | fn.#ValueExpression
 
@@ -421,7 +608,12 @@ fn.#ValueExpression
 
 #TextPromptTemplateConfiguration: close({
 	InputVariables?: list.MaxItems(20) & [...] & [...#PromptInputVariable] | fn.#ListExpression
-	Text!:           strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringExpression
+	Text!: strings.MaxRunes(200000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

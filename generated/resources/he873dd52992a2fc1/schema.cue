@@ -14,24 +14,31 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::CodePipeline::Pipeline resource creates a CodePipeline pipeline that
 // describes how software changes go through a release process.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodePipeline::Pipeline"
-	Properties!: close({
+	let properties = close({
 		// The S3 bucket where artifacts for the pipeline are stored.
 		ArtifactStore?:                  #ArtifactStore
 		ArtifactStores?:                 list.UniqueItems() & [...#ArtifactStoreMap] | fn.#ListExpression
 		DisableInboundStageTransitions?: list.UniqueItems() & [...#StageTransition] | fn.#ListExpression
 		ExecutionMode?:                  "QUEUED" | "SUPERSEDED" | "PARALLEL" | fn.#StringExpression
-		Name?:                           string | fn.#StringExpression
+		Name?:                           string | number | bool | fn.#StringExpression
 		PipelineType?:                   "V1" | "V2" | fn.#StringExpression
 		RestartExecutionOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
-			fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		Stages!:    list.MinItems(2) & list.UniqueItems() & [...#StageDeclaration] | fn.#ListExpression
 		Tags?:      [...#Tag] | fn.#ListExpression
 		Triggers?:  list.UniqueItems() & [...#PipelineTriggerDeclaration] | fn.#ListExpression
@@ -42,22 +49,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{ArtifactStore!: _}, {ArtifactStores!: _}])
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ActionDeclaration: close({
 	ActionTypeId!:         #ActionTypeId
-	Commands?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	Configuration?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	Commands?:             [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Configuration?:        fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	EnvironmentVariables?: list.UniqueItems() & [...#EnvironmentVariable] | fn.#ListExpression
 	InputArtifacts?:       list.UniqueItems() & [...#InputArtifact] | fn.#ListExpression
-	Name!:                 =~"^[A-Za-z0-9.@\\-_]{1,100}$" | fn.#StringExpression
-	Namespace?:            string | fn.#StringExpression
-	OutputArtifacts?:      list.UniqueItems() & [...#OutputArtifact] | fn.#ListExpression
-	OutputVariables?:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Region?:               string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
-		fn.#StringExpression
+	Name!: =~"^[A-Za-z0-9.@\\-_]{1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z0-9.@\\-_]{1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Namespace?:       string | number | bool | fn.#StringExpression
+	OutputArtifacts?: list.UniqueItems() & [...#OutputArtifact] | fn.#ListExpression
+	OutputVariables?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Region?:          string | number | bool | fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	RunOrder?: int |
 		{
 			string &
@@ -91,22 +110,27 @@ fn.#ObjectExpression
 
 #ActionTypeId: close({
 	Category!: "Source" | "Build" | "Test" | "Deploy" | "Invoke" | "Approval" | "Compute" | fn.#StringExpression
-	Owner!:    string | fn.#StringExpression
-	Provider!: string | fn.#StringExpression
-	Version!:  =~"^[0-9A-Za-z_\\-]{1,9}$" | fn.#StringExpression
+	Owner!:    string | number | bool | fn.#StringExpression
+	Provider!: string | number | bool | fn.#StringExpression
+	Version!: =~"^[0-9A-Za-z_\\-]{1,9}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9A-Za-z_\\-]{1,9}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ArtifactStore: close({
 	EncryptionKey?: #EncryptionKey
-	Location!:      string | fn.#StringExpression
+	Location!:      string | number | bool | fn.#StringExpression
 	Type!:          "S3" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ArtifactStoreMap: close({
 	ArtifactStore!: #ArtifactStore
-	Region!:        string | fn.#StringExpression
+	Region!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -114,27 +138,27 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #BlockerDeclaration: close({
-	Name!: string | fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
 	Type!: "Schedule" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Condition: close({
-	Result?: string | fn.#StringExpression
+	Result?: string | number | bool | fn.#StringExpression
 	Rules?:  list.UniqueItems() & [...#RuleDeclaration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #EncryptionKey: close({
-	Id!:   string | fn.#StringExpression
-	Type!: string | fn.#StringExpression
+	Id!:   string | number | bool | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EnvironmentVariable: close({
-	Name!:  string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
 	Type?:  "PLAINTEXT" | "SECRETS_MANAGER" | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,27 +171,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GitBranchFilterCriteria: close({
-	Excludes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Includes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Excludes?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Includes?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #GitConfiguration: close({
 	PullRequest?:      list.UniqueItems() & [...#GitPullRequestFilter] | fn.#ListExpression
 	Push?:             list.UniqueItems() & [...#GitPushFilter] | fn.#ListExpression
-	SourceActionName!: string | fn.#StringExpression
+	SourceActionName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GitFilePathFilterCriteria: close({
-	Excludes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Includes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Excludes?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Includes?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #GitPullRequestFilter: close({
 	Branches?:  #GitBranchFilterCriteria
-	Events?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Events?:    list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	FilePaths?: #GitFilePathFilterCriteria
 }) |
 fn.#ObjectExpression
@@ -180,16 +204,16 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GitTagFilterCriteria: close({
-	Excludes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Includes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Excludes?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Includes?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#InputArtifact: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#InputArtifact: close({Name!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #OutputArtifact: close({
-	Files?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:  string | fn.#StringExpression
+	Files?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Name!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -200,23 +224,28 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RuleDeclaration: close({
-	Commands?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Commands?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Configuration?:  fn.#Object & {...} | fn.#ObjectExpression
 	InputArtifacts?: list.UniqueItems() & [...#InputArtifact] | fn.#ListExpression
-	Name?:           string | fn.#StringExpression
-	Region?:         string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
-		fn.#StringExpression
+	Name?:           string | number | bool | fn.#StringExpression
+	Region?:         string | number | bool | fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	RuleTypeId?: #RuleTypeId
 }) |
 fn.#ObjectExpression
 
 #RuleTypeId: close({
-	Category?: string | fn.#StringExpression
-	Owner?:    string | fn.#StringExpression
-	Provider?: string | fn.#StringExpression
-	Version?:  string | fn.#StringExpression
+	Category?: string | number | bool | fn.#StringExpression
+	Owner?:    string | number | bool | fn.#StringExpression
+	Provider?: string | number | bool | fn.#StringExpression
+	Version?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -224,15 +253,15 @@ fn.#ObjectExpression
 	Actions!:     list.MinItems(1) & list.UniqueItems() & [...#ActionDeclaration] | fn.#ListExpression
 	BeforeEntry?: #BeforeEntryConditions & fn.#Object & {...} | fn.#ObjectExpression
 	Blockers?:    list.UniqueItems() & [...#BlockerDeclaration] | fn.#ListExpression
-	Name!:        string | fn.#StringExpression
+	Name!:        string | number | bool | fn.#StringExpression
 	OnFailure?:   #FailureConditions & fn.#Object & {...} | fn.#ObjectExpression
 	OnSuccess?:   #SuccessConditions & fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #StageTransition: close({
-	Reason!:    string | fn.#StringExpression
-	StageName!: string | fn.#StringExpression
+	Reason!:    string | number | bool | fn.#StringExpression
+	StageName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -240,14 +269,24 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VariableDeclaration: close({
-	DefaultValue?: string | fn.#StringExpression
-	Description?:  string | fn.#StringExpression
-	Name!:         string | fn.#StringExpression
+	DefaultValue?: string | number | bool | fn.#StringExpression
+	Description?:  string | number | bool | fn.#StringExpression
+	Name!:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a route in a route table. For more information, see
@@ -22,22 +24,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the ``AWS::EC2::TransitGatewayAttachment`` resource.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::Route"
-	Properties!: close({
-		CarrierGatewayId?:            string | fn.#StringExpression
-		CoreNetworkArn?:              string | fn.#StringExpression
-		DestinationCidrBlock?:        string | fn.#StringExpression
-		DestinationIpv6CidrBlock?:    string | fn.#StringExpression
-		DestinationPrefixListId?:     string | fn.#StringExpression
-		EgressOnlyInternetGatewayId?: string | fn.#StringExpression
-		GatewayId?:                   string | fn.#StringExpression
-		InstanceId?:                  string | fn.#StringExpression
-		LocalGatewayId?:              string | fn.#StringExpression
-		NatGatewayId?:                string | fn.#StringExpression
-		NetworkInterfaceId?:          string | fn.#StringExpression
-		OdbNetworkArn?:               string | fn.#StringExpression
-		RouteTableId!:                string | fn.#StringExpression
-		TransitGatewayId?:            string | fn.#StringExpression
-		VpcEndpointId?:               string | fn.#StringExpression
-		VpcPeeringConnectionId?:      string | fn.#StringExpression
+	let properties = close({
+		CarrierGatewayId?: string | number | bool | fn.#StringExpression
+		CoreNetworkArn?:   string | number | bool | fn.#StringExpression
+		DestinationCidrBlock?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		DestinationIpv6CidrBlock?:    string | number | bool | fn.#StringExpression
+		DestinationPrefixListId?:     string | number | bool | fn.#StringExpression
+		EgressOnlyInternetGatewayId?: string | number | bool | fn.#StringExpression
+		GatewayId?:                   string | number | bool | fn.#StringExpression
+		InstanceId?:                  string | number | bool | fn.#StringExpression
+		LocalGatewayId?:              string | number | bool | fn.#StringExpression
+		NatGatewayId?:                string | number | bool | fn.#StringExpression
+		NetworkInterfaceId?:          string | number | bool | fn.#StringExpression
+		OdbNetworkArn?:               string | number | bool | fn.#StringExpression
+		RouteTableId!:                string | number | bool | fn.#StringExpression
+		TransitGatewayId?:            string | number | bool | fn.#StringExpression
+		VpcEndpointId?:               string | number | bool | fn.#StringExpression
+		VpcPeeringConnectionId?:      string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

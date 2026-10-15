@@ -10,34 +10,66 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::Terms
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::Terms"
-	Properties!: close({
-		ClientId?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
+	let properties = close({
+		ClientId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Enforcement!: #TermsEnforcementType
 		Links!:       #LinksType
 		TermsName!:   #TermsNameType
 		TermsSource!: #TermsSourceType
-		UserPoolId!:  strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LinksType: struct.MaxFields(12) & struct.MinFields(1) & close({
 
-	{[=~"^cognito:(default|english|french|spanish|german|bahasa-indonesia|italian|japanese|korean|portuguese-brazil|chinese-(simplified|traditional))$"]: strings.MaxRunes(1024) &
-	strings.MinRunes(1) &
-	=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
-	fn.#StringExpression}}) |
+	{
+		[=~"^cognito:(default|english|french|spanish|german|bahasa-indonesia|italian|japanese|korean|portuguese-brazil|chinese-(simplified|traditional))$"]: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+	}}) |
 fn.#ObjectExpression
 
 #TermsEnforcementType: "NONE" | fn.#StringExpression
 
 #TermsIdType: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#TermsNameType: =~"^(terms-of-use|privacy-policy)$" | fn.#StringExpression
+#TermsNameType: =~"^(terms-of-use|privacy-policy)$" |
+{
+	number | bool
+	_cfnString: =~"^(terms-of-use|privacy-policy)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #TermsSourceType: "LINK" | fn.#StringExpression

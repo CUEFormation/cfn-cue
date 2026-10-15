@@ -6,15 +6,24 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::ClientVpnTargetNetworkAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::ClientVpnTargetNetworkAssociation"
-	Properties!: close({
-		AvailabilityZone?:    string | fn.#StringExpression
-		AvailabilityZoneId?:  string | fn.#StringExpression
-		ClientVpnEndpointId!: string | fn.#StringExpression
-		SubnetId?:            string | fn.#StringExpression
+	let properties = close({
+		AvailabilityZone?:    string | number | bool | fn.#StringExpression
+		AvailabilityZoneId?:  string | number | bool | fn.#StringExpression
+		ClientVpnEndpointId!: string | number | bool | fn.#StringExpression
+		SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

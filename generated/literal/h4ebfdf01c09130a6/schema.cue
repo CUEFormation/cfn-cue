@@ -52,7 +52,11 @@ import (
 })
 
 #S3Destination: close({
-	S3Bucket!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(0) &
+	=~"^[\\S\\s]*$"
 	S3BucketOwner?:          strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 	S3OutputConfigurations!: #S3OutputConfigurations
 	S3Prefix!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$"

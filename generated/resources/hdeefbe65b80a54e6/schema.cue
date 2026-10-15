@@ -6,17 +6,21 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::Model`` resource defines the structure of a request or
 // response payload for an API method.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::Model"
-	Properties!: close({
-		ContentType?: string | fn.#StringExpression
-		Description?: string | fn.#StringExpression
-		Name?:        string | fn.#StringExpression
-		RestApiId!:   string | fn.#StringExpression
-		Schema?:      fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		ContentType?: string | number | bool | fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
+		Name?:        string | number | bool | fn.#StringExpression
+		RestApiId!:   string | number | bool | fn.#StringExpression
+		Schema?:      fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

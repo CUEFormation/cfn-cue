@@ -10,17 +10,26 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RDS::GlobalCluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::GlobalCluster"
-	Properties?: close({
+	let properties = close({
 		DeletionProtection?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Engine?:                 "aurora" | "aurora-mysql" | "aurora-postgresql" | fn.#StringExpression
-		EngineLifecycleSupport?: string | fn.#StringExpression
-		EngineVersion?:          string | fn.#StringExpression
+		EngineLifecycleSupport?: string | number | bool | fn.#StringExpression
+		EngineVersion?:          string | number | bool | fn.#StringExpression
 		GlobalClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string]) | fn.#StringExpression
 		StorageEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -31,12 +40,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{SourceDBClusterIdentifier!: _}, {Engine!: _}])
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#GlobalEndpoint: close({Address?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#GlobalEndpoint: close({Address?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

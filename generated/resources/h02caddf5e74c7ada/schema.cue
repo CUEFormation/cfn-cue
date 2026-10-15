@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Timestream::InfluxDBInstance resource creates an InfluxDB instance.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Timestream::InfluxDBInstance"
-	Properties?: close({
+	let properties = close({
 		AllocatedStorage?: int & <=16384 & >=20 |
 			{
 				string &
@@ -38,7 +40,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Bucket?: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_][^\"]*$" | fn.#StringExpression
+		Bucket?: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_][^\"]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_][^\"]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DbInstanceType?: "db.influx.medium" |
 			"db.influx.large" |
 			"db.influx.xlarge" |
@@ -50,12 +57,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"db.influx.24xlarge" |
 			fn.#StringExpression
 		DbParameterGroupIdentifier?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-zA-Z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		DbStorageType?:  "InfluxIOIncludedT1" | "InfluxIOIncludedT2" | "InfluxIOIncludedT3" | fn.#StringExpression
 		DeploymentType?: "SINGLE_AZ" | "WITH_MULTIAZ_STANDBY" | fn.#StringExpression
 		LogDeliveryConfiguration?: close({
 			S3Configuration!: close({
-				BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[0-9a-z]+[0-9a-z\\.\\-]*[0-9a-z]+$" |
+				BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+				=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+				strings.MaxRunes(63) &
+				strings.MinRunes(3) &
+				=~"^[0-9a-z]+[0-9a-z\\.\\-]*[0-9a-z]+$" |
+				{
+					number | bool
+					_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+					=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+					strings.MaxRunes(63) &
+					strings.MinRunes(3) &
+					=~"^[0-9a-z]+[0-9a-z\\.\\-]*[0-9a-z]+$" &
+					"\(self)"
+				} |
 				fn.#StringExpression
 				Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			}) |
@@ -66,10 +90,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The maintenance schedule for the InfluxDB instance.
 		MaintenanceSchedule?: #MaintenanceSchedule
 		Name?: strings.MaxRunes(40) & strings.MinRunes(3) & =~"^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) &
+			strings.MinRunes(3) &
+			=~"^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		NetworkType?:  "IPV4" | "DUAL" | fn.#StringExpression
-		Organization?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		Password?:     strings.MaxRunes(64) & strings.MinRunes(8) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+		NetworkType?: "IPV4" | "DUAL" | fn.#StringExpression
+		Organization?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Password?: strings.MaxRunes(64) & strings.MinRunes(8) & =~"^[a-zA-Z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(8) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Port?: int & <=65535 & >=1024 |
 			{
 				string &
@@ -90,28 +131,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:               list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Username?:           strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		VpcSecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
+		Username?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		VpcSecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		VpcSubnetIds?: list.MaxItems(3) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
 			fn.#ListExpression
-		VpcSubnetIds?: list.MaxItems(3) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MaintenanceSchedule: close({
 	PreferredMaintenanceWindow!: strings.MaxRunes(19) &
 	strings.MinRunes(0) &
 	=~"^$|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([01]\\d|2[0-3]):[0-5]\\d-(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([01]\\d|2[0-3]):[0-5]\\d$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(19) &
+		strings.MinRunes(0) &
+		=~"^$|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([01]\\d|2[0-3]):[0-5]\\d-(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([01]\\d|2[0-3]):[0-5]\\d$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Timezone!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(UTC|[A-Za-z_]+/[A-Za-z0-9_]+(/[A-Za-z0-9_]+)?)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		=~"^(UTC|[A-Za-z_]+/[A-Za-z0-9_]+(/[A-Za-z0-9_]+)?)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

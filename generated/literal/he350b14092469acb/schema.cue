@@ -4,6 +4,7 @@ package schema
 
 import (
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -180,7 +181,7 @@ import (
 	// The Zero-ETL access configuration.
 	ZeroEtlAccess?: close({
 		// The CIDR block for the Zero-ETL access.
-		Cidr?: string
+		Cidr?: fn.#IPv4Network & string
 
 		// The status of the Zero-ETL access.
 		Status?: #ManagedResourceStatus

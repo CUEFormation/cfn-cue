@@ -6,20 +6,32 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Network.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::Network"
-	Properties!: close({
+	let properties = close({
 		IpPools!: [...#IpPool] | fn.#ListExpression
-		Name!:    string | fn.#StringExpression
+		Name!:    string | number | bool | fn.#StringExpression
 		Routes?:  [...#Route] | fn.#ListExpression
 		Tags?:    [...#Tags] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#IpPool: close({Cidr?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#IpPool: close({
+	Cidr?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #NetworkState: "CREATING" |
 	"CREATE_FAILED" |
@@ -33,13 +45,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 
 #Route: close({
-	Cidr?:    string | fn.#StringExpression
-	Gateway?: string | fn.#StringExpression
+	Cidr?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	Gateway?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

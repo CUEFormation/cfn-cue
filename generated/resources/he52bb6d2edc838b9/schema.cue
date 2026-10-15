@@ -9,34 +9,38 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::RAM::ResourceShare
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RAM::ResourceShare"
-	Properties!: close({
+	let properties = close({
 		AllowExternalPrincipals?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name!:                    string | fn.#StringExpression
-		PermissionArns?:          [...string | fn.#StringExpression] | fn.#ListExpression
-		Principals?:              [...string | fn.#StringExpression] | fn.#ListExpression
-		ResourceArns?:            [...string | fn.#StringExpression] | fn.#ListExpression
+		Name!:                    string | number | bool | fn.#StringExpression
+		PermissionArns?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Principals?:              [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ResourceArns?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 		// Specifies the configuration for the resource share
 		ResourceShareConfiguration?: #ResourceShareConfiguration
-		Sources?:                    [...string | fn.#StringExpression] | fn.#ListExpression
+		Sources?:                    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #PermissionArnTemplateParameters: close({
-	PermissionArn!:                string | fn.#StringExpression
+	PermissionArn!:                string | number | bool | fn.#StringExpression
 	PermissionTemplateParameters?: [...#PermissionTemplateParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #PermissionTemplateParameter: close({
-	Name!:   string | fn.#StringExpression
-	Values!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Name!:   string | number | bool | fn.#StringExpression
+	Values!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -54,7 +58,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

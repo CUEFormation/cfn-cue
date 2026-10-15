@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
 )
@@ -39,7 +40,7 @@ import (
 	AssociationId?: string
 
 	// The IPv4 CIDR block.
-	CidrBlock?: string
+	CidrBlock?: fn.#IPv4Network & string
 
 	// The state of the CIDR block association.
 	State?: "associating" |

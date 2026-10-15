@@ -6,18 +6,22 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::EmailTemplate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Pinpoint::EmailTemplate"
-	Properties!: close({
-		DefaultSubstitutions?: string | fn.#StringExpression
-		HtmlPart?:             string | fn.#StringExpression
-		Subject!:              string | fn.#StringExpression
-		Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
-		TemplateDescription?:  string | fn.#StringExpression
-		TemplateName!:         string | fn.#StringExpression
-		TextPart?:             string | fn.#StringExpression
+	let properties = close({
+		DefaultSubstitutions?: string | number | bool | fn.#StringExpression
+		HtmlPart?:             string | number | bool | fn.#StringExpression
+		Subject!:              string | number | bool | fn.#StringExpression
+		Tags?:                 fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		TemplateDescription?:  string | number | bool | fn.#StringExpression
+		TemplateName!:         string | number | bool | fn.#StringExpression
+		TextPart?:             string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

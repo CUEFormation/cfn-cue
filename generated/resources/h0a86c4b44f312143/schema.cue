@@ -14,43 +14,67 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Distribution
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Distribution"
-	Properties!: close({
-		BundleId!: string | fn.#StringExpression
+	let properties = close({
+		BundleId!: string | number | bool | fn.#StringExpression
 
 		// An object that describes the cache behavior settings for the distribution.
 		CacheBehaviorSettings?: #CacheSettings
 		CacheBehaviors?:        list.UniqueItems() & [...#CacheBehaviorPerPath] | fn.#ListExpression
-		CertificateName?:       =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+		CertificateName?: =~"^\\w[\\w\\-]*\\w$" |
+		{
+			number | bool
+			_cfnString: =~"^\\w[\\w\\-]*\\w$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// An object that describes the default cache behavior for the distribution.
 		DefaultCacheBehavior!: #CacheBehavior
-		DistributionName!:     =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
-		IpAddressType?:        "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
-		IsEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DistributionName!: =~"\\w[\\w\\-]*\\w" |
+		{
+			number | bool
+			_cfnString: =~"\\w[\\w\\-]*\\w" & "\(self)"
+		} |
+		fn.#StringExpression
+		IpAddressType?: "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
+		IsEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// An object that describes the origin resource for the distribution, such as a
 		// Lightsail instance or load balancer.
 		Origin!: #InputOrigin
 		Tags?:   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CacheBehavior: close({Behavior?: "cache" | "dont-cache" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #CacheBehaviorPerPath: close({
 	Behavior?: "cache" | "dont-cache" | fn.#StringExpression
-	Path?:     string | fn.#StringExpression
+	Path?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CacheSettings: close({
-	AllowedHTTPMethods?: =~"\\S" | fn.#StringExpression
-	CachedHTTPMethods?:  =~"\\S" | fn.#StringExpression
+	AllowedHTTPMethods?: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
+	CachedHTTPMethods?: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 	DefaultTTL?: int |
 		{
 			string &
@@ -109,19 +133,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CookieObject: close({
-	CookiesAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	CookiesAllowList?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Option?:           "all" | "allow-list" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HeaderObject: close({
-	HeadersAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	HeadersAllowList?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Option?:           "all" | "allow-list" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InputOrigin: close({
-	Name?:           =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+	Name?: =~"^\\w[\\w\\-]*\\w$" |
+	{
+		number | bool
+		_cfnString: =~"^\\w[\\w\\-]*\\w$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ProtocolPolicy?: "http-only" | "https-only" | fn.#StringExpression
 	RegionName?: "ap-east-1" |
 		"ap-northeast-1" |
@@ -149,12 +178,22 @@ fn.#ObjectExpression
 
 #QueryStringObject: close({
 	Option?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	QueryStringsAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	QueryStringsAllowList?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

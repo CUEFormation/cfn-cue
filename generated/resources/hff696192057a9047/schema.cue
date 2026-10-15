@@ -13,19 +13,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EMR::Cluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMR::Cluster"
-	Properties!: close({
-		AdditionalInfo?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		AdditionalInfo?:        fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Applications?:          list.UniqueItems() & [...#Application] | fn.#ListExpression
-		AutoScalingRole?:       string | fn.#StringExpression
+		AutoScalingRole?:       string | number | bool | fn.#StringExpression
 		AutoTerminationPolicy?: #AutoTerminationPolicy
 		BootstrapActions?:      list.UniqueItems() & [...#BootstrapActionConfig] | fn.#ListExpression
 		Configurations?:        list.UniqueItems() & [...#Configuration] | fn.#ListExpression
-		CustomAmiId?:           string | fn.#StringExpression
+		CustomAmiId?:           string | number | bool | fn.#StringExpression
 		EbsRootVolumeIops?: int |
 			{
 				string &
@@ -75,18 +77,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Instances!:             #JobFlowInstancesConfig
-		JobFlowRole!:           string | fn.#StringExpression
+		JobFlowRole!:           string | number | bool | fn.#StringExpression
 		KerberosAttributes?:    #KerberosAttributes
-		LogEncryptionKmsKeyId?: string | fn.#StringExpression
-		LogUri?:                string | fn.#StringExpression
+		LogEncryptionKmsKeyId?: string | number | bool | fn.#StringExpression
+		LogUri?:                string | number | bool | fn.#StringExpression
 		ManagedScalingPolicy?:  #ManagedScalingPolicy
-		Name!:                  string | fn.#StringExpression
-		OSReleaseLabel?:        string | fn.#StringExpression
+		Name!:                  string | number | bool | fn.#StringExpression
+		OSReleaseLabel?:        string | number | bool | fn.#StringExpression
 		PlacementGroupConfigs?: list.UniqueItems() & [...#PlacementGroupConfig] | fn.#ListExpression
-		ReleaseLabel?:          string | fn.#StringExpression
-		ScaleDownBehavior?:     string | fn.#StringExpression
-		SecurityConfiguration?: string | fn.#StringExpression
-		ServiceRole!:           string | fn.#StringExpression
+		ReleaseLabel?:          string | number | bool | fn.#StringExpression
+		ScaleDownBehavior?:     string | number | bool | fn.#StringExpression
+		SecurityConfiguration?: string | number | bool | fn.#StringExpression
+		ServiceRole!:           string | number | bool | fn.#StringExpression
 		StepConcurrencyLevel?: int |
 			{
 				string &
@@ -107,16 +109,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:              [...#Tag] | fn.#ListExpression
 		VisibleToAllUsers?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Application: close({
 	AdditionalInfo?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
-	Args?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:    string | fn.#StringExpression
-	Version?: string | fn.#StringExpression
+	Args?:    list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Name?:    string | number | bool | fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -145,13 +153,13 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #BootstrapActionConfig: close({
-	Name!:                  string | fn.#StringExpression
+	Name!:                  string | number | bool | fn.#StringExpression
 	ScriptBootstrapAction!: #ScriptBootstrapActionConfig
 }) |
 fn.#ObjectExpression
 
 #CloudWatchAlarmDefinition: close({
-	ComparisonOperator!: string | fn.#StringExpression
+	ComparisonOperator!: string | number | bool | fn.#StringExpression
 	Dimensions?:         list.UniqueItems() & [...#MetricDimension] | fn.#ListExpression
 	EvaluationPeriods?: int |
 		{
@@ -167,8 +175,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MetricName!: string | fn.#StringExpression
-	Namespace?:  string | fn.#StringExpression
+	MetricName!: string | number | bool | fn.#StringExpression
+	Namespace?:  string | number | bool | fn.#StringExpression
 	Period!: int |
 		{
 			string &
@@ -183,7 +191,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Statistic?: string | fn.#StringExpression
+	Statistic?: string | number | bool | fn.#StringExpression
 	Threshold!: number |
 		{
 			string &
@@ -203,7 +211,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Unit?: string | fn.#StringExpression
+	Unit?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -275,14 +283,18 @@ fn.#ValueExpression
 				)
 		} |
 		fn.#NumberExpression
-	UnitType!: string | fn.#StringExpression
+	UnitType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Configuration: close({
-	Classification?: string | fn.#StringExpression
+	Classification?: string | number | bool | fn.#StringExpression
 	ConfigurationProperties?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
 	Configurations?: list.UniqueItems() & [...#Configuration] | fn.#ListExpression
@@ -315,9 +327,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HadoopJarStepConfig: close({
-	Args?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Jar!:            string | fn.#StringExpression
-	MainClass?:      string | fn.#StringExpression
+	Args?:           list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Jar!:            string | number | bool | fn.#StringExpression
+	MainClass?:      string | number | bool | fn.#StringExpression
 	StepProperties?: list.UniqueItems() & [...#KeyValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -325,7 +337,7 @@ fn.#ObjectExpression
 #InstanceFleetConfig: close({
 	InstanceTypeConfigs?:  list.UniqueItems() & [...#InstanceTypeConfig] | fn.#ListExpression
 	LaunchSpecifications?: #InstanceFleetProvisioningSpecifications
-	Name?:                 string | fn.#StringExpression
+	Name?:                 string | number | bool | fn.#StringExpression
 	ResizeSpecifications?: #InstanceFleetResizingSpecifications
 	TargetOnDemandCapacity?: int |
 		{
@@ -372,9 +384,9 @@ fn.#ObjectExpression
 
 #InstanceGroupConfig: close({
 	AutoScalingPolicy?: #AutoScalingPolicy
-	BidPrice?:          string | fn.#StringExpression
+	BidPrice?:          string | number | bool | fn.#StringExpression
 	Configurations?:    list.UniqueItems() & [...#Configuration] | fn.#ListExpression
-	CustomAmiId?:       string | fn.#StringExpression
+	CustomAmiId?:       string | number | bool | fn.#StringExpression
 	EbsConfiguration?:  #EbsConfiguration
 	InstanceCount!: int |
 		{
@@ -390,14 +402,14 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InstanceType!: string | fn.#StringExpression
-	Market?:       string | fn.#StringExpression
-	Name?:         string | fn.#StringExpression
+	InstanceType!: string | number | bool | fn.#StringExpression
+	Market?:       string | number | bool | fn.#StringExpression
+	Name?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InstanceTypeConfig: close({
-	BidPrice?: string | fn.#StringExpression
+	BidPrice?: string | number | bool | fn.#StringExpression
 	BidPriceAsPercentageOfOnDemandPrice?: number |
 		{
 			string &
@@ -418,9 +430,9 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Configurations?:   list.UniqueItems() & [...#Configuration] | fn.#ListExpression
-	CustomAmiId?:      string | fn.#StringExpression
+	CustomAmiId?:      string | number | bool | fn.#StringExpression
 	EbsConfiguration?: #EbsConfiguration
-	InstanceType!:     string | fn.#StringExpression
+	InstanceType!:     string | number | bool | fn.#StringExpression
 	Priority?: number |
 		{
 			string &
@@ -458,21 +470,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #JobFlowInstancesConfig: close({
-	AdditionalMasterSecurityGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	AdditionalSlaveSecurityGroups?:  list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CoreInstanceFleet?:              #InstanceFleetConfig
-	CoreInstanceGroup?:              #InstanceGroupConfig
-	Ec2KeyName?:                     string | fn.#StringExpression
-	Ec2SubnetId?:                    string | fn.#StringExpression
-	Ec2SubnetIds?:                   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	EmrManagedMasterSecurityGroup?:  string | fn.#StringExpression
-	EmrManagedSlaveSecurityGroup?:   string | fn.#StringExpression
-	HadoopVersion?:                  string | fn.#StringExpression
+	AdditionalMasterSecurityGroups?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	AdditionalSlaveSecurityGroups?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	CoreInstanceFleet?: #InstanceFleetConfig
+	CoreInstanceGroup?: #InstanceGroupConfig
+	Ec2KeyName?:        string | number | bool | fn.#StringExpression
+	Ec2SubnetId?:       string | number | bool | fn.#StringExpression
+	Ec2SubnetIds?:      list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	EmrManagedMasterSecurityGroup?: string | number | bool | fn.#StringExpression
+	EmrManagedSlaveSecurityGroup?:  string | number | bool | fn.#StringExpression
+	HadoopVersion?:                 string | number | bool | fn.#StringExpression
 	KeepJobFlowAliveWhenNoSteps?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MasterInstanceFleet?:         #InstanceFleetConfig
 	MasterInstanceGroup?:         #InstanceGroupConfig
 	Placement?:                   #PlacementType
-	ServiceAccessSecurityGroup?:  string | fn.#StringExpression
+	ServiceAccessSecurityGroup?:  string | number | bool | fn.#StringExpression
 	TaskInstanceFleets?:          list.UniqueItems() & [...#InstanceFleetConfig] | fn.#ListExpression
 	TaskInstanceGroups?:          list.UniqueItems() & [...#InstanceGroupConfig] | fn.#ListExpression
 	TerminationProtected?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -481,23 +495,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KerberosAttributes: close({
-	ADDomainJoinPassword?:             string | fn.#StringExpression
-	ADDomainJoinUser?:                 string | fn.#StringExpression
-	CrossRealmTrustPrincipalPassword?: string | fn.#StringExpression
-	KdcAdminPassword!:                 string | fn.#StringExpression
-	Realm!:                            string | fn.#StringExpression
+	ADDomainJoinPassword?:             string | number | bool | fn.#StringExpression
+	ADDomainJoinUser?:                 string | number | bool | fn.#StringExpression
+	CrossRealmTrustPrincipalPassword?: string | number | bool | fn.#StringExpression
+	KdcAdminPassword!:                 string | number | bool | fn.#StringExpression
+	Realm!:                            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KeyValue: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ManagedScalingPolicy: close({
 	ComputeLimits?:   #ComputeLimits
-	ScalingStrategy?: string | fn.#StringExpression
+	ScalingStrategy?: string | number | bool | fn.#StringExpression
 	UtilizationPerformanceIndex?: int |
 		{
 			string &
@@ -516,26 +530,26 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MetricDimension: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OnDemandCapacityReservationOptions: close({
-	CapacityReservationPreference?:       string | fn.#StringExpression
-	CapacityReservationResourceGroupArn?: string | fn.#StringExpression
-	UsageStrategy?:                       string | fn.#StringExpression
+	CapacityReservationPreference?:       string | number | bool | fn.#StringExpression
+	CapacityReservationResourceGroupArn?: string | number | bool | fn.#StringExpression
+	UsageStrategy?:                       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OnDemandProvisioningSpecification: close({
-	AllocationStrategy!:         string | fn.#StringExpression
+	AllocationStrategy!:         string | number | bool | fn.#StringExpression
 	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 }) |
 fn.#ObjectExpression
 
 #OnDemandResizingSpecification: close({
-	AllocationStrategy?:         string | fn.#StringExpression
+	AllocationStrategy?:         string | number | bool | fn.#StringExpression
 	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 	TimeoutDurationMinutes?: int |
 		{
@@ -555,15 +569,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PlacementGroupConfig: close({
-	InstanceRole!:      string | fn.#StringExpression
-	PlacementStrategy?: string | fn.#StringExpression
+	InstanceRole!:      string | number | bool | fn.#StringExpression
+	PlacementStrategy?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#PlacementType: close({AvailabilityZone!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PlacementType: close({AvailabilityZone!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ScalingAction: close({
-	Market?:                           string | fn.#StringExpression
+	Market?:                           string | number | bool | fn.#StringExpression
 	SimpleScalingPolicyConfiguration!: #SimpleScalingPolicyConfiguration
 }) |
 fn.#ObjectExpression
@@ -602,8 +616,8 @@ fn.#ObjectExpression
 
 #ScalingRule: close({
 	Action!:      #ScalingAction
-	Description?: string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
+	Name!:        string | number | bool | fn.#StringExpression
 	Trigger!:     #ScalingTrigger
 }) |
 fn.#ObjectExpression
@@ -611,13 +625,13 @@ fn.#ObjectExpression
 #ScalingTrigger: close({CloudWatchAlarmDefinition!: #CloudWatchAlarmDefinition}) | fn.#ObjectExpression
 
 #ScriptBootstrapActionConfig: close({
-	Args?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Path!: string | fn.#StringExpression
+	Args?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Path!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SimpleScalingPolicyConfiguration: close({
-	AdjustmentType?: string | fn.#StringExpression
+	AdjustmentType?: string | number | bool | fn.#StringExpression
 	CoolDown?: int |
 		{
 			string &
@@ -650,7 +664,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SpotProvisioningSpecification: close({
-	AllocationStrategy?: string | fn.#StringExpression
+	AllocationStrategy?: string | number | bool | fn.#StringExpression
 	BlockDurationMinutes?: int |
 		{
 			string &
@@ -665,7 +679,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimeoutAction!: string | fn.#StringExpression
+	TimeoutAction!: string | number | bool | fn.#StringExpression
 	TimeoutDurationMinutes!: int |
 		{
 			string &
@@ -684,7 +698,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SpotResizingSpecification: close({
-	AllocationStrategy?: string | fn.#StringExpression
+	AllocationStrategy?: string | number | bool | fn.#StringExpression
 	TimeoutDurationMinutes?: int |
 		{
 			string &
@@ -703,15 +717,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StepConfig: close({
-	ActionOnFailure?: string | fn.#StringExpression
+	ActionOnFailure?: string | number | bool | fn.#StringExpression
 	HadoopJarStep!:   #HadoopJarStepConfig
-	Name!:            string | fn.#StringExpression
+	Name!:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -758,6 +772,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType!: string | fn.#StringExpression
+	VolumeType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

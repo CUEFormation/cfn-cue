@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a package and storage location in an Amazon S3 access point.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Panorama::Package"
-	Properties!: close({
+	let properties = close({
 		// A name for the package.
 		PackageName!:     #NodePackageName
 		StorageLocation?: close({}) | fn.#ObjectExpression
@@ -27,26 +29,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Tags for the package.
 		Tags?: #TagList
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" | fn.#StringExpression
+#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
+#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #StorageLocation: close({
-	BinaryPrefixLocation?:    string | fn.#StringExpression
-	Bucket?:                  string | fn.#StringExpression
-	GeneratedPrefixLocation?: string | fn.#StringExpression
-	ManifestPrefixLocation?:  string | fn.#StringExpression
-	RepoPrefixLocation?:      string | fn.#StringExpression
+	BinaryPrefixLocation?:    string | number | bool | fn.#StringExpression
+	Bucket?:                  string | number | bool | fn.#StringExpression
+	GeneratedPrefixLocation?: string | number | bool | fn.#StringExpression
+	ManifestPrefixLocation?:  string | number | bool | fn.#StringExpression
+	RepoPrefixLocation?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

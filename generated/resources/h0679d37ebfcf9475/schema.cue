@@ -10,43 +10,96 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DMS::MigrationProject
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::MigrationProject"
-	Properties?: close({
-		Description?:                  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceProfileArn?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceProfileIdentifier?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceProfileName?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		MigrationProjectCreationTime?: strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
-		MigrationProjectIdentifier?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		MigrationProjectName?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceProfileArn?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceProfileIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceProfileName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		MigrationProjectCreationTime?: strings.MaxRunes(40) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		MigrationProjectIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		MigrationProjectName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		SchemaConversionApplicationAttributes?: close({
-			S3BucketPath?:    string | fn.#StringExpression
-			S3BucketRoleArn?: string | fn.#StringExpression
+			S3BucketPath?:    string | number | bool | fn.#StringExpression
+			S3BucketRoleArn?: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		SourceDataProviderDescriptors?: list.UniqueItems() & [...#DataProviderDescriptor] | fn.#ListExpression
 		Tags?:                          list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TargetDataProviderDescriptors?: list.UniqueItems() & [...#DataProviderDescriptor] | fn.#ListExpression
-		TransformationRules?:           string | fn.#StringExpression
+		TransformationRules?:           string | number | bool | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DataProviderDescriptor: close({
-	DataProviderArn?:        string | fn.#StringExpression
-	DataProviderIdentifier?: string | fn.#StringExpression
-	DataProviderName?:       string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?: string | fn.#StringExpression
+	DataProviderArn?:        string | number | bool | fn.#StringExpression
+	DataProviderIdentifier?: string | number | bool | fn.#StringExpression
+	DataProviderName?:       string | number | bool | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

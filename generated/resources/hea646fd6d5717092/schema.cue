@@ -9,14 +9,26 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Logs::AccountPolicy resource specifies a CloudWatch Logs AccountPolicy.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::AccountPolicy"
-	Properties!: close({
-		PolicyDocument!: strings.MaxRunes(30720) & strings.MinRunes(1) | fn.#StringExpression
-		PolicyName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^:*]{1,256}$" | fn.#StringExpression
+	let properties = close({
+		PolicyDocument!: strings.MaxRunes(30720) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30720) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^:*]{1,256}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^:*]{1,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyType!: "DATA_PROTECTION_POLICY" |
 			"SUBSCRIPTION_FILTER_POLICY" |
 			"FIELD_INDEX_POLICY" |
@@ -24,6 +36,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"METRIC_EXTRACTION_POLICY" |
 			fn.#StringExpression
 		Scope?:             "ALL" | fn.#StringExpression
-		SelectionCriteria?: string | fn.#StringExpression
+		SelectionCriteria?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

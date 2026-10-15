@@ -9,35 +9,74 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RefactorSpaces::Service Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RefactorSpaces::Service"
-	Properties!: close({
+	let properties = close({
 		ApplicationIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" & "\(self)"
+		} |
 		fn.#StringExpression
 		Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		EndpointType!: #ServiceEndpointType
 		EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" & "\(self)"
+		} |
 		fn.#StringExpression
 		LambdaEndpoint?: #LambdaEndpointInput
-		Name!:           strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-		Tags?:           [...#Tag] | fn.#ListExpression
-		UrlEndpoint?:    #UrlEndpointInput
-		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Name!: strings.MaxRunes(63) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+		UrlEndpoint?: #UrlEndpointInput
+		VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 		strings.MaxRunes(21) &
 		strings.MinRunes(12) &
 		=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(21) &
+			strings.MinRunes(12) &
+			=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LambdaEndpointInput: close({
 	Arn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -45,8 +84,18 @@ fn.#ObjectExpression
 #ServiceEndpointType: "LAMBDA" | "URL" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -54,10 +103,24 @@ fn.#ObjectExpression
 	HealthUrl?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^https?://[-a-zA-Z0-9+\\x38@#/%?=~_|!:,.;]*[-a-zA-Z0-9+\\x38@#/%=~_|]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^https?://[-a-zA-Z0-9+\\x38@#/%?=~_|!:,.;]*[-a-zA-Z0-9+\\x38@#/%=~_|]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Url!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^https?://[-a-zA-Z0-9+\\x38@#/%?=~_|!:,.;]*[-a-zA-Z0-9+\\x38@#/%=~_|]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^https?://[-a-zA-Z0-9+\\x38@#/%?=~_|!:,.;]*[-a-zA-Z0-9+\\x38@#/%=~_|]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

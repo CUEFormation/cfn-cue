@@ -14,24 +14,46 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::GameLift::ContainerFleet resource creates an Amazon GameLift
 // (GameLift) container fleet to host game servers.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::ContainerFleet"
-	Properties!: close({
+	let properties = close({
 		BillingType?:             "ON_DEMAND" | "SPOT" | fn.#StringExpression
 		DeploymentConfiguration?: #DeploymentConfiguration
-		Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		FleetRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FleetRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		GameServerContainerGroupDefinitionName?: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^[a-zA-Z0-9\\-]+$|^arn:.*:containergroupdefinition\\/[a-zA-Z0-9\\-]+(:[0-9]+)?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9\\-]+$|^arn:.*:containergroupdefinition\\/[a-zA-Z0-9\\-]+(:[0-9]+)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		GameServerContainerGroupsPerInstance?: int & <=5000 & >=1 |
 			{
@@ -57,7 +79,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		GameSessionCreationLimitPolicy?: #GameSessionCreationLimitPolicy
 		InstanceConnectionPortRange?:    #ConnectionPortRange
 		InstanceInboundPermissions?:     list.MaxItems(50) & [...] & [...#IpPermission] | fn.#ListExpression
-		InstanceType?:                   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceType?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Locations?: list.MaxItems(100) & list.MinItems(1) & [...close({
 			Location!:         #Location
 			LocationCapacity?: #LocationCapacity
@@ -66,19 +93,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		LogConfiguration?: #LogConfiguration
-		MetricGroups?: list.MaxItems(1) & [...] & [
-			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		MetricGroups?: list.MaxItems(1) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
 		PerInstanceContainerGroupDefinitionName?: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^[a-zA-Z0-9\\-]+$|^arn:.*:containergroupdefinition\\/[a-zA-Z0-9\\-]+(:[0-9]+)?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9\\-]+$|^arn:.*:containergroupdefinition\\/[a-zA-Z0-9\\-]+(:[0-9]+)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PlayerGatewayMode?: "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
 		ScalingPolicies?:   list.MaxItems(50) & [...#ScalingPolicy] | fn.#ListExpression
 		Tags?:              list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConnectionPortRange: close({
@@ -139,9 +178,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DeploymentDetails: close(
-	{LatestDeploymentId?: strings.MaxRunes(1024) & =~"^[a-zA-Z0-9\\-]+$|^$" | fn.#StringExpression},
-) |
+#DeploymentDetails: close({
+	LatestDeploymentId?: strings.MaxRunes(1024) & =~"^[a-zA-Z0-9\\-]+$|^$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & =~"^[a-zA-Z0-9\\-]+$|^$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #GameSessionCreationLimitPolicy: close({
@@ -196,7 +240,12 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	IpRange!: =~"(^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(/([0-9]|[1-2][0-9]|3[0-2]))$)" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"(^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(/([0-9]|[1-2][0-9]|3[0-2]))$)" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	Protocol!: "TCP" | "UDP" | fn.#StringExpression
 	ToPort!: int & <=60000 & >=1 |
 		{
@@ -217,7 +266,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Location: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" | fn.#StringExpression
+#Location: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #LocationCapacity: close({
 	DesiredEC2Instances?: int & >=0 |
@@ -281,8 +335,25 @@ fn.#ObjectExpression
 
 #LogConfiguration: close({
 	LogDestination?: #LogDestination
-	LogGroupArn?:    strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/\\-\\*]+" | fn.#StringExpression
-	S3BucketName?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/\\-\\*]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/\\-\\*]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -343,7 +414,12 @@ fn.#ObjectExpression
 		"WaitTime" |
 		"ConcurrentActivatableGameSessions" |
 		fn.#StringExpression
-	Name!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PolicyType?: "RuleBased" | "TargetBased" | "ManagedScaling" | fn.#StringExpression
 	ScalingAdjustment?: int |
 		{
@@ -388,8 +464,18 @@ fn.#ObjectExpression
 #StoppedActions: list.MaxItems(1) & [..."AUTO_SCALING" | fn.#StringExpression] | fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

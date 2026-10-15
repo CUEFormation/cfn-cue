@@ -14,13 +14,15 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::EC2Fleet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::EC2Fleet"
-	Properties!: close({
-		Context?:                         string | fn.#StringExpression
+	let properties = close({
+		Context?:                         string | number | bool | fn.#StringExpression
 		ExcessCapacityTerminationPolicy?: "termination" | "no-termination" | fn.#StringExpression
 		LaunchTemplateConfigs!: list.MaxItems(50) & [...] & [...#FleetLaunchTemplateConfigRequest] | fn.#ListExpression
 		OnDemandOptions?:       #OnDemandOptionsRequest
@@ -45,9 +47,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 		Type?:       "maintain" | "request" | "instant" | fn.#StringExpression
-		ValidFrom?:  string | fn.#StringExpression
-		ValidUntil?: string | fn.#StringExpression
+		ValidFrom?:  string | number | bool | fn.#StringExpression
+		ValidUntil?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AcceleratorCountRequest: close({
@@ -149,10 +153,10 @@ fn.#ObjectExpression
 #BaselinePerformanceFactorsRequest: close({Cpu?: #CpuPerformanceFactorRequest}) | fn.#ObjectExpression
 
 #BlockDeviceMapping: close({
-	DeviceName?:  string | fn.#StringExpression
+	DeviceName?:  string | number | bool | fn.#StringExpression
 	Ebs?:         #EbsBlockDevice
-	NoDevice?:    string | fn.#StringExpression
-	VirtualName?: string | fn.#StringExpression
+	NoDevice?:    string | number | bool | fn.#StringExpression
+	VirtualName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -179,8 +183,10 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #CapacityReservationTargetRequest: close({
-	CapacityReservationIds?:               list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CapacityReservationResourceGroupArns?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	CapacityReservationIds?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	CapacityReservationResourceGroupArns?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -204,11 +210,25 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	MultiAvailabilityZoneConfiguration?: #MultiAvailabilityZoneConfiguration
-	SnapshotId?:                         string | fn.#StringExpression
+	SnapshotId?:                         string | number | bool | fn.#StringExpression
 	VolumeSize?: int |
 		{
 			string &
@@ -234,14 +254,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FleetLaunchTemplateOverridesRequest: close({
-	AvailabilityZone?:     string | fn.#StringExpression
-	AvailabilityZoneId?:   string | fn.#StringExpression
+	AvailabilityZone?:     string | number | bool | fn.#StringExpression
+	AvailabilityZoneId?:   string | number | bool | fn.#StringExpression
 	BlockDeviceMappings?:  list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
 	IamInstanceProfile?:   #IamInstanceProfileSpecification
 	InstanceRequirements?: #InstanceRequirementsRequest
-	InstanceType?:         string | fn.#StringExpression
-	KeyName?:              string | fn.#StringExpression
-	MaxPrice?:             string | fn.#StringExpression
+	InstanceType?:         string | number | bool | fn.#StringExpression
+	KeyName?:              string | number | bool | fn.#StringExpression
+	MaxPrice?:             string | number | bool | fn.#StringExpression
 	MetadataOptions?:      #InstanceMetadataOptionsRequest
 	NetworkInterfaces?:    [...#NetworkInterfaceSpecificationRequest] | fn.#ListExpression
 	Placement?:            #Placement
@@ -264,7 +284,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SubnetId?: string | fn.#StringExpression
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	WeightedCapacity?: number |
 		{
 			string &
@@ -288,17 +313,21 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FleetLaunchTemplateSpecificationRequest: close({
-	LaunchTemplateId?: string | fn.#StringExpression
+	LaunchTemplateId?: string | number | bool | fn.#StringExpression
 	LaunchTemplateName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"[a-zA-Z0-9\\(\\)\\.\\-/_]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"[a-zA-Z0-9\\(\\)\\.\\-/_]+" & "\(self)"
+	} |
 	fn.#StringExpression
-	LaunchTemplateSpecificationUserData?: string | fn.#StringExpression
-	Version!:                             string | fn.#StringExpression
+	LaunchTemplateSpecificationUserData?: string | number | bool | fn.#StringExpression
+	Version!:                             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IamInstanceProfileSpecification: close({
-	Arn?:  string | fn.#StringExpression
-	Name?: string | fn.#StringExpression
+	Arn?:  string | number | bool | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -353,9 +382,14 @@ fn.#ObjectExpression
 		fn.#ListExpression
 	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest
 	AcceleratorTypes?:          [..."gpu" | "fpga" | "inference" | "media" | fn.#StringExpression] | fn.#ListExpression
-	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" | fn.#StringExpression
-	] |
+	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [...strings.MaxRunes(30) &
+	strings.MinRunes(1) &
+	=~"[a-zA-Z0-9\\.\\*]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	BareMetal?:                  "included" | "required" | "excluded" | fn.#StringExpression
 	BaselineEbsBandwidthMbps?:   #BaselineEbsBandwidthMbpsRequest
@@ -363,9 +397,14 @@ fn.#ObjectExpression
 	BurstablePerformance?:       "included" | "required" | "excluded" | fn.#StringExpression
 	CpuManufacturers?: [..."intel" | "amd" | "amazon-web-services" | "apple" | fn.#StringExpression] |
 		fn.#ListExpression
-	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" | fn.#StringExpression
-	] |
+	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [...strings.MaxRunes(30) &
+	strings.MinRunes(1) &
+	=~"[a-zA-Z0-9\\.\\*]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	InstanceGenerations?: [..."current" | "previous" | fn.#StringExpression] | fn.#ListExpression
 	LocalStorage?:        "included" | "required" | "excluded" | fn.#StringExpression
@@ -423,7 +462,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Ipv6AddressRequest: close({Ipv6Address?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Ipv6AddressRequest: close({Ipv6Address?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #MaintenanceStrategies: close({CapacityRebalance?: #CapacityRebalance}) | fn.#ObjectExpression
 
@@ -502,7 +541,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MultiAvailabilityZoneConfiguration: close({
-	ConfigurationType?:        string | fn.#StringExpression
+	ConfigurationType?:        string | number | bool | fn.#StringExpression
 	StandbyAvailabilityZones?: list.UniqueItems() & [...#StandbyAvailabilityZone] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -584,7 +623,7 @@ fn.#ObjectExpression
 #NetworkInterfaceSpecificationRequest: close({
 	AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeleteOnTermination?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:              string | fn.#StringExpression
+	Description?:              string | number | bool | fn.#StringExpression
 	DeviceIndex?: int |
 		{
 			string &
@@ -599,8 +638,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Groups?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	InterfaceType?: string | fn.#StringExpression
+	Groups?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	InterfaceType?: string | number | bool | fn.#StringExpression
 	Ipv6AddressCount?: int |
 		{
 			string &
@@ -630,8 +669,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	NetworkInterfaceId?: string | fn.#StringExpression
-	PrivateIpAddress?:   string | fn.#StringExpression
+	NetworkInterfaceId?: string | number | bool | fn.#StringExpression
+	PrivateIpAddress?:   string | number | bool | fn.#StringExpression
 	PrivateIpAddresses?: [...#PrivateIpAddressSpecificationRequest] | fn.#ListExpression
 	SecondaryPrivateIpAddressCount?: int |
 		{
@@ -647,14 +686,19 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SubnetId?: string | fn.#StringExpression
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OnDemandOptionsRequest: close({
 	AllocationStrategy?:         "lowest-price" | "prioritized" | fn.#StringExpression
 	CapacityReservationOptions?: #CapacityReservationOptionsRequest
-	MaxTotalPrice?:              string | fn.#StringExpression
+	MaxTotalPrice?:              string | number | bool | fn.#StringExpression
 	MinTargetCapacity?: int |
 		{
 			string &
@@ -674,14 +718,15 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PerformanceFactorReferenceRequest: close({InstanceFamily?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PerformanceFactorReferenceRequest: close({InstanceFamily?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #Placement: close({
-	Affinity?:             string | fn.#StringExpression
-	AvailabilityZone?:     string | fn.#StringExpression
-	GroupName?:            string | fn.#StringExpression
-	HostId?:               string | fn.#StringExpression
-	HostResourceGroupArn?: string | fn.#StringExpression
+	Affinity?:             string | number | bool | fn.#StringExpression
+	AvailabilityZone?:     string | number | bool | fn.#StringExpression
+	GroupName?:            string | number | bool | fn.#StringExpression
+	HostId?:               string | number | bool | fn.#StringExpression
+	HostResourceGroupArn?: string | number | bool | fn.#StringExpression
 	PartitionNumber?: int |
 		{
 			string &
@@ -696,14 +741,14 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SpreadDomain?: string | fn.#StringExpression
+	SpreadDomain?: string | number | bool | fn.#StringExpression
 	Tenancy?:      "dedicated" | "default" | "host" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PrivateIpAddressSpecificationRequest: close({
 	Primary?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PrivateIpAddress?: string | fn.#StringExpression
+	PrivateIpAddress?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -753,7 +798,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	MaintenanceStrategies?: #MaintenanceStrategies
-	MaxTotalPrice?:         string | fn.#StringExpression
+	MaxTotalPrice?:         string | number | bool | fn.#StringExpression
 	MinTargetCapacity?: int |
 		{
 			string &
@@ -774,14 +819,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StandbyAvailabilityZone: close({
-	AvailabilityZone?:   string | fn.#StringExpression
-	AvailabilityZoneId?: string | fn.#StringExpression
+	AvailabilityZone?:   string | number | bool | fn.#StringExpression
+	AvailabilityZoneId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

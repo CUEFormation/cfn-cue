@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudFront::FieldLevelEncryptionProfile. A
@@ -16,21 +18,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // identities to the request-body field patterns that CloudFront encrypts with
 // them.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::FieldLevelEncryptionProfile"
-	Properties!: close({FieldLevelEncryptionProfileConfig!: #FieldLevelEncryptionProfileConfig})
+	Type!: "AWS::CloudFront::FieldLevelEncryptionProfile"
+	let properties = close({FieldLevelEncryptionProfileConfig!: #FieldLevelEncryptionProfileConfig})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EncryptionEntity: close({
-	FieldPatterns!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	ProviderId!:    string | fn.#StringExpression
-	PublicKeyId!:   string | fn.#StringExpression
+	FieldPatterns!: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ProviderId!:    string | number | bool | fn.#StringExpression
+	PublicKeyId!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FieldLevelEncryptionProfileConfig: close({
-	CallerReference!:    string | fn.#StringExpression
-	Comment?:            string | fn.#StringExpression
+	CallerReference!:    string | number | bool | fn.#StringExpression
+	Comment?:            string | number | bool | fn.#StringExpression
 	EncryptionEntities!: list.MinItems(1) & [...#EncryptionEntity] | fn.#ListExpression
-	Name!:               string | fn.#StringExpression
+	Name!:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

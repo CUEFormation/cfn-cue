@@ -13,16 +13,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RDS::Deployment. Creates and manages an
 // Amazon RDS Blue/Green Deployment.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::Deployment"
-	Properties!: close({
+	let properties = close({
 		BlueGreenDeploymentName!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Source!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 		TargetAllocatedStorage?: int |
@@ -41,11 +51,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TargetDBClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		TargetDBInstanceClass?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^db\\.[0-9a-z]{2,6}\\.[0-9a-z]{4,9}$" |
+		TargetDBClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		TargetDBParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		TargetEngineVersion?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z-_.]+$" | fn.#StringExpression
+		TargetDBInstanceClass?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^db\\.[0-9a-z]{2,6}\\.[0-9a-z]{4,9}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) &
+			strings.MinRunes(5) &
+			=~"^db\\.[0-9a-z]{2,6}\\.[0-9a-z]{4,9}$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		TargetDBParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TargetEngineVersion?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z-_.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z-_.]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TargetIops?: int |
 			{
 				string &
@@ -78,7 +110,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TargetStorageType?: string | fn.#StringExpression
+		TargetStorageType?: string | number | bool | fn.#StringExpression
 		UpgradeTargetStorageConfig?: bool |
 			"true" |
 			"True" |
@@ -88,25 +120,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DeploymentTask: close({
-	TaskName?:   string | fn.#StringExpression
-	TaskStatus?: string | fn.#StringExpression
+	TaskName?:   string | number | bool | fn.#StringExpression
+	TaskStatus?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SwitchoverDetail: close({
 	SourceMember?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
+	} |
 	fn.#StringExpression
-	SwitchoverDetailStatus?: string | fn.#StringExpression
+	SwitchoverDetailStatus?: string | number | bool | fn.#StringExpression
 	TargetMember?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

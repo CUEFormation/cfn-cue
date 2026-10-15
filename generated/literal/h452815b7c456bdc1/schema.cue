@@ -64,18 +64,81 @@ import (
 // ``Snapshot``. For more information about how AWS CloudFormation deletes
 // resources, see [DeletionPolicy
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
-#Properties: matchN(2, [
+#Properties: matchN(6, [
 	{
 		MasterUsername?: matchN(0, ["rdsadmin"])
 		...
-	},
-	matchIf({
+	}, matchIf({
 		Engine!: "aurora-postgresql" | "postgresql"
 		...
 	}, {
 		MasterUsername?: matchN(0, ["admin"])
 		...
-	}, _) & {...}
+	}, _), matchIf({
+		Engine!: "aurora-mysql" | "aurora-postgresql"
+		...
+	}, {
+		AllocatedStorage?:       error("disallowed")
+		DBClusterInstanceClass?: error("disallowed")
+		Iops?:                   error("disallowed")
+		PubliclyAccessible?:     error("disallowed")
+		StorageType?:            matchIf(string, "aurora" | "aurora-iopt1", _)
+		...
+	}, _), matchIf({
+		MonitoringRoleArn!: _
+		...
+	}, {
+		MonitoringInterval!: null | bool | >0 | string | [...] | {...}
+		...
+	}, matchIf({
+		MonitoringInterval!: matchN(0, [matchN(0, [>0])])
+		...
+	}, {
+		MonitoringRoleArn!: _
+		...
+	}, _)), matchIf({
+		Engine!: "mysql" | "postgres"
+		...
+	}, {
+		AvailabilityZones?:                error("disallowed")
+		BacktrackWindow?:                  error("disallowed")
+		Domain?:                           error("disallowed")
+		DomainIAMRoleName?:                error("disallowed")
+		EnableGlobalWriteForwarding?:      error("disallowed")
+		EnableHttpEndpoint?:               error("disallowed")
+		EnableIAMDatabaseAuthentication?:  error("disallowed")
+		EngineMode?:                       error("disallowed")
+		GlobalClusterIdentifier?:          error("disallowed")
+		NetworkType?:                      error("disallowed")
+		ReplicationSourceIdentifier?:      error("disallowed")
+		ScalingConfiguration?:             error("disallowed")
+		ServerlessV2ScalingConfiguration?: error("disallowed")
+		SourceRegion?:                     error("disallowed")
+		StorageType!:                      matchIf(string, "io1" | "io2" | "gp3", _)
+		AllocatedStorage!:                 _
+		DBClusterInstanceClass!:           _
+		Iops!:                             _
+		...
+	}, _),
+	matchIf({
+		EngineMode!: "provisioned"
+		...
+	}, {
+		ScalingConfiguration?: error("disallowed")
+		...
+	}, _) & matchIf({
+		EngineMode!: "serverless"
+		...
+	}, {
+		ServerlessV2ScalingConfiguration?: error("disallowed")
+		...
+	}, _) & matchIf({
+		EngineMode?: error("disallowed")
+		...
+	}, {
+		ScalingConfiguration?: error("disallowed")
+		...
+	}, _)
 ]) & close({
 	MasterUserPassword?: _
 	if MasterUserPassword != _|_ {
@@ -421,7 +484,9 @@ import (
 	// in the destination AWS Region. This KMS key is used to encrypt the read
 	// replica in that AWS Region.
 	// Valid for: Aurora DB clusters and Multi-AZ DB clusters
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// Specifies whether to manage the master user password with AWS Secrets Manager.
 	// For more information, see [Password management with Secrets
@@ -792,7 +857,9 @@ import (
 // in the *Amazon Aurora User Guide.*
 #MasterUserSecret: close({
 	// The AWS KMS key identifier that is used to encrypt the secret.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The Amazon Resource Name (ARN) of the secret. This parameter is a return
 	// value that you can retrieve using the ``Fn::GetAtt`` intrinsic function. For

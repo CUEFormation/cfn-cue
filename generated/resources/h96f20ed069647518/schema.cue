@@ -10,37 +10,61 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EMRContainers::VirtualCluster Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMRContainers::VirtualCluster"
-	Properties!: close({
+	let properties = close({
 		// Container provider of the virtual cluster.
 		ContainerProvider!: #ContainerProvider
-		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
-		SecurityConfigurationId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9a-z]+" | fn.#StringExpression
-		SessionEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		SecurityConfigurationId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9a-z]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9a-z]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		SessionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ContainerInfo: close({EksInfo!: #EksInfo}) | fn.#ObjectExpression
 
 #ContainerProvider: close({
-	Id!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
+	Id!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" & "\(self)"
+	} |
+	fn.#StringExpression
 	Info!: #ContainerInfo
 	Type!: "EKS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EksInfo: close(
-	{Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9]([-a-z0-9]*[a-z0-9])?" | fn.#StringExpression},
-) |
+#EksInfo: close({
+	Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9]([-a-z0-9]*[a-z0-9])?" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9]([-a-z0-9]*[a-z0-9])?" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

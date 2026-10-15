@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayMulticastGroupMember registers and deregisters
@@ -13,9 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // group
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayMulticastGroupMember"
-	Properties!: close({
-		GroupIpAddress!:                  string | fn.#StringExpression
-		NetworkInterfaceId!:              string | fn.#StringExpression
-		TransitGatewayMulticastDomainId!: string | fn.#StringExpression
+	let properties = close({
+		GroupIpAddress!:                  string | number | bool | fn.#StringExpression
+		NetworkInterfaceId!:              string | number | bool | fn.#StringExpression
+		TransitGatewayMulticastDomainId!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

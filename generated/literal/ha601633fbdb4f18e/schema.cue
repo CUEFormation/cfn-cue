@@ -5,6 +5,7 @@ package schema
 import (
 	"strings"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -129,7 +130,8 @@ import (
 
 		// The CIDR block to be reserved for OpenSearch Ingestion to create elastic
 		// network interfaces (ENIs).
-		CidrBlock!:
+		CidrBlock!: fn.#IPv4Network &
+			string &
 			=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[12]?[0-9])$"
 	})
 

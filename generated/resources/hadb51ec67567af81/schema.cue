@@ -9,38 +9,85 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::HealthImaging::Datastore Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::HealthImaging::Datastore"
-	Properties?: close({
+	let properties = close({
 		DatastoreName?: #DatastoreName
 		KmsKeyArn?:     #KmsKeyArn
 		Tags?:          #Tags
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CreatedAt: string | fn.#StringExpression
+#CreatedAt: string | number | bool | fn.#StringExpression
 
 #DatastoreArn: strings.MaxRunes(127) &
 strings.MinRunes(1) &
 =~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:medical-imaging:[a-z0-9-]+:[0-9]{12}:datastore/[0-9a-z]{32}(/imageset/[0-9a-z]{32})?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(127) &
+	strings.MinRunes(1) &
+	=~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:medical-imaging:[a-z0-9-]+:[0-9]{12}:datastore/[0-9a-z]{32}(/imageset/[0-9a-z]{32})?$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#DatastoreId: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[0-9a-z]{32}$" | fn.#StringExpression
+#DatastoreId: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[0-9a-z]{32}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[0-9a-z]{32}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#DatastoreName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/#-]+$" | fn.#StringExpression
+#DatastoreName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/#-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/#-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DatastoreStatus: ("CREATING" | "CREATE_FAILED" | "ACTIVE" | "DELETING" | "DELETED") & (strings.MaxRunes(127) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: ("CREATING" | "CREATE_FAILED" | "ACTIVE" | "DELETING" | "DELETED") &
+	strings.MaxRunes(127) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#KmsKeyArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(512) & strings.MinRunes(1)) |
+#KmsKeyArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(512) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Tags: close({
 
-	{[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
-#UpdatedAt: string | fn.#StringExpression
+#UpdatedAt: string | number | bool | fn.#StringExpression

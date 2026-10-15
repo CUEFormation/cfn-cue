@@ -9,14 +9,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Connect::DataLakeAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::DataLakeAssociation"
-	Properties!: close({
-		DataSetId!:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9]*$" | fn.#StringExpression
-		TargetAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" | fn.#StringExpression
+	let properties = close({
+		DataSetId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TargetAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

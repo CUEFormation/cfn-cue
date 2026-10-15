@@ -76,7 +76,49 @@ import (
 //
 // For more information, see [DeletionPolicy
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
-#Properties: close({
+#Properties: matchN(4, [
+	matchIf({
+		Engine!: =~"(?i)(aurora|aurora-mysql|aurora-postgresql)"
+		...
+	}, {
+		AllocatedStorage?:                error("disallowed")
+		CopyTagsToSnapshot?:              error("disallowed")
+		DeletionProtection?:              error("disallowed")
+		EnableIAMDatabaseAuthentication?: error("disallowed")
+		MasterUserPassword?:              error("disallowed")
+		...
+	}, _),
+	matchIf({
+		DBClusterIdentifier!: _
+		...
+	}, {
+		BackupRetentionPeriod?: error("disallowed")
+		...
+	}, _) & matchIf({
+		DBClusterIdentifier?:        error("disallowed")
+		Engine!:                     matchN(0, [=~"^aurora"]) & string
+		SourceDBInstanceIdentifier?: error("disallowed")
+		...
+	}, {
+		BackupRetentionPeriod?: null | bool | <=35 | string | [...] | {...}
+		...
+	}, _),
+	matchIf({
+		Engine!:   matchN(0, [=~"^custom-"]) & string
+		KmsKeyId!: _
+		...
+	}, {
+		StorageEncrypted!: "true" | true | "True" | "TRUE"
+		...
+	}, _), matchIf({
+		Engine!:      =~"^(oracle|custom-oracle|db2)"
+		ReplicaMode!: _
+		...
+	}, {
+		ReplicaMode?: "mounted" | "open-read-only"
+		...
+	}, _)
+]) & close({
 	// The additional storage volumes associated with the DB instance. RDS supports
 	// additional storage volumes for RDS for Oracle and RDS for SQL Server.
 	AdditionalStorageVolumes?: [...#AdditionalStorageVolume]
@@ -742,7 +784,9 @@ import (
 	// in the *Amazon RDS User Guide*.
 	// *Amazon Aurora*
 	// Not applicable. The KMS key identifier is managed by the DB cluster.
-	KmsKeyId?:             =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 	LatestRestorableTime?: time.Time
 
 	// License model information for this DB instance.
@@ -1354,7 +1398,9 @@ import (
 // in the *Amazon Aurora User Guide.*
 #MasterUserSecret: close({
 	// The AWS KMS key identifier that is used to encrypt the secret.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The Amazon Resource Name (ARN) of the secret. This parameter is a return
 	// value that you can retrieve using the ``Fn::GetAtt`` intrinsic function. For

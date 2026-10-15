@@ -13,27 +13,37 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Elasticsearch::Domain
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Elasticsearch::Domain"
-	Properties?: close({
-		AccessPolicies?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		AccessPolicies?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		AdvancedOptions?: {
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
 			...
 		} | fn.#ObjectExpression
 		AdvancedSecurityOptions?:    #AdvancedSecurityOptionsInput
 		CognitoOptions?:             #CognitoOptions
 		DomainEndpointOptions?:      #DomainEndpointOptions
-		DomainName?:                 string | fn.#StringExpression
+		DomainName?:                 string | number | bool | fn.#StringExpression
 		EBSOptions?:                 #EBSOptions
 		ElasticsearchClusterConfig?: #ElasticsearchClusterConfig
-		ElasticsearchVersion?:       string | fn.#StringExpression
+		ElasticsearchVersion?:       string | number | bool | fn.#StringExpression
 		EncryptionAtRestOptions?:    #EncryptionAtRestOptions
 		LogPublishingOptions?: {
 			{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
 			...
 		} | fn.#ObjectExpression
 		NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
@@ -41,6 +51,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                        [...#Tag] | fn.#ListExpression
 		VPCOptions?:                  #VPCOptions
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdvancedSecurityOptionsInput: close({
@@ -53,10 +65,14 @@ fn.#ObjectExpression
 
 #CognitoOptions: close({
 	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IdentityPoolId?: string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	UserPoolId?: string | fn.#StringExpression
+	IdentityPoolId?: string | number | bool | fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UserPoolId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -66,11 +82,11 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #DomainEndpointOptions: close({
-	CustomEndpoint?:               string | fn.#StringExpression
-	CustomEndpointCertificateArn?: string | fn.#StringExpression
+	CustomEndpoint?:               string | number | bool | fn.#StringExpression
+	CustomEndpointCertificateArn?: string | number | bool | fn.#StringExpression
 	CustomEndpointEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnforceHTTPS?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TLSSecurityPolicy?:            string | fn.#StringExpression
+	TLSSecurityPolicy?:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -104,7 +120,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType?: string | fn.#StringExpression
+	VolumeType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -125,7 +141,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	DedicatedMasterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DedicatedMasterType?:    string | fn.#StringExpression
+	DedicatedMasterType?:    string | number | bool | fn.#StringExpression
 	InstanceCount?: int |
 		{
 			string &
@@ -140,7 +156,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InstanceType?: string | fn.#StringExpression
+	InstanceType?: string | number | bool | fn.#StringExpression
 	WarmCount?: int |
 		{
 			string &
@@ -156,7 +172,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	WarmEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	WarmType?:             string | fn.#StringExpression
+	WarmType?:             string | number | bool | fn.#StringExpression
 	ZoneAwarenessConfig?:  #ZoneAwarenessConfig
 	ZoneAwarenessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -164,22 +180,36 @@ fn.#ObjectExpression
 
 #EncryptionAtRestOptions: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LogPublishingOption: close({
-	CloudWatchLogsLogGroupArn?: string | fn.#StringExpression
+	CloudWatchLogsLogGroupArn?: string | number | bool | fn.#StringExpression
 	Enabled?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #MasterUserOptions: close({
-	MasterUserARN?:      string | fn.#StringExpression
-	MasterUserName?:     string | fn.#StringExpression
-	MasterUserPassword?: string | fn.#StringExpression
+	MasterUserARN?:      string | number | bool | fn.#StringExpression
+	MasterUserName?:     string | number | bool | fn.#StringExpression
+	MasterUserPassword?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -207,18 +237,20 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VPCOptions: close({
-	SecurityGroupIds?: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

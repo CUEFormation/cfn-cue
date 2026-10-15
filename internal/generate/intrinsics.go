@@ -2,6 +2,7 @@ package generate
 
 import (
 	"cuelang.org/go/cue/ast"
+	"cuelang.org/go/cue/parser"
 	"cuelang.org/go/cue/token"
 	"fmt"
 	"regexp"
@@ -56,7 +57,9 @@ func Intrinsics(extensions bool) *ast.File {
 	fn("Equals", "Fn::Equals", tuple(r("RuleValue"), r("RuleValue")))
 	add("RuleValueExpression", refs("RefAll", "ValueOf", "ValueOfAll"))
 	add("RuleValue", union(r("Value"), r("RuleValueExpression")))
-	add("RuleList", union(r("ListValue"), refs("RefAll", "ValueOfAll")))
+	// Fn::ValueOf returns a list for a list parameter, such as the VpcId of
+	// each subnet in a List<AWS::EC2::Subnet::Id>.
+	add("RuleList", union(r("ListValue"), refs("RefAll", "ValueOf", "ValueOfAll")))
 	fn("Contains", "Fn::Contains", tuple(r("RuleList"), r("RuleValue")))
 	fn("EachMemberEquals", "Fn::EachMemberEquals", tuple(r("RuleList"), r("RuleValue")))
 	fn("EachMemberIn", "Fn::EachMemberIn", tuple(r("RuleList"), r("RuleList")))
@@ -109,11 +112,29 @@ func Intrinsics(extensions bool) *ast.File {
 		stringNames = append(stringNames, "ToJsonString")
 		numberNames = append(numberNames, "Length")
 	}
-	add("StringExpression", refs(stringNames...))
-	add("NumberExpression", refs(numberNames...))
-	add("BooleanExpression", refs(boolNames...))
-	add("ListExpression", refs(listNames...))
-	add("ObjectExpression", refs(objectNames...))
+	// CloudFormation resolves a dynamic reference before it checks the
+	// property, so a string, number or boolean property accepts one in place
+	// of its literal constraints, as cfn-lint does. The value is a string.
+	add("DynamicReference", and(id("string"), &ast.UnaryExpr{Op: token.MAT, X: str(dynamicReferencePattern)}))
+	addImport(f, "net", "net")
+	for _, name := range []string{"IPv4Address", "IPv6Address", "IPv4Network", "IPv6Network"} {
+		x, err := parser.ParseExpr(name, networkFormats[name])
+		if err != nil {
+			panic(err)
+		}
+		add(name, x)
+	}
+	expression := func(class string, names []string) ast.Expr {
+		if strings.Contains(class, "String") || strings.Contains(class, "Number") || strings.Contains(class, "Boolean") {
+			return union(refs(names...), r("DynamicReference"))
+		}
+		return refs(names...)
+	}
+	add("StringExpression", expression("String", stringNames))
+	add("NumberExpression", expression("Number", numberNames))
+	add("BooleanExpression", expression("Boolean", boolNames))
+	add("ListExpression", expression("List", listNames))
+	add("ObjectExpression", expression("Object", objectNames))
 	// A union of return classes needs one function table, not a disjunction
 	// of tables with different optional Fn::If fields. Shared functions such
 	// as Ref would otherwise match several distinct, incomplete alternatives.
@@ -140,13 +161,15 @@ func Intrinsics(extensions bool) *ast.File {
 		}
 		branch := union(append(values, r(name+"Expression"))...)
 		fn("If"+name, "Fn::If", tuple(id("string"), branch, branch))
-		add(name+"Expression", refs(append(names, "If"+name)...))
+		add(name+"Expression", expression(name, append(names, "If"+name)))
 	}
 	all := []string{"Ref", "GetAtt", "FindInMap", "Select", "Transform", "Base64", "ImportValue", "Join", "Sub", "GetStackOutput", "If", "Cidr", "GetAZs", "Split"}
 	if extensions {
 		all = append(all, "Length", "ToJsonString")
 	}
-	add("ValueExpression", refs(all...))
+	// Schemas without a type, such as enum-only or format-only properties,
+	// fall back to ValueExpression and accept dynamic references too.
+	add("ValueExpression", union(refs(all...), r("DynamicReference")))
 	names := map[string]string{}
 	for name := range signatures {
 		names[name] = name
@@ -184,15 +207,33 @@ func Intrinsics(extensions bool) *ast.File {
 		}
 		return keyed(fields)
 	}
+	// NoValue uses the same keyed form, so an empty object, which a branch
+	// such as an all-optional Properties or UpdatePolicy also accepts, does not
+	// leave the choice between them ambiguous.
 	for _, name := range sortedStringKeys(names) {
-		if name == "NoValue" {
-			add(name, obj(field("Ref", str("AWS::NoValue"), false)))
-		} else {
-			add(name, restriction([]string{name}))
-		}
+		add(name, restriction([]string{name}))
 	}
 	for i, names := range choices {
 		add(fmt.Sprintf("Choice%d", i), restriction(names))
 	}
 	return f
+}
+
+// networkFormats check the ipv4, ipv6, ipv4-network and ipv6-network formats
+// as cfn-lint does with Python's ipaddress module. A network is an address
+// with an optional prefix length and no host bits set. Like any format, they
+// constrain only strings. Python also accepts an IPv4 netmask or hostmask,
+// such as 10.0.0.0/255.0.0.0; those are accepted without checking host bits.
+var networkFormats = map[string]string{
+	// Like Python's IPv4Address, Go's netip rejects IPv4 leading zeros.
+	"IPv4Address": `string & =~"^[0-9.]+$" & net.IPv4 | number | bool | null | [...] | {...}`,
+	"IPv6Address": `string & =~":" & net.IPv6 | number | bool | null | [...] | {...}`,
+	"IPv4Network": `{
+	string & =~"^[0-9.]+/[0-9]+$" & net.IPCIDR
+	_hostBits: net.IPString(cfnScalarStrings.SplitN(self, "/", 2)[0]) & net.ParseCIDR(self).prefix_addr
+} | string & =~"^[0-9.]+$" & net.IPv4 | =~"^[0-9]{1,3}(\\.[0-9]{1,3}){3}/[0-9]{1,3}(\\.[0-9]{1,3}){3}$" | number | bool | null | [...] | {...}`,
+	"IPv6Network": `{
+	string & =~":" & =~"/[0-9]+$" & net.IPCIDR
+	_hostBits: net.IPString(cfnScalarStrings.SplitN(self, "/", 2)[0]) & net.ParseCIDR(self).prefix_addr
+} | string & =~":" & !~"/" & net.IPv6 | number | bool | null | [...] | {...}`,
 }

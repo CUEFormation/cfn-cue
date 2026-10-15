@@ -10,22 +10,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::LoggerDefinition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Greengrass::LoggerDefinition"
-	Properties!: close({
+	let properties = close({
 		InitialVersion?: #LoggerDefinitionVersion
-		Name!:           string | fn.#StringExpression
-		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		Name!:           string | number | bool | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Logger: close({
-	Component!: string | fn.#StringExpression
-	Id!:        string | fn.#StringExpression
-	Level!:     string | fn.#StringExpression
+	Component!: string | number | bool | fn.#StringExpression
+	Id!:        string | number | bool | fn.#StringExpression
+	Level!:     string | number | bool | fn.#StringExpression
 	Space?: int |
 		{
 			string &
@@ -40,7 +44,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Type!: string | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

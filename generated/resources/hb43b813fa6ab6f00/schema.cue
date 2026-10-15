@@ -10,6 +10,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a virtual private cloud (VPC).
@@ -22,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon VPC User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPC"
-	Properties?: close({
+	let properties = close({
 		Ipv4IpamPoolId?: _
 		if Ipv4IpamPoolId != _|_ {
 			Ipv4NetmaskLength!: _
@@ -32,11 +34,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			Ipv4IpamPoolId!: _
 		}
 		{}
-		CidrBlock?:          string | fn.#StringExpression
+		CidrBlock?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
 		EnableDnsHostnames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EnableDnsSupport?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		InstanceTenancy?:    "dedicated" | "default" | "host" | fn.#StringExpression
-		Ipv4IpamPoolId?:     string | fn.#StringExpression
+		Ipv4IpamPoolId?:     string | number | bool | fn.#StringExpression
 		"Ipv4NetmaskLength"?: int |
 			{
 				string &
@@ -72,11 +79,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}])
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -90,20 +99,24 @@ fn.#ObjectExpression
 
 	// Information about resource exclusions for the VPC Encryption Control configuration.
 	ResourceExclusions?:             #VpcEncryptionControlExclusions
-	State?:                          string | fn.#StringExpression
-	StateMessage?:                   string | fn.#StringExpression
+	State?:                          string | number | bool | fn.#StringExpression
+	StateMessage?:                   string | number | bool | fn.#StringExpression
 	VirtualPrivateGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
-	VpcEncryptionControlId?:         string | fn.#StringExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	VpcEncryptionControlId?:         string | number | bool | fn.#StringExpression
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	VpcLatticeExclusion?: "enable" | "disable" | fn.#StringExpression
 	VpcPeeringExclusion?: "enable" | "disable" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcEncryptionControlExclusion: close({
-	State?:        string | fn.#StringExpression
-	StateMessage?: string | fn.#StringExpression
+	State?:        string | number | bool | fn.#StringExpression
+	StateMessage?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

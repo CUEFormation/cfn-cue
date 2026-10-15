@@ -10,29 +10,53 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SecurityHub::ConnectorV2
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::ConnectorV2"
-	Properties!: close({
-		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~".*\\S.*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
 		Provider!: #Provider
 		Tags?:     #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuthStatus: "ACTIVE" | "FAILED" | fn.#StringExpression
 
 #AzureProviderConfiguration: close({
-	AWSConfigConnectorArn!: string | fn.#StringExpression
-	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
+	AWSConfigConnectorArn!: string | number | bool | fn.#StringExpression
+	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
+		...string | number | bool | fn.#StringExpression
+	] |
 		fn.#ListExpression
 	ScopeConfiguration!: #AzureScopeConfiguration
 }) |
@@ -40,24 +64,36 @@ fn.#ObjectExpression
 
 #AzureScopeConfiguration: close({
 	ScopeType!: "TENANT" | "SUBSCRIPTION" | fn.#StringExpression
-	ScopeValues?: list.MaxItems(100) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] |
+	ScopeValues?: list.MaxItems(100) & list.UniqueItems() & [...] & [...string | number | bool | fn.#StringExpression] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #HealthIssue: close({
-	Code!:    string | fn.#StringExpression
-	Message!: string | fn.#StringExpression
+	Code!:    string | number | bool | fn.#StringExpression
+	Message!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
-#JiraCloudProviderConfiguration: close({ProjectKey!: strings.MaxRunes(10) & strings.MinRunes(2) | fn.#StringExpression}) |
+#JiraCloudProviderConfiguration: close({
+	ProjectKey!: strings.MaxRunes(10) & strings.MinRunes(2) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(2) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#Provider: fn.#Object & {...} & matchN(1, [close(
+#Provider: fn.#Object & matchN(1, [close(
 	{JiraCloud!: #JiraCloudProviderConfiguration},
 ), close(
 	{ServiceNow!: #ServiceNowProviderConfiguration},
@@ -67,8 +103,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ServiceNowProviderConfiguration: close({
-	InstanceName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SecretArn!:    strings.MaxRunes(2048) & strings.MinRunes(20) & =~".*\\S.*" | fn.#StringExpression
+	InstanceName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

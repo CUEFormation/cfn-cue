@@ -27,13 +27,15 @@ import (
 			// S3 configuration for location to store rejections from magnetic store writes
 			S3Configuration?: close({
 				// The bucket name used to store the data.
-				BucketName!: string
+				BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 				// Either SSE_KMS or SSE_S3.
 				EncryptionOption!: string
 
 				// Must be provided if SSE_KMS is specified as the encryption option
-				KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+				KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+					=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+					=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 				// String used to prefix all data in the bucket.
 				ObjectKeyPrefix?: string

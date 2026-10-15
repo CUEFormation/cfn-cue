@@ -10,24 +10,39 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an association between an ID namespace and a collaboration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRooms::IdNamespaceAssociation"
-	Properties!: close({
+	let properties = close({
 		Description?: strings.MaxRunes(255) &
 		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		IdMappingConfig?:      #IdMappingConfig
 		InputReferenceConfig!: #IdNamespaceAssociationInputReferenceConfig
 		MembershipIdentifier!: #UUID
-		Name!:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Document: fn.#Object & {...} | string | fn.#StringObjectExpression
+#Document: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #IdMappingConfig: close(
 	{AllowUseAsDimensionColumn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -37,6 +52,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #IdNamespaceAssociationInputReferenceConfig: close({
 	InputReferenceArn!: strings.MaxRunes(256) &
 	=~"^arn:aws:entityresolution:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:idnamespace/[\\d\\w-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		=~"^arn:aws:entityresolution:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:idnamespace/[\\d\\w-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ManageResourcePolicies!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -49,10 +70,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(36) &
+	strings.MinRunes(36) &
+	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	"\(self)"
+} |
 fn.#StringExpression

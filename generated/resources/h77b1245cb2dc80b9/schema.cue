@@ -14,24 +14,55 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Partnership Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::B2BI::Partnership"
-	Properties!: close({
-		Capabilities!: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] |
+	let properties = close({
+		Capabilities!: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		CapabilityOptions?: #CapabilityOptions
-		Email!: strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
-		Name!:  strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
+		Email!: strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(254) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Phone?: strings.MaxRunes(22) &
 		strings.MinRunes(7) &
 		=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(22) &
+			strings.MinRunes(7) &
+			=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ProfileId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		ProfileId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CapabilityOptions: close({
@@ -47,8 +78,18 @@ fn.#ObjectExpression
 #OutboundEdiOptions: close({X12!: #X12Envelope}) | fn.#ValueExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -151,10 +192,22 @@ fn.#ObjectExpression
 
 #X12Delimiters: close({
 	ComponentSeparator?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$" & "\(self)"
+	} |
 	fn.#StringExpression
 	DataElementSeparator?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$" & "\(self)"
+	} |
 	fn.#StringExpression
 	SegmentTerminator?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -171,9 +224,24 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #X12FunctionalGroupHeaders: close({
-	ApplicationReceiverCode?: strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$" | fn.#StringExpression
-	ApplicationSenderCode?:   strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$" | fn.#StringExpression
-	ResponsibleAgencyCode?:   strings.MaxRunes(2) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
+	ApplicationReceiverCode?: strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ApplicationSenderCode?: strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ResponsibleAgencyCode?: strings.MaxRunes(2) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -182,13 +250,48 @@ fn.#ObjectExpression
 #X12InboundEdiOptions: close({AcknowledgmentOptions?: #X12AcknowledgmentOptions}) | fn.#ObjectExpression
 
 #X12InterchangeControlHeaders: close({
-	AcknowledgmentRequestedCode?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
-	ReceiverId?:          strings.MaxRunes(15) & strings.MinRunes(15) & =~"^[a-zA-Z0-9 ]*$" | fn.#StringExpression
-	ReceiverIdQualifier?: strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
-	RepetitionSeparator?: strings.MaxRunes(1) & strings.MinRunes(1) | fn.#StringExpression
-	SenderId?:            strings.MaxRunes(15) & strings.MinRunes(15) & =~"^[a-zA-Z0-9 ]*$" | fn.#StringExpression
-	SenderIdQualifier?:   strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
-	UsageIndicatorCode?:  strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
+	AcknowledgmentRequestedCode?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ReceiverId?: strings.MaxRunes(15) & strings.MinRunes(15) & =~"^[a-zA-Z0-9 ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(15) & strings.MinRunes(15) & =~"^[a-zA-Z0-9 ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ReceiverIdQualifier?: strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[a-zA-Z0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RepetitionSeparator?: strings.MaxRunes(1) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SenderId?: strings.MaxRunes(15) & strings.MinRunes(15) & =~"^[a-zA-Z0-9 ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(15) & strings.MinRunes(15) & =~"^[a-zA-Z0-9 ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SenderIdQualifier?: strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[a-zA-Z0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UsageIndicatorCode?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

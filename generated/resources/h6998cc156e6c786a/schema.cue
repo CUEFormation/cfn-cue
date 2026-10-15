@@ -14,29 +14,55 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::MemoryDB::Cluster resource creates an Amazon MemoryDB Cluster.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MemoryDB::Cluster"
-	Properties!: close({
-		ACLName!:                 strings.MinRunes(1) & =~"[a-zA-Z][a-zA-Z0-9\\-]*" | fn.#StringExpression
+	let properties = close({
+		ACLName!: strings.MinRunes(1) & =~"[a-zA-Z][a-zA-Z0-9\\-]*" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & =~"[a-zA-Z][a-zA-Z0-9\\-]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ClusterEndpoint?:         close({}) | fn.#ObjectExpression
-		ClusterName!:             =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
-		DataTiering?:             #DataTieringStatus & fn.#Object & {...} | fn.#StringExpression
-		Description?:             string | fn.#StringExpression
-		Engine?:                  string | fn.#StringExpression
-		EngineVersion?:           string | fn.#StringExpression
-		FinalSnapshotName?:       string | fn.#StringExpression
-		IpDiscovery?:             #SupportedIpDiscoveryTypes & fn.#Object & {...} | fn.#StringExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
-		MaintenanceWindow?:      string | fn.#StringExpression
-		MultiRegionClusterName?: string | fn.#StringExpression
+		ClusterName!: =~"[a-z][a-z0-9\\-]*" |
+		{
+			number | bool
+			_cfnString: =~"[a-z][a-z0-9\\-]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		DataTiering?:       #DataTieringStatus & fn.#Object & {...} | fn.#StringExpression
+		Description?:       string | number | bool | fn.#StringExpression
+		Engine?:            string | number | bool | fn.#StringExpression
+		EngineVersion?:     string | number | bool | fn.#StringExpression
+		FinalSnapshotName?: string | number | bool | fn.#StringExpression
+		IpDiscovery?:       #SupportedIpDiscoveryTypes & fn.#Object & {...} | fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		MaintenanceWindow?:      string | number | bool | fn.#StringExpression
+		MultiRegionClusterName?: string | number | bool | fn.#StringExpression
 		NetworkType?:            #SupportedNetworkTypes & fn.#Object & {...} | fn.#StringExpression
-		NodeType!:               string | fn.#StringExpression
+		NodeType!:               string | number | bool | fn.#StringExpression
 		NumReplicasPerShard?: int |
 			{
 				string &
@@ -69,7 +95,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ParameterGroupName?: string | fn.#StringExpression
+		ParameterGroupName?: string | number | bool | fn.#StringExpression
 		Port?: int |
 			{
 				string &
@@ -86,13 +112,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SnapshotArns?: [...string | fn.#StringExpression] | fn.#ListExpression
-		SnapshotName?: string | fn.#StringExpression
+		SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SnapshotArns?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SnapshotName?: string | number | bool | fn.#StringExpression
 		SnapshotRetentionLimit?: int |
 			{
 				string &
@@ -109,20 +137,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SnapshotWindow?: string | fn.#StringExpression
-		SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		SnsTopicStatus?:  string | fn.#StringExpression
-		SubnetGroupName?: string | fn.#StringExpression
+		SnapshotWindow?: string | number | bool | fn.#StringExpression
+		SnsTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SnsTopicStatus?:  string | number | bool | fn.#StringExpression
+		SubnetGroupName?: string | number | bool | fn.#StringExpression
 		TLSEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DataTieringStatus: "true" | "false" | fn.#StringExpression
+#DataTieringStatus: "true" | true | "false" | false | fn.#StringExpression
 
 #Endpoint: close({
-	Address?: string | fn.#StringExpression
+	Address?: string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -145,7 +179,17 @@ fn.#ObjectExpression
 #SupportedNetworkTypes: "ipv4" | "ipv6" | "dual_stack" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

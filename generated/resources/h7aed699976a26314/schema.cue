@@ -9,28 +9,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AccountAccess::Entitlement specifying an
 // entitlement for account access
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AccountAccess::Entitlement"
-	Properties!: close({
+	let properties = close({
 		ApplicationArn!: strings.MaxRunes(2048) &
 		strings.MinRunes(49) &
 		=~"^arn:[a-z0-9-]+:account-access:[a-z0-9]+(-[a-z0-9]+)*:[0-9]{12}:application/[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(49) &
+			=~"^arn:[a-z0-9-]+:account-access:[a-z0-9]+(-[a-z0-9]+)*:[0-9]{12}:application/[a-zA-Z0-9-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Entitlement!: close({
 			PrincipalRole!: close({
 				Principal!: #Principal
-				RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+				RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 					=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
-					fn.#StringExpression
+				{
+					number | bool
+					_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+						=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" &
+						"\(self)"
+				} |
+				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Entitlement: close({PrincipalRole!: #PrincipalRoleEntitlement}) | fn.#ObjectExpression
@@ -39,10 +56,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	GroupId?: strings.MaxRunes(47) &
 	strings.MinRunes(1) &
 	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(47) &
+		strings.MinRunes(1) &
+		=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	UserId?: strings.MaxRunes(47) &
 	strings.MinRunes(1) &
 	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(47) &
+		strings.MinRunes(1) &
+		=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	if UserId != _|_ if UserId."Fn::If" == _|_ {
 		GroupId?: close({"Fn::If": _}) | error("GroupId cannot be used with UserId; set exactly one of UserId, GroupId")
@@ -53,10 +84,21 @@ fn.#ObjectExpression
 #Principal: close({IdentityCenter!: #IdentityCenterPrincipal}) | fn.#ObjectExpression
 
 #PrincipalRoleEntitlement: close({
-	Account?:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+	Account?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Principal!: #Principal
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

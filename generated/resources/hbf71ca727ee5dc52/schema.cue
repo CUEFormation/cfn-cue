@@ -6,10 +6,14 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SnapshotBlockPublicAccess
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SnapshotBlockPublicAccess"
-	Properties!: close({State!: "block-all-sharing" | "block-new-sharing" | fn.#StringExpression})
+	Type!: "AWS::EC2::SnapshotBlockPublicAccess"
+	let properties = close({State!: "block-all-sharing" | "block-new-sharing" | fn.#StringExpression})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

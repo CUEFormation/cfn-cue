@@ -10,26 +10,56 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::LaunchWizard::Deployment Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LaunchWizard::Deployment"
-	Properties!: close({
+	let properties = close({
 		DeploymentPatternName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][a-zA-Z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][a-zA-Z0-9-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\s\\.-]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\s\\.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\s\\.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// LaunchWizard deployment specifications
 		Specifications?: #DeploymentSpecifications
 		Tags?:           [...#Tags] | fn.#ListExpression
-		WorkloadName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z][a-zA-Z0-9-_]*$" | fn.#StringExpression
+		WorkloadName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z][a-zA-Z0-9-_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z][a-zA-Z0-9-_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DeploymentSpecifications: struct.MaxFields(100) & struct.MinFields(1) & close({
 
-	{[=~"^[a-zA-Z0-9-:]{3,256}$"]: strings.MaxRunes(1500) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9-:]{3,256}$"]: strings.MaxRunes(1500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #DeploymentStatus: "COMPLETED" |
@@ -44,7 +74,17 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #Tags: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

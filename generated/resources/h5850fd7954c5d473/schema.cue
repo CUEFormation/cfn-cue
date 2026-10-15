@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::TrafficPolicy. Creates a Route 53
@@ -16,9 +18,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // queries for a domain name.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::TrafficPolicy"
-	Properties!: close({
-		Comment?:  strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Document!: strings.MaxRunes(102400) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Comment?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Document!: strings.MaxRunes(102400) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(102400) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

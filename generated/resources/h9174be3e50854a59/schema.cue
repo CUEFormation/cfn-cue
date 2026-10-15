@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGatewayV2::ApiMapping`` resource contains an API mapping. An
@@ -17,10 +19,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon API Gateway V2 API Reference*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::ApiMapping"
-	Properties!: close({
-		ApiId!:         string | fn.#StringExpression
-		ApiMappingKey?: string | fn.#StringExpression
-		DomainName!:    string | fn.#StringExpression
-		Stage!:         string | fn.#StringExpression
+	let properties = close({
+		ApiId!:         string | number | bool | fn.#StringExpression
+		ApiMappingKey?: string | number | bool | fn.#StringExpression
+		DomainName!:    string | number | bool | fn.#StringExpression
+		Stage!:         string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

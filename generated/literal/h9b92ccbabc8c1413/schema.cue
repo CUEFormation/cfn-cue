@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::ClientVpnRoute. Specifies a network
@@ -22,7 +24,7 @@ package schema
 	// an on-premises network, enter the AWS Site-to-Site VPN connection's IPv4
 	// CIDR range. To add a route for the local network, enter the client CIDR
 	// range.
-	DestinationCidrBlock!: string
+	DestinationCidrBlock!: fn.#IPv4Network & string
 
 	// The CloudFormation-generated identifier for this Client VPN route, derived
 	// from the logical resource id and client request token.

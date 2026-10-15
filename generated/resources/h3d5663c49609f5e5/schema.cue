@@ -10,30 +10,44 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::CodeSigningConfig.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::CodeSigningConfig"
-	Properties!: close({
+	let properties = close({
 		// When the CodeSigningConfig is later on attached to a function, the function
 		// code will be expected to be signed by profiles from this list
 		AllowedPublishers!: #AllowedPublishers
 
 		// Policies to control how to act if a signature is invalid
 		CodeSigningPolicies?: #CodeSigningPolicies
-		Description?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AllowedPublishers: close({
-	SigningProfileVersionArns!: list.MaxItems(20) & list.MinItems(1) & [
-		...strings.MaxRunes(1024) &
+	SigningProfileVersionArns!: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(1024) &
+	strings.MinRunes(12) &
+	=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
 		strings.MinRunes(12) &
-		=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
-		fn.#StringExpression
-	] |
+		=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -42,7 +56,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

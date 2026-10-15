@@ -34,6 +34,99 @@
         "LICENSE",
         "NOTICE"
       ]
+    },
+    {
+      "id": "cfn-lint-bad",
+      "repository": "aws-cloudformation/cfn-lint",
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535",
+      "archive_sha256": "c83e21ebf31d7fa58737d175747f9aa59d6895089cf689fd5bba71824d877cd2",
+      "license": "MIT-0",
+      "include": [
+        "test/fixtures/templates/bad/*.yaml",
+        "test/fixtures/templates/bad/*.yml",
+        "test/fixtures/templates/bad/*.json"
+      ],
+      "exclude": [
+        ".github/*"
+      ],
+      "license_files": [
+        "LICENSE",
+        "NOTICE"
+      ]
+    },
+    {
+      "id": "cfn-lint-snapshot",
+      "repository": "aws-cloudformation/cfn-lint",
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535",
+      "archive_sha256": "c83e21ebf31d7fa58737d175747f9aa59d6895089cf689fd5bba71824d877cd2",
+      "license": "MIT-0",
+      "include": [
+        "test/fixtures/templates/quickstart/*.yaml",
+        "test/fixtures/templates/quickstart/*.yml",
+        "test/fixtures/templates/quickstart/*.json",
+        "test/fixtures/templates/integration/*.yaml",
+        "test/fixtures/templates/integration/*.yml",
+        "test/fixtures/templates/integration/*.json",
+        "test/fixtures/templates/public/*.yaml",
+        "test/fixtures/templates/public/*.yml",
+        "test/fixtures/templates/public/*.json"
+      ],
+      "exclude": [
+        ".github/*"
+      ],
+      "license_files": [
+        "LICENSE",
+        "NOTICE"
+      ]
+    },
+    {
+      "id": "widdix",
+      "repository": "widdix/aws-cf-templates",
+      "revision": "1a9f04f934179975a3a56c2496d2ed2b27598bd8",
+      "archive_sha256": "7d6a7978bbc2bcb60a5d3e7d67cc9400745935c005c4cc193ef13cc92aacd43f",
+      "license": "Apache-2.0",
+      "include": [
+        "*.yaml"
+      ],
+      "exclude": [
+        ".github/*",
+        ".readthedocs.yaml"
+      ],
+      "license_files": [
+        "LICENSE"
+      ]
+    },
+    {
+      "id": "sam-translator-output",
+      "repository": "aws/serverless-application-model",
+      "revision": "a130d8b4c43895b860d5b01b0fcc71bc465b91cf",
+      "archive_sha256": "02f3ea8f62033c0799b3da0055dadea24018cc5cf7f7525dee46a8bedca6cc74",
+      "license": "Apache-2.0",
+      "include": [
+        "tests/translator/output/*.json"
+      ],
+      "exclude": [
+        "tests/translator/output/aws-cn/*",
+        "tests/translator/output/aws-us-gov/*"
+      ],
+      "license_files": [
+        "LICENSE",
+        "NOTICE"
+      ]
+    },
+    {
+      "id": "troposphere-examples",
+      "repository": "cloudtools/troposphere",
+      "revision": "8cd7a25e5d3c65aee7e3e12d7abf9465c4a0d3c8",
+      "archive_sha256": "4d548ab7ff9fb2960e1666d80edd1a5a18c033086c056142c98f84bcbbceab0d",
+      "license": "BSD-2-Clause",
+      "include": [
+        "tests/examples_output/*.template"
+      ],
+      "exclude": [],
+      "license_files": [
+        "LICENSE"
+      ]
     }
   ]
 }

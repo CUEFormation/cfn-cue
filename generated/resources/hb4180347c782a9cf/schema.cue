@@ -10,41 +10,92 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a user within the specified identity store.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IdentityStore::User"
-	Properties!: close({
+	let properties = close({
 		Addresses?: list.MaxItems(1) & list.MinItems(1) & [...close({
 			Country?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Formatted?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Locality?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			PostalCode?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Region?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			StreetAddress?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Type?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
@@ -52,20 +103,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Birthdate?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DisplayName?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Emails?: list.MaxItems(1) & list.MinItems(1) & [...close({
 			Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Type?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Value?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
@@ -73,51 +152,128 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		IdentityStoreId!: strings.MaxRunes(36) &
 		strings.MinRunes(1) &
 		=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(1) &
+			=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Locale?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Name?: close({
 			FamilyName?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Formatted?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			GivenName?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			HonorificPrefix?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			HonorificSuffix?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			MiddleName?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		NickName?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PhoneNumbers?: list.MaxItems(1) & list.MinItems(1) & [...close({
 			Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Type?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Value?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
@@ -126,15 +282,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			Display?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Type?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Value!: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
@@ -142,20 +319,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		PreferredLanguage?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ProfileUrl?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Roles?: list.MaxItems(1) & list.MinItems(1) & [...close({
 			Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Type?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Value?: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
 			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
@@ -163,20 +368,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Timezone?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Title?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		UserName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		UserType?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Website?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r \u00a0\u3000]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

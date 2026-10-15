@@ -94,7 +94,7 @@ import (
 	// Sends Verified Access logs to Amazon S3.
 	S3?: close({
 		// The bucket name.
-		BucketName?: string
+		BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 		// The ID of the AWS account that owns the Amazon S3 bucket.
 		BucketOwner?: string
