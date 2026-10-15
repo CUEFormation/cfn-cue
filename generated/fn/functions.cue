@@ -3,13 +3,9 @@
 package fn
 
 import structs "struct"
-
 import list "list"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import net "net"
 
 #Scalar: string | number | bool | null

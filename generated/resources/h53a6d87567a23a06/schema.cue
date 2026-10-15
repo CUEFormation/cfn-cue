@@ -8,9 +8,7 @@ import (
 	"list"
 	"struct"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
-
 import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")

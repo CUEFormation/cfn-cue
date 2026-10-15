@@ -123,7 +123,7 @@ python3 -m venv .venv
 go build -o bin/cfn-cue-validate ./cmd/cfn-cue-validate
 ```
 
-The Go library stays pinned to CUE v0.18.0-alpha.3. The Python dependency lock pins
+The Go library stays pinned to CUE v0.18.0-rc.1. The Python dependency lock pins
 cfn-lint 1.57.2 and its transitive packages with hashes. Run the Python harness
 using that environment, rather than an independently upgraded global cfn-lint.
 

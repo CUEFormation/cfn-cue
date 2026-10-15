@@ -6,7 +6,7 @@ The included snapshot produces **45 full regional template packages, 45 lightwei
 
 ## Run
 
-Requires Go 1.26 or later. The CUE library is pinned to [v0.18.0-alpha.3](https://github.com/cue-lang/cue/releases/tag/v0.18.0-alpha.3). Generated modules declare CUE language v0.18.0; intrinsic argument tuples retain their fixed-length semantics.
+Requires Go 1.26 or later. The CUE library is pinned to [v0.18.0-rc.1](https://github.com/cue-lang/cue/releases/tag/v0.18.0-rc.1). Generated modules declare CUE language v0.18.0; intrinsic argument tuples retain their fixed-length semantics.
 
 ```sh
 git clone https://github.com/CUEFormation/cfn-cue.git
@@ -237,7 +237,7 @@ A rule whose path ends at a referenced definition is added to that definition, s
 
 The profiles check which elements each policy kind allows. Trust policies need a principal and take no `Resource`. Identity policies take no `Principal`. SCP `Allow` statements may only name `Resource: "*"`. Customer-managed RCPs only deny, with `Principal: "*"`. They also check `Version`, the `Action` and ARN shapes, condition operators, and the exactly-one rules for `Action`/`NotAction` and the other element pairs. Every value also accepts an intrinsic, which is not evaluated: an intrinsic `Effect` skips the SCP `Resource` rule, for example. `Statement`, a single statement, `Principal` or `Condition` can be `Fn::If`, and a statement, `Condition` or the whole policy can be removed with `AWS::NoValue`. Condition keys may use OIDC issuer namespaces such as `token.actions.githubusercontent.com:sub`. The profiles don't check whether an action, resource or condition key exists; leave that to IAM Access Analyzer or cfn-lint.
 
-A placement that no longer matches the provider schema is reported as an `iamPolicy` diagnostic. `literal/` schemas keep provider types. Known limits with CUE v0.18.0-alpha.3:
+A placement that no longer matches the provider schema is reported as an `iamPolicy` diagnostic. `literal/` schemas keep provider types. Known limits with CUE v0.18.0-rc.1:
 
 - A policy written as a literal JSON string is checked with `json.Validate`, which skips the exactly-one rules.
 - A failing policy often produces a vague error such as `Statement: field not allowed`. To find the failing field, unify the statement with its statement profile, for example `iam.#TrustStatement & {...}`.

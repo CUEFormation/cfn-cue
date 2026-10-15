@@ -8,13 +8,9 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
-
 import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
