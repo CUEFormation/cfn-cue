@@ -79,8 +79,10 @@ func TestResourcePerformance(t *testing.T) {
 
 // TestRegionPerformance validates templates through regions/us-east-1
 // #Template in the module at CFN_CUE_PERF_DIR. CFN_CUE_PERF_SIZES lists
-// template sizes (default 1,10,50). Each size is checked valid, and with its
-// first resource broken. Results are logged as RESULT lines.
+// template sizes (default 1,10,50). CFN_CUE_PERF_IF_DEPTH wraps each
+// resource's Properties in that many nested Fn::If (default 0). Each size is
+// checked valid, and with its first resource broken. Results are logged as
+// RESULT lines.
 func TestRegionPerformance(t *testing.T) {
 	dir := os.Getenv("CFN_CUE_PERF_DIR")
 	if dir == "" {
@@ -95,6 +97,13 @@ func TestRegionPerformance(t *testing.T) {
 				t.Fatalf("CFN_CUE_PERF_SIZES: %q", s)
 			}
 			sizes = append(sizes, n)
+		}
+	}
+	depth := 0
+	if s := os.Getenv("CFN_CUE_PERF_IF_DEPTH"); s != "" {
+		var e error
+		if depth, e = strconv.Atoi(s); e != nil || depth < 0 {
+			t.Fatalf("CFN_CUE_PERF_IF_DEPTH: %q", s)
 		}
 	}
 	b, e := os.ReadFile(filepath.Join(dir, "manifest.json"))
@@ -118,6 +127,11 @@ func TestRegionPerformance(t *testing.T) {
 				if broken && i == 0 {
 					properties = `{QueueName:[]}`
 				}
+				// The literal leaf is innermost, so it is checked after
+				// every enclosing Fn::If.
+				for d := 0; d < depth; d++ {
+					properties = fmt.Sprintf(`{"Fn::If":["C%d",%s,{Ref:"AWS::NoValue"}]}`, d, properties)
+				}
 				fmt.Fprintf(&r, "R%d:{Type:%q,Properties:%s},", i, c.typ, properties)
 			}
 			data := schema.Context().CompileString("{Resources:{" + r.String() + "}}")
@@ -127,7 +141,7 @@ func TestRegionPerformance(t *testing.T) {
 			if (e == nil) == broken {
 				t.Fatalf("types=%d n=%d broken=%v: unexpected result: %v", types, n, broken, e)
 			}
-			t.Logf("RESULT types=%d n=%d broken=%v ms=%d per_resource_ms=%d", types, n, broken, elapsed.Milliseconds(), elapsed.Milliseconds()/int64(n))
+			t.Logf("RESULT types=%d if_depth=%d n=%d broken=%v ms=%d per_resource_us=%d", types, depth, n, broken, elapsed.Milliseconds(), elapsed.Microseconds()/int64(n))
 		}
 	}
 }

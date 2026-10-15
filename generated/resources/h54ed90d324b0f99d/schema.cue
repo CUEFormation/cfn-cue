@@ -24,8 +24,10 @@ import structs "struct"
 		fn.#StringExpression
 		Tags?: #TagsMap
 	})
-	Properties?: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({

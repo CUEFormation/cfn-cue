@@ -30,8 +30,10 @@ import structs "struct"
 		S3Config?:                 #S3Config
 		StorageType!:              #StorageType
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &

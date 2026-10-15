@@ -28,8 +28,10 @@ import structs "struct"
 		PortRanges!:     list.MaxItems(10) & list.MinItems(1) & [...#PortRange] | fn.#ListExpression
 		Protocol!:       "TCP" | "UDP" | fn.#StringExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Port: int & <=65535 & >=0 |

@@ -1,0 +1,22 @@
+Resources:
+  Thing:
+    Type: Custom::Thing
+    Properties:
+      Fn::If:
+      - Primary
+      - ServiceToken: arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider
+      - Fn::If:
+        - Payload
+        - ServiceToken: arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider
+          Payload:
+          - 1
+        - ServiceToken: arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider
+Conditions:
+  Primary:
+    Fn::Equals:
+    - Ref: AWS::Region
+    - us-east-1
+  Payload:
+    Fn::Equals:
+    - Ref: AWS::Region
+    - us-west-2

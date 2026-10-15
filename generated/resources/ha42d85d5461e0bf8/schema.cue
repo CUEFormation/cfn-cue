@@ -81,8 +81,10 @@ import structs "struct"
 		StreamStorageConfiguration?: #StreamStorageConfiguration
 		Tags?:                       list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
-	Properties?: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #StreamStorageConfiguration: close({DefaultStorageTier?: "HOT" | "WARM" | fn.#StringExpression}) | fn.#ObjectExpression

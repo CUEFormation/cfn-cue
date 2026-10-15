@@ -33,8 +33,10 @@ import structs "struct"
 		Resources?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:          [...#Tag] | fn.#ListExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Configuration: list.MaxItems(2) & [...] & [...#ConfigurationItem] | fn.#ListExpression

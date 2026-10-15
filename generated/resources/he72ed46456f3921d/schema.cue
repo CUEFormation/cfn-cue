@@ -23,8 +23,10 @@ import structs "struct"
 		OwnerContact?: #OwnerContact
 		Tags?:         #Tags
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ApiName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ ]+" |

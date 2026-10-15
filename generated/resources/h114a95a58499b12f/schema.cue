@@ -142,8 +142,10 @@ import structs "struct"
 		// The name of the VPC interface attachment to use for this output.
 		VpcInterfaceAttachment?: #VpcInterfaceAttachment
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression

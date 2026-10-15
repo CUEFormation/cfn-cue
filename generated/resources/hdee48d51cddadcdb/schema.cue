@@ -75,8 +75,10 @@ import structs "struct"
 		// imageConfiguration for all worker types.
 		WorkerTypeSpecifications?: #WorkerTypeSpecificationInputMap
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Architecture: "ARM64" | "X86_64" | fn.#StringExpression

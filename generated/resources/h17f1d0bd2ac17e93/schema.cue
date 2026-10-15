@@ -61,8 +61,10 @@ import structs "struct"
 		Tags?:    [...#Tag] | fn.#ListExpression
 		Targets?: list.MaxItems(5) & list.UniqueItems() & [...#Target] | fn.#ListExpression
 	}) & matchN(>=1, [{EventPattern!: _}, {ScheduleExpression!: _}])
-	Properties?: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AppSyncParameters: close({GraphQLOperation!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

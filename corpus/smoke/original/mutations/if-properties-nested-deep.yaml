@@ -1,0 +1,31 @@
+Parameters:
+  Name:
+    Type: String
+Conditions:
+  Named:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: Name
+      - ''
+  Versioned:
+    Fn::Equals:
+    - Ref: Name
+    - versioned
+  Private:
+    Fn::Equals:
+    - Ref: Name
+    - private
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      Fn::If:
+      - Named
+      - Fn::If:
+        - Versioned
+        - Fn::If:
+          - Private
+          - AccessControl: Private
+          - Ref: AWS::NoValue
+        - {}
+      - Ref: AWS::NoValue

@@ -23,8 +23,10 @@ import structs "struct"
 		Principal?:   #StatementPrincipalList
 		StatementId!: #StatementId
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #StatementAction: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^(entityresolution:[a-zA-Z0-9]+)$" |

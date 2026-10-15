@@ -68,8 +68,10 @@ import structs "struct"
 			fn.#NumberExpression
 		Whitelist?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdsOnDeliveryRestrictions: "NONE" | "RESTRICTED" | "UNRESTRICTED" | "BOTH" | fn.#StringExpression

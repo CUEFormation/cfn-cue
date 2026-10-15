@@ -33,7 +33,12 @@ import structs "struct"
 			} |
 			fn.#NumberExpression
 		ServiceToken!: string | number | bool | fn.#StringExpression
-	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	}) & {
+		"Fn::If"?: _|_
+		Ref?:      _|_
+	}
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

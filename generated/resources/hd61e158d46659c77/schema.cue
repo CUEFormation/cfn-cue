@@ -17,8 +17,10 @@ import structs "struct"
 		PermissionsWithGrantOption?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Resource!:                   _#defs."/$defs/Properties/definitions/Resource"
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ColumnWildcard: close({ExcludedColumnNames?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression}) |

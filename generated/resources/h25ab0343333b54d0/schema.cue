@@ -35,8 +35,10 @@ import structs "struct"
 		// The upstream repository prefix associated with the pull through cache rule.
 		UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix
 	})
-	Properties?: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #CredentialArn: strings.MaxRunes(612) &

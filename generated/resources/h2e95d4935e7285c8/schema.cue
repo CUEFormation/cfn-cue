@@ -12,6 +12,8 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPCBlockPublicAccessOptions"
 	let properties = close({InternetGatewayBlockMode!: "block-bidirectional" | "block-ingress" | fn.#StringExpression})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

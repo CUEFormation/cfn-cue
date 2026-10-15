@@ -50,8 +50,10 @@ import structs "struct"
 		Policies!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Policy] | fn.#ListExpression
 		Tags?:     #Tags
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ApprovalStrategy: close({MofN!: #MofNApprovalStrategy}) | fn.#ObjectExpression

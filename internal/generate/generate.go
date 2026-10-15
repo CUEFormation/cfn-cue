@@ -246,12 +246,17 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		if e = inlineProperties(f, func(properties ast.Expr) ast.Expr {
 			var resource *ast.StructLit
 			if typ == cfn.CustomResourceType {
-				resource = obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", conditionalProperties(), false))
+				// Custom properties are open, so an Fn::If or NoValue object
+				// would otherwise leave the properties alternative incomplete
+				// (ServiceToken missing) rather than failed, making the
+				// conditional ambiguous.
+				properties = and(properties, obj(field("Fn::If", &ast.BottomLit{}, true), field("Ref", &ast.BottomLit{}, true)))
+				resource = obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", union(id("properties"), id(propertiesIf)), false))
 			} else {
-				resource = obj(field("Type", str(typ), false), field("Properties", conditionalProperties(), !propsRequired))
+				resource = obj(field("Type", str(typ), false), field("Properties", union(id("properties"), id(propertiesIf)), !propsRequired))
 			}
 			// Keep Type first so a reader sees which resource this is.
-			resource.Elts = []ast.Decl{resource.Elts[0], &ast.LetClause{Ident: ast.NewIdent("properties"), Expr: properties}, resource.Elts[1]}
+			resource.Elts = []ast.Decl{resource.Elts[0], &ast.LetClause{Ident: ast.NewIdent("properties"), Expr: properties}, conditionalProperties(), resource.Elts[1]}
 			return and(sel("base", "ResourceAttributes"), resource)
 		}); e != nil {
 			return nil, fmt.Errorf("template %s: %w", typ, e)
@@ -332,15 +337,24 @@ func inlineProperties(f *ast.File, resource func(ast.Expr) ast.Expr) error {
 	return fmt.Errorf("extracted schema has no #Properties")
 }
 
-// conditionalProperties accepts the properties object, or Fn::If choosing
-// between two of them, as in {"Fn::If": [Condition, {...}, {Ref:
-// AWS::NoValue}]}. MinFields keeps an empty object, which the properties
-// alternative also accepts, from making the choice ambiguous.
-func conditionalProperties() ast.Expr {
-	branch := union(id("properties"), sel("fn", "NoValue"))
+// propertiesIf names the recursive Fn::If alternative for a resource's whole
+// Properties. A let clause cannot refer to itself, so it is a hidden
+// definition inside #Resource, beside the properties schema it refers to.
+const propertiesIf = "_#propertiesIf"
+
+// conditionalProperties defines Fn::If choosing between properties objects,
+// as in {"Fn::If": [Condition, {...}, {Ref: AWS::NoValue}]}. Each branch is
+// the exact properties schema, AWS::NoValue, or another such Fn::If, so
+// nesting has no depth limit while every literal leaf keeps the resource's
+// schema. The closed single-key struct guards the recursion: a branch only
+// recurses through an object whose one key is Fn::If. MinFields keeps an
+// empty object, which the properties alternative also accepts, from making
+// the choice ambiguous.
+func conditionalProperties() *ast.Field {
+	branch := union(id("properties"), sel("fn", "NoValue"), id(propertiesIf))
 	key := ast.NewList(&ast.UnaryExpr{Op: token.MAT, X: str("^Fn::If$")})
 	condition := ast.NewCall(id("close"), &ast.StructLit{Elts: []ast.Decl{&ast.Field{Label: key, Value: tuple(id("string"), branch, branch)}}})
-	return union(id("properties"), and(condition, ast.NewCall(ast.NewSel(id("structs"), "MinFields"), ast.NewLit(token.INT, "1"))))
+	return &ast.Field{Label: ast.NewIdent(propertiesIf), Value: and(condition, ast.NewCall(ast.NewSel(id("structs"), "MinFields"), ast.NewLit(token.INT, "1")))}
 }
 
 func stripRootEmbed(f *ast.File) {

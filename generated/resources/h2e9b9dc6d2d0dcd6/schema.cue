@@ -12,8 +12,10 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::ReceiptFilter"
 	let properties = close({Filter!: #Filter})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Filter: close({

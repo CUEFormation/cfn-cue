@@ -15,8 +15,10 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Notifications::NotificationHub"
 	let properties = close({Region!: #Region})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Region: strings.MaxRunes(25) & strings.MinRunes(2) |

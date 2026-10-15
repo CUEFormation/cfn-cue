@@ -271,13 +271,14 @@ negative examples and documented known disagreements. Missing cases, unexecuted
 expectations, or changed results fail the contract; no automatic baseline
 updates occur.
 
-The checked-in `smoke/` corpus contains 88 templates: 11 pinned upstream examples
-and 77 project-authored cases, with 176 expectations across two regions. Cases
+The checked-in `smoke/` corpus contains 94 templates: 11 pinned upstream examples
+and 83 project-authored cases, with 188 expectations across two regions. Cases
 cover scalar compatibility, formats, nested intrinsics, required properties,
 enums, unknown/read-only fields, wrong function results and arguments, custom
-resource aliases and ServiceToken requirements, and invalid Transform values.
-Template grammar cases from the full survey cover logical IDs that start with a
-digit, `&` in condition names, `Fn::If` around `Properties` and `UpdatePolicy`,
+resource aliases, ServiceToken requirements, conditional custom properties,
+and invalid Transform values. Template grammar cases from the full survey cover
+logical IDs that start with a digit, `&` in condition names, `Fn::If` around
+`Properties` (including nested `Fn::If`) and `UpdatePolicy`,
 and boolean mapping values. Dynamic reference cases check that a resolved
 password skips AmazonMQ's pattern, while a literal or unknown resolver does not.
 Format cases cover a CIDR with host bits set, a KMS key ID and an S3 bucket name.

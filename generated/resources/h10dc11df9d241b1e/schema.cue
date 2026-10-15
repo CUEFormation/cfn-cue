@@ -87,8 +87,10 @@ import structs "struct"
 		fn.#ListExpression
 		TimeoutConfig?: #TimeoutConfig
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AbortConfig: close({CriteriaList!: list.MinItems(1) & [...#AbortCriteria] | fn.#ListExpression}) | fn.#ObjectExpression

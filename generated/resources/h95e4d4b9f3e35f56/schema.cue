@@ -87,8 +87,10 @@ import structs "struct"
 		Treatments!: list.MaxItems(5) & list.MinItems(2) & list.UniqueItems() & [...#TreatmentObject] |
 			fn.#ListExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #MetricGoalObject: close({
