@@ -1,0 +1,12 @@
+Resources:
+  Thing:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      RequiresCompatibilities:
+      - FARGATE
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+      - Name: web
+        Image: nginx
+      Cpu: '512'
+      Memory: '3072'

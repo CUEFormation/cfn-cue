@@ -20,7 +20,7 @@ Seven costly rules remain disabled: E3042, E3047, E3048, E3638, E3639, E3690 and
 
 ## Deferred work
 
-- Encode the seven disabled rules more cheaply before enabling them.
+- Encode the seven disabled rules more cheaply before enabling them. Done in [2026-10-14-scoped-rules](../2026-10-14-scoped-rules/README.md).
 - Support nested Fn::If around whole Properties blocks.
 - Add semantic/reference resolution and condition-aware required-property checks separately.
 - Investigate the previously observed GroundStation DataflowEndpointGroupV2 extraction failure if it recurs. Subsequent investigation and the landing regeneration did not reproduce it.

@@ -519,6 +519,26 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-rule-dynamodb-billing-mode-ref-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-dynamodb-billing-mode-ref-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-dynamodb-on-demand-capacity-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-dynamodb-on-demand-capacity-invalid"
+  },
+  "mutation-rule-dynamodb-on-demand-capacity-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-dynamodb-on-demand-capacity-invalid"
+  },
   "mutation-rule-dynamodb-on-demand-valid:us-east-1": {
     "cue": "valid",
     "lint": "valid",
@@ -528,6 +548,16 @@
     "cue": "valid",
     "lint": "valid",
     "note": "Project-authored valid template."
+  },
+  "mutation-rule-dynamodb-provisioned-capacity-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-dynamodb-provisioned-capacity-invalid"
+  },
+  "mutation-rule-dynamodb-provisioned-capacity-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-dynamodb-provisioned-capacity-invalid"
   },
   "mutation-rule-ecs-daemon-valid:us-east-1": {
     "cue": "valid",
@@ -539,6 +569,16 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-rule-ecs-fargate-cpu-memory-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-cpu-memory-invalid"
+  },
+  "mutation-rule-ecs-fargate-cpu-memory-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-cpu-memory-invalid"
+  },
   "mutation-rule-ecs-fargate-daemon-invalid:us-east-1": {
     "cue": "invalid",
     "lint": "invalid",
@@ -548,6 +588,36 @@
     "cue": "invalid",
     "lint": "invalid",
     "note": "Intentional mutation: rule-ecs-fargate-daemon-invalid"
+  },
+  "mutation-rule-ecs-fargate-network-mode-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-network-mode-invalid"
+  },
+  "mutation-rule-ecs-fargate-network-mode-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-network-mode-invalid"
+  },
+  "mutation-rule-ecs-fargate-string-sizes-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-ecs-fargate-string-sizes-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-ecs-task-essential-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-task-essential-invalid"
+  },
+  "mutation-rule-ecs-task-essential-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-task-essential-invalid"
   },
   "mutation-rule-ecs-task-essential-valid:us-east-1": {
     "cue": "valid",
@@ -588,6 +658,26 @@
     "cue": "valid",
     "lint": "valid",
     "note": "Project-authored valid template."
+  },
+  "mutation-rule-rds-cluster-float-version-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-rds-cluster-float-version-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-rds-engine-version-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-rds-engine-version-invalid"
+  },
+  "mutation-rule-rds-engine-version-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-rds-engine-version-invalid"
   },
   "mutation-rule-s3-acl-ref-valid:us-east-1": {
     "cue": "valid",

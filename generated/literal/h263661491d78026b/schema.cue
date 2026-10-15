@@ -5,6 +5,10 @@ package schema
 import (
 	"list"
 	"strings"
+	cfnRuleList "list"
+	cfnRuleMath "math"
+	cfnRuleStrconv "strconv"
+	cfnRuleStrings "strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -254,6 +258,316 @@ import (
 	// in the *Amazon Elastic Container Service Developer Guide*.
 	// The ``host`` and ``sourcePath`` parameters aren't supported for tasks run on FARGATElong.
 	Volumes?: list.UniqueItems() & [...#Volume]
+	// cfn-lint E3042: aws_ecs_taskdefinition/containerdefinitions_essential.json
+	if ContainerDefinitions != _|_ {
+		if !((((cfnRuleList.MinItems(ContainerDefinitions, 0) & true) == _|_) || (((len([for cfnRuleItem1 in ContainerDefinitions if !(((((cfnRuleItem1.Essential == false) || (cfnRuleItem1.Essential == "false") || (cfnRuleItem1.Essential == "False") || (cfnRuleItem1.Essential == "FALSE")) &
+			true) != _|_) && ((cfnRuleItem1.Essential != _|_) || !((len(cfnRuleItem1) != _|_) && ((cfnRuleList.MinItems(
+			cfnRuleItem1,
+			0,
+		) &
+			true) == _|_) && (((cfnRuleItem1 =~ "") & true) == _|_)))) {
+			0
+		}]) >= 1) &
+		true) != _|_)) && (((cfnRuleList.MinItems(ContainerDefinitions, 0) & true) == _|_) || (((len(
+			ContainerDefinitions,
+		) >= 1) &
+			true) != _|_))) {
+			error("E3042: at least one container must be essential")
+		}
+	}
+
+	// cfn-lint E3047: aws_ecs_taskdefinition/fargate_cpu_memory.json
+	if RequiresCompatibilities != _|_ if Cpu != _|_ if Memory != _|_ if (((Cpu =~ "") & true) != _|_) || ((cfnRuleMath.MultipleOf(
+		Cpu,
+		1,
+	) &
+		true) != _|_) if (((Memory =~ "") & true) != _|_) || ((cfnRuleMath.MultipleOf(Memory, 1) & true) != _|_) if ((cfnRuleList.MinItems(
+		RequiresCompatibilities,
+		0,
+	) &
+		true) == _|_) || (((len([for cfnRuleItem1 in RequiresCompatibilities if (((cfnRuleItem1 == "FARGATE") & true) != _|_) && (((cfnRuleItem1 =~ "") &
+		true) != _|_) {
+		0
+	}]) >= 1) &
+	true) != _|_) if (cfnRuleList.MinItems(RequiresCompatibilities, 0) & true) != _|_ {
+		if !((((Cpu == _|_) || ((!(((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Cpu,
+			1,
+		) &
+			true) != _|_) || (((Cpu =~ "") & true) != _|_))) || ((((Cpu == "256") || (Cpu == 256)) & true) != _|_)) && ((((((Cpu =~ "") &
+			true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Cpu, 1) & true) != _|_) || (((Cpu =~ "") &
+			true) != _|_))) || ((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\.25\\s*(?i)vCpu$") & true) != _|_))))) && ((Memory == _|_) || ((!(((((Memory =~ "") &
+			true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Memory, 1) & true) != _|_) || (((Memory =~ "") &
+			true) != _|_))) || ((((Memory == 512) || (Memory == "512") || (Memory == 1024) || (Memory == "1024") || (Memory == 2048) || (Memory == "2048")) &
+			true) != _|_)) && ((((((Memory =~ "") & true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Memory,
+			1,
+		) &
+			true) != _|_) || (((Memory =~ "") & true) != _|_))) || ((((Memory =~ "") & true) == _|_) || (((Memory =~ "^(0.5|1|2)\\s*(?i)GB$") &
+			true) != _|_)))))) || (((Cpu == _|_) || ((!(((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Cpu,
+			1,
+		) &
+			true) != _|_) || (((Cpu =~ "") & true) != _|_))) || ((((Cpu == "512") || (Cpu == 512)) & true) != _|_)) && ((((((Cpu =~ "") &
+			true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Cpu, 1) & true) != _|_) || (((Cpu =~ "") &
+			true) != _|_))) || ((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\.5\\s*(?i)vCpu$") & true) != _|_))))) && ((Memory == _|_) || ((!(((((Memory =~ "") &
+			true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Memory, 1) & true) != _|_) || (((Memory =~ "") &
+			true) != _|_))) || (((((cfnRuleMath.Abs(Memory) >= 0) & true) == _|_) || ((((Memory >= 1024) && (Memory <= 4096) && cfnRuleMath.MultipleOf(
+			Memory,
+			1024,
+		)) &
+			true) != _|_)) && ((((Memory =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+			true) == _|_) || ((((cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) >= 1024) && (cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) <= 4096) && cfnRuleMath.MultipleOf(
+			cfnRuleStrconv.ParseFloat(cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1), 64),
+			1024,
+		)) &
+			true) != _|_)))) && ((((((Memory =~ "") & true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Memory,
+			1,
+		) &
+			true) != _|_) || (((Memory =~ "") & true) != _|_))) || ((((Memory =~ "") & true) == _|_) || (((Memory =~ "^(1|2|3|4)\\s*(?i)GB$") &
+			true) != _|_)))))) || (((Cpu == _|_) || ((!(((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Cpu,
+			1,
+		) &
+			true) != _|_) || (((Cpu =~ "") & true) != _|_))) || ((((Cpu == "1024") || (Cpu == 1024)) & true) != _|_)) && ((((((Cpu =~ "") &
+			true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Cpu, 1) & true) != _|_) || (((Cpu =~ "") &
+			true) != _|_))) || ((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^1\\s*(?i)vCpu$") & true) != _|_))))) && ((Memory == _|_) || ((!(((((Memory =~ "") &
+			true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Memory, 1) & true) != _|_) || (((Memory =~ "") &
+			true) != _|_))) || (((((cfnRuleMath.Abs(Memory) >= 0) & true) == _|_) || ((((Memory >= 2048) && (Memory <= 8192) && cfnRuleMath.MultipleOf(
+			Memory,
+			1024,
+		)) &
+			true) != _|_)) && ((((Memory =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+			true) == _|_) || ((((cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) >= 2048) && (cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) <= 8192) && cfnRuleMath.MultipleOf(
+			cfnRuleStrconv.ParseFloat(cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1), 64),
+			1024,
+		)) &
+			true) != _|_)))) && ((((((Memory =~ "") & true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Memory,
+			1,
+		) &
+			true) != _|_) || (((Memory =~ "") & true) != _|_))) || ((((Memory =~ "") & true) == _|_) || (((Memory =~ "^(2|3|4|5|6|7|8)\\s*(?i)GB$") &
+			true) != _|_)))))) || (((Cpu == _|_) || ((!(((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Cpu,
+			1,
+		) &
+			true) != _|_) || (((Cpu =~ "") & true) != _|_))) || ((((Cpu == "2048") || (Cpu == 2048)) & true) != _|_)) && ((((((Cpu =~ "") &
+			true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Cpu, 1) & true) != _|_) || (((Cpu =~ "") &
+			true) != _|_))) || ((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^2\\s*(?i)vCpu$") & true) != _|_))))) && ((Memory == _|_) || ((!(((((Memory =~ "") &
+			true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Memory, 1) & true) != _|_) || (((Memory =~ "") &
+			true) != _|_))) || (((((cfnRuleMath.Abs(Memory) >= 0) & true) == _|_) || ((((Memory >= 4096) && (Memory <= 16384) && cfnRuleMath.MultipleOf(
+			Memory,
+			1024,
+		)) &
+			true) != _|_)) && ((((Memory =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+			true) == _|_) || ((((cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) >= 4096) && (cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) <= 16384) && cfnRuleMath.MultipleOf(
+			cfnRuleStrconv.ParseFloat(cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1), 64),
+			1024,
+		)) &
+			true) != _|_)))) && ((((((Memory =~ "") & true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Memory,
+			1,
+		) &
+			true) != _|_) || (((Memory =~ "") & true) != _|_))) || ((((Memory =~ "") & true) == _|_) || (((Memory =~ "^(4|5|6|7|8|9|10|11|12|13|14|15|16)\\s*(?i)GB$") &
+			true) != _|_)))))) || (((Cpu == _|_) || ((!(((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Cpu,
+			1,
+		) &
+			true) != _|_) || (((Cpu =~ "") & true) != _|_))) || ((((Cpu == "4096") || (Cpu == 4096)) & true) != _|_)) && ((((((Cpu =~ "") &
+			true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Cpu, 1) & true) != _|_) || (((Cpu =~ "") &
+			true) != _|_))) || ((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^4\\s*(?i)vCpu$") & true) != _|_))))) && ((Memory == _|_) || ((!(((((Memory =~ "") &
+			true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Memory, 1) & true) != _|_) || (((Memory =~ "") &
+			true) != _|_))) || (((((cfnRuleMath.Abs(Memory) >= 0) & true) == _|_) || ((((Memory >= 8192) && (Memory <= 30720) && cfnRuleMath.MultipleOf(
+			Memory,
+			1024,
+		)) &
+			true) != _|_)) && ((((Memory =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+			true) == _|_) || ((((cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) >= 8192) && (cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) <= 30720) && cfnRuleMath.MultipleOf(
+			cfnRuleStrconv.ParseFloat(cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1), 64),
+			1024,
+		)) &
+			true) != _|_)))) && ((((((Memory =~ "") & true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Memory,
+			1,
+		) &
+			true) != _|_) || (((Memory =~ "") & true) != _|_))) || ((((Memory =~ "") & true) == _|_) || (((Memory =~ "^(8|9|1[0-9]|2[0-9]|30)\\s*(?i)GB$") &
+			true) != _|_)))))) || (((Cpu == _|_) || ((!(((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Cpu,
+			1,
+		) &
+			true) != _|_) || (((Cpu =~ "") & true) != _|_))) || ((((Cpu == "8192") || (Cpu == 8192)) & true) != _|_)) && ((((((Cpu =~ "") &
+			true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Cpu, 1) & true) != _|_) || (((Cpu =~ "") &
+			true) != _|_))) || ((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^8\\s*(?i)vCpu$") & true) != _|_))))) && ((Memory == _|_) || ((!(((((Memory =~ "") &
+			true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Memory, 1) & true) != _|_) || (((Memory =~ "") &
+			true) != _|_))) || (((((cfnRuleMath.Abs(Memory) >= 0) & true) == _|_) || ((((Memory >= 16384) && (Memory <= 61440) && cfnRuleMath.MultipleOf(
+			Memory,
+			4096,
+		)) &
+			true) != _|_)) && ((((Memory =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+			true) == _|_) || ((((cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) >= 16384) && (cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) <= 61440) && cfnRuleMath.MultipleOf(
+			cfnRuleStrconv.ParseFloat(cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1), 64),
+			4096,
+		)) &
+			true) != _|_)))) && ((((((Memory =~ "") & true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Memory,
+			1,
+		) &
+			true) != _|_) || (((Memory =~ "") & true) != _|_))) || ((((Memory =~ "") & true) == _|_) || (((Memory =~ "^(16|20|24|28|32|36|40|44|48|52|56|60)\\s*(?i)GB$") &
+			true) != _|_)))))) || (((Cpu == _|_) || ((!(((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Cpu,
+			1,
+		) &
+			true) != _|_) || (((Cpu =~ "") & true) != _|_))) || ((((Cpu == "16384") || (Cpu == 16384)) & true) != _|_)) && ((((((Cpu =~ "") &
+			true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Cpu, 1) & true) != _|_) || (((Cpu =~ "") &
+			true) != _|_))) || ((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^16\\s*(?i)vCpu$") & true) != _|_))))) && ((Memory == _|_) || ((!(((((Memory =~ "") &
+			true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Memory, 1) & true) != _|_) || (((Memory =~ "") &
+			true) != _|_))) || (((((cfnRuleMath.Abs(Memory) >= 0) & true) == _|_) || ((((Memory >= 32768) && (Memory <= 122880) && cfnRuleMath.MultipleOf(
+			Memory,
+			8192,
+		)) &
+			true) != _|_)) && ((((Memory =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+			true) == _|_) || ((((cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) >= 32768) && (cfnRuleStrconv.ParseFloat(
+			cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1),
+			64,
+		) <= 122880) && cfnRuleMath.MultipleOf(
+			cfnRuleStrconv.ParseFloat(cfnRuleStrings.Replace(cfnRuleStrings.TrimSpace(Memory), "_", "", -1), 64),
+			8192,
+		)) &
+			true) != _|_)))) && ((((((Memory =~ "") & true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Memory,
+			1,
+		) &
+			true) != _|_) || (((Memory =~ "") & true) != _|_))) || ((((Memory =~ "") & true) == _|_) || (((Memory =~ "^(32|40|48|56|64|72|80|88|96|104|112|120)\\s*(?i)GB$") &
+			true) != _|_)))))) || (((Cpu == _|_) || ((!(((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Cpu,
+			1,
+		) &
+			true) != _|_) || (((Cpu =~ "") & true) != _|_))) || ((((Cpu == "32768") || (Cpu == 32768)) & true) != _|_)) && ((((((Cpu =~ "") &
+			true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Cpu, 1) & true) != _|_) || (((Cpu =~ "") &
+			true) != _|_))) || ((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^32\\s*(?i)vCpu$") & true) != _|_))))) && ((Memory == _|_) || ((!(((((Memory =~ "") &
+			true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(Memory, 1) & true) != _|_) || (((Memory =~ "") &
+			true) != _|_))) || ((((Memory == 61440) || (Memory == "61440") || (Memory == 122880) || (Memory == "122880") || (Memory == 249856) || (Memory == "249856")) &
+			true) != _|_)) && ((((((Memory =~ "") & true) == _|_) || (((Memory =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+			Memory,
+			1,
+		) &
+			true) != _|_) || (((Memory =~ "") & true) != _|_))) || ((((Memory =~ "") & true) == _|_) || (((Memory =~ "^(60|120|244)\\s*(?i)GB$") &
+			true) != _|_))))))) {
+			error("E3047: Fargate task Cpu and Memory must be a supported combination")
+		}
+	}
+
+	// cfn-lint E3048: aws_ecs_taskdefinition/fargate_properties.json
+	if RequiresCompatibilities != _|_ if ((cfnRuleList.MinItems(RequiresCompatibilities, 0) & true) == _|_) || (((len([for cfnRuleItem1 in RequiresCompatibilities if (((cfnRuleItem1 == "FARGATE") &
+		true) != _|_) && (((cfnRuleItem1 =~ "") & true) != _|_) {
+		0
+	}]) >= 1) &
+	true) != _|_) if (cfnRuleList.MinItems(RequiresCompatibilities, 0) & true) != _|_ {
+		if NetworkMode != _|_ if ((NetworkMode =~ "") & true) != _|_ {
+			if NetworkMode != _|_ {
+				if !((((NetworkMode == "awsvpc") & true) != _|_) && (((NetworkMode =~ "") & true) != _|_)) {
+					error("E3048: Fargate tasks require NetworkMode awsvpc, Cpu and Memory, a supported Cpu and log driver, and no PlacementConstraints")
+				}
+			}
+			NetworkMode!: _
+		}
+		NetworkMode!: _
+		if ContainerDefinitions != _|_ {
+			if !(((cfnRuleList.MinItems(ContainerDefinitions, 0) & true) == _|_) || (((len([for cfnRuleItem2 in ContainerDefinitions if !((cfnRuleItem2.LogConfiguration == _|_) || (!((((cfnRuleItem2.LogConfiguration.LogDriver =~ "") &
+				true) != _|_) && ((cfnRuleItem2.LogConfiguration.LogDriver != _|_) || !((len(
+				cfnRuleItem2.LogConfiguration,
+			) != _|_) && ((cfnRuleList.MinItems(cfnRuleItem2.LogConfiguration, 0) & true) == _|_) && (((cfnRuleItem2.LogConfiguration =~ "") &
+				true) == _|_)))) || ((cfnRuleItem2.LogConfiguration.LogDriver == _|_) || ((((cfnRuleItem2.LogConfiguration.LogDriver == "awslogs") || (cfnRuleItem2.LogConfiguration.LogDriver == "splunk") || (cfnRuleItem2.LogConfiguration.LogDriver == "awsfirelens")) &
+				true) != _|_)))) {
+				0
+			}]) == 0) &
+			true) != _|_)) {
+				error("E3048: Fargate tasks require NetworkMode awsvpc, Cpu and Memory, a supported Cpu and log driver, and no PlacementConstraints")
+			}
+		}
+		if Cpu != _|_ if (((Cpu =~ "") & true) != _|_) || ((cfnRuleMath.MultipleOf(Cpu, 1) & true) != _|_) {
+			if Cpu != _|_ {
+				if (((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_) if ((cfnRuleMath.MultipleOf(
+					Cpu,
+					1,
+				) &
+					true) != _|_) || (((Cpu =~ "") & true) != _|_) {
+					if (cfnRuleList.Contains(
+						[
+							"256",
+							256,
+							"512",
+							512,
+							"1024",
+							1024,
+							"2048",
+							2048,
+							"4096",
+							4096,
+							"8192",
+							8192,
+							"16384",
+							16384,
+							"32768",
+							32768,
+						],
+						Cpu,
+					) &
+						true) == _|_ {
+						error("E3048: Fargate tasks require NetworkMode awsvpc, Cpu and Memory, a supported Cpu and log driver, and no PlacementConstraints")
+					}
+				}
+				if !(((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^\\d+$") & true) != _|_)) && (((cfnRuleMath.MultipleOf(
+					Cpu,
+					1,
+				) &
+					true) != _|_) || (((Cpu =~ "") & true) != _|_))) {
+					if !((((Cpu =~ "") & true) == _|_) || (((Cpu =~ "^(\\.25|\\.5|1|2|4|8|16|32)\\s*(?i)vCpu$") & true) != _|_)) {
+						error("E3048: Fargate tasks require NetworkMode awsvpc, Cpu and Memory, a supported Cpu and log driver, and no PlacementConstraints")
+					}
+				}
+			}
+		}
+		Cpu!:    _
+		Memory!: _
+		if PlacementConstraints != _|_ {
+			error("E3048: Fargate tasks require NetworkMode awsvpc, Cpu and Memory, a supported Cpu and log driver, and no PlacementConstraints")
+		}
+	}
 })
 
 // The authorization configuration details for the Amazon EFS file system.

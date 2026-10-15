@@ -1,0 +1,13 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "Engine": "aurora-mysql",
+        "EngineVersion": 8.0,
+        "MasterUserPassword": "change-me-1234",
+        "MasterUsername": "admin"
+      },
+      "Type": "AWS::RDS::DBCluster"
+    }
+  }
+}

@@ -371,6 +371,11 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 	if template {
 		c.pruneDefinitions(n.(map[string]any))
 	}
+	if c.cfnLintRules {
+		if e := c.scopedExtensions(n.(map[string]any)); e != nil {
+			return nil, e
+		}
+	}
 	wrapper := map[string]any{"$schema": "https://json-schema.org/draft/2020-12/schema", "$defs": c.hoist(n.(map[string]any)), "$ref": "#/$defs/Properties"}
 	b, e := json.Marshal(wrapper)
 	if e != nil {

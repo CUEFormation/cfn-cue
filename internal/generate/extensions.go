@@ -42,10 +42,13 @@ type extension struct {
 	Paths map[string][]string
 	// cfn-lint lowercases a string Engine before these rules compare it.
 	LowercaseEngine bool
-	// Slow rules are not applied. Each matchIf re-checks the whole
-	// resource, so on large resources these added 25-340 ms per resource
-	// in the corpus survey, against a 40-90 ms baseline.
-	Slow bool
+	// Scoped rules are compiled by scopedExtensions to comprehensions that
+	// read only the fields they name. As matchIf validators, each of which
+	// re-checks the whole resource, these added 25-340 ms per large
+	// resource in the corpus survey, against a 40-90 ms baseline.
+	Scoped bool
+	// Message reports a failed scoped rule after its ID.
+	Message string
 }
 
 var cfnLintExtensions = []extension{
@@ -55,8 +58,8 @@ var cfnLintExtensions = []extension{
 	{Rule: "E3722", File: "aws_cloudfront_distribution/forward_enum.json", Paths: map[string][]string{"AWS::CloudFront::Distribution": {"DistributionConfig/DefaultCacheBehavior", "DistributionConfig/CacheBehaviors/*"}}},
 	{Rule: "E3615", File: "aws_cloudwatch_alarm/period.json", Paths: map[string][]string{"AWS::CloudWatch::Alarm": {""}}},
 	{Rule: "E3636", File: "aws_codebuild_project/s3_locations.json", Paths: map[string][]string{"AWS::CodeBuild::Project": {"Artifacts", "Source"}}},
-	{Rule: "E3638", File: "aws_dynamodb_table/billingmode_exclusive.json", Paths: map[string][]string{"AWS::DynamoDB::Table": {""}}, Slow: true},
-	{Rule: "E3639", File: "aws_dynamodb_table/billingmode_provisioned_dependent.json", Paths: map[string][]string{"AWS::DynamoDB::Table": {""}}, Slow: true},
+	{Rule: "E3638", File: "aws_dynamodb_table/billingmode_exclusive.json", Paths: map[string][]string{"AWS::DynamoDB::Table": {""}}, Scoped: true, Message: "when BillingMode is PAY_PER_REQUEST, ProvisionedThroughput capacity units must be 0"},
+	{Rule: "E3639", File: "aws_dynamodb_table/billingmode_provisioned_dependent.json", Paths: map[string][]string{"AWS::DynamoDB::Table": {""}}, Scoped: true, Message: "when BillingMode is PROVISIONED or omitted, ProvisionedThroughput with capacity units of at least 1 is required"},
 	{Rule: "E3671", File: "aws_ec2_instance/blockdevicemappings.json", Paths: map[string][]string{
 		"AWS::AutoScaling::LaunchConfiguration": {"BlockDeviceMappings/*/Ebs"},
 		"AWS::EC2::Instance":                    {"BlockDeviceMappings/*/Ebs"},
@@ -75,9 +78,9 @@ var cfnLintExtensions = []extension{
 	{Rule: "E3688", File: "aws_ec2_securitygroup/all_to_and_from_ports.json", Paths: securityGroupRulePaths},
 	{Rule: "E3687", File: "aws_ec2_securitygroup/protocols_and_port_ranges_include.json", Paths: securityGroupRulePaths},
 	{Rule: "E3044", File: "aws_ecs_service/fargate.json", Paths: map[string][]string{"AWS::ECS::Service": {""}}},
-	{Rule: "E3042", File: "aws_ecs_taskdefinition/containerdefinitions_essential.json", Paths: map[string][]string{"AWS::ECS::TaskDefinition": {"ContainerDefinitions"}}, Slow: true},
-	{Rule: "E3047", File: "aws_ecs_taskdefinition/fargate_cpu_memory.json", Paths: map[string][]string{"AWS::ECS::TaskDefinition": {""}}, Slow: true},
-	{Rule: "E3048", File: "aws_ecs_taskdefinition/fargate_properties.json", Paths: map[string][]string{"AWS::ECS::TaskDefinition": {""}}, Slow: true},
+	{Rule: "E3042", File: "aws_ecs_taskdefinition/containerdefinitions_essential.json", Paths: map[string][]string{"AWS::ECS::TaskDefinition": {"ContainerDefinitions"}}, Scoped: true, Message: "at least one container must be essential"},
+	{Rule: "E3047", File: "aws_ecs_taskdefinition/fargate_cpu_memory.json", Paths: map[string][]string{"AWS::ECS::TaskDefinition": {""}}, Scoped: true, Message: "Fargate task Cpu and Memory must be a supported combination"},
+	{Rule: "E3048", File: "aws_ecs_taskdefinition/fargate_properties.json", Paths: map[string][]string{"AWS::ECS::TaskDefinition": {""}}, Scoped: true, Message: "Fargate tasks require NetworkMode awsvpc, Cpu and Memory, a supported Cpu and log driver, and no PlacementConstraints"},
 	{Rule: "E3046", File: "aws_ecs_taskdefinition/logging_configuration.json", Paths: map[string][]string{"AWS::ECS::TaskDefinition": {"ContainerDefinitions/*/LogConfiguration"}}},
 	{Rule: "E3695", File: "aws_elasticache_cachecluster/engine_version.json", Paths: map[string][]string{"AWS::ElastiCache::CacheCluster": {""}}},
 	{Rule: "E3704", File: "aws_elasticache_replicationgroup/transitencryptionenabled_valkey.json", Paths: map[string][]string{"AWS::ElastiCache::ReplicationGroup": {""}}},
@@ -96,13 +99,13 @@ var cfnLintExtensions = []extension{
 	{Rule: "E3677", File: "aws_lambda_function/zipfile_runtime_enum.json", Paths: map[string][]string{"AWS::Lambda::Function": {""}}},
 	{Rule: "E3678", File: "aws_lambda_function/zipfile_runtime_exists.json", Paths: map[string][]string{"AWS::Lambda::Function": {""}}},
 	{Rule: "E3693", File: "aws_rds_dbcluster/aurora.json", Paths: map[string][]string{"AWS::RDS::DBCluster": {""}}},
-	{Rule: "E3690", File: "aws_rds_dbcluster/engine_version.json", Paths: map[string][]string{"AWS::RDS::DBCluster": {""}}, Slow: true},
+	{Rule: "E3690", File: "aws_rds_dbcluster/engine_version.json", Paths: map[string][]string{"AWS::RDS::DBCluster": {""}}, Scoped: true, Message: "Engine must be supported, and EngineVersion valid for the Engine"},
 	{Rule: "E3689", File: "aws_rds_dbcluster/monitoring.json", Paths: map[string][]string{"AWS::RDS::DBCluster": {""}}},
 	{Rule: "E3692", File: "aws_rds_dbcluster/multiaz.json", Paths: map[string][]string{"AWS::RDS::DBCluster": {""}}},
 	{Rule: "E3686", File: "aws_rds_dbcluster/serverless_exclusive.json", Paths: map[string][]string{"AWS::RDS::DBCluster": {""}}},
 	{Rule: "E3682", File: "aws_rds_dbinstance/aurora_exclusive.json", Paths: map[string][]string{"AWS::RDS::DBInstance": {""}}, LowercaseEngine: true},
 	{Rule: "E3719", File: "aws_rds_dbinstance/backupretentionperiod_maximum.json", Paths: map[string][]string{"AWS::RDS::DBInstance": {""}}},
-	{Rule: "E3691", File: "aws_rds_dbinstance/engine_version.json", Paths: map[string][]string{"AWS::RDS::DBInstance": {""}}, LowercaseEngine: true, Slow: true},
+	{Rule: "E3691", File: "aws_rds_dbinstance/engine_version.json", Paths: map[string][]string{"AWS::RDS::DBInstance": {""}}, LowercaseEngine: true, Scoped: true, Message: "Engine must be supported, and EngineVersion valid for the Engine"},
 	{Rule: "E3720", File: "aws_rds_dbinstance/kmskey_storageencrypted.json", Paths: map[string][]string{"AWS::RDS::DBInstance": {""}}},
 	{Rule: "E3721", File: "aws_rds_dbinstance/replicamode_enum.json", Paths: map[string][]string{"AWS::RDS::DBInstance": {""}}},
 	{Rule: "E3661", File: "aws_route53_healthcheck/healthcheckconfig_type_inclusive.json", Paths: map[string][]string{"AWS::Route53::HealthCheck": {"HealthCheckConfig"}}},
@@ -133,7 +136,7 @@ const literalMarker = "x-cfn-cue-literal"
 func (c *converter) applyExtensions(root map[string]any) error {
 	for _, ext := range cfnLintExtensions {
 		paths, ok := ext.Paths[c.resource]
-		if !ok || ext.Slow {
+		if !ok || ext.Scoped {
 			continue
 		}
 		b, err := readExtension(ext.File)
@@ -653,4 +656,62 @@ func dropValidatorStructs(f *ast.File) {
 		}
 		return true
 	})
+}
+
+// scopedExtensions compiles the Scoped rules for the converter's resource
+// and adds them to root, the normalized properties schema.
+func (c *converter) scopedExtensions(root map[string]any) error {
+	rules := &fieldRules{}
+	names := map[string]bool{}
+	for _, ext := range cfnLintExtensions {
+		paths, ok := ext.Paths[c.resource]
+		if !ok || !ext.Scoped {
+			continue
+		}
+		b, err := readExtension(ext.File)
+		if err != nil {
+			return err
+		}
+		var schema map[string]any
+		if err := json.Unmarshal(b, &schema); err != nil {
+			return fmt.Errorf("%s: %w", ext.File, err)
+		}
+		if pattern := unsupportedPattern(schema); pattern != "" && !negativePrefix.MatchString(pattern) {
+			c.warn("#", "cfnLintExtension", ext.Rule+" not applied: pattern is incompatible with RE2: "+pattern)
+			continue
+		}
+		compiler := &ruleCompiler{rule: ext.Rule, message: ext.Message, lowercaseEngine: ext.LowercaseEngine, template: c.template, properties: root}
+		for _, path := range paths {
+			decls, err := compiler.scopedRule(schema, path)
+			if err != nil {
+				c.warn("#/"+path, "cfnLintExtension", ext.Rule+" not applied: "+err.Error())
+				continue
+			}
+			if len(decls) > 0 {
+				ast.AddComment(decls[0], &ast.CommentGroup{Doc: true, List: []*ast.Comment{{Text: "// cfn-lint " + ext.Rule + ": " + ext.File}}})
+			}
+			rules.scoped = append(rules.scoped, decls...)
+			for name := range compiler.names {
+				names[name] = true
+			}
+		}
+	}
+	if len(rules.scoped) == 0 {
+		return nil
+	}
+	// applyRules places one set of rules per struct, so join the rules
+	// normalize already marked on root.
+	props, _ := root["properties"].(map[string]any)
+	for name := range props {
+		var index int
+		if _, e := fmt.Sscanf(name, ruleMarker+"%d", &index); e == nil && index < len(c.rules) && c.rules[index] != nil {
+			existing := c.rules[index]
+			existing.scoped = append(existing.scoped, rules.scoped...)
+			existing.scopedNames = append(existing.scopedNames, sortedBoolKeys(names)...)
+			return nil
+		}
+	}
+	rules.scopedNames = sortedBoolKeys(names)
+	c.mark(root, rules)
+	return nil
 }

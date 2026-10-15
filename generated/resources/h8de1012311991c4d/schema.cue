@@ -8,7 +8,12 @@ import (
 	"list"
 )
 import cfnScalarStrings "strings"
-import cfnScalarStrconv "strconv"
+import (
+	cfnScalarStrconv "strconv"
+	cfnRuleStrings "strings"
+	cfnRuleMath "math"
+	cfnRuleStrconv "strconv"
+)
 import base "github.com/cueformation/cfn-cue/template:template"
 import structs "struct"
 
@@ -132,6 +137,102 @@ import structs "struct"
 		// Represents the warm throughput (in read units per second and write units per
 		// second) for creating a table.
 		WarmThroughput?: #WarmThroughput
+		// cfn-lint E3638: aws_dynamodb_table/billingmode_exclusive.json
+		if BillingMode != _|_ if ((BillingMode == "PAY_PER_REQUEST") & true) != _|_ if (((len(BillingMode) == 1) && (len([for cfnRuleKey, _ in BillingMode if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ {
+			if ProvisionedThroughput != _|_ {
+				if ProvisionedThroughput.ReadCapacityUnits != _|_ {
+					if !(((((len(ProvisionedThroughput.ReadCapacityUnits) == 1) && (len([for cfnRuleKey, _ in ProvisionedThroughput.ReadCapacityUnits if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+						cfnRuleKey,
+						"Fn::",
+					) {
+						0
+					}]) == 1)) &
+					true) != _|_) || (((ProvisionedThroughput.ReadCapacityUnits =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+						true) != _|_) || ((((ProvisionedThroughput.ReadCapacityUnits == 0) || (ProvisionedThroughput.ReadCapacityUnits == "0")) &
+						true) != _|_)) {
+						error("E3638: when BillingMode is PAY_PER_REQUEST, ProvisionedThroughput capacity units must be 0")
+					}
+				}
+				if ProvisionedThroughput.WriteCapacityUnits != _|_ {
+					if !(((((len(ProvisionedThroughput.WriteCapacityUnits) == 1) && (len([for cfnRuleKey, _ in ProvisionedThroughput.WriteCapacityUnits if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+						cfnRuleKey,
+						"Fn::",
+					) {
+						0
+					}]) == 1)) &
+					true) != _|_) || (((ProvisionedThroughput.WriteCapacityUnits =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+						true) != _|_) || ((((ProvisionedThroughput.WriteCapacityUnits == 0) || (ProvisionedThroughput.WriteCapacityUnits == "0")) &
+						true) != _|_)) {
+						error("E3638: when BillingMode is PAY_PER_REQUEST, ProvisionedThroughput capacity units must be 0")
+					}
+				}
+			}
+		}
+
+		// cfn-lint E3639: aws_dynamodb_table/billingmode_provisioned_dependent.json
+		if (BillingMode == _|_) || (((BillingMode == "PAY_PER_REQUEST") & true) == _|_) if (((len(BillingMode) == 1) && (len([for cfnRuleKey, _ in BillingMode if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ {
+			if ProvisionedThroughput != _|_ {
+				if ProvisionedThroughput.ReadCapacityUnits != _|_ {
+					if !(((((len(ProvisionedThroughput.ReadCapacityUnits) == 1) && (len([for cfnRuleKey, _ in ProvisionedThroughput.ReadCapacityUnits if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+						cfnRuleKey,
+						"Fn::",
+					) {
+						0
+					}]) == 1)) &
+					true) != _|_) || (((ProvisionedThroughput.ReadCapacityUnits =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+						true) != _|_) || (((((cfnRuleMath.Abs(ProvisionedThroughput.ReadCapacityUnits) >= 0) & true) == _|_) || (((ProvisionedThroughput.ReadCapacityUnits >= 1) &
+						true) != _|_)) && ((((ProvisionedThroughput.ReadCapacityUnits =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+						true) == _|_) || (((cfnRuleStrconv.ParseFloat(
+						cfnRuleStrings.Replace(
+							cfnRuleStrings.TrimSpace(ProvisionedThroughput.ReadCapacityUnits),
+							"_",
+							"",
+							-1,
+						),
+						64,
+					) >= 1) &
+						true) != _|_)))) {
+						error("E3639: when BillingMode is PROVISIONED or omitted, ProvisionedThroughput with capacity units of at least 1 is required")
+					}
+				}
+				if ProvisionedThroughput.WriteCapacityUnits != _|_ {
+					if !(((((len(ProvisionedThroughput.WriteCapacityUnits) == 1) && (len([for cfnRuleKey, _ in ProvisionedThroughput.WriteCapacityUnits if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+						cfnRuleKey,
+						"Fn::",
+					) {
+						0
+					}]) == 1)) &
+					true) != _|_) || (((ProvisionedThroughput.WriteCapacityUnits =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+						true) != _|_) || (((((cfnRuleMath.Abs(ProvisionedThroughput.WriteCapacityUnits) >= 0) & true) == _|_) || (((ProvisionedThroughput.WriteCapacityUnits >= 1) &
+						true) != _|_)) && ((((ProvisionedThroughput.WriteCapacityUnits =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+						true) == _|_) || (((cfnRuleStrconv.ParseFloat(
+						cfnRuleStrings.Replace(
+							cfnRuleStrings.TrimSpace(ProvisionedThroughput.WriteCapacityUnits),
+							"_",
+							"",
+							-1,
+						),
+						64,
+					) >= 1) &
+						true) != _|_)))) {
+						error("E3639: when BillingMode is PROVISIONED or omitted, ProvisionedThroughput with capacity units of at least 1 is required")
+					}
+				}
+			}
+			ProvisionedThroughput!: _
+		}
 	})
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
