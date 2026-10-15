@@ -44,7 +44,7 @@ or newer dependencies. An offline version check rejects stale or manually
 upgraded Python packages and points back to setup.
 
 `test` runs formatting checks, Go tests and vet, the pinned S3/IAM integration,
-Python parser/provenance tests, and the 46-template contract in two regions. The
+Python parser/provenance tests, and the 88-template contract in two regions. The
 contract runs twice: through `cfn-cue-validate`, which loads only the resource
 packages a template uses, and against each region's complete `#Template`.
 Expected failures remain explicit. The final report is
@@ -269,8 +269,8 @@ negative examples and documented known disagreements. Missing cases, unexecuted
 expectations, or changed results fail the contract; no automatic baseline
 updates occur.
 
-The checked-in `smoke/` corpus contains 79 templates: 11 pinned upstream examples
-and 68 project-authored cases, with 158 expectations across two regions. Cases
+The checked-in `smoke/` corpus contains 88 templates: 11 pinned upstream examples
+and 77 project-authored cases, with 176 expectations across two regions. Cases
 cover scalar compatibility, formats, nested intrinsics, required properties,
 enums, unknown/read-only fields, wrong function results and arguments, custom
 resource aliases and ServiceToken requirements, and invalid Transform values.
@@ -280,8 +280,8 @@ and boolean mapping values. Dynamic reference cases check that a resolved
 password skips AmazonMQ's pattern, while a literal or unknown resolver does not.
 Format cases cover a CIDR with host bits set, a KMS key ID and an S3 bucket name.
 Service rule cases (`rule-*`) cover rules taken from cfn-lint's extension schemas,
-including the condition shapes that needed rewriting for CUE and resources whose
-slow rules are skipped.
+including the condition shapes that needed rewriting for CUE, and the ECS,
+DynamoDB and RDS rules compiled to field-scoped comprehensions.
 The read-only property and malformed custom type name disagreements with cfn-lint
 remain documented. Expected failures are explicit and annotated.
 

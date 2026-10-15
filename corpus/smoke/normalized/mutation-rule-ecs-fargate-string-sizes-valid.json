@@ -1,0 +1,21 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Image": "nginx",
+            "Name": "web"
+          }
+        ],
+        "Cpu": "512",
+        "Memory": "3072",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE"
+        ]
+      },
+      "Type": "AWS::ECS::TaskDefinition"
+    }
+  }
+}

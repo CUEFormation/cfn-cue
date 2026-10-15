@@ -98,8 +98,8 @@ def compatibility_cases():
 def service_rule_cases():
     """cfn-lint extension rules, including the shapes that broke CUE evaluation.
 
-    The DynamoDB and ECS task definition cases check resources whose slow
-    rules are skipped still validate."""
+    The DynamoDB, ECS task definition and RDS engine version cases cover the
+    rules compiled to field-scoped comprehensions."""
     cases = {}
 
     def resource(name, resource_type, properties, cue_status, lint_status=None):
@@ -132,6 +132,24 @@ def service_rule_cases():
              {"Role": "arn:aws:iam::123456789012:role/r", "Runtime": "java21", "Handler": "x", "Code": {"ZipFile": "x"}}, "invalid")
     resource("ecs-task-essential-valid", "AWS::ECS::TaskDefinition",
              {"ContainerDefinitions": [{"Name": "web", "Image": "nginx"}]}, "valid")
+    resource("ecs-task-essential-invalid", "AWS::ECS::TaskDefinition",
+             {"ContainerDefinitions": [{"Name": "web", "Image": "nginx", "Essential": "false"}]}, "invalid")
+    fargate = {"RequiresCompatibilities": ["FARGATE"], "NetworkMode": "awsvpc",
+               "ContainerDefinitions": [{"Name": "web", "Image": "nginx"}]}
+    resource("ecs-fargate-string-sizes-valid", "AWS::ECS::TaskDefinition", dict(fargate, Cpu="512", Memory="3072"), "valid")
+    resource("ecs-fargate-cpu-memory-invalid", "AWS::ECS::TaskDefinition", dict(fargate, Cpu="256", Memory="4096"), "invalid")
+    resource("ecs-fargate-network-mode-invalid", "AWS::ECS::TaskDefinition",
+             dict(fargate, NetworkMode="bridge", Cpu=256, Memory=512), "invalid")
+    keys = {k: table[k] for k in ("KeySchema", "AttributeDefinitions")}
+    resource("dynamodb-on-demand-capacity-invalid", "AWS::DynamoDB::Table",
+             dict(table, ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5}), "invalid")
+    resource("dynamodb-provisioned-capacity-invalid", "AWS::DynamoDB::Table",
+             dict(keys, ProvisionedThroughput={"ReadCapacityUnits": "0", "WriteCapacityUnits": "5"}), "invalid")
+    resource("rds-engine-version-invalid", "AWS::RDS::DBInstance", dict(instance, EngineVersion="5.0.1"), "invalid")
+    # YAML reads 8.0 as a float; cfn-lint compares str(8.0) with "8.0".
+    resource("rds-cluster-float-version-valid", "AWS::RDS::DBCluster",
+             {"Engine": "aurora-mysql", "EngineVersion": 8.0, "MasterUsername": "admin",
+              "MasterUserPassword": "change-me-1234"}, "valid")
     alarm = {"ComparisonOperator": "GreaterThanThreshold", "EvaluationPeriods": 1, "MetricName": "Errors",
              "Namespace": "AWS/Lambda", "Statistic": "Sum", "Threshold": 1}
     resource("alarm-period-string-valid", "AWS::CloudWatch::Alarm", dict(alarm, Period="300"), "valid")
@@ -141,6 +159,10 @@ def service_rule_cases():
     ref = {"Parameters": {"Acl": {"Type": "String"}},
            "Resources": {"Thing": {"Type": "AWS::S3::Bucket", "Properties": {"AccessControl": {"Ref": "Acl"}}}}}
     cases["rule-s3-acl-ref-valid"] = (ref, "valid", "valid")
+    # Nor under not: a Ref BillingMode does not require ProvisionedThroughput.
+    mode = {"Parameters": {"Mode": {"Type": "String", "AllowedValues": ["PAY_PER_REQUEST", "PROVISIONED"]}},
+            "Resources": {"Thing": {"Type": "AWS::DynamoDB::Table", "Properties": dict(keys, BillingMode={"Ref": "Mode"})}}}
+    cases["rule-dynamodb-billing-mode-ref-valid"] = (mode, "valid", "valid")
     return cases
 
 

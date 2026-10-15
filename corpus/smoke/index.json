@@ -1209,6 +1209,48 @@
     },
     {
       "depth": 6,
+      "id": "mutation-rule-dynamodb-billing-mode-ref-valid",
+      "intrinsic_depth": 1,
+      "intrinsics": {
+        "Ref": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 21,
+      "normalized": "normalized/mutation-rule-dynamodb-billing-mode-ref-valid.json",
+      "normalized_sha256": "dcb75d12c946835fc9e88ec7132fd3e57dbc9ebed446cfd57931cc5834a32f22",
+      "original": "original/mutations/rule-dynamodb-billing-mode-ref-valid.yaml",
+      "original_sha256": "040455ae9aa81a6ad6e4c7e0f2648f654365f9955b5862819f86c8acbfaa837e",
+      "path": "rule-dynamodb-billing-mode-ref-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::DynamoDB::Table"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "mutation-rule-dynamodb-on-demand-capacity-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 17,
+      "normalized": "normalized/mutation-rule-dynamodb-on-demand-capacity-invalid.json",
+      "normalized_sha256": "a16c1233472f0ed91a2a5c7ea39b42e04282b6da68946b4825a245ea0d746091",
+      "original": "original/mutations/rule-dynamodb-on-demand-capacity-invalid.yaml",
+      "original_sha256": "01e467f1a430b9b4448bd53a22454ffe1b4f66b02c8986cd09b2ba9eaf7919a1",
+      "path": "rule-dynamodb-on-demand-capacity-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::DynamoDB::Table"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
       "id": "mutation-rule-dynamodb-on-demand-valid",
       "intrinsic_depth": 0,
       "intrinsics": {},
@@ -1219,6 +1261,26 @@
       "original": "original/mutations/rule-dynamodb-on-demand-valid.yaml",
       "original_sha256": "8d5dfd3bded7d67fe1d5bcd331707490974ebd491808ec3d4eeb8cacd8e22a0d",
       "path": "rule-dynamodb-on-demand-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::DynamoDB::Table"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "mutation-rule-dynamodb-provisioned-capacity-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 16,
+      "normalized": "normalized/mutation-rule-dynamodb-provisioned-capacity-invalid.json",
+      "normalized_sha256": "4cf1c4ad946498685271b28688d748d79747bd699b752fa40eb9871167f5506a",
+      "original": "original/mutations/rule-dynamodb-provisioned-capacity-invalid.yaml",
+      "original_sha256": "6a009b383f34cf8412dd251432310ea511f718e492a1f65a618a65cfb0a6c125",
+      "path": "rule-dynamodb-provisioned-capacity-invalid",
       "resource_count": 1,
       "resource_types": [
         "AWS::DynamoDB::Table"
@@ -1248,6 +1310,26 @@
       "url": "https://github.com/CUEFormation/cfn-cue"
     },
     {
+      "depth": 6,
+      "id": "mutation-rule-ecs-fargate-cpu-memory-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 14,
+      "normalized": "normalized/mutation-rule-ecs-fargate-cpu-memory-invalid.json",
+      "normalized_sha256": "fa0793fd661965d25b13796a6919e84ccab4678d8a926778af6e0587b55f61dc",
+      "original": "original/mutations/rule-ecs-fargate-cpu-memory-invalid.yaml",
+      "original_sha256": "899b35b6c70dd265e06995dbbe6f322fc42c3412bc156fbaaf068c981aa5636e",
+      "path": "rule-ecs-fargate-cpu-memory-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::ECS::TaskDefinition"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
       "depth": 4,
       "id": "mutation-rule-ecs-fargate-daemon-invalid",
       "intrinsic_depth": 0,
@@ -1262,6 +1344,66 @@
       "resource_count": 1,
       "resource_types": [
         "AWS::ECS::Service"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "mutation-rule-ecs-fargate-network-mode-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 14,
+      "normalized": "normalized/mutation-rule-ecs-fargate-network-mode-invalid.json",
+      "normalized_sha256": "5fb7e69e2037dce81c33588f6467e2129af4e50d1fb105f253f7d5a6734fc157",
+      "original": "original/mutations/rule-ecs-fargate-network-mode-invalid.yaml",
+      "original_sha256": "4394e4c1f7eed729e724bbbab14bfaeab6d4b1cb2d70a28d9dc5beeb42863fee",
+      "path": "rule-ecs-fargate-network-mode-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::ECS::TaskDefinition"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "mutation-rule-ecs-fargate-string-sizes-valid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 14,
+      "normalized": "normalized/mutation-rule-ecs-fargate-string-sizes-valid.json",
+      "normalized_sha256": "0cd25ed40d8c82d5198bf5aef66dd9ad37993d06961b17f02bec0839e82a4409",
+      "original": "original/mutations/rule-ecs-fargate-string-sizes-valid.yaml",
+      "original_sha256": "c0d5a9ea6eac8601c2b0ff0e49cc8a95b80a2a7a05afbb70764e1f2e49434da1",
+      "path": "rule-ecs-fargate-string-sizes-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::ECS::TaskDefinition"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "mutation-rule-ecs-task-essential-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 10,
+      "normalized": "normalized/mutation-rule-ecs-task-essential-invalid.json",
+      "normalized_sha256": "e07daaba09ee5235f600cebff48b3c672e3c17fdfc1ef7d2616ce174af776ff7",
+      "original": "original/mutations/rule-ecs-task-essential-invalid.yaml",
+      "original_sha256": "670dea9baaa93057abe5c42ab7d84fda638cd9eed6b58af8e0b704eb4a5d2eef",
+      "path": "rule-ecs-task-essential-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::ECS::TaskDefinition"
       ],
       "source": "mutations",
       "transform": null,
@@ -1339,6 +1481,46 @@
       "original": "original/mutations/rule-rds-backup-retention-valid.yaml",
       "original_sha256": "50e6109c6bae6013656211acecc7275145bdf3341f400df4584c08474561da1e",
       "path": "rule-rds-backup-retention-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::RDS::DBInstance"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 4,
+      "id": "mutation-rule-rds-cluster-float-version-valid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 9,
+      "normalized": "normalized/mutation-rule-rds-cluster-float-version-valid.json",
+      "normalized_sha256": "5a3f2be14f0079dcda536b62039b2888547ace316e1e256658df2b071c8ae44c",
+      "original": "original/mutations/rule-rds-cluster-float-version-valid.yaml",
+      "original_sha256": "031ac136e6cc4f284abeb0c0b34f04cac41a717254aef31019a6fc8b3751e9d1",
+      "path": "rule-rds-cluster-float-version-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::RDS::DBCluster"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 4,
+      "id": "mutation-rule-rds-engine-version-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 11,
+      "normalized": "normalized/mutation-rule-rds-engine-version-invalid.json",
+      "normalized_sha256": "79189fa37f46ba1fa46edc95e62482e603ea8c6d3fc845693f27f551e53c01e9",
+      "original": "original/mutations/rule-rds-engine-version-invalid.yaml",
+      "original_sha256": "7762cbc665875b7bc86f05464f54093f4915ecf66d515831ebeeac5e3c1bfccc",
+      "path": "rule-rds-engine-version-invalid",
       "resource_count": 1,
       "resource_types": [
         "AWS::RDS::DBInstance"
