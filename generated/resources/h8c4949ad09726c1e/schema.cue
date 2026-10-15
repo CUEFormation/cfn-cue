@@ -53,31 +53,49 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CustomImageContainerArguments: strings.MaxRunes(64) & strings.MinRunes(1) |
+#CustomImageContainerArguments: =~"^.+" &
+matchN(0, [=~"^(?:\\s*$)"]) &
+string &
+strings.MaxRunes(64) &
+strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
 } |
 fn.#StringExpression
 
-#CustomImageContainerEntrypoint: strings.MaxRunes(256) & strings.MinRunes(1) |
+#CustomImageContainerEntrypoint: =~"^.+" &
+matchN(0, [=~"^(?:\\s*$)"]) &
+string &
+strings.MaxRunes(256) &
+strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
 } |
 fn.#StringExpression
 
 #CustomImageContainerEnvironmentVariable: close({
-	Key!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	Key!: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^.+" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	Value!: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^.+" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

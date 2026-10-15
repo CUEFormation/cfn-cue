@@ -36,7 +36,7 @@ import "strings"
 // A label for tagging Environment resource
 #Tag: close({
 	// A string used to identify this tag
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// A string containing the value for the tag
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)

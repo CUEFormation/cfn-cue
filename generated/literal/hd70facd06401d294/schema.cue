@@ -304,7 +304,11 @@ import (
 #ModelPackageDescription: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*"
 
 // The name of the model package group.
-#ModelPackageGroupName: strings.MaxRunes(170) & strings.MinRunes(1)
+#ModelPackageGroupName: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+matchN(0, [=~"(?:-)$"]) &
+string &
+strings.MaxRunes(170) &
+strings.MinRunes(1)
 
 // The name or arn of the model package.
 #ModelPackageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
@@ -389,7 +393,11 @@ import (
 	// The name of an algorithm that was used to create the model package. The
 	// algorithm must be either an algorithm resource in your Amazon SageMaker
 	// account or an algorithm in AWS Marketplace that you are subscribed to.
-	AlgorithmName!: strings.MaxRunes(170) & strings.MinRunes(1)
+	AlgorithmName!: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+	matchN(0, [=~"(?:-)$"]) &
+	string &
+	strings.MaxRunes(170) &
+	strings.MinRunes(1)
 
 	// The Amazon S3 path where the model artifacts, which result from model
 	// training, are stored. This path must point to a single gzip compressed tar

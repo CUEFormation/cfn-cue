@@ -23,7 +23,7 @@ import (
 	RecommenderSchemaName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	Status?:                "ACTIVE" | "DELETING"
 	Tags?: list.MaxItems(50) & [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
+		Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 		Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 	})]
 })

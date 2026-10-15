@@ -25,9 +25,19 @@ import (
 	Id?:                 strings.MaxRunes(21) & strings.MinRunes(21) & =~"^svc-[0-9a-z]{17}$"
 	IdleTimeoutSeconds?: int & <=600 & >=60
 	LastUpdatedAt?:      string
-	Name?:               strings.MaxRunes(40) & strings.MinRunes(3)
-	Status?:             "ACTIVE" | "CREATE_IN_PROGRESS" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
-	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
+	Name?: =~"^[a-z0-9-]+$" &
+	matchN(0, [=~"^(?:svc-)"]) &
+	string &
+	matchN(0, [=~"^(?:[-])"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]$)"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]{2})"]) &
+	string &
+	strings.MaxRunes(40) &
+	strings.MinRunes(3)
+	Status?: "ACTIVE" | "CREATE_IN_PROGRESS" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
+	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 #DnsEntry: close({

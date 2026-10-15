@@ -25,7 +25,11 @@ import (
 	MembershipIdentifier!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-	Name!:                 strings.MaxRunes(63) & strings.MinRunes(1)
+	Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(1)
 	PrivacyConfiguration?: #PrivacyConfiguration
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms-ml configured

@@ -101,7 +101,7 @@ import (
 	HeaderParameters?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string}})
-	PathParameterValues?: list.UniqueItems() & [...string]
+	PathParameterValues?: list.UniqueItems() & [...=~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string]
 	QueryStringParameters?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string}})

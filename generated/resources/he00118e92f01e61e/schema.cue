@@ -38,10 +38,19 @@ import structs "struct"
 		} |
 		fn.#StringExpression
 		LambdaEndpoint?: #LambdaEndpointInput
-		Name!: strings.MaxRunes(63) & strings.MinRunes(3) |
+		Name!: =~"^[a-zA-Z0-9]+[a-zA-Z0-9-_ ]+$" &
+		matchN(0, [=~"^(?:svc-)"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"^[a-zA-Z0-9]+[a-zA-Z0-9-_ ]+$" &
+			matchN(0, [=~"^(?:svc-)"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?:        [...#Tag] | fn.#ListExpression
@@ -82,10 +91,15 @@ fn.#ObjectExpression
 #ServiceEndpointType: "LAMBDA" | "URL" | fn.#StringExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	Key!: =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^.+" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |

@@ -113,10 +113,19 @@ fn.#StringExpression
 
 #PrimaryAttributeValue: close({
 	AccessType?: "ALLOW" | fn.#StringExpression
-	AttributeName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	AttributeName?: =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" &
+	matchN(0, [=~"^(?:aws:|connect:)"]) &
+	string &
+	strings.MaxRunes(127) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" &
+		matchN(0, [=~"^(?:aws:|connect:)"]) &
+		string &
+		strings.MaxRunes(127) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Values?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(1000) &
@@ -142,10 +151,15 @@ fn.#ObjectExpression
 fn.#StringExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |

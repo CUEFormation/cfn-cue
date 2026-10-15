@@ -21,14 +21,24 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
 		} |
 		fn.#StringExpression
-		EndpointName!: string | number | bool | fn.#StringExpression
+		EndpointName!: =~"^.{1,30}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,30}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)" & "\(self)"
+		} |
+		fn.#StringExpression
 		ResourceOwner?: strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" |
 		{
 			number | bool
 			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" & "\(self)"
 		} |
 		fn.#StringExpression
-		SubnetGroupName!: string | number | bool | fn.#StringExpression
+		SubnetGroupName!: =~"^.{1,255}$" & =~"^(?:^[a-zA-Z0-9-]+$)" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,255}$" & =~"^(?:^[a-zA-Z0-9-]+$)" & "\(self)"
+		} |
+		fn.#StringExpression
 		VpcSecurityGroupIds!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
 		{
 			number | bool

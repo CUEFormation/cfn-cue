@@ -18,16 +18,34 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BCM::Dashboard"
 	let properties = close({
-		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		Description?: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+			matchN(0, [=~"^(?:.* {2})"]) &
+			string &
+			strings.MaxRunes(200) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(50) & strings.MinRunes(2) |
+		Name!: =~"^[a-zA-Z][a-zA-Z0-9 _-]{0,48}[a-zA-Z0-9_-]$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(50) &
+		strings.MinRunes(2) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(50) & strings.MinRunes(2) & "\(self)"
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9 _-]{0,48}[a-zA-Z0-9_-]$" &
+			matchN(0, [=~"^(?:.* {2})"]) &
+			string &
+			strings.MaxRunes(50) &
+			strings.MinRunes(2) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?:    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
@@ -248,10 +266,19 @@ fn.#ObjectExpression
 
 #Widget: close({
 	Configs!: list.MaxItems(2) & list.MinItems(1) & [...#WidgetConfig] | fn.#ListExpression
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+	Description?: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(200) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Height?: int & <=10 & >=4 |
@@ -284,10 +311,19 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Title!: strings.MaxRunes(50) & strings.MinRunes(2) |
+	Title!: =~"^[a-zA-Z0-9_-][ a-zA-Z0-9_-]*[a-zA-Z0-9_-]$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(50) &
+	strings.MinRunes(2) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(50) & strings.MinRunes(2) & "\(self)"
+		_cfnString: =~"^[a-zA-Z0-9_-][ a-zA-Z0-9_-]*[a-zA-Z0-9_-]$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(50) &
+		strings.MinRunes(2) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Width?: int & <=6 & >=2 |

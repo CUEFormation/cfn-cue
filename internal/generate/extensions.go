@@ -151,6 +151,8 @@ func (c *converter) applyExtensions(root map[string]any) error {
 		if pattern := unsupportedPattern(schema); pattern != "" {
 			// A dropped pattern would widen a condition and apply the rule
 			// to values cfn-lint exempts, so the whole rule is skipped.
+			// Provider lookaround translation (lookaround.go) is not used
+			// here; no vendored rule needs it.
 			c.warn("#", "cfnLintExtension", ext.Rule+" not applied: pattern is incompatible with RE2: "+pattern)
 			continue
 		}

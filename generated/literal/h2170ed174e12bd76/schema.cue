@@ -232,7 +232,11 @@ import (
 	FieldMapping!:   #OpenSearchManagedClusterFieldMapping
 
 	// The name of the vector store.
-	VectorIndexName!: strings.MaxRunes(2048) & strings.MinRunes(1)
+	VectorIndexName!: =~"^[a-z0-9][a-z0-9\\-_\\.]*$" &
+	matchN(0, [=~"^(?:[\\-_+.])"]) &
+	string &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1)
 })
 
 // A mapping of Bedrock Knowledge Base fields to OpenSearch Managed Cluster field names

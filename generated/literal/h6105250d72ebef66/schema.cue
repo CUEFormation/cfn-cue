@@ -88,4 +88,9 @@ import (
 #StorageConfiguration: matchN(1, [close({Efs!: #EfsStorageConfiguration}), close({Fsx!: #FsxStorageConfiguration})])
 
 // Defines tags associated to an environment.
-#TagMap: struct.MaxFields(200) & struct.MinFields(0) & {...}
+#TagMap: struct.MaxFields(200) & struct.MinFields(0) & close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0)}
+})

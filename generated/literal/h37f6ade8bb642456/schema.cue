@@ -107,8 +107,13 @@ import (
 
 	// The relative path under the service-owned mount root where this mount is
 	// attached inside the container.
-	RelativePath!: strings.MaxRunes(1024) & strings.MinRunes(1)
-	Source!:       #MountSource
+	RelativePath!: (=~"^[a-zA-Z0-9._-][a-zA-Z0-9._/-]*[a-zA-Z0-9._-]$" &
+	matchN(0, [=~"^(?:.*(^|/)\\.\\.?(/|$))"]) &
+	string &
+	matchN(0, [=~"^(?:.*//)"]) &
+	string |
+	=~"^[a-zA-Z0-9_-]$") & (strings.MaxRunes(1024) & strings.MinRunes(1))
+	Source!: #MountSource
 
 	// The type of storage used for the mount inside the container.
 	StorageType!: "SHARED_STORAGE"

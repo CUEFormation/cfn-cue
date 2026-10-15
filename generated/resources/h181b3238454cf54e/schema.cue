@@ -31,16 +31,34 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		Description?: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+			matchN(0, [=~"^(?:.* {2})"]) &
+			string &
+			strings.MaxRunes(200) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(50) & strings.MinRunes(2) |
+		Name!: =~"^[a-zA-Z][a-zA-Z0-9 _-]{0,48}[a-zA-Z0-9_-]$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(50) &
+		strings.MinRunes(2) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(50) & strings.MinRunes(2) & "\(self)"
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9 _-]{0,48}[a-zA-Z0-9_-]$" &
+			matchN(0, [=~"^(?:.* {2})"]) &
+			string &
+			strings.MaxRunes(50) &
+			strings.MinRunes(2) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 

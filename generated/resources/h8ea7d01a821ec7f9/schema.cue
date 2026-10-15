@@ -21,10 +21,31 @@ import structs "struct"
 	Type!: "AWS::VpcLattice::TargetGroup"
 	let properties = close({
 		Config?: #TargetGroupConfig
-		Name?: strings.MaxRunes(128) & strings.MinRunes(3) |
+		Name?: =~"^[a-z0-9-]+$" &
+		matchN(0, [=~"^(?:tg-)"]) &
+		string &
+		matchN(0, [=~"^(?:[-])"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]$)"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"^[a-z0-9-]+$" &
+			matchN(0, [=~"^(?:tg-)"]) &
+			string &
+			matchN(0, [=~"^(?:[-])"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]$)"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]{2})"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(3) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?:    list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression

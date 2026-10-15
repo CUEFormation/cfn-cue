@@ -21,7 +21,11 @@ import (
 	Id?: string
 
 	// The name of the profile.
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1)
+	Name!: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+	matchN(0, [=~"^(?:^[0-9]+$)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1)
 
 	// The sharing status of the profile.
 	ShareStatus?: "NOT_SHARED" | "SHARED_WITH_ME" | "SHARED_BY_ME"

@@ -22,9 +22,13 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(4) &
 	=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$"
-	MembershipArn?:                   strings.MaxRunes(100)
-	MembershipIdentifier!:            #UUID
-	Name!:                            strings.MaxRunes(100) & strings.MinRunes(1)
+	MembershipArn?:        strings.MaxRunes(100)
+	MembershipIdentifier!: #UUID
+	Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1)
 	PopulationAnalysisConfiguration!: #PopulationAnalysisConfiguration
 	Status?:                          #IntermediateTableStatus
 	Tags?:                            list.UniqueItems() & [...#Tag]

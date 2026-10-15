@@ -37,7 +37,12 @@ import structs "struct"
 			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
 		} |
 		fn.#StringExpression
-		Password?:                    string | number | bool | fn.#StringExpression
+		Password?: =~"^[a-zA-Z\\d\\S]{8,64}$" & =~"^(?:.*[a-z])" & =~"^(?:.*[A-Z])" & =~"^(?:.*\\d)" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z\\d\\S]{8,64}$" & =~"^(?:.*[a-z])" & =~"^(?:.*[A-Z])" & =~"^(?:.*\\d)" & "\(self)"
+		} |
+		fn.#StringExpression
 		PersistentConnectionConfigs?: [...#PersistentConnectionConfig] | fn.#ListExpression
 
 		// The phone settings for the user.
@@ -187,7 +192,12 @@ fn.#ObjectExpression
 
 #PhoneType: "SOFT_PHONE" | "DESK_PHONE" | fn.#StringExpression
 
-#SecondaryEmail: string | number | bool | fn.#StringExpression
+#SecondaryEmail: =~"^(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63})" & =~"^(?:^.{0,265}$)" |
+{
+	number | bool
+	_cfnString: =~"^(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63})" & =~"^(?:^.{0,265}$)" & "\(self)"
+} |
+fn.#StringExpression
 
 #SecurityProfileArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/security-profile/[-a-zA-Z0-9]*$" |
 {
@@ -198,10 +208,15 @@ fn.#ObjectExpression
 fn.#StringExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Value!: strings.MaxRunes(256) |

@@ -18,10 +18,10 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RedshiftServerless::Snapshot"
 	let properties = close({
-		NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) |
+		NamespaceName?: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
 		} |
 		fn.#StringExpression
 		RetentionPeriod?: int |
@@ -40,10 +40,10 @@ import structs "struct"
 					)
 			} |
 			fn.#NumberExpression
-		SnapshotName!: strings.MaxRunes(64) & strings.MinRunes(3) |
+		SnapshotName!: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
 		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression

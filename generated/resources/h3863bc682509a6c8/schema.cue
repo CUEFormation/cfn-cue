@@ -18,10 +18,31 @@ import structs "struct"
 	Type!: "AWS::VpcLattice::ServiceNetwork"
 	let properties = close({
 		AuthType?: "NONE" | "AWS_IAM" | fn.#StringExpression
-		Name?: strings.MaxRunes(63) & strings.MinRunes(3) |
+		Name?: =~"^[a-z0-9-]+$" &
+		matchN(0, [=~"^(?:servicenetwork-)"]) &
+		string &
+		matchN(0, [=~"^(?:[-])"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]$)"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]{2})"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"^[a-z0-9-]+$" &
+			matchN(0, [=~"^(?:servicenetwork-)"]) &
+			string &
+			matchN(0, [=~"^(?:[-])"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]$)"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]{2})"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		SharingConfig?: #SharingConfig

@@ -71,5 +71,5 @@ import (
 	Content!: string
 
 	// The form name included in the subscription target configuration.
-	FormName!: strings.MaxRunes(128) & strings.MinRunes(1)
+	FormName!: (=~"^_\\w*[a-zA-Z0-9]\\w*$" | =~"^\\w+$" & matchN(0, [=~"^(?:[0-9_])"]) & string) & (strings.MaxRunes(128) & strings.MinRunes(1))
 })

@@ -51,7 +51,12 @@ import (
 })
 
 // Scope tags map for the network migration definition.
-#ScopeTagsMap: struct.MaxFields(40) & {...}
+#ScopeTagsMap: struct.MaxFields(40) & close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z0-9\\s+\\-=._:/@]{1,128}$"]: strings.MaxRunes(256) & =~"^[a-zA-Z0-9\\s+\\-=._:/@]*$"}
+})
 
 // Configuration for a migration source environment.
 #SourceConfiguration: close({

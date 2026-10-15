@@ -88,7 +88,10 @@ import "strings"
 #AssetModelHierarchy: close({
 	// The ID of the asset model. All assets in this hierarchy must be instances of
 	// the child AssetModelId asset model.
-	ChildAssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13)
+	ChildAssetModelId!: (=~"^externalId:[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+$" |
+	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+	string) & (strings.MaxRunes(139) & strings.MinRunes(13))
 
 	// Customer provided external ID for hierarchy
 	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+"

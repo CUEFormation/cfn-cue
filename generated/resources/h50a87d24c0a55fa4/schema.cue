@@ -155,16 +155,34 @@ import structs "struct"
 fn.#ObjectExpression
 
 #GoogleOidcConfig: close({
-	IdentityPoolName!: strings.MaxRunes(32) & strings.MinRunes(4) |
+	IdentityPoolName!: =~"^[a-z][a-z0-9-]{2,30}[a-z0-9]$" &
+	matchN(0, [=~"^(?:gcp-)"]) &
+	string &
+	strings.MaxRunes(32) &
+	strings.MinRunes(4) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(32) & strings.MinRunes(4) & "\(self)"
+		_cfnString: =~"^[a-z][a-z0-9-]{2,30}[a-z0-9]$" &
+		matchN(0, [=~"^(?:gcp-)"]) &
+		string &
+		strings.MaxRunes(32) &
+		strings.MinRunes(4) &
+		"\(self)"
 	} |
 	fn.#StringExpression
-	IdentityProviderName!: strings.MaxRunes(32) & strings.MinRunes(4) |
+	IdentityProviderName!: =~"^[a-z][a-z0-9-]{2,30}[a-z0-9]$" &
+	matchN(0, [=~"^(?:gcp-)"]) &
+	string &
+	strings.MaxRunes(32) &
+	strings.MinRunes(4) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(32) & strings.MinRunes(4) & "\(self)"
+		_cfnString: =~"^[a-z][a-z0-9-]{2,30}[a-z0-9]$" &
+		matchN(0, [=~"^(?:gcp-)"]) &
+		string &
+		strings.MaxRunes(32) &
+		strings.MinRunes(4) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	ProjectName!: strings.MaxRunes(30) & strings.MinRunes(6) & =~"^[a-z][a-z0-9-]{4,28}[a-z0-9]$" |

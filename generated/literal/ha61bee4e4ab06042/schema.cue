@@ -152,7 +152,12 @@ import (
 	Script!:             #Script
 })
 
-#TagMap: struct.MaxFields(200) & struct.MinFields(0) & {...}
+#TagMap: struct.MaxFields(200) & struct.MinFields(0) & close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0)}
+})
 
 #TargetDatabase: "PostgreSQL"
 

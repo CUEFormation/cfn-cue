@@ -257,12 +257,18 @@ fn.#ObjectExpression
 #S3Location: close({
 	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
 	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"^[0-9a-z\\.\\-]*$" &
+	matchN(0, [=~"(?:\\.)$"]) &
+	string &
 	strings.MaxRunes(63) &
 	strings.MinRunes(3) |
 	{
 		number | bool
 		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
 		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[0-9a-z\\.\\-]*$" &
+		matchN(0, [=~"(?:\\.)$"]) &
+		string &
 		strings.MaxRunes(63) &
 		strings.MinRunes(3) &
 		"\(self)"
@@ -278,10 +284,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	Key!: =~"^[\\S\\s]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[\\S\\s]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Value?: strings.MaxRunes(256) & =~"^[\\S\\s]*$" |

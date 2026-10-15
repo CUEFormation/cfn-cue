@@ -26,7 +26,7 @@ import (
 	// The name that you want to assign to this namespace. When you create a private
 	// DNS namespace, AWS Cloud Map automatically creates an Amazon Route 53
 	// private hosted zone that has the same name as the namespace.
-	Name!: strings.MaxRunes(1024) & strings.MinRunes(1)
+	Name!: =~"^[!-~]{1,253}$" & matchN(0, [=~"^(?:arn:)"]) & string & strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// Properties of the private DNS namespace.
 	Properties?: _#defs."/$defs/Properties/definitions/Properties"

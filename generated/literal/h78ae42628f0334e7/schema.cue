@@ -10,7 +10,7 @@ package schema
 	CollectionEndpoint!: string
 
 	// The name of the OpenSearch Serverless index.
-	IndexName!: string
+	IndexName!: =~"^[a-z][a-z0-9_-]*$" & matchN(0, [=~"^(?:[_-])"]) & string
 
 	// Index Mappings
 	Mappings?: close({

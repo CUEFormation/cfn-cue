@@ -25,10 +25,19 @@ import structs "struct"
 		} |
 		fn.#StringExpression
 		IdentityManagementType!: "SAML" | "CONNECT_MANAGED" | "EXISTING_DIRECTORY" | fn.#StringExpression
-		InstanceAlias?: strings.MaxRunes(45) & strings.MinRunes(1) |
+		InstanceAlias?: =~"^([\\da-zA-Z]+)([-]*[\\da-zA-Z])*$" &
+		matchN(0, [=~"^(?:d-)"]) &
+		string &
+		strings.MaxRunes(45) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(45) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^([\\da-zA-Z]+)([-]*[\\da-zA-Z])*$" &
+			matchN(0, [=~"^(?:d-)"]) &
+			string &
+			strings.MaxRunes(45) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression

@@ -18,10 +18,15 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::OpsItem"
 	let properties = close({
-		Category?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		Category?: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Description!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\s\\S]*\\S[\\s\\S]*$" |
@@ -48,23 +53,38 @@ import structs "struct"
 					)
 			} |
 			fn.#NumberExpression
-		Severity?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		Severity?: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
-		Source!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		Source!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(1000) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		Title!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		Title!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1024) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 	})

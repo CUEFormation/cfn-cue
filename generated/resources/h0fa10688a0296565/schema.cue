@@ -36,10 +36,15 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) |
+#ResourceName: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	_cfnString: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+	=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 

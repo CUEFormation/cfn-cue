@@ -11,17 +11,21 @@ import (
 
 // Definition of AWS::QuickSight::Flow Resource Type
 #Properties: close({
-	Arn?:             string
-	AwsAccountId!:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
-	CreatedTime?:     time.Time
-	Description?:     strings.MaxRunes(1024) & strings.MinRunes(0)
+	Arn?:          string
+	AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
+	CreatedTime?:  time.Time
+	Description?: =~"^[^{}\"\\\\<>]*$" &
+	matchN(0, [=~"^(?:\\s+$)"]) &
+	string &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(0)
 	FlowDefinition!:  _
 	FlowId?:          =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 	LastUpdatedTime?: time.Time
-	Name!:            strings.MaxRunes(128) & strings.MinRunes(1)
-	Permissions?:     [...#Permission]
-	PublishState?:    #FlowPublishState
-	StepAliases?:     [...#StepAliasMapping]
+	Name!: =~"^[^{}\"\\\\<>]*$" & matchN(0, [=~"^(?:\\s+$)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
+	Permissions?:  [...#Permission]
+	PublishState?: #FlowPublishState
+	StepAliases?:  [...#StepAliasMapping]
 })
 
 #FlowPublishState: "PUBLISHED" | "DRAFT" | "PENDING_APPROVAL"

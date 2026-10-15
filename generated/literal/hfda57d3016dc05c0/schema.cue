@@ -264,7 +264,11 @@ import (
 #DocumentDBEventSourceConfig: close({
 	// The name of the collection to consume within the database. If you do not
 	// specify a collection, Lambda consumes all collections.
-	CollectionName?: strings.MaxRunes(57) & strings.MinRunes(1)
+	CollectionName?: =~"^^(^[_a-zA-Z0-9])([^$]*)$" &
+	matchN(0, [=~"^(?:(system\\x2e))"]) &
+	string &
+	strings.MaxRunes(57) &
+	strings.MinRunes(1)
 
 	// The name of the database to consume within the DocumentDB cluster.
 	DatabaseName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[^ /\\.$\\x22]*$"

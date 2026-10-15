@@ -31,7 +31,17 @@ import (
 	ServiceNetworkIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((sn-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}))$"
-	ServiceNetworkName?: strings.MaxRunes(63) & strings.MinRunes(3)
+	ServiceNetworkName?: =~"^[a-z0-9-]+$" &
+	matchN(0, [=~"^(?:servicenetwork-)"]) &
+	string &
+	matchN(0, [=~"^(?:[-])"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]$)"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]{2})"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
 	Status?: "CREATE_IN_PROGRESS" |
 		"ACTIVE" |
 		"UPDATE_IN_PROGRESS" |

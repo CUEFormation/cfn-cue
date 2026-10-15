@@ -331,10 +331,19 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #DocumentDBEventSourceConfig: close({
-	CollectionName?: strings.MaxRunes(57) & strings.MinRunes(1) |
+	CollectionName?: =~"^^(^[_a-zA-Z0-9])([^$]*)$" &
+	matchN(0, [=~"^(?:(system\\x2e))"]) &
+	string &
+	strings.MaxRunes(57) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(57) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^^(^[_a-zA-Z0-9])([^$]*)$" &
+		matchN(0, [=~"^(?:(system\\x2e))"]) &
+		string &
+		strings.MaxRunes(57) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	DatabaseName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[^ /\\.$\\x22]*$" |

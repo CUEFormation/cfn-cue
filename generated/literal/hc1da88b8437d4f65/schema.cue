@@ -25,7 +25,12 @@ import (
 })
 
 // The name of the S3 bucket where RDP connection recordings are stored.
-#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
+#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+=~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+=~"^(?:^.{3,63}$)" &
+matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+string
 
 // The AWS account number that owns the S3 bucket.
 #BucketOwner: =~"^[0-9]{12}$"

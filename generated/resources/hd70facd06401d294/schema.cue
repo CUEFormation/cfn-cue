@@ -374,10 +374,19 @@ fn.#ObjectExpression
 } |
 fn.#StringExpression
 
-#ModelPackageGroupName: strings.MaxRunes(170) & strings.MinRunes(1) |
+#ModelPackageGroupName: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+matchN(0, [=~"(?:-)$"]) &
+string &
+strings.MaxRunes(170) &
+strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(170) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+	matchN(0, [=~"(?:-)$"]) &
+	string &
+	strings.MaxRunes(170) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 
@@ -487,10 +496,19 @@ fn.#ObjectExpression
 #SkipModelValidation: "None" | "All" | fn.#StringExpression
 
 #SourceAlgorithm: close({
-	AlgorithmName!: strings.MaxRunes(170) & strings.MinRunes(1) |
+	AlgorithmName!: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+	matchN(0, [=~"(?:-)$"]) &
+	string &
+	strings.MaxRunes(170) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(170) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+		matchN(0, [=~"(?:-)$"]) &
+		string &
+		strings.MaxRunes(170) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	ModelDataUrl?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |

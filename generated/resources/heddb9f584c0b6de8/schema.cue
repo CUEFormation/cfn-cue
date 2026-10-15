@@ -64,10 +64,15 @@ import structs "struct"
 }
 
 #Alarm: close({
-	AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	AlarmName!: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^.+" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |
@@ -285,10 +290,17 @@ fn.#StringExpression
 				)
 		} |
 		fn.#NumberExpression
-	MetricsEndpointPath!: strings.MaxRunes(256) |
+	MetricsEndpointPath!: =~"^/[a-zA-Z0-9/_.\\-]+$" &
+	matchN(0, [=~"^(?s:.){1}(?:.*\\.\\.)"]) &
+	string &
+	strings.MaxRunes(256) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(256) & "\(self)"
+		_cfnString: =~"^/[a-zA-Z0-9/_.\\-]+$" &
+		matchN(0, [=~"^(?s:.){1}(?:.*\\.\\.)"]) &
+		string &
+		strings.MaxRunes(256) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

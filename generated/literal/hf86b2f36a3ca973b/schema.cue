@@ -45,7 +45,11 @@ import (
 	RepositoryId?: string
 
 	// The name of the new repository to be created.
-	RepositoryName!: strings.MaxRunes(100) & strings.MinRunes(1)
+	RepositoryName!: =~"^[a-zA-Z0-9._\\-]+$" &
+	matchN(0, [=~"(?:\\.git)$"]) &
+	string &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1)
 
 	// One or more tag key-value pairs to use when tagging this repository.
 	Tags?: list.UniqueItems() & [...#Tag]

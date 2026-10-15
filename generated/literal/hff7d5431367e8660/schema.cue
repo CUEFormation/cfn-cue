@@ -239,8 +239,10 @@ import (
 #OnPartialBatchItemFailureStreams: "AUTOMATIC_BISECT"
 
 #PipeEnrichmentHttpParameters: close({
-	HeaderParameters?:      #HeaderParametersMap
-	PathParameterValues?:   [...string]
+	HeaderParameters?: #HeaderParametersMap
+	PathParameterValues?: [
+		...=~"(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$" | =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string
+	]
 	QueryStringParameters?: #QueryStringParametersMap
 })
 
@@ -404,8 +406,10 @@ import (
 })
 
 #PipeTargetHttpParameters: close({
-	HeaderParameters?:      #HeaderParametersMap
-	PathParameterValues?:   [...string]
+	HeaderParameters?: #HeaderParametersMap
+	PathParameterValues?: [
+		...=~"(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$" | =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string
+	]
 	QueryStringParameters?: #QueryStringParametersMap
 })
 

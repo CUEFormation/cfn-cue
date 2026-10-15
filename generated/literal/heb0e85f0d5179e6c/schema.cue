@@ -27,13 +27,17 @@ import (
 	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$"
 
 	// The ID of this Amazon DataZone metadata form type.
-	FormTypeIdentifier?: strings.MaxRunes(385) & strings.MinRunes(1)
+	FormTypeIdentifier?: =~"^[\\w\\.]*\\w$" &
+	matchN(0, [=~"^(?:\\.)"]) &
+	string &
+	strings.MaxRunes(385) &
+	strings.MinRunes(1)
 
 	// The model of this Amazon DataZone metadata form type.
 	Model!: #Model
 
 	// The name of this Amazon DataZone metadata form type.
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Name!: (=~"^_\\w*[a-zA-Z0-9]\\w*$" | =~"^\\w+$" & matchN(0, [=~"^(?:[0-9_])"]) & string) & (strings.MaxRunes(128) & strings.MinRunes(1))
 
 	// The ID of the project that owns this Amazon DataZone metadata form type.
 	OwningProjectId?: =~"^[a-zA-Z0-9_-]{1,36}$"

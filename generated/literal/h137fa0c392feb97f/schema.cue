@@ -403,6 +403,9 @@ import (
 	// be in a different AWS-account.
 	S3Bucket?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
 	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"^[0-9A-Za-z\\.\\-_]*$" &
+	matchN(0, [=~"(?:\\.)$"]) &
+	string &
 	strings.MaxRunes(63) &
 	strings.MinRunes(3)
 

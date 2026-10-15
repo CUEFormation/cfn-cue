@@ -5,6 +5,7 @@ package schema
 import (
 	"list"
 	"struct"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -30,4 +31,9 @@ import (
 #Region: =~"^[a-zA-Z0-9-]{1,32}$"
 
 // A key-value pair to associate with the Security Hub V2 resource.
-#Tags: struct.MaxFields(50) & {...}
+#Tags: struct.MaxFields(50) & close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(0)}
+})

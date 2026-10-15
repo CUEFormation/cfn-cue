@@ -32,7 +32,11 @@ import (
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 
 	// The instance name.
-	InstanceName?: strings.MaxRunes(63) & strings.MinRunes(0)
+	InstanceName?: =~"^[a-zA-Z0-9 _ʼ'%-]{0,62}[a-zA-Z0-9]$" &
+	matchN(0, [=~"^(?:[ _ʼ'%-])"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(0)
 
 	// The instance last modified timestamp.
 	LastModifiedTime?: time.Time
@@ -47,7 +51,7 @@ import (
 	VersionNumber?: number
 
 	// The WebApp DNS domain name of the instance.
-	WebAppDnsDomain?: string
+	WebAppDnsDomain?: =~"^[a-zA-Z0-9-]{1,62}[a-zA-Z0-9]$" & matchN(0, [=~"^(?:[-])"]) & string
 })
 
 // A key-value pair to associate with a resource.

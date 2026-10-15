@@ -19,10 +19,21 @@ import structs "struct"
 	Type!: "AWS::RedshiftServerless::Namespace"
 	let properties = close({
 		AdminPasswordSecretKmsKeyId?: string | number | bool | fn.#StringExpression
-		AdminUserPassword?: strings.MaxRunes(64) & strings.MinRunes(8) |
+		AdminUserPassword?: =~"^[^\\x00-\\x20\\x22\\x27\\x2f\\x40\\x5c\\x7f-\\x{ffff}]+" &
+		=~"^(?:.*[a-z])" &
+		=~"^(?:.*[A-Z])" &
+		=~"^(?:.*\\d)" &
+		strings.MaxRunes(64) &
+		strings.MinRunes(8) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(8) & "\(self)"
+			_cfnString: =~"^[^\\x00-\\x20\\x22\\x27\\x2f\\x40\\x5c\\x7f-\\x{ffff}]+" &
+			=~"^(?:.*[a-z])" &
+			=~"^(?:.*[A-Z])" &
+			=~"^(?:.*\\d)" &
+			strings.MaxRunes(64) &
+			strings.MinRunes(8) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		AdminUsername?: =~"[a-zA-Z][a-zA-Z_0-9+.@-]*" |

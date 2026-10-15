@@ -46,10 +46,19 @@ import structs "struct"
 		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
 	} |
 	fn.#StringExpression
-	LogDestination?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	LogDestination?: =~"^[a-zA-Z0-9_\\-/.#]+$" &
+	matchN(0, [=~"^(?:aws/)"]) &
+	string &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[a-zA-Z0-9_\\-/.#]+$" &
+		matchN(0, [=~"^(?:aws/)"]) &
+		string &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	LogLevel?: "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression

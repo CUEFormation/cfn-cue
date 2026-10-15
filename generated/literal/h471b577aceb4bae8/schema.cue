@@ -74,7 +74,7 @@ import (
 // A label for tagging Application resources
 #Tag: close({
 	// A key to identify the tag.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// Corresponding tag value for the key.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)

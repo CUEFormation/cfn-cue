@@ -37,6 +37,9 @@ import (
 	RootPrefix!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]+$"
 	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
 	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+	matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+	string &
 	strings.MaxRunes(63) &
 	strings.MinRunes(3)
 })

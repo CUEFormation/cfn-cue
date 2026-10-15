@@ -33,7 +33,7 @@ import (
 	FederatedCatalog?: #FederatedCatalog
 
 	// The name of the catalog to create.
-	Name!: strings.MaxRunes(255) & strings.MinRunes(1)
+	Name!: =~"^.*$" & matchN(0, [=~"^(?:(.*[.\\/\\\\]|aws:))"]) & string & strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Specifies whether to overwrite child resource permissions with the default permissions.
 	OverwriteChildResourcePermissionsWithDefault?: "Accept" | "Deny"

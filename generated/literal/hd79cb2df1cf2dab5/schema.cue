@@ -31,8 +31,20 @@ import (
 // A key-value pair to associate with a resource.
 #Tag: close({
 	// The key for the tag. May not be null.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,128}$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	matchN(0, [=~"^(?:memorydb:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1)
 
 	// The tag's value. May be null.
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
+	Value!: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,256}$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	matchN(0, [=~"^(?:memorydb:)"]) &
+	string &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1)
 })

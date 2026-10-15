@@ -28,10 +28,19 @@ import structs "struct"
 		IdMappingConfig?:      #IdMappingConfig
 		InputReferenceConfig!: #IdNamespaceAssociationInputReferenceConfig
 		MembershipIdentifier!: #UUID
-		Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression

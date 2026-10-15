@@ -21,17 +21,31 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
 		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		Description?: =~"^[^{}\"\\\\<>]*$" &
+		matchN(0, [=~"^(?:\\s+$)"]) &
+		string &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(0) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+			_cfnString: =~"^[^{}\"\\\\<>]*$" &
+			matchN(0, [=~"^(?:\\s+$)"]) &
+			string &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(0) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		FlowDefinition!: fn.#Value
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		Name!: =~"^[^{}\"\\\\<>]*$" & matchN(0, [=~"^(?:\\s+$)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[^{}\"\\\\<>]*$" &
+			matchN(0, [=~"^(?:\\s+$)"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Permissions?: [...#Permission] | fn.#ListExpression

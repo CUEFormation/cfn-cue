@@ -2,7 +2,10 @@
 
 package schema
 
-import "struct"
+import (
+	"struct"
+	"strings"
+)
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -36,4 +39,9 @@ import "struct"
 // specify a key that is 1 to 128 Unicode characters in length and cannot be
 // prefixed with aws:. You can use any of the following characters: the set of
 // Unicode letters, digits, whitespace, _, ., /, =, +, and -.
-#Tags: struct.MaxFields(50) & {...}
+#Tags: struct.MaxFields(50) & close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z+-=._:/]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0)}
+})

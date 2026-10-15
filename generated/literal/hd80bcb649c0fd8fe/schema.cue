@@ -135,7 +135,11 @@ import (
 // to train a custom entity recognizer.
 #EntityTypesListItem: close({
 	// An entity type within a labeled training dataset.
-	Type!: strings.MaxRunes(64) & strings.MinRunes(0)
+	Type!: =~"^[^\\n\\r\\t,]+$" &
+	matchN(0, [=~"^(?:[^\\n\\r\\t,]*\\\\n|\\\\r|\\\\t)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(0)
 })
 
 // A key-value pair that adds metadata to a resource.

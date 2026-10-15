@@ -36,10 +36,15 @@ import structs "struct"
 }
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	Key!: =~"^.+$" & matchN(0, [=~"^(?:[aA][wW][sS]:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^.+$" &
+		matchN(0, [=~"^(?:[aA][wW][sS]:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |

@@ -20,10 +20,12 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EventsV2::EventBus"
 	let properties = close({
-		Description?: strings.MaxRunes(512) |
+		Description?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" & strings.MaxRunes(512) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(512) & "\(self)"
+			_cfnString: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" &
+			strings.MaxRunes(512) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 
@@ -81,16 +83,16 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	Key!: =~"^\\S([\\s\\S]*\\S)?$" & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^\\S([\\s\\S]*\\S)?$" & strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
 	} |
 	fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	Value!: =~"^(\\S([\\s\\S]*\\S)?)?$" & (strings.MaxRunes(256) & strings.MinRunes(0)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		_cfnString: =~"^(\\S([\\s\\S]*\\S)?)?$" & strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
 	} |
 	fn.#StringExpression
 }) |

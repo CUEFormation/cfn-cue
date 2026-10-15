@@ -54,16 +54,42 @@ import structs "struct"
 }
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	Key!: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,128}$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	matchN(0, [=~"^(?:memorydb:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,128}$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		matchN(0, [=~"^(?:memorydb:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	Value!: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,256}$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	matchN(0, [=~"^(?:memorydb:)"]) &
+	string &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,256}$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		matchN(0, [=~"^(?:memorydb:)"]) &
+		string &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

@@ -45,4 +45,5 @@ import "strings"
 
 #ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1)
 
-#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1)
+#ResourceName: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") & (strings.MaxRunes(64) & strings.MinRunes(1))

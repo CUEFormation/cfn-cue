@@ -32,6 +32,10 @@ import (
 }) & matchN(>=1, [{AvailabilityZone!: _}, {AvailabilityZoneId!: _}])
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" &
+	matchN(0, [=~"^(?:[aA][wW][sS]:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$"
 })

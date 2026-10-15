@@ -76,10 +76,10 @@ import structs "struct"
 }
 
 #MandatoryKeyword: close({
-	Message!: strings.MaxRunes(1600) |
+	Message!: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(1600) & "\(self)"
+		_cfnString: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600) & "\(self)"
 	} |
 	fn.#StringExpression
 }) |
@@ -87,16 +87,16 @@ fn.#ObjectExpression
 
 #OptionalKeyword: close({
 	Action!: "AUTOMATIC_RESPONSE" | "OPT_OUT" | "OPT_IN" | fn.#StringExpression
-	Keyword!: strings.MaxRunes(30) |
+	Keyword!: =~"^[ \\S]+" & matchN(0, [=~"^(?:(?i)(stop|help)$)"]) & string & strings.MaxRunes(30) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(30) & "\(self)"
+		_cfnString: =~"^[ \\S]+" & matchN(0, [=~"^(?:(?i)(stop|help)$)"]) & string & strings.MaxRunes(30) & "\(self)"
 	} |
 	fn.#StringExpression
-	Message!: strings.MaxRunes(1600) |
+	Message!: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(1600) & "\(self)"
+		_cfnString: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600) & "\(self)"
 	} |
 	fn.#StringExpression
 }) |

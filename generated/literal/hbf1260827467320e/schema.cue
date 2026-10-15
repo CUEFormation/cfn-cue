@@ -157,7 +157,8 @@ import (
 	DetailType!: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The source of the event.
-	Source!: strings.MaxRunes(256) & strings.MinRunes(1)
+	Source!: (=~"(\\$(\\.[\\w_-]+(\\[(\\d+|\\*)\\])*)*)$" |
+	=~"^(?:[/\\.\\-_A-Za-z0-9]+)" & matchN(0, [=~"^(?:aws\\.)"]) & string) & (strings.MaxRunes(256) & strings.MinRunes(1))
 })
 
 // Flexible time window allows configuration of a window within which a schedule can be invoked

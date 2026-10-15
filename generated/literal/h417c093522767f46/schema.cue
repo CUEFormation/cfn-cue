@@ -21,7 +21,12 @@ import (
 	// printable ASCII character. Must contain at least one lowercase letter, one
 	// uppercase letter and one decimal digit. You can't use adminUserPassword if
 	// manageAdminPassword is true.
-	AdminUserPassword?: strings.MaxRunes(64) & strings.MinRunes(8)
+	AdminUserPassword?: =~"^[^\\x00-\\x20\\x22\\x27\\x2f\\x40\\x5c\\x7f-\\x{ffff}]+" &
+	=~"^(?:.*[a-z])" &
+	=~"^(?:.*[A-Z])" &
+	=~"^(?:.*\\d)" &
+	strings.MaxRunes(64) &
+	strings.MinRunes(8)
 
 	// The user name associated with the admin user for the namespace that is being
 	// created. Only alphanumeric characters and underscores are allowed. It should

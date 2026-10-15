@@ -56,7 +56,11 @@ import (
 	DiskRedundancy?: string
 
 	// The user-friendly name for the VM cluster.
-	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1)
+	DisplayName?: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+	matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+	string &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1)
 
 	// The domain of the VM cluster.
 	Domain?: string

@@ -67,10 +67,19 @@ import structs "struct"
 		DbServers?: list.MaxItems(1024) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
 			fn.#ListExpression
 		Description?: string | number | bool | fn.#StringExpression
-		DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		DisplayName?: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+		matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+			matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+			string &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		IamRoles?: list.UniqueItems() & [...close({

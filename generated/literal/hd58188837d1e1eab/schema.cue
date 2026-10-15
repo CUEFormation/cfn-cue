@@ -15,11 +15,21 @@ import (
 	Arn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$"
-	CustomDomainName?:              strings.MaxRunes(255) & strings.MinRunes(3)
-	DomainVerificationId?:          strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$"
-	GroupDomain?:                   strings.MaxRunes(255) & strings.MinRunes(3)
-	Id?:                            #Id
-	Name!:                          strings.MaxRunes(40) & strings.MinRunes(3)
+	CustomDomainName?:     strings.MaxRunes(255) & strings.MinRunes(3)
+	DomainVerificationId?: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$"
+	GroupDomain?:          strings.MaxRunes(255) & strings.MinRunes(3)
+	Id?:                   #Id
+	Name!: =~"^[a-z0-9-]+$" &
+	matchN(0, [=~"^(?:rcfg-)"]) &
+	string &
+	matchN(0, [=~"^(?:[-])"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]$)"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]{2})"]) &
+	string &
+	strings.MaxRunes(40) &
+	strings.MinRunes(3)
 	PortRanges?:                    [...#PortRange]
 	ProtocolType?:                  "TCP"
 	ResourceConfigurationAuthType?: "NONE" | "AWS_IAM"

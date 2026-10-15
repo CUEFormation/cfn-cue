@@ -124,7 +124,13 @@ import (
 	InputData?: strings.MaxRunes(4096) & strings.MinRunes(0)
 
 	// The page identifier.
-	Page!: strings.MaxRunes(25) & strings.MinRunes(1)
+	Page!: =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" &
+	matchN(0, [=~"^(?:\\.$)"]) &
+	string &
+	matchN(0, [=~"^(?:\\.\\.$)"]) &
+	string &
+	strings.MaxRunes(25) &
+	strings.MinRunes(1)
 
 	// The Amazon Resource Name (ARN) of the resource associated with the page.
 	ResourceArn!: strings.MaxRunes(2048)

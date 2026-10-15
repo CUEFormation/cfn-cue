@@ -46,7 +46,24 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ScopeTagsMap: struct.MaxFields(40) & {...} | fn.#ObjectExpression
+#ScopeTagsMap: struct.MaxFields(40) & close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z0-9\\s+\\-=._:/@]{1,128}$"]: strings.MaxRunes(256) & =~"^[a-zA-Z0-9\\s+\\-=._:/@]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & =~"^[a-zA-Z0-9\\s+\\-=._:/@]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression
 
 #SourceConfiguration: close({
 	SourceEnvironment!: "NSX" |

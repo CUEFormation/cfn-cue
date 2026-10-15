@@ -355,7 +355,7 @@ import (
 // mapping information when JSON is the record format on the streaming source.
 #JSONMappingParameters: close({
 	// The path to the top-level parent that contains the records.
-	RecordRowPath!: strings.MaxRunes(65535) & strings.MinRunes(1)
+	RecordRowPath!: =~"^.*$" & =~"^(?:^\\$)" & =~"^(?:^\\S+$)" & strings.MaxRunes(65535) & strings.MinRunes(1)
 })
 
 // For a SQL-based Kinesis Data Analytics application, identifies a Kinesis Data

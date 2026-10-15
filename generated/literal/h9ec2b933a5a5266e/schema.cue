@@ -19,7 +19,7 @@ import (
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// The alias name.
-	Name?:                 strings.MaxRunes(80) & strings.MinRunes(1)
+	Name?: =~"^[a-zA-Z0-9_\\-\\.]+$" & =~"^(?:.*[a-zA-Z_\\-\\.])" & strings.MaxRunes(80) & strings.MinRunes(1)
 	RoutingConfiguration?: #RoutingConfiguration
 	StateMachineArn?:      strings.MaxRunes(2048) & strings.MinRunes(1)
 }) & matchN(>=1, [{RoutingConfiguration!: _}, {DeploymentPreference!: _}])

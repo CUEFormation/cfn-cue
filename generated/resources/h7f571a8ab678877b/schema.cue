@@ -20,10 +20,19 @@ import structs "struct"
 	let properties = close({
 		Actions!:              list.MaxItems(1) & list.MinItems(1) & [...#Action] | fn.#ListExpression
 		ContentDeliveryRules?: list.MaxItems(20) & [...] & [...#DatasetContentDeliveryRule] | fn.#ListExpression
-		DatasetName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		DatasetName?: =~"^(^[a-zA-Z0-9_]+$)" &
+		matchN(0, [=~"^(?:_{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^(^[a-zA-Z0-9_]+$)" &
+			matchN(0, [=~"^(?:_{2})"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		LateDataRules?:           list.MaxItems(1) & list.MinItems(1) & [...#LateDataRule] | fn.#ListExpression
@@ -82,10 +91,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DatasetContentVersionValue: close({
-	DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	DatasetName!: =~"^(^[a-zA-Z0-9_]+$)" &
+	matchN(0, [=~"^(?:_{2})"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^(^[a-zA-Z0-9_]+$)" &
+		matchN(0, [=~"^(?:_{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |
@@ -290,10 +308,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TriggeringDataset: close({
-	DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	DatasetName!: =~"^(^[a-zA-Z0-9_]+$)" &
+	matchN(0, [=~"^(?:_{2})"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^(^[a-zA-Z0-9_]+$)" &
+		matchN(0, [=~"^(?:_{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

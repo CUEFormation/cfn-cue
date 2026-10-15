@@ -252,7 +252,11 @@ import (
 // A namespace variable key name. Must start with a lowercase letter and contain
 // only lowercase alphanumeric characters. Cannot be a built-in variable
 // (memoryStrategyId, sessionId, actorId).
-#NamespaceVariableKey: strings.MaxRunes(32) & strings.MinRunes(1)
+#NamespaceVariableKey: =~"^[a-z][a-z0-9]*$" &
+matchN(0, [=~"^(?:memoryStrategyId$|actorId$|sessionId$)"]) &
+string &
+strings.MaxRunes(32) &
+strings.MinRunes(1)
 
 // List of namespaces for memory strategy
 #NamespacesList: list.MinItems(1) & [...#Namespace]

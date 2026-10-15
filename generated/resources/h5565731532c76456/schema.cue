@@ -16,10 +16,19 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53Profiles::Profile"
 	let properties = close({
-		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		Name!: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+		matchN(0, [=~"^(?:^[0-9]+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+			matchN(0, [=~"^(?:^[0-9]+$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression

@@ -5,6 +5,7 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
+	"strings"
 )
 import base "github.com/cueformation/cfn-cue/template:template"
 import structs "struct"
@@ -26,4 +27,21 @@ import structs "struct"
 
 #NetworkScanning: close({Status!: "ENABLED" | "DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-#Tags: struct.MaxFields(50) & {...} | fn.#ObjectExpression
+#Tags: struct.MaxFields(50) & close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z+-=._:/]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression

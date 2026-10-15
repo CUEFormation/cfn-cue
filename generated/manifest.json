@@ -68267,40 +68267,10 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::Amplify::App",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Amplify::Branch",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Amplify::Domain",
       "path": "#/properties/DomainName/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AmplifyUIBuilder::Component",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AmplifyUIBuilder::Form",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AmplifyUIBuilder::Theme",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::ApiGateway::DomainName",
@@ -68411,28 +68381,10 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::AppConfig::ExperimentDefinition",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::AppFlow::Flow",
       "path": "#/definitions/CustomProperties/patternProperties/^[\\w]{1,2048}$",
       "keyword": "patternProperties",
       "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid repeat count: `{1,2048}`"
-    },
-    {
-      "resource": "AWS::AppIntegrations::Application",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AppIntegrations::DataIntegration",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::AppIntegrations::DataIntegration",
@@ -68442,33 +68394,15 @@
     },
     {
       "resource": "AWS::AppIntegrations::EventIntegration",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AppIntegrations::EventIntegration",
       "path": "#/properties/EventIntegrationArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
       "resource": "AWS::AppRunner::AutoScalingConfiguration",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AppRunner::AutoScalingConfiguration",
       "path": "#/properties/AutoScalingConfigurationArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1011}`"
-    },
-    {
-      "resource": "AWS::AppRunner::ObservabilityConfiguration",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::AppRunner::ObservabilityConfiguration",
@@ -68496,12 +68430,6 @@
     },
     {
       "resource": "AWS::AppRunner::Service",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AppRunner::Service",
       "path": "#/properties/AutoScalingConfigurationArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1011}`"
@@ -68511,12 +68439,6 @@
       "path": "#/properties/ServiceArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1011}`"
-    },
-    {
-      "resource": "AWS::AppRunner::VpcConnector",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::AppRunner::VpcConnector",
@@ -68538,12 +68460,6 @@
     },
     {
       "resource": "AWS::AppRunner::VpcIngressConnection",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AppRunner::VpcIngressConnection",
       "path": "#/properties/ServiceArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1011}`"
@@ -68553,12 +68469,6 @@
       "path": "#/properties/VpcIngressConnectionArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1011}`"
-    },
-    {
-      "resource": "AWS::AppStream::AppBlock",
-      "path": "#/definitions/S3Location/properties/S3Bucket/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!\\.)$`"
     },
     {
       "resource": "AWS::AppStream::AppBlockBuilder",
@@ -68579,28 +68489,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
-      "resource": "AWS::AppStream::Application",
-      "path": "#/definitions/S3Location/properties/S3Bucket/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!\\.)$`"
-    },
-    {
       "resource": "AWS::AppStream::DirectoryConfig",
       "path": "#/definitions/CertificateBasedAuthProperties/properties/CertificateAuthorityArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
-    },
-    {
-      "resource": "AWS::AppStream::Fleet",
-      "path": "#/definitions/S3Location/properties/S3Bucket/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!\\.)$`"
-    },
-    {
-      "resource": "AWS::AppStream::Fleet",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::AppStream::Fleet",
@@ -68627,24 +68519,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
-      "resource": "AWS::AppSync::Api",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AppSync::ChannelNamespace",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AppSync::DomainName",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::AppSync::DomainName",
       "path": "#/properties/HostedZoneId/format",
       "keyword": "format",
@@ -68658,12 +68532,6 @@
     },
     {
       "resource": "AWS::AppTest::TestCase",
-      "path": "#/definitions/TagMap/patternProperties/^(?!aws:).+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::AppTest::TestCase",
       "path": "#/properties/TestCaseArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
@@ -68673,12 +68541,6 @@
       "path": "#/properties/PolicyName/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid character class range: `\\p{Print}`"
-    },
-    {
-      "resource": "AWS::ApplicationSignals::ServiceLevelObjective",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Athena::CapacityReservation",
@@ -68699,12 +68561,6 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::AuditManager::AssessmentFramework",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::AutoScaling::LaunchConfiguration",
       "path": "#/properties/SecurityGroups/anyOf/0/format",
       "keyword": "format",
@@ -68715,42 +68571,6 @@
       "path": "#/properties/SecurityGroups/anyOf/1/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Names"
-    },
-    {
-      "resource": "AWS::BCM::Dashboard",
-      "path": "#/definitions/Widget/properties/Description/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::BCM::Dashboard",
-      "path": "#/definitions/Widget/properties/Title/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::BCM::Dashboard",
-      "path": "#/properties/Description/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::BCM::Dashboard",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::BCM::ScheduledReport",
-      "path": "#/properties/Description/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::BCM::ScheduledReport",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Backup::BackupPlan",
@@ -68867,12 +68687,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
-      "resource": "AWS::Bedrock::KnowledgeBase",
-      "path": "#/definitions/OpenSearchManagedClusterConfiguration/properties/VectorIndexName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::BedrockAgentCore::BrowserCustom",
       "path": "#/definitions/SecurityGroups/format",
       "keyword": "format",
@@ -68969,22 +68783,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
-      "resource": "AWS::BedrockAgentCore::Memory",
-      "path": "#/definitions/NamespaceVariableKey/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::BedrockAgentCore::OAuth2CredentialProvider",
       "path": "#/definitions/ManagedVpcResource/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::OnlineEvaluationConfig",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::BedrockAgentCore::Runtime",
@@ -69005,12 +68807,6 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::BedrockAgentCore::WorkloadIdentity",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Budgets::Budget",
       "path": "#/definitions/BudgetData/properties/CostFilters/format",
       "keyword": "format",
@@ -69021,66 +68817,6 @@
       "path": "#/definitions/BudgetData/properties/PlannedBudgetLimits/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::Budgets::BudgetsAction",
-      "path": "#/properties/BudgetName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CE::AnomalyMonitor",
-      "path": "#/definitions/ResourceTag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CE::AnomalySubscription",
-      "path": "#/definitions/ResourceTag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CE::CostCategory",
-      "path": "#/definitions/ResourceTag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Cases::Case",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Cases::CaseRule",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Cases::Domain",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Cases::Field",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Cases::Layout",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Cases::Template",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Chatbot::MicrosoftTeamsChannelConfiguration",
@@ -69209,106 +68945,22 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
-      "resource": "AWS::CleanRooms::Collaboration",
-      "path": "#/definitions/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CleanRooms::Collaboration",
-      "path": "#/properties/Description/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CleanRooms::Collaboration",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CleanRooms::ConfiguredTable",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::CleanRooms::IdNamespaceAssociation",
       "path": "#/definitions/Document/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::CleanRooms::IdNamespaceAssociation",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CleanRooms::IntermediateTable",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CleanRoomsML::ConfiguredModelAlgorithm",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CleanRoomsML::ConfiguredModelAlgorithmAssociation",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CleanRoomsML::TrainingDataset",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::CloudFormation::GuardHook",
       "path": "#/definitions/StackRole/anyOf/1/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CloudFormation::GuardHook",
-      "path": "#/definitions/TargetName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CloudFormation::GuardHook",
-      "path": "#/properties/Alias/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookahead at a variable position"
     },
     {
       "resource": "AWS::CloudFormation::LambdaHook",
       "path": "#/definitions/StackRole/anyOf/1/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CloudFormation::LambdaHook",
-      "path": "#/definitions/TargetName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CloudFormation::LambdaHook",
-      "path": "#/properties/Alias/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CloudFormation::StackSet",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookahead at a variable position"
     },
     {
       "resource": "AWS::CloudFront::CachePolicy",
@@ -69372,12 +69024,6 @@
     },
     {
       "resource": "AWS::CodeBuild::Fleet",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CodeBuild::Fleet",
       "path": "#/definitions/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -69411,12 +69057,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::CodeCommit::Repository",
-      "path": "#/properties/RepositoryName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!\\.git)$`"
     },
     {
       "resource": "AWS::CodeConnections::Host",
@@ -69504,12 +69144,6 @@
     },
     {
       "resource": "AWS::Comprehend::EntityRecognizer",
-      "path": "#/definitions/EntityTypesListItem/properties/Type/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Comprehend::EntityRecognizer",
       "path": "#/definitions/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -69519,12 +69153,6 @@
       "path": "#/definitions/VpcConfig/properties/Subnets/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
-    },
-    {
-      "resource": "AWS::Comprehend::Flywheel",
-      "path": "#/definitions/EntityTypesListItem/properties/Type/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Comprehend::Flywheel",
@@ -69545,82 +69173,10 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::Connect::AgentStatus",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::ContactFlow",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::DataTable",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::EvaluationForm",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::HoursOfOperation",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::Instance",
-      "path": "#/properties/InstanceAlias/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::IntegrationAssociation",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::Metric",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Connect::Notification",
       "path": "#/definitions/Arn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,2048}`"
-    },
-    {
-      "resource": "AWS::Connect::PhoneNumber",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::Queue",
-      "path": "#/definitions/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::QuickConnect",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::RoutingProfile",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Connect::Rule",
@@ -69641,88 +69197,10 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::Connect::SecurityProfile",
-      "path": "#/definitions/PrimaryAttributeValue/properties/AttributeName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::SecurityProfile",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::TaskTemplate",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::TestCase",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::UseCase",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::User",
-      "path": "#/definitions/SecondaryEmail/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::Connect::User",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::User",
-      "path": "#/properties/Password/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::Connect::UserHierarchyGroup",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::View",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Connect::View",
       "path": "#/properties/Template/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::Connect::Vocabulary",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Connect::Workspace",
-      "path": "#/definitions/WorkspacePage/properties/Page/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::ConnectCampaigns::Campaign",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::ControlTower::LandingZone",
@@ -69731,52 +69209,10 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::CustomerProfiles::Domain",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CustomerProfiles::EventStream",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::CustomerProfiles::EventTrigger",
       "path": "#/definitions/EventExpiration/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::CustomerProfiles::Integration",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CustomerProfiles::ObjectType",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CustomerProfiles::Recommender",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CustomerProfiles::RecommenderSchema",
-      "path": "#/properties/Tags/items/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CustomerProfiles::SegmentDefinition",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::DAX::Cluster",
@@ -69875,18 +69311,6 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::DataSync::LocationObjectStorage",
-      "path": "#/definitions/GoogleOidcConfig/properties/IdentityPoolName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::DataSync::LocationObjectStorage",
-      "path": "#/definitions/GoogleOidcConfig/properties/IdentityProviderName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::DataSync::LocationSMB",
       "path": "#/properties/DnsIpAddresses/items/pattern",
       "keyword": "pattern",
@@ -69905,46 +69329,10 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::DataZone::DataSource",
-      "path": "#/definitions/FormInput/properties/TypeIdentifier/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::DataZone::DataSource",
-      "path": "#/definitions/FormName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::DataZone::FormType",
-      "path": "#/properties/FormTypeIdentifier/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::DataZone::FormType",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::DataZone::SubscriptionTarget",
-      "path": "#/definitions/SubscriptionTargetForm/properties/FormName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Deadline::LicenseEndpoint",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Deadline::Queue",
-      "path": "#/definitions/JobAttachmentSettings/properties/S3BucketName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Deadline::Queue",
@@ -69971,30 +69359,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::DirectoryService::MicrosoftAD",
-      "path": "#/properties/Alias/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::DirectoryService::MicrosoftAD",
-      "path": "#/properties/Password/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::DirectoryService::SimpleAD",
-      "path": "#/properties/Alias/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::DirectoryService::SimpleAD",
-      "path": "#/properties/Password/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
       "resource": "AWS::DocDB::DBCluster",
       "path": "#/properties/VpcSecurityGroupIds/format",
       "keyword": "format",
@@ -70007,28 +69371,10 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::DocDB::GlobalCluster",
-      "path": "#/properties/SourceDBClusterIdentifier/oneOf/1/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::DocDBElastic::Cluster",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::DocDBElastic::Cluster",
       "path": "#/properties/VpcSecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::DocDBElastic::ClusterSnapshot",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::DocDBElastic::ClusterSnapshot",
@@ -70109,18 +69455,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::EC2::CarrierGateway",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EC2::CarrierGateway",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::EC2::ClientVpnEndpoint",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -70193,70 +69527,10 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::EC2::LocalGatewayRouteTable",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayRouteTable",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayRouteTableVPCAssociation",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayRouteTableVPCAssociation",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayRouteTableVirtualInterfaceGroupAssociation",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayRouteTableVirtualInterfaceGroupAssociation",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayVirtualInterface",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayVirtualInterface",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::EC2::LocalGatewayVirtualInterface",
       "path": "#/properties/PeerBgpAsnExtended/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayVirtualInterfaceGroup",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EC2::LocalGatewayVirtualInterfaceGroup",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::EC2::LocalGatewayVirtualInterfaceGroup",
@@ -70298,13 +69572,7 @@
       "resource": "AWS::EC2::SqlHaStandbyDetectedInstance",
       "path": "#/definitions/SqlServerCredentials/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::EC2::SubnetCidrReservation",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookaround body is incompatible with RE2: error parsing regexp: invalid repeat count: `{20,2048}`"
     },
     {
       "resource": "AWS::EC2::TransitGateway",
@@ -70337,22 +69605,10 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::ECR::PublicRepository",
-      "path": "#/properties/RepositoryName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
       "resource": "AWS::ECR::RegistryPolicy",
       "path": "#/properties/PolicyText/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::ECR::Repository",
-      "path": "#/properties/RepositoryName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
     },
     {
       "resource": "AWS::ECS::CapacityProvider",
@@ -70418,7 +69674,7 @@
       "resource": "AWS::EFS::AccessPoint",
       "path": "#/definitions/RootDirectory/properties/Path/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: quantified assertion \"(?!\\\\.)+\""
     },
     {
       "resource": "AWS::EFS::FileSystem",
@@ -70469,12 +69725,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid escape sequence: `\\Z`"
     },
     {
-      "resource": "AWS::EMR::Studio",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::EMRServerless::Application",
       "path": "#/definitions/InitialCapacityConfig/properties/WorkerCount/format",
       "keyword": "format",
@@ -70499,12 +69749,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::ElastiCache::GlobalReplicationGroup",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::ElastiCache::ReplicationGroup",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -70512,27 +69756,9 @@
     },
     {
       "resource": "AWS::ElastiCache::ServerlessCache",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::ElastiCache::ServerlessCache",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::ElastiCache::User",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::ElastiCache::UserGroup",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::ElasticLoadBalancing::LoadBalancer",
@@ -70631,76 +69857,10 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::Events::Rule",
-      "path": "#/definitions/HttpParameters/properties/PathParameterValues/items/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::EventBus",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::EventBus",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::EventBus",
-      "path": "#/properties/Description/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::EventSource",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::EventSource",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::EventSource",
-      "path": "#/properties/Description/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::EventSource",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::EventsV2::Subscriber",
       "path": "#/definitions/HeaderParametersMap/patternProperties/^(?=[\\s\\S]{1,512}$)([!#$%\u0026'*+\\-.^_`|~00-9a-zA-Z]+|\\{%[\\s\\S]+?%\\})$",
       "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::EventsV2::Subscriber",
-      "path": "#/definitions/InvokeConfiguration/anyOf/0/properties/TargetArn/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::Subscriber",
-      "path": "#/definitions/InvokeConfiguration/properties/HttpParameters/properties/PathParameterValues/items/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::Subscriber",
-      "path": "#/definitions/JsonataConfiguration/properties/Expression/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: key pattern requires more than excluded prefixes"
     },
     {
       "resource": "AWS::EventsV2::Subscriber",
@@ -70715,58 +69875,10 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::EventsV2::Subscriber",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::Subscriber",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::EventsV2::Subscriber",
-      "path": "#/properties/Description/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Evidently::Experiment",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Evidently::Feature",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Evidently::Launch",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Evidently::Project",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Evidently::Segment",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::FSx::Backup",
       "path": "#/properties/ResourceARN/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::FSx::DataRepositoryAssociation",
@@ -70802,7 +69914,7 @@
       "resource": "AWS::FSx::FileCache",
       "path": "#/properties/ResourceARN/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::FSx::FileCache",
@@ -70821,12 +69933,6 @@
       "path": "#/definitions/S3AccessPoint/properties/ResourceARN/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
-    },
-    {
-      "resource": "AWS::FSx::S3AccessPointAttachment",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
     },
     {
       "resource": "AWS::GammaDilithium::JobDefinition",
@@ -70857,12 +69963,6 @@
       "path": "#/properties/Parameters/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::Glue::Catalog",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Glue::Connection",
@@ -71159,12 +70259,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::GreengrassV2::ComponentVersion",
-      "path": "#/properties/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]{1,128}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::GreengrassV2::Deployment",
       "path": "#/definitions/SystemResourceLimits/properties/Memory/format",
       "keyword": "format",
@@ -71273,12 +70367,6 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::Invoicing::InvoiceUnit",
-      "path": "#/definitions/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::IoT::BillingGroup",
       "path": "#/properties/BillingGroupProperties/properties/BillingGroupDescription/pattern",
       "keyword": "pattern",
@@ -71295,12 +70383,6 @@
       "path": "#/properties/Description/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid character class range: `\\p{Graph}`"
-    },
-    {
-      "resource": "AWS::IoT::Logging",
-      "path": "#/definitions/EventConfiguration/properties/LogDestination/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::IoT::SecurityProfile",
@@ -71333,30 +70415,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::IoTAnalytics::Channel",
-      "path": "#/properties/ChannelName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTAnalytics::Dataset",
-      "path": "#/definitions/DatasetContentVersionValue/properties/DatasetName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTAnalytics::Dataset",
-      "path": "#/definitions/TriggeringDataset/properties/DatasetName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTAnalytics::Dataset",
-      "path": "#/properties/DatasetName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::IoTAnalytics::Datastore",
       "path": "#/definitions/JsonConfiguration/format",
       "keyword": "format",
@@ -71369,64 +70427,10 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::IoTFleetWise::DecoderManifest",
-      "path": "#/definitions/CustomDecodingSignal/properties/Id/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::IoTSecureTunneling::Tunnel",
       "path": "#/properties/Description/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,2048}`"
-    },
-    {
-      "resource": "AWS::IoTSiteWise::AccessPolicy",
-      "path": "#/definitions/Portal/properties/id/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTSiteWise::AccessPolicy",
-      "path": "#/definitions/Project/properties/id/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTSiteWise::Asset",
-      "path": "#/properties/AssetModelId/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTSiteWise::AssetModel",
-      "path": "#/definitions/AssetModelHierarchy/properties/ChildAssetModelId/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTSiteWise::AssetModel",
-      "path": "#/properties/AssetModelHierarchies/items/properties/ChildAssetModelId/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTSiteWise::Dashboard",
-      "path": "#/properties/ProjectId/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTSiteWise::Project",
-      "path": "#/properties/PortalId/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::IoTSiteWise::Task",
-      "path": "#/definitions/Mount/properties/RelativePath/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::IoTWireless::TaskDefinition",
@@ -71496,12 +70500,6 @@
     },
     {
       "resource": "AWS::Kendra::DataSource",
-      "path": "#/definitions/OneDriveUser/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Kendra::DataSource",
       "path": "#/definitions/RoleArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
@@ -71511,12 +70509,6 @@
       "path": "#/definitions/SecretArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
-    },
-    {
-      "resource": "AWS::Kendra::DataSource",
-      "path": "#/definitions/ServiceNowHostUrl/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Kendra::Faq",
@@ -71556,12 +70548,6 @@
     },
     {
       "resource": "AWS::KinesisAnalyticsV2::Application",
-      "path": "#/definitions/JSONMappingParameters/properties/RecordRowPath/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::KinesisAnalyticsV2::Application",
       "path": "#/definitions/PropertyGroup/properties/PropertyMap/patternProperties/^.{1,2048}$",
       "keyword": "patternProperties",
       "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid repeat count: `{1,2048}`"
@@ -71574,45 +70560,9 @@
     },
     {
       "resource": "AWS::KinesisFirehose::DeliveryStream",
-      "path": "#/definitions/DatabaseSourceConfiguration/properties/Endpoint/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::KinesisFirehose::DeliveryStream",
-      "path": "#/definitions/HiveJsonSerDe/properties/TimestampFormats/items/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::KinesisFirehose::DeliveryStream",
-      "path": "#/definitions/HttpEndpointCommonAttribute/properties/AttributeName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::KinesisFirehose::DeliveryStream",
-      "path": "#/definitions/HttpEndpointConfiguration/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::KinesisFirehose::DeliveryStream",
-      "path": "#/definitions/ProcessorParameter/properties/ParameterValue/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::KinesisFirehose::DeliveryStream",
       "path": "#/definitions/RedshiftDestinationConfiguration/properties/ClusterJDBCURL/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::KinesisFirehose::DeliveryStream",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::KinesisFirehose::DeliveryStream",
@@ -71645,40 +70595,16 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::Lambda::Alias",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Lambda::CapacityProvider",
       "path": "#/definitions/CapacityProviderVpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::Lambda::EventSourceMapping",
-      "path": "#/definitions/DocumentDBEventSourceConfig/properties/CollectionName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Lambda::Function",
-      "path": "#/definitions/Code/properties/S3Bucket/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!\\.)$`"
-    },
-    {
       "resource": "AWS::Lambda::Function",
       "path": "#/definitions/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Lambda::LayerVersion",
-      "path": "#/definitions/Content/properties/S3Bucket/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!\\.)$`"
     },
     {
       "resource": "AWS::Lambda::NetworkConnector",
@@ -71690,19 +70616,13 @@
       "resource": "AWS::Lambda::Url",
       "path": "#/properties/FunctionArn/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Lambda::Url",
-      "path": "#/properties/Qualifier/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::Lambda::Url",
       "path": "#/properties/TargetFunctionArn/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::Lex::ResourcePolicy",
@@ -71816,19 +70736,13 @@
       "resource": "AWS::Logs::MetricFilter",
       "path": "#/definitions/MetricTransformation/properties/MetricName/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::LookoutEquipment::InferenceScheduler",
       "path": "#/definitions/Prefix/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1023}`"
-    },
-    {
-      "resource": "AWS::LookoutEquipment::InferenceScheduler",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::LookoutEquipment::InferenceScheduler",
@@ -71850,12 +70764,6 @@
     },
     {
       "resource": "AWS::M2::Application",
-      "path": "#/definitions/TagMap/patternProperties/^(?!aws:).+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::M2::Application",
       "path": "#/properties/ApplicationArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
@@ -71868,12 +70776,6 @@
     },
     {
       "resource": "AWS::M2::Environment",
-      "path": "#/definitions/TagMap/patternProperties/^(?!aws:).+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::M2::Environment",
       "path": "#/properties/EnvironmentArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
@@ -71883,12 +70785,6 @@
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::MGN::NetworkMigrationDefinition",
-      "path": "#/definitions/ScopeTagsMap/patternProperties/^(?!aws:)[a-zA-Z0-9\\s+\\-=._:~1@]{1,128}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::MGN::NetworkMigrationDefinition",
@@ -72209,82 +71105,16 @@
       "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid escape sequence: `\\Z`"
     },
     {
-      "resource": "AWS::MemoryDB::ACL",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::MemoryDB::Cluster",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::MemoryDB::Cluster",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::MemoryDB::Cluster",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::MemoryDB::MultiRegionCluster",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::MemoryDB::MultiRegionCluster",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::MemoryDB::ParameterGroup",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::MemoryDB::ParameterGroup",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::MemoryDB::ParameterGroup",
       "path": "#/properties/Parameters/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::MemoryDB::Snapshot",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::MemoryDB::SubnetGroup",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::MemoryDB::SubnetGroup",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::MemoryDB::User",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Neptune::DBCluster",
@@ -72305,12 +71135,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::NeptuneGraph::GraphSnapshot",
-      "path": "#/properties/SnapshotName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::NeptuneGraph::PrivateGraphEndpoint",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -72329,36 +71153,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1024}`"
     },
     {
-      "resource": "AWS::ODB::CloudAutonomousVmCluster",
-      "path": "#/properties/DisplayName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::ODB::CloudExadataInfrastructure",
-      "path": "#/properties/DisplayName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::ODB::CloudVmCluster",
-      "path": "#/properties/DisplayName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::ODB::OdbNetwork",
-      "path": "#/properties/DisplayName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::ODB::OdbPeeringConnection",
-      "path": "#/properties/DisplayName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::OSIS::Pipeline",
       "path": "#/definitions/VpcOptions/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -72371,22 +71165,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,2047}`"
     },
     {
-      "resource": "AWS::Oam::Link",
-      "path": "#/properties/Tags/patternProperties/^(?!aws:.*).{1,128}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Oam::Sink",
       "path": "#/properties/Policy/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::Oam::Sink",
-      "path": "#/properties/Tags/patternProperties/^(?!aws:.*).{1,128}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Omics::Configuration",
@@ -72431,18 +71213,6 @@
       "detail": "quoted scalar coercion not applied to 4 composed scalar constraints; exact constraints retained"
     },
     {
-      "resource": "AWS::OpenSearchServerless::CollectionIndex",
-      "path": "#/properties/IndexName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::OpenSearchServerless::Index",
-      "path": "#/properties/IndexName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::OpenSearchServerless::VpcEndpoint",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -72479,18 +71249,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::Outposts::Outpost",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Outposts::Site",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::PCAConnectorAD::Connector",
       "path": "#/definitions/VpcInformation/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -72500,55 +71258,31 @@
       "resource": "AWS::PCAConnectorAD::Template",
       "path": "#/definitions/TemplateV2/properties/SupersededTemplates/items/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::PCAConnectorAD::Template",
       "path": "#/definitions/TemplateV3/properties/SupersededTemplates/items/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::PCAConnectorAD::Template",
       "path": "#/definitions/TemplateV4/properties/SupersededTemplates/items/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::PCAConnectorAD::Template",
       "path": "#/properties/Name/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::PCS::Cluster",
       "path": "#/properties/Networking/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Personalize::Dataset",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Personalize::DatasetGroup",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Personalize::Schema",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Personalize::Solution",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Pinpoint::App",
@@ -72636,21 +71370,9 @@
     },
     {
       "resource": "AWS::Pipes::Pipe",
-      "path": "#/definitions/PipeEnrichmentHttpParameters/properties/PathParameterValues/items/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Pipes::Pipe",
       "path": "#/definitions/PipeTargetEventBridgeEventBusParameters/properties/Source/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::Pipes::Pipe",
-      "path": "#/definitions/PipeTargetHttpParameters/properties/PathParameterValues/items/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookahead at a variable position"
     },
     {
       "resource": "AWS::Pipes::Pipe",
@@ -72791,12 +71513,6 @@
       "detail": "quoted scalar coercion not applied to 1 composed scalar constraints; exact constraints retained"
     },
     {
-      "resource": "AWS::QuickSight::Agent",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::QuickSight::Analysis",
       "path": "#/definitions/AllSheetsFilterScopeConfiguration/format",
       "keyword": "format",
@@ -72843,18 +71559,6 @@
       "path": "#/properties/LastUpdatedTime/format",
       "keyword": "format",
       "detail": "format annotation not enforced: string"
-    },
-    {
-      "resource": "AWS::QuickSight::Flow",
-      "path": "#/properties/Description/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::QuickSight::Flow",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::QuickSight::KnowledgeBase",
@@ -72935,36 +71639,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::RDS::DBProxyTargetGroup",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RDS::DBProxyTargetGroup",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RDS::Deployment",
-      "path": "#/properties/TargetDBClusterParameterGroupName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RDS::Deployment",
-      "path": "#/properties/TargetDBParameterGroupName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RDS::GlobalCluster",
-      "path": "#/properties/SourceDBClusterIdentifier/oneOf/1/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
       "resource": "AWS::RTBFabric::RequesterGateway",
       "path": "#/definitions/SecurityGroupIds/format",
       "keyword": "format",
@@ -72990,27 +71664,15 @@
     },
     {
       "resource": "AWS::RUM::AppMonitor",
-      "path": "#/definitions/MetricDefinition/properties/DimensionKeys/patternProperties/^(?!:).*[^\\s].*",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RUM::AppMonitor",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RUM::AppMonitor",
       "path": "#/properties/Domain/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookahead at a variable position"
     },
     {
       "resource": "AWS::RUM::AppMonitor",
       "path": "#/properties/DomainList/items/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookahead at a variable position"
     },
     {
       "resource": "AWS::Redshift::Cluster",
@@ -73026,57 +71688,15 @@
     },
     {
       "resource": "AWS::Redshift::EndpointAccess",
-      "path": "#/properties/EndpointName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::Redshift::EndpointAccess",
-      "path": "#/properties/SubnetGroupName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::Redshift::EndpointAccess",
       "path": "#/properties/VpcSecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Redshift::EndpointAuthorization",
-      "path": "#/properties/ClusterIdentifier/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::Redshift::EventSubscription",
-      "path": "#/properties/SubscriptionName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Namespace",
-      "path": "#/properties/AdminUserPassword/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
     },
     {
       "resource": "AWS::RedshiftServerless::Namespace",
       "path": "#/properties/NamespaceResourcePolicy/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Snapshot",
-      "path": "#/properties/NamespaceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Snapshot",
-      "path": "#/properties/SnapshotName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
     },
     {
       "resource": "AWS::RedshiftServerless::Workgroup",
@@ -73086,99 +71706,15 @@
     },
     {
       "resource": "AWS::RedshiftServerless::Workgroup",
-      "path": "#/properties/NamespaceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Workgroup",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::RedshiftServerless::Workgroup",
-      "path": "#/properties/WorkgroupName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::RefactorSpaces::Application",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RefactorSpaces::Application",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RefactorSpaces::Application",
-      "path": "#/properties/NlbName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RefactorSpaces::Environment",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RefactorSpaces::Environment",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RefactorSpaces::Route",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RefactorSpaces::Service",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::RefactorSpaces::Service",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Rekognition::Collection",
       "path": "#/definitions/Arn/format",
       "keyword": "format",
       "detail": "format annotation not enforced: (^arn:[a-z\\d-]+:rekognition:[a-z\\d-]+:\\d{12}:collection\\/([a-zA-Z0-9_.\\-]+){1,255})"
-    },
-    {
-      "resource": "AWS::Rekognition::Collection",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Rekognition::Dataset",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Rekognition::Project",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Rekognition::StreamProcessor",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Rekognition::StreamProcessor",
@@ -73265,12 +71801,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
-      "resource": "AWS::ResourceGroups::Group",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Route53::HostedZone",
       "path": "#/properties/Id/format",
       "keyword": "format",
@@ -73289,58 +71819,10 @@
       "detail": "format annotation not enforced: AWS::Route53::AliasTarget.HostedZoneId"
     },
     {
-      "resource": "AWS::Route53GlobalResolver::AccessSource",
-      "path": "#/definitions/ResourceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53GlobalResolver::AccessToken",
-      "path": "#/definitions/ResourceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53GlobalResolver::DnsView",
-      "path": "#/definitions/ResourceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53GlobalResolver::FirewallDomainList",
-      "path": "#/definitions/ResourceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53GlobalResolver::FirewallRule",
-      "path": "#/definitions/ResourceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53GlobalResolver::GlobalResolver",
-      "path": "#/definitions/ResourceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Route53GlobalResolver::HostedZoneAssociation",
       "path": "#/definitions/ResourceArn/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
-    },
-    {
-      "resource": "AWS::Route53GlobalResolver::HostedZoneAssociation",
-      "path": "#/definitions/ResourceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53Profiles::Profile",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::Route53RecoveryControl::Cluster",
@@ -73385,46 +71867,10 @@
       "detail": "quoted scalar coercion not applied to 1 composed scalar constraints; exact constraints retained"
     },
     {
-      "resource": "AWS::Route53Resolver::FirewallDomainList",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53Resolver::FirewallRuleGroup",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53Resolver::FirewallRuleGroupAssociation",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53Resolver::ResolverEndpoint",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::Route53Resolver::ResolverEndpoint",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Route53Resolver::ResolverQueryLoggingConfig",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Route53Resolver::ResolverRule",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::S3::AccessPoint",
@@ -73445,18 +71891,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::S3::StorageLens",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::S3::StorageLens",
-      "path": "#/definitions/Tag/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::S3::StorageLensGroup",
       "path": "#/definitions/MatchObjectSize/properties/BytesGreaterThan/format",
       "keyword": "format",
@@ -73469,22 +71903,10 @@
       "detail": "format annotation not enforced: int64"
     },
     {
-      "resource": "AWS::S3Express::AccessPoint",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::S3Express::DirectoryBucket",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::S3Files::AccessPoint",
       "path": "#/definitions/RootDirectory/properties/Path/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: quantified assertion \"(?!\\\\.)+\""
     },
     {
       "resource": "AWS::S3Files::FileSystem",
@@ -73511,70 +71933,10 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::S3Outposts::Bucket",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::S3Outposts::Bucket",
-      "path": "#/properties/BucketName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
       "resource": "AWS::S3Outposts::BucketPolicy",
       "path": "#/properties/PolicyDocument/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::SCN::Instance",
-      "path": "#/properties/InstanceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SCN::Instance",
-      "path": "#/properties/WebAppDnsDomain/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SMSVOICE::PhoneNumber",
-      "path": "#/definitions/MandatoryKeyword/properties/Message/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SMSVOICE::PhoneNumber",
-      "path": "#/definitions/OptionalKeyword/properties/Keyword/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SMSVOICE::PhoneNumber",
-      "path": "#/definitions/OptionalKeyword/properties/Message/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SMSVOICE::Pool",
-      "path": "#/definitions/MandatoryKeyword/properties/Message/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SMSVOICE::Pool",
-      "path": "#/definitions/OptionalKeyword/properties/Keyword/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SMSVOICE::Pool",
-      "path": "#/definitions/OptionalKeyword/properties/Message/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::SNS::Topic",
@@ -73631,106 +71993,16 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::SSM::OpsItem",
-      "path": "#/properties/Category/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SSM::OpsItem",
-      "path": "#/properties/Severity/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SSM::OpsItem",
-      "path": "#/properties/Source/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SSM::OpsItem",
-      "path": "#/properties/Title/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SSM::ResourcePolicy",
-      "path": "#/properties/Policy/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SSMGuiConnect::Preferences",
-      "path": "#/definitions/BucketName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::SSMIncidents::ReplicationSet",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SSMIncidents::ResponsePlan",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::SSO::PermissionSet",
       "path": "#/properties/SessionDuration/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::SageMaker::AppImageConfig",
-      "path": "#/definitions/CustomImageContainerArguments/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::AppImageConfig",
-      "path": "#/definitions/CustomImageContainerEntrypoint/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::AppImageConfig",
-      "path": "#/definitions/CustomImageContainerEnvironmentVariable/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::AppImageConfig",
-      "path": "#/definitions/CustomImageContainerEnvironmentVariable/properties/Value/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookahead at a variable position"
     },
     {
       "resource": "AWS::SageMaker::Cluster",
       "path": "#/definitions/AlarmDetails/properties/AlarmName/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::Cluster",
-      "path": "#/definitions/ClusterAccountingDatabase/properties/Endpoint/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::SageMaker::Cluster",
-      "path": "#/definitions/ClusterFsxLustreConfig/properties/MountPath/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::Cluster",
-      "path": "#/definitions/ClusterFsxOpenZfsConfig/properties/MountPath/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookahead at a variable position"
     },
     {
       "resource": "AWS::SageMaker::Cluster",
@@ -73769,18 +72041,6 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::SageMaker::Device",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::DeviceFleet",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::SageMaker::Domain",
       "path": "#/definitions/CodeRepository/properties/RepositoryUrl/pattern",
       "keyword": "pattern",
@@ -73805,12 +72065,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::SageMaker::Endpoint",
-      "path": "#/definitions/Alarm/properties/AlarmName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::SageMaker::EndpointConfig",
       "path": "#",
       "keyword": "scalarCompatibility",
@@ -73829,28 +72083,10 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::SageMaker::ImageVersion",
-      "path": "#/definitions/Alias/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::InferenceComponent",
-      "path": "#/definitions/Alarm/properties/AlarmName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::SageMaker::InferenceComponent",
       "path": "#/definitions/EnvironmentMap/patternProperties/^[a-zA-Z_][a-zA-Z0-9_]{1,1024}$",
       "keyword": "patternProperties",
       "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid repeat count: `{1,1024}`"
-    },
-    {
-      "resource": "AWS::SageMaker::InferenceComponent",
-      "path": "#/definitions/MetricsEndpoint/properties/MetricsEndpointPath/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::SageMaker::Model",
@@ -73862,7 +72098,7 @@
       "resource": "AWS::SageMaker::Model",
       "path": "#/definitions/ContainerDefinition/properties/ModelPackageName/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!-)(\\/[0-9]{1,9})?$`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!-)(\\/[0-9]{1,9})?$`; lookarounds not translated: lookbehind at a variable position or with variable width"
     },
     {
       "resource": "AWS::SageMaker::Model",
@@ -73926,18 +72162,6 @@
     },
     {
       "resource": "AWS::SageMaker::ModelPackage",
-      "path": "#/definitions/ModelPackageGroupName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!-)$`"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelPackage",
-      "path": "#/definitions/SourceAlgorithm/properties/AlgorithmName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!-)$`"
-    },
-    {
-      "resource": "AWS::SageMaker::ModelPackage",
       "path": "#/definitions/SourceUri/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1024}`"
@@ -73986,21 +72210,9 @@
     },
     {
       "resource": "AWS::SageMaker::PartnerApp",
-      "path": "#/definitions/PartnerAppAdminUserList/pattern",
+      "path": "#/definitions/PartnerAppConfig/properties/Arguments/patternProperties/^(?!\\s*$).{1,256}$/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::PartnerApp",
-      "path": "#/definitions/PartnerAppConfig/properties/Arguments/patternProperties/^(?!\\s*$).{1,256}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SageMaker::PartnerApp",
-      "path": "#/properties/Tier/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1024}`"
     },
     {
       "resource": "AWS::SageMaker::ProcessingJob",
@@ -74018,13 +72230,13 @@
       "resource": "AWS::SageMaker::Project",
       "path": "#/definitions/CfnTemplateProviderDetail/properties/TemplateName/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookahead at a variable position"
     },
     {
       "resource": "AWS::SageMaker::Project",
       "path": "#/definitions/CfnTemplateProviderDetail/properties/TemplateURL/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookaround body is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1024}`"
     },
     {
       "resource": "AWS::SageMaker::Space",
@@ -74037,12 +72249,6 @@
       "path": "#/definitions/CodeRepository/properties/RepositoryUrl/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{3,1016}`"
-    },
-    {
-      "resource": "AWS::SageMaker::Space",
-      "path": "#/properties/SpaceDisplayName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::SageMaker::UserProfile",
@@ -74087,64 +72293,16 @@
       "detail": "format annotation not enforced: AWS::EC2::Subnet.Ids"
     },
     {
-      "resource": "AWS::Scheduler::Schedule",
-      "path": "#/definitions/EventBridgeParameters/properties/Source/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
       "resource": "AWS::SecretsManager::ResourcePolicy",
       "path": "#/properties/ResourcePolicy/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::SecurityHub::AggregatorV2",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::SecurityHub::AutomationRule",
       "path": "#",
       "keyword": "scalarCompatibility",
       "detail": "quoted scalar coercion not applied to 1 composed scalar constraints; exact constraints retained"
-    },
-    {
-      "resource": "AWS::SecurityHub::AutomationRuleV2",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]{1,128}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SecurityHub::ConfigurationPolicy",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]{1,128}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SecurityHub::Connector",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]{1,128}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SecurityHub::ConnectorV2",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]{1,128}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SecurityHub::Hub",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SecurityHub::HubV2",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]{1,128}$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::SecurityHub::HubV2",
@@ -74162,7 +72320,7 @@
       "resource": "AWS::SecurityHub::Insight",
       "path": "#/definitions/ISO8601DateString/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: backreference"
     },
     {
       "resource": "AWS::SecurityLake::SubscriberNotification",
@@ -74210,7 +72368,7 @@
       "resource": "AWS::ServiceDiscovery::HttpNamespace",
       "path": "#/properties/Name/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1024}`"
     },
     {
       "resource": "AWS::ServiceDiscovery::Instance",
@@ -74225,40 +72383,16 @@
       "detail": "format annotation not enforced: AWS::Route53::AliasTarget.HostedZoneId"
     },
     {
-      "resource": "AWS::ServiceDiscovery::PrivateDnsNamespace",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::ServiceDiscovery::PublicDnsNamespace",
       "path": "#/properties/HostedZoneId/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Route53::AliasTarget.HostedZoneId"
     },
     {
-      "resource": "AWS::ServiceDiscovery::Service",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::Signer::SigningProfile",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::SimSpaceWeaver::Simulation",
       "path": "#/properties/Name/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,2048}`"
-    },
-    {
-      "resource": "AWS::StepFunctions::StateMachineAlias",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
     },
     {
       "resource": "AWS::Synthetics::Canary",
@@ -74271,24 +72405,6 @@
       "path": "#/properties/Replicas/items/properties/VpcConfig/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Synthetics::Group",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::SystemsManagerSAP::Application",
-      "path": "#/definitions/Credential/properties/DatabaseName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::SystemsManagerSAP::Application",
-      "path": "#/definitions/Credential/properties/SecretId/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
     },
     {
       "resource": "AWS::Timestream::InfluxDBCluster",
@@ -74339,24 +72455,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::VpcLattice::Listener",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::VpcLattice::ResourceConfiguration",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::VpcLattice::ResourceGateway",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::VpcLattice::ResourceGateway",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -74369,64 +72467,22 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::VpcLattice::Rule",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::VpcLattice::Service",
       "path": "#/definitions/DnsEntry/properties/HostedZoneId/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Route53::AliasTarget.HostedZoneId"
     },
     {
-      "resource": "AWS::VpcLattice::Service",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::VpcLattice::ServiceNetwork",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::VpcLattice::ServiceNetworkServiceAssociation",
       "path": "#/definitions/DnsEntry/properties/HostedZoneId/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::Route53::AliasTarget.HostedZoneId"
-    },
-    {
-      "resource": "AWS::VpcLattice::ServiceNetworkServiceAssociation",
-      "path": "#/properties/ServiceName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::VpcLattice::ServiceNetworkServiceAssociation",
-      "path": "#/properties/ServiceNetworkName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::VpcLattice::ServiceNetworkVpcAssociation",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::VpcLattice::ServiceNetworkVpcAssociation",
-      "path": "#/properties/ServiceNetworkName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::VpcLattice::TargetGroup",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
       "resource": "AWS::WAFv2::LoggingConfiguration",
@@ -74642,73 +72698,13 @@
       "resource": "AWS::WellArchitected::AgentGoal",
       "path": "#/properties/Description/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::WellArchitected::AgentGoal",
       "path": "#/properties/Title/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::AIAgent",
-      "path": "#/definitions/TagCondition/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::AIAgent",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::AIGuardrail",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::AIPrompt",
-      "path": "#/definitions/Tags/patternProperties/^(?!aws:)[a-zA-Z+-=._:~1]+$",
-      "keyword": "patternProperties",
-      "detail": "pattern is incompatible with RE2; object opened for unmatched keys: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::Assistant",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::AssistantAssociation",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::Content",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::KnowledgeBase",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::MessageTemplate",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Wisdom::QuickResponse",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::WorkSpaces::Directory",
@@ -74735,12 +72731,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
-      "resource": "AWS::WorkSpacesThinClient::Environment",
-      "path": "#/definitions/Tag/properties/Key/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
       "resource": "AWS::WorkSpacesWeb::NetworkSettings",
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
@@ -74750,49 +72740,13 @@
       "resource": "AWS::WorkSpacesWeb::Portal",
       "path": "#/properties/PortalCustomDomain/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::WorkSpacesWeb::Portal",
       "path": "#/properties/PortalEndpoint/pattern",
       "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::WorkSpacesWeb::UserSettings",
-      "path": "#/definitions/BrandingConfiguration/properties/Favicon/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::WorkSpacesWeb::UserSettings",
-      "path": "#/definitions/BrandingConfiguration/properties/Logo/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::WorkSpacesWeb::UserSettings",
-      "path": "#/definitions/BrandingConfiguration/properties/Wallpaper/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::WorkSpacesWeb::UserSettings",
-      "path": "#/properties/BrandingConfiguration/properties/Favicon/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::WorkSpacesWeb::UserSettings",
-      "path": "#/properties/BrandingConfiguration/properties/Logo/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
-    },
-    {
-      "resource": "AWS::WorkSpacesWeb::UserSettings",
-      "path": "#/properties/BrandingConfiguration/properties/Wallpaper/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`"
+      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "Alexa::ASK::Skill",

@@ -18,10 +18,21 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Outposts::Bucket"
 	let properties = close({
-		BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) |
+		BucketName!: =~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+		=~"^(?:^.{3,63}$)" &
+		matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+			=~"^(?:^.{3,63}$)" &
+			matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 
@@ -162,10 +173,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	Key!: =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+	matchN(0, [=~"^(?:aws:.*)"]) &
+	string &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+		matchN(0, [=~"^(?:aws:.*)"]) &
+		string &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |

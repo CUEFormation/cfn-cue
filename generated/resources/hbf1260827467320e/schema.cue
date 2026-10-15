@@ -226,10 +226,15 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
 	} |
 	fn.#StringExpression
-	Source!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	Source!: (=~"(\\$(\\.[\\w_-]+(\\[(\\d+|\\*)\\])*)*)$" |
+	=~"^(?:[/\\.\\-_A-Za-z0-9]+)" & matchN(0, [=~"^(?:aws\\.)"]) & string) & (strings.MaxRunes(256) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		_cfnString: (=~"(\\$(\\.[\\w_-]+(\\[(\\d+|\\*)\\])*)*)$" |
+		=~"^(?:[/\\.\\-_A-Za-z0-9]+)" & matchN(0, [=~"^(?:aws\\.)"]) & string) &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

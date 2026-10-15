@@ -64,7 +64,7 @@ import (
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
 	// ., /, =, +, and -.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value for the tag. You can specify a value that is 0 to 256 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of

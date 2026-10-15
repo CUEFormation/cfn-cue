@@ -68,7 +68,13 @@ import (
 	Type!:                    "CUSTOM_DECODING_INTERFACE"
 })
 
-#CustomDecodingSignal: close({Id!: strings.MaxRunes(150) & strings.MinRunes(1)})
+#CustomDecodingSignal: close({
+	Id!: =~"^[a-zA-Z0-9_\\-#:.]+$" &
+	matchN(0, [=~"^(?:.*\\.\\.)"]) &
+	string &
+	strings.MaxRunes(150) &
+	strings.MinRunes(1)
+})
 
 #CustomDecodingSignalDecoder: close({
 	CustomDecodingSignal!: #CustomDecodingSignal

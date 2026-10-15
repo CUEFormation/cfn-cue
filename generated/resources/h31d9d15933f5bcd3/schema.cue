@@ -32,10 +32,19 @@ import structs "struct"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Name?: strings.MaxRunes(64) & strings.MinRunes(0) |
+		Name?: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+		matchN(0, [=~"^(?:^[0-9]+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(0) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+			_cfnString: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+			matchN(0, [=~"^(?:^[0-9]+$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(0) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		OutpostArn?: strings.MaxRunes(255) &

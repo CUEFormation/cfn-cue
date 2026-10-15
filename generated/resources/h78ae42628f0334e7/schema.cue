@@ -15,7 +15,12 @@ import structs "struct"
 	Type!: "AWS::OpenSearchServerless::Index"
 	let properties = close({
 		CollectionEndpoint!: string | number | bool | fn.#StringExpression
-		IndexName!:          string | number | bool | fn.#StringExpression
+		IndexName!: =~"^[a-z][a-z0-9_-]*$" & matchN(0, [=~"^(?:[_-])"]) & string |
+		{
+			number | bool
+			_cfnString: =~"^[a-z][a-z0-9_-]*$" & matchN(0, [=~"^(?:[_-])"]) & string & "\(self)"
+		} |
+		fn.#StringExpression
 		Mappings?: close({
 			Properties?: close({
 

@@ -17,10 +17,19 @@ import structs "struct"
 	Type!: "AWS::IoTSiteWise::Project"
 	let properties = close({
 		AssetIds?: list.UniqueItems() & [...#AssetId] | fn.#ListExpression
-		PortalId!: strings.MaxRunes(36) & strings.MinRunes(36) |
+		PortalId!: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+		string &
+		strings.MaxRunes(36) &
+		strings.MinRunes(36) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & "\(self)"
+			_cfnString: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+			matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+			string &
+			strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		ProjectDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |

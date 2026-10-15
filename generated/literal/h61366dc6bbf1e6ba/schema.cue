@@ -48,7 +48,7 @@ import (
 	IconId?: strings.MaxRunes(200) & strings.MinRunes(1)
 
 	// The display name of the agent.
-	Name!: strings.MaxRunes(50) & strings.MinRunes(1)
+	Name!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(50) & strings.MinRunes(1)
 
 	// A list of Space ARNs (max 10) attached to the agent.
 	Spaces?: list.MaxItems(10) & [...] & [...string]

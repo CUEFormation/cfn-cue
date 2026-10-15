@@ -17,7 +17,7 @@ import (
 
 	// The space Amazon Resource Name (ARN).
 	SpaceArn?:         strings.MaxRunes(256) & =~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:space/.*"
-	SpaceDisplayName?: strings.MaxRunes(64) & strings.MinRunes(0)
+	SpaceDisplayName?: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(0)
 
 	// A name for the Space.
 	SpaceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"

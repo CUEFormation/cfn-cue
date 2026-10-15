@@ -233,10 +233,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ClusterAccountingDatabase: close({
-	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	Endpoint!: =~"^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)(\\.[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)*$" &
+	=~"^(?:.{1,255}$)" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)(\\.[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)*$" &
+		=~"^(?:.{1,255}$)" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9$_]+$" |
@@ -322,10 +329,23 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" & "\(self)"
 	} |
 	fn.#StringExpression
-	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	MountPath?: =~"^/[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*$" &
+	matchN(0, [=~"^(?s:.){1}(?:/)"]) &
+	string &
+	matchN(0, [=~"^(?s:.){1}(?:.*/$)"]) &
+	string &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^/[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*$" &
+		matchN(0, [=~"^(?s:.){1}(?:/)"]) &
+		string &
+		matchN(0, [=~"^(?s:.){1}(?:.*/$)"]) &
+		string &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |
@@ -338,10 +358,23 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$" & "\(self)"
 	} |
 	fn.#StringExpression
-	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	MountPath?: =~"^/[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*$" &
+	matchN(0, [=~"^(?s:.){1}(?:/)"]) &
+	string &
+	matchN(0, [=~"^(?s:.){1}(?:.*/$)"]) &
+	string &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^/[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*$" &
+		matchN(0, [=~"^(?s:.){1}(?:/)"]) &
+		string &
+		matchN(0, [=~"^(?s:.){1}(?:.*/$)"]) &
+		string &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

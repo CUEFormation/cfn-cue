@@ -17,7 +17,12 @@ import (
 	=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$"
 
 	// A name for the bucket.
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
+	BucketName!: =~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+	=~"^(?:^.{3,63}$)" &
+	matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
 
 	// Rules that define how Amazon S3Outposts manages objects during their lifetime.
 	LifecycleConfiguration?: #LifecycleConfiguration
@@ -118,7 +123,11 @@ import (
 })
 
 #Tag: close({
-	Key!:   strings.MaxRunes(1024) & strings.MinRunes(1)
+	Key!: =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+	matchN(0, [=~"^(?:aws:.*)"]) &
+	string &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1)
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$"
 })
 

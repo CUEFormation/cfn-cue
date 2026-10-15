@@ -28,7 +28,11 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string]) | fn.#StringExpression
+		SourceDBClusterIdentifier?: matchN(1, [
+			=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$",
+			=~"^arn.*" & =~"^(?:.{40,128}$)",
+		]) |
+		fn.#StringExpression
 		StorageEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		if Engine != _|_ if Engine."Fn::If" == _|_ {

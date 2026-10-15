@@ -14,10 +14,15 @@ import structs "struct"
 	Type!: "AWS::Redshift::EndpointAuthorization"
 	let properties = close({
 		// The target AWS account ID to grant or revoke access for.
-		Account!:           #AwsAccount
-		ClusterIdentifier!: string | number | bool | fn.#StringExpression
-		Force?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		VpcIds?:            [...#VpcId] | fn.#ListExpression
+		Account!: #AwsAccount
+		ClusterIdentifier!: =~"^.{1,63}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,63}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)" & "\(self)"
+		} |
+		fn.#StringExpression
+		Force?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		VpcIds?: [...#VpcId] | fn.#ListExpression
 	})
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)

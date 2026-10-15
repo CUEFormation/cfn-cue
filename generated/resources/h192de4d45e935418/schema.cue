@@ -21,10 +21,15 @@ import structs "struct"
 		AuthType!:   "AWS_IAM" | "NONE" | fn.#StringExpression
 		Cors?:       #Cors
 		InvokeMode?: "BUFFERED" | "RESPONSE_STREAM" | fn.#StringExpression
-		Qualifier?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		Qualifier?: (=~"^(?:([a-zA-Z0-9-_]+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+		=~"^(?s:.)+(?:([a-zA-Z0-9-_]+))") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			_cfnString: (=~"^(?:([a-zA-Z0-9-_]+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+			=~"^(?s:.)+(?:([a-zA-Z0-9-_]+))") &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		TargetFunctionArn!: string | number | bool | fn.#StringExpression

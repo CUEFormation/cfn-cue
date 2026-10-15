@@ -287,10 +287,19 @@ fn.#ObjectExpression
 } |
 fn.#StringExpression
 
-#NamespaceVariableKey: strings.MaxRunes(32) & strings.MinRunes(1) |
+#NamespaceVariableKey: =~"^[a-z][a-z0-9]*$" &
+matchN(0, [=~"^(?:memoryStrategyId$|actorId$|sessionId$)"]) &
+string &
+strings.MaxRunes(32) &
+strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^[a-z][a-z0-9]*$" &
+	matchN(0, [=~"^(?:memoryStrategyId$|actorId$|sessionId$)"]) &
+	string &
+	strings.MaxRunes(32) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 

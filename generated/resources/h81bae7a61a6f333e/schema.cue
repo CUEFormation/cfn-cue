@@ -24,10 +24,12 @@ import structs "struct"
 	let properties = close({
 		// Configuration for batching events into a single delivery to the target.
 		BatchConfiguration?: #BatchConfiguration
-		Description?: strings.MaxRunes(512) |
+		Description?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" & strings.MaxRunes(512) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(512) & "\(self)"
+			_cfnString: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" &
+			strings.MaxRunes(512) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		EventBusArn!: strings.MaxRunes(1011) &
@@ -155,7 +157,7 @@ fn.#ObjectExpression
 #HeaderParametersMap: struct.MaxFields(50) & {...} | fn.#ObjectExpression
 
 #InvokeConfiguration: ({
-	TargetArn?: fn.#Value
+	TargetArn?: matchN(0, [=~"^(?:arn:[^:]*:events:::aws-sdk:)"]) | fn.#ValueExpression
 	...
 } | {
 	UniversalTargetParameters!: _
@@ -466,8 +468,13 @@ fn.#ObjectExpression
 		// HTTP headers to add to the request.
 		HeaderParameters?:         #HeaderParametersMap
 		InvocationTimeoutSeconds?: string | number | bool | fn.#StringExpression
-		PathParameterValues?: list.MaxItems(50) & [...string | number | bool | fn.#StringExpression] |
-			fn.#ListExpression
+		PathParameterValues?: list.MaxItems(50) & [...=~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string |
+		{
+			number | bool
+			_cfnString: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 
 		// Query string parameters to add to the request.
 		QueryStringParameters?: #QueryStringParametersMap
@@ -548,10 +555,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #JsonataConfiguration: close({
-	Expression!: strings.MaxRunes(8192) & strings.MinRunes(1) |
+	Expression!: =~"^\\{%[\\s\\S]+?%\\}$" & (strings.MaxRunes(8192) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^\\{%[\\s\\S]+?%\\}$" & strings.MaxRunes(8192) & strings.MinRunes(1) & "\(self)"
 	} |
 	fn.#StringExpression
 }) |
@@ -686,16 +693,16 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	Key!: =~"^\\S([\\s\\S]*\\S)?$" & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^\\S([\\s\\S]*\\S)?$" & strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
 	} |
 	fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	Value!: =~"^(\\S([\\s\\S]*\\S)?)?$" & (strings.MaxRunes(256) & strings.MinRunes(0)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		_cfnString: =~"^(\\S([\\s\\S]*\\S)?)?$" & strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
 	} |
 	fn.#StringExpression
 }) |

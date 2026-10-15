@@ -54,7 +54,7 @@ import (
 // A key-value pair to associate with a resource.
 #Tag: close({
 	// The key of the tag.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value of the tag.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)

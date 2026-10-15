@@ -15,7 +15,13 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::ResourcePolicy"
 	let properties = close({
-		Policy!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Policy!: matchN(0, [=~"^(?:\\s*$)"]) & fn.#Object |
+		=~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string |
+		{
+			number | bool
+			_cfnString: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & "\(self)"
+		} |
+		fn.#StringObjectExpression
 		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(20) |
 		{
 			number | bool
