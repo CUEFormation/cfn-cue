@@ -116,7 +116,7 @@ func TestRegionPerformance(t *testing.T) {
 				c := perfCases[i%len(perfCases)]
 				properties := c.properties
 				if broken && i == 0 {
-					properties = `{QueueName:5}`
+					properties = `{QueueName:[]}`
 				}
 				fmt.Fprintf(&r, "R%d:{Type:%q,Properties:%s},", i, c.typ, properties)
 			}

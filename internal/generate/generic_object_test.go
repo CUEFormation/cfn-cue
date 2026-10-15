@@ -34,6 +34,7 @@ func TestGenericObjectIntrinsicOverlap(t *testing.T) {
 		`{Bag: {"Fn::If": ["Create", {Key: "value"}, {Ref: "Parameter"}]}}`,
 		`{Limited: {"Fn::If": ["Create", "value", {"Fn::If": ["Create", 2, {Ref: "Parameter"}]}]}}`,
 		`{Name: 2, Limited: true}`, // string form of a number or boolean
+		`{Limited: {"Fn::If": ["Create", true, "value"]}}`,
 	} {
 		validate(t, schema, data, true)
 	}
@@ -44,7 +45,7 @@ func TestGenericObjectIntrinsicOverlap(t *testing.T) {
 		`{Extra: {"Fn::Sub": ["x"]}}`,
 		`{Bag: {}}`,
 		`{Limited: {"Fn::Split": [",", "a,b"]}}`,
-		`{Limited: {"Fn::If": ["Create", true, "value"]}}`,
+		`{Limited: {"Fn::If": ["Create", ["value"], 2]}}`,
 	} {
 		validate(t, schema, data, false)
 	}

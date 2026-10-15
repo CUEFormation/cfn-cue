@@ -68,6 +68,20 @@ func Intrinsics(extensions bool) *ast.File {
 	fn("ValueOfAll", "Fn::ValueOfAll", tuple(id("string"), id("string")))
 	add("ConditionExpression", union(id("bool"), condition))
 	fn("If", "Fn::If", tuple(id("string"), r("Value"), r("Value")))
+	// CloudFormation converts a number or boolean chosen by Fn::If for a
+	// string result to its string form, as it does for a literal property
+	// value, so Fn::If: [C, 2, x] is a string. Only Fn::If branches gain these
+	// scalars: #StringValue and function arguments keep their string type.
+	// Lists, objects and null remain invalid branches.
+	stringBranch := func(values []ast.Expr, number, boolean bool) []ast.Expr {
+		if !number {
+			values = append(values, id("number"))
+		}
+		if !boolean {
+			values = append(values, id("bool"))
+		}
+		return values
+	}
 	classLiterals := map[string]ast.Expr{}
 	for _, name := range []string{"String", "Number", "Boolean", "List", "Object"} {
 		literal := map[string]ast.Expr{"String": id("string"), "Number": id("number"), "Boolean": id("bool"), "List": r("List"), "Object": r("Object")}[name]
@@ -80,7 +94,11 @@ func Intrinsics(extensions bool) *ast.File {
 		}
 		classLiterals[name] = literal
 		add(name+"Value", union(literal, r(name+"Expression")))
-		fn("If"+name, "Fn::If", tuple(id("string"), r(name+"Value"), r(name+"Value")))
+		branch := r(name + "Value")
+		if name == "String" {
+			branch = union(append(stringBranch([]ast.Expr{literal}, false, false), r(name+"Expression"))...)
+		}
+		fn("If"+name, "Fn::If", tuple(id("string"), branch, branch))
 	}
 	add("String", r("StringValue"))
 	add("Number", r("NumberValue"))
@@ -158,6 +176,10 @@ func Intrinsics(extensions bool) *ast.File {
 					names = append(names, function)
 				}
 			}
+		}
+		// A numeric or boolean class already decides those scalars.
+		if mask&1 != 0 {
+			values = stringBranch(values, mask&2 != 0, mask&4 != 0)
 		}
 		branch := union(append(values, r(name+"Expression"))...)
 		fn("If"+name, "Fn::If", tuple(id("string"), branch, branch))
